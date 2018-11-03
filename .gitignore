@@ -1,0 +1,9 @@
+.idea
+.git
+ignore
+system_test
+parameters.json
+snowflake-sdk-*.tgz
+dist
+junit*.xml
+node_modules

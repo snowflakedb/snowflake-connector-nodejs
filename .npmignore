@@ -1,0 +1,5 @@
+test/
+dist/
+gulpfile.js
+junit.xml
+snowflake-sdk*.tgz

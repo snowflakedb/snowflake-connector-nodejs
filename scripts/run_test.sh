@@ -12,9 +12,11 @@ echo "[INFO] mocha: $(which mocha) - $(mocha --version)"
 ERR=
 if [[ -e "system_test" ]]; then
     echo "[INFO] Running System Tests"
-    mocha system_test --timeout 90000 --reporter xunit --reporter-options output=$DIR/../junit-system-test.xml || ERR=1
+    # mocha system_test --timeout 90000 --reporter xunit --reporter-options output=$DIR/../junit-system-test.xml || ERR=1
+    mocha system_test --timeout 90000 || ERR=1
 fi
 echo "[INFO] Running Tests"
-mocha --recursive test/**/*.js --timeout 90000 --reporter xunit --reporter-options output=$DIR/../junit.xml
+# mocha --recursive test/**/*.js --timeout 90000 --reporter xunit --reporter-options output=$DIR/../junit.xml
+mocha --recursive test/**/*.js --timeout 90000
 # exit 1 if the test failed.
 [[ -n "$ERR" ]] && exit 1 || exit 0

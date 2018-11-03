@@ -17,7 +17,7 @@ if [[ -z "$TRAVIS_JOB_ID" ]]; then
     rm -f $DIR/../junit*.xml
 else
     MOCHA_CMD=(
-        "./node_modules/.bin/istanbul" "cover" "./node_modules/.bin/_mocha"
+        "./node_modules/.bin/istanbul" "cover" "./node_modules/.bin/_mocha" "--"
         "--timeout" "$TEST_TIMEOUT"
     )
 fi

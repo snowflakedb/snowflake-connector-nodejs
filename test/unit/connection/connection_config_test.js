@@ -1,0 +1,326 @@
+/*
+ * Copyright (c) 2015 Snowflake Computing Inc. All rights reserved.
+ */
+
+var ConnectionConfig  = require('./../../../lib/connection/connection_config');
+var ErrorCodes        = require('./../../../lib/errors').codes;
+var assert            = require('assert');
+
+describe('ConnectionConfig: basic', function()
+{
+  ///////////////////////////////////////////////////////////////////////////
+  //// Test synchronous errors                                           ////
+  ///////////////////////////////////////////////////////////////////////////
+
+  var testCases =
+  [
+    {
+      name     : 'missing options',
+      options  : undefined,
+      errorCode: ErrorCodes.ERR_CONN_CREATE_MISSING_OPTIONS
+    },
+    {
+      name     : 'null options',
+      options  : null,
+      errorCode: ErrorCodes.ERR_CONN_CREATE_MISSING_OPTIONS
+    },
+    {
+      name     : 'invalid options',
+      options  : 'invalid',
+      errorCode: ErrorCodes.ERR_CONN_CREATE_INVALID_OPTIONS
+    },
+    {
+      name     : 'missing username',
+      options  : {},
+      errorCode: ErrorCodes.ERR_CONN_CREATE_MISSING_USERNAME
+    },
+    {
+      name     : 'undefined username',
+      options  :
+      {
+        username: undefined
+      },
+      errorCode: ErrorCodes.ERR_CONN_CREATE_MISSING_USERNAME
+    },
+    {
+      name     : 'null username',
+      options  :
+      {
+        username: null
+      },
+      errorCode: ErrorCodes.ERR_CONN_CREATE_MISSING_USERNAME
+    },
+    {
+      name     : 'invalid username',
+      options  :
+      {
+        username: 0
+      },
+      errorCode: ErrorCodes.ERR_CONN_CREATE_INVALID_USERNAME
+    },
+    {
+      name     : 'missing password',
+      options  :
+      {
+        username: 'username'
+      },
+      errorCode: ErrorCodes.ERR_CONN_CREATE_MISSING_PASSWORD
+    },
+    {
+      name     : 'undefined password',
+      options  :
+      {
+        username: 'username',
+        password: undefined
+      },
+      errorCode: ErrorCodes.ERR_CONN_CREATE_MISSING_PASSWORD
+    },
+    {
+      name     : 'null password',
+      options  :
+      {
+        username: 'username',
+        password: null
+      },
+      errorCode: ErrorCodes.ERR_CONN_CREATE_MISSING_PASSWORD
+    },
+    {
+      name     : 'invalid password',
+      options  :
+      {
+        username: 'username',
+        password: 0
+      },
+      errorCode: ErrorCodes.ERR_CONN_CREATE_INVALID_PASSWORD
+    },
+    {
+      name     : 'missing account',
+      options  :
+      {
+        username: 'username',
+        password: 'password'
+      },
+      errorCode: ErrorCodes.ERR_CONN_CREATE_MISSING_ACCOUNT
+    },
+    {
+      name     : 'undefined account',
+      options  :
+      {
+        username: 'username',
+        password: 'password',
+        account : undefined
+      },
+      errorCode: ErrorCodes.ERR_CONN_CREATE_MISSING_ACCOUNT
+    },
+    {
+      name     : 'null account',
+      options  :
+      {
+        username: 'username',
+        password: 'password',
+        account : null
+      },
+      errorCode: ErrorCodes.ERR_CONN_CREATE_MISSING_ACCOUNT
+    },
+    {
+      name     : 'invalid account',
+      options  :
+      {
+        username: 'username',
+        password: 'password',
+        account : 0
+      },
+      errorCode: ErrorCodes.ERR_CONN_CREATE_INVALID_ACCOUNT
+    },
+    {
+      name     : 'invalid warehouse',
+      options  :
+      {
+        username  : 'username',
+        password  : 'password',
+        account   : 'account',
+        warehouse : 0
+      },
+      errorCode: ErrorCodes.ERR_CONN_CREATE_INVALID_WAREHOUSE
+    },
+    {
+      name     : 'invalid database',
+      options  :
+      {
+        username  : 'username',
+        password  : 'password',
+        account   : 'account',
+        database  : 0
+      },
+      errorCode: ErrorCodes.ERR_CONN_CREATE_INVALID_DATABASE
+    },
+    {
+      name     : 'invalid schema',
+      options  :
+      {
+        username  : 'username',
+        password  : 'password',
+        account   : 'account',
+        schema    : 0
+      },
+      errorCode: ErrorCodes.ERR_CONN_CREATE_INVALID_SCHEMA
+    },
+    {
+      name     : 'invalid role',
+      options  :
+      {
+        username  : 'username',
+        password  : 'password',
+        account   : 'account',
+        role      : 0
+      },
+      errorCode: ErrorCodes.ERR_CONN_CREATE_INVALID_ROLE
+    },
+    {
+      name     : 'missing proxyHost',
+      options  :
+      {
+        username  : 'username',
+        password  : 'password',
+        account   : 'account',
+        proxyPort : ''
+      },
+      errorCode: ErrorCodes.ERR_CONN_CREATE_MISSING_PROXY_HOST
+    },
+    {
+      name     : 'invalid proxyHost',
+      options  :
+      {
+        username  : 'username',
+        password  : 'password',
+        account   : 'account',
+        proxyHost : 0
+      },
+      errorCode: ErrorCodes.ERR_CONN_CREATE_INVALID_PROXY_HOST
+    },
+    {
+      name     : 'missing proxyPort',
+      options  :
+      {
+        username  : 'username',
+        password  : 'password',
+        account   : 'account',
+        proxyHost : 'proxyHost'
+      },
+      errorCode: ErrorCodes.ERR_CONN_CREATE_MISSING_PROXY_PORT
+    },
+    {
+      name     : 'invalid proxyPort',
+      options  :
+      {
+        username  : 'username',
+        password  : 'password',
+        account   : 'account',
+        proxyHost : 'proxyHost',
+        proxyPort : 'proxyPort'
+      },
+      errorCode: ErrorCodes.ERR_CONN_CREATE_INVALID_PROXY_PORT
+    },
+    {
+      name     : 'invalid streamResult',
+      options  :
+      {
+        username     : 'username',
+        password     : 'password',
+        account      : 'account',
+        streamResult : 'invalid'
+      },
+      errorCode: ErrorCodes.ERR_CONN_CREATE_INVALID_STREAM_RESULT
+    },
+    {
+      name     : 'invalid fetchAsString',
+      options  :
+      {
+        username      : 'username',
+        password      : 'password',
+        account       : 'account',
+        fetchAsString : 'invalid'
+      },
+      errorCode: ErrorCodes.ERR_CONN_CREATE_INVALID_FETCH_AS_STRING
+    },
+    {
+      name     : 'invalid fetchAsString values',
+      options  :
+      {
+        username      : 'username',
+        password      : 'password',
+        account       : 'account',
+        fetchAsString : ['invalid']
+      },
+      errorCode: ErrorCodes.ERR_CONN_CREATE_INVALID_FETCH_AS_STRING_VALUES
+    }
+  ];
+
+  var createItCallback = function(testCase)
+  {
+    return function()
+    {
+      var error;
+
+      try
+      {
+        new ConnectionConfig(testCase.options);
+      }
+      catch (err)
+      {
+        error = err;
+      }
+      finally
+      {
+        assert.ok(error);
+        assert.strictEqual(error.code, testCase.errorCode);
+      }
+    };
+  };
+
+  var index, length, testCase;
+  for (index = 0, length = testCases.length; index < length; index++)
+  {
+    testCase = testCases[index];
+    it(testCase.name, createItCallback(testCase));
+  }
+
+  ///////////////////////////////////////////////////////////////////////////
+  //// Test valid arguments                                              ////
+  ///////////////////////////////////////////////////////////////////////////
+
+  it('valid connection config', function()
+  {
+    var username = 'username';
+    var password = 'password';
+    var account  = 'account';
+
+    var connectionConfig = new ConnectionConfig(
+    {
+      username : username,
+      password : password,
+      account  : account
+    });
+
+    assert.strictEqual(username, connectionConfig.username);
+    assert.strictEqual(password, connectionConfig.password);
+    assert.strictEqual(account, connectionConfig.account);
+
+    // get the default value of the resultPrefetch parameter
+    var resultPrefetchDefault = connectionConfig.getResultPrefetch();
+
+    // create a ConnectionConfig object with a custom value for resultPrefetch
+    var resultPrefetchCustom = resultPrefetchDefault + 1;
+    connectionConfig = new ConnectionConfig(
+    {
+      username       : username,
+      password       : password,
+      account        : account,
+      resultPrefetch : resultPrefetchCustom
+    });
+
+    // verify that the custom value overrode the default value
+    assert.strictEqual(
+        connectionConfig.getResultPrefetch(), resultPrefetchCustom);
+  });
+});

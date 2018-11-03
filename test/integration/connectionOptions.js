@@ -1,9 +1,9 @@
 /*
  * Copyright (c) 2015-2018 Snowflake Computing Inc. All rights reserved.
  */
-const snowflakeTestProtocol = process.env.SNOWFLAKE_TEST_PROTOCOL;
-const snowflakeTestHost = process.env.SNOWFLAKE_TEST_HOST;
-const snowflakeTestPort = process.env.SNOWFLAKE_TEST_PORT;
+var snowflakeTestProtocol = process.env.SNOWFLAKE_TEST_PROTOCOL;
+var snowflakeTestHost = process.env.SNOWFLAKE_TEST_HOST;
+var snowflakeTestPort = process.env.SNOWFLAKE_TEST_PORT;
 const snowflakeTestAccount = process.env.SNOWFLAKE_TEST_ACCOUNT;
 const snowflakeTestUser = process.env.SNOWFLAKE_TEST_USER;
 const snowflakeTestDatabase = process.env.SNOWFLAKE_TEST_DATABASE;
@@ -13,6 +13,21 @@ const snowflakeTestRole = process.env.SNOWFLAKE_TEST_ROLE;
 const snowflakeTestPassword = process.env.SNOWFLAKE_TEST_PASSWORD;
 const snowflakeTestAdminUser = process.env.SNOWFLAKE_TEST_ADMIN_USER;
 const snowflakeTestAdminPassword = process.env.SNOWFLAKE_TEST_ADMIN_PASSWORD;
+
+if (snowflakeTestProtocol === undefined)
+{
+  snowflakeTestProtocol = 'https';
+}
+
+if (snowflakeTestHost === undefined)
+{
+  snowflakeTestHost = snowflakeTestAccount + '.snowflakecomputing.com';
+}
+
+if (snowflakeTestPort === undefined)
+{
+  snowflakeTestPort = '443';
+}
 
 const accessUrl = snowflakeTestProtocol + '://' + snowflakeTestHost + ':' + snowflakeTestPort;
 

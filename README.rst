@@ -5,7 +5,7 @@ NodeJS Driver for Snowflake
 .. image:: https://travis-ci.org/snowflakedb/snowflake-connector-nodejs.svg?branch=master
     :target: https://travis-ci.org/snowflakedb/snowflake-connector-nodejs
 
-.. image:: https://codecov.io/gh/snowflakedb/snowflake-connector-nodejs.svg
+.. image:: https://codecov.io/gh/snowflakedb/snowflake-connector-nodejs/branch/master/graph/badge.svg
     :target: https://codecov.io/gh/snowflakedb/snowflake-connector-nodejs
 
 .. image:: https://img.shields.io/npm/v/snowflake-sdk.svg

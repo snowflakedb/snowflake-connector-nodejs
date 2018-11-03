@@ -32,7 +32,7 @@ if [[ -e "system_test" ]]; then
 fi
 echo "[INFO] Running Tests"
 echo "==> ${MOCHA_CMD[@]} --recursive test/**/*.js"
-${MOCHA_CMD[@]} ${TESTS} || ERR=1
+${MOCHA_CMD[@]} "test/**/*.js" || ERR=1
 
 # exit 1 if the test failed.
 if [[ -n "$ERR" ]]; then

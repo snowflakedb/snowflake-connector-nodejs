@@ -11,6 +11,7 @@ before_install:
   - source env/bin/activate
 install:
   - npm install
+  - npm install istanbul
 script:
   - ./scripts/run_travis.sh
 env:

@@ -29,12 +29,12 @@ echo "[INFO] mocha: $(which mocha) - $(mocha --version)"
 ERR=
 if [[ -e "system_test" ]]; then
     echo "[INFO] Running System Tests"
-    ${MOCHA_CMD[@]} system_test ${MOCHA_OPTS[@]} || (echo "[ERROR] Failed." && ERR=1)
+    ${MOCHA_CMD[@]} ${MOCHA_OPTS[@]} system_test || (echo "[ERROR] Failed." && ERR=1)
     cp -f $DIR/../junit.xml $DIR/../junit-system-test.xml || true
 fi
 echo "[INFO] Running Tests"
 TESTS=$(find test -name "*.js")
-${MOCHA_CMD[@]} ${TESTS} ${MOCHA_OPTS[@]} || ERR=1
+${MOCHA_CMD[@]} ${MOCHA_OPTS[@]} ${TESTS} || ERR=1
 
 # exit 1 if the test failed.
 if [[ -n "$ERR" ]]; then

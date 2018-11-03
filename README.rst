@@ -22,9 +22,9 @@ Include :code:`snowflake-sdk` in :code:`dependencies` section in :code:`package.
       "name": "<your_application_name>",
       "version": "<your_application_version>",
       "dependencies": {
-        ...
+        "...": "...",
         "snowflake-sdk": "^1.1.0",
-        ...
+        "...": "..."
       }
     }
 

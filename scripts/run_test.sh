@@ -7,16 +7,41 @@ DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 TEST_TIMEOUT=90000
 
+MOCHA_CMD=()
+MOCHA_OPTS=("--timeout" "$TEST_TIMEOUT")
+if [[ -z "$TRAVIS_JOB_ID" ]]; then
+    MOCHA_CMD+=(
+        "mocha"
+    )
+    MOCHA_OPTS+=(
+        "--reporter" "xunit"
+        "--reporter-options" "output=$DIR/../junit.xml"
+    )
+    rm -f $DIR/../junit*.xml
+else
+    MOCHA_CMD+=(
+        "./node_modules/.bin/istanbul" "cover" "./node_modules/.bin/_mocha"
+    )
+fi
+
 source $DIR/env.sh
 echo "[INFO] mocha: $(which mocha) - $(mocha --version)"
 ERR=
 if [[ -e "system_test" ]]; then
     echo "[INFO] Running System Tests"
-    # mocha system_test --timeout 90000 --reporter xunit --reporter-options output=$DIR/../junit-system-test.xml || ERR=1
-    mocha system_test --timeout 90000 || ERR=1
+    ${MOCHA_CMD[@]} system_test ${MOCHA_OPTS[@]} || (echo "[ERROR] Failed." && ERR=1)
+    cp -f $DIR/../junit.xml $DIR/../junit-system-test.xml || true
 fi
 echo "[INFO] Running Tests"
-# mocha --recursive test/**/*.js --timeout 90000 --reporter xunit --reporter-options output=$DIR/../junit.xml
-mocha --recursive test/**/*.js --timeout 90000
+TESTS=$(find test -name "*.js")
+${MOCHA_CMD[@]} ${TESTS} ${MOCHA_OPTS[@]} || ERR=1
+
 # exit 1 if the test failed.
-[[ -n "$ERR" ]] && exit 1 || exit 0
+if [[ -n "$ERR" ]]; then
+    echo "[ERROR] FAILED!"
+    cat $DIR/../junit*.xml || true
+    exit 1
+else
+    echo "[INFO] SUCCESS!"
+    exit 0
+fi

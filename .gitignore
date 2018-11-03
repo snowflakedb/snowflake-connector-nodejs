@@ -7,3 +7,4 @@ snowflake-sdk-*.tgz
 dist
 junit*.xml
 node_modules
+coverage

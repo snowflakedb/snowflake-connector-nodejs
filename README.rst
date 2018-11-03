@@ -1,5 +1,5 @@
 ********************************************************************************
-Snowflake Connector for NodeJS
+NodeJS Driver for Snowflake
 ********************************************************************************
 
 .. image:: https://travis-ci.org/snowflakedb/snowflake-connector-nodejs.svg?branch=master
@@ -32,6 +32,12 @@ Include :code:`snowflake-sdk` in :code:`dependencies` section in :code:`package.
     }
 
 And run the :code:`npm install`.
+
+Docs
+======================================================================
+
+For detailed documentation and basic usage examples, please see the documentation 
+at `NodeJS Driver for Snowflake <https://docs.snowflake.net/manuals/user-guide/nodejs-driver.html>`_
 
 Test
 ======================================================================

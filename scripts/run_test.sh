@@ -31,8 +31,7 @@ if [[ -e "system_test" ]]; then
     cp -f $DIR/../junit.xml $DIR/../junit-system-test.xml || true
 fi
 echo "[INFO] Running Tests"
-TESTS=$(find test -name "*.js")
-echo "==> ${MOCHA_CMD[@]} ${TESTS}"
+echo "==> ${MOCHA_CMD[@]} --recursive test/**/*.js"
 ${MOCHA_CMD[@]} ${TESTS} || ERR=1
 
 # exit 1 if the test failed.

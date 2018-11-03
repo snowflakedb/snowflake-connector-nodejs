@@ -8,6 +8,9 @@ Snowflake Connector for NodeJS
 .. image:: https://codecov.io/gh/snowflakedb/snowflake-connector-nodejs.svg
     :target: https://codecov.io/gh/snowflakedb/snowflake-connector-nodejs
 
+.. image:: https://img.shields.io/npm/v/snowflake-sdk.svg
+       :target: https://www.npmjs.com/package/snowflake-sdk
+
 .. image:: http://img.shields.io/:license-Apache%202-brightgreen.svg
     :target: http://www.apache.org/licenses/LICENSE-2.0.txt
 

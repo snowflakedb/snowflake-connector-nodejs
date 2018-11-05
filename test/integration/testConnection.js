@@ -44,7 +44,7 @@ describe('Connection test', function()
     });
   });
 
-  it('Mutiple Client', function(done) {
+  it('Multiple Client', function(done) {
     const totalConnections = 10;
     var connections = [];
     for (var i = 0; i < totalConnections; i++) {

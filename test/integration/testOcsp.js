@@ -77,14 +77,14 @@ describe('OCSP validation', function()
       },
 
       {
-        accessUrl: "https://sfcsupportva.us-east-1.snowflakecomputing.com ",
+        accessUrl: "https://sfcsupportva.us-east-1.snowflakecomputing.com",
         account: "sfcsupportva",
         username: "fake_user",
         password: "fake_password"
       },
 
       {
-        accessUrl: "https://aztestaccount.east-us-2.azure.snowflakecomputing.com ",
+        accessUrl: "https://aztestaccount.east-us-2.azure.snowflakecomputing.com",
         account: "aztestaccount",
         username: "fake_user",
         password: "fake_password"

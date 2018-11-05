@@ -6,7 +6,6 @@ set -o pipefail
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 TEST_TIMEOUT=90000
-
 if [[ -z "$TRAVIS_JOB_ID" ]]; then
     MOCHA_CMD=(
         "mocha"
@@ -16,6 +15,11 @@ if [[ -z "$TRAVIS_JOB_ID" ]]; then
     )
     rm -f $DIR/../junit*.xml
 else
+    echo "[INFO] Auditing NodeJS Driver"
+    npm pack
+    npm install npm@latest -g
+    npm install --package-lock-only
+    npm audit
     MOCHA_CMD=(
         "./node_modules/.bin/istanbul" "cover" "./node_modules/.bin/_mocha" "--"
         "--timeout" "$TEST_TIMEOUT"

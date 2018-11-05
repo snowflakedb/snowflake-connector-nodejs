@@ -3,6 +3,7 @@
 test/
 dist/
 ignore/
+env/
 junit.xml
 snowflake-sdk*.tgz
 coverage

@@ -1,4 +1,11 @@
+.idea
+.travis.yml
 test/
 dist/
+ignore/
 junit.xml
 snowflake-sdk*.tgz
+coverage
+system_test
+scripts
+parameters.json.enc

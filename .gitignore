@@ -8,3 +8,4 @@ dist
 junit*.xml
 node_modules
 coverage
+package-lock.json

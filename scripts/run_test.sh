@@ -5,9 +5,6 @@
 set -o pipefail
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
-echo "[INFO] Building NodeJS driver"
-npm pack
-
 TEST_TIMEOUT=90000
 if [[ -z "$TRAVIS_JOB_ID" ]]; then
     MOCHA_CMD=(
@@ -25,6 +22,9 @@ else
         "--timeout" "$TEST_TIMEOUT"
     )
 fi
+echo "[INFO] Building NodeJS driver"
+npm pack
+
 echo "[INFO] Running audit for NodeJS Driver"
 npm audit
 

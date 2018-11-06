@@ -36,7 +36,7 @@ describe('Test Concurrent Execution', function()
 
   it('testConcurrentSelectBySameUser', function(done){
     var completedQueries = 0;
-    var numberOfQueries = 10;
+    var numberOfQueries = 2;
     for (var i=0; i<numberOfQueries; i++)
     {
       connection.execute({

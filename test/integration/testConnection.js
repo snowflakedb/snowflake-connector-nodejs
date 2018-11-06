@@ -68,6 +68,6 @@ describe('Connection test', function()
     setTimeout(function(){
       assert.strictEqual(completedConnection, totalConnections);
       done();
-    }, 10000);
+    }, 60000);
   });
 });

@@ -9,3 +9,4 @@ junit*.xml
 node_modules
 coverage
 package-lock.json
+snowflake.log

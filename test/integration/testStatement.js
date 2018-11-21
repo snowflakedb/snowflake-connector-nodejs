@@ -70,6 +70,11 @@ describe('Statement Tests', function()
       },
       function(callback)
       {
+        assert.ok(connection.isUp(), "not active");
+        callback();
+      },
+      function(callback)
+      {
         var rows = [];
         statement.fetchRows(
         {

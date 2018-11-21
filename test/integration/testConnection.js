@@ -2,6 +2,7 @@
  * Copyright (c) 2015-2018 Snowflake Computing Inc. All rights reserved.
  */
 var snowflake  = require('./../../lib/snowflake');
+var async = require('async');
 var assert = require('assert');
 var connOption = require('./connectionOptions');
 var testUtil = require('./testUtil');
@@ -11,15 +12,37 @@ describe('Connection test', function()
   it('Simple Connect', function(done)
   {
     var connection = snowflake.createConnection(connOption.valid);
-    connection.connect(function(err)
-    {
-      assert.ok(!err, JSON.stringify(err));
-    });
-    connection.destroy(function(err)
-    {
-      assert.ok(!err, JSON.stringify(err));
-      done();
-    });
+
+    async.series([
+        function(callback)
+        {
+          connection.connect(function(err)
+          {
+            assert.ok(!err, JSON.stringify(err));
+            callback();
+          });
+        },
+        function(callback)
+        {
+          assert.ok(connection.isUp(), "not active");
+          callback();
+        },
+        function(callback)
+        {
+          connection.destroy(function(err)
+          {
+            assert.ok(!err, JSON.stringify(err));
+            callback();
+          });
+        },
+        function(callback)
+        {
+          assert.ok(!connection.isUp(), "still active");
+          callback();
+        },
+      ],
+      done
+    );
   });
 
   it('Wrong Username', function(done)

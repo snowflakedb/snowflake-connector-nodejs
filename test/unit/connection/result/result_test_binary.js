@@ -38,7 +38,7 @@ describe('Result: test binary', function()
       ResultTestCommon.createResultOptions(response),
       function(row)
       {
-        var buffer = new Buffer('0123456789ABCDEF', 'hex');
+        var buffer = Buffer.from('0123456789ABCDEF', 'hex');
         assert.ok(row.getColumnValue('C1').equals(buffer));
         assert.strictEqual(row.getColumnValueAsString('C1'), '0123456789ABCDEF');
       },
@@ -80,7 +80,7 @@ describe('Result: test binary', function()
       ResultTestCommon.createResultOptions(response),
       function(row)
       {
-        var buffer = new Buffer('0123456789ABCDEF', 'hex');
+        var buffer = Buffer.from('0123456789ABCDEF', 'hex');
         assert.ok(row.getColumnValue('C1').equals(buffer));
         assert.strictEqual(row.getColumnValueAsString('C1'), 'ASNFZ4mrze8=');
       },

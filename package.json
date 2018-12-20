@@ -17,7 +17,7 @@
     "request": "^2.88.0",
     "simple-lru-cache": "^0.0.2",
     "uuid": "^3.3.2",
-    "winston": "^2.4.4"
+    "winston": "^3.1.0"
   },
   "devDependencies": {
     "async": "^1.5.0",

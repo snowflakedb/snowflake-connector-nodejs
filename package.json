@@ -1,6 +1,6 @@
 {
   "name": "snowflake-sdk",
-  "version": "1.1.8",
+  "version": "1.1.9",
   "description": "Node.js driver for Snowflake",
   "dependencies": {
     "agent-base": "2.0.1",

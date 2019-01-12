@@ -1,19 +1,19 @@
 language: node_js
 sudo: false
 node_js:
-  - 6
-before_install:
-  - openssl aes-256-cbc -k "$super_secret_password" -in parameters.json.enc -out parameters.json -d
-  - pyenv local 3.6
-  - pip install -U pip
-  - pip --version
-  - python -m venv env
-  - source env/bin/activate
+  - "6"
+  - "7"
+  - "8"
+  - "7"
+  - "7"
+  - "8"
+  - "9"
+  - "10"
+  - "11"
 install:
-  - npm install
-  - npm install istanbul
+  - "./scripts/install.sh"
 script:
-  - ./scripts/run_travis.sh
+  - "./scripts/run_travis.sh"
 after_success:
   - bash <(curl -s https://codecov.io/bash)
 env:

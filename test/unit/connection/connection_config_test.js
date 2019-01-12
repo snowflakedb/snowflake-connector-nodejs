@@ -12,7 +12,7 @@ describe('ConnectionConfig: basic', function()
   //// Test synchronous errors                                           ////
   ///////////////////////////////////////////////////////////////////////////
 
-  var testCases =
+  var negativeTestCases =
   [
     {
       name     : 'missing options',
@@ -256,7 +256,7 @@ describe('ConnectionConfig: basic', function()
     }
   ];
 
-  var createItCallback = function(testCase)
+  var createNegativeITCallback = function(testCase)
   {
     return function()
     {
@@ -279,17 +279,124 @@ describe('ConnectionConfig: basic', function()
   };
 
   var index, length, testCase;
-  for (index = 0, length = testCases.length; index < length; index++)
+  for (index = 0, length = negativeTestCases.length; index < length; index++)
   {
-    testCase = testCases[index];
-    it(testCase.name, createItCallback(testCase));
+    testCase = negativeTestCases[index];
+    it(testCase.name, createNegativeITCallback(testCase));
   }
 
   ///////////////////////////////////////////////////////////////////////////
   //// Test valid arguments                                              ////
   ///////////////////////////////////////////////////////////////////////////
 
-  it('valid connection config', function()
+  var testCases =
+  [
+    {
+      name    : 'basic',
+      input   :
+      {
+        username: 'username',
+        password: 'password',
+        account:  'account'
+      },
+      options :
+      {
+        accessUrl: 'https://account.snowflakecomputing.com',
+        username: 'username',
+        password: 'password',
+        account:  'account'
+      }
+    },
+    {
+      name    : 'region',
+      input   :
+      {
+        username: 'username',
+        password: 'password',
+        account:  'account',
+        region: 'testregion',
+      },
+      options :
+      {
+        accessUrl: 'https://account.testregion.snowflakecomputing.com',
+        username: 'username',
+        password: 'password',
+        account:  'account'
+      }
+    },
+    {
+      name    : 'region in account',
+      input   :
+      {
+        username: 'username',
+        password: 'password',
+        account:  'account.testregion.azure',
+      },
+      options :
+      {
+        accessUrl: 'https://account.testregion.azure.snowflakecomputing.com',
+        username: 'username',
+        password: 'password',
+        account:  'account'
+      }
+    },
+    {
+      name    : 'region in account but accessUrl is specified',
+      input   :
+      {
+        accessUrl: 'https://account.prodregion.aws.snowflakecomputing.com',
+        username: 'username',
+        password: 'password',
+        account:  'account.testregion.azure',
+      },
+      options :
+      {
+        accessUrl: 'https://account.prodregion.aws.snowflakecomputing.com',
+        username: 'username',
+        password: 'password',
+        account:  'account'
+      }
+    },
+    {
+      name    : 'region is us-west-2',
+      input   :
+      {
+        username: 'username',
+        password: 'password',
+        account:  'account',
+        region:   'us-west-2',
+      },
+      options :
+      {
+        accessUrl: 'https://account.snowflakecomputing.com',
+        username: 'username',
+        password: 'password',
+        account:  'account'
+      }
+    }
+  ];
+
+  var createItCallback = function(testCase)
+  {
+    return function()
+    {
+      var result_options = new ConnectionConfig(testCase.input);
+      Object.keys(testCase.options).forEach(function(key)
+      {
+        var ref = testCase.options[key];
+        var val = result_options[key];
+        assert.strictEqual(val, ref);
+      })
+    };
+  };
+
+  for (index = 0, length = testCases.length; index < length; index++)
+  {
+    testCase = testCases[index];
+    it(testCase.name, createItCallback(testCase));
+  }
+
+  it('custom prefetch', function()
   {
     var username = 'username';
     var password = 'password';
@@ -301,10 +408,6 @@ describe('ConnectionConfig: basic', function()
       password : password,
       account  : account
     });
-
-    assert.strictEqual(username, connectionConfig.username);
-    assert.strictEqual(password, connectionConfig.password);
-    assert.strictEqual(account, connectionConfig.account);
 
     // get the default value of the resultPrefetch parameter
     var resultPrefetchDefault = connectionConfig.getResultPrefetch();

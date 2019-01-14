@@ -1,21 +1,27 @@
-language: node_js
 sudo: false
-node_js:
-  - 6
-before_install:
-  - openssl aes-256-cbc -k "$super_secret_password" -in parameters.json.enc -out parameters.json -d
-  - pyenv local 3.6
-  - pip install -U pip
-  - pip --version
-  - python -m venv env
-  - source env/bin/activate
+language: node_js
+matrix:
+  include:
+  - os: linux
+    node_js: '6'
+  - os: linux
+    node_js: '8'
+  - os: linux
+    node_js: '9'
+  - os: linux
+    node_js: '10'
+  - os: linux
+    node_js: '11'
+  - os: linux
+    node_js: '11'
+    env: SNOWFLAKE_AZURE=true
 install:
-  - npm install
-  - npm install istanbul
+- "./scripts/install.sh"
 script:
-  - ./scripts/run_travis.sh
+- "./scripts/run_travis.sh"
 after_success:
-  - bash <(curl -s https://codecov.io/bash)
+- bash <(curl -s https://codecov.io/bash)
 env:
   global:
-    secure: dyMdWt2UJd6hXXNWSpEgC5TJPg/W2jDEGxKvZyekG7z4DAMddy8WUOOxie1R3VuzjQa65SxPjHt2cpj4xypTG63JdwzW/WXRSa4kzMJGKL9xwXpmRPNwnnyPQxylxZ1W1mS8w3Coza7IWoexpqHYAvofg3cr8x2FxTQL2aqxl3+Xn0AmIrUyWtScMIzzLe0su5GJ442rz/w0vdXo6AcsMMyzMOVILagFys0iNcLQYXhanetb4Jda4PLzsOjOvd6tXYUsNqpxcHf4GZL3gp+F+RnXA2rEYEHeO8EnR9LI6c3gD53H61+FnwW8211hK4gHpenuMeMgTNyLrVav5UAg5PWEpB4OHrNJma/kYq/c7pokKjkCwkcZ5EAIcXxAi3oXa0nNmcZPMNAGEsgFQNn9a1P2cS2CgCWAQRtnEAZEa1LwdgxVi8a8Q44bXsTQAl0ZavXPDsDBx2tmzuObErxLMyB7UVBJNTc/JcrUWfSKihCOUBKLM3//QTu8puJ1KTR3MatiZ7AxNltSrxQyipsQ7zB9Hb6zmZZn7373nJnlRudXTZSLIRhANtshlAQ5diZ3DwhX8zj9fQF7d+6XTwwj4EUBlsv7nFLeSq4PefxmNGtgAWbO1iOy6NmPbLwB5/pGkKmUErXVHGCUAurYVaduapIiL4mBydncOjqnqtNSetM=
+  - secure: dyMdWt2UJd6hXXNWSpEgC5TJPg/W2jDEGxKvZyekG7z4DAMddy8WUOOxie1R3VuzjQa65SxPjHt2cpj4xypTG63JdwzW/WXRSa4kzMJGKL9xwXpmRPNwnnyPQxylxZ1W1mS8w3Coza7IWoexpqHYAvofg3cr8x2FxTQL2aqxl3+Xn0AmIrUyWtScMIzzLe0su5GJ442rz/w0vdXo6AcsMMyzMOVILagFys0iNcLQYXhanetb4Jda4PLzsOjOvd6tXYUsNqpxcHf4GZL3gp+F+RnXA2rEYEHeO8EnR9LI6c3gD53H61+FnwW8211hK4gHpenuMeMgTNyLrVav5UAg5PWEpB4OHrNJma/kYq/c7pokKjkCwkcZ5EAIcXxAi3oXa0nNmcZPMNAGEsgFQNn9a1P2cS2CgCWAQRtnEAZEa1LwdgxVi8a8Q44bXsTQAl0ZavXPDsDBx2tmzuObErxLMyB7UVBJNTc/JcrUWfSKihCOUBKLM3//QTu8puJ1KTR3MatiZ7AxNltSrxQyipsQ7zB9Hb6zmZZn7373nJnlRudXTZSLIRhANtshlAQ5diZ3DwhX8zj9fQF7d+6XTwwj4EUBlsv7nFLeSq4PefxmNGtgAWbO1iOy6NmPbLwB5/pGkKmUErXVHGCUAurYVaduapIiL4mBydncOjqnqtNSetM=
+  - secure: qIgYb2ujAGSvdyTpgoZOvUKo0Gl/jeE9zg0c6OoWJFRPU/mPN2BXhTU/1gD2HygTlcNQmECb/SXhWuhMPAfYIC7kSxE+9gWGpVSYF9xARM+zp3PL4zaHory2wVDTnOOxKQ4s/Av7yZf4+mRk8OrpsTWowiEilI6nbtENJjxmzqWDVTSI2hw3XN1SWHgU7aTLtfO/ibQc3CK63mZIpyHKymKxhr4Wk32kgPCdLP5eXglG+o491d6U2qNTXDS5pVFDVMgKxIg3HFnzI8Vucs0GwUeKVl+1IMz+etFt9tzRh+EVAl1wJtCFBMPTfHbCqRmXCfjn10d3bkRF8HpEjjsPH+vOvJ1RNmQY7vQD521eNeF2MFkPDn9cl/JGq7iOyL5FerAyA2bnpp0byeAe7xTvJedM8ae4RqWUzvRTu8VgCUjg/pUVQywZvUUfaT5mdghOj2FMxLVi6IphKzQfAMFmEdJlR5Q+odPS3op4a4ojnwyahqAhiIh1uhsE6LIQlyciHlSa5e/DwgluG/qYBSY/RRXA6UI6WV7+lWGrrinStUdxoeMlSh42I79ADTSc0dI0wJP/mgioONkSn97V6rMf2M2sVd2OIpBqxE7NKSnWtnCn/y3mJK6mF2jOYv3UDtS5SYpkuqtLoh7ngMJDl/UzN9igvt6UUzeIddCb72gXPrw=

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2018 Snowflake Computing Inc. All rights reserved.
+ * Copyright (c) 2015-2019 Snowflake Computing Inc. All rights reserved.
  */
 var snowflake  = require('./../../lib/snowflake');
 var connOptions = require('./connectionOptions');
@@ -33,7 +33,7 @@ module.exports.executeCmd = function(connection, sql, callback, bindArray)
     callback();
   };
 
-  if (bindArray != null && bindArray != undefined)
+  if (bindArray != null && bindArray !== undefined)
   {
     executeOptions.binds = bindArray;
   }

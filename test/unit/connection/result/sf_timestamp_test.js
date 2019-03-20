@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2018 Snowflake Computing Inc. All rights reserved.
+ * Copyright (c) 2015-2019 Snowflake Computing Inc. All rights reserved.
  */
 
 var SfTimestamp = require('./../../../../lib/connection/result/sf_timestamp');

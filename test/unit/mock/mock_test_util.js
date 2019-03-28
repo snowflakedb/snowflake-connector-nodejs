@@ -2,12 +2,8 @@
  * Copyright (c) 2015-2019 Snowflake Computing Inc. All rights reserved.
  */
 
-var Util           = require('./../../../lib/util');
 var Core           = require('./../../../lib/core');
 var MockHttpClient = require('./../../mock_http_client');
-var ErrorCodes     = require('./../../../lib/errors').codes;
-var assert         = require('assert');
-var async          = require('async');
 
 var clientInfo =
 {
@@ -40,8 +36,17 @@ var connectionOptionsDeserialize =
   accessUrl : 'http://fakeaccount.snowflakecomputing.com'
 };
 
+var connectionOptionsWithServiceName =
+  {
+    accessUrl : 'http://fakeaccount.snowflakecomputing.com',
+    username  : 'fakeuserservicename',
+    password  : 'fakepassword',
+    account   : 'fakeaccount'
+  };
+
 exports.connectionOptions =
 {
   default: connectionOptions,
-  deserialize: connectionOptionsDeserialize
+  deserialize: connectionOptionsDeserialize,
+  serviceName: connectionOptionsWithServiceName
 };

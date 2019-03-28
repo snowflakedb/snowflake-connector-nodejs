@@ -1,3 +1,6 @@
+/*
+ * Copyright (c) 2015-2019 Snowflake Computing Inc. All rights reserved.
+ */
 var async = require('async');
 var testUtil = require('./testUtil');
 

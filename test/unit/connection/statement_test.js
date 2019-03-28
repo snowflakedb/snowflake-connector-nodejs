@@ -4,7 +4,6 @@
 
 var Statement        = require('./../../../lib/connection/statement');
 var ErrorCodes       = require('./../../../lib/errors').codes;
-var ConnectionConfig = require('./../../../lib/connection/connection_config');
 var assert           = require('assert');
 
 describe('Statement.execute()', function()

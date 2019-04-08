@@ -170,7 +170,8 @@ function buildRequestOutputMappings(clientInfo)
                   PASSWORD: 'fakepassword',
                   CLIENT_APP_ID: 'JavaScript',
                   CLIENT_APP_VERSION: clientInfo.version,
-                  CLIENT_ENVIRONMENT: clientInfo.environment
+                  CLIENT_ENVIRONMENT: clientInfo.environment,
+                  SESSION_PARAMETERS: {}
                 }
             }
         },
@@ -231,7 +232,16 @@ function buildRequestOutputMappings(clientInfo)
                       }, {
                         "name": "CLIENT_USE_V1_QUERY_API",
                         "value": true
-                      }, {"name": "CLIENT_DISABLE_INCIDENTS", "value": true}]
+                      }, {
+                        "name": "CLIENT_DISABLE_INCIDENTS",
+                        "value": true
+                      }, {
+                        "name": "CLIENT_SESSION_KEEP_ALIVE",
+                        "value": false
+                      }, {
+                        "name": "CLIENT_SESSION_KEEP_ALIVE_HEARTBEAT_FREQUENCY",
+                        "value": 3600
+                      }]
                     },
                   "message": null,
                   "success": true
@@ -1032,7 +1042,8 @@ function buildRequestOutputMappings(clientInfo)
                   PASSWORD: 'fakepassword',
                   CLIENT_APP_ID: 'JavaScript',
                   CLIENT_APP_VERSION: clientInfo.version,
-                  CLIENT_ENVIRONMENT: clientInfo.environment
+                  CLIENT_ENVIRONMENT: clientInfo.environment,
+                  SESSION_PARAMETERS: {}
                 }
             }
         },
@@ -1096,7 +1107,16 @@ function buildRequestOutputMappings(clientInfo)
                       }, {
                         "name": "CLIENT_DISABLE_INCIDENTS",
                         "value": true
-                      }, {"name": "SERVICE_NAME", "value": "fakeservicename"}]
+                      }, {
+                        "name": "SERVICE_NAME",
+                        "value": "fakeservicename"
+                      }, {
+                        "name": "CLIENT_SESSION_KEEP_ALIVE",
+                        "value": false
+                      }, {
+                        "name": "CLIENT_SESSION_KEEP_ALIVE_HEARTBEAT_FREQUENCY",
+                        "value": 3600
+                      }]
                     },
                   "message": null,
                   "success": true
@@ -1208,6 +1228,107 @@ function buildRequestOutputMappings(clientInfo)
                     },
                   "message": null,
                   "code": null,
+                  "success": true
+                }
+            }
+        }
+    },
+    {
+      request:
+        {
+          method: 'POST',
+          url: 'http://fakeaccount.snowflakecomputing.com/session/v1/login-request',
+          headers:
+            {
+              'Accept': 'application/json',
+              'Content-Type': 'application/json'
+            },
+          json:
+            {
+              data:
+                {
+                  ACCOUNT_NAME: 'fakeaccount',
+                  LOGIN_NAME: 'fakeusername',
+                  PASSWORD: 'fakepassword',
+                  CLIENT_APP_ID: 'JavaScript',
+                  CLIENT_APP_VERSION: clientInfo.version,
+                  CLIENT_ENVIRONMENT: clientInfo.environment,
+                  SESSION_PARAMETERS: {
+                    CLIENT_SESSION_KEEP_ALIVE: true,
+                    CLIENT_SESSION_KEEP_ALIVE_HEARTBEAT_FREQUENCY: 1800
+                  }
+                }
+            }
+        },
+      output:
+        {
+          err: null,
+          response:
+            {
+              statusCode: 200,
+              statusMessage: "OK",
+              body:
+                {
+                  "code": null,
+                  "data":
+                    {
+                      "displayUserName": "FAKEUSERNAME",
+                      "firstLogin": false,
+                      "healthCheckInterval": 45,
+                      "masterToken": "ETMsDgAAAVHApAq4ABRBRVMvQ0JDL1BLQ1M1UGFkZGluZwCAABAAEFXybqPxPmJrBv1S2+TBVY0AAACgxIkcbg5ZTa3xHwhdUQ1kBjEbV1YJcYuG0ITQ8/jH37FhSO4UYHJCZ/TV0+CF5TBA+a4nkmyh1INKk6ndi7vWp1hZGM7rUtRkZMmdjnUTPKBZpXd8LFiGfofEus8K4OPEmf3PPvwrxMvGbzxNCTAHo/hiD8sVNkSjVXfPPJKwO7HHvnPuNP4LzpOf0mqqIWDHPCHYZjlsUOLM+f2CtKCgIgAUvY30vA343bf1eXUNqlCvH45kEVU=",
+                      "masterValidityInSeconds": 14400,
+                      "newClientForUpgrade": null,
+                      "remMeToken": "ETMsDgAAAVHApAq4ABRBRVMvQ0JDL1BLQ1M1UGFkZGluZwCAABAAEFXybqPxPmJrBv1S2+TBVY0AAACgxIkcbg5ZTa3xHwhdUQ1kBjEbV1YJcYuG0ITQ8/jH37FhSO4UYHJCZ/TV0+CF5TBA+a4nkmyh1INKk6ndi7vWp1hZGM7rUtRkZMmdjnUTPKBZpXd8LFiGfofEus8K4OPEmf3PPvwrxMvGbzxNCTAHo/hiD8sVNkSjVXfPPJKwO7HHvnPuNP4LzpOf0mqqIWDHPCHYZjlsUOLM+f2CtKCgIgAUvY30vA343bf1eXUNqlCvH45kEVU=",
+                      "remMeValidityInSeconds": 14400,
+                      "serverVersion": "Dev",
+                      "sessionId": "51539800306",
+                      "token": "ETMsDgAAAVHApArOABRBRVMvQ0JDL1BLQ1M1UGFkZGluZwCAABAAEH6XI1dGt/WBW5OrD4pFJF0AAABwUr+kbG6lEvgdJ1unUV69p3ZQWhMXh13TrFu2OXIA19TnaNFoFe7L0GOUASskpvLxBwNjRITjaO3cDBZnZ5Kthv7Vu6wPXwPp9vtXtWKzy+B58arDdXoF7ktIjNhGZWnGlvrEM0IOUBXVmO5jHdKUZwAU1T3TJfuZgjJNs2gKQtbm2+AW7Yg=",
+                      "validityInSeconds": 3600,
+                      "parameters": [{
+                        "name": "TIMEZONE",
+                        "value": "America/Los_Angeles"
+                      }, {
+                        "name": "TIMESTAMP_OUTPUT_FORMAT",
+                        "value": "DY, DD MON YYYY HH24:MI:SS TZHTZM"
+                      }, {
+                        "name": "TIMESTAMP_NTZ_OUTPUT_FORMAT",
+                        "value": ""
+                      }, {
+                        "name": "TIMESTAMP_LTZ_OUTPUT_FORMAT",
+                        "value": ""
+                      }, {
+                        "name": "TIMESTAMP_TZ_OUTPUT_FORMAT",
+                        "value": ""
+                      }, {
+                        "name": "DATE_OUTPUT_FORMAT",
+                        "value": "YYYY-MM-DD"
+                      }, {
+                        "name": "TIME_OUTPUT_FORMAT",
+                        "value": "HH24:MI:SS"
+                      }, {
+                        "name": "CLIENT_RESULT_PREFETCH_SLOTS",
+                        "value": 2
+                      }, {
+                        "name": "CLIENT_RESULT_PREFETCH_THREADS",
+                        "value": 1
+                      }, {
+                        "name": "CLIENT_HONOR_CLIENT_TZ_FOR_TIMESTAMP_NTZ",
+                        "value": true
+                      }, {
+                        "name": "CLIENT_USE_V1_QUERY_API",
+                        "value": true
+                      }, {
+                        "name": "CLIENT_DISABLE_INCIDENTS",
+                        "value": true
+                      }, {
+                        "name": "CLIENT_SESSION_KEEP_ALIVE",
+                        "value": true
+                      }, {
+                        "name": "CLIENT_SESSION_KEEP_ALIVE_HEARTBEAT_FREQUENCY",
+                        "value": 1800
+                      }]
+                    },
+                  "message": null,
                   "success": true
                 }
             }

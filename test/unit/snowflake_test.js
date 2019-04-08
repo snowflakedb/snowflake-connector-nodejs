@@ -16,6 +16,7 @@ var mockConnectionOptions = MockTestUtil.connectionOptions;
 var connectionOptions = mockConnectionOptions.default;
 var connectionOptionsDeserialize = mockConnectionOptions.deserialize;
 var connectionOptionsServiceName = mockConnectionOptions.serviceName;
+var connectionOptionsClientSessionKeepAlive = mockConnectionOptions.clientSessionKeepAlive;
 
 describe('snowflake.createConnection() synchronous errors', function ()
 {
@@ -1681,6 +1682,32 @@ describe('snowflake.createConnection() SERVICE_NAME', function ()
           assert.equal('fakeservicename2', connection.getServiceName());
           callback();
         }
+      ],
+      done)
+  });
+});
+
+describe('snowflake.createConnection() CLIENT_SESSION_KEEP_ALIVE', function ()
+{
+  it('createConnection() returns connection including CLIENT_SESSION_KEEP_ALIVE', function (done)
+  {
+    var connection = snowflake.createConnection(connectionOptionsClientSessionKeepAlive);
+    async.series([
+        function (callback)
+        {
+          connection.connect(function (err)
+          {
+            assert.ok(!err, JSON.stringify(err));
+            callback();
+          });
+        },
+        function (callback)
+        {
+          // CLIENT_SESSION_KEEP_ALIVE is returned.
+          assert.equal(true, connection.getClientSessionKeepAlive());
+          assert.equal(1800, connection.getClientSessionKeepAliveHeartbeatFrequency());
+          callback();
+        },
       ],
       done)
   });

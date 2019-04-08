@@ -44,9 +44,20 @@ var connectionOptionsWithServiceName =
     account   : 'fakeaccount'
   };
 
+var connectionOptionsWithClientSessionKeepAlive =
+  {
+    accessUrl : 'http://fakeaccount.snowflakecomputing.com',
+    username  : 'fakeusername',
+    password  : 'fakepassword',
+    account   : 'fakeaccount',
+    clientSessionKeepAlive: true,
+    clientSessionKeepAliveHeartbeatFrequency: 1800
+  };
+
 exports.connectionOptions =
 {
   default: connectionOptions,
   deserialize: connectionOptionsDeserialize,
-  serviceName: connectionOptionsWithServiceName
+  serviceName: connectionOptionsWithServiceName,
+  clientSessionKeepAlive: connectionOptionsWithClientSessionKeepAlive
 };

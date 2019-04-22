@@ -1689,7 +1689,7 @@ describe('snowflake.createConnection() SERVICE_NAME', function ()
 
 describe('snowflake.createConnection() CLIENT_SESSION_KEEP_ALIVE', function ()
 {
-  it('createConnection() returns connection including CLIENT_SESSION_KEEP_ALIVE', function (done)
+  xit('createConnection() returns connection including CLIENT_SESSION_KEEP_ALIVE', function (done)
   {
     var connection = snowflake.createConnection(connectionOptionsClientSessionKeepAlive);
     async.series([

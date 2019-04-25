@@ -1689,7 +1689,7 @@ describe('snowflake.createConnection() SERVICE_NAME', function ()
 
 describe('snowflake.createConnection() CLIENT_SESSION_KEEP_ALIVE', function ()
 {
-  xit('createConnection() returns connection including CLIENT_SESSION_KEEP_ALIVE', function (done)
+  it('createConnection() returns connection including CLIENT_SESSION_KEEP_ALIVE', function (done)
   {
     var connection = snowflake.createConnection(connectionOptionsClientSessionKeepAlive);
     async.series([
@@ -1708,6 +1708,13 @@ describe('snowflake.createConnection() CLIENT_SESSION_KEEP_ALIVE', function ()
           assert.equal(1800, connection.getClientSessionKeepAliveHeartbeatFrequency());
           callback();
         },
+        function (callback) {
+          connection.destroy(function (err)
+          {
+            assert.ok(!err, JSON.stringify(err));
+            callback();
+          })
+        }
       ],
       done)
   });

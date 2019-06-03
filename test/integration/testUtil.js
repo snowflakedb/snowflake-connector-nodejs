@@ -45,7 +45,9 @@ module.exports.checkError = function(err){
   assert.ok(!err, JSON.stringify(err));
 };
 
-module.exports.executeQueryAndVerify = function(connection, sql, expected, callback, bindArray){
+module.exports.executeQueryAndVerify = function(connection, sql, expected, callback, bindArray, normalize){
+  // Sometimes we may not want to normalize the row first
+  normalize = (typeof normalize !== "undefined" && normalize != null) ? normalize : true;
   var executeOptions = {};
   executeOptions.sqlText = sql;
   executeOptions.complete = function(err, stmt)
@@ -57,7 +59,7 @@ module.exports.executeQueryAndVerify = function(connection, sql, expected, callb
       var row; 
       while((row = stream.read()) !== null)
       {
-        assert.deepStrictEqual(normalizeRowObject(row), expected[rowCount]);
+        assert.deepStrictEqual(normalize ? normalizeRowObject(row) : row, expected[rowCount]);
         rowCount++;
       }
     });
@@ -87,8 +89,21 @@ function normalizeRowObject(row)
     {
       var convertToString = (row[key] !== null) && (row[key] !== undefined)
         && (typeof row[key].toJSON === 'function');
-      normalizedRow[key] = convertToString ?
-        row[key].toJSON() : row[key];
+      var convertToJSNumber = (row[key] !== null) && (row[key] !== undefined)
+        && (typeof row[key].toJSNumber === 'function');
+      // If this is a bigInt type then convert to JS Number instead of string JSON representation
+      if (convertToJSNumber)
+      {
+        normalizedRow[key] = row[key].toJSNumber();
+      }
+      else if (convertToString)
+      {
+        normalizedRow[key] = row[key].toJSON();
+      }
+      else
+      {
+        normalizedRow[key] = row[key];
+      }
     }
   }
   return normalizedRow;

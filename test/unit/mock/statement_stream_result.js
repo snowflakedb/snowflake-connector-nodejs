@@ -124,7 +124,7 @@ function verifyRowsReturnedInline(rows)
 {
   assert.ok(Util.isArray(rows));
   assert.strictEqual(rows.length, 1);
-  assert.strictEqual(rows[0].c1, 1);
+  assert.strictEqual(rows[0].c1.toJSNumber(), 1);
 }
 
 function verifyNoRowsReturnedInline(rows)

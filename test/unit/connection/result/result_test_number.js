@@ -41,7 +41,7 @@ describe('Result: test number', function()
       function(row)
       {
         // fixed small
-        assert.strictEqual(row.getColumnValue('C1'), 123);
+        assert.strictEqual(row.getColumnValue('C1').toJSNumber(), 123);
         assert.strictEqual(row.getColumnValueAsString('C1'), '123');
 
         // real small
@@ -49,7 +49,7 @@ describe('Result: test number', function()
         assert.strictEqual(row.getColumnValueAsString('C2'), '123.456');
 
         // fixed big
-        assert.strictEqual(row.getColumnValue('C3'), 1.2345678901234568e+37);
+        assert.strictEqual(row.getColumnValue('C3').toJSNumber(), 1.2345678901234568e+37);
         assert.strictEqual(
             row.getColumnValueAsString('C3'),
             '12345678901234567890123456789012345678');

@@ -17,6 +17,7 @@ var connectionOptions = mockConnectionOptions.default;
 var connectionOptionsDeserialize = mockConnectionOptions.deserialize;
 var connectionOptionsServiceName = mockConnectionOptions.serviceName;
 var connectionOptionsClientSessionKeepAlive = mockConnectionOptions.clientSessionKeepAlive;
+var connectionOptionsForSessionGone = mockConnectionOptions.sessionGone;
 
 describe('snowflake.createConnection() synchronous errors', function ()
 {
@@ -1720,6 +1721,32 @@ describe('snowflake.createConnection() CLIENT_SESSION_KEEP_ALIVE', function ()
   });
 });
 
+describe('snowflake.destroyConnection()', function ()
+{
+  it('destroyConnection() ignores SESSION_GONE error', function (done)
+  {
+    var connection = snowflake.createConnection(connectionOptionsForSessionGone);
+    async.series([
+        function (callback)
+        {
+          connection.connect(function (err)
+          {
+            assert.ok(!err, JSON.stringify(err));
+            callback();
+          });
+        },
+        function (callback)
+        {
+          connection.destroy(function(err, con){
+            // SESSION_GONE error should be ignored.
+            assert.ok(!err, JSON.stringify(err));
+            callback();
+          });
+        }
+      ],
+      done)
+  });
+});
 
 // TODO: test large results
 // TODO: test token renewal

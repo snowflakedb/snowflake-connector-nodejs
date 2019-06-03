@@ -33,7 +33,7 @@ module.exports.executeCmd = function(connection, sql, callback, bindArray)
     callback();
   };
 
-  if (bindArray != null && bindArray != undefined)
+  if (bindArray !== undefined && bindArray != null)
   {
     executeOptions.binds = bindArray;
   }

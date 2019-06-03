@@ -3,7 +3,7 @@
  */
 
 var Core           = require('./../../../lib/core');
-var MockHttpClient = require('./../../mock_http_client');
+var MockHttpClient = require('./mock_http_client');
 
 var clientInfo =
 {
@@ -54,10 +54,19 @@ var connectionOptionsWithClientSessionKeepAlive =
     clientSessionKeepAliveHeartbeatFrequency: 1800
   };
 
+var connectionOptionsForSessionGone =
+  {
+    accessUrl : 'http://fakeaccount.snowflakecomputing.com',
+    username  : 'fakesessiongone',
+    password  : 'fakepassword',
+    account   : 'fakeaccount'
+  };
+
 exports.connectionOptions =
 {
   default: connectionOptions,
   deserialize: connectionOptionsDeserialize,
   serviceName: connectionOptionsWithServiceName,
-  clientSessionKeepAlive: connectionOptionsWithClientSessionKeepAlive
+  clientSessionKeepAlive: connectionOptionsWithClientSessionKeepAlive,
+  sessionGone: connectionOptionsForSessionGone
 };

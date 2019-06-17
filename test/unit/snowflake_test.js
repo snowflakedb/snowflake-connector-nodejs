@@ -17,6 +17,7 @@ var connectionOptions = mockConnectionOptions.default;
 var connectionOptionsDeserialize = mockConnectionOptions.deserialize;
 var connectionOptionsServiceName = mockConnectionOptions.serviceName;
 var connectionOptionsClientSessionKeepAlive = mockConnectionOptions.clientSessionKeepAlive;
+var connectionOptionsForSessionGone = mockConnectionOptions.sessionGone;
 
 describe('snowflake.createConnection() synchronous errors', function ()
 {
@@ -794,7 +795,7 @@ describe('connection.execute() statement successful', function ()
                 assert.strictEqual(stmt, statement,
                   'the end() callback should be invoked with the statement');
                 assert.strictEqual(rows.length, 1, 'there should only be one row');
-                assert.strictEqual(rows[0].getColumnValue('c1'), 1,
+                assert.strictEqual(rows[0].getColumnValue('c1').toJSNumber(), 1,
                   'the row should only have one column c1 and its value ' +
                   'should be 1');
 
@@ -1143,7 +1144,7 @@ describe('connection.fetchResult() statement successful', function ()
                 assert.strictEqual(stmt, statement,
                   'the end() callback should be invoked with the statement');
                 assert.strictEqual(rows.length, 1, 'there should only be one row');
-                assert.strictEqual(rows[0].getColumnValue('c1'), 1,
+                assert.strictEqual(rows[0].getColumnValue('c1').toJSNumber(), 1,
                   'the row should only have one column c1 and its value ' +
                   'should be 1');
 
@@ -1720,6 +1721,32 @@ describe('snowflake.createConnection() CLIENT_SESSION_KEEP_ALIVE', function ()
   });
 });
 
+describe('snowflake.destroyConnection()', function ()
+{
+  it('destroyConnection() ignores SESSION_GONE error', function (done)
+  {
+    var connection = snowflake.createConnection(connectionOptionsForSessionGone);
+    async.series([
+        function (callback)
+        {
+          connection.connect(function (err)
+          {
+            assert.ok(!err, JSON.stringify(err));
+            callback();
+          });
+        },
+        function (callback)
+        {
+          connection.destroy(function(err, con){
+            // SESSION_GONE error should be ignored.
+            assert.ok(!err, JSON.stringify(err));
+            callback();
+          });
+        }
+      ],
+      done)
+  });
+});
 
 // TODO: test large results
 // TODO: test token renewal

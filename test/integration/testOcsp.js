@@ -98,7 +98,7 @@ describe('OCSP validation', function()
         assert.ok(err);
         if (err)
         {
-          assert.ok(err['code'] === '390100');
+          assert.equal(err['code'], '390100');
         }
 
         if (i === testOptions.length - 1)

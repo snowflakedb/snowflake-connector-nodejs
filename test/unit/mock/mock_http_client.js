@@ -2,8 +2,8 @@
  * Copyright (c) 2015-2019 Snowflake Computing Inc. All rights reserved.
  */
 
-var Util = require('./../lib/util');
-var Errors = require('./../lib/errors');
+var Util = require('../../../lib/util');
+var Errors = require('../../../lib/errors');
 
 /**
  * Creates a new MockHttpClient.
@@ -1330,6 +1330,134 @@ function buildRequestOutputMappings(clientInfo)
                     },
                   "message": null,
                   "success": true
+                }
+            }
+        }
+    },
+    {
+      // Session Gone test mock
+      request:
+        {
+          method: 'POST',
+          url: 'http://fakeaccount.snowflakecomputing.com/session/v1/login-request',
+          headers:
+            {
+              'Accept': 'application/json',
+              'Content-Type': 'application/json'
+            },
+          json:
+            {
+              data:
+                {
+                  ACCOUNT_NAME: 'fakeaccount',
+                  LOGIN_NAME: 'fakesessiongone',
+                  PASSWORD: 'fakepassword',
+                  CLIENT_APP_ID: 'JavaScript',
+                  CLIENT_APP_VERSION: clientInfo.version,
+                  CLIENT_ENVIRONMENT: clientInfo.environment,
+                  SESSION_PARAMETERS: {}
+                }
+            }
+        },
+      output:
+        {
+          err: null,
+          response:
+            {
+              statusCode: 200,
+              statusMessage: "OK",
+              body:
+                {
+                  "code": null,
+                  "data":
+                    {
+                      "displayUserName": "FAKEUSERNAME",
+                      "firstLogin": false,
+                      "healthCheckInterval": 45,
+                      "masterToken": "SESSION_GONE_MASTER_TOKEN",
+                      "masterValidityInSeconds": 14400,
+                      "newClientForUpgrade": null,
+                      "remMeToken": "SESSION_GONE_REMME_TOKEN",
+                      "remMeValidityInSeconds": 14400,
+                      "serverVersion": "Dev",
+                      "sessionId": "51539800306",
+                      "token": "SESSION_GONE_TOKEN",
+                      "validityInSeconds": 3600,
+                      "parameters": [{
+                        "name": "TIMEZONE",
+                        "value": "America/Los_Angeles"
+                      }, {
+                        "name": "TIMESTAMP_OUTPUT_FORMAT",
+                        "value": "DY, DD MON YYYY HH24:MI:SS TZHTZM"
+                      }, {
+                        "name": "TIMESTAMP_NTZ_OUTPUT_FORMAT",
+                        "value": ""
+                      }, {
+                        "name": "TIMESTAMP_LTZ_OUTPUT_FORMAT",
+                        "value": ""
+                      }, {
+                        "name": "TIMESTAMP_TZ_OUTPUT_FORMAT",
+                        "value": ""
+                      }, {
+                        "name": "DATE_OUTPUT_FORMAT",
+                        "value": "YYYY-MM-DD"
+                      }, {
+                        "name": "TIME_OUTPUT_FORMAT",
+                        "value": "HH24:MI:SS"
+                      }, {
+                        "name": "CLIENT_RESULT_PREFETCH_SLOTS",
+                        "value": 2
+                      }, {
+                        "name": "CLIENT_RESULT_PREFETCH_THREADS",
+                        "value": 1
+                      }, {
+                        "name": "CLIENT_HONOR_CLIENT_TZ_FOR_TIMESTAMP_NTZ",
+                        "value": true
+                      }, {
+                        "name": "CLIENT_USE_V1_QUERY_API",
+                        "value": true
+                      }, {
+                        "name": "CLIENT_DISABLE_INCIDENTS",
+                        "value": true
+                      }, {
+                        "name": "CLIENT_SESSION_KEEP_ALIVE",
+                        "value": true
+                      }, {
+                        "name": "CLIENT_SESSION_KEEP_ALIVE_HEARTBEAT_FREQUENCY",
+                        "value": 1800
+                      }]
+                    },
+                  "message": null,
+                  "success": true
+                }
+            }
+        }
+    },
+    {
+      request:
+        {
+          method: 'POST',
+          url: 'http://fakeaccount.snowflakecomputing.com/session/logout-request',
+          headers:
+            {
+              'Accept': 'application/json',
+              'Authorization': 'Snowflake Token="SESSION_GONE_MASTER_TOKEN"',
+              'Content-Type': 'application/json'
+            }
+        },
+      output:
+        {
+          err: null,
+          response:
+            {
+              statusCode: 200,
+              statusMessage: "OK",
+              body:
+                {
+                  code: "390111",
+                  data: null,
+                  message: "ERROR!",
+                  success: false
                 }
             }
         }

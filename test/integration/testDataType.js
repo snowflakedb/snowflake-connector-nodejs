@@ -4,6 +4,7 @@
 var async = require('async');
 var testUtil = require('./testUtil');
 const sharedStatement = require('./sharedStatements');
+var bigInt = require("big-integer");
 
 describe('Test DataType', function ()
 {
@@ -29,6 +30,7 @@ describe('Test DataType', function ()
   var dropTableWithBoolean = 'drop table if exists testBoolean';
   var insertDouble = 'insert into testDouble values(123.456)';
   var insertLargeNumber = 'insert into testNumber values (12345678901234567890123456789012345678)';
+  var insertRegularSizedNumber = 'insert into testNumber values (100000001)';
   var insertVariant = 'insert into testVariant select parse_json(\'{a : 1 , b :[1 , 2 , 3, -Infinity, undefined], c : {a : 1}}\')';
   var insertArray = 'insert into testArray select parse_json(\'["a", 1]\')';
   var insertDate = 'insert into testDate values(to_date(\'2012-11-11\'))';
@@ -150,6 +152,56 @@ describe('Test DataType', function ()
               connection,
               selectNumber,
               [{'COLA': 12345678901234567890123456789012345678}],
+              callback
+            );
+          }],
+        done
+      );
+    });
+
+    it('testLargeNumberNonNormalized', function (done)
+    {
+      async.series([
+          function (callback)
+          {
+            testUtil.executeCmd(connection, createTableWithNumber, callback);
+          },
+          function (callback)
+          {
+            testUtil.executeCmd(connection, insertLargeNumber, callback);
+          },
+          function (callback)
+          {
+            testUtil.executeQueryAndVerify(
+              connection,
+              selectNumber,
+              [{'COLA': bigInt("12345678901234567890123456789012345678")}],
+              callback,
+              null,
+              false
+            );
+          }],
+        done
+      );
+    });
+
+    it('testRegularSizedInteger', function (done)
+    {
+      async.series([
+          function (callback)
+          {
+            testUtil.executeCmd(connection, createTableWithNumber, callback);
+          },
+          function (callback)
+          {
+            testUtil.executeCmd(connection, insertRegularSizedNumber, callback);
+          },
+          function (callback)
+          {
+            testUtil.executeQueryAndVerify(
+              connection,
+              selectNumber,
+              [{'COLA': 100000001}],
               callback
             );
           }],

@@ -88,7 +88,7 @@ describe('Statement Tests', function()
             assert.strictEqual(stmt, statement,
                 'the end() callback should be invoked with the statement');
             assert.strictEqual(rows.length, 1, 'there should only be one row');
-            assert.strictEqual(rows[0].getColumnValue('c1'), 1,
+            assert.strictEqual(rows[0].getColumnValue('c1').toJSNumber(), 1,
                 'the row should only have one column c1 and its value ' +
                 'should be 1');
 

@@ -511,8 +511,8 @@ describe('connection.execute() synchronous errors', function ()
           {
             sqlText: '',
             binds: [function ()
-            {
-            }]
+                    {
+                    }]
           },
         errorCode: ErrorCodes.ERR_CONN_EXEC_STMT_INVALID_BIND_VALUES
       },
@@ -1709,7 +1709,8 @@ describe('snowflake.createConnection() CLIENT_SESSION_KEEP_ALIVE', function ()
           assert.equal(1800, connection.getClientSessionKeepAliveHeartbeatFrequency());
           callback();
         },
-        function (callback) {
+        function (callback)
+        {
           connection.destroy(function (err)
           {
             assert.ok(!err, JSON.stringify(err));
@@ -1737,7 +1738,8 @@ describe('snowflake.destroyConnection()', function ()
         },
         function (callback)
         {
-          connection.destroy(function(err, con){
+          connection.destroy(function (err, con)
+          {
             // SESSION_GONE error should be ignored.
             assert.ok(!err, JSON.stringify(err));
             callback();

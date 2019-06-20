@@ -1,33 +1,38 @@
 /*
  * Copyright (c) 2015-2019 Snowflake Computing Inc. All rights reserved.
  */
-var snowflake  = require('./../../lib/snowflake');
+var snowflake = require('./../../lib/snowflake');
 var connOptions = require('./connectionOptions');
 var assert = require('assert');
 
-module.exports.createConnection = function(){
+module.exports.createConnection = function ()
+{
   return snowflake.createConnection(connOptions.valid);
 };
 
-module.exports.connect = function(connection, callback){
-  connection.connect(function(err){
+module.exports.connect = function (connection, callback)
+{
+  connection.connect(function (err)
+  {
     assert.ok(!err, JSON.stringify(err));
     callback();
   });
 };
 
-module.exports.destroyConnection = function(connection, callback){
-  connection.destroy(function(err){
+module.exports.destroyConnection = function (connection, callback)
+{
+  connection.destroy(function (err)
+  {
     assert.ok(!err, JSON.stringify(err));
     callback();
   })
 };
 
-module.exports.executeCmd = function(connection, sql, callback, bindArray)
+module.exports.executeCmd = function (connection, sql, callback, bindArray)
 {
   var executeOptions = {};
   executeOptions.sqlText = sql;
-  executeOptions.complete = function(err)
+  executeOptions.complete = function (err)
   {
     assert.ok(!err, JSON.stringify(err));
     callback();
@@ -41,51 +46,55 @@ module.exports.executeCmd = function(connection, sql, callback, bindArray)
   connection.execute(executeOptions);
 };
 
-module.exports.checkError = function(err){
+module.exports.checkError = function (err)
+{
   assert.ok(!err, JSON.stringify(err));
 };
 
-module.exports.executeQueryAndVerify = function(connection, sql, expected, callback, bindArray, normalize){
+module.exports.executeQueryAndVerify = function (connection, sql, expected, callback, bindArray, normalize)
+{
   // Sometimes we may not want to normalize the row first
   normalize = (typeof normalize !== "undefined" && normalize != null) ? normalize : true;
   var executeOptions = {};
   executeOptions.sqlText = sql;
-  executeOptions.complete = function(err, stmt)
+  executeOptions.complete = function (err, stmt)
   {
     assert.ok(!err, JSON.stringify(err));
     var rowCount = 0;
     var stream = stmt.streamRows();
-    stream.on('readable', function(){
-      var row; 
-      while((row = stream.read()) !== null)
+    stream.on('readable', function ()
+    {
+      var row;
+      while ((row = stream.read()) !== null)
       {
         assert.deepStrictEqual(normalize ? normalizeRowObject(row) : row, expected[rowCount]);
         rowCount++;
       }
     });
-    stream.on('error', function(err)
+    stream.on('error', function (err)
     {
       assert.ok(!err, JSON.stringify(err));
-    }); 
-    stream.on('end', function(){
+    });
+    stream.on('end', function ()
+    {
       assert.strictEqual(rowCount, expected.length);
       callback();
     });
   };
-  if(bindArray != null && bindArray != undefined)
+  if (bindArray != null && bindArray != undefined)
   {
     executeOptions.binds = bindArray;
   }
-  
+
   connection.execute(executeOptions);
 };
 
 function normalizeRowObject(row)
 {
   var normalizedRow = {};
-  for (var key in row) 
+  for (var key in row)
   {
-    if(row.hasOwnProperty(key))
+    if (row.hasOwnProperty(key))
     {
       var convertToString = (row[key] !== null) && (row[key] !== undefined)
         && (typeof row[key].toJSON === 'function');

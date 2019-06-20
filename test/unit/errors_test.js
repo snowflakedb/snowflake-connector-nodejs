@@ -2,14 +2,14 @@
  * Copyright (c) 2015 Snowflake Computing Inc. All rights reserved.
  */
 
-var mapErrNameToErrCode    = require('./../../lib/errors').codes;
+var mapErrNameToErrCode = require('./../../lib/errors').codes;
 var mapErrCodeToErrMessage = require('./../../lib/constants/error_messages');
-var mapErrCodeToSqlState   = require('./../../lib/errors').mapErrorCodeToSqlState;
-var assert                 = require('assert');
+var mapErrCodeToSqlState = require('./../../lib/errors').mapErrorCodeToSqlState;
+var assert = require('assert');
 
-describe('Errors', function()
+describe('Errors', function ()
 {
-  it('every error name should have an error code and error message', function()
+  it('every error name should have an error code and error message', function ()
   {
     var errName;
     var errCode;
@@ -23,14 +23,14 @@ describe('Errors', function()
         assert.ok(errCode, 'missing error code for: ' + errName);
 
         assert.ok(mapErrCodeToErrMessage.hasOwnProperty(errCode),
-            'missing error message for: ' + errCode);
+          'missing error message for: ' + errCode);
         assert.ok(mapErrCodeToErrMessage[errCode],
-            'invalid error message for: ' + errCode);
+          'invalid error message for: ' + errCode);
       }
     }
   });
 
-  it('no two error names should have the same error code', function()
+  it('no two error names should have the same error code', function ()
   {
     // make sure the mapping from error-name to error-code is one-to-one
     var mapErrCodeToErrName = {};
@@ -42,14 +42,14 @@ describe('Errors', function()
         errCode = mapErrNameToErrCode[errName];
 
         assert.ok(!mapErrCodeToErrName.hasOwnProperty(errCode),
-            'more than one error name for code: ' + errCode);
+          'more than one error name for code: ' + errCode);
 
         mapErrCodeToErrName[errCode] = errName;
       }
     }
   });
 
-  it('validate error code to sql state mapping', function()
+  it('validate error code to sql state mapping', function ()
   {
     var mapErrCodeToErrName = {};
     for (var errName in mapErrNameToErrCode)
@@ -65,8 +65,8 @@ describe('Errors', function()
       if (mapErrCodeToSqlState.hasOwnProperty(errCode))
       {
         assert.ok(mapErrCodeToErrName[errCode],
-            'invalid mapping: ' + errCode + ':' +
-            mapErrCodeToSqlState[errCode]);
+          'invalid mapping: ' + errCode + ':' +
+          mapErrCodeToSqlState[errCode]);
       }
     }
   });

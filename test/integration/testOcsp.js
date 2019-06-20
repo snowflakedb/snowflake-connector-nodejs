@@ -1,14 +1,14 @@
 /*
  * Copyright (c) 2015-2019 Snowflake Computing Inc. All rights reserved.
  */
-var async      = require('async');
-var assert     = require('assert');
-var snowflake  = require('./../../lib/snowflake');
+var async = require('async');
+var assert = require('assert');
+var snowflake = require('./../../lib/snowflake');
 var connOption = require('./connectionOptions');
 
-describe('OCSP validation', function()
+describe('OCSP validation', function ()
 {
-  it('OCSP validation with server reusing SSL sessions', function(done)
+  it('OCSP validation with server reusing SSL sessions', function (done)
   {
     var connection = snowflake.createConnection(connOption.valid);
 
@@ -17,49 +17,49 @@ describe('OCSP validation', function()
     // doesn't barf (when an SSL session is reused, the certificate validation
     // step should be skipped)
     async.series(
-    [
-      function(callback)
-      {
-        connection.connect(function(err)
+      [
+        function (callback)
         {
-          assert.ok(!err, JSON.stringify(err));
-          callback();
-        });
-      },
-      function(callback)
-      {
-        var numErrors = 0;
-        var numStmtsExecuted = 0;
-        var numStmtsTotal = 20;
-
-        // execute a simple statement several times
-        // and make sure there are no errors
-        for (var index = 0; index < numStmtsTotal; index++)
-        {
-          connection.execute(
+          connection.connect(function (err)
           {
-            sqlText: 'select 1;',
-            complete: function(err)
-            {
-              if (err)
-              {
-                numErrors++;
-              }
-
-              numStmtsExecuted++;
-              if (numStmtsExecuted === (numStmtsTotal - 1))
-              {
-                assert.strictEqual(numErrors, 0);
-                callback();
-              }
-            }
+            assert.ok(!err, JSON.stringify(err));
+            callback();
           });
+        },
+        function (callback)
+        {
+          var numErrors = 0;
+          var numStmtsExecuted = 0;
+          var numStmtsTotal = 20;
+
+          // execute a simple statement several times
+          // and make sure there are no errors
+          for (var index = 0; index < numStmtsTotal; index++)
+          {
+            connection.execute(
+              {
+                sqlText: 'select 1;',
+                complete: function (err)
+                {
+                  if (err)
+                  {
+                    numErrors++;
+                  }
+
+                  numStmtsExecuted++;
+                  if (numStmtsExecuted === (numStmtsTotal - 1))
+                  {
+                    assert.strictEqual(numErrors, 0);
+                    callback();
+                  }
+                }
+              });
+          }
         }
-      }
-    ], done);
+      ], done);
   });
 
-  it('Test Ocsp with different endpoints', function(done)
+  it('Test Ocsp with different endpoints', function (done)
   {
     var options = [
       {
@@ -91,10 +91,11 @@ describe('OCSP validation', function()
       }
     ];
 
-    var testOptions = function(i)
+    var testOptions = function (i)
     {
       var connection = snowflake.createConnection(options[i]);
-      connection.connect(function(err){
+      connection.connect(function (err)
+      {
         assert.ok(err);
         if (err)
         {

@@ -2,161 +2,161 @@
  * Copyright (c) 2015-2019 Snowflake Computing Inc. All rights reserved.
  */
 
-var Util         = require('../../../lib/util');
+var Util = require('../../../lib/util');
 var MockTestUtil = require('./mock_test_util');
-var assert       = require('assert');
-var async        = require('async');
+var assert = require('assert');
+var async = require('async');
 
 // get a mock snowflake instance and an options object to connect to it
 var snowflake = MockTestUtil.snowflake;
 var connOpts = MockTestUtil.connectionOptions.default;
 
 var stmtOpts =
-{
-  sqlText: 'select to_boolean(:1) as "boolean", to_date(:2) as "date", 1.123456789123456789 as "number"',
-  binds: [ 'false', '1967-06-23' ],
-  requestId: 'foobar'
-};
+  {
+    sqlText: 'select to_boolean(:1) as "boolean", to_date(:2) as "date", 1.123456789123456789 as "number"',
+    binds: ['false', '1967-06-23'],
+    requestId: 'foobar'
+  };
 
-var numberAsString  = '1.123456789123456789';
+var numberAsString = '1.123456789123456789';
 var booleanAsString = 'FALSE';
-var dateAsString    = '1967-06-23';
+var dateAsString = '1967-06-23';
 
 var typesBoolean = [snowflake.BOOLEAN];
-var typesNumber  = [snowflake.NUMBER];
-var typesDate    = [snowflake.DATE];
+var typesNumber = [snowflake.NUMBER];
+var typesDate = [snowflake.DATE];
 
 var connOptsNone = Util.apply({}, connOpts);
-var connOptsBoolean = Util.apply({ fetchAsString: typesBoolean }, connOpts);
-var connOptsNumber = Util.apply({ fetchAsString: typesNumber }, connOpts);
-var connOptsDate = Util.apply({ fetchAsString: typesDate }, connOpts);
+var connOptsBoolean = Util.apply({fetchAsString: typesBoolean}, connOpts);
+var connOptsNumber = Util.apply({fetchAsString: typesNumber}, connOpts);
+var connOptsDate = Util.apply({fetchAsString: typesDate}, connOpts);
 
 var stmtOptsNone = Util.apply({}, stmtOpts);
-var stmtOptsBoolean = Util.apply({ fetchAsString: typesBoolean }, stmtOpts);
-var stmtOptsNumber = Util.apply({ fetchAsString: typesNumber }, stmtOpts);
+var stmtOptsBoolean = Util.apply({fetchAsString: typesBoolean}, stmtOpts);
+var stmtOptsNumber = Util.apply({fetchAsString: typesNumber}, stmtOpts);
 
 var strmOptsNone = {};
-var strmOptsNumber = { fetchAsString: typesNumber };
-var strmOptsBoolean = { fetchAsString: typesBoolean };
-var strmOptsDate = { fetchAsString: typesDate };
+var strmOptsNumber = {fetchAsString: typesNumber};
+var strmOptsBoolean = {fetchAsString: typesBoolean};
+var strmOptsDate = {fetchAsString: typesDate};
 
-describe('Statement - fetch as string', function()
+describe('Statement - fetch as string', function ()
 {
   var testCases =
-  [
-    {
-      name     : 'connection = none, statement = none, stream = number',
-      connOpts : connOptsNone,
-      stmtOpts : stmtOptsNone,
-      strmOpts : strmOptsNumber,
-      verifyFn : verifyOnlyNumberConverted
-    },
-    {
-      name     : 'connection = none, statement = none, stream = boolean',
-      connOpts : connOptsNone,
-      stmtOpts : stmtOptsNone,
-      strmOpts : strmOptsBoolean,
-      verifyFn : verifyOnlyBooleanConverted
-    },
-    {
-      name     : 'connection = none, statement = none, stream = date',
-      connOpts : connOptsNone,
-      stmtOpts : stmtOptsNone,
-      strmOpts : strmOptsDate,
-      verifyFn : verifyOnlyDateConverted
-    },
-    {
-      name     : 'connection = none, statement = boolean, stream = number',
-      connOpts : connOptsNone,
-      stmtOpts : stmtOptsBoolean,
-      strmOpts : strmOptsNumber,
-      verifyFn : verifyOnlyNumberConverted
-    },
-    {
-      name     : 'connection = date, statement = boolean, stream = number',
-      connOpts : connOptsDate,
-      stmtOpts : stmtOptsBoolean,
-      strmOpts : strmOptsNumber,
-      verifyFn : verifyOnlyNumberConverted
-    },
-    {
-      name     : 'connection = none, statement = number, stream = none',
-      connOpts : connOptsNone,
-      stmtOpts : stmtOptsNumber,
-      strmOpts : strmOptsNone,
-      verifyFn : verifyOnlyNumberConverted
-    },
-    {
-      name     : 'connection = boolean, statement = number, stream = none',
-      connOpts : connOptsBoolean,
-      stmtOpts : stmtOptsNumber,
-      strmOpts : strmOptsNone,
-      verifyFn : verifyOnlyNumberConverted
-    },
-    {
-      name     : 'connection = number, statement = none, stream = none',
-      connOpts : connOptsNumber,
-      stmtOpts : stmtOptsNone,
-      strmOpts : strmOptsNone,
-      verifyFn : verifyOnlyNumberConverted
-    }
-  ];
+    [
+      {
+        name: 'connection = none, statement = none, stream = number',
+        connOpts: connOptsNone,
+        stmtOpts: stmtOptsNone,
+        strmOpts: strmOptsNumber,
+        verifyFn: verifyOnlyNumberConverted
+      },
+      {
+        name: 'connection = none, statement = none, stream = boolean',
+        connOpts: connOptsNone,
+        stmtOpts: stmtOptsNone,
+        strmOpts: strmOptsBoolean,
+        verifyFn: verifyOnlyBooleanConverted
+      },
+      {
+        name: 'connection = none, statement = none, stream = date',
+        connOpts: connOptsNone,
+        stmtOpts: stmtOptsNone,
+        strmOpts: strmOptsDate,
+        verifyFn: verifyOnlyDateConverted
+      },
+      {
+        name: 'connection = none, statement = boolean, stream = number',
+        connOpts: connOptsNone,
+        stmtOpts: stmtOptsBoolean,
+        strmOpts: strmOptsNumber,
+        verifyFn: verifyOnlyNumberConverted
+      },
+      {
+        name: 'connection = date, statement = boolean, stream = number',
+        connOpts: connOptsDate,
+        stmtOpts: stmtOptsBoolean,
+        strmOpts: strmOptsNumber,
+        verifyFn: verifyOnlyNumberConverted
+      },
+      {
+        name: 'connection = none, statement = number, stream = none',
+        connOpts: connOptsNone,
+        stmtOpts: stmtOptsNumber,
+        strmOpts: strmOptsNone,
+        verifyFn: verifyOnlyNumberConverted
+      },
+      {
+        name: 'connection = boolean, statement = number, stream = none',
+        connOpts: connOptsBoolean,
+        stmtOpts: stmtOptsNumber,
+        strmOpts: strmOptsNone,
+        verifyFn: verifyOnlyNumberConverted
+      },
+      {
+        name: 'connection = number, statement = none, stream = none',
+        connOpts: connOptsNumber,
+        stmtOpts: stmtOptsNone,
+        strmOpts: strmOptsNone,
+        verifyFn: verifyOnlyNumberConverted
+      }
+    ];
 
   for (var index = 0, length = testCases.length; index < length; index++)
   {
     var testCase = testCases[index];
     it(testCase.name,
-        createItCallback(
-            testCase.connOpts,
-            testCase.stmtOpts,
-            testCase.strmOpts,
-            testCase.verifyFn));
+      createItCallback(
+        testCase.connOpts,
+        testCase.stmtOpts,
+        testCase.strmOpts,
+        testCase.verifyFn));
   }
 });
 
 function createItCallback(
-    connectionOptions,
-    statementOptions,
-    streamOptions,
-    verifyFn)
+  connectionOptions,
+  statementOptions,
+  streamOptions,
+  verifyFn)
 {
-  return function(done)
+  return function (done)
   {
     var connection;
     async.series(
-    [
-      function(callback)
-      {
-        connection = snowflake.createConnection(connectionOptions);
-        connection.connect(function(err)
+      [
+        function (callback)
         {
-          assert.ok(!err);
-          callback();
-        });
-      },
-      function(callback)
-      {
-        var rows = [];
-        connection.execute(statementOptions).streamRows(streamOptions)
-            .on('data', function(row)
+          connection = snowflake.createConnection(connectionOptions);
+          connection.connect(function (err)
+          {
+            assert.ok(!err);
+            callback();
+          });
+        },
+        function (callback)
+        {
+          var rows = [];
+          connection.execute(statementOptions).streamRows(streamOptions)
+            .on('data', function (row)
             {
               rows.push(row);
             })
-            .on('end', function()
+            .on('end', function ()
             {
               verifyFn(rows);
               callback();
             })
-            .on('error', function(err)
+            .on('error', function (err)
             {
               assert.ok(!err);
             });
-      }
-    ],
-    function()
-    {
-      done();
-    });
+        }
+      ],
+      function ()
+      {
+        done();
+      });
   };
 }
 

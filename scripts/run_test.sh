@@ -5,7 +5,7 @@
 set -o pipefail
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
-TEST_TIMEOUT=90000
+TEST_TIMEOUT=180000
 if [[ -z "$TRAVIS_JOB_ID" ]]; then
     MOCHA_CMD=(
         "mocha"

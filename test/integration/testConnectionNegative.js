@@ -1,142 +1,142 @@
 /*
  * Copyright (c) 2015-2019 Snowflake Computing Inc. All rights reserved.
  */
-var snowflake  = require('./../../lib/snowflake');
+var snowflake = require('./../../lib/snowflake');
 var assert = require('assert');
 
-describe('snowflake.createConnection() synchronous errors', function()
+describe('snowflake.createConnection() synchronous errors', function ()
 {
   // empty error code for now 
   var ErrorCodes = {};
   var testCases =
-  [
-    {
-      name      : 'missing options',
-      errorCode : ErrorCodes.ERR_CONN_CREATE_MISSING_OPTIONS
-    },
-    {
-      name      : 'undefined options',
-      options   : undefined,
-      errorCode : ErrorCodes.ERR_CONN_CREATE_MISSING_OPTIONS
-    },
-    {
-      name      : 'null options',
-      options   : null,
-      errorCode : ErrorCodes.ERR_CONN_CREATE_MISSING_OPTIONS
-    },
-    {
-      name      : 'invalid options',
-      options   : 'invalid',
-      errorCode : ErrorCodes.ERR_CONN_CREATE_INVALID_OPTIONS
-    },
-    {
-      name      : 'missing username',
-      options   : {},
-      errorCode : ErrorCodes.ERR_CONN_CREATE_MISSING_USERNAME
-    },
-    {
-      name      : 'undefined username',
-      options   :
+    [
       {
-        username: undefined
+        name: 'missing options',
+        errorCode: ErrorCodes.ERR_CONN_CREATE_MISSING_OPTIONS
       },
-      errorCode : ErrorCodes.ERR_CONN_CREATE_MISSING_USERNAME
-    },
-    {
-      name      : 'null username',
-      options   :
       {
-        username: null
+        name: 'undefined options',
+        options: undefined,
+        errorCode: ErrorCodes.ERR_CONN_CREATE_MISSING_OPTIONS
       },
-      errorCode : ErrorCodes.ERR_CONN_CREATE_MISSING_USERNAME
-    },
-    {
-      name      : 'invalid username',
-      options   :
       {
-        username: 0
+        name: 'null options',
+        options: null,
+        errorCode: ErrorCodes.ERR_CONN_CREATE_MISSING_OPTIONS
       },
-      errorCode : ErrorCodes.ERR_CONN_CREATE_INVALID_USERNAME
-    },
-    {
-      name      : 'missing password',
-      options   :
       {
-        username: 'username'
+        name: 'invalid options',
+        options: 'invalid',
+        errorCode: ErrorCodes.ERR_CONN_CREATE_INVALID_OPTIONS
       },
-      errorCode : ErrorCodes.ERR_CONN_CREATE_MISSING_PASSWORD
-    },
-    {
-      name      : 'undefined password',
-      options   :
       {
-        username: 'username',
-        password: undefined
+        name: 'missing username',
+        options: {},
+        errorCode: ErrorCodes.ERR_CONN_CREATE_MISSING_USERNAME
       },
-      errorCode : ErrorCodes.ERR_CONN_CREATE_MISSING_PASSWORD
-    },
-    {
-      name      : 'null password',
-      options   :
       {
-        username: 'username',
-        password: null
+        name: 'undefined username',
+        options:
+          {
+            username: undefined
+          },
+        errorCode: ErrorCodes.ERR_CONN_CREATE_MISSING_USERNAME
       },
-      errorCode : ErrorCodes.ERR_CONN_CREATE_MISSING_PASSWORD
-    },
-    {
-      name      : 'invalid password',
-      options   :
       {
-        username: 'username',
-        password: 0
+        name: 'null username',
+        options:
+          {
+            username: null
+          },
+        errorCode: ErrorCodes.ERR_CONN_CREATE_MISSING_USERNAME
       },
-      errorCode : ErrorCodes.ERR_CONN_CREATE_INVALID_PASSWORD
-    },
-    {
-      name      : 'missing account',
-      options   :
       {
-        username: 'username',
-        password: 'password'
+        name: 'invalid username',
+        options:
+          {
+            username: 0
+          },
+        errorCode: ErrorCodes.ERR_CONN_CREATE_INVALID_USERNAME
       },
-      errorCode : ErrorCodes.ERR_CONN_CREATE_MISSING_ACCOUNT
-    },
-    {
-      name      : 'undefined account',
-      options   :
       {
-        username: 'username',
-        password: 'password',
-        account : undefined
+        name: 'missing password',
+        options:
+          {
+            username: 'username'
+          },
+        errorCode: ErrorCodes.ERR_CONN_CREATE_MISSING_PASSWORD
       },
-      errorCode : ErrorCodes.ERR_CONN_CREATE_MISSING_ACCOUNT
-    },
-    {
-      name      : 'null account',
-      options   :
       {
-        username: 'username',
-        password: 'password',
-        account : null
+        name: 'undefined password',
+        options:
+          {
+            username: 'username',
+            password: undefined
+          },
+        errorCode: ErrorCodes.ERR_CONN_CREATE_MISSING_PASSWORD
       },
-      errorCode : ErrorCodes.ERR_CONN_CREATE_MISSING_ACCOUNT
-    },
-    {
-      name      : 'invalid account',
-      options   :
       {
-        username: 'username',
-        password: 'password',
-        account : 0
+        name: 'null password',
+        options:
+          {
+            username: 'username',
+            password: null
+          },
+        errorCode: ErrorCodes.ERR_CONN_CREATE_MISSING_PASSWORD
       },
-      errorCode : ErrorCodes.ERR_CONN_CREATE_INVALID_ACCOUNT
-    }
-  ];
+      {
+        name: 'invalid password',
+        options:
+          {
+            username: 'username',
+            password: 0
+          },
+        errorCode: ErrorCodes.ERR_CONN_CREATE_INVALID_PASSWORD
+      },
+      {
+        name: 'missing account',
+        options:
+          {
+            username: 'username',
+            password: 'password'
+          },
+        errorCode: ErrorCodes.ERR_CONN_CREATE_MISSING_ACCOUNT
+      },
+      {
+        name: 'undefined account',
+        options:
+          {
+            username: 'username',
+            password: 'password',
+            account: undefined
+          },
+        errorCode: ErrorCodes.ERR_CONN_CREATE_MISSING_ACCOUNT
+      },
+      {
+        name: 'null account',
+        options:
+          {
+            username: 'username',
+            password: 'password',
+            account: null
+          },
+        errorCode: ErrorCodes.ERR_CONN_CREATE_MISSING_ACCOUNT
+      },
+      {
+        name: 'invalid account',
+        options:
+          {
+            username: 'username',
+            password: 'password',
+            account: 0
+          },
+        errorCode: ErrorCodes.ERR_CONN_CREATE_INVALID_ACCOUNT
+      }
+    ];
 
-  var createItCallback = function(testCase)
+  var createItCallback = function (testCase)
   {
-    return function()
+    return function ()
     {
       var error = null;
 

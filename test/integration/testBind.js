@@ -7,7 +7,7 @@ var testUtil = require('./testUtil');
 var util = require('util');
 const sharedStatement = require('./sharedStatements');
 
-describe('Test Bind Varible', function()
+describe('Test Bind Varible', function ()
 {
   var connection;
   var createTestTbl = 'create or replace table testTbl(colA string, colB number)';
@@ -19,12 +19,12 @@ describe('Test Bind Varible', function()
   var selectAllFromTbl = 'select * from testTbl order by 1';
   var selectWithBind = 'select * from testTbl where COLA = :2 and COLB = :1';
 
-  before(function(done)
+  before(function (done)
   {
     connection = testUtil.createConnection();
     async.series(
       [
-        function(callback)
+        function (callback)
         {
           testUtil.connect(connection, callback);
         }
@@ -33,11 +33,11 @@ describe('Test Bind Varible', function()
     );
   });
 
-  after(function(done)
+  after(function (done)
   {
     async.series(
       [
-        function(callback)
+        function (callback)
         {
           testUtil.destroyConnection(connection, callback);
         }
@@ -46,15 +46,15 @@ describe('Test Bind Varible', function()
     );
   });
 
-  it('testBindWithQmark', function(done)
+  it('testBindWithQmark', function (done)
   {
     async.series(
       [
-        function(callback)
+        function (callback)
         {
           testUtil.executeCmd(connection, createTestTbl, callback);
         },
-        function(callback)
+        function (callback)
         {
           testUtil.executeCmd(
             connection,
@@ -63,17 +63,19 @@ describe('Test Bind Varible', function()
             ['string', 3]
           );
         },
-        function(callback)
+        function (callback)
         {
           testUtil.executeQueryAndVerify(
             connection,
             selectAllFromTbl,
-            [{'COLA': 'string',
-              'COLB': 3}],
+            [{
+              'COLA': 'string',
+              'COLB': 3
+            }],
             callback
           );
         },
-        function(callback)
+        function (callback)
         {
           testUtil.executeCmd(connection, dropTestTbl, callback);
         }
@@ -82,15 +84,15 @@ describe('Test Bind Varible', function()
     );
   });
 
-  it('testBindArrayWithQmark', function(done)
+  it('testBindArrayWithQmark', function (done)
   {
     async.series(
       [
-        function(callback)
+        function (callback)
         {
           testUtil.executeCmd(connection, createTestTbl, callback);
         },
-        function(callback)
+        function (callback)
         {
           testUtil.executeCmd(
             connection,
@@ -99,7 +101,7 @@ describe('Test Bind Varible', function()
             [['string3', 6], ['string2', 4], ['string1', 2]]
           );
         },
-        function(callback)
+        function (callback)
         {
           testUtil.executeQueryAndVerify(
             connection,
@@ -112,7 +114,7 @@ describe('Test Bind Varible', function()
             callback
           );
         },
-        function(callback)
+        function (callback)
         {
           testUtil.executeCmd(connection, dropTestTbl, callback);
         }
@@ -121,15 +123,15 @@ describe('Test Bind Varible', function()
     );
   });
 
-  it('testBindWithSemiColon', function(done)
+  it('testBindWithSemiColon', function (done)
   {
     async.series(
       [
-        function(callback)
+        function (callback)
         {
           testUtil.executeCmd(connection, createTestTbl, callback);
         },
-        function(callback)
+        function (callback)
         {
           testUtil.executeCmd(
             connection,
@@ -138,13 +140,15 @@ describe('Test Bind Varible', function()
             ['string', 3]
           );
         },
-        function(callback)
+        function (callback)
         {
           testUtil.executeQueryAndVerify(
             connection,
             selectAllFromTbl,
-            [{'COLA': 'string',
-              'COLB': 3}],
+            [{
+              'COLA': 'string',
+              'COLB': 3
+            }],
             callback
           );
         }
@@ -153,30 +157,32 @@ describe('Test Bind Varible', function()
     );
   });
 
-  it('testBindInPredicate', function(done)
+  it('testBindInPredicate', function (done)
   {
     async.series(
       [
-        function(callback)
+        function (callback)
         {
           testUtil.executeCmd(connection, createTestTbl, callback);
         },
-        function(callback)
+        function (callback)
         {
           testUtil.executeCmd(connection, insertValue, callback);
         },
-        function(callback)
+        function (callback)
         {
           testUtil.executeQueryAndVerify(
             connection,
             selectWithBind,
-            [{'COLA': 'string',
-              'COLB': 3}],
+            [{
+              'COLA': 'string',
+              'COLB': 3
+            }],
             callback,
             [3, 'string']
           );
         },
-        function(callback)
+        function (callback)
         {
           testUtil.executeCmd(connection, dropTestTbl, callback);
         }
@@ -185,36 +191,36 @@ describe('Test Bind Varible', function()
     );
   });
 
-  it('testBindNull', function(done)
+  it('testBindNull', function (done)
   {
     async.series(
-        [
-          function(callback)
-          {
-            // create a new table with two columns, colA and colB
-            testUtil.executeCmd(connection, createTestTbl, callback);
-          },
-          function(callback)
-          {
-            // use binds to insert a null value for colA into the table
-            connection.execute(
+      [
+        function (callback)
+        {
+          // create a new table with two columns, colA and colB
+          testUtil.executeCmd(connection, createTestTbl, callback);
+        },
+        function (callback)
+        {
+          // use binds to insert a null value for colA into the table
+          connection.execute(
             {
               sqlText: insertWithSemiColon,
               binds: [null, 3],
-              complete: function(err, statement, rows)
+              complete: function (err, statement, rows)
               {
                 assert.ok(!err);
                 callback();
               }
             });
-          },
-          function(callback)
-          {
-            // check that the value of colA in the inserted row is indeed null
-            connection.execute(
+        },
+        function (callback)
+        {
+          // check that the value of colA in the inserted row is indeed null
+          connection.execute(
             {
               sqlText: 'select * from testTbl where colA is null',
-              complete: function(err, statement, rows)
+              complete: function (err, statement, rows)
               {
                 assert.ok(!err);
                 assert.ok(util.isArray(rows));
@@ -222,16 +228,16 @@ describe('Test Bind Varible', function()
                 callback();
               }
             });
-          },
-          function(callback)
-          {
-            testUtil.executeCmd(connection, dropTestTbl, callback);
-          }
-        ],
-        done);
+        },
+        function (callback)
+        {
+          testUtil.executeCmd(connection, dropTestTbl, callback);
+        }
+      ],
+      done);
   });
 
-  it('testWrongBinds', function(done)
+  it('testWrongBinds', function (done)
   {
     var wrongBindsOptions =
       [
@@ -239,7 +245,7 @@ describe('Test Bind Varible', function()
           // empty binds array
           sqlText: insertWithSemiColon,
           binds: [],
-          verifyResults: function(err)
+          verifyResults: function (err)
           {
             assert.ok(err);
             assert.strictEqual('002049', err['code']);
@@ -249,7 +255,7 @@ describe('Test Bind Varible', function()
           //wrong binds data type
           sqlText: insertWithSemiColon,
           binds: [3, 'string'],
-          verifyResults: function(err)
+          verifyResults: function (err)
           {
             assert.ok(err);
             assert.strictEqual('100038', err['code']);
@@ -258,7 +264,7 @@ describe('Test Bind Varible', function()
         {
           // no binds array
           sqlText: insertWithSemiColon,
-          verifyResults: function(err)
+          verifyResults: function (err)
           {
             assert.ok(err);
             assert.strictEqual('002049', err['code']);
@@ -269,7 +275,7 @@ describe('Test Bind Varible', function()
           // more binds entry in the array
           sqlText: insertWithSemiColon,
           binds: ['string', 3, 3],
-          verifyResults: function(err)
+          verifyResults: function (err)
           {
             testUtil.checkError(err);
           }
@@ -278,7 +284,7 @@ describe('Test Bind Varible', function()
           //no qmark or semicolon but with binds
           sqlText: insertValue,
           binds: ['string', 3],
-          verifyResults: function(err)
+          verifyResults: function (err)
           {
             testUtil.checkError(err);
           }
@@ -286,7 +292,7 @@ describe('Test Bind Varible', function()
         {
           sqlText: 'insert into testTbl values(?, :2)',
           binds: ['string2', 4],
-          verifyResults: function(err)
+          verifyResults: function (err)
           {
             testUtil.checkError(err);
           }
@@ -294,7 +300,7 @@ describe('Test Bind Varible', function()
         {
           sqlText: 'insert into testTbl values(:2, 3)',
           binds: [5, 'string'],
-          verifyResults: function(err)
+          verifyResults: function (err)
           {
             testUtil.checkError(err);
           }
@@ -303,32 +309,33 @@ describe('Test Bind Varible', function()
 
     async.series(
       [
-        function(callback)
+        function (callback)
         {
           testUtil.executeCmd(connection, createTestTbl, callback);
         },
-        function(callback)
+        function (callback)
         {
-          var executeWrongBindsOption = function(index)
+          var executeWrongBindsOption = function (index)
           {
-            if(index < wrongBindsOptions.length)
+            if (index < wrongBindsOptions.length)
             {
               var option = wrongBindsOptions[index];
-              option.complete = function(err, stmt)
+              option.complete = function (err, stmt)
               {
                 option.verifyResults(err, stmt);
-                executeWrongBindsOption(index+1);
+                executeWrongBindsOption(index + 1);
               };
               connection.execute(option);
             }
-            else{
+            else
+            {
               callback();
             }
           };
 
           executeWrongBindsOption(0);
         },
-        function(callback)
+        function (callback)
         {
           testUtil.executeCmd(connection, dropTestTbl, callback);
         }
@@ -337,15 +344,15 @@ describe('Test Bind Varible', function()
     );
   });
 
-  it('testBindsSameSQLWithDifferentValue', function(done)
+  it('testBindsSameSQLWithDifferentValue', function (done)
   {
     async.series(
       [
-        function(callback)
+        function (callback)
         {
           testUtil.executeCmd(connection, createTestTbl, callback);
         },
-        function(callback)
+        function (callback)
         {
           var bindSets = [
             ['string2', 4],
@@ -353,28 +360,29 @@ describe('Test Bind Varible', function()
             ['string4', 6]
           ];
 
-          var insertWithDifferentBinds = function(i)
+          var insertWithDifferentBinds = function (i)
           {
             if (i < bindSets.length)
             {
               testUtil.executeCmd(
                 connection,
                 insertWithQmark,
-                function()
+                function ()
                 {
-                  insertWithDifferentBinds(i+1);
+                  insertWithDifferentBinds(i + 1);
                 },
                 bindSets[i]
               );
             }
-            else{
+            else
+            {
               callback();
             }
           };
 
           insertWithDifferentBinds(0);
         },
-        function(callback)
+        function (callback)
         {
           var expected = [
             {'COLA': 'string2', 'COLB': 4},
@@ -393,18 +401,18 @@ describe('Test Bind Varible', function()
     );
   });
 
-  it('testBindsVariableReuse', function(done)
+  it('testBindsVariableReuse', function (done)
   {
     async.series(
       [
-        function(callback)
+        function (callback)
         {
           testUtil.executeCmd(
             connection,
             'create or replace table testTbl(colA string, colB string, colC string)',
             callback);
         },
-        function(callback)
+        function (callback)
         {
           testUtil.executeCmd(
             connection,
@@ -413,18 +421,20 @@ describe('Test Bind Varible', function()
             ['string']
           );
         },
-        function(callback)
+        function (callback)
         {
           testUtil.executeQueryAndVerify(
             connection,
             selectAllFromTbl,
-            [{'COLA': 'string',
+            [{
+              'COLA': 'string',
               'COLB': 'string',
-              'COLC': 'string'}],
+              'COLC': 'string'
+            }],
             callback
           );
         },
-        function(callback)
+        function (callback)
         {
           testUtil.executeCmd(connection, dropTestTbl, callback);
         }
@@ -433,13 +443,13 @@ describe('Test Bind Varible', function()
     );
   });
 
-  describe('testBindingWithDifferentDataType', function()
+  describe('testBindingWithDifferentDataType', function ()
   {
-    var testingFunc = function(dataType, binds, expected, callback)
+    var testingFunc = function (dataType, binds, expected, callback)
     {
       async.series(
         [
-          function(callback)
+          function (callback)
           {
             testUtil.executeCmd(
               connection,
@@ -447,7 +457,7 @@ describe('Test Bind Varible', function()
               callback
             );
           },
-          function(callback)
+          function (callback)
           {
             testUtil.executeCmd(
               connection,
@@ -455,7 +465,7 @@ describe('Test Bind Varible', function()
               callback
             );
           },
-          function(callback)
+          function (callback)
           {
             testUtil.executeCmd(
               connection,
@@ -464,7 +474,7 @@ describe('Test Bind Varible', function()
               binds
             );
           },
-          function(callback)
+          function (callback)
           {
             testUtil.executeQueryAndVerify(
               connection,
@@ -473,7 +483,7 @@ describe('Test Bind Varible', function()
               callback
             );
           },
-          function(callback)
+          function (callback)
           {
             testUtil.executeCmd(connection, dropTestTbl, callback);
           }
@@ -482,7 +492,8 @@ describe('Test Bind Varible', function()
       );
     };
 
-    it('testBindingBooleanSimple', function(done){
+    it('testBindingBooleanSimple', function (done)
+    {
       testingFunc(
         'boolean',
         [true],
@@ -491,7 +502,7 @@ describe('Test Bind Varible', function()
       );
     });
 
-    it('testBindingDateSimple', function(done)
+    it('testBindingDateSimple', function (done)
     {
       testingFunc(
         'date',
@@ -501,7 +512,7 @@ describe('Test Bind Varible', function()
       );
     });
 
-    it('testBindingTimeSimple', function(done)
+    it('testBindingTimeSimple', function (done)
     {
       testingFunc(
         'time',
@@ -511,7 +522,7 @@ describe('Test Bind Varible', function()
       );
     });
 
-    it('testBindingTimestampLTZSimple', function(done)
+    it('testBindingTimestampLTZSimple', function (done)
     {
       testingFunc(
         'timestamp_ltz',
@@ -521,7 +532,7 @@ describe('Test Bind Varible', function()
       );
     });
 
-    it('testBindingTimestampTZSimple', function(done)
+    it('testBindingTimestampTZSimple', function (done)
     {
       testingFunc(
         'timestamp_tz',
@@ -531,12 +542,12 @@ describe('Test Bind Varible', function()
       );
     });
 
-    it('testBindingTimestampNTZSimple', function(done)
+    it('testBindingTimestampNTZSimple', function (done)
     {
       testingFunc(
         'timestamp_ntz',
         ['Thu, 21 Jan 2016 06:32:44 -0800'],
-        [{'COLA':'2016-01-21 06:32:44.000'}],
+        [{'COLA': '2016-01-21 06:32:44.000'}],
         done
       );
     });
@@ -583,31 +594,31 @@ describe('Test Bind Varible', function()
     });*/
   });
 
-  it('testBindMaliciousString', function(done)
+  it('testBindMaliciousString', function (done)
   {
     async.series(
       [
-        function(callback)
+        function (callback)
         {
           testUtil.executeCmd(connection, createTestTbl, callback);
         },
-        function(callback)
+        function (callback)
         {
           testUtil.executeCmd(connection, insertValue, callback);
         },
-        function(callback)
+        function (callback)
         {
           var maliciousOptions = [
             {
-              sqlText : 'select * from testTbl where colA = ?',
-              binds : ['a; drop table if exists testTbl']
+              sqlText: 'select * from testTbl where colA = ?',
+              binds: ['a; drop table if exists testTbl']
             },
             {
-              sqlText : 'select * from testTbl where colA = ?',
-              binds : ['$*~?\':1234567890!@#$%^&*()_=']
+              sqlText: 'select * from testTbl where colA = ?',
+              binds: ['$*~?\':1234567890!@#$%^&*()_=']
             }
           ];
-          var selectWithOption = function(i)
+          var selectWithOption = function (i)
           {
             if (i < maliciousOptions.length)
             {
@@ -615,9 +626,9 @@ describe('Test Bind Varible', function()
                 connection,
                 maliciousOptions[i].sqlText,
                 [],
-                function()
+                function ()
                 {
-                  selectWithOption(i+1);
+                  selectWithOption(i + 1);
                 },
                 maliciousOptions[i].binds
               );

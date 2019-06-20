@@ -5,7 +5,7 @@
 var Logger = require('./../../../lib/logger/browser');
 var assert = require('assert');
 
-describe('Logger - browser', function()
+describe('Logger - browser', function ()
 {
   // TODO: negative tests
   // TODO: configuration tests
@@ -17,8 +17,8 @@ describe('Logger - browser', function()
   var TRACE = 'TRACE';
 
   var LOG_MSG_ERROR = '0 error';
-  var LOG_MSG_WARN  = '1 warn';
-  var LOG_MSG_INFO  = '2 info';
+  var LOG_MSG_WARN = '1 warn';
+  var LOG_MSG_INFO = '2 info';
   var LOG_MSG_DEBUG = '3 debug';
   var LOG_MSG_TRACE = '4 trace';
 
@@ -28,7 +28,7 @@ describe('Logger - browser', function()
   var FULL_LOG_MSG_DEBUG = DEBUG + ': ' + LOG_MSG_DEBUG;
   var FULL_LOG_MSG_TRACE = TRACE + ': ' + LOG_MSG_TRACE;
 
-  var logMessages = function(logger)
+  var logMessages = function (logger)
   {
     logger.error(LOG_MSG_ERROR);
     logger.warn(LOG_MSG_WARN);
@@ -37,16 +37,16 @@ describe('Logger - browser', function()
     logger.trace(LOG_MSG_TRACE);
   };
 
-  var createLogger = function(level)
+  var createLogger = function (level)
   {
     return new Logger(
-    {
-      includeTimestamp : false,
-      level            : level
-    });
+      {
+        includeTimestamp: false,
+        level: level
+      });
   };
 
-  it('test all levels', function()
+  it('test all levels', function ()
   {
     var logger;
     var logBuffer;

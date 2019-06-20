@@ -2,15 +2,17 @@
  * Copyright (c) 2015 Snowflake Computing Inc. All rights reserved.
  */
 
-var Util   = require('./../../lib/util');
+var Util = require('./../../lib/util');
 var assert = require('assert');
 
-describe('Util', function()
+describe('Util', function ()
 {
-  it('Util.isFunction()', function()
+  it('Util.isFunction()', function ()
   {
     // positive tests
-    assert.ok(Util.isFunction(function(){}));
+    assert.ok(Util.isFunction(function ()
+    {
+    }));
     assert.ok(Util.isFunction(new Function()));
 
     // negative tests
@@ -25,7 +27,7 @@ describe('Util', function()
     assert.ok(!Util.isFunction(new Object()));
   });
 
-  it('Util.isObject()', function()
+  it('Util.isObject()', function ()
   {
     // positive tests
     assert.ok(Util.isObject({}));
@@ -39,11 +41,13 @@ describe('Util', function()
     assert.ok(!Util.isObject(''));
     assert.ok(!Util.isObject('foo'));
     assert.ok(!Util.isObject(new Date()));
-    assert.ok(!Util.isObject(function(){}));
+    assert.ok(!Util.isObject(function ()
+    {
+    }));
     assert.ok(!Util.isObject(new Function()));
   });
 
-  it('Util.isDate()', function()
+  it('Util.isDate()', function ()
   {
     // positive tests
     assert.ok(Util.isDate(new Date()));
@@ -57,11 +61,13 @@ describe('Util', function()
     assert.ok(!Util.isDate(1));
     assert.ok(!Util.isDate(''));
     assert.ok(!Util.isDate('foo'));
-    assert.ok(!Util.isDate(function(){}));
+    assert.ok(!Util.isDate(function ()
+    {
+    }));
     assert.ok(!Util.isDate(new Function()));
   });
 
-  it('isArray()', function()
+  it('isArray()', function ()
   {
     // positive tests
     assert.ok(Util.isArray([]));
@@ -78,11 +84,13 @@ describe('Util', function()
     assert.ok(!Util.isArray(new Date()));
     assert.ok(!Util.isArray({}));
     assert.ok(!Util.isArray(new Object()));
-    assert.ok(!Util.isArray(function(){}));
+    assert.ok(!Util.isArray(function ()
+    {
+    }));
     assert.ok(!Util.isArray(new Function()));
   });
 
-  it('Util.isString()', function()
+  it('Util.isString()', function ()
   {
     // positive tests
     assert.ok(Util.isString(''));
@@ -97,11 +105,13 @@ describe('Util', function()
     assert.ok(!Util.isString(new Date()));
     assert.ok(!Util.isString({}));
     assert.ok(!Util.isString(new Object()));
-    assert.ok(!Util.isString(function(){}));
+    assert.ok(!Util.isString(function ()
+    {
+    }));
     assert.ok(!Util.isString(new Function()));
   });
 
-  it('Util.isBoolean()', function()
+  it('Util.isBoolean()', function ()
   {
     // positive tests
     assert.ok(Util.isBoolean(true));
@@ -117,11 +127,13 @@ describe('Util', function()
     assert.ok(!Util.isBoolean(new Date()));
     assert.ok(!Util.isBoolean({}));
     assert.ok(!Util.isBoolean(new Object()));
-    assert.ok(!Util.isBoolean(function(){}));
+    assert.ok(!Util.isBoolean(function ()
+    {
+    }));
     assert.ok(!Util.isBoolean(new Function()));
   });
 
-  it('Util.isNumber()', function()
+  it('Util.isNumber()', function ()
   {
     // positive tests
     assert.ok(Util.isNumber(Number()));
@@ -141,11 +153,13 @@ describe('Util', function()
     assert.ok(!Util.isNumber(new Date()));
     assert.ok(!Util.isNumber({}));
     assert.ok(!Util.isNumber(new Object()));
-    assert.ok(!Util.isNumber(function(){}));
+    assert.ok(!Util.isNumber(function ()
+    {
+    }));
     assert.ok(!Util.isNumber(new Function()));
   });
 
-  it('Util.exists()', function()
+  it('Util.exists()', function ()
   {
     // positive tests
     assert.ok(Util.exists(0));
@@ -154,7 +168,9 @@ describe('Util', function()
     assert.ok(Util.exists(new Date()));
     assert.ok(Util.exists({}));
     assert.ok(Util.exists(new Object()));
-    assert.ok(Util.exists(function(){}));
+    assert.ok(Util.exists(function ()
+    {
+    }));
     assert.ok(Util.exists(new Function()));
 
     // negative tests
@@ -162,7 +178,7 @@ describe('Util', function()
     assert.ok(!Util.exists(undefined));
   });
 
-  it('Util.string.isNotNullOrEmpty()', function()
+  it('Util.string.isNotNullOrEmpty()', function ()
   {
     // positive tests
     assert.ok(Util.string.isNotNullOrEmpty('foo'));
@@ -178,124 +194,124 @@ describe('Util', function()
     assert.ok(!Util.string.isNotNullOrEmpty(new Object()));
   });
 
-  it('Util.string.compareVersions()', function()
+  it('Util.string.compareVersions()', function ()
   {
     var testCases = [];
 
     // '' and '0' are the same
     testCases.push(
-    {
-      version1 : '',
-      version2 : '',
-      result   : 0
-    },
-    {
-      version1 : '',
-      version2 : '0',
-      result   : 0
-    },
-    {
-      version1 : '0',
-      version2 : '',
-      result   : 0
-    });
+      {
+        version1: '',
+        version2: '',
+        result: 0
+      },
+      {
+        version1: '',
+        version2: '0',
+        result: 0
+      },
+      {
+        version1: '0',
+        version2: '',
+        result: 0
+      });
 
     testCases.push(
-    {
-      version1 : '0.0.1',
-      version2 : '0.1.0',
-      result   : -1
-    },
-    {
-      version1 : '0.0.1',
-      version2 : '0.1',
-      result   : -1
-    },
-    {
-      version1 : '0.1.0',
-      version2 : '0.0.1',
-      result   : 1
-    },
-    {
-      version1 : '1.1.0',
-      version2 : '0.1.1',
-      result   : 1
-    },
-    {
-      version1 : '1.1.0',
-      version2 : '0.1.1',
-      result   : 1
-    },
-    {
-      version1 : '0.1',
-      version2 : '0.1.0',
-      result   : 0
-    },
-    {
-      version1 : '5.10.0',
-      version2 : '6.0.0',
-      result   : -1
-    });
+      {
+        version1: '0.0.1',
+        version2: '0.1.0',
+        result: -1
+      },
+      {
+        version1: '0.0.1',
+        version2: '0.1',
+        result: -1
+      },
+      {
+        version1: '0.1.0',
+        version2: '0.0.1',
+        result: 1
+      },
+      {
+        version1: '1.1.0',
+        version2: '0.1.1',
+        result: 1
+      },
+      {
+        version1: '1.1.0',
+        version2: '0.1.1',
+        result: 1
+      },
+      {
+        version1: '0.1',
+        version2: '0.1.0',
+        result: 0
+      },
+      {
+        version1: '5.10.0',
+        version2: '6.0.0',
+        result: -1
+      });
 
     // if one or both inputs are invalid versions, return NaN
     testCases.push(
-    {
-      version1 : '',
-      version2 : 0,
-      result   : NaN
-    },
-    {
-      version1 : 0,
-      version2 : '',
-      result   : NaN
-    },
-    {
-      version1 : 1,
-      version2 : 1,
-      result   : NaN
-    },
-    {
-      version1 : 1,
-      version2 : 2,
-      result   : NaN
-    },
-    {
-      version1 : {},
-      version2 : false,
-      result   : NaN
-    },
-    {
-      version1 : 'foo',
-      version2 : '1',
-      result   : NaN
-    },
-    {
-      version1 : '1',
-      version2 : 'foo',
-      result   : NaN
-    },
-    {
-      version1 : 'foo',
-      version2 : 'foo',
-      result   : NaN
-    });
+      {
+        version1: '',
+        version2: 0,
+        result: NaN
+      },
+      {
+        version1: 0,
+        version2: '',
+        result: NaN
+      },
+      {
+        version1: 1,
+        version2: 1,
+        result: NaN
+      },
+      {
+        version1: 1,
+        version2: 2,
+        result: NaN
+      },
+      {
+        version1: {},
+        version2: false,
+        result: NaN
+      },
+      {
+        version1: 'foo',
+        version2: '1',
+        result: NaN
+      },
+      {
+        version1: '1',
+        version2: 'foo',
+        result: NaN
+      },
+      {
+        version1: 'foo',
+        version2: 'foo',
+        result: NaN
+      });
 
     var testCase, actual, expected;
     for (var index = 0, length = testCases.length; index < length; index++)
     {
       testCase = testCases[index];
       actual =
-          Util.string.compareVersions(testCase.version1, testCase.version2);
+        Util.string.compareVersions(testCase.version1, testCase.version2);
       expected = testCase.result;
 
       assert.ok(isNaN(actual) && isNaN(expected) ? true : (actual === expected),
-          'index = ' + index +
-          ', version1 = ' + testCase.version1 +
-          ', version2 = ' + testCase.version2);
+        'index = ' + index +
+        ', version1 = ' + testCase.version1 +
+        ', version2 = ' + testCase.version2);
     }
   });
 
-  it('Util.number.isPositive()', function()
+  it('Util.number.isPositive()', function ()
   {
     // positive tests
     assert.ok(Util.number.isPositive(1));
@@ -314,7 +330,7 @@ describe('Util', function()
     assert.ok(!Util.number.isPositive(Number.NEGATIVE_INFINITY));
   });
 
-  it('Util.number.isNonNegative()', function()
+  it('Util.number.isNonNegative()', function ()
   {
     // positive tests
     assert.ok(Util.number.isNonNegative(0));
@@ -333,7 +349,7 @@ describe('Util', function()
     assert.ok(!Util.number.isNonNegative(Number.NEGATIVE_INFINITY));
   });
 
-  it('Util.number.isInteger()', function()
+  it('Util.number.isInteger()', function ()
   {
     // positive tests
     assert.ok(Util.number.isInteger(0));
@@ -354,7 +370,7 @@ describe('Util', function()
     assert.ok(!Util.number.isInteger(Number.NaN));
   });
 
-  it('Util.number.isPositiveInteger()', function()
+  it('Util.number.isPositiveInteger()', function ()
   {
     // positive tests
     assert.ok(Util.number.isPositiveInteger(1));
@@ -372,7 +388,7 @@ describe('Util', function()
     assert.ok(!Util.number.isPositiveInteger(Number.NEGATIVE_INFINITY));
   });
 
-  it('Util.number.isNonNegativeInteger()', function()
+  it('Util.number.isNonNegativeInteger()', function ()
   {
     // positive tests
     assert.ok(Util.number.isNonNegativeInteger(0));
@@ -390,42 +406,42 @@ describe('Util', function()
     assert.ok(!Util.number.isNonNegativeInteger(Number.NEGATIVE_INFINITY));
   });
 
-  it('Util.url.appendParam()', function()
+  it('Util.url.appendParam()', function ()
   {
     /////////////////////////////////////////////////////////////////////////
     ////                 Positive Test Cases                             ////
     /////////////////////////////////////////////////////////////////////////
 
     var testCasesPos =
-    [
-      {
-        url        : 'a',
-        paramName  : 'foo',
-        paramValue : 'bar',
-        result     : 'a?foo=bar'
-      },
-      {
-        url        : 'http://www.something.snowflakecomputing.com',
-        paramName  : 'foo',
-        paramValue : 'bar',
-        result     : 'http://www.something.snowflakecomputing.com?foo=bar'
-      },
-      {
-        url        : 'http://www.something.snowflakecomputing.com?param1=value1',
-        paramName  : 'foo',
-        paramValue : 'bar',
-        result     : 'http://www.something.snowflakecomputing.com?param1=value1&foo=bar'
-      }
-    ];
+      [
+        {
+          url: 'a',
+          paramName: 'foo',
+          paramValue: 'bar',
+          result: 'a?foo=bar'
+        },
+        {
+          url: 'http://www.something.snowflakecomputing.com',
+          paramName: 'foo',
+          paramValue: 'bar',
+          result: 'http://www.something.snowflakecomputing.com?foo=bar'
+        },
+        {
+          url: 'http://www.something.snowflakecomputing.com?param1=value1',
+          paramName: 'foo',
+          paramValue: 'bar',
+          result: 'http://www.something.snowflakecomputing.com?param1=value1&foo=bar'
+        }
+      ];
 
     var testCase;
     for (var index = 0, length = testCasesPos.length; index < length; index++)
     {
       testCase = testCasesPos[index];
       assert.strictEqual(
-          Util.url.appendParam(
-              testCase.url, testCase.paramName, testCase.paramValue),
-          testCase.result);
+        Util.url.appendParam(
+          testCase.url, testCase.paramName, testCase.paramValue),
+        testCase.result);
     }
 
     /////////////////////////////////////////////////////////////////////////
@@ -433,22 +449,22 @@ describe('Util', function()
     /////////////////////////////////////////////////////////////////////////
 
     var testCasesNeg =
-    [
-      {
-        paramName  : 'foo',
-        paramValue : 'bar'
-      },
-      {
-        url        : undefined,
-        paramName  : 'foo',
-        paramValue : 'bar'
-      },
-      {
-        url        : null,
-        paramName  : 'foo',
-        paramValue : 'bar'
-      }
-    ];
+      [
+        {
+          paramName: 'foo',
+          paramValue: 'bar'
+        },
+        {
+          url: undefined,
+          paramName: 'foo',
+          paramValue: 'bar'
+        },
+        {
+          url: null,
+          paramName: 'foo',
+          paramValue: 'bar'
+        }
+      ];
 
     var error;
     for (index = 0, length = testCasesPos.length; index < length; index++)
@@ -459,7 +475,7 @@ describe('Util', function()
       try
       {
         Util.url.appendParam(
-            testCase.url, testCase.paramName, testCase.paramValue);
+          testCase.url, testCase.paramName, testCase.paramValue);
       }
       catch (err)
       {
@@ -472,7 +488,7 @@ describe('Util', function()
     }
   });
 
-  it('Util.apply()', function()
+  it('Util.apply()', function ()
   {
     assert.strictEqual(Util.apply(null, null), null);
     assert.strictEqual(Util.apply(null, undefined), null);
@@ -487,15 +503,15 @@ describe('Util', function()
     src = null;
     assert.strictEqual(Util.apply(dst, src), dst);
 
-    dst = { a : 1 };
-    src = { b : 2 };
+    dst = {a: 1};
+    src = {b: 2};
     assert.strictEqual(Util.apply(dst, src), dst);
     assert.strictEqual(Object.keys(dst).length, 2);
     assert.ok(dst.hasOwnProperty('a') && (dst.a === 1));
     assert.ok(dst.hasOwnProperty('b') && (dst.b === 2));
 
-    dst = { a : 1 };
-    src = { a : 2 };
+    dst = {a: 1};
+    src = {a: 2};
     assert.strictEqual(Util.apply(dst, src), dst);
     assert.strictEqual(Object.keys(dst).length, 1);
     assert.ok(dst.hasOwnProperty('a') && (dst.a === 2));

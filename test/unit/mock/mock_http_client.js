@@ -16,9 +16,9 @@ function MockHttpClient(clientInfo)
 {
   Errors.assertInternal(Util.exists(clientInfo) && Util.isObject(clientInfo));
   Errors.assertInternal(Util.exists(clientInfo.version) &&
-                        Util.isString(clientInfo.version));
+    Util.isString(clientInfo.version));
   Errors.assertInternal(Util.exists(clientInfo.environment) &&
-                        Util.isObject(clientInfo.environment));
+    Util.isObject(clientInfo.environment));
 
   this._clientInfo = clientInfo;
 }

@@ -84,7 +84,12 @@ function buildRequestToOutputMap(mappings)
   for (var index = 0, length = mappings.length; index < length; index++)
   {
     mapping = mappings[index];
-    mapRequestToOutput[serializeRequest(mapping.request)] = mapping.output;
+    const k = serializeRequest(mapping.request);
+    if (mapRequestToOutput[k])
+    {
+      Logger.getInstance().error("The mock already exists: %s", k);
+    }
+    mapRequestToOutput[k] = mapping.output;
   }
 
   return mapRequestToOutput;
@@ -190,14 +195,14 @@ function buildRequestOutputMappings(clientInfo)
                       "displayUserName": "FAKEUSERNAME",
                       "firstLogin": false,
                       "healthCheckInterval": 45,
-                      "masterToken": "ETMsDgAAAVHApAq4ABRBRVMvQ0JDL1BLQ1M1UGFkZGluZwCAABAAEFXybqPxPmJrBv1S2+TBVY0AAACgxIkcbg5ZTa3xHwhdUQ1kBjEbV1YJcYuG0ITQ8/jH37FhSO4UYHJCZ/TV0+CF5TBA+a4nkmyh1INKk6ndi7vWp1hZGM7rUtRkZMmdjnUTPKBZpXd8LFiGfofEus8K4OPEmf3PPvwrxMvGbzxNCTAHo/hiD8sVNkSjVXfPPJKwO7HHvnPuNP4LzpOf0mqqIWDHPCHYZjlsUOLM+f2CtKCgIgAUvY30vA343bf1eXUNqlCvH45kEVU=",
+                      "masterToken": "MASTER_TOKEN",
                       "masterValidityInSeconds": 14400,
                       "newClientForUpgrade": null,
-                      "remMeToken": "ETMsDgAAAVHApAq4ABRBRVMvQ0JDL1BLQ1M1UGFkZGluZwCAABAAEFXybqPxPmJrBv1S2+TBVY0AAACgxIkcbg5ZTa3xHwhdUQ1kBjEbV1YJcYuG0ITQ8/jH37FhSO4UYHJCZ/TV0+CF5TBA+a4nkmyh1INKk6ndi7vWp1hZGM7rUtRkZMmdjnUTPKBZpXd8LFiGfofEus8K4OPEmf3PPvwrxMvGbzxNCTAHo/hiD8sVNkSjVXfPPJKwO7HHvnPuNP4LzpOf0mqqIWDHPCHYZjlsUOLM+f2CtKCgIgAUvY30vA343bf1eXUNqlCvH45kEVU=",
+                      "remMeToken": "REMEM_TOKEN",
                       "remMeValidityInSeconds": 14400,
                       "serverVersion": "Dev",
                       "sessionId": "51539800306",
-                      "token": "ETMsDgAAAVHApArOABRBRVMvQ0JDL1BLQ1M1UGFkZGluZwCAABAAEH6XI1dGt/WBW5OrD4pFJF0AAABwUr+kbG6lEvgdJ1unUV69p3ZQWhMXh13TrFu2OXIA19TnaNFoFe7L0GOUASskpvLxBwNjRITjaO3cDBZnZ5Kthv7Vu6wPXwPp9vtXtWKzy+B58arDdXoF7ktIjNhGZWnGlvrEM0IOUBXVmO5jHdKUZwAU1T3TJfuZgjJNs2gKQtbm2+AW7Yg=",
+                      "token": "SESSION_TOKEN",
                       "validityInSeconds": 3600,
                       "parameters": [{
                         "name": "TIMEZONE",
@@ -257,7 +262,7 @@ function buildRequestOutputMappings(clientInfo)
           headers:
             {
               'Accept': 'application/json',
-              'Authorization': 'Snowflake Token="ETMsDgAAAVHApAq4ABRBRVMvQ0JDL1BLQ1M1UGFkZGluZwCAABAAEFXybqPxPmJrBv1S2+TBVY0AAACgxIkcbg5ZTa3xHwhdUQ1kBjEbV1YJcYuG0ITQ8/jH37FhSO4UYHJCZ/TV0+CF5TBA+a4nkmyh1INKk6ndi7vWp1hZGM7rUtRkZMmdjnUTPKBZpXd8LFiGfofEus8K4OPEmf3PPvwrxMvGbzxNCTAHo/hiD8sVNkSjVXfPPJKwO7HHvnPuNP4LzpOf0mqqIWDHPCHYZjlsUOLM+f2CtKCgIgAUvY30vA343bf1eXUNqlCvH45kEVU="',
+              'Authorization': 'Snowflake Token="MASTER_TOKEN"',
               'Content-Type': 'application/json'
             }
         },
@@ -286,7 +291,7 @@ function buildRequestOutputMappings(clientInfo)
           headers:
             {
               'Accept': 'application/snowflake',
-              'Authorization': 'Snowflake Token="ETMsDgAAAVHApArOABRBRVMvQ0JDL1BLQ1M1UGFkZGluZwCAABAAEH6XI1dGt/WBW5OrD4pFJF0AAABwUr+kbG6lEvgdJ1unUV69p3ZQWhMXh13TrFu2OXIA19TnaNFoFe7L0GOUASskpvLxBwNjRITjaO3cDBZnZ5Kthv7Vu6wPXwPp9vtXtWKzy+B58arDdXoF7ktIjNhGZWnGlvrEM0IOUBXVmO5jHdKUZwAU1T3TJfuZgjJNs2gKQtbm2+AW7Yg="',
+              'Authorization': 'Snowflake Token="SESSION_TOKEN"',
               'Content-Type': 'application/json'
             },
           json:
@@ -389,7 +394,7 @@ function buildRequestOutputMappings(clientInfo)
           headers:
             {
               'Accept': 'application/snowflake',
-              'Authorization': 'Snowflake Token="ETMsDgAAAVHApArOABRBRVMvQ0JDL1BLQ1M1UGFkZGluZwCAABAAEH6XI1dGt/WBW5OrD4pFJF0AAABwUr+kbG6lEvgdJ1unUV69p3ZQWhMXh13TrFu2OXIA19TnaNFoFe7L0GOUASskpvLxBwNjRITjaO3cDBZnZ5Kthv7Vu6wPXwPp9vtXtWKzy+B58arDdXoF7ktIjNhGZWnGlvrEM0IOUBXVmO5jHdKUZwAU1T3TJfuZgjJNs2gKQtbm2+AW7Yg="',
+              'Authorization': 'Snowflake Token="SESSION_TOKEN"',
               'Content-Type': 'application/json'
             },
           json:
@@ -492,7 +497,7 @@ function buildRequestOutputMappings(clientInfo)
           headers:
             {
               'Accept': 'application/snowflake',
-              'Authorization': 'Snowflake Token="ETMsDgAAAVHApArOABRBRVMvQ0JDL1BLQ1M1UGFkZGluZwCAABAAEH6XI1dGt/WBW5OrD4pFJF0AAABwUr+kbG6lEvgdJ1unUV69p3ZQWhMXh13TrFu2OXIA19TnaNFoFe7L0GOUASskpvLxBwNjRITjaO3cDBZnZ5Kthv7Vu6wPXwPp9vtXtWKzy+B58arDdXoF7ktIjNhGZWnGlvrEM0IOUBXVmO5jHdKUZwAU1T3TJfuZgjJNs2gKQtbm2+AW7Yg="',
+              'Authorization': 'Snowflake Token="SESSION_TOKEN"',
               'Content-Type': 'application/json'
             },
           json:
@@ -612,7 +617,7 @@ function buildRequestOutputMappings(clientInfo)
           headers:
             {
               'Accept': 'application/snowflake',
-              'Authorization': 'Snowflake Token="ETMsDgAAAVHApArOABRBRVMvQ0JDL1BLQ1M1UGFkZGluZwCAABAAEH6XI1dGt/WBW5OrD4pFJF0AAABwUr+kbG6lEvgdJ1unUV69p3ZQWhMXh13TrFu2OXIA19TnaNFoFe7L0GOUASskpvLxBwNjRITjaO3cDBZnZ5Kthv7Vu6wPXwPp9vtXtWKzy+B58arDdXoF7ktIjNhGZWnGlvrEM0IOUBXVmO5jHdKUZwAU1T3TJfuZgjJNs2gKQtbm2+AW7Yg="',
+              'Authorization': 'Snowflake Token="SESSION_TOKEN"',
               'Content-Type': 'application/json'
             },
           json:
@@ -656,7 +661,7 @@ function buildRequestOutputMappings(clientInfo)
           headers:
             {
               'Accept': 'application/snowflake',
-              'Authorization': 'Snowflake Token="ETMsDgAAAVHApArOABRBRVMvQ0JDL1BLQ1M1UGFkZGluZwCAABAAEH6XI1dGt/WBW5OrD4pFJF0AAABwUr+kbG6lEvgdJ1unUV69p3ZQWhMXh13TrFu2OXIA19TnaNFoFe7L0GOUASskpvLxBwNjRITjaO3cDBZnZ5Kthv7Vu6wPXwPp9vtXtWKzy+B58arDdXoF7ktIjNhGZWnGlvrEM0IOUBXVmO5jHdKUZwAU1T3TJfuZgjJNs2gKQtbm2+AW7Yg="',
+              'Authorization': 'Snowflake Token="SESSION_TOKEN"',
               'Content-Type': 'application/json'
             }
         },
@@ -754,7 +759,7 @@ function buildRequestOutputMappings(clientInfo)
           headers:
             {
               'Accept': 'application/snowflake',
-              'Authorization': 'Snowflake Token="ETMsDgAAAVHApArOABRBRVMvQ0JDL1BLQ1M1UGFkZGluZwCAABAAEH6XI1dGt/WBW5OrD4pFJF0AAABwUr+kbG6lEvgdJ1unUV69p3ZQWhMXh13TrFu2OXIA19TnaNFoFe7L0GOUASskpvLxBwNjRITjaO3cDBZnZ5Kthv7Vu6wPXwPp9vtXtWKzy+B58arDdXoF7ktIjNhGZWnGlvrEM0IOUBXVmO5jHdKUZwAU1T3TJfuZgjJNs2gKQtbm2+AW7Yg="',
+              'Authorization': 'Snowflake Token="SESSION_TOKEN"',
               'Content-Type': 'application/json'
             }
         },
@@ -790,7 +795,7 @@ function buildRequestOutputMappings(clientInfo)
           headers:
             {
               'Accept': 'application/json',
-              'Authorization': 'Snowflake Token="ETMsDgAAAVHApArOABRBRVMvQ0JDL1BLQ1M1UGFkZGluZwCAABAAEH6XI1dGt/WBW5OrD4pFJF0AAABwUr+kbG6lEvgdJ1unUV69p3ZQWhMXh13TrFu2OXIA19TnaNFoFe7L0GOUASskpvLxBwNjRITjaO3cDBZnZ5Kthv7Vu6wPXwPp9vtXtWKzy+B58arDdXoF7ktIjNhGZWnGlvrEM0IOUBXVmO5jHdKUZwAU1T3TJfuZgjJNs2gKQtbm2+AW7Yg="',
+              'Authorization': 'Snowflake Token="SESSION_TOKEN"',
               'Content-Type': 'application/json'
             },
           json:
@@ -830,7 +835,7 @@ function buildRequestOutputMappings(clientInfo)
           headers:
             {
               'Accept': 'application/json',
-              'Authorization': 'Snowflake Token="ETMsDgAAAVHApArOABRBRVMvQ0JDL1BLQ1M1UGFkZGluZwCAABAAEH6XI1dGt/WBW5OrD4pFJF0AAABwUr+kbG6lEvgdJ1unUV69p3ZQWhMXh13TrFu2OXIA19TnaNFoFe7L0GOUASskpvLxBwNjRITjaO3cDBZnZ5Kthv7Vu6wPXwPp9vtXtWKzy+B58arDdXoF7ktIjNhGZWnGlvrEM0IOUBXVmO5jHdKUZwAU1T3TJfuZgjJNs2gKQtbm2+AW7Yg="',
+              'Authorization': 'Snowflake Token="SESSION_TOKEN"',
               'Content-Type': 'application/json'
             }
         },
@@ -853,7 +858,7 @@ function buildRequestOutputMappings(clientInfo)
           headers:
             {
               'Accept': 'application/json',
-              'Authorization': 'Snowflake Token="ETMsDgAAAVHApArOABRBRVMvQ0JDL1BLQ1M1UGFkZGluZwCAABAAEH6XI1dGt/WBW5OrD4pFJF0AAABwUr+kbG6lEvgdJ1unUV69p3ZQWhMXh13TrFu2OXIA19TnaNFoFe7L0GOUASskpvLxBwNjRITjaO3cDBZnZ5Kthv7Vu6wPXwPp9vtXtWKzy+B58arDdXoF7ktIjNhGZWnGlvrEM0IOUBXVmO5jHdKUZwAU1T3TJfuZgjJNs2gKQtbm2+AW7Yg="',
+              'Authorization': 'Snowflake Token="SESSION_TOKEN"',
               'Content-Type': 'application/json'
             }
         },
@@ -876,7 +881,7 @@ function buildRequestOutputMappings(clientInfo)
           headers:
             {
               'Accept': 'application/snowflake',
-              'Authorization': 'Snowflake Token="ETMsDgAAAVHApArOABRBRVMvQ0JDL1BLQ1M1UGFkZGluZwCAABAAEH6XI1dGt/WBW5OrD4pFJF0AAABwUr+kbG6lEvgdJ1unUV69p3ZQWhMXh13TrFu2OXIA19TnaNFoFe7L0GOUASskpvLxBwNjRITjaO3cDBZnZ5Kthv7Vu6wPXwPp9vtXtWKzy+B58arDdXoF7ktIjNhGZWnGlvrEM0IOUBXVmO5jHdKUZwAU1T3TJfuZgjJNs2gKQtbm2+AW7Yg="',
+              'Authorization': 'Snowflake Token="SESSION_TOKEN"',
               'Content-Type': 'application/json'
             }
         },
@@ -899,7 +904,7 @@ function buildRequestOutputMappings(clientInfo)
           headers:
             {
               'Accept': 'application/json',
-              'Authorization': 'Snowflake Token="ETMsDgAAAVHApArOABRBRVMvQ0JDL1BLQ1M1UGFkZGluZwCAABAAEH6XI1dGt/WBW5OrD4pFJF0AAABwUr+kbG6lEvgdJ1unUV69p3ZQWhMXh13TrFu2OXIA19TnaNFoFe7L0GOUASskpvLxBwNjRITjaO3cDBZnZ5Kthv7Vu6wPXwPp9vtXtWKzy+B58arDdXoF7ktIjNhGZWnGlvrEM0IOUBXVmO5jHdKUZwAU1T3TJfuZgjJNs2gKQtbm2+AW7Yg="',
+              'Authorization': 'Snowflake Token="SESSION_TOKEN"',
               'Content-Type': 'application/json'
             }
         },
@@ -922,7 +927,7 @@ function buildRequestOutputMappings(clientInfo)
           headers:
             {
               'Accept': 'application/snowflake',
-              'Authorization': 'Snowflake Token="ETMsDgAAAVHApArOABRBRVMvQ0JDL1BLQ1M1UGFkZGluZwCAABAAEH6XI1dGt/WBW5OrD4pFJF0AAABwUr+kbG6lEvgdJ1unUV69p3ZQWhMXh13TrFu2OXIA19TnaNFoFe7L0GOUASskpvLxBwNjRITjaO3cDBZnZ5Kthv7Vu6wPXwPp9vtXtWKzy+B58arDdXoF7ktIjNhGZWnGlvrEM0IOUBXVmO5jHdKUZwAU1T3TJfuZgjJNs2gKQtbm2+AW7Yg="',
+              'Authorization': 'Snowflake Token="SESSION_TOKEN"',
               'Content-Type': 'application/json'
             },
           json:
@@ -964,7 +969,7 @@ function buildRequestOutputMappings(clientInfo)
           headers:
             {
               'Accept': 'application/json',
-              'Authorization': 'Snowflake Token="ETMsDgAAAVHApArOABRBRVMvQ0JDL1BLQ1M1UGFkZGluZwCAABAAEH6XI1dGt/WBW5OrD4pFJF0AAABwUr+kbG6lEvgdJ1unUV69p3ZQWhMXh13TrFu2OXIA19TnaNFoFe7L0GOUASskpvLxBwNjRITjaO3cDBZnZ5Kthv7Vu6wPXwPp9vtXtWKzy+B58arDdXoF7ktIjNhGZWnGlvrEM0IOUBXVmO5jHdKUZwAU1T3TJfuZgjJNs2gKQtbm2+AW7Yg="',
+              'Authorization': 'Snowflake Token="SESSION_TOKEN"',
               'Content-Type': 'application/json'
             },
           json:
@@ -997,7 +1002,7 @@ function buildRequestOutputMappings(clientInfo)
           headers:
             {
               'Accept': 'application/snowflake',
-              'Authorization': 'Snowflake Token="ETMsDgAAAVHApArOABRBRVMvQ0JDL1BLQ1M1UGFkZGluZwCAABAAEH6XI1dGt/WBW5OrD4pFJF0AAABwUr+kbG6lEvgdJ1unUV69p3ZQWhMXh13TrFu2OXIA19TnaNFoFe7L0GOUASskpvLxBwNjRITjaO3cDBZnZ5Kthv7Vu6wPXwPp9vtXtWKzy+B58arDdXoF7ktIjNhGZWnGlvrEM0IOUBXVmO5jHdKUZwAU1T3TJfuZgjJNs2gKQtbm2+AW7Yg="',
+              'Authorization': 'Snowflake Token="SESSION_TOKEN"',
               'Content-Type': 'application/json'
             },
           json:
@@ -1062,14 +1067,14 @@ function buildRequestOutputMappings(clientInfo)
                       "displayUserName": "FAKEUSERNAME",
                       "firstLogin": false,
                       "healthCheckInterval": 45,
-                      "masterToken": "ETMsDgAAAVHApAq4ABRBRVMvQ0JDL1BLQ1M1UGFkZGluZwCAABAAEFXybqPxPmJrBv1S2+TBVY0AAACgxIkcbg5ZTa3xHwhdUQ1kBjEbV1YJcYuG0ITQ8/jH37FhSO4UYHJCZ/TV0+CF5TBA+a4nkmyh1INKk6ndi7vWp1hZGM7rUtRkZMmdjnUTPKBZpXd8LFiGfofEus8K4OPEmf3PPvwrxMvGbzxNCTAHo/hiD8sVNkSjVXfPPJKwO7HHvnPuNP4LzpOf0mqqIWDHPCHYZjlsUOLM+f2CtKCgIgAUvY30vA343bf1eXUNqlCvH45kEVU=",
+                      "masterToken": "MASTER_TOKEN",
                       "masterValidityInSeconds": 14400,
                       "newClientForUpgrade": null,
-                      "remMeToken": "ETMsDgAAAVHApAq4ABRBRVMvQ0JDL1BLQ1M1UGFkZGluZwCAABAAEFXybqPxPmJrBv1S2+TBVY0AAACgxIkcbg5ZTa3xHwhdUQ1kBjEbV1YJcYuG0ITQ8/jH37FhSO4UYHJCZ/TV0+CF5TBA+a4nkmyh1INKk6ndi7vWp1hZGM7rUtRkZMmdjnUTPKBZpXd8LFiGfofEus8K4OPEmf3PPvwrxMvGbzxNCTAHo/hiD8sVNkSjVXfPPJKwO7HHvnPuNP4LzpOf0mqqIWDHPCHYZjlsUOLM+f2CtKCgIgAUvY30vA343bf1eXUNqlCvH45kEVU=",
+                      "remMeToken": "MASTER_TOKEN",
                       "remMeValidityInSeconds": 14400,
                       "serverVersion": "Dev",
                       "sessionId": "51539800306",
-                      "token": "ETMsDgAAAVHApArOABRBRVMvQ0JDL1BLQ1M1UGFkZGluZwCAABAAEH6XI1dGt/WBW5OrD4pFJF0AAABwUr+kbG6lEvgdJ1unUV69p3ZQWhMXh13TrFu2OXIA19TnaNFoFe7L0GOUASskpvLxBwNjRITjaO3cDBZnZ5Kthv7Vu6wPXwPp9vtXtWKzy+B58arDdXoF7ktIjNhGZWnGlvrEM0IOUBXVmO5jHdKUZwAU1T3TJfuZgjJNs2gKQtbm2+AW7Yg=",
+                      "token": "SESSION_TOKEN",
                       "validityInSeconds": 3600,
                       "parameters": [{
                         "name": "TIMEZONE",
@@ -1132,7 +1137,7 @@ function buildRequestOutputMappings(clientInfo)
           headers:
             {
               'Accept': 'application/snowflake',
-              'Authorization': 'Snowflake Token="ETMsDgAAAVHApArOABRBRVMvQ0JDL1BLQ1M1UGFkZGluZwCAABAAEH6XI1dGt/WBW5OrD4pFJF0AAABwUr+kbG6lEvgdJ1unUV69p3ZQWhMXh13TrFu2OXIA19TnaNFoFe7L0GOUASskpvLxBwNjRITjaO3cDBZnZ5Kthv7Vu6wPXwPp9vtXtWKzy+B58arDdXoF7ktIjNhGZWnGlvrEM0IOUBXVmO5jHdKUZwAU1T3TJfuZgjJNs2gKQtbm2+AW7Yg="',
+              'Authorization': 'Snowflake Token="SESSION_TOKEN"',
               'Content-Type': 'application/json',
               'X-Snowflake-Service': 'fakeservicename'
             },
@@ -1275,14 +1280,14 @@ function buildRequestOutputMappings(clientInfo)
                       "displayUserName": "FAKEUSERNAME",
                       "firstLogin": false,
                       "healthCheckInterval": 45,
-                      "masterToken": "ETMsDgAAAVHApAq4ABRBRVMvQ0JDL1BLQ1M1UGFkZGluZwCAABAAEFXybqPxPmJrBv1S2+TBVY0AAACgxIkcbg5ZTa3xHwhdUQ1kBjEbV1YJcYuG0ITQ8/jH37FhSO4UYHJCZ/TV0+CF5TBA+a4nkmyh1INKk6ndi7vWp1hZGM7rUtRkZMmdjnUTPKBZpXd8LFiGfofEus8K4OPEmf3PPvwrxMvGbzxNCTAHo/hiD8sVNkSjVXfPPJKwO7HHvnPuNP4LzpOf0mqqIWDHPCHYZjlsUOLM+f2CtKCgIgAUvY30vA343bf1eXUNqlCvH45kEVU=",
+                      "masterToken": "MASTER_TOKEN",
                       "masterValidityInSeconds": 14400,
                       "newClientForUpgrade": null,
-                      "remMeToken": "ETMsDgAAAVHApAq4ABRBRVMvQ0JDL1BLQ1M1UGFkZGluZwCAABAAEFXybqPxPmJrBv1S2+TBVY0AAACgxIkcbg5ZTa3xHwhdUQ1kBjEbV1YJcYuG0ITQ8/jH37FhSO4UYHJCZ/TV0+CF5TBA+a4nkmyh1INKk6ndi7vWp1hZGM7rUtRkZMmdjnUTPKBZpXd8LFiGfofEus8K4OPEmf3PPvwrxMvGbzxNCTAHo/hiD8sVNkSjVXfPPJKwO7HHvnPuNP4LzpOf0mqqIWDHPCHYZjlsUOLM+f2CtKCgIgAUvY30vA343bf1eXUNqlCvH45kEVU=",
+                      "remMeToken": "MASTER_TOKEN",
                       "remMeValidityInSeconds": 14400,
                       "serverVersion": "Dev",
                       "sessionId": "51539800306",
-                      "token": "ETMsDgAAAVHApArOABRBRVMvQ0JDL1BLQ1M1UGFkZGluZwCAABAAEH6XI1dGt/WBW5OrD4pFJF0AAABwUr+kbG6lEvgdJ1unUV69p3ZQWhMXh13TrFu2OXIA19TnaNFoFe7L0GOUASskpvLxBwNjRITjaO3cDBZnZ5Kthv7Vu6wPXwPp9vtXtWKzy+B58arDdXoF7ktIjNhGZWnGlvrEM0IOUBXVmO5jHdKUZwAU1T3TJfuZgjJNs2gKQtbm2+AW7Yg=",
+                      "token": "SESSION_TOKEN",
                       "validityInSeconds": 3600,
                       "parameters": [{
                         "name": "TIMEZONE",
@@ -1383,49 +1388,7 @@ function buildRequestOutputMappings(clientInfo)
                       "sessionId": "51539800306",
                       "token": "SESSION_GONE_TOKEN",
                       "validityInSeconds": 3600,
-                      "parameters": [{
-                        "name": "TIMEZONE",
-                        "value": "America/Los_Angeles"
-                      }, {
-                        "name": "TIMESTAMP_OUTPUT_FORMAT",
-                        "value": "DY, DD MON YYYY HH24:MI:SS TZHTZM"
-                      }, {
-                        "name": "TIMESTAMP_NTZ_OUTPUT_FORMAT",
-                        "value": ""
-                      }, {
-                        "name": "TIMESTAMP_LTZ_OUTPUT_FORMAT",
-                        "value": ""
-                      }, {
-                        "name": "TIMESTAMP_TZ_OUTPUT_FORMAT",
-                        "value": ""
-                      }, {
-                        "name": "DATE_OUTPUT_FORMAT",
-                        "value": "YYYY-MM-DD"
-                      }, {
-                        "name": "TIME_OUTPUT_FORMAT",
-                        "value": "HH24:MI:SS"
-                      }, {
-                        "name": "CLIENT_RESULT_PREFETCH_SLOTS",
-                        "value": 2
-                      }, {
-                        "name": "CLIENT_RESULT_PREFETCH_THREADS",
-                        "value": 1
-                      }, {
-                        "name": "CLIENT_HONOR_CLIENT_TZ_FOR_TIMESTAMP_NTZ",
-                        "value": true
-                      }, {
-                        "name": "CLIENT_USE_V1_QUERY_API",
-                        "value": true
-                      }, {
-                        "name": "CLIENT_DISABLE_INCIDENTS",
-                        "value": true
-                      }, {
-                        "name": "CLIENT_SESSION_KEEP_ALIVE",
-                        "value": true
-                      }, {
-                        "name": "CLIENT_SESSION_KEEP_ALIVE_HEARTBEAT_FREQUENCY",
-                        "value": 1800
-                      }]
+                      "parameters": []
                     },
                   "message": null,
                   "success": true
@@ -1458,6 +1421,161 @@ function buildRequestOutputMappings(clientInfo)
                   data: null,
                   message: "ERROR!",
                   success: false
+                }
+            }
+        }
+    },
+    {
+      request:
+        {
+          method: 'POST',
+          url: 'http://fake504.snowflakecomputing.com/session/v1/login-request',
+          headers:
+            {
+              'Accept': 'application/json',
+              'Content-Type': 'application/json'
+            },
+          json:
+            {
+              data:
+                {
+                  ACCOUNT_NAME: 'fake504',
+                  LOGIN_NAME: 'fake504user',
+                  PASSWORD: 'fakepassword',
+                  CLIENT_APP_ID: 'JavaScript',
+                  CLIENT_APP_VERSION: clientInfo.version,
+                  CLIENT_ENVIRONMENT: clientInfo.environment,
+                  SESSION_PARAMETERS: {}
+                }
+            }
+        },
+      output:
+        {
+          err: null,
+          response:
+            {
+              statusCode: 504,
+              statusMessage: "ERROR",
+              body: {}
+            }
+        }
+    },
+    {
+      request:
+        {
+          method: 'POST',
+          url: 'http://fake504.snowflakecomputing.com/session/v1/login-request?clientStartTime=FIXEDTIMESTAMP&retryCount=1',
+          headers:
+            {
+              'Accept': 'application/json',
+              'Content-Type': 'application/json'
+            },
+          json:
+            {
+              data:
+                {
+                  ACCOUNT_NAME: 'fake504',
+                  LOGIN_NAME: 'fake504user',
+                  PASSWORD: 'fakepassword',
+                  CLIENT_APP_ID: 'JavaScript',
+                  CLIENT_APP_VERSION: clientInfo.version,
+                  CLIENT_ENVIRONMENT: clientInfo.environment,
+                  SESSION_PARAMETERS: {}
+                }
+            }
+        },
+      output:
+        {
+          err: null,
+          response:
+            {
+              statusCode: 504,
+              statusMessage: "ERROR",
+              body: {}
+            }
+        }
+    },
+    {
+      request:
+        {
+          method: 'POST',
+          url: 'http://fake504.snowflakecomputing.com/session/v1/login-request?clientStartTime=FIXEDTIMESTAMP&retryCount=2',
+          headers:
+            {
+              'Accept': 'application/json',
+              'Content-Type': 'application/json'
+            },
+          json:
+            {
+              data:
+                {
+                  ACCOUNT_NAME: 'fake504',
+                  LOGIN_NAME: 'fake504user',
+                  PASSWORD: 'fakepassword',
+                  CLIENT_APP_ID: 'JavaScript',
+                  CLIENT_APP_VERSION: clientInfo.version,
+                  CLIENT_ENVIRONMENT: clientInfo.environment,
+                  SESSION_PARAMETERS: {}
+                }
+            }
+        },
+      output:
+        {
+          err: null,
+          response:
+            {
+              statusCode: 200,
+              statusMessage: "OK",
+              body:
+                {
+                  "code": null,
+                  "data":
+                    {
+                      "displayUserName": "FAKE504USER",
+                      "firstLogin": false,
+                      "healthCheckInterval": 45,
+                      "masterToken": "MASTER_TOKEN",
+                      "masterValidityInSeconds": 14400,
+                      "newClientForUpgrade": null,
+                      "remMeToken": "SESSION_REMME_TOKEN",
+                      "remMeValidityInSeconds": 14400,
+                      "serverVersion": "Dev",
+                      "sessionId": "51539800306",
+                      "token": "SESSION_TOKEN",
+                      "validityInSeconds": 3600,
+                      "parameters": []
+                    },
+                  "message": null,
+                  "success": true
+                }
+            }
+        }
+    },
+    {
+      request:
+        {
+          method: 'POST',
+          url: 'http://fake504.snowflakecomputing.com/session/logout-request',
+          headers:
+            {
+              'Accept': 'application/json',
+              'Authorization': 'Snowflake Token="MASTER_TOKEN"',
+              'Content-Type': 'application/json'
+            }
+        },
+      output:
+        {
+          err: null,
+          response:
+            {
+              statusCode: 200,
+              statusMessage: "OK",
+              body:
+                {
+                  code: null,
+                  data: null,
+                  message: null,
+                  success: true
                 }
             }
         }

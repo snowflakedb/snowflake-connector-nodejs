@@ -18,6 +18,7 @@ var connectionOptionsDeserialize = mockConnectionOptions.deserialize;
 var connectionOptionsServiceName = mockConnectionOptions.serviceName;
 var connectionOptionsClientSessionKeepAlive = mockConnectionOptions.clientSessionKeepAlive;
 var connectionOptionsForSessionGone = mockConnectionOptions.sessionGone;
+const connectionOptionsFor504 = mockConnectionOptions.http504;
 
 describe('snowflake.createConnection() synchronous errors', function ()
 {
@@ -313,7 +314,7 @@ describe('connection.connect() synchronous errors', function ()
     }
     finally
     {
-      assert.ok(error);
+      assert.ok(error != null);
       assert.strictEqual(
         error.code, ErrorCodes.ERR_CONN_CONNECT_INVALID_CALLBACK);
     }
@@ -1741,6 +1742,36 @@ describe('snowflake.destroyConnection()', function ()
           connection.destroy(function (err, con)
           {
             // SESSION_GONE error should be ignored.
+            assert.ok(!err, JSON.stringify(err));
+            callback();
+          });
+        }
+      ],
+      done)
+  });
+});
+
+describe('snowflake.connect() with 504', function ()
+{
+  /*
+   * The connection is retired three times and get success.
+   */
+  it('retry 504', function (done)
+  {
+    var connection = snowflake.createConnection(connectionOptionsFor504);
+    async.series([
+        function (callback)
+        {
+          connection.connect(function (err)
+          {
+            assert.ok(!err, JSON.stringify(err));
+            callback();
+          });
+        },
+        function (callback)
+        {
+          connection.destroy(function (err, con)
+          {
             assert.ok(!err, JSON.stringify(err));
             callback();
           });

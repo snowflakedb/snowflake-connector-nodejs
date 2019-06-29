@@ -62,11 +62,20 @@ var connectionOptionsForSessionGone =
     account: 'fakeaccount'
   };
 
+var connectionOptions504 =
+  {
+    accessUrl: 'http://fake504.snowflakecomputing.com',
+    username: 'fake504user',
+    password: 'fakepassword',
+    account: 'fake504'
+  };
+
 exports.connectionOptions =
   {
     default: connectionOptions,
     deserialize: connectionOptionsDeserialize,
     serviceName: connectionOptionsWithServiceName,
     clientSessionKeepAlive: connectionOptionsWithClientSessionKeepAlive,
-    sessionGone: connectionOptionsForSessionGone
+    sessionGone: connectionOptionsForSessionGone,
+    http504: connectionOptions504
   };

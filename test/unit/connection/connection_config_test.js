@@ -308,7 +308,7 @@ describe('ConnectionConfig: basic', function ()
           }
       },
       {
-        name: 'region',
+        name: 'region (deprecated)',
         input:
           {
             username: 'username',
@@ -325,7 +325,7 @@ describe('ConnectionConfig: basic', function ()
           }
       },
       {
-        name: 'region in account',
+        name: 'region in account (deprecated)',
         input:
           {
             username: 'username',
@@ -338,6 +338,39 @@ describe('ConnectionConfig: basic', function ()
             username: 'username',
             password: 'password',
             account: 'account'
+          }
+      },
+      {
+        name: 'account in url and no account is specified',
+        input:
+          {
+            username: 'username',
+            password: 'password',
+            accessUrl: 'https://account1.testregion.azure.snowflakecomputing.com',
+          },
+        options:
+          {
+            accessUrl: 'https://account1.testregion.azure.snowflakecomputing.com',
+            username: 'username',
+            password: 'password',
+            account: 'account1'
+          }
+      },
+      {
+        name: 'account in url and account is specified',
+        input:
+          {
+            username: 'username',
+            password: 'password',
+            account: 'account2',
+            accessUrl: 'https://account1.testregion.azure.snowflakecomputing.com',
+          },
+        options:
+          {
+            accessUrl: 'https://account1.testregion.azure.snowflakecomputing.com',
+            username: 'username',
+            password: 'password',
+            account: 'account2'
           }
       },
       {
@@ -369,6 +402,55 @@ describe('ConnectionConfig: basic', function ()
         options:
           {
             accessUrl: 'https://account.snowflakecomputing.com',
+            username: 'username',
+            password: 'password',
+            account: 'account'
+          }
+      },
+      {
+        name: 'region is us-west-2 but account includes us-east-1',
+        input:
+          {
+            username: 'username',
+            password: 'password',
+            account: 'account.us-east-1',
+            region: 'us-west-2',
+          },
+        options:
+          {
+            accessUrl: 'https://account.us-east-1.snowflakecomputing.com',
+            username: 'username',
+            password: 'password',
+            account: 'account'
+          }
+      },
+      {
+        name: 'NOT global url',
+        input:
+          {
+            username: 'username',
+            password: 'password',
+            account: 'account-123xyz.us-west-2',
+          },
+        options:
+          {
+            accessUrl: 'https://account-123xyz.us-west-2.snowflakecomputing.com',
+            username: 'username',
+            password: 'password',
+            account: 'account-123xyz'
+          }
+      },
+      {
+        name: 'global url',
+        input:
+          {
+            username: 'username',
+            password: 'password',
+            account: 'account-123xyz.us-west-2.global',
+          },
+        options:
+          {
+            accessUrl: 'https://account-123xyz.us-west-2.global.snowflakecomputing.com',
             username: 'username',
             password: 'password',
             account: 'account'

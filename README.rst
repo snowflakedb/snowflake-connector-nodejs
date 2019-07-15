@@ -77,3 +77,15 @@ The npm package can be built by the command:
     npm pack
 
 Note it is not required to build a package to run tests blow.
+
+Development
+======================================================================
+
+Reformat Source code
+----------------------------------------------------------------------
+
+Use WebStorm code style file to format the source code.
+
+.. code-block:: bash
+
+    format.sh -mask "*.js" -settings $(pwd)/webstorm-codestyle.xml -R $(pwd)/lib/ -R $(pwd)/test -R $(pwd)/system_test

@@ -4,6 +4,7 @@
 
 var Util = require('../../../lib/util');
 var Errors = require('../../../lib/errors');
+const Logger = require('../../../lib/logger');
 
 /**
  * Creates a new MockHttpClient.
@@ -41,8 +42,8 @@ MockHttpClient.prototype.request = function (request)
 
   // get the output of the specified request from the map
   var requestOutput = this._mapRequestToOutput[serializeRequest(request)];
-
-  Errors.assertInternal(Util.isObject(requestOutput), 'no response available');
+  Errors.assertInternal(Util.isObject(requestOutput),
+    'no response available for: ' + serializeRequest(request));
 
   var delay = Util.isNumber(requestOutput.delay) ? requestOutput.delay : 0;
 

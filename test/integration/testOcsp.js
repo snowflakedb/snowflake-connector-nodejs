@@ -6,13 +6,12 @@ const assert = require('assert');
 const snowflake = require('./../../lib/snowflake');
 const connOption = require('./connectionOptions');
 const SocketUtil = require('./../../lib/agent/socket_util');
-const OcspResponseCache = require('./../../lib/agent/ocsp_response_cache');
 
 describe('OCSP validation', function ()
 {
   it('OCSP validation with server reusing SSL sessions', function (done)
   {
-    var connection = snowflake.createConnection(connOption.valid);
+    const connection = snowflake.createConnection(connOption.valid);
 
     // execute several statements in quick succession to make sure some SSL
     // sessions get reused on the server-side, and our OCSP validation logic
@@ -115,9 +114,9 @@ describe('OCSP validation', function ()
 
   it('Test Ocsp with different endpoints', function (done)
   {
-    var testOptions = function (i)
+    const testOptions = function (i)
     {
-      var connection = snowflake.createConnection(httpsEndpoints[i]);
+      const connection = snowflake.createConnection(httpsEndpoints[i]);
       connectToHttpsEndpoint(testOptions, i, connection, done)
     };
     testOptions(0);
@@ -131,10 +130,28 @@ describe('OCSP validation', function ()
     }
     SocketUtil.variables.OCSP_RESPONSE_CACHE = undefined;
 
-    var testOptions = function (i)
+    const testOptions = function (i)
     {
-      var connection = snowflake.createConnection(httpsEndpoints[i]);
+      const connection = snowflake.createConnection(httpsEndpoints[i]);
       connectToHttpsEndpoint(testOptions, i, connection, done)
+    };
+    testOptions(0);
+  });
+
+  it('Test Ocsp with different endpoints - download cache in FAIL_CLOSED', function (done)
+  {
+    if (SocketUtil.variables.OCSP_RESPONSE_CACHE)
+    {
+      SocketUtil.variables.OCSP_RESPONSE_CACHE.deleteCache();
+    }
+    SocketUtil.variables.OCSP_RESPONSE_CACHE = undefined;
+
+    const testOptions = function (i)
+    {
+      snowflake.configure({ocspFailOpen: false});
+      const connection = snowflake.createConnection(httpsEndpoints[i]);
+      connectToHttpsEndpoint(testOptions, i, connection, done)
+      snowflake.configure({ocspFailOpen: true});
     };
     testOptions(0);
   });
@@ -154,9 +171,9 @@ describe('OCSP validation', function ()
       done();
     }
 
-    var testOptions = function (i)
+    const testOptions = function (i)
     {
-      var connection = snowflake.createConnection(httpsEndpoints[i]);
+      const connection = snowflake.createConnection(httpsEndpoints[i]);
       connectToHttpsEndpoint(testOptions, i, connection, resetCacheServer)
     };
     testOptions(0);
@@ -164,15 +181,12 @@ describe('OCSP validation', function ()
 
   it('Test OCSP with different OCSP modes enabled', function (done)
   {
-    var globalOptions = [
+    const globalOptions = [
       {
-        ocspMode: snowflake.ocspModes.FAIL_OPEN
+        ocspFailOpen: true
       },
       {
-        ocspMode: snowflake.ocspModes.FAIL_CLOSED
-      },
-      {
-        ocspMode: snowflake.ocspModes.INSECURE
+        ocspFailOpen: false
       }
     ];
 
@@ -185,6 +199,7 @@ describe('OCSP validation', function ()
         assert.ok(!err, JSON.stringify(err));
       })
     }
+    snowflake.configure({ocspFailOpen: true});
 
     done();
   });

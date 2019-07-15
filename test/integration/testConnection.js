@@ -100,4 +100,38 @@ describe('Connection test', function ()
       done();
     }, 60000);
   });
+
+  it('OCSP Fail Closed', function (done)
+  {
+    snowflake.configure({ocspFailOpen: false});
+    var connection = snowflake.createConnection(connOption.valid);
+
+    async.series([
+        function (callback)
+        {
+          connection.connect(function (err)
+          {
+            assert.ok(!err, JSON.stringify(err));
+            callback();
+          });
+        },
+        function (callback)
+        {
+          connection.destroy(function (err)
+          {
+            assert.ok(!err, JSON.stringify(err));
+            callback();
+          });
+        },
+        function (callback)
+        {
+          snowflake.configure({ocspFailOpen: true});
+          callback();
+        }
+      ],
+      done
+    );
+  });
+
+
 });

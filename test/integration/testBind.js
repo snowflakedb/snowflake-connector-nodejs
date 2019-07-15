@@ -6,6 +6,7 @@ var assert = require('assert');
 var testUtil = require('./testUtil');
 var util = require('util');
 const sharedStatement = require('./sharedStatements');
+const Logger = require('../../lib/logger');
 
 describe('Test Bind Varible', function ()
 {

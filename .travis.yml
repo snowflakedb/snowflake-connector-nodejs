@@ -3,16 +3,22 @@ language: node_js
 matrix:
   include:
   - os: linux
+    dist: trusty
     node_js: '6'
   - os: linux
+    dist: trusty
     node_js: '8'
   - os: linux
+    dist: trusty
     node_js: '9'
   - os: linux
+    dist: trusty
     node_js: '10'
   - os: linux
+    dist: trusty
     node_js: '11'
   - os: linux
+    dist: trusty
     node_js: '11'
     env: SNOWFLAKE_AZURE=true
 install:

@@ -39,7 +39,7 @@ function getConnectionOptions()
   return objCopy;
 }
 
-describe('Connection test', function ()
+describe('Connection with OCSP test', function ()
 {
   function deleteCache()
   {
@@ -544,4 +544,67 @@ describe('Connection test', function ()
     );
   });
 
+  const testInvalidCertConnectionOptions = [
+    {
+      connectString: {
+        accessUrl: 'https://untrusted-root.badssl.com',
+        username: 'fakeuser',
+        password: 'fakepasword',
+        account: 'fakeaccount',
+      },
+      errorCode: 'SELF_SIGNED_CERT_IN_CHAIN'
+    },
+    {
+      connectString: {
+        accessUrl: 'https://expired.badssl.com',
+        username: 'fakeuser',
+        password: 'fakepasword',
+        account: 'fakeaccount',
+      },
+      errorCode: 'CERT_HAS_EXPIRED'
+    },
+    {
+      connectString: {
+        accessUrl: 'https://self-signed.badssl.com',
+        username: 'fakeuser',
+        password: 'fakepasword',
+        account: 'fakeaccount',
+      },
+      errorCode: 'DEPTH_ZERO_SELF_SIGNED_CERT'
+    }
+  ];
+
+  function connectToHttpsEndpoint(testOptions, i, connection, done)
+  {
+    connection.connect(function (err)
+    {
+      assert.ok(err);
+      if (err)
+      {
+        assert.strictEqual(err.code, Errors.codes.ERR_SF_NETWORK_COULD_NOT_CONNECT);
+        assert.strictEqual(err.cause.code, testInvalidCertConnectionOptions[i].errorCode);
+      }
+
+      if (i === testInvalidCertConnectionOptions.length - 1)
+      {
+        done();
+      }
+      else
+      {
+        testOptions(i + 1);
+      }
+    });
+  }
+
+  it('OCSP Invalid Certificate', function (done)
+  {
+    const testOptions = function (i)
+    {
+      console.log('==> ' + testInvalidCertConnectionOptions[i].connectString.accessUrl);
+      const connection = snowflake.createConnection(
+        testInvalidCertConnectionOptions[i].connectString);
+      connectToHttpsEndpoint(testOptions, i, connection, done)
+    };
+    testOptions(0);
+  });
 });

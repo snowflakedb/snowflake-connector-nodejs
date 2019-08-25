@@ -120,7 +120,6 @@ describe('OCSP validation', function ()
         testOptions(i + 1);
       }
     });
-
   }
 
   function deleteCache()

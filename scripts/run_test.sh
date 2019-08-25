@@ -5,6 +5,10 @@
 set -o pipefail
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
+echo "[INFO] Running Hang Web Server"
+kill -9 $(ps -ewf | grep hang_webserver | grep -v grep | awk '{print $2}') || true
+$DIR/hang_webserver.py 12345 &
+
 TEST_TIMEOUT=90000
 if [[ -z "$TRAVIS_JOB_ID" ]]; then
     MOCHA_CMD=(
@@ -39,6 +43,9 @@ fi
 echo "[INFO] Running Tests"
 echo "==> ${MOCHA_CMD[@]} --recursive test/**/*.js"
 ${MOCHA_CMD[@]} "test/**/*.js" || ERR=1
+
+echo "[INFO] Killing local web server"
+kill -9 $(ps -ewf | grep hang_webserver | grep -v grep | awk '{print $2}') || true
 
 # exit 1 if the test failed.
 if [[ -n "$ERR" ]]; then

@@ -9,7 +9,7 @@ echo "[INFO] Running Hang Web Server"
 kill -9 $(ps -ewf | grep hang_webserver | grep -v grep | awk '{print $2}') || true
 $DIR/hang_webserver.py 12345 &
 
-TEST_TIMEOUT=90000
+TEST_TIMEOUT=120000
 if [[ -z "$TRAVIS_JOB_ID" ]]; then
     MOCHA_CMD=(
         "mocha"

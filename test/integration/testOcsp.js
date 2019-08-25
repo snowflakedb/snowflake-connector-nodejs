@@ -7,6 +7,12 @@ const assert = require('assert');
 const snowflake = require('./../../lib/snowflake');
 const connOption = require('./connectionOptions');
 const SocketUtil = require('./../../lib/agent/socket_util');
+const OcspResponseCache = require('./../../lib/agent/ocsp_response_cache');
+
+const sharedLogger = require('./sharedLogger');
+const Logger = require('./../../lib/logger');
+Logger.getInstance().setLogger(sharedLogger.logger);
+
 
 describe('OCSP validation', function ()
 {
@@ -98,6 +104,10 @@ describe('OCSP validation', function ()
       assert.ok(err);
       if (err)
       {
+        if (!err.hasOwnProperty('code'))
+        {
+          console.log(err);
+        }
         assert.equal(err['code'], '390100');
       }
 
@@ -115,14 +125,12 @@ describe('OCSP validation', function ()
 
   function deleteCache()
   {
-    if (SocketUtil.variables.OCSP_RESPONSE_CACHE)
-    {
-      SocketUtil.variables.OCSP_RESPONSE_CACHE.deleteCache();
-    }
+    OcspResponseCache.deleteCache();
   }
 
   it('Test Ocsp with different endpoints', function (done)
   {
+    deleteCache();
     const testOptions = function (i)
     {
       const connection = snowflake.createConnection(httpsEndpoints[i]);
@@ -138,7 +146,6 @@ describe('OCSP validation', function ()
 
     function cleanup()
     {
-      deleteCache();
       done();
     }
 
@@ -157,7 +164,6 @@ describe('OCSP validation', function ()
 
     function cleanup()
     {
-      deleteCache();
       snowflake.configure({ocspFailOpen: true});
       done();
     }
@@ -179,7 +185,6 @@ describe('OCSP validation', function ()
 
     function cleanup()
     {
-      deleteCache();
       SocketUtil.variables.SF_OCSP_RESPONSE_CACHE_SERVER_ENABLED = true;
       snowflake.configure({ocspFailOpen: true});
       done();
@@ -203,7 +208,6 @@ describe('OCSP validation', function ()
     function cleanup()
     {
       SocketUtil.variables.SF_OCSP_RESPONSE_CACHE_SERVER_ENABLED = true;
-      deleteCache();
       done();
     }
 
@@ -227,7 +231,6 @@ describe('OCSP validation', function ()
       function cleanup()
       {
         delete process.env['SF_OCSP_RESPONSE_CACHE_DIR'];
-        deleteCache();
         done();
       }
 
@@ -242,6 +245,7 @@ describe('OCSP validation', function ()
 
   it('Test OCSP with different OCSP modes enabled', function (done)
   {
+    deleteCache();
     const globalOptions = [
       {
         ocspFailOpen: true

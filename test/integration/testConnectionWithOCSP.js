@@ -250,6 +250,7 @@ describe('Connection with OCSP test', function ()
     SocketUtil.variables.SF_OCSP_RESPONSE_CACHE_SERVER_ENABLED = true;
     // fake OCSP responder.
     process.env.SF_OCSP_RESPONSE_CACHE_SERVER_URL = 'http://localhost:12345/hang';
+    process.env.SF_OCSP_TEST_OCSP_RESPONSE_CACHE_SERVER_TIMEOUT = 1000;
 
     snowflake.configure({ocspFailOpen: true});
     const connection = snowflake.createConnection(getConnectionOptions());
@@ -268,6 +269,7 @@ describe('Connection with OCSP test', function ()
         function (callback)
         {
           delete process.env['SF_OCSP_RESPONSE_CACHE_SERVER_URL'];
+          delete process.env['SF_OCSP_TEST_OCSP_RESPONSE_CACHE_SERVER_TIMEOUT'];
           snowflake.configure({ocspFailOpen: true});
           callback();
         }
@@ -285,6 +287,7 @@ describe('Connection with OCSP test', function ()
     SocketUtil.variables.SF_OCSP_RESPONSE_CACHE_SERVER_ENABLED = true;
     // fake OCSP responder.
     process.env.SF_OCSP_RESPONSE_CACHE_SERVER_URL = 'http://localhost:12345/hang';
+    process.env.SF_OCSP_TEST_OCSP_RESPONSE_CACHE_SERVER_TIMEOUT = 1000;
 
     snowflake.configure({ocspFailOpen: false});
     const connection = snowflake.createConnection(getConnectionOptions());
@@ -306,8 +309,9 @@ describe('Connection with OCSP test', function ()
         },
         function (callback)
         {
-          snowflake.configure({ocspFailOpen: true});
+          delete process.env['SF_OCSP_TEST_OCSP_RESPONSE_CACHE_SERVER_TIMEOUT'];
           delete process.env['SF_OCSP_RESPONSE_CACHE_SERVER_URL'];
+          snowflake.configure({ocspFailOpen: true});
           callback();
         }
       ],
@@ -324,6 +328,7 @@ describe('Connection with OCSP test', function ()
     SocketUtil.variables.SF_OCSP_RESPONSE_CACHE_SERVER_ENABLED = false;
     // fake OCSP responder.
     process.env.SF_OCSP_RESPONDER_URL = 'http://localhost:12345/hang';
+    process.env.SF_OCSP_TEST_OCSP_RESPONDER_TIMEOUT = 1000;
 
     snowflake.configure({ocspFailOpen: true});
     const connection = snowflake.createConnection(getConnectionOptions());
@@ -342,6 +347,7 @@ describe('Connection with OCSP test', function ()
         function (callback)
         {
           delete process.env['SF_OCSP_RESPONDER_URL'];
+          delete process.env['SF_OCSP_TEST_OCSP_RESPONDER_TIMEOUT'];
           snowflake.configure({ocspFailOpen: true});
           callback();
         }
@@ -359,6 +365,7 @@ describe('Connection with OCSP test', function ()
     SocketUtil.variables.SF_OCSP_RESPONSE_CACHE_SERVER_ENABLED = false;
     // fake OCSP responder.
     process.env.SF_OCSP_RESPONDER_URL = 'http://localhost:12345/hang';
+    process.env.SF_OCSP_TEST_OCSP_RESPONDER_TIMEOUT = 1000;
 
     snowflake.configure({ocspFailOpen: false});
     const connection = snowflake.createConnection(getConnectionOptions());
@@ -385,6 +392,7 @@ describe('Connection with OCSP test', function ()
         function (callback)
         {
           delete process.env['SF_OCSP_RESPONDER_URL'];
+          delete process.env['SF_OCSP_TEST_OCSP_RESPONDER_TIMEOUT'];
           snowflake.configure({ocspFailOpen: true});
           callback();
         }
@@ -403,6 +411,8 @@ describe('Connection with OCSP test', function ()
     // fake OCSP responder.
     process.env.SF_OCSP_RESPONSE_CACHE_SERVER_URL = 'http://localhost:12345/hang';
     process.env.SF_OCSP_RESPONDER_URL = 'http://localhost:12345/hang';
+    process.env.SF_OCSP_TEST_OCSP_RESPONDER_TIMEOUT = 1000;
+    process.env.SF_OCSP_TEST_OCSP_RESPONSE_CACHE_SERVER_TIMEOUT = 1000;
 
     snowflake.configure({ocspFailOpen: true});
     const connection = snowflake.createConnection(getConnectionOptions());
@@ -421,6 +431,8 @@ describe('Connection with OCSP test', function ()
         {
           delete process.env['SF_OCSP_RESPONSE_CACHE_SERVER_URL'];
           delete process.env['SF_OCSP_RESPONDER_URL'];
+          delete process.env['SF_OCSP_TEST_OCSP_RESPONDER_TIMEOUT'];
+          delete process.env['SF_OCSP_TEST_OCSP_RESPONSE_CACHE_SERVER_TIMEOUT'];
           callback();
         }
       ],

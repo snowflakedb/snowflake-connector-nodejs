@@ -159,7 +159,7 @@ describe('Test DataType', function ()
       );
     });
 
-    it('testLargeNumberNonNormalized', function (done)
+    it('testLargeNumberBigInt', function (done)
     {
       async.series([
           function (callback)
@@ -169,6 +169,10 @@ describe('Test DataType', function ()
           function (callback)
           {
             testUtil.executeCmd(connection, insertLargeNumber, callback);
+          },
+          function (callback)
+          {
+            testUtil.executeCmd(connection, "alter session set JS_TREAT_INTEGER_AS_BIGINT=true", callback)
           },
           function (callback)
           {

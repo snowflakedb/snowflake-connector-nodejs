@@ -19,6 +19,7 @@ var connectionOptionsServiceName = mockConnectionOptions.serviceName;
 var connectionOptionsClientSessionKeepAlive = mockConnectionOptions.clientSessionKeepAlive;
 var connectionOptionsForSessionGone = mockConnectionOptions.sessionGone;
 const connectionOptionsFor504 = mockConnectionOptions.http504;
+const connectionOptionsTreatIntegerAsBigInt = mockConnectionOptions.treatIntAsBigInt;
 
 describe('snowflake.createConnection() synchronous errors', function ()
 {
@@ -796,7 +797,7 @@ describe('connection.execute() statement successful', function ()
                 assert.strictEqual(stmt, statement,
                   'the end() callback should be invoked with the statement');
                 assert.strictEqual(rows.length, 1, 'there should only be one row');
-                assert.strictEqual(rows[0].getColumnValue('c1').toJSNumber(), 1,
+                assert.strictEqual(rows[0].getColumnValue('c1'), 1,
                   'the row should only have one column c1 and its value ' +
                   'should be 1');
 
@@ -1145,7 +1146,7 @@ describe('connection.fetchResult() statement successful', function ()
                 assert.strictEqual(stmt, statement,
                   'the end() callback should be invoked with the statement');
                 assert.strictEqual(rows.length, 1, 'there should only be one row');
-                assert.strictEqual(rows[0].getColumnValue('c1').toJSNumber(), 1,
+                assert.strictEqual(rows[0].getColumnValue('c1'), 1,
                   'the row should only have one column c1 and its value ' +
                   'should be 1');
 
@@ -1708,6 +1709,39 @@ describe('snowflake.createConnection() CLIENT_SESSION_KEEP_ALIVE', function ()
           // CLIENT_SESSION_KEEP_ALIVE is returned.
           assert.equal(true, connection.getClientSessionKeepAlive());
           assert.equal(1800, connection.getClientSessionKeepAliveHeartbeatFrequency());
+          callback();
+        },
+        function (callback)
+        {
+          connection.destroy(function (err)
+          {
+            assert.ok(!err, JSON.stringify(err));
+            callback();
+          })
+        }
+      ],
+      done)
+  });
+});
+
+describe('snowflake.createConnection() JS_TREAT_INTEGER_AS_BIGINT', function ()
+{
+  it('createConnection() returns connection including JS_TREAT_INTEGER_AS_BIGINT', function (done)
+  {
+    var connection = snowflake.createConnection(connectionOptionsTreatIntegerAsBigInt);
+    async.series([
+        function (callback)
+        {
+          connection.connect(function (err)
+          {
+            assert.ok(!err, JSON.stringify(err));
+            callback();
+          });
+        },
+        function (callback)
+        {
+          // JS_TREAT_INTEGER_AS_BIGINT is returned.
+          assert.equal(true, connection.getJsTreatIntegerAsBigInt());
           callback();
         },
         function (callback)

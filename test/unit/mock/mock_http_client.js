@@ -247,6 +247,9 @@ function buildRequestOutputMappings(clientInfo)
                       }, {
                         "name": "CLIENT_SESSION_KEEP_ALIVE_HEARTBEAT_FREQUENCY",
                         "value": 3600
+                      }, {
+                        "name": "JS_TREAT_INTEGER_AS_BIGINT",
+                        "value": false
                       }]
                     },
                   "message": null,
@@ -1122,6 +1125,9 @@ function buildRequestOutputMappings(clientInfo)
                       }, {
                         "name": "CLIENT_SESSION_KEEP_ALIVE_HEARTBEAT_FREQUENCY",
                         "value": 3600
+                      }, {
+                        "name": "JS_TREAT_INTEGER_AS_BIGINT",
+                        "value": false
                       }]
                     },
                   "message": null,
@@ -1332,6 +1338,112 @@ function buildRequestOutputMappings(clientInfo)
                       }, {
                         "name": "CLIENT_SESSION_KEEP_ALIVE_HEARTBEAT_FREQUENCY",
                         "value": 1800
+                      }, {
+                        "name": "JS_TREAT_INTEGER_AS_BIGINT",
+                        "value": false
+                      }]
+                    },
+                  "message": null,
+                  "success": true
+                }
+            }
+        }
+    },
+    {
+      request:
+        {
+          method: 'POST',
+          url: 'http://fakeaccount.snowflakecomputing.com/session/v1/login-request',
+          headers:
+            {
+              'Accept': 'application/json',
+              'Content-Type': 'application/json'
+            },
+          json:
+            {
+              data:
+                {
+                  ACCOUNT_NAME: 'fakeaccount',
+                  LOGIN_NAME: 'fakeusername',
+                  PASSWORD: 'fakepassword',
+                  CLIENT_APP_ID: 'JavaScript',
+                  CLIENT_APP_VERSION: clientInfo.version,
+                  CLIENT_ENVIRONMENT: clientInfo.environment,
+                  SESSION_PARAMETERS: {
+                    JS_TREAT_INTEGER_AS_BIGINT: true,
+                  }
+                }
+            }
+        },
+      output:
+        {
+          err: null,
+          response:
+            {
+              statusCode: 200,
+              statusMessage: "OK",
+              body:
+                {
+                  "code": null,
+                  "data":
+                    {
+                      "displayUserName": "FAKEUSERNAME",
+                      "firstLogin": false,
+                      "healthCheckInterval": 45,
+                      "masterToken": "MASTER_TOKEN",
+                      "masterValidityInSeconds": 14400,
+                      "newClientForUpgrade": null,
+                      "remMeToken": "MASTER_TOKEN",
+                      "remMeValidityInSeconds": 14400,
+                      "serverVersion": "Dev",
+                      "sessionId": "51539800306",
+                      "token": "SESSION_TOKEN",
+                      "validityInSeconds": 3600,
+                      "parameters": [{
+                        "name": "TIMEZONE",
+                        "value": "America/Los_Angeles"
+                      }, {
+                        "name": "TIMESTAMP_OUTPUT_FORMAT",
+                        "value": "DY, DD MON YYYY HH24:MI:SS TZHTZM"
+                      }, {
+                        "name": "TIMESTAMP_NTZ_OUTPUT_FORMAT",
+                        "value": ""
+                      }, {
+                        "name": "TIMESTAMP_LTZ_OUTPUT_FORMAT",
+                        "value": ""
+                      }, {
+                        "name": "TIMESTAMP_TZ_OUTPUT_FORMAT",
+                        "value": ""
+                      }, {
+                        "name": "DATE_OUTPUT_FORMAT",
+                        "value": "YYYY-MM-DD"
+                      }, {
+                        "name": "TIME_OUTPUT_FORMAT",
+                        "value": "HH24:MI:SS"
+                      }, {
+                        "name": "CLIENT_RESULT_PREFETCH_SLOTS",
+                        "value": 2
+                      }, {
+                        "name": "CLIENT_RESULT_PREFETCH_THREADS",
+                        "value": 1
+                      }, {
+                        "name": "CLIENT_HONOR_CLIENT_TZ_FOR_TIMESTAMP_NTZ",
+                        "value": true
+                      }, {
+                        "name": "CLIENT_USE_V1_QUERY_API",
+                        "value": true
+                      }, {
+                        "name": "CLIENT_DISABLE_INCIDENTS",
+                        "value": true
+                      }, {
+                        "name": "CLIENT_SESSION_KEEP_ALIVE",
+                        "value": false
+                      }, {
+                        "name": "CLIENT_SESSION_KEEP_ALIVE_HEARTBEAT_FREQUENCY",
+                        "value": 3600
+                      }, {
+                        "name": "JS_TREAT_INTEGER_AS_BIGINT",
+                        "value": true
                       }]
                     },
                   "message": null,

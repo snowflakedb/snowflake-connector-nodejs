@@ -70,6 +70,15 @@ var connectionOptions504 =
     account: 'fake504'
   };
 
+var connectionOptionsWithTreatIntAsBigInt =
+  {
+    accessUrl: 'http://fakeaccount.snowflakecomputing.com',
+    username: 'fakeusername',
+    password: 'fakepassword',
+    account: 'fakeaccount',
+    jsTreatIntegerAsBigInt: true
+  };
+
 exports.connectionOptions =
   {
     default: connectionOptions,
@@ -77,5 +86,6 @@ exports.connectionOptions =
     serviceName: connectionOptionsWithServiceName,
     clientSessionKeepAlive: connectionOptionsWithClientSessionKeepAlive,
     sessionGone: connectionOptionsForSessionGone,
-    http504: connectionOptions504
+    http504: connectionOptions504,
+    treatIntAsBigInt: connectionOptionsWithTreatIntAsBigInt
   };

@@ -1,11 +1,11 @@
 /*
  * Copyright (c) 2015-2019 Snowflake Computing Inc. All rights reserved.
  */
-var snowflake = require('./../../lib/snowflake');
-var async = require('async');
-var assert = require('assert');
-var connOption = require('./connectionOptions');
-var testUtil = require('./testUtil');
+const snowflake = require('./../../lib/snowflake');
+const async = require('async');
+const assert = require('assert');
+const connOption = require('./connectionOptions');
+const testUtil = require('./testUtil');
 
 describe('Connection test', function ()
 {
@@ -66,7 +66,6 @@ describe('Connection test', function ()
       done();
     });
   });
-
   it('Multiple Client', function (done)
   {
     const totalConnections = 10;
@@ -100,38 +99,4 @@ describe('Connection test', function ()
       done();
     }, 60000);
   });
-
-  it('OCSP Fail Closed', function (done)
-  {
-    snowflake.configure({ocspFailOpen: false});
-    var connection = snowflake.createConnection(connOption.valid);
-
-    async.series([
-        function (callback)
-        {
-          connection.connect(function (err)
-          {
-            assert.ok(!err, JSON.stringify(err));
-            callback();
-          });
-        },
-        function (callback)
-        {
-          connection.destroy(function (err)
-          {
-            assert.ok(!err, JSON.stringify(err));
-            callback();
-          });
-        },
-        function (callback)
-        {
-          snowflake.configure({ocspFailOpen: true});
-          callback();
-        }
-      ],
-      done
-    );
-  });
-
-
 });

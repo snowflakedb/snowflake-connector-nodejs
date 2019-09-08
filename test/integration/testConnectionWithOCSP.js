@@ -70,7 +70,6 @@ describe('Connection with OCSP test', function ()
   {
     deleteCache();
     SocketUtil.variables.OCSP_RESPONSE_CACHE = undefined;
-    SocketUtil.variables.SF_OCSP_FORCE_OCSP_VALIDATE = true;
     SocketUtil.variables.SF_OCSP_RESPONSE_CACHE_SERVER_ENABLED = false;
     // inject validity error
     process.env.SF_OCSP_TEST_INJECT_VALIDITY_ERROR = 'true';
@@ -101,7 +100,6 @@ describe('Connection with OCSP test', function ()
   {
     deleteCache();
     SocketUtil.variables.OCSP_RESPONSE_CACHE = undefined;
-    SocketUtil.variables.SF_OCSP_FORCE_OCSP_VALIDATE = true;
     SocketUtil.variables.SF_OCSP_RESPONSE_CACHE_SERVER_ENABLED = false;
     // inject validity error
     process.env.SF_OCSP_TEST_INJECT_VALIDITY_ERROR = 'true';
@@ -134,7 +132,6 @@ describe('Connection with OCSP test', function ()
   {
     deleteCache();
     SocketUtil.variables.OCSP_RESPONSE_CACHE = undefined;
-    SocketUtil.variables.SF_OCSP_FORCE_OCSP_VALIDATE = true;
     SocketUtil.variables.SF_OCSP_RESPONSE_CACHE_SERVER_ENABLED = false;
     // inject validity error
     process.env.SF_OCSP_TEST_INJECT_UNKNOWN_STATUS = 'true';
@@ -165,7 +162,6 @@ describe('Connection with OCSP test', function ()
   {
     deleteCache();
     SocketUtil.variables.OCSP_RESPONSE_CACHE = undefined;
-    SocketUtil.variables.SF_OCSP_FORCE_OCSP_VALIDATE = true;
     SocketUtil.variables.SF_OCSP_RESPONSE_CACHE_SERVER_ENABLED = false;
     // inject validity error
     process.env.SF_OCSP_TEST_INJECT_UNKNOWN_STATUS = 'true';
@@ -245,7 +241,6 @@ describe('Connection with OCSP test', function ()
   {
     deleteCache();
     SocketUtil.variables.OCSP_RESPONSE_CACHE = undefined;
-    SocketUtil.variables.SF_OCSP_FORCE_OCSP_VALIDATE = true;
     // cache server is used
     SocketUtil.variables.SF_OCSP_RESPONSE_CACHE_SERVER_ENABLED = true;
     // fake OCSP responder.
@@ -282,7 +277,6 @@ describe('Connection with OCSP test', function ()
   {
     deleteCache();
     SocketUtil.variables.OCSP_RESPONSE_CACHE = undefined;
-    SocketUtil.variables.SF_OCSP_FORCE_OCSP_VALIDATE = true;
     // cache server is used
     SocketUtil.variables.SF_OCSP_RESPONSE_CACHE_SERVER_ENABLED = true;
     // fake OCSP responder.
@@ -323,7 +317,6 @@ describe('Connection with OCSP test', function ()
   {
     deleteCache();
     SocketUtil.variables.OCSP_RESPONSE_CACHE = undefined;
-    SocketUtil.variables.SF_OCSP_FORCE_OCSP_VALIDATE = true;
     // no cache server is used
     SocketUtil.variables.SF_OCSP_RESPONSE_CACHE_SERVER_ENABLED = false;
     // fake OCSP responder.
@@ -360,7 +353,6 @@ describe('Connection with OCSP test', function ()
   {
     deleteCache();
     SocketUtil.variables.OCSP_RESPONSE_CACHE = undefined;
-    SocketUtil.variables.SF_OCSP_FORCE_OCSP_VALIDATE = true;
     // no cache server is used
     SocketUtil.variables.SF_OCSP_RESPONSE_CACHE_SERVER_ENABLED = false;
     // fake OCSP responder.
@@ -405,7 +397,6 @@ describe('Connection with OCSP test', function ()
   {
     deleteCache();
     SocketUtil.variables.OCSP_RESPONSE_CACHE = undefined;
-    SocketUtil.variables.SF_OCSP_FORCE_OCSP_VALIDATE = true;
     // no cache server is used
     SocketUtil.variables.SF_OCSP_RESPONSE_CACHE_SERVER_ENABLED = true;
     // fake OCSP responder.
@@ -444,7 +435,6 @@ describe('Connection with OCSP test', function ()
   {
     deleteCache();
     SocketUtil.variables.OCSP_RESPONSE_CACHE = undefined;
-    SocketUtil.variables.SF_OCSP_FORCE_OCSP_VALIDATE = true;
     // no cache server is used
     SocketUtil.variables.SF_OCSP_RESPONSE_CACHE_SERVER_ENABLED = false;
     // fake OCSP responder.
@@ -487,7 +477,6 @@ describe('Connection with OCSP test', function ()
   {
     deleteCache();
     SocketUtil.variables.OCSP_RESPONSE_CACHE = undefined;
-    SocketUtil.variables.SF_OCSP_FORCE_OCSP_VALIDATE = true;
     // no cache server is used
     SocketUtil.variables.SF_OCSP_RESPONSE_CACHE_SERVER_ENABLED = false;
     // fake OCSP responder.
@@ -521,7 +510,6 @@ describe('Connection with OCSP test', function ()
   {
     deleteCache();
     SocketUtil.variables.OCSP_RESPONSE_CACHE = undefined;
-    SocketUtil.variables.SF_OCSP_FORCE_OCSP_VALIDATE = true;
     // no cache server is used
     SocketUtil.variables.SF_OCSP_RESPONSE_CACHE_SERVER_ENABLED = false;
     // fake OCSP responder.

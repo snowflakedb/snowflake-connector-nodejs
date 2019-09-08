@@ -559,15 +559,6 @@ describe('Connection with OCSP test', function ()
   const testInvalidCertConnectionOptions = [
     {
       connectString: {
-        accessUrl: 'https://untrusted-root.badssl.com',
-        username: 'fakeuser',
-        password: 'fakepasword',
-        account: 'fakeaccount',
-      },
-      errorCode: 'SELF_SIGNED_CERT_IN_CHAIN'
-    },
-    {
-      connectString: {
         accessUrl: 'https://expired.badssl.com',
         username: 'fakeuser',
         password: 'fakepasword',

@@ -16,10 +16,10 @@ class HTTPRequestHandler(BaseHTTPRequestHandler):
             self.send_header('Content-Type', 'text/plain')
             self.end_headers()
         elif self.path.startswith('/hang'):
+            time.sleep(300)
             self.send_response(200, 'OK')
             self.send_header('Content-Type', 'text/plain')
             self.end_headers()
-            time.sleep(300)
         else:
             self.send_response(200, 'OK')
             self.send_header('Content-Type', 'text/plain')

@@ -6,9 +6,41 @@ const async = require('async');
 const assert = require('assert');
 const connOption = require('./connectionOptions');
 const testUtil = require('./testUtil');
+const Util = require('./../../lib/util');
+const Core = require('./../../lib/core');
 
 describe('Connection test', function ()
 {
+  it('return tokens in qaMode', function ()
+    {
+      const coreInst = Core({
+        qaMode: true,
+        httpClientClass: require('./../../lib/http/node'),
+        loggerClass: require('./../../lib/logger/node'),
+        client:
+          {
+            version: Util.driverVersion,
+            environment: process.versions
+          }
+      });
+      const connection = coreInst.createConnection(connOption.valid);
+      assert.deepEqual(connection.getTokens(), {
+        masterToken: undefined,
+        masterTokenExpirationTime: undefined,
+        sessionToken: undefined,
+        sessionTokenExpirationTime: undefined
+      });
+    }
+  )
+  ;
+
+  it('does not return tokens when not in qaMode', function ()
+    {
+      const connection = snowflake.createConnection(connOption.valid);
+      assert.deepEqual(connection.getTokens(), {});
+    }
+  )
+  ;
   it('Simple Connect', function (done)
   {
     var connection = snowflake.createConnection(connOption.valid);

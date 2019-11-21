@@ -18,6 +18,7 @@ describe('Test Bind Varible', function ()
   var insertValue = 'insert into testTbl values(\'string\', 3)';
   var insertSingleBind = 'insert into testTbl values(?)';
   var selectAllFromTbl = 'select * from testTbl order by 1';
+  var selectAllFromTblLimit1 = 'select * from testTbl order by 1 limit ?';
   var selectWithBind = 'select * from testTbl where COLA = :2 and COLB = :1';
 
   before(function (done)
@@ -492,6 +493,46 @@ describe('Test Bind Varible', function ()
         callback
       );
     };
+
+    it('testBindLimitClause', function (done)
+    {
+      async.series(
+        [
+          function (callback)
+          {
+            testUtil.executeCmd(connection, createTestTbl, callback);
+          },
+          function (callback)
+          {
+            testUtil.executeCmd(
+              connection,
+              insertWithQmark,
+              callback,
+              [['string', 3],['string2', 4]]
+            );
+          },
+          function (callback)
+          {
+            testUtil.executeQueryAndVerify(
+              connection,
+              selectAllFromTblLimit1,
+              [{
+                'COLA': 'string',
+                'COLB': 3
+              }],
+              callback,
+              [1]
+            );
+          },
+          function (callback)
+          {
+            testUtil.executeCmd(connection, dropTestTbl, callback);
+          }
+        ],
+        done
+      );
+    });
+
 
     it('testBindingBooleanSimple', function (done)
     {

@@ -19,11 +19,17 @@ matrix:
     node_js: '11'
   - os: linux
     dist: trusty
-    node_js: '11'
+    node_js: '12'
+  - os: linux
+    dist: trusty
+    node_js: '13'
+  - os: linux
+    dist: trusty
+    node_js: '13'
     env: SNOWFLAKE_AZURE=true
   - os: linux
     dist: trusty
-    node_js: '11'
+    node_js: '13'
     env: SNOWFLAKE_GCP=true
 install:
 - ./scripts/install.sh

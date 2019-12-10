@@ -4,6 +4,8 @@
 let snowflakeTestProtocol = process.env.SNOWFLAKE_TEST_PROTOCOL;
 let snowflakeTestHost = process.env.SNOWFLAKE_TEST_HOST;
 let snowflakeTestPort = process.env.SNOWFLAKE_TEST_PORT;
+let snowflakeTestProxyHost = process.env.SNOWFLAKE_TEST_PROXY_HOST;
+let snowflakeTestProxyPort = process.env.SNOWFLAKE_TEST_PROXY_PORT;
 const snowflakeTestAccount = process.env.SNOWFLAKE_TEST_ACCOUNT;
 const snowflakeTestUser = process.env.SNOWFLAKE_TEST_USER;
 const snowflakeTestDatabase = process.env.SNOWFLAKE_TEST_DATABASE;
@@ -27,6 +29,16 @@ if (snowflakeTestHost === undefined)
 if (snowflakeTestPort === undefined)
 {
   snowflakeTestPort = '443';
+}
+
+if (snowflakeTestProxyHost === undefined)
+{
+  snowflakeTestProxyHost = 'localhost';
+}
+
+if (snowflakeTestProxyPort === undefined)
+{
+  snowflakeTestProxyPort = '3128';
 }
 
 const accessUrl = snowflakeTestProtocol + '://' + snowflakeTestHost + ':' +

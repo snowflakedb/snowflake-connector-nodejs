@@ -11,4 +11,4 @@ if [[ -z "$NEXUS_PASSWORD" ]]; then
     echo "[ERROR] Set NEXUS_PASSWORD to your LDAP password to access the internal repository!"
     exit 1
 fi
-# echo $NEXUS_PASSWORD | docker login --username $NEXUS_USER --password-stdin nexus.int.snowflakecomputing.com:8086
+echo $NEXUS_PASSWORD | docker login --username $NEXUS_USER --password-stdin nexus.int.snowflakecomputing.com:8086

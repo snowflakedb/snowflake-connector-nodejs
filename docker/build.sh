@@ -14,5 +14,5 @@ docker run \
     -e GIT_URL \
     -e AWS_ACCESS_KEY_ID \
     -e AWS_SECRET_ACCESS_KEY \
-    -it $BUILD_IMAGE_NAME \
+    $BUILD_IMAGE_NAME \
     "/mnt/host/scripts/build_component.sh"

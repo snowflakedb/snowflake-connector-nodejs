@@ -6,7 +6,7 @@ BUILD_IMAGE_NAME=$INTERNAL_CLIENT_REPO/nodejs/build:$BUILD_IMAGE_VERSION
 TEST_IMAGE_VERSION=1
 TEST_IMAGE_NAME=$INTERNAL_CLIENT_REPO/nodejs/build:$TEST_IMAGE_VERSION
 
-NEXUS_USER=$USERNAME
+NEXUS_USER=${USERNAME:-jenkins}
 if [[ -z "$NEXUS_PASSWORD" ]]; then
     echo "[ERROR] Set NEXUS_PASSWORD to your LDAP password to access the internal repository!"
     exit 1

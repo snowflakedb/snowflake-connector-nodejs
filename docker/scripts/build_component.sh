@@ -25,5 +25,6 @@ npm install --package-lock-only
 rm -f ~/.npmrc
 npm audit
 PACKAGE_NAME=$(ls snowflake-sdk*)
-echo aws s3 cp --only-show-errors $PACKAGE_NAME s3://sfc-jenkins/repository/nodejs/$GIT_BRANCH/$GIT_COMMIT/
-aws s3 cp --only-show-errors $PACKAGE_NAME s3://sfc-jenkins/repository/nodejs/$GIT_BRANCH/$GIT_COMMIT/
+TS=$(TZ=UTC git show -s --date='format-local:%Y%m%dT%H%M%S' --format="%cd" $GIT_COMMIT)
+echo aws s3 cp --only-show-errors $PACKAGE_NAME s3://sfc-jenkins/repository/nodejs/$GIT_BRANCH/${TS}_${GIT_COMMIT}/
+aws s3 cp --only-show-errors $PACKAGE_NAME s3://sfc-jenkins/repository/nodejs/$GIT_BRANCH/${TS}_${GIT_COMMIT}/

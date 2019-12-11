@@ -15,7 +15,7 @@ export PROXY_PORT=3128
 # set Jenkins GIT parameters propagated from Build job.
 # 
 export client_git_url=${client_git_url:-https://github.com/snowflakedb/snowflake-connector-nodejs.git}
-export client_git_branch=${git_branch:-origin/master}
+export client_git_branch=${client_git_branch:-origin/master}
 # client_git_commit is optional, even if not set, it is ok.
 
 #
@@ -24,11 +24,12 @@ export client_git_branch=${git_branch:-origin/master}
 export GIT_URL=${GIT_URL:-$client_git_url}
 export GIT_BRANCH=${GIT_BRANCH:-$client_git_branch}
 export GIT_COMMIT=${GIT_COMMIT:-$client_git_commit}
+echo "GIT_BRANCH: $GIT_BRANCH, GIT_COMMIT: $GIT_COMMIT"
 
 docker pull $TEST_IMAGE_NAME
 if ! docker network ls | awk '{print $2}' | grep -q $NETWORK_NAME; then
     echo "[INFO] Creating a network $NETWORK_NAME"
-    docker network create --subnet 172.20.0.0.0/16 --ip-range 172.20.240.0/20 $NETWORK_NAME
+    docker network create --subnet 172.20.0.0/16 --ip-range 172.20.240.0/20 $NETWORK_NAME
 else
     echo "[INFO] The network $NETWORK_NAME already up."
 fi

@@ -1,4 +1,4 @@
-#!/bin/bash -e
+#!/bin/bash -ex
 #
 # Test NodeJS Driver
 #
@@ -9,7 +9,7 @@ THIS_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 echo "[INFO] checking out from branch $GIT_BRANCH"
 git clone $GIT_URL target
 cd target
-git checkout --track $GIT_BRANCH
+[[ "$GIT_BRANCH" != "origin/master" ]] && git checkout --track $GIT_BRANCH
 if [[ -n "$GIT_COMMIT" ]]; then
     echo "[INFO] Checking out with the commit hash $GIT_COMMIT"
     git checkout $GIT_COMMIT
@@ -17,10 +17,11 @@ else
     GIT_COMMIT=$(git rev-parse HEAD)
     echo "[INFO] Resetting the commit hash to $GIT_COMMIT"
 fi
-cd ~
+TS=$(TZ=UTC git show -s --date='format-local:%Y%m%dT%H%M%S' --format="%cd" $GIT_COMMIT)
 echo "[INFO] Testing"
-echo ["INFO] aws s3 cp --only-show-errors --recursive s3://sfc-jenkins/repository/nodejs/$GIT_BRANCH/$GIT_COMMIT/ ."
-aws s3 cp --only-show-errors --recursive s3://sfc-jenkins/repository/nodejs/$GIT_BRANCH/$GIT_COMMIT/ .
+cd ~
+echo "[INFO] aws s3 cp --only-show-errors --recursive s3://sfc-jenkins/repository/nodejs/$GIT_BRANCH/${TS}_${GIT_COMMIT}/ ."
+aws s3 cp --only-show-errors --recursive s3://sfc-jenkins/repository/nodejs/$GIT_BRANCH/${TS}_${GIT_COMMIT}/ .
 
 export DOCKER_HOST_IP=$(route -n | awk '/UG[ \t]/{print $2}')
 echo "[INFO] Setting snowflake.reg.local to $DOCKER_HOST_IP"

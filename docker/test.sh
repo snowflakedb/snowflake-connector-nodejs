@@ -11,6 +11,20 @@ PROXY_NAME=$INTERNAL_CLIENT_REPO/squid
 export PROXY_IP=172.20.128.10
 export PROXY_PORT=3128
 
+#
+# set Jenkins GIT parameters propagated from Build job.
+# 
+export client_git_url=${client_git_url:-https://github.com/snowflakedb/snowflake-connector-nodejs.git}
+export client_git_branch=${git_branch:-origin/master}
+# client_git_commit is optional, even if not set, it is ok.
+
+#
+# set GIT parameters used in the following scripts
+#
+export GIT_URL=${GIT_URL:-$client_git_url}
+export GIT_BRANCH=${GIT_BRANCH:-$client_git_branch}
+export GIT_COMMIT=${GIT_COMMIT:-$client_git_commit}
+
 docker pull $TEST_IMAGE_NAME
 if ! docker network ls | awk '{print $2}' | grep -q $NETWORK_NAME; then
     echo "[INFO] Creating a network $NETWORK_NAME"
@@ -35,5 +49,5 @@ docker run \
     -e GIT_URL \
     -e AWS_ACCESS_KEY_ID \
     -e AWS_SECRET_ACCESS_KEY \
-    -it $TEST_IMAGE_NAME \
+    $TEST_IMAGE_NAME \
     "/mnt/host/scripts/test_component.sh"

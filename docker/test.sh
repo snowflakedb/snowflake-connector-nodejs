@@ -26,6 +26,7 @@ export GIT_BRANCH=${GIT_BRANCH:-$client_git_branch}
 export GIT_COMMIT=${GIT_COMMIT:-$client_git_commit}
 echo "GIT_BRANCH: $GIT_BRANCH, GIT_COMMIT: $GIT_COMMIT"
 
+echo "[INFO] Creating a subnet for tests"
 docker pull $TEST_IMAGE_NAME
 if ! docker network ls | awk '{print $2}' | grep -q $NETWORK_NAME; then
     echo "[INFO] Creating a network $NETWORK_NAME"
@@ -40,6 +41,18 @@ if ! docker ps | awk '{print $2}' | grep -q $PROXY_NAME; then
 else
     echo "[INFO] Squid proxy server already up."
 fi
+echo docker run \
+    --net $NETWORK_NAME \
+    -v $THIS_DIR:/mnt/host \
+    -e PROXY_IP \
+    -e PROXY_PORT \
+    -e GIT_COMMIT \
+    -e GIT_BRANCH \
+    -e GIT_URL \
+    -e AWS_ACCESS_KEY_ID \
+    -e AWS_SECRET_ACCESS_KEY \
+    $TEST_IMAGE_NAME \
+    "/mnt/host/scripts/test_component.sh"
 docker run \
     --net $NETWORK_NAME \
     -v $THIS_DIR:/mnt/host \

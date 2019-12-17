@@ -6,8 +6,9 @@ set -o pipefail
 THIS_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 source $THIS_DIR/_init.sh
 
-NETWORK_NAME=proxytest
-PROXY_NAME=$INTERNAL_CLIENT_REPO/squid
+export WORKSPACE=${WORKSPACE:-/tmp}
+export NETWORK_NAME=proxytest
+export PROXY_NAME=$INTERNAL_CLIENT_REPO/squid
 export SUBNET=192.168.0.0/16
 export PROXY_IP=192.168.0.100
 export PROXY_PORT=3128
@@ -43,9 +44,12 @@ if ! docker ps | awk '{print $2}' | grep -q $PROXY_NAME; then
 else
     echo "[INFO] Squid proxy server already up."
 fi
+export USERID=$(id -u $(whoami))
 echo docker run \
     --net $NETWORK_NAME \
     -v $THIS_DIR:/mnt/host \
+    -v $WORKSPACE:/mnt/workspace \
+    -e USERID \
     -e PROXY_IP \
     -e PROXY_PORT \
     -e GIT_COMMIT \
@@ -58,6 +62,8 @@ echo docker run \
 docker run \
     --net $NETWORK_NAME \
     -v $THIS_DIR:/mnt/host \
+    -v $WORKSPACE:/mnt/workspace \
+    -e USERID \
     -e PROXY_IP \
     -e PROXY_PORT \
     -e GIT_COMMIT \

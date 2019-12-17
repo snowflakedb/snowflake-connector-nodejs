@@ -1,21 +1,14 @@
-#!/bin/bash -ex
+#!/bin/bash -e
 #
 # Test NodeJS Driver
 #
 set -o pipefail
 THIS_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 export WORKSPACE=${WORKSPACE:-/mnt/workspace}
-export DRIVER_NAME=nodejs
 
 [[ -z "$GIT_BRANCH" ]] && echo "Set GIT_BRANCH to build" && exit 1
 [[ -z "$GIT_URL" ]] && echo "Set GIT_URL to build" && exit 1
 
-function chown_junit() {
-    chown $USERID $WORKSPACE/junit*.xml
-}
-trap chown_junit EXIT
-
-echo "[INFO] adding testuser"
 echo $USERID
 useradd -u $USERID testuser
 
@@ -53,7 +46,6 @@ $THIS_DIR/hang_webserver.py 12345 &
 MOCHA_CMD=(
     "mocha"
     "--timeout" "90000"
-    "--recursive"
     "--full-trace"
     "--color"
     "--reporter" "xunit"

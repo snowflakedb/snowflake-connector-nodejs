@@ -45,37 +45,32 @@ if ! docker ps | awk '{print $2}' | grep -q $PROXY_NAME; then
 else
     echo "[INFO] Squid proxy server already up."
 fi
-
-declare -A TARGET_TEST_IMAGES
-if [[ -n "$TARGET_PLATFORM" ]]; then
-    IMAGE_NAME=${TEST_IMAGE_NAMES[$target_platform]}
-    if [[ -z "$IMAGE_NAME" ]]; then
-        echo "[ERROR] The target platform $TARGET_PLATFORM doesn't exist. Check $THIS_DIR/_init.sh"
-        exit 1
-    fi
-    TARGET_TEST_IMAGES=([$TARGET_PLATFORM]=$IMAGE_NAME)
-else
-    for name in "${!TEST_IMAGE_NAMES[@]}"; do
-        TARGET_TEST_IMAGES[$name]=${TEST_IMAGE_NAMES[$name]}
-    done
-fi
-
 export USERID=$(id -u $(whoami))
-for name in "${!TARGET_TEST_IMAGES[@]}"; do
-    echo "[INFO] Testing $DRIVER_NAME on $name"
-    docker pull "${TARGET_TEST_IMAGES[$name]}"
-    docker run \
-        --net $NETWORK_NAME \
-        -v $THIS_DIR:/mnt/host \
-        -v $WORKSPACE:/mnt/workspace \
-        -e USERID \
-        -e PROXY_IP \
-        -e PROXY_PORT \
-        -e GIT_COMMIT \
-        -e GIT_BRANCH \
-        -e GIT_URL \
-        -e AWS_ACCESS_KEY_ID \
-        -e AWS_SECRET_ACCESS_KEY \
-        "${TARGET_TEST_IMAGES[$name]}" \
-        "/mnt/host/container/test_component.sh"
-done
+echo docker run \
+    --net $NETWORK_NAME \
+    -v $THIS_DIR:/mnt/host \
+    -v $WORKSPACE:/mnt/workspace \
+    -e USERID \
+    -e PROXY_IP \
+    -e PROXY_PORT \
+    -e GIT_COMMIT \
+    -e GIT_BRANCH \
+    -e GIT_URL \
+    -e AWS_ACCESS_KEY_ID \
+    -e AWS_SECRET_ACCESS_KEY \
+    $TEST_IMAGE_NAME \
+    "/mnt/host/scripts/test_component.sh"
+docker run \
+    --net $NETWORK_NAME \
+    -v $THIS_DIR:/mnt/host \
+    -v $WORKSPACE:/mnt/workspace \
+    -e USERID \
+    -e PROXY_IP \
+    -e PROXY_PORT \
+    -e GIT_COMMIT \
+    -e GIT_BRANCH \
+    -e GIT_URL \
+    -e AWS_ACCESS_KEY_ID \
+    -e AWS_SECRET_ACCESS_KEY \
+    $TEST_IMAGE_NAME \
+    "/mnt/host/scripts/test_component.sh"

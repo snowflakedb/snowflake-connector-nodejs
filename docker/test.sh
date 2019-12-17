@@ -8,8 +8,10 @@ source $THIS_DIR/_init.sh
 
 NETWORK_NAME=proxytest
 PROXY_NAME=$INTERNAL_CLIENT_REPO/squid
-export PROXY_IP=172.20.128.10
+export SUBNET=192.168.0.0/16
+export PROXY_IP=192.168.0.100
 export PROXY_PORT=3128
+export GATEWAY_HOST=192.168.0.1
 
 #
 # set Jenkins GIT parameters propagated from Build job.
@@ -30,14 +32,14 @@ echo "[INFO] Creating a subnet for tests"
 docker pull $TEST_IMAGE_NAME
 if ! docker network ls | awk '{print $2}' | grep -q $NETWORK_NAME; then
     echo "[INFO] Creating a network $NETWORK_NAME"
-    docker network create --subnet 172.20.0.0/16 --ip-range 172.20.240.0/20 $NETWORK_NAME
+    docker network create --subnet $SUBNET --gateway $GATEWAY_HOST $NETWORK_NAME
 else
     echo "[INFO] The network $NETWORK_NAME already up."
 fi
 
 if ! docker ps | awk '{print $2}' | grep -q $PROXY_NAME; then
     echo "[INFO] Starting Squid proxy server"
-    docker run --net $NETWORK_NAME --ip $PROXY_IP -d $PROXY_NAME
+    docker run --net $NETWORK_NAME --ip $PROXY_IP --add-host snowflake.reg.local:192.168.0.1 -d $PROXY_NAME
 else
     echo "[INFO] Squid proxy server already up."
 fi

@@ -1,4 +1,4 @@
-#!/bin/bash -e
+#!/bin/bash -ex
 #
 # Build Docker images
 #
@@ -6,5 +6,12 @@ set -o pipefail
 THIS_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 source $THIS_DIR/../_init.sh
 
-docker build -f $THIS_DIR/Dockerfile.build -t $BUILD_IMAGE_NAME .
-docker push $BUILD_IMAGE_NAME
+for name in "${!BUILD_IMAGE_NAMES[@]}"; do
+    docker build -f $THIS_DIR/Dockerfile.$name-build -t ${BUILD_IMAGE_NAMES[$name]} .
+    docker push ${BUILD_IMAGE_NAMES[$name]}
+done
+
+for name in "${!TEST_IMAGE_NAMES[@]}"; do
+    docker build -f $THIS_DIR/Dockerfile.$name-test -t ${TEST_IMAGE_NAMES[$name]} .
+    docker push ${TEST_IMAGE_NAMES[$name]}
+done

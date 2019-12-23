@@ -5,6 +5,7 @@
 set -o pipefail
 THIS_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 export WORKSPACE=${WORKSPACE:-/mnt/workspace}
+export DRIVER_NAME=nodejs
 
 [[ -z "$GIT_BRANCH" ]] && echo "Set GIT_BRANCH to build" && exit 1
 [[ -z "$GIT_URL" ]] && echo "Set GIT_URL to build" && exit 1
@@ -22,18 +23,11 @@ echo "[INFO] checking out from branch $GIT_BRANCH"
 git clone $GIT_URL target
 cd target
 [[ "$GIT_BRANCH" != "origin/master" ]] && git checkout --track $GIT_BRANCH
-if [[ -n "$GIT_COMMIT" ]]; then
-    echo "[INFO] Checking out with the commit hash $GIT_COMMIT"
-    git checkout $GIT_COMMIT
-else
-    GIT_COMMIT=$(git rev-parse HEAD)
-    echo "[INFO] Resetting the commit hash to $GIT_COMMIT"
-fi
-TS=$(TZ=UTC git show -s --date='format-local:%Y%m%dT%H%M%S' --format="%cd" $GIT_COMMIT)
+source $THIS_DIR/get_git_commit.sh
+source $THIS_DIR/download_artifact.sh
+
 echo "[INFO] Testing"
 cd ~
-echo "[INFO] aws s3 cp --only-show-errors --recursive s3://sfc-jenkins/repository/nodejs/$GIT_BRANCH/${TS}_${GIT_COMMIT}/ ."
-aws s3 cp --only-show-errors --recursive s3://sfc-jenkins/repository/nodejs/$GIT_BRANCH/${TS}_${GIT_COMMIT}/ .
 
 export DOCKER_HOST_IP=$(route -n | awk '/UG[ \t]/{print $2}')
 echo "[INFO] Setting snowflake.reg.local to $DOCKER_HOST_IP"
@@ -59,6 +53,9 @@ $THIS_DIR/hang_webserver.py 12345 &
 MOCHA_CMD=(
     "mocha"
     "--timeout" "90000"
+    "--recursive"
+    "--full-trace"
+    "--color"
     "--reporter" "xunit"
     "--reporter-options"
 )

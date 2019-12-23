@@ -25,4 +25,5 @@ npm audit
 echo "[INFO] Uploading Artifacts"
 ARTIFACTS=($(ls snowflake-sdk*))
 export ARTIFACTS
+export DRIVER_NAME=nodejs
 source $THIS_DIR/upload_artifact.sh

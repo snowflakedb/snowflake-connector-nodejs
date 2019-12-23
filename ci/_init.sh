@@ -1,10 +1,24 @@
 #!/bin/bash -e
-INTERNAL_REPO=nexus.int.snowflakecomputing.com:8086
-INTERNAL_CLIENT_REPO=$INTERNAL_REPO/docker/client
+export INTERNAL_REPO=nexus.int.snowflakecomputing.com:8086
+export INTERNAL_CLIENT_REPO=$INTERNAL_REPO/docker/client
+
+export DRIVER_NAME=nodejs
+
+# Build images
 BUILD_IMAGE_VERSION=1
-BUILD_IMAGE_NAME=$INTERNAL_CLIENT_REPO/nodejs/build:$BUILD_IMAGE_VERSION
+
+declare -A BUILD_IMAGE_NAMES=(
+    [$DRIVER_NAME-centos6-default]=$INTERNAL_CLIENT_REPO/$DRIVER_NAME/centos6/default/build:$BUILD_IMAGE_VERSION
+)
+export BUILD_IMAGE_NAMES
+
+# Test Images
 TEST_IMAGE_VERSION=1
-TEST_IMAGE_NAME=$INTERNAL_CLIENT_REPO/nodejs/build:$TEST_IMAGE_VERSION
+
+declare -A TEST_IMAGE_NAMES=(
+    [$DRIVER_NAME-centos6-default]=$INTERNAL_CLIENT_REPO/$DRIVER_NAME/centos6/default/test:$BUILD_IMAGE_VERSION
+)
+export TEST_IMAGE_NAMES
 
 NEXUS_USER=${USERNAME:-jenkins}
 if [[ -z "$NEXUS_PASSWORD" ]]; then
@@ -15,4 +29,3 @@ if ! docker login --username "$NEXUS_USER" --password "$NEXUS_PASSWORD" $INTERNA
     echo "[ERROR] Failed to connect to the nexus server. Verify the environment variable NEXUS_PASSWORD is set correctly for NEXUS_USER: $NEXUS_USER"
     exit 1
 fi
-

@@ -59,7 +59,7 @@ echo docker run \
     -e AWS_ACCESS_KEY_ID \
     -e AWS_SECRET_ACCESS_KEY \
     $TEST_IMAGE_NAME \
-    "/mnt/host/scripts/test_component.sh"
+    "/mnt/host/container/test_component.sh"
 docker run \
     --net $NETWORK_NAME \
     -v $THIS_DIR:/mnt/host \
@@ -73,4 +73,4 @@ docker run \
     -e AWS_ACCESS_KEY_ID \
     -e AWS_SECRET_ACCESS_KEY \
     $TEST_IMAGE_NAME \
-    "/mnt/host/scripts/test_component.sh"
+    "/mnt/host/container/test_component.sh"

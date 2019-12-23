@@ -9,6 +9,12 @@ export WORKSPACE=${WORKSPACE:-/mnt/workspace}
 [[ -z "$GIT_BRANCH" ]] && echo "Set GIT_BRANCH to build" && exit 1
 [[ -z "$GIT_URL" ]] && echo "Set GIT_URL to build" && exit 1
 
+function chown_junit() {
+    chown $USERID $WORKSPACE/junit*.xml
+}
+trap chown_junit EXIT
+
+echo "[INFO] adding testuser"
 echo $USERID
 useradd -u $USERID testuser
 

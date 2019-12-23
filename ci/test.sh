@@ -41,7 +41,7 @@ fi
 
 if ! docker ps | awk '{print $2}' | grep -q $PROXY_NAME; then
     echo "[INFO] Starting Squid proxy server"
-    docker run --net $NETWORK_NAME --ip $PROXY_IP --add-host snowflake.reg.local:192.168.0.1 -d $PROXY_NAME
+    docker run --net $NETWORK_NAME --ip $PROXY_IP --add-host snowflake.reg.local:$GATEWAY_HOST -d $PROXY_NAME
 else
     echo "[INFO] Squid proxy server already up."
 fi
@@ -68,6 +68,11 @@ for name in "${!TARGET_TEST_IMAGES[@]}"; do
         --net $NETWORK_NAME \
         -v $THIS_DIR:/mnt/host \
         -v $WORKSPACE:/mnt/workspace \
+        --add-host snowflake.reg.local:$GATEWAY_HOST \
+        --add-host testaccount.reg.snowflakecomputing.com:$GATEWAY_HOST \
+        --add-host snowflake.reg.snowflakecomputing.com:$GATEWAY_HOST \
+        --add-host externalaccount.reg.local.snowflakecomputing.com:$GATEWAY_HOST \
+        -e LOCAL_USER_ID=$(id -u $USER) \
         -e USERID \
         -e PROXY_IP \
         -e PROXY_PORT \

@@ -11,6 +11,7 @@ for name in "${!BUILD_IMAGE_NAMES[@]}"; do
     docker pull "${BUILD_IMAGE_NAMES[$name]}"
     docker run \
         -v $THIS_DIR:/mnt/host \
+        -e LOCAL_USER_ID=$(id -u $USER) \
         -e GIT_COMMIT \
         -e GIT_BRANCH \
         -e GIT_URL \

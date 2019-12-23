@@ -10,15 +10,6 @@ export DRIVER_NAME=nodejs
 [[ -z "$GIT_BRANCH" ]] && echo "Set GIT_BRANCH to build" && exit 1
 [[ -z "$GIT_URL" ]] && echo "Set GIT_URL to build" && exit 1
 
-function chown_junit() {
-    chown $USERID $WORKSPACE/junit*.xml
-}
-trap chown_junit EXIT
-
-echo "[INFO] adding testuser"
-echo $USERID
-useradd -u $USERID testuser
-
 echo "[INFO] checking out from branch $GIT_BRANCH"
 git clone $GIT_URL target
 cd target
@@ -28,12 +19,6 @@ source $THIS_DIR/download_artifact.sh
 
 echo "[INFO] Testing"
 cd ~
-
-export DOCKER_HOST_IP=$(route -n | awk '/UG[ \t]/{print $2}')
-echo "[INFO] Setting snowflake.reg.local to $DOCKER_HOST_IP"
-cat <<EOF >> /etc/hosts
-$DOCKER_HOST_IP snowflake.reg.local testaccount.reg.snowflakecomputing.com snowflake.reg.snowflakecomputing.com externalaccount.reg.local.snowflakecomputing.com
-EOF
 
 PACKAGE_NAME=$(ls snowflake-sdk*.tgz)
 cp /mnt/host/container/package.json .

@@ -9,6 +9,12 @@ export WORKSPACE=${WORKSPACE:-/mnt/workspace}
 [[ -z "$GIT_BRANCH" ]] && echo "Set GIT_BRANCH to build" && exit 1
 [[ -z "$GIT_URL" ]] && echo "Set GIT_URL to build" && exit 1
 
+function chown_junit() {
+    chown $USERID $WORKSPACE/junit*.xml
+}
+trap chown_junit EXIT
+
+echo "[INFO] adding testuser"
 echo $USERID
 useradd -u $USERID testuser
 
@@ -36,7 +42,7 @@ $DOCKER_HOST_IP snowflake.reg.local testaccount.reg.snowflakecomputing.com snowf
 EOF
 
 PACKAGE_NAME=$(ls snowflake-sdk*.tgz)
-cp /mnt/host/scripts/package.json .
+cp /mnt/host/container/package.json .
 npm install
 npm install ${PACKAGE_NAME}
 export PATH=$(pwd)/node_modules/.bin:$PATH
@@ -60,15 +66,11 @@ MOCHA_CMD=(
 if [[ -z "$TRAVIS" ]]; then
     echo "[INFO] Running Internal Tests"
     if ! ${MOCHA_CMD[@]} "output=$WORKSPACE/junit-system-test.xml" "target/system_test/**/*.js"; then
-        chown $USERID $WORKSPACE/junit*.xml
         exit 1
     fi
-    chown $USERID $WORKSPACE/junit*.xml
 fi
 
 echo "[INFO] Running Tests"
 if ! ${MOCHA_CMD[@]} "output=$WORKSPACE/junit.xml" "target/test/**/*.js"; then
-    chown $USERID $WORKSPACE/junit*.xml
     exit 1
 fi
-chown $USERID $WORKSPACE/junit*.xml

@@ -15,4 +15,4 @@ docker run \
     -e AWS_ACCESS_KEY_ID \
     -e AWS_SECRET_ACCESS_KEY \
     $BUILD_IMAGE_NAME \
-    "/mnt/host/scripts/build_component.sh"
+    "/mnt/host/container/build_component.sh"

@@ -11,4 +11,4 @@ snowflake-sdk*.tgz
 coverage
 system_test/
 scripts/
-docker/
+ci/

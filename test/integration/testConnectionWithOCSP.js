@@ -553,8 +553,11 @@ describe('Connection with OCSP test', function ()
         account: 'fakeaccount',
       },
       errorCode: 'CERT_HAS_EXPIRED'
-    },
-    {
+    }
+    /*
+    ,{
+      // This test case got invalid as the certificate expired.
+      // We need a reliable self signed SSL endpoint for tests SNOW-98318
       connectString: {
         accessUrl: 'https://self-signed.badssl.com',
         username: 'fakeuser',
@@ -563,6 +566,7 @@ describe('Connection with OCSP test', function ()
       },
       errorCode: 'DEPTH_ZERO_SELF_SIGNED_CERT'
     }
+     */
   ];
 
   function connectToHttpsEndpoint(testOptions, i, connection, done)

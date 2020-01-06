@@ -1,6 +1,14 @@
 /*
  * Copyright (c) 2015-2019 Snowflake Computing Inc. All rights reserved.
  */
+var externalAccount =
+  {
+    accessUrl: 'http://externalaccount.reg.local.snowflakecomputing.com:8082',
+    username: 'snowman',
+    password: 'test',
+    account: 'externalaccount'
+  };
+
 let snowflakeTestProtocol = process.env.SNOWFLAKE_TEST_PROTOCOL;
 let snowflakeTestHost = process.env.SNOWFLAKE_TEST_HOST;
 let snowflakeTestPort = process.env.SNOWFLAKE_TEST_PORT;
@@ -13,8 +21,6 @@ const snowflakeTestWarehouse = process.env.SNOWFLAKE_TEST_WAREHOUSE;
 const snowflakeTestSchema = process.env.SNOWFLAKE_TEST_SCHEMA;
 const snowflakeTestRole = process.env.SNOWFLAKE_TEST_ROLE;
 const snowflakeTestPassword = process.env.SNOWFLAKE_TEST_PASSWORD;
-const snowflakeTestAdminUser = process.env.SNOWFLAKE_TEST_ADMIN_USER;
-const snowflakeTestAdminPassword = process.env.SNOWFLAKE_TEST_ADMIN_PASSWORD;
 
 if (snowflakeTestProtocol === undefined)
 {
@@ -44,7 +50,7 @@ if (snowflakeTestProxyPort === undefined)
 const accessUrl = snowflakeTestProtocol + '://' + snowflakeTestHost + ':' +
   snowflakeTestPort;
 
-var valid =
+const connectionWithProxy =
   {
     accessUrl: accessUrl,
     username: snowflakeTestUser,
@@ -53,38 +59,10 @@ var valid =
     warehouse: snowflakeTestWarehouse,
     database: snowflakeTestDatabase,
     schema: snowflakeTestSchema,
-    role: snowflakeTestRole
+    role: snowflakeTestRole,
+    proxyHost: snowflakeTestProxyHost,
+    proxyPort: parseInt(snowflakeTestProxyPort, 10)
   };
 
-var snowflakeAccount = snowflakeTestAdminUser !== undefined ?
-  {
-    accessUrl: accessUrl,
-    username: snowflakeTestAdminUser,
-    password: snowflakeTestAdminPassword,
-    account: 'snowflake'
-  } : undefined;
-
-var wrongUserName =
-  {
-
-    accessUrl: accessUrl,
-    username: 'node',
-    password: 'test',
-    account: snowflakeTestAccount
-  };
-
-var wrongPwd =
-  {
-
-    accessUrl: accessUrl,
-    username: 'nodejs',
-    password: '',
-    account: snowflakeTestAccount
-  };
-
-exports.valid = valid;
-exports.snowflakeAccount = snowflakeAccount;
-exports.wrongUserName = wrongUserName;
-exports.wrongPwd = wrongPwd;
-exports.accessUrl = accessUrl;
-exports.account = snowflakeTestAccount;
+exports.externalAccount = externalAccount;
+exports.connectionWithProxy = connectionWithProxy;

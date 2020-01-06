@@ -35,7 +35,7 @@ npm audit
 source $DIR/env.sh
 echo "[INFO] mocha: $(which mocha) - $(mocha --version)"
 ERR=
-if [[ -e "system_test" ]]; then
+if [[ -z "$TRAVIS" ]] && [[ -e "system_test" ]]; then
     echo "[INFO] Running System Tests"
     ${MOCHA_CMD[@]} system_test || (echo "[ERROR] Failed." && ERR=1)
     cp -f $DIR/../junit.xml $DIR/../junit-system-test.xml || true

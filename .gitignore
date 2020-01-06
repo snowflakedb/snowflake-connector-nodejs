@@ -1,7 +1,6 @@
+*.swp
 .idea
 .git
-ignore
-system_test
 parameters.json
 snowflake-sdk-*.tgz
 dist

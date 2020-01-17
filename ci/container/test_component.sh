@@ -38,6 +38,7 @@ $THIS_DIR/hang_webserver.py 12345 &
 MOCHA_CMD=(
     "mocha"
     "--timeout" "90000"
+    "--recursive"
     "--full-trace"
     "--color"
     "--reporter" "xunit"

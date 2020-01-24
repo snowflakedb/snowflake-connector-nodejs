@@ -8,7 +8,6 @@ THIS_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 [[ -z "$GIT_BRANCH" ]] && echo "Set GIT_BRANCH to build" && exit 1
 [[ -z "$GIT_URL" ]] && echo "Set GIT_URL to build" && exit 1
 
-curl -v https://github.com/snowflakedb/snowflake-connector-nodejs/
 echo "[INFO] Checking out branch $GIT_BRANCH from $GIT_URL."
 git clone $GIT_URL target
 cd target

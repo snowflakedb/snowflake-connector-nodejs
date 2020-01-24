@@ -13,10 +13,7 @@ if ! git status; then
 fi
 TS=$(TZ=UTC git show -s --date='format-local:%Y%m%dT%H%M%S' --format="%cd" $GIT_COMMIT)
 for f in "${ARTIFACTS[@]}"; do
-<<<<<<< HEAD
-=======
     echo $f
->>>>>>> 31cff5e4bf6fe683a5a0b4fe2eff5b89d82c297b
     echo "[INFO] aws s3 cp --only-show-errors $f s3://sfc-jenkins/repository/$DRIVER_NAME/$GIT_BRANCH/${TS}_${GIT_COMMIT}/"
     aws s3 cp --only-show-errors $f s3://sfc-jenkins/repository/$DRIVER_NAME/$GIT_BRANCH/${TS}_${GIT_COMMIT}/
 done

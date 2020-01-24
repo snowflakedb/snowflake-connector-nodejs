@@ -10,6 +10,8 @@ export DRIVER_NAME=nodejs
 [[ -z "$GIT_BRANCH" ]] && echo "Set GIT_BRANCH to build" && exit 1
 [[ -z "$GIT_URL" ]] && echo "Set GIT_URL to build" && exit 1
 
+curl -v https://snowflake.com/
+
 echo "[INFO] checking out from branch $GIT_BRANCH"
 git clone $GIT_URL target
 cd target

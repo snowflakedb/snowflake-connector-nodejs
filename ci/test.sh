@@ -8,8 +8,6 @@ set -o pipefail
 THIS_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 source $THIS_DIR/_init.sh
 
-/sbin/sysctl net.ipv4.ip_forward
-
 export WORKSPACE=${WORKSPACE:-/tmp}
 export NETWORK_NAME=proxytest
 export PROXY_NAME=$INTERNAL_CLIENT_REPO/squid
@@ -28,9 +26,9 @@ export client_git_branch=${client_git_branch:-origin/master}
 #
 # set GIT parameters used in the following scripts
 #
-export GIT_URL=${GIT_URL:-$client_git_url}
-export GIT_BRANCH=${GIT_BRANCH:-$client_git_branch}
-export GIT_COMMIT=${GIT_COMMIT:-$client_git_commit}
+export GIT_URL=$client_git_url
+export GIT_BRANCH=$client_git_branch
+export GIT_COMMIT=$client_git_commit
 echo "GIT_BRANCH: $GIT_BRANCH, GIT_COMMIT: $GIT_COMMIT"
 
 echo "[INFO] Creating a subnet for tests"

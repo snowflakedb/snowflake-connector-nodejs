@@ -3,6 +3,7 @@
 *.log
 *.xml
 *.enc
+*.gpg
 test/
 dist/
 ignore/

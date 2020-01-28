@@ -1,0 +1,25 @@
+name: Build and Test
+
+on: push
+jobs:
+    build-test:
+        name: Build and Test Job
+        runs-on: ubuntu-16.04
+        strategy:
+            matrix:
+                node-version: [ '10.x', '12.x', '13.x' ]
+        steps:
+            - uses: actions/checkout@v1
+            - name: Setup Node
+              uses: actions/setup-node@v1
+              with:
+                node-version: ${{ matrix.node-version }}
+                architecture: x64
+            - name: Build
+              shell: bash
+              env:
+                PARAMETERS_SECRET: ${{ secrets.PARAMETERS_SECRET }}
+              run: ./scripts/install_github_workflow.sh
+            - name: Tests
+              shell: bash
+              run: echo "OK"

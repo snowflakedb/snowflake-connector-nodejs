@@ -61,6 +61,7 @@ else
 fi
 
 export USERID=$(id -u $(whoami))
+echo "[INFO] USERID=$USERID"
 for name in "${!TARGET_TEST_IMAGES[@]}"; do
     echo "[INFO] Testing $DRIVER_NAME on $name"
     docker pull "${TARGET_TEST_IMAGES[$name]}"

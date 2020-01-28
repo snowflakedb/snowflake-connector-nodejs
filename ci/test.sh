@@ -15,6 +15,7 @@ export SUBNET=192.168.0.0/16
 export PROXY_IP=192.168.0.100
 export PROXY_PORT=3128
 export GATEWAY_HOST=192.168.0.1
+echo "[INFO] The host IP address: $GATEWAY_HOST"
 
 #
 # set Jenkins GIT parameters propagated from Build job.

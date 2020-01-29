@@ -5,7 +5,7 @@
 set -o pipefail
 THIS_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 export WORKSPACE=${WORKSPACE:-/mnt/workspace}
-export CI_ROOT=${SOURCE_ROOT:-/mnt/host}
+export CI_ROOT=${CI_ROOT:-/mnt/host}
 export DRIVER_NAME=nodejs
 
 [[ -z "$GIT_BRANCH" ]] && echo "Set GIT_BRANCH to build" && exit 1

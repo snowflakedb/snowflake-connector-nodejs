@@ -21,4 +21,5 @@ for f in "${ARTIFACTS[@]}"; do
 ${GIT_COMMIT}
 COMMIT_FILE_CONTENTS
     aws s3 cp --only-show-errors $COMMIT_FILE s3://sfc-jenkins/repository/$DRIVER_NAME/$BRANCH/latest_commit
+    rm -f $COMMIT_FILE
 done

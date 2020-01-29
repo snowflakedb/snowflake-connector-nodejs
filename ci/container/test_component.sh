@@ -37,11 +37,19 @@ else
     PARAMETER_FILE=target/test/parameters.json
 fi
 eval $(jq -r '.testconnection | to_entries | map("export \(.key)=\(.value|tostring)")|.[]' $PARAMETER_FILE)
+
+pushd /mnt/host/container
+    if python create_schema.py; then
+        export SNOWFLAKE_TEST_SCHEMA=GITHUB_${GITHUB_SHA}
+    fi
+popd
+
 env | grep SNOWFLAKE_ | grep -v PASS
 
 [[ -n "$PROXY_IP" ]] && echo "[INFO] SNOWFLAKE_TEST_PROXY_HOST=$PROXY_IP" && export SNOWFLAKE_TEST_PROXY_HOST=$PROXY_IP
 [[ -n "$PROXY_PORT" ]] && echo "[INFO] SNOWFLAKE_TEST_PROXY_PORT=$PROXY_PORT" && export SNOWFLAKE_TEST_PROXY_PORT=$PROXY_PORT
 
+echo "[INFO] Starting hang_webserver.py 12345"
 $THIS_DIR/hang_webserver.py 12345 &
 MOCHA_CMD=(
     "mocha"

@@ -71,15 +71,13 @@ MOCHA_CMD=(
     "--full-trace"
     "--color"
 )
-if [[ -z "$DEBUG" ]]; then
-    # if DEBUG is set, show the progress
+
+if [[ -z "$GITHUB_ACTIONS" ]]; then
+    # Github Action doesn't generate junit.xml
     MOCHA_CMD+=(
         "--reporter" "xunit"
         "--reporter-options"
     )
-fi
-
-if [[ -z "$GITHUB_ACTIONS" ]]; then
     echo "[INFO] Running Internal Tests. Test result: $WORKSPACE/junit-system-test.xml"
     if ! ${MOCHA_CMD[@]} "output=$WORKSPACE/junit-system-test.xml" "$SOURCE_DIR/target/system_test/**/*.js"; then
         echo "[ERROR] Test failed"

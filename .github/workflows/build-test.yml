@@ -35,12 +35,6 @@ jobs:
 #                PARAMETERS_SECRET: ${{ secrets.PARAMETERS_SECRET }}
 #                TARGET_DOCKER_TEST_IMAGE: ${{ matrix.config }}
 #              run: ./ci/test.sh
-#            - name: Upload Test results
-#              if: always()
-#              uses: actions/upload-artifact@v1
-#              with:
-#                name: junit.xml
-#                path: junit.xml
     test-mac:
         needs: build
         name: Tests on Mac
@@ -63,9 +57,3 @@ jobs:
                 PARAMETERS_SECRET: ${{ secrets.PARAMETERS_SECRET }}
                 DEBUG: true
               run: /usr/local/bin/bash ./ci/test_mac.sh
-            - name: Upload Test results
-              if: always()
-              uses: actions/upload-artifact@v1
-              with:
-                name: junit-mac.xml
-                path: junit.xml

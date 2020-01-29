@@ -20,6 +20,11 @@ jobs:
               env:
                 PARAMETERS_SECRET: ${{ secrets.PARAMETERS_SECRET }}
               run: ./ci/build.sh
+            - name: Archive
+              uses: actions/upload-artifact@v1
+              with:
+                name: artifacts
+                path: artifacts
             - name: Tests
               shell: bash
               run: echo "OK"

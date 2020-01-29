@@ -21,8 +21,8 @@ echo "[INFO] The host IP address: $GATEWAY_HOST"
 # set Jenkins GIT parameters propagated from Build job.
 # 
 export client_git_url=${client_git_url:-https://github.com/snowflakedb/snowflake-connector-nodejs.git}
-export client_git_branch=${client_git_branch:-origin/master}
-# client_git_commit is optional, even if not set, it is ok.
+export client_git_branch=${client_git_branch:-origin/$(git rev-parse --abbrev-ref HEAD)}
+export client_git_commit=${client_git_commit:-$(git log --pretty=oneline | head -1 | awk '{print $1}')}
 
 #
 # set GIT parameters used in the following scripts

@@ -56,13 +56,14 @@ echo "[INFO] Starting a proxy node"
 docker run --net $NETWORK_NAME --ip $PROXY_IP --add-host snowflake.reg.local:$GATEWAY_HOST --label proxy-node -d $PROXY_NAME
 
 declare -A TARGET_TEST_IMAGES
-if [[ -n "$TARGET_PLATFORM" ]]; then
-    IMAGE_NAME=${TEST_IMAGE_NAMES[$target_platform]}
+if [[ -n "$TARGET_IMAGE" ]]; then
+    echo "[INFO] TARGET_IMAGE: $TARGET_IMAGE"
+    IMAGE_NAME=${TEST_IMAGE_NAMES[$TARGET_IMAGE]}
     if [[ -z "$IMAGE_NAME" ]]; then
-        echo "[ERROR] The target platform $TARGET_PLATFORM doesn't exist. Check $THIS_DIR/_init.sh"
+        echo "[ERROR] The target platform $TARGET_IMAGE doesn't exist. Check $THIS_DIR/_init.sh"
         exit 1
     fi
-    TARGET_TEST_IMAGES=([$TARGET_PLATFORM]=$IMAGE_NAME)
+    TARGET_TEST_IMAGES=([$TARGET_IMAGE]=$IMAGE_NAME)
 else
     for name in "${!TEST_IMAGE_NAMES[@]}"; do
         TARGET_TEST_IMAGES[$name]=${TEST_IMAGE_NAMES[$name]}

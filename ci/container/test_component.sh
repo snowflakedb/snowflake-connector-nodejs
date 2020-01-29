@@ -51,7 +51,7 @@ pushd /mnt/host/container
     if python3 create_schema.py; then
         export SNOWFLAKE_TEST_SCHEMA=$TARGET_SCHEMA_NAME
     else
-        "[WARN] Failed to create schema"
+        echo "[WARN] Failed to create schema"
     fi
 popd
 

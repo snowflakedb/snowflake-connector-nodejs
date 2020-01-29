@@ -82,11 +82,15 @@ fi
 if [[ -z "$GITHUB_ACTIONS" ]]; then
     echo "[INFO] Running Internal Tests. Test result: $WORKSPACE/junit-system-test.xml"
     if ! ${MOCHA_CMD[@]} "output=$WORKSPACE/junit-system-test.xml" "$SOURCE_DIR/target/system_test/**/*.js"; then
+        echo "[ERROR] Test failed"
+        cat $WORKSPACE/junit-system-test.xml
         exit 1
     fi
 fi
 
 echo "[INFO] Running Tests: Test result: $WORKSPACE/junit.xml"
 if ! ${MOCHA_CMD[@]} "output=$WORKSPACE/junit.xml" "$SOURCE_DIR/target/test/**/*.js"; then
+    echo "[ERROR] Test failed"
+    cat $WORKSPACE/junit.xml
     exit 1
 fi

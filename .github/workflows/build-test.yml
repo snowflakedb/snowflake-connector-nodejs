@@ -16,7 +16,7 @@ jobs:
                 name: artifacts
                 path: artifacts
 
-#    test:
+#    test-linux:
 #        needs: build
 #        name: Tests
 #        runs-on: ubuntu-16.04
@@ -57,12 +57,15 @@ jobs:
             - name: Install Homebrew Bash
               shell: bash
               run: brew install bash
-            - name: Check version
-              shell: bash
-              run: /usr/local/bin/bash --version
             - name: Tests
               shell: bash
               env:
                 PARAMETERS_SECRET: ${{ secrets.PARAMETERS_SECRET }}
+                DEBUG: true
               run: /usr/local/bin/bash ./ci/test_mac.sh
-
+            - name: Upload Test results
+              if: always()
+              uses: actions/upload-artifact@v1
+              with:
+                name: junit-mac.xml
+                path: junit.xml

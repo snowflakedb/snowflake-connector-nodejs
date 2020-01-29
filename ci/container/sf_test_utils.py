@@ -7,11 +7,12 @@ import sys
 
 def get_test_schema():
     github_sha = os.getenv('GITHUB_SHA')
-    if not github_sha:
-        print("[WARN] The environment variable GITHUB_SHA is not set. No test schema will be created.")
+    github_runner_id = os.getenv('RUNNER_TRACKING_ID')
+    if not github_sha or not github_runner_id:
+        print("[WARN] The environment variable GITHUB_SHA or RUNNER_TRACKING_ID is not set. No test schema will be created.")
         return None
 
-    return 'GITHUB_{0}'.format(github_sha)
+    return github_runner_id.replace('-', '_') + '_' + github_sha
 
 
 def init_connection_params():

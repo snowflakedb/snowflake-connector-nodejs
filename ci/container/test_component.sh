@@ -36,18 +36,20 @@ else
 fi
 eval $(jq -r '.testconnection | to_entries | map("export \(.key)=\(.value|tostring)")|.[]' $PARAMETER_FILE)
 
+export TARGET_SCHEMA_NAME=${RUNNER_TRACKING_ID//-/_}_${GITHUB_SHA}
+
 function finish() {
     pushd /mnt/host/container
-        echo "[INFO] Drop schema GITHUB_${GITHUB_SHA}"
+        echo "[INFO] Drop schema $TARGET_SCHEMA_NAME"
         python3 drop_schema.py
     popd
 }
 trap finish EXIT
 
 pushd /mnt/host/container
-    echo "[INFO] Create schema GITHUB_${GITHUB_SHA}"
+    echo "[INFO] Create schema $TARGET_SCHEMA_NAME"
     if python3 create_schema.py; then
-        export SNOWFLAKE_TEST_SCHEMA=GITHUB_${GITHUB_SHA}
+        export SNOWFLAKE_TEST_SCHEMA=$TARGET_SCHEMA_NAME
     fi
 popd
 

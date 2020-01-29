@@ -50,6 +50,8 @@ pushd /mnt/host/container
     echo "[INFO] Create schema $TARGET_SCHEMA_NAME"
     if python3 create_schema.py; then
         export SNOWFLAKE_TEST_SCHEMA=$TARGET_SCHEMA_NAME
+    else
+        "[WARN] Failed to create schema"
     fi
 popd
 
@@ -66,9 +68,9 @@ MOCHA_CMD=(
     "--recursive"
     "--full-trace"
     "--color"
+    "--reporter" "xunit"
+    "--reporter-options"
 )
-    # "--reporter" "xunit"
-    # "--reporter-options"
 
 if [[ -z "$GITHUB_ACTIONS" ]]; then
     echo "[INFO] Running Internal Tests"

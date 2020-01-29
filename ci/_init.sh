@@ -13,7 +13,7 @@ if [[ -z "$GITHUB_ACTIONS" ]]; then
         echo "[ERROR] Failed to connect to the nexus server. Verify the environment variable NEXUS_PASSWORD is set correctly for NEXUS_USER: $NEXUS_USER"
         exit 1
     fi
-    export WORKSPACE=${WORKSPACE:-$WORKSPACE}
+    export WORKSPACE=${WORKSPACE:-/tmp}
 else
     export DOCKER_REGISTRY_NAME=snowflakedb
     export WORKSPACE=$GITHUB_WORKSPACE

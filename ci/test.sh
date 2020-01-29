@@ -93,6 +93,8 @@ for name in "${!TARGET_TEST_IMAGES[@]}"; do
         -e AWS_SECRET_ACCESS_KEY \
         -e GITHUB_ACTIONS \
         -e GITHUB_SHA \
+        -e RUNNER_TRACKING_ID \
         "${TARGET_TEST_IMAGES[$name]}" \
         "/mnt/host/container/test_component.sh"
+    ls $WORKSPACE
 done

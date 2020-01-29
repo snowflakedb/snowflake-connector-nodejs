@@ -51,7 +51,7 @@ pushd /mnt/host/container
     if python3 create_schema.py; then
         export SNOWFLAKE_TEST_SCHEMA=$TARGET_SCHEMA_NAME
     else
-        echo "[WARN] Failed to create schema"
+        echo "[WARN] SNOWFLAKE_TEST_SCHEMA; $SNOWFLAKE_TEST_SCHEMA"
     fi
 popd
 
@@ -73,13 +73,13 @@ MOCHA_CMD=(
 )
 
 if [[ -z "$GITHUB_ACTIONS" ]]; then
-    echo "[INFO] Running Internal Tests"
+    echo "[INFO] Running Internal Tests. Test result: $WORKSPACE/junit-system-test.xml"
     if ! ${MOCHA_CMD[@]} "output=$WORKSPACE/junit-system-test.xml" "target/system_test/**/*.js"; then
         exit 1
     fi
 fi
 
-echo "[INFO] Running Tests"
+echo "[INFO] Running Tests: Test result: $WORKSPACE/junit.xml"
 if ! ${MOCHA_CMD[@]} "output=$WORKSPACE/junit.xml" "target/test/**/*.js"; then
     exit 1
 fi

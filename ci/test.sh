@@ -65,9 +65,11 @@ if [[ -n "$TARGET_IMAGE" ]]; then
     fi
     TARGET_TEST_IMAGES=([$TARGET_IMAGE]=$IMAGE_NAME)
 else
+    echo "[ERROR] Set TARGET_IMAGE to the docker image name"
     for name in "${!TEST_IMAGE_NAMES[@]}"; do
-        TARGET_TEST_IMAGES[$name]=${TEST_IMAGE_NAMES[$name]}
+        echo "  " $name
     done
+    exit 2
 fi
 
 export USERID=$(id -u $(whoami))
@@ -97,5 +99,5 @@ for name in "${!TARGET_TEST_IMAGES[@]}"; do
         -e RUNNER_TRACKING_ID \
         "${TARGET_TEST_IMAGES[$name]}" \
         "/mnt/host/container/test_component.sh"
-    ls $WORKSPACE
+    echo "[INFO] Test Results: $WORKSPACE/junit*,xml"
 done

@@ -54,6 +54,12 @@ jobs:
               uses: actions/download-artifact@v1
               with:
                 name: artifacts
+            - name: Install Homebrew Bash
+              shell: bash
+              run: brew install bash
+            - name: Check version
+              shell: bash
+              run: /usr/local/bin/bash --version
             - name: Tests
               shell: bash
               env:

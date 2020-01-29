@@ -68,9 +68,14 @@ MOCHA_CMD=(
     "--recursive"
     "--full-trace"
     "--color"
-    "--reporter" "xunit"
-    "--reporter-options"
 )
+if [[ -z "$DEBUG" ]]; then
+    # if DEBUG is set, show the progress
+    MOCHA_CMD+=(
+        "--reporter" "xunit"
+        "--reporter-options"
+    )
+fi
 
 if [[ -z "$GITHUB_ACTIONS" ]]; then
     echo "[INFO] Running Internal Tests. Test result: $WORKSPACE/junit-system-test.xml"

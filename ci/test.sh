@@ -65,7 +65,7 @@ if [[ -n "$TARGET_IMAGE" ]]; then
     fi
     TARGET_TEST_IMAGES=([$TARGET_IMAGE]=$IMAGE_NAME)
 else
-    echo "[ERROR] Set TARGET_IMAGE to the docker image name"
+    echo "[ERROR] Set TARGET_IMAGE to the docker image name to run the test"
     for name in "${!TEST_IMAGE_NAMES[@]}"; do
         echo "  " $name
     done

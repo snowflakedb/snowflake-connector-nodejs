@@ -58,5 +58,5 @@ jobs:
               shell: bash
               env:
                 PARAMETERS_SECRET: ${{ secrets.PARAMETERS_SECRET }}
-              run: ./ci/test_mac.sh
+              run: /usr/local/bin/bash ./ci/test_mac.sh
 

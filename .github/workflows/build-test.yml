@@ -7,7 +7,7 @@ jobs:
         runs-on: ubuntu-16.04
         strategy:
             matrix:
-                node-version: [ '10.x', '12.x' ]
+                node-version: [ '10.x' ]
         steps:
             - uses: actions/checkout@v1
             - name: Setup Node
@@ -24,6 +24,7 @@ jobs:
                 PARAMETERS_SECRET: ${{ secrets.PARAMETERS_SECRET }}
               run: ./ci/test.sh
             - name: Upload Test results
+              if: always()
               uses: actions/upload-artifact@v1
               with:
                 name: junit.xml

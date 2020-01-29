@@ -32,6 +32,7 @@ RUN chmod a+x /usr/local/bin/python3
 COPY scripts/pip.sh /usr/local/bin/pip
 RUN chmod a+x /usr/local/bin/pip
 RUN pip install -U pip
+RUN pip install -U snowflake-connector-python
 
 # aws
 RUN pip install -U awscli

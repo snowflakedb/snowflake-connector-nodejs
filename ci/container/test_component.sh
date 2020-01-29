@@ -10,8 +10,6 @@ export DRIVER_NAME=nodejs
 [[ -z "$GIT_BRANCH" ]] && echo "Set GIT_BRANCH to build" && exit 1
 [[ -z "$GIT_URL" ]] && echo "Set GIT_URL to build" && exit 1
 
-curl -v https://snowflake.com/
-
 echo "[INFO] checking out from branch $GIT_BRANCH"
 git clone $GIT_URL target
 cd target
@@ -39,7 +37,7 @@ fi
 eval $(jq -r '.testconnection | to_entries | map("export \(.key)=\(.value|tostring)")|.[]' $PARAMETER_FILE)
 
 pushd /mnt/host/container
-    if python create_schema.py; then
+    if python3 create_schema.py; then
         export SNOWFLAKE_TEST_SCHEMA=GITHUB_${GITHUB_SHA}
     fi
 popd

@@ -17,12 +17,19 @@ export PROXY_PORT=3128
 export GATEWAY_HOST=192.168.0.1
 echo "[INFO] The host IP address: $GATEWAY_HOST"
 
-#
-# set Jenkins GIT parameters propagated from Build job.
-# 
-export client_git_url=${client_git_url:-https://github.com/snowflakedb/snowflake-connector-nodejs.git}
-export client_git_branch=${client_git_branch:-origin/$(git rev-parse --abbrev-ref HEAD)}
-export client_git_commit=${client_git_commit:-$(git log --pretty=oneline | head -1 | awk '{print $1}')}
+if [[ -z "$GITHUB_ACTIONS" ]]; then
+    #
+    # set Jenkins GIT parameters propagated from Build job.
+    # 
+    export client_git_url=${client_git_url:-https://github.com/snowflakedb/snowflake-connector-nodejs.git}
+    export client_git_branch=${client_git_branch:-origin/$(git rev-parse --abbrev-ref HEAD)}
+    export client_git_commit=${client_git_commit:-$(git log --pretty=oneline | head -1 | awk '{print $1}')}
+else
+    gpg --quiet --batch --yes --decrypt --passphrase="$PARAMETERS_SECRET" --output $THIS_DIR/../parameters.json $THIS_DIR/../.github/workflows/parameters_aws.json.gpg
+    export client_git_url=https://github.com/${GITHUB_REPOSITORY}.git
+    export client_git_branch=origin/$(basename ${GITHUB_REF})
+    export client_git_commit=${GITHUB_SHA}
+fi
 
 #
 # set GIT parameters used in the following scripts
@@ -40,12 +47,12 @@ else
     echo "[INFO] The network $NETWORK_NAME already up."
 fi
 
-echo "[INFO] Checking proxy node"
+echo "[INFO] Checking any proxy node"
 for h in $(docker ps --filter "label=proxy-node" --format "{{.ID}}"); do
     echo "[INFO] Killing the existing proxy node"
     docker kill $h
 done
-echo "[INFO] Starting Squid proxy server"
+echo "[INFO] Starting a proxy node"
 docker run --net $NETWORK_NAME --ip $PROXY_IP --add-host snowflake.reg.local:$GATEWAY_HOST --label proxy-node -d $PROXY_NAME
 
 declare -A TARGET_TEST_IMAGES

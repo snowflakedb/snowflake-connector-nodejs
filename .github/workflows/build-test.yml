@@ -22,7 +22,7 @@ jobs:
         runs-on: ubuntu-16.04
         strategy:
             matrix:
-                config: [ 'nodejs-centos6-default', 'nodejs-centos7-node12' ]
+                config: [ 'nodejs-centos6-default', 'nodejs-centos7-node12', 'nodejs-centos7-fips' ]
         steps:
             - uses: actions/checkout@v1
             - name: Download Build Artifacts
@@ -33,7 +33,7 @@ jobs:
               shell: bash
               env:
                 PARAMETERS_SECRET: ${{ secrets.PARAMETERS_SECRET }}
-                TARGET_IMAGE: ${{ matrix.config }}
+                TARGET_DOCKER_TEST_IMAGE: ${{ matrix.config }}
               run: ./ci/test.sh
             - name: Upload Test results
               if: always()

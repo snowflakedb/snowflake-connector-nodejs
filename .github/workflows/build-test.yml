@@ -17,9 +17,9 @@ jobs:
                 architecture: x64
             - name: Build
               shell: bash
-              env:
-                PARAMETERS_SECRET: ${{ secrets.PARAMETERS_SECRET }}
               run: ./ci/build.sh
             - name: Tests
               shell: bash
+              env:
+                PARAMETERS_SECRET: ${{ secrets.PARAMETERS_SECRET }}
               run: ./ci/test.sh

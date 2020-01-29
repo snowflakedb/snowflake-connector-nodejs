@@ -10,6 +10,11 @@ THIS_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 if ! git status; then
     echo "[ERROR] Must be in the GIT repo directory."
 fi
-BRANCH=$(basename $GIT_BRANCH)
-# LATEST_COMMIT=$(aws s3 cp --only-show-errors s3://sfc-jenkins/repository/$DRIVER_NAME/$BRANCH/latest_commit -)
-aws s3 cp --only-show-errors s3://sfc-jenkins/repository/$DRIVER_NAME/$BRANCH/${GIT_COMMIT}/ $HOME --recursive
+if [[ -z "$GITHUB_ACTIONS" ]]; then
+    BRANCH=$(basename $GIT_BRANCH)
+    # LATEST_COMMIT=$(aws s3 cp --only-show-errors s3://sfc-jenkins/repository/$DRIVER_NAME/$BRANCH/latest_commit -)
+    aws s3 cp --only-show-errors s3://sfc-jenkins/repository/$DRIVER_NAME/$BRANCH/${GIT_COMMIT}/ $HOME --recursive
+else
+    cp /mnt/workspace/artifacts/* $HOME
+    ls -l $HOME
+fi

@@ -29,7 +29,13 @@ npm install ${PACKAGE_NAME}
 export PATH=$(pwd)/node_modules/.bin:$PATH
 
 echo "[INFO] Setting test parameters"
-PARAMETER_FILE=target/test/parameters.json
+if [[ -f "/mnt/workspace/parameters.json" ]]; then
+    echo "[INFO] Found parameter file in /mnt/workspace"
+    PARAMETER_FILE=/mnt/workspace/parameters.json
+else
+    echo "[INFO] Use the default test parameters.json"
+    PARAMETER_FILE=target/test/parameters.json
+fi
 eval $(jq -r '.testconnection | to_entries | map("export \(.key)=\(.value|tostring)")|.[]' $PARAMETER_FILE)
 env | grep SNOWFLAKE_ | grep -v PASS
 

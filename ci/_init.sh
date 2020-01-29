@@ -16,7 +16,7 @@ if [[ -z "$GITHUB_ACTIONS" ]]; then
     export WORKSPACE=${WORKSPACE:-$WORKSPACE}
 else
     export DOCKER_REGISTRY_NAME=snowflakedb
-    export WORKSPACE=$(cd $GITHUB_WORKSPACE/.. && pwd)
+    export WORKSPACE=$GITHUB_WORKSPACE
 fi
 
 export DRIVER_NAME=nodejs

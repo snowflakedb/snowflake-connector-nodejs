@@ -2,22 +2,32 @@ name: Build and Test
 
 on: push
 jobs:
-    build-test:
-        name: Build and Test Job
+    build:
+        name: Build
         runs-on: ubuntu-16.04
-        strategy:
-            matrix:
-                node-version: [ '10.x', '12.x' ]
         steps:
             - uses: actions/checkout@v1
-            - name: Setup Node
-              uses: actions/setup-node@v1
-              with:
-                node-version: ${{ matrix.node-version }}
-                architecture: x64
             - name: Build
               shell: bash
               run: ./ci/build.sh
+            - name: Upload Build Artifact
+              uses: actions/upload-artifact@v1
+              with:
+                name: artifacts
+                path: artifacts
+
+    test:
+        name: Tests
+        runs-on: ubuntu-16.04
+        strategy:
+            matrix:
+                config: [ '10.x', '12.x' ]
+        steps:
+            - uses: actions/checkout@v1
+            - name: Download Build Artifacts
+              uses: actions/download-artifact@v1
+              with:
+                name: artifacts
             - name: Tests
               shell: bash
               env:

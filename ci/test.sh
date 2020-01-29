@@ -40,6 +40,7 @@ else
     echo "[INFO] The network $NETWORK_NAME already up."
 fi
 
+echo "[INFO] Checking proxy node"
 for h in $(docker ps --filter "label=proxy-node" --format "{{.ID}}"); do
     echo "[INFO] Killing the existing proxy node"
     docker kill $h

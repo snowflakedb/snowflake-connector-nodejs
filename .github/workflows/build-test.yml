@@ -16,14 +16,38 @@ jobs:
                 name: artifacts
                 path: artifacts
 
-    test:
+#    test:
+#        needs: build
+#        name: Tests
+#        runs-on: ubuntu-16.04
+#        strategy:
+#            matrix:
+#                config: [ 'nodejs-centos6-default', 'nodejs-centos7-node12', 'nodejs-centos7-fips' ]
+#        steps:
+#            - uses: actions/checkout@v1
+#            - name: Download Build Artifacts
+#              uses: actions/download-artifact@v1
+#              with:
+#                name: artifacts
+#            - name: Tests
+#              shell: bash
+#              env:
+#                PARAMETERS_SECRET: ${{ secrets.PARAMETERS_SECRET }}
+#                TARGET_DOCKER_TEST_IMAGE: ${{ matrix.config }}
+#              run: ./ci/test.sh
+#            - name: Upload Test results
+#              if: always()
+#              uses: actions/upload-artifact@v1
+#              with:
+#                name: junit.xml
+#                path: junit.xml
+    test-mac:
         needs: build
-        name: Tests
-        runs-on: ubuntu-16.04
-        strategy:
-            matrix:
-                config: [ 'nodejs-centos6-default', 'nodejs-centos7-node12', 'nodejs-centos7-fips' ]
+        name: Tests on Mac
         steps:
+            - uses: actions/setup-node@v1
+              with:
+                node-version: '12.x'
             - uses: actions/checkout@v1
             - name: Download Build Artifacts
               uses: actions/download-artifact@v1
@@ -33,11 +57,5 @@ jobs:
               shell: bash
               env:
                 PARAMETERS_SECRET: ${{ secrets.PARAMETERS_SECRET }}
-                TARGET_DOCKER_TEST_IMAGE: ${{ matrix.config }}
-              run: ./ci/test.sh
-            - name: Upload Test results
-              if: always()
-              uses: actions/upload-artifact@v1
-              with:
-                name: junit.xml
-                path: junit.xml
+              run: ./ci/test_mac.sh
+

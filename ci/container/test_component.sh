@@ -53,7 +53,7 @@ MOCHA_CMD=(
     "--reporter-options"
 )
 
-if [[ -z "$TRAVIS" ]]; then
+if [[ -z "$GITHUB_ACTIONS" ]]; then
     echo "[INFO] Running Internal Tests"
     if ! ${MOCHA_CMD[@]} "output=$WORKSPACE/junit-system-test.xml" "target/system_test/**/*.js"; then
         exit 1

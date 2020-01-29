@@ -62,7 +62,7 @@ env | grep SNOWFLAKE_ | grep -v PASS
 [[ -n "$PROXY_PORT" ]] && echo "[INFO] SNOWFLAKE_TEST_PROXY_PORT=$PROXY_PORT" && export SNOWFLAKE_TEST_PROXY_PORT=$PROXY_PORT
 
 echo "[INFO] Starting hang_webserver.py 12345"
-$THIS_DIR/hang_webserver.py 12345 &
+python3 $THIS_DIR/hang_webserver.py 12345 &
 MOCHA_CMD=(
     "mocha"
     "--timeout" "120000"

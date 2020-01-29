@@ -25,17 +25,13 @@ COMMIT_FILE_CONTENTS
         rm -f $COMMIT_FILE
     done
 else
-    ls -l /mnt/host
-    ls -l /mnt/host/..
-    mkdir -p /mnt/host/../artifacts
+    mkdir -p /mnt/workspace/artifacts
     for f in "${ARTIFACTS[@]}"; do
-        echo "[INFO] cp $f /mnt/host/artifacts"
-        cp $f /mnt/host/../artifacts
+        echo "[INFO] cp $f /mnt/workspace/artifacts"
+        cp $f /mnt/workspace/artifacts
     done
     echo "DIR"
-    ls /mnt/host
+    ls /mnt/workspace
     echo "DIR"
-    ls /mnt/host/..
-    echo "DIR"
-    ls /mnt/host/../artifacts
+    ls /mnt/workspace/artifacts
 fi

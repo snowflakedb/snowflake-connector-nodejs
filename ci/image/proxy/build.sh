@@ -9,9 +9,11 @@ source $THIS_DIR/../../_init.sh
 
 cd $THIS_DIR
 # Squid without auth
-docker build -f $THIS_DIR/Dockerfile -t $DOCKER_REGISTRY_NAME/client-squid .
-docker push $DOCKER_REGISTRY_NAME/client-squid
+docker build \
+    --file $THIS_DIR/Dockerfile \
+    --tag $DOCKER_REGISTRY_NAME/client-squid .
 
 # Squid with auth
-docker build -f $THIS_DIR/Dockerfile.auth -t $DOCKER_REGISTRY_NAME/client-squid-auth .
-docker push $DOCKER_REGISTRY_NAME/client-squid-auth
+docker build \
+    --file $THIS_DIR/Dockerfile.auth \
+    --tag $DOCKER_REGISTRY_NAME/client-squid-auth .

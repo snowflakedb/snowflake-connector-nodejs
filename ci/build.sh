@@ -5,6 +5,7 @@
 set -o pipefail
 THIS_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 source $THIS_DIR/_init.sh
+source $THIS_DIR/login_internal_docker.sh
 
 if [[ -z "$GITHUB_ACTIONS" ]]; then
     export GIT_URL=${GIT_URL:-https://github.com/snowflakedb/snowflake-connector-nodejs.git}
@@ -16,7 +17,7 @@ else
     export GIT_COMMIT=${GITHUB_SHA}
 fi
 
-echo "GIT_URL: $GIT_URL, GIT_BRANCH: $GIT_BRANCH, GIT_COMMIT; $GIT_COMMIT"
+echo "GIT_URL: $GIT_URL, GIT_BRANCH: $GIT_BRANCH, GIT_COMMIT: $GIT_COMMIT"
 
 for name in "${!BUILD_IMAGE_NAMES[@]}"; do
     echo "[INFO] Building $DRIVER_NAME on $name"

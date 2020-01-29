@@ -64,7 +64,7 @@ echo "[INFO] Starting hang_webserver.py 12345"
 $THIS_DIR/hang_webserver.py 12345 &
 MOCHA_CMD=(
     "mocha"
-    "--timeout" "90000"
+    "--timeout" "120000"
     "--recursive"
     "--full-trace"
     "--color"

@@ -12,7 +12,6 @@ for name in "${!BUILD_IMAGE_NAMES[@]}"; do
         --label snowflake \
         --label $DRIVER_NAME \
         --tag ${BUILD_IMAGE_NAMES[$name]} .
-    docker push ${BUILD_IMAGE_NAMES[$name]}
 done
 
 for name in "${!TEST_IMAGE_NAMES[@]}"; do
@@ -21,5 +20,4 @@ for name in "${!TEST_IMAGE_NAMES[@]}"; do
         --label snowflake \
         --label $DRIVER_NAME \
         --tag ${TEST_IMAGE_NAMES[$name]} .
-    docker push ${TEST_IMAGE_NAMES[$name]}
 done

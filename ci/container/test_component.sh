@@ -12,6 +12,7 @@ export DRIVER_NAME=nodejs
 [[ -z "$GIT_URL" ]] && echo "Set GIT_URL to build" && exit 1
 
 echo "[INFO] checking out from branch $GIT_BRANCH"
+export SOURCE_DIR=$(pwd)
 git clone $GIT_URL target
 cd target
 [[ "$GIT_BRANCH" != "origin/master" ]] && git checkout --track $GIT_BRANCH
@@ -80,12 +81,12 @@ fi
 
 if [[ -z "$GITHUB_ACTIONS" ]]; then
     echo "[INFO] Running Internal Tests. Test result: $WORKSPACE/junit-system-test.xml"
-    if ! ${MOCHA_CMD[@]} "output=$WORKSPACE/junit-system-test.xml" "target/system_test/**/*.js"; then
+    if ! ${MOCHA_CMD[@]} "output=$WORKSPACE/junit-system-test.xml" "$SOURCE_DIR/target/system_test/**/*.js"; then
         exit 1
     fi
 fi
 
 echo "[INFO] Running Tests: Test result: $WORKSPACE/junit.xml"
-if ! ${MOCHA_CMD[@]} "output=$WORKSPACE/junit.xml" "target/test/**/*.js"; then
+if ! ${MOCHA_CMD[@]} "output=$WORKSPACE/junit.xml" "$SOURCE_DIR/target/test/**/*.js"; then
     exit 1
 fi

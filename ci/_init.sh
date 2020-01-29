@@ -1,5 +1,6 @@
 #!/bin/bash -e
 
+export PLATFORM=$(echo $(uname) | tr '[:upper:]' '[:lower:]')
 export INTERNAL_REPO=nexus.int.snowflakecomputing.com:8086
 if [[ -z "$GITHUB_ACTIONS" ]]; then
     # Use the internal Docker Registry

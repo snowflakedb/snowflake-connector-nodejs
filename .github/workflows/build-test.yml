@@ -19,7 +19,7 @@ jobs:
               shell: bash
               env:
                 PARAMETERS_SECRET: ${{ secrets.PARAMETERS_SECRET }}
-              run: ./scripts/install_github_workflow.sh
+              run: ./ci/build.sh
             - name: Tests
               shell: bash
               run: echo "OK"

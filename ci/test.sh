@@ -40,12 +40,13 @@ else
     echo "[INFO] The network $NETWORK_NAME already up."
 fi
 
-if ! docker ps | awk '{print $2}' | grep -q $PROXY_NAME; then
-    echo "[INFO] Starting Squid proxy server"
-    docker run --net $NETWORK_NAME --ip $PROXY_IP --add-host snowflake.reg.local:$GATEWAY_HOST -d $PROXY_NAME
-else
-    echo "[INFO] Squid proxy server already up."
-fi
+for h in $(docker ps --filter "label=proxy-node" --format "{{.ID}}"); do
+    echo "[INFO] Killing the existing proxy node"
+    docker kill $h
+done
+echo "[INFO] Starting Squid proxy server"
+docker run --net $NETWORK_NAME --ip $PROXY_IP --add-host snowflake.reg.local:$GATEWAY_HOST --label proxy-node -d $PROXY_NAME
+exit 0
 
 declare -A TARGET_TEST_IMAGES
 if [[ -n "$TARGET_PLATFORM" ]]; then

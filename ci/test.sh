@@ -47,7 +47,6 @@ for h in $(docker ps --filter "label=proxy-node" --format "{{.ID}}"); do
 done
 echo "[INFO] Starting Squid proxy server"
 docker run --net $NETWORK_NAME --ip $PROXY_IP --add-host snowflake.reg.local:$GATEWAY_HOST --label proxy-node -d $PROXY_NAME
-exit 0
 
 declare -A TARGET_TEST_IMAGES
 if [[ -n "$TARGET_PLATFORM" ]]; then

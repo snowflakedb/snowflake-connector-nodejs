@@ -30,8 +30,5 @@ else
         echo "[INFO] cp $f /mnt/workspace/artifacts"
         cp $f /mnt/workspace/artifacts
     done
-    echo "DIR"
-    ls /mnt/workspace
-    echo "DIR"
     ls /mnt/workspace/artifacts
 fi

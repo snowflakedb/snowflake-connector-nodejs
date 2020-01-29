@@ -14,7 +14,13 @@ if [[ -z "$GITHUB_ACTIONS" ]]; then
     BRANCH=$(basename $GIT_BRANCH)
     # LATEST_COMMIT=$(aws s3 cp --only-show-errors s3://sfc-jenkins/repository/$DRIVER_NAME/$BRANCH/latest_commit -)
     aws s3 cp --only-show-errors s3://sfc-jenkins/repository/$DRIVER_NAME/$BRANCH/${GIT_COMMIT}/ $HOME --recursive
-else
+elif [[ -e "/mnt/workspace/artifacts/" ]]; then
+    # Linux Container
     cp /mnt/workspace/artifacts/* $HOME
     ls -l $HOME
+else
+    # Mac VM
+    ls -l $GITHUB_WORKSPACE
+    ls -l $HOME
+    exit 0
 fi

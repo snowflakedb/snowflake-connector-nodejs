@@ -36,7 +36,16 @@ else
 fi
 eval $(jq -r '.testconnection | to_entries | map("export \(.key)=\(.value|tostring)")|.[]' $PARAMETER_FILE)
 
+function finish() {
+    pushd /mnt/host/container
+        echo "[INFO] Drop schema GITHUB_${GITHUB_SHA}"
+        python3 drop_schema.py
+    popd
+}
+trap finish EXIT
+
 pushd /mnt/host/container
+    echo "[INFO] Create schema GITHUB_${GITHUB_SHA}"
     if python3 create_schema.py; then
         export SNOWFLAKE_TEST_SCHEMA=GITHUB_${GITHUB_SHA}
     fi

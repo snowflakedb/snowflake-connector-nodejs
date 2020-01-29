@@ -9,4 +9,8 @@ source $THIS_DIR/set_git_info.sh
 
 export WORKSPACE=$GITHUB_WORKSPACE
 export CI_ROOT=$GITHUB_WORKSPACE/ci
+python3 -m venv venv
+source venv/bin/activate
+pip3 install -U pip
+pip3 install -U snowflake-connector-python
 $THIS_DIR/container/test_component.sh

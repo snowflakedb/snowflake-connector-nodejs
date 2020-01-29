@@ -5,6 +5,7 @@
 set -o pipefail
 THIS_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 export WORKSPACE=${WORKSPACE:-/mnt/workspace}
+export CI_ROOT=${SOURCE_ROOT:-/mnt/host}
 export DRIVER_NAME=nodejs
 
 [[ -z "$GIT_BRANCH" ]] && echo "Set GIT_BRANCH to build" && exit 1
@@ -21,7 +22,7 @@ echo "[INFO] Testing"
 cd ~
 
 PACKAGE_NAME=$(ls snowflake-sdk*.tgz)
-cp /mnt/host/container/package.json .
+cp $CI_ROOT/container/package.json .
 npm install
 npm install ${PACKAGE_NAME}
 export PATH=$(pwd)/node_modules/.bin:$PATH
@@ -39,14 +40,14 @@ eval $(jq -r '.testconnection | to_entries | map("export \(.key)=\(.value|tostri
 export TARGET_SCHEMA_NAME=${RUNNER_TRACKING_ID//-/_}_${GITHUB_SHA}
 
 function finish() {
-    pushd /mnt/host/container
+    pushd $CI_ROOT/container
         echo "[INFO] Drop schema $TARGET_SCHEMA_NAME"
         python3 drop_schema.py
     popd
 }
 trap finish EXIT
 
-pushd /mnt/host/container
+pushd $CI_ROOT/container
     echo "[INFO] Create schema $TARGET_SCHEMA_NAME"
     if python3 create_schema.py; then
         export SNOWFLAKE_TEST_SCHEMA=$TARGET_SCHEMA_NAME

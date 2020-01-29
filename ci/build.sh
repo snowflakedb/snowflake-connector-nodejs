@@ -29,6 +29,7 @@ for name in "${!BUILD_IMAGE_NAMES[@]}"; do
         -e GIT_COMMIT \
         -e AWS_ACCESS_KEY_ID \
         -e AWS_SECRET_ACCESS_KEY \
+        -e GITHUB_ACTIONS \
         "${BUILD_IMAGE_NAMES[$name]}" \
         "/mnt/host/container/build_component.sh"
 done

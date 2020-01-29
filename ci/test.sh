@@ -10,7 +10,7 @@ source $THIS_DIR/_init.sh
 
 export WORKSPACE=${WORKSPACE:-/tmp}
 export NETWORK_NAME=proxytest
-export PROXY_NAME=$INTERNAL_CLIENT_REPO/squid
+export PROXY_NAME=$DOCKER_REGISTRY_NAME/client-squid
 export SUBNET=192.168.0.0/16
 export PROXY_IP=192.168.0.100
 export PROXY_PORT=3128

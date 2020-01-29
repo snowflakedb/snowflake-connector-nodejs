@@ -27,9 +27,9 @@ npm install ${PACKAGE_NAME}
 export PATH=$(pwd)/node_modules/.bin:$PATH
 
 echo "[INFO] Setting test parameters"
-if [[ -f "/mnt/workspace/parameters.json" ]]; then
-    echo "[INFO] Found parameter file in /mnt/workspace"
-    PARAMETER_FILE=/mnt/workspace/parameters.json
+if [[ -f "$WORKSPACE/parameters.json" ]]; then
+    echo "[INFO] Found parameter file in $WORKSPACE"
+    PARAMETER_FILE=$WORKSPACE/parameters.json
 else
     echo "[INFO] Use the default test parameters.json"
     PARAMETER_FILE=target/test/parameters.json

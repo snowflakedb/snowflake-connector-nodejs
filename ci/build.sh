@@ -18,6 +18,7 @@ fi
 
 echo "GIT_URL: $GIT_URL, GIT_BRANCH: $GIT_BRANCH, GIT_COMMIT; $GIT_COMMIT"
 
+ls -l ..
 for name in "${!BUILD_IMAGE_NAMES[@]}"; do
     echo "[INFO] Building $DRIVER_NAME on $name"
     docker pull "${BUILD_IMAGE_NAMES[$name]}"

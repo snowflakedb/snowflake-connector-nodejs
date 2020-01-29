@@ -92,6 +92,7 @@ for name in "${!TARGET_TEST_IMAGES[@]}"; do
         -e AWS_ACCESS_KEY_ID \
         -e AWS_SECRET_ACCESS_KEY \
         -e GITHUB_ACTIONS \
+        -e GITHUB_SHA \
         "${TARGET_TEST_IMAGES[$name]}" \
         "/mnt/host/container/test_component.sh"
 done

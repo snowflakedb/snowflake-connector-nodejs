@@ -1,3 +1,6 @@
+REM 
+REM Tests NodeJS Driver on Windows
+REM
 python -m venv venv
 call venv\scripts\activate
 pip install -U snowflake-connector-python

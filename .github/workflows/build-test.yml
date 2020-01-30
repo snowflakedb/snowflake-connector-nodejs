@@ -18,11 +18,11 @@ jobs:
 
     test-linux:
         needs: build
-        name: Tests
+        name: Tests on Linux
         runs-on: ubuntu-16.04
         strategy:
             matrix:
-                config: [ 'nodejs-centos6-default', 'nodejs-centos7-node12', 'nodejs-centos7-fips' ]
+                image: [ 'nodejs-centos6-default', 'nodejs-centos7-node12', 'nodejs-centos7-fips' ]
         steps:
             - uses: actions/checkout@v1
             - name: Download Build Artifacts
@@ -33,7 +33,29 @@ jobs:
               shell: bash
               env:
                 PARAMETERS_SECRET: ${{ secrets.PARAMETERS_SECRET }}
-                TARGET_DOCKER_TEST_IMAGE: ${{ matrix.config }}
+                TARGET_DOCKER_TEST_IMAGE: ${{ matrix.image }}
+              run: ./ci/test.sh
+
+    test-linux-azure-gcp:
+        needs: build
+        name: Tests on Linux for Azure and GCP
+        runs-on: ubuntu-16.04
+        strategy:
+            matrix:
+                image: [ 'nodejs-centos6-default' ]
+                cloud: [ 'AWS', 'AZURE', 'GCP' ]
+        steps:
+            - uses: actions/checkout@v1
+            - name: Download Build Artifacts
+              uses: actions/download-artifact@v1
+              with:
+                name: artifacts
+            - name: Tests
+              shell: bash
+              env:
+                PARAMETERS_SECRET: ${{ secrets.PARAMETERS_SECRET }}
+                CLOUD_PROVIDER: ${{ matrix.cloud }}
+                TARGET_DOCKER_TEST_IMAGE: ${{ matrix.image }}
               run: ./ci/test.sh
 
     test-mac:

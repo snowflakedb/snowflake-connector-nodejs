@@ -24,11 +24,7 @@ if %ERRORLEVEL% NEQ 0 (
     exit /b 1
 )
 echo [INFO] Testing
-dir node_modules
-dir node_modules\mocha
-dir node_modules\mocha\bin
-dir node_modules\.bin
-cmd /c node_modules\.bin\mocha --timeout 90000 --recursive --full-trace --color test/**/*.js
+cmd /c node_modules\.bin\mocha --timeout 90000 --recursive --full-trace  test/**/*.js
 if %ERRORLEVEL% NEQ 0 (
     echo [ERROR] failed to run mocha
     exit /b 1

@@ -1,4 +1,4 @@
-python3 -m venv venv
+python -m venv venv
 call venv\scripts\activate
 pip install -U snowflake-connector-python
 
@@ -19,7 +19,7 @@ echo [INFO] SCHEMA: %SNOWFLAKE_TEST_SCHEMA%
 
 echo [INFO] Creating schema %SNOWFLAKE_TEST_SCHEMA%
 pushd %GITHUB_WORKSPACE%\ci\container
-python3 create_schema.py
+python create_schema.py
 popd
 
 echo [INFO] Installing Test package
@@ -50,5 +50,5 @@ if %ERRORLEVEL% NEQ 0 (
 
 echo [INFO] Dropping schema %SNOWFLAKE_TEST_SCHEMA%
 pushd %GITHUB_WORKSPACE%\ci\container
-python3 drop_schema.py
+python drop_schema.py
 popd

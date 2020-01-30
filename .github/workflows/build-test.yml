@@ -16,25 +16,26 @@ jobs:
                 name: artifacts
                 path: artifacts
 
-#    test-linux:
-#        needs: build
-#        name: Tests
-#        runs-on: ubuntu-16.04
-#        strategy:
-#            matrix:
-#                config: [ 'nodejs-centos6-default', 'nodejs-centos7-node12', 'nodejs-centos7-fips' ]
-#        steps:
-#            - uses: actions/checkout@v1
-#            - name: Download Build Artifacts
-#              uses: actions/download-artifact@v1
-#              with:
-#                name: artifacts
-#            - name: Tests
-#              shell: bash
-#              env:
-#                PARAMETERS_SECRET: ${{ secrets.PARAMETERS_SECRET }}
-#                TARGET_DOCKER_TEST_IMAGE: ${{ matrix.config }}
-#              run: ./ci/test.sh
+    test-linux:
+        needs: build
+        name: Tests
+        runs-on: ubuntu-16.04
+        strategy:
+            matrix:
+                config: [ 'nodejs-centos6-default', 'nodejs-centos7-node12', 'nodejs-centos7-fips' ]
+        steps:
+            - uses: actions/checkout@v1
+            - name: Download Build Artifacts
+              uses: actions/download-artifact@v1
+              with:
+                name: artifacts
+            - name: Tests
+              shell: bash
+              env:
+                PARAMETERS_SECRET: ${{ secrets.PARAMETERS_SECRET }}
+                TARGET_DOCKER_TEST_IMAGE: ${{ matrix.config }}
+              run: ./ci/test.sh
+
     test-mac:
         needs: build
         name: Tests on Mac
@@ -55,5 +56,24 @@ jobs:
               shell: bash
               env:
                 PARAMETERS_SECRET: ${{ secrets.PARAMETERS_SECRET }}
-                DEBUG: true
               run: /usr/local/bin/bash ./ci/test_mac.sh
+
+    test-windows:
+        needs: build
+        name: Tests on Windows
+        runs-on: windows-latest
+        steps:
+            - uses: actions/setup-node@v1
+              with:
+                node-version: '12.x'
+            - uses: actions/checkout@v1
+            - name: Download Build Artifacts
+              uses: actions/download-artifact@v1
+              with:
+                name: artifacts
+            - name: Tests
+              shell: cmd
+              env:
+                PARAMETERS_SECRET: ${{ secrets.PARAMETERS_SECRET }}
+              run: ci\\test_windows.bat
+        

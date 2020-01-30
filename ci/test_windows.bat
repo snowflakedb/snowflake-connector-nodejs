@@ -1,7 +1,9 @@
+python3 -m venv venv
+call venv\scripts\activate
+pip install -U snowflake-connector-python
+
 cd %GITHUB_WORKSPACE%
 gpg --quiet --batch --yes --decrypt --passphrase=%PARAMETERS_SECRET% --output parameters.json .github/workflows/parameters_aws.json.gpg
-copy artifacts\* .
-copy ci\container\package.json .
 
 echo @echo off>parameters.bat
 jq -r ".testconnection | to_entries | map(\"set \(.key)=\(.value)\") | .[]" parameters.json >> parameters.bat
@@ -10,14 +12,25 @@ if %ERRORLEVEL% NEQ 0 (
     echo === failed to set the test parameters
     exit /b 1
 )
+set SNOWFLAKE_TEST_SCHEMA=%RUNNER_TRACKING_ID:-=_%_%GITHUB_SHA%
+
 echo [INFO] Account: %SNOWFLAKE_TEST_ACCOUNT%
-echo [INFO] User: %SNOWFLAKE_TEST_USER%
+echo [INFO] SCHEMA: %SNOWFLAKE_TEST_SCHEMA%
+
+echo [INFO] Creating schema %SNOWFLAKE_TEST_SCHEMA%
+pushd %GITHUB_WORKSPACE%\ci\container
+python3 create_schema.py
+popd
+
+echo [INFO] Installing Test package
+copy %GITHUB_WORKSPACE%\ci\container\package.json .
 cmd /c npm install
 if %ERRORLEVEL% NEQ 0 (
     echo [ERROR] failed to install test packages
     exit /b 1
 )
 echo [INFO] Installing Snowflake NodeJS Driver
+copy %GITHUB_WORKSPACE%\artifacts\* .
 for %%f in (snowflake-sdk*.tgz) do cmd /c npm install %%f
 if %ERRORLEVEL% NEQ 0 (
     echo [ERROR] failed to install the Snowflake NodeJS Driver
@@ -29,3 +42,8 @@ if %ERRORLEVEL% NEQ 0 (
     echo [ERROR] failed to run mocha
     exit /b 1
 )
+
+echo [INFO] Dropping schema %SNOWFLAKE_TEST_SCHEMA%
+pushd %GITHUB_WORKSPACE%\ci\container
+python3 drop_schema.py
+popd

@@ -7,7 +7,7 @@
 set -o pipefail
 THIS_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 source $THIS_DIR/_init.sh
-source $THIS_DIR/login_internal_docker.sh
+source $THIS_DIR/scripts/login_internal_docker.sh
 
 export WORKSPACE=${WORKSPACE:-/tmp}
 export NETWORK_NAME=proxytest
@@ -18,7 +18,7 @@ export PROXY_PORT=3128
 export GATEWAY_HOST=192.168.0.1
 echo "[INFO] The host IP address: $GATEWAY_HOST"
 
-source $THIS_DIR/set_git_info.sh
+source $THIS_DIR/scripts/set_git_info.sh
 
 echo "[INFO] Creating a subnet for tests"
 if ! docker network ls | awk '{print $2}' | grep -q $NETWORK_NAME; then

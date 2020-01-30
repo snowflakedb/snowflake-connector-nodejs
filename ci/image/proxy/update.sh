@@ -4,10 +4,10 @@
 #
 set -o pipefail
 THIS_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-source $THIS_DIR/../_init.sh
+source $THIS_DIR/../../_init.sh
 
-source $THIS_DIR/../login_internal_docker.sh
-source $THIS_DIR/../login_docker.sh
+source $THIS_DIR/../../scripts/login_internal_docker.sh
+source $THIS_DIR/../../scripts/login_docker.sh
 
 docker push $DOCKER_REGISTRY_NAME/client-squid
 docker tag $DOCKER_REGISTRY_NAME/client-squid snowflakedb/client-squid

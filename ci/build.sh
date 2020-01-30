@@ -5,7 +5,7 @@
 set -o pipefail
 THIS_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 source $THIS_DIR/_init.sh
-source $THIS_DIR/login_internal_docker.sh
+source $THIS_DIR/scripts/login_internal_docker.sh
 
 if [[ -z "$GITHUB_ACTIONS" ]]; then
     export GIT_URL=${GIT_URL:-https://github.com/snowflakedb/snowflake-connector-nodejs.git}

@@ -36,6 +36,11 @@ if %ERRORLEVEL% NEQ 0 (
     echo [ERROR] failed to install the Snowflake NodeJS Driver
     exit /b 1
 )
+echo [INFO] Starting hang_webserver.py 12345
+pushd %GITHUB_WORKSPACE%\ci\container
+start /b python3 hang_webserver.py 12345
+popd
+
 echo [INFO] Testing
 cmd /c node_modules\.bin\mocha --timeout 90000 --recursive --full-trace  test/**/*.js
 if %ERRORLEVEL% NEQ 0 (

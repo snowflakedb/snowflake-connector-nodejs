@@ -12,19 +12,19 @@ if %ERRORLEVEL% NEQ 0 (
 )
 echo Account: %SNOWFLAKE_TEST_ACCOUNT%
 echo User: %SNOWFLAKE_TEST_USER%
-npm install
+cmd /c npm install
 if %ERRORLEVEL% NEQ 0 (
     echo === failed to set the test parameters
     exit /b 1
 )
 echo npm install SDK
-for %%f in (snowflake-sdk*.tgz) do npm install %%f
+for %%f in (snowflake-sdk*.tgz) do cmd /c npm install %%f
 if %ERRORLEVEL% NEQ 0 (
     echo === failed to set the test parameters
     exit /b 1
 )
 echo running mocha
-mocha --timeout 90000 --recursive --full-trace --color test/**/*.js
+cmd /c mocha --timeout 90000 --recursive --full-trace --color test/**/*.js
 if %ERRORLEVEL% NEQ 0 (
     echo === failed to set the test parameters
     exit /b 1

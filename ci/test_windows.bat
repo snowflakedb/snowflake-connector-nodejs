@@ -4,7 +4,7 @@ copy artifacts\* .
 copy ci\container\package.json .
 
 echo @echo off>parameters.bat
-jq -r ".testconnection | to_entries | map(\"set \(.key)=\(.value)\") | .[]" parameters.json >> parameter.bat
+jq -r ".testconnection | to_entries | map(\"set \(.key)=\(.value)\") | .[]" parameters.json >> parameters.bat
 call parameters.bat
 if %ERRORLEVEL% NEQ 0 (
     echo === failed to set the test parameters

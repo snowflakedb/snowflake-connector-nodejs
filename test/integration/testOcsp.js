@@ -240,6 +240,10 @@ describe('OCSP validation', function ()
       };
       testOptions(0);
     }
+    else
+    {
+      done();
+    }
   });
 
   it('Test OCSP with different OCSP modes enabled', function (done)

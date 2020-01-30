@@ -38,7 +38,7 @@ if %ERRORLEVEL% NEQ 0 (
 )
 echo [INFO] Starting hang_webserver.py 12345
 pushd %GITHUB_WORKSPACE%\ci\container
-start /b python3 hang_webserver.py 12345
+start /b python hang_webserver.py 12345
 popd
 
 echo [INFO] Testing

@@ -16,7 +16,7 @@ echo "[INFO] checking out from branch $GIT_BRANCH"
 export SOURCE_DIR=$(pwd)
 git clone $GIT_URL target
 cd target
-[[ "$GIT_BRANCH" != "origin/master" ]] && git checkout --track $GIT_BRANCH
+# [[ "$GIT_BRANCH" != "origin/master" ]] && git checkout --track $GIT_BRANCH
 source $THIS_DIR/get_git_commit.sh
 source $THIS_DIR/download_artifact.sh
 

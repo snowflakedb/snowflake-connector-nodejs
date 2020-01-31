@@ -11,7 +11,7 @@ THIS_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 echo "[INFO] Checking out branch $GIT_BRANCH from $GIT_URL."
 git clone $GIT_URL target
 cd target
-git checkout --track $GIT_BRANCH
+# git checkout --track $GIT_BRANCH
 source $THIS_DIR/get_git_commit.sh
 
 echo "[INFO] Building"

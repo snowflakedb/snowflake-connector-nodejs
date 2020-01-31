@@ -8,9 +8,6 @@ THIS_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 [[ -z "$GIT_COMMIT" ]] && echo "Set GIT_COMMIT to upload the artifact" && exit 1
 [[ -z "$ARTIFACTS" ]] && echo "Set ARTIFACTS to upload the artifact" && exit 1
 
-if ! git status; then
-    echo "[ERROR] Must be in the GIT repo directory."
-fi
 if [[ -z "$GITHUB_ACTIONS" ]]; then
     BRANCH=$(basename $GIT_BRANCH)
     for f in "${ARTIFACTS[@]}"; do

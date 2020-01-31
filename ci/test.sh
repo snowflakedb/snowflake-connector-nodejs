@@ -60,7 +60,7 @@ for name in "${!TARGET_TEST_IMAGES[@]}"; do
     docker pull "${TARGET_TEST_IMAGES[$name]}"
     docker run \
         --net $NETWORK_NAME \
-        -v $THIS_DIR:/mnt/host \
+        -v $(cd $THIS_DIR/.. && pwd):/mnt/host \
         -v $WORKSPACE:/mnt/workspace \
         --add-host snowflake.reg.local:$GATEWAY_HOST \
         --add-host testaccount.reg.snowflakecomputing.com:$GATEWAY_HOST \
@@ -79,6 +79,6 @@ for name in "${!TARGET_TEST_IMAGES[@]}"; do
         -e GITHUB_SHA \
         -e RUNNER_TRACKING_ID \
         "${TARGET_TEST_IMAGES[$name]}" \
-        "/mnt/host/container/test_component.sh"
+        "/mnt/host/ci/container/test_component.sh"
     echo "[INFO] Test Results: $WORKSPACE/junit*,xml"
 done

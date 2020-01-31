@@ -8,12 +8,10 @@ THIS_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 [[ -z "$GIT_COMMIT" ]] && echo "Set GIT_COMMIT to download the artifact" && exit 1
 [[ -z "$WORKSPACE" ]] && echo "Set WORKSPACE to download the artifact" && exit 1
 
-if ! git status; then
-    echo "[ERROR] Must be in the GIT repo directory."
-fi
 if [[ -z "$GITHUB_ACTIONS" ]]; then
     BRANCH=$(basename $GIT_BRANCH)
     # LATEST_COMMIT=$(aws s3 cp --only-show-errors s3://sfc-jenkins/repository/$DRIVER_NAME/$BRANCH/latest_commit -)
+    echo "aws s3 cp --only-show-errors s3://sfc-jenkins/repository/$DRIVER_NAME/$BRANCH/${GIT_COMMIT}/ $HOME --recursive"
     aws s3 cp --only-show-errors s3://sfc-jenkins/repository/$DRIVER_NAME/$BRANCH/${GIT_COMMIT}/ $HOME --recursive
 elif [[ -e "$WORKSPACE/artifacts/" ]]; then
     # Linux Container

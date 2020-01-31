@@ -22,7 +22,7 @@ npm install
 
 PACKAGE_NAME=$(ls snowflake-sdk*.tgz)
 npm install ${PACKAGE_NAME}
-export PATH=$HOME/node_modules/.bin:$PATH
+export PATH=$HOME/node_modules/mocha/bin:$PATH
 
 echo "[INFO] Setting test parameters"
 if [[ -f "$WORKSPACE/parameters.json" ]]; then

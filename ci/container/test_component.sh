@@ -7,7 +7,7 @@ THIS_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 export WORKSPACE=${WORKSPACE:-/mnt/workspace}
 export SOURCE_ROOT=${SOURCE_ROOT:-/mnt/host}
 export DRIVER_NAME=nodejs
-export TIMEOUT=300000
+export TIMEOUT=90000
 
 [[ -z "$GIT_BRANCH" ]] && echo "Set GIT_BRANCH to build" && exit 1
 [[ -z "$GIT_URL" ]] && echo "Set GIT_URL to build" && exit 1
@@ -65,11 +65,19 @@ MOCHA_CMD=(
 )
 
 if [[ -z "$GITHUB_ACTIONS" ]]; then
-    # Github Action doesn't generate junit.xml
     MOCHA_CMD+=(
         "--reporter" "xunit"
         "--reporter-options" "output=$WORKSPACE/junit.xml"
     )
+else
+    # Github Action doesn't generate junit.xml
+    MOCHA_CMD+=(
+        "--reporter" "spec"
+        "--color"
+    )
+fi
+
+if [[ -z "$GITHUB_ACTIONS" ]]; then
     echo "[INFO] Running Internal Tests. Test result: $WORKSPACE/junit-system-test.xml"
     if ! ${MOCHA_CMD[@]} "$SOURCE_ROOT/system_test/**/*.js"; then
         echo "[ERROR] Test failed"
@@ -81,10 +89,6 @@ if [[ -z "$GITHUB_ACTIONS" ]]; then
 fi
 
 echo "[INFO] Running Tests: Test result: $WORKSPACE/junit.xml"
-pwd
-npm list
-find . -name "ocsp" -print || true
-echo ${MOCHA_CMD[@]} "$SOURCE_ROOT/test/**/*.js"
 if ! ${MOCHA_CMD[@]} "$SOURCE_ROOT/test/**/*.js"; then
     echo "[ERROR] Test failed"
     [[ -f "$WORKSPACE/junit.xml" ]] && cat $WORKSPACE/junit.xml

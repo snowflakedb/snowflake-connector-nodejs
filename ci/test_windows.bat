@@ -1,6 +1,7 @@
 REM 
 REM Tests NodeJS Driver on Windows
 REM
+set TIMEOUT=90000
 python -m venv venv
 call venv\scripts\activate
 pip install -U snowflake-connector-python
@@ -45,7 +46,7 @@ start /b python hang_webserver.py 12345
 popd
 
 echo [INFO] Testing
-cmd /c node_modules\.bin\mocha --timeout 90000 --recursive --full-trace  test/**/*.js
+cmd /c node_modules\.bin\mocha --timeout %TIMEOUT% --recursive --full-trace --reporter spec --color test/**/*.js
 if %ERRORLEVEL% NEQ 0 (
     echo [ERROR] failed to run mocha
     exit /b 1

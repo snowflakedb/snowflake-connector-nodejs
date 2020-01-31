@@ -11,13 +11,13 @@ THIS_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 if [[ -z "$GITHUB_ACTIONS" ]]; then
     BRANCH=$(basename $GIT_BRANCH)
     # LATEST_COMMIT=$(aws s3 cp --only-show-errors s3://sfc-jenkins/repository/$DRIVER_NAME/$BRANCH/latest_commit -)
-    echo "aws s3 cp --only-show-errors s3://sfc-jenkins/repository/$DRIVER_NAME/$BRANCH/${GIT_COMMIT}/ $HOME --recursive"
-    aws s3 cp --only-show-errors s3://sfc-jenkins/repository/$DRIVER_NAME/$BRANCH/${GIT_COMMIT}/ $HOME --recursive
+    echo "aws s3 cp --only-show-errors s3://sfc-jenkins/repository/$DRIVER_NAME/$BRANCH/${GIT_COMMIT}/ $WORKSPACE --recursive"
+    aws s3 cp --only-show-errors s3://sfc-jenkins/repository/$DRIVER_NAME/$BRANCH/${GIT_COMMIT}/ $WORKSPACE --recursive
 elif [[ -e "$WORKSPACE/artifacts/" ]]; then
     # Linux Container
-    echo "[INFO] cp $WORKSPACE/artifacts/* $HOME"
-    cp $WORKSPACE/artifacts/* $HOME
-    ls -l $HOME
+    echo "[INFO] cp $WORKSPACE/artifacts/* $WORKSPACE"
+    cp $WORKSPACE/artifacts/* $WORKSPACE
+    ls -l $WORKSPACE
 else
     echo "[ERROR] No $WORKSPACE/artifacts exists"
     ls -l $WORKSPACE

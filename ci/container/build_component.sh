@@ -8,12 +8,7 @@ THIS_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 [[ -z "$GIT_BRANCH" ]] && echo "Set GIT_BRANCH to build" && exit 1
 [[ -z "$GIT_URL" ]] && echo "Set GIT_URL to build" && exit 1
 
-echo "[INFO] Checking out branch $GIT_BRANCH from $GIT_URL."
-git clone $GIT_URL target
-cd target
-# git checkout --track $GIT_BRANCH
-source $THIS_DIR/get_git_commit.sh
-
+cd /mnt/host
 echo "[INFO] Building"
 npm pack
 npm install --package-lock-only

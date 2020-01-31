@@ -23,7 +23,7 @@ for name in "${!BUILD_IMAGE_NAMES[@]}"; do
     echo "[INFO] Building $DRIVER_NAME on $name"
     docker pull "${BUILD_IMAGE_NAMES[$name]}"
     docker run \
-        -v $THIS_DIR:/mnt/host \
+        -v $(cd $THIS_DIR/.. && pwd):/mnt/host \
         -v $WORKSPACE:/mnt/workspace \
         -e LOCAL_USER_ID=$(id -u $USER) \
         -e GIT_URL \
@@ -33,5 +33,5 @@ for name in "${!BUILD_IMAGE_NAMES[@]}"; do
         -e AWS_SECRET_ACCESS_KEY \
         -e GITHUB_ACTIONS \
         "${BUILD_IMAGE_NAMES[$name]}" \
-        "/mnt/host/container/build_component.sh"
+        "/mnt/host/ci/container/build_component.sh"
 done

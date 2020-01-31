@@ -84,6 +84,7 @@ fi
 
 echo "[INFO] Running Tests: Test result: $WORKSPACE/junit.xml"
 pwd
+npm list
 echo ${MOCHA_CMD[@]} "output=$WORKSPACE/junit.xml" "$SOURCE_ROOT/test/**/*.js"
 if ! ${MOCHA_CMD[@]} "output=$WORKSPACE/junit.xml" "$SOURCE_ROOT/test/**/*.js"; then
     echo "[ERROR] Test failed"

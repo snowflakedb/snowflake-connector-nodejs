@@ -15,14 +15,14 @@ export TIMEOUT=300000
 source $THIS_DIR/download_artifact.sh
 
 echo "[INFO] Testing"
-cd $HOME
+cd $WORKSPACE
 
 cp $SOURCE_ROOT/ci/container/package.json .
 npm install
 
 PACKAGE_NAME=$(ls snowflake-sdk*.tgz)
 npm install ${PACKAGE_NAME}
-export PATH=$HOME/node_modules/mocha/bin:$PATH
+export PATH=$WORKSPACE/node_modules/mocha/bin:$PATH
 
 echo "[INFO] Setting test parameters"
 if [[ -f "$WORKSPACE/parameters.json" ]]; then
@@ -83,7 +83,7 @@ fi
 echo "[INFO] Running Tests: Test result: $WORKSPACE/junit.xml"
 pwd
 npm list
-find . -name "ocsp" -print
+find . -name "ocsp" -print || true
 echo ${MOCHA_CMD[@]} "$SOURCE_ROOT/test/**/*.js"
 if ! ${MOCHA_CMD[@]} "$SOURCE_ROOT/test/**/*.js"; then
     echo "[ERROR] Test failed"

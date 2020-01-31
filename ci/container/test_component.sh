@@ -15,7 +15,7 @@ export TIMEOUT=300000
 source $THIS_DIR/download_artifact.sh
 
 echo "[INFO] Testing"
-cd ~
+cd $HOME
 
 PACKAGE_NAME=$(ls snowflake-sdk*.tgz)
 cp $SOURCE_ROOT/ci/container/package.json .
@@ -36,21 +36,21 @@ eval $(jq -r '.testconnection | to_entries | map("export \(.key)=\(.value|tostri
 export TARGET_SCHEMA_NAME=${RUNNER_TRACKING_ID//-/_}_${GITHUB_SHA}
 
 function finish() {
-    pushd $SOURCE_ROOT/ci/container
+    pushd $SOURCE_ROOT/ci/container >& /dev/null
         echo "[INFO] Drop schema $TARGET_SCHEMA_NAME"
         python3 drop_schema.py
-    popd
+    popd >& /dev/null
 }
 trap finish EXIT
 
-pushd $SOURCE_ROOT/ci/container
+pushd $SOURCE_ROOT/ci/container >& /dev/null
     echo "[INFO] Create schema $TARGET_SCHEMA_NAME"
     if python3 create_schema.py; then
         export SNOWFLAKE_TEST_SCHEMA=$TARGET_SCHEMA_NAME
     else
         echo "[WARN] SNOWFLAKE_TEST_SCHEMA: $SNOWFLAKE_TEST_SCHEMA"
     fi
-popd
+popd >& /dev/null
 
 env | grep SNOWFLAKE_ | grep -v PASS
 
@@ -82,6 +82,8 @@ if [[ -z "$GITHUB_ACTIONS" ]]; then
 fi
 
 echo "[INFO] Running Tests: Test result: $WORKSPACE/junit.xml"
+pwd
+echo ${MOCHA_CMD[@]} "output=$WORKSPACE/junit.xml" "$SOURCE_ROOT/test/**/*.js"
 if ! ${MOCHA_CMD[@]} "output=$WORKSPACE/junit.xml" "$SOURCE_ROOT/test/**/*.js"; then
     echo "[ERROR] Test failed"
     cat $WORKSPACE/junit.xml

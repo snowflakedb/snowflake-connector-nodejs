@@ -8,7 +8,7 @@ source $THIS_DIR/_init.sh
 source $THIS_DIR/scripts/set_git_info.sh
 
 export WORKSPACE=$GITHUB_WORKSPACE
-export CI_ROOT=$GITHUB_WORKSPACE/ci
+export SOURCE_ROOT=$GITHUB_WORKSPACE
 python3 -m venv venv
 source venv/bin/activate
 pip3 install -U pip

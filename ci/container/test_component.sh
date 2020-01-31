@@ -5,7 +5,7 @@
 set -o pipefail
 THIS_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 export WORKSPACE=${WORKSPACE:-/mnt/workspace}
-export CI_ROOT=${CI_ROOT:-/mnt/host/ci}
+export SOURCE_ROOT=${SOURCE_ROOT:-/mnt/host}
 export DRIVER_NAME=nodejs
 export TIMEOUT=300000
 
@@ -18,7 +18,7 @@ echo "[INFO] Testing"
 cd ~
 
 PACKAGE_NAME=$(ls snowflake-sdk*.tgz)
-cp $CI_ROOT/container/package.json .
+cp $SOURCE_ROOT/ci/container/package.json .
 npm install
 npm install ${PACKAGE_NAME}
 export PATH=$(pwd)/node_modules/.bin:$PATH
@@ -29,21 +29,21 @@ if [[ -f "$WORKSPACE/parameters.json" ]]; then
     PARAMETER_FILE=$WORKSPACE/parameters.json
 else
     echo "[INFO] Use the default test parameters.json"
-    PARAMETER_FILE=/mnt/host/test/parameters.json
+    PARAMETER_FILE=$SOURCE_ROOT/test/parameters.json
 fi
 eval $(jq -r '.testconnection | to_entries | map("export \(.key)=\(.value|tostring)")|.[]' $PARAMETER_FILE)
 
 export TARGET_SCHEMA_NAME=${RUNNER_TRACKING_ID//-/_}_${GITHUB_SHA}
 
 function finish() {
-    pushd $CI_ROOT/container
+    pushd $SOURCE_ROOT/ci/container
         echo "[INFO] Drop schema $TARGET_SCHEMA_NAME"
         python3 drop_schema.py
     popd
 }
 trap finish EXIT
 
-pushd $CI_ROOT/container
+pushd $SOURCE_ROOT/ci/container
     echo "[INFO] Create schema $TARGET_SCHEMA_NAME"
     if python3 create_schema.py; then
         export SNOWFLAKE_TEST_SCHEMA=$TARGET_SCHEMA_NAME
@@ -74,7 +74,7 @@ if [[ -z "$GITHUB_ACTIONS" ]]; then
         "--reporter-options"
     )
     echo "[INFO] Running Internal Tests. Test result: $WORKSPACE/junit-system-test.xml"
-    if ! ${MOCHA_CMD[@]} "output=$WORKSPACE/junit-system-test.xml" "/mnt/host/system_test/**/*.js"; then
+    if ! ${MOCHA_CMD[@]} "output=$WORKSPACE/junit-system-test.xml" "$SOURCE_ROOT/system_test/**/*.js"; then
         echo "[ERROR] Test failed"
         cat $WORKSPACE/junit-system-test.xml
         exit 1
@@ -82,7 +82,7 @@ if [[ -z "$GITHUB_ACTIONS" ]]; then
 fi
 
 echo "[INFO] Running Tests: Test result: $WORKSPACE/junit.xml"
-if ! ${MOCHA_CMD[@]} "output=$WORKSPACE/junit.xml" "/mnt/host/test/**/*.js"; then
+if ! ${MOCHA_CMD[@]} "output=$WORKSPACE/junit.xml" "$SOURCE_ROOT/test/**/*.js"; then
     echo "[ERROR] Test failed"
     cat $WORKSPACE/junit.xml
     exit 1

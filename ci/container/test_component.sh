@@ -18,10 +18,10 @@ echo "[INFO] Testing"
 cd $HOME
 
 cp $SOURCE_ROOT/ci/container/package.json .
-npm install --verbose
+npm install
 
 PACKAGE_NAME=$(ls snowflake-sdk*.tgz)
-npm install --verbose ${PACKAGE_NAME}
+npm install ${PACKAGE_NAME}
 export PATH=$HOME/node_modules/.bin:$PATH
 
 echo "[INFO] Setting test parameters"

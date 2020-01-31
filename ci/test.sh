@@ -11,7 +11,7 @@ source $THIS_DIR/scripts/login_internal_docker.sh
 
 export WORKSPACE=${WORKSPACE:-/tmp}
 export NETWORK_NAME=proxytest
-export PROXY_NAME=$DOCKER_REGISTRY_NAME/client-squid
+export PROXY_IMAGE=$DOCKER_REGISTRY_NAME/client-squid
 export SUBNET=192.168.0.0/16
 export PROXY_IP=192.168.0.100
 export PROXY_PORT=3128
@@ -34,7 +34,8 @@ for h in $(docker ps --filter "label=proxy-node" --format "{{.ID}}"); do
     docker kill $h
 done
 echo "[INFO] Starting a proxy node"
-docker run --net $NETWORK_NAME --ip $PROXY_IP --add-host snowflake.reg.local:$GATEWAY_HOST --label proxy-node -d $PROXY_NAME
+docker pull --quiet $PROXY_IMAGE
+docker run --net $NETWORK_NAME --ip $PROXY_IP --add-host snowflake.reg.local:$GATEWAY_HOST --label proxy-node -d $PROXY_IMAGE
 
 declare -A TARGET_TEST_IMAGES
 if [[ -n "$TARGET_DOCKER_TEST_IMAGE" ]]; then

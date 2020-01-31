@@ -23,26 +23,6 @@ jobs:
         strategy:
             matrix:
                 image: [ 'nodejs-centos6-default', 'nodejs-centos7-node12', 'nodejs-centos7-fips' ]
-        steps:
-            - uses: actions/checkout@v1
-            - name: Download Build Artifacts
-              uses: actions/download-artifact@v1
-              with:
-                name: artifacts
-            - name: Tests
-              shell: bash
-              env:
-                PARAMETERS_SECRET: ${{ secrets.PARAMETERS_SECRET }}
-                TARGET_DOCKER_TEST_IMAGE: ${{ matrix.image }}
-              run: ./ci/test.sh
-
-    test-linux-azure-gcp:
-        needs: build
-        name: Tests on Linux for Azure and GCP
-        runs-on: ubuntu-16.04
-        strategy:
-            matrix:
-                image: [ 'nodejs-centos6-default' ]
                 cloud: [ 'AWS', 'AZURE', 'GCP' ]
         steps:
             - uses: actions/checkout@v1
@@ -62,6 +42,9 @@ jobs:
         needs: build
         name: Tests on Mac
         runs-on: macos-latest
+        strategy:
+            matrix:
+                cloud: [ 'AWS', 'AZURE', 'GCP' ]
         steps:
             - uses: actions/checkout@v1
             - uses: actions/setup-node@v1
@@ -78,12 +61,16 @@ jobs:
               shell: bash
               env:
                 PARAMETERS_SECRET: ${{ secrets.PARAMETERS_SECRET }}
+                CLOUD_PROVIDER: ${{ matrix.cloud }}
               run: /usr/local/bin/bash ./ci/test_mac.sh
 
     test-windows:
         needs: build
         name: Tests on Windows
         runs-on: windows-latest
+        strategy:
+            matrix:
+                cloud: [ 'AWS', 'AZURE', 'GCP' ]
         steps:
             - uses: actions/checkout@v1
             - uses: actions/setup-node@v1
@@ -101,5 +88,6 @@ jobs:
               shell: cmd
               env:
                 PARAMETERS_SECRET: ${{ secrets.PARAMETERS_SECRET }}
+                CLOUD_PROVIDER: ${{ matrix.cloud }}
               run: ci\\test_windows.bat
         

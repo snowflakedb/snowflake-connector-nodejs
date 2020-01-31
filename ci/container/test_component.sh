@@ -18,10 +18,10 @@ echo "[INFO] Testing"
 cd $HOME
 
 cp $SOURCE_ROOT/ci/container/package.json .
-npm -g install
+npm install
 
 PACKAGE_NAME=$(ls snowflake-sdk*.tgz)
-npm -g install ${PACKAGE_NAME}
+npm install ${PACKAGE_NAME}
 export PATH=$HOME/node_modules/.bin:$PATH
 
 echo "[INFO] Setting test parameters"
@@ -61,33 +61,31 @@ env | grep SNOWFLAKE_ | grep -v PASS
 echo "[INFO] Starting hang_webserver.py 12345"
 python3 $THIS_DIR/hang_webserver.py 12345 &
 MOCHA_CMD=(
-    "mocha"
-    "--timeout" "$TIMEOUT"
-    "--recursive"
-    "--full-trace"
-    "--color"
+    "mocha" "--timeout" "$TIMEOUT" "--recursive" "--full-trace" "--color"
 )
 
 if [[ -z "$GITHUB_ACTIONS" ]]; then
     # Github Action doesn't generate junit.xml
     MOCHA_CMD+=(
         "--reporter" "xunit"
-        "--reporter-options"
+        "--reporter-options" "output=$WORKSPACE/junit.xml"
     )
     echo "[INFO] Running Internal Tests. Test result: $WORKSPACE/junit-system-test.xml"
-    if ! ${MOCHA_CMD[@]} "output=$WORKSPACE/junit-system-test.xml" "$SOURCE_ROOT/system_test/**/*.js"; then
+    if ! ${MOCHA_CMD[@]} "$SOURCE_ROOT/system_test/**/*.js"; then
         echo "[ERROR] Test failed"
-        cat $WORKSPACE/junit-system-test.xml
+        [[ -f "$WORKSPACE/junit.xml" ]] && cat $WORKSPACE/junit.xml
         exit 1
+    elif [[ -f "$WORKSPACE/junit.xml" ]]; then
+        cp -f $WORKSPACE/junit.xml $WORKSPACE/junit-system-test.xml
     fi
 fi
 
 echo "[INFO] Running Tests: Test result: $WORKSPACE/junit.xml"
 pwd
 npm list
-echo ${MOCHA_CMD[@]} "output=$WORKSPACE/junit.xml" "$SOURCE_ROOT/test/**/*.js"
-if ! ${MOCHA_CMD[@]} "output=$WORKSPACE/junit.xml" "$SOURCE_ROOT/test/**/*.js"; then
+echo ${MOCHA_CMD[@]} "$SOURCE_ROOT/test/**/*.js"
+if ! ${MOCHA_CMD[@]} "$SOURCE_ROOT/test/**/*.js"; then
     echo "[ERROR] Test failed"
-    cat $WORKSPACE/junit.xml
+    [[ -f "$WORKSPACE/junit.xml" ]] && cat $WORKSPACE/junit.xml
     exit 1
 fi

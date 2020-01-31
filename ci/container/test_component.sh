@@ -72,8 +72,8 @@ if [[ -z "$GITHUB_ACTIONS" ]]; then
 else
     # Github Action doesn't generate junit.xml
     MOCHA_CMD+=(
-        "--reporter" "spec"
         "--color"
+        "--reporter" "spec"
     )
 fi
 

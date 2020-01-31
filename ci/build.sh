@@ -21,7 +21,7 @@ echo "GIT_URL: $GIT_URL, GIT_BRANCH: $GIT_BRANCH, GIT_COMMIT: $GIT_COMMIT"
 
 for name in "${!BUILD_IMAGE_NAMES[@]}"; do
     echo "[INFO] Building $DRIVER_NAME on $name"
-    docker pull "${BUILD_IMAGE_NAMES[$name]}"
+    docker pull --quiet "${BUILD_IMAGE_NAMES[$name]}"
     docker run \
         -v $(cd $THIS_DIR/.. && pwd):/mnt/host \
         -v $WORKSPACE:/mnt/workspace \

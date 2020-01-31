@@ -17,11 +17,12 @@ source $THIS_DIR/download_artifact.sh
 echo "[INFO] Testing"
 cd $HOME
 
-PACKAGE_NAME=$(ls snowflake-sdk*.tgz)
 cp $SOURCE_ROOT/ci/container/package.json .
-npm install
-npm install ${PACKAGE_NAME}
-export PATH=$(pwd)/node_modules/.bin:$PATH
+npm install --verbose
+
+PACKAGE_NAME=$(ls snowflake-sdk*.tgz)
+npm install --verbose ${PACKAGE_NAME}
+export PATH=$HOME/node_modules/.bin:$PATH
 
 echo "[INFO] Setting test parameters"
 if [[ -f "$WORKSPACE/parameters.json" ]]; then

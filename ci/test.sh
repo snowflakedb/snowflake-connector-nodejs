@@ -57,7 +57,7 @@ export USERID=$(id -u $(whoami))
 echo "[INFO] USERID=$USERID"
 for name in "${!TARGET_TEST_IMAGES[@]}"; do
     echo "[INFO] Testing $DRIVER_NAME on $name"
-    docker pull "${TARGET_TEST_IMAGES[$name]}"
+    docker pull --quiet "${TARGET_TEST_IMAGES[$name]}"
     docker run \
         --net $NETWORK_NAME \
         -v $(cd $THIS_DIR/.. && pwd):/mnt/host \

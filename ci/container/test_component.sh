@@ -83,6 +83,7 @@ fi
 echo "[INFO] Running Tests: Test result: $WORKSPACE/junit.xml"
 pwd
 npm list
+find . -name "ocsp" -print
 echo ${MOCHA_CMD[@]} "$SOURCE_ROOT/test/**/*.js"
 if ! ${MOCHA_CMD[@]} "$SOURCE_ROOT/test/**/*.js"; then
     echo "[ERROR] Test failed"

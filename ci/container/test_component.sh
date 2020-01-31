@@ -17,12 +17,17 @@ source $THIS_DIR/download_artifact.sh
 echo "[INFO] Testing"
 cd $WORKSPACE
 
+if [[ "$LOCAL_USER_NAME" == "jenkins" ]]; then
+    cd target_client
+    export PATH=$WORKSPACE/target_client/node_modules/mocha/bin:$PATH
+else
+    export PATH=$WORKSPACE/node_modules/mocha/bin:$PATH
+fi
 cp $SOURCE_ROOT/ci/container/package.json .
 npm install
 
-PACKAGE_NAME=$(ls snowflake-sdk*.tgz)
-npm install ${PACKAGE_NAME}
-export PATH=$WORKSPACE/node_modules/mocha/bin:$PATH
+PACKAGE_NAME=$(cd $WORKSPACE && ls snowflake-sdk*.tgz)
+npm install $WORKSPACE/${PACKAGE_NAME}
 
 echo "[INFO] Setting test parameters"
 if [[ -f "$WORKSPACE/parameters.json" ]]; then

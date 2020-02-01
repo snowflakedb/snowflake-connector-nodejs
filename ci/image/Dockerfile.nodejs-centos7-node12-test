@@ -1,4 +1,4 @@
-FROM centos:6.10
+FROM centos:7
 
 # update OS
 RUN yum -y update
@@ -7,7 +7,7 @@ RUN yum -y install centos-release-scl
 
 # nvm environment variables
 ENV NVM_DIR /usr/local/nvm
-ENV NODE_VERSION 10.0.0
+ENV NODE_VERSION 12.0.0
 
 # node
 RUN mkdir -p $NVM_DIR
@@ -53,13 +53,13 @@ RUN yum -y install jq
 # gosu
 RUN curl -o /usr/local/bin/gosu -SL "https://github.com/tianon/gosu/releases/download/1.11/gosu-amd64"
 RUN chmod +x /usr/local/bin/gosu
-COPY scripts/entrypoint.sh /usr/local/bin/entrypoint.sh
-RUN chmod +x /usr/local/bin/entrypoint.sh
 
 # workspace
-
 RUN mkdir -p /home/user
 RUN chmod 777 /home/user
 WORKDIR /home/user
 
+# entry point
+COPY scripts/entrypoint.sh /usr/local/bin/entrypoint.sh
+RUN chmod +x /usr/local/bin/entrypoint.sh
 ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]

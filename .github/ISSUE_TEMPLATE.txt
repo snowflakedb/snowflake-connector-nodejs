@@ -1,0 +1,33 @@
+Please answer these questions before submitting your issue. Thanks!
+
+1. What version of NodeJS are you using (`node --version` and `npm --version`)?
+
+2. What operating system and processor architecture are you using?
+
+Linux:
+    > cat /etc/redhat-release for RedHat OS variants,
+    > lsb_release -a for Debian OS variants
+Mac:
+    > system_profiler SPSoftwareDataType
+Windows:
+    > systeminfo | findstr /B /C:"OS Name" /C:"OS Version"
+
+3. What are the component versions in the environment (`npm list`)?
+
+4. What did you do?
+If possible, provide a recipe for reproducing the error.
+A complete runnable program is good.
+
+5. What did you expect to see?
+
+6. What did you see instead?
+
+7. Add this to get standard output.
+ 
+```
+var snowflake = require('./snowflake');
+snowflake.configure(
+{
+  logLevel: 'trace'
+});
+```

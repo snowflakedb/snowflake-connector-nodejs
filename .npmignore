@@ -3,6 +3,7 @@
 *.log
 *.xml
 *.enc
+*.gpg
 test/
 dist/
 ignore/
@@ -12,3 +13,4 @@ coverage
 system_test/
 scripts/
 ci/
+.github/

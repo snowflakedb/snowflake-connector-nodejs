@@ -6,13 +6,13 @@ import os
 import sys
 
 def get_test_schema():
-    travis_job_id = os.getenv('TRAVIS_JOB_ID')
-    appveyor_job_id = os.getenv('APPVEYOR_BUILD_ID')
-    if not travis_job_id and not appveyor_job_id:
-        print("[WARN] The environment variable TRAVIS_JOB_ID or APPVEYOR_BUILD_ID is not set. No test schema will be created.")
-        sys.exit(1)
+    github_sha = os.getenv('GITHUB_SHA')
+    github_runner_id = os.getenv('RUNNER_TRACKING_ID')
+    if not github_sha or not github_runner_id:
+        print("[WARN] The environment variable GITHUB_SHA or RUNNER_TRACKING_ID is not set. No test schema will be created.")
+        return None
 
-    return 'TRAVIS_JOB_{0}'.format(travis_job_id) if travis_job_id else 'APPVEYOR_BUILD_{0}'.format(appveyor_job_id)
+    return github_runner_id.replace('-', '_') + '_' + github_sha
 
 
 def init_connection_params():

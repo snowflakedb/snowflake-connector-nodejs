@@ -1,0 +1,102 @@
+name: Build and Test
+
+on:
+    push:
+        branches:
+            - master
+        tags:
+            - v*
+    pull_request:
+        branches:
+            - master
+            - prep-**
+jobs:
+    build:
+        name: Build
+        runs-on: ubuntu-16.04
+        steps:
+            - uses: actions/checkout@v1
+            - name: Build
+              shell: bash
+              run: ./ci/build.sh
+            - name: Upload Build Artifact
+              uses: actions/upload-artifact@v1
+              with:
+                name: artifacts
+                path: artifacts
+
+    test-linux:
+        needs: build
+        name: Tests on Linux
+        runs-on: ubuntu-16.04
+        strategy:
+            matrix:
+                image: [ 'nodejs-centos6-default', 'nodejs-centos7-node12', 'nodejs-centos7-fips' ]
+                cloud: [ 'AWS', 'AZURE', 'GCP' ]
+        steps:
+            - uses: actions/checkout@v1
+            - name: Download Build Artifacts
+              uses: actions/download-artifact@v1
+              with:
+                name: artifacts
+            - name: Tests
+              shell: bash
+              env:
+                PARAMETERS_SECRET: ${{ secrets.PARAMETERS_SECRET }}
+                CLOUD_PROVIDER: ${{ matrix.cloud }}
+                TARGET_DOCKER_TEST_IMAGE: ${{ matrix.image }}
+              run: ./ci/test.sh
+
+    test-mac:
+        needs: build
+        name: Tests on Mac
+        runs-on: macos-latest
+        strategy:
+            matrix:
+                cloud: [ 'AWS', 'AZURE', 'GCP' ]
+        steps:
+            - uses: actions/checkout@v1
+            - uses: actions/setup-node@v1
+              with:
+                node-version: '12.x'
+            - name: Download Build Artifacts
+              uses: actions/download-artifact@v1
+              with:
+                name: artifacts
+            - name: Install Homebrew Bash
+              shell: bash
+              run: brew install bash
+            - name: Tests
+              shell: bash
+              env:
+                PARAMETERS_SECRET: ${{ secrets.PARAMETERS_SECRET }}
+                CLOUD_PROVIDER: ${{ matrix.cloud }}
+              run: /usr/local/bin/bash ./ci/test_mac.sh
+
+    test-windows:
+        needs: build
+        name: Tests on Windows
+        runs-on: windows-latest
+        strategy:
+            matrix:
+                cloud: [ 'AWS', 'AZURE', 'GCP' ]
+        steps:
+            - uses: actions/checkout@v1
+            - uses: actions/setup-node@v1
+              with:
+                node-version: '12.x'
+            - uses: actions/setup-python@v1
+              with:
+                python-version: '3.x'
+                architecture: 'x64'
+            - name: Download Build Artifacts
+              uses: actions/download-artifact@v1
+              with:
+                name: artifacts
+            - name: Tests
+              shell: cmd
+              env:
+                PARAMETERS_SECRET: ${{ secrets.PARAMETERS_SECRET }}
+                CLOUD_PROVIDER: ${{ matrix.cloud }}
+              run: ci\\test_windows.bat
+        

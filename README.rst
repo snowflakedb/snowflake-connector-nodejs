@@ -3,7 +3,7 @@ NodeJS Driver for Snowflake
 ********************************************************************************
 
 .. image:: https://github.com/snowflakedb/snowflake-connector-nodejs/workflows/Build%20and%20Test/badge.svg
-       :target: https://github.com/snowflakedb/snowflake-connector-nodejs/actions?query=workflow%3A%22Build+and+Test%22
+       :target: https://github.com/snowflakedb/snowflake-connector-nodejs/actions?query=workflow%3A%22Build+and+Test%22+branch%3Amaster
 
 .. image:: https://img.shields.io/npm/v/snowflake-sdk.svg
        :target: https://www.npmjs.com/package/snowflake-sdk

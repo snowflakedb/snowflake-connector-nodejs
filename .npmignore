@@ -8,6 +8,7 @@ test/
 dist/
 ignore/
 env/
+parameters.json
 snowflake-sdk*.tgz
 coverage
 system_test/

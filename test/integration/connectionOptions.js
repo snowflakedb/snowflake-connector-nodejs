@@ -56,9 +56,10 @@ var valid =
     role: snowflakeTestRole
   };
 
+
 var snowflakeAccount = snowflakeTestAdminUser !== undefined ?
   {
-    accessUrl: accessUrl,
+    accessUrl: 'accessUrl',
     username: snowflakeTestAdminUser,
     password: snowflakeTestAdminPassword,
     account: 'snowflake'
@@ -67,7 +68,7 @@ var snowflakeAccount = snowflakeTestAdminUser !== undefined ?
 var wrongUserName =
   {
 
-    accessUrl: accessUrl,
+    accessUrl: 'accessUrl',
     username: 'node',
     password: 'test',
     account: snowflakeTestAccount
@@ -76,7 +77,7 @@ var wrongUserName =
 var wrongPwd =
   {
 
-    accessUrl: accessUrl,
+    accessUrl: 'accessUrl',
     username: 'nodejs',
     password: '',
     account: snowflakeTestAccount

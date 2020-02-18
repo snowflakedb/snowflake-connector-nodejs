@@ -250,6 +250,9 @@ function buildRequestOutputMappings(clientInfo)
                       }, {
                         "name": "JS_TREAT_INTEGER_AS_BIGINT",
                         "value": false
+                      }, {
+                          "name": "CLIENT_VALIDATE_DEFAULT_PARAMETERS",
+                          "value": false
                       }]
                     },
                   "message": null,
@@ -1128,6 +1131,9 @@ function buildRequestOutputMappings(clientInfo)
                       }, {
                         "name": "JS_TREAT_INTEGER_AS_BIGINT",
                         "value": false
+                      },{
+                          "name": "CLIENT_VALIDATE_DEFAULT_PARAMETERS",
+                          "value": false
                       }]
                     },
                   "message": null,
@@ -1267,7 +1273,8 @@ function buildRequestOutputMappings(clientInfo)
                   CLIENT_ENVIRONMENT: clientInfo.environment,
                   SESSION_PARAMETERS: {
                     CLIENT_SESSION_KEEP_ALIVE: true,
-                    CLIENT_SESSION_KEEP_ALIVE_HEARTBEAT_FREQUENCY: 1800
+                    CLIENT_SESSION_KEEP_ALIVE_HEARTBEAT_FREQUENCY: 1800,
+                    CLIENT_VALIDATE_DEFAULT_PARAMETERS: true
                   }
                 }
             }
@@ -1341,6 +1348,9 @@ function buildRequestOutputMappings(clientInfo)
                       }, {
                         "name": "JS_TREAT_INTEGER_AS_BIGINT",
                         "value": false
+                      },{
+                          "name": "CLIENT_VALIDATE_DEFAULT_PARAMETERS",
+                          "value": false
                       }]
                     },
                   "message": null,
@@ -1444,6 +1454,9 @@ function buildRequestOutputMappings(clientInfo)
                       }, {
                         "name": "JS_TREAT_INTEGER_AS_BIGINT",
                         "value": true
+                      },{
+                          "name": "CLIENT_VALIDATE_DEFAULT_PARAMETERS",
+                          "value": true
                       }]
                     },
                   "message": null,

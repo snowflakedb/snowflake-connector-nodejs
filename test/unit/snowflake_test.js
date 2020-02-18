@@ -20,6 +20,7 @@ var connectionOptionsClientSessionKeepAlive = mockConnectionOptions.clientSessio
 var connectionOptionsForSessionGone = mockConnectionOptions.sessionGone;
 const connectionOptionsFor504 = mockConnectionOptions.http504;
 const connectionOptionsTreatIntegerAsBigInt = mockConnectionOptions.treatIntAsBigInt;
+const connectionOptionsValidateDefaultParameters = mockConnectionOptions.validateDefaultParameters;
 
 describe('snowflake.createConnection() synchronous errors', function ()
 {
@@ -1755,6 +1756,32 @@ describe('snowflake.createConnection() JS_TREAT_INTEGER_AS_BIGINT', function ()
       ],
       done)
   });
+});
+
+
+describe('snowflake.createConnection() VALIDATE_DEFAULT_PARAMETERS', function ()
+{
+    it('createConnection() returns connection including VALIDATE_DEFAULT_PARAMETERS', function (done)
+    {
+        var connection = snowflake.createConnection(connectionOptionsValidateDefaultParameters);
+        async.series([
+                function (callback)
+                {
+                    connection.connect(function (err)
+                    {
+                        assert.ok(!err, JSON.stringify(err));
+                        callback();
+                    });
+                },
+                function (callback)
+                {
+                    // VALIDATE_DEFAULT_PARAMETERS is returned.
+                    assert.equal(true, connection.getValidateDefaultParameters());
+                    callback();
+                },
+            ],
+            done)
+    });
 });
 
 describe('snowflake.destroyConnection()', function ()

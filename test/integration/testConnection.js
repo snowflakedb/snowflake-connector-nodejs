@@ -82,6 +82,7 @@ describe('Connection test', function ()
     var connection = snowflake.createConnection(connOption.wrongUserName);
     connection.connect(function (err)
     {
+
       assert.ok(err, 'Username is an empty string');
       assert.equal('Incorrect username or password was specified.', err["message"]);
       done();
@@ -98,8 +99,10 @@ describe('Connection test', function ()
       done();
     });
   });
+
   it('Multiple Client', function (done)
   {
+    this.timeout(15000);
     const totalConnections = 10;
     var connections = [];
     for (var i = 0; i < totalConnections; i++)
@@ -110,6 +113,7 @@ describe('Connection test', function ()
     for (i = 0; i < totalConnections; i++)
     {
       connections[i].connect(function (err, conn)
+
       {
         testUtil.checkError(err);
         conn.execute({
@@ -117,7 +121,7 @@ describe('Connection test', function ()
           complete: function (err)
           {
             testUtil.checkError(err);
-            testUtil.destroyConnection(conn, function ()
+            testUtil.destroyConnection(conn,function ()
             {
             });
             completedConnection++;
@@ -125,10 +129,11 @@ describe('Connection test', function ()
         });
       });
     }
+
     setTimeout(function ()
     {
       assert.strictEqual(completedConnection, totalConnections);
       done();
-    }, 60000);
+    }, 9000);
   });
 });

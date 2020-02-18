@@ -79,6 +79,15 @@ var connectionOptionsWithTreatIntAsBigInt =
     jsTreatIntegerAsBigInt: true
   };
 
+var connectionValidateDefaultParameters =
+    {
+        accessUrl: 'http://fakeaccount.snowflakecomputing.com',
+        username: 'fakeusername',
+        password: 'fakepassword',
+        account: 'fakeaccount',
+        validateDefaultParameters: true
+    };
+
 exports.connectionOptions =
   {
     default: connectionOptions,
@@ -87,5 +96,6 @@ exports.connectionOptions =
     clientSessionKeepAlive: connectionOptionsWithClientSessionKeepAlive,
     sessionGone: connectionOptionsForSessionGone,
     http504: connectionOptions504,
-    treatIntAsBigInt: connectionOptionsWithTreatIntAsBigInt
+    treatIntAsBigInt: connectionOptionsWithTreatIntAsBigInt,
+    validateDefaultParameters: connectionValidateDefaultParameters
   };

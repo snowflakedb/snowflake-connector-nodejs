@@ -3,13 +3,23 @@
 # Download Artifact
 #
 THIS_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-[[ -z "$DRIVER_NAME" ]] && echo "Set DRIVER_NAME to upload the artifact" && exit 1
-[[ -z "$GIT_BRANCH" ]] && echo "Set GIT_BRANCH to upload the artifact" && exit 1
-[[ -z "$GIT_COMMIT" ]] && echo "Set GIT_COMMIT to upload the artifact" && exit 1
+[[ -z "$DRIVER_NAME" ]] && echo "Set DRIVER_NAME to download the artifact" && exit 1
+[[ -z "$GIT_BRANCH" ]] && echo "Set GIT_BRANCH to download the artifact" && exit 1
+[[ -z "$GIT_COMMIT" ]] && echo "Set GIT_COMMIT to download the artifact" && exit 1
+[[ -z "$WORKSPACE" ]] && echo "Set WORKSPACE to download the artifact" && exit 1
 
-if ! git status; then
-    echo "[ERROR] Must be in the GIT repo directory."
+if [[ -z "$GITHUB_ACTIONS" ]]; then
+    BRANCH=$(basename $GIT_BRANCH)
+    # LATEST_COMMIT=$(aws s3 cp --only-show-errors s3://sfc-jenkins/repository/$DRIVER_NAME/$BRANCH/latest_commit -)
+    echo "aws s3 cp --only-show-errors s3://sfc-jenkins/repository/$DRIVER_NAME/$BRANCH/${GIT_COMMIT}/ $WORKSPACE --recursive"
+    aws s3 cp --only-show-errors s3://sfc-jenkins/repository/$DRIVER_NAME/$BRANCH/${GIT_COMMIT}/ $WORKSPACE --recursive
+elif [[ -e "$WORKSPACE/artifacts/" ]]; then
+    # Linux Container
+    echo "[INFO] cp $WORKSPACE/artifacts/* $WORKSPACE"
+    cp $WORKSPACE/artifacts/* $WORKSPACE
+    ls -l $WORKSPACE
+else
+    echo "[ERROR] No $WORKSPACE/artifacts exists"
+    ls -l $WORKSPACE
+    exit 1
 fi
-TS=$(TZ=UTC git show -s --date='format-local:%Y%m%dT%H%M%S' --format="%cd" $GIT_COMMIT)
-echo "[INFO] aws s3 cp --only-show-errors s3://sfc-jenkins/repository/$DRIVER_NAME/$GIT_BRANCH/${TS}_${GIT_COMMIT}/ . --recursive"
-aws s3 cp --only-show-errors s3://sfc-jenkins/repository/$DRIVER_NAME/$GIT_BRANCH/${TS}_${GIT_COMMIT}/ $HOME --recursive

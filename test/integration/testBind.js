@@ -599,7 +599,7 @@ describe('Test Bind Varible', function ()
       testingFunc(
         'timestamp_ntz',
         [new Date('Thu, 21 Jan 2016 06:32:44 -0800')],
-        [{'COLA': '2016-01-21T14:32:44.000Z'}],
+        [{'COLA': '2016-01-21 14:32:44.000'}],
         done
       );
     });

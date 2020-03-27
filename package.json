@@ -12,7 +12,7 @@
     "debug": "^3.2.6",
     "extend": "^3.0.2",
     "https-proxy-agent": "^3.0.0",
-    "mkdirp": "^0.5.1",
+    "mkdirp": "^1.0.3",
     "moment": "^2.23.0",
     "moment-timezone": "^0.5.15",
     "ocsp": "^1.2.0",

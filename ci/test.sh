@@ -8,7 +8,6 @@ set -o pipefail
 THIS_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 source $THIS_DIR/_init.sh
 source $THIS_DIR/scripts/login_internal_docker.sh
-source $THIS_DIR/scripts/set_test_image.sh
 
 export WORKSPACE=${WORKSPACE:-/tmp}
 export NETWORK_NAME=proxytest

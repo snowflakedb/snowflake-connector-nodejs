@@ -9,8 +9,8 @@ export SOURCE_ROOT=${SOURCE_ROOT:-/mnt/host}
 export DRIVER_NAME=nodejs
 export TIMEOUT=90000
 
-[[ -z "$GIT_BRANCH" ]] && echo "Set GIT_BRANCH to build" && exit 1
-[[ -z "$GIT_URL" ]] && echo "Set GIT_URL to build" && exit 1
+[[ -z "$GIT_BRANCH" ]] && echo "Set GIT_BRANCH to test" && exit 1
+[[ -z "$GIT_URL" ]] && echo "Set GIT_URL to test" && exit 1
 
 source $THIS_DIR/download_artifact.sh
 

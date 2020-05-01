@@ -8,6 +8,7 @@ set -o pipefail
 THIS_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 source $THIS_DIR/_init.sh
 source $THIS_DIR/scripts/login_internal_docker.sh
+source $THIS_DIR/scripts/set_test_image.sh
 
 export WORKSPACE=${WORKSPACE:-/tmp}
 export NETWORK_NAME=proxytest
@@ -37,51 +38,31 @@ echo "[INFO] Starting a proxy node"
 docker pull $PROXY_IMAGE
 docker run --net $NETWORK_NAME --ip $PROXY_IP --add-host snowflake.reg.local:$GATEWAY_HOST --label proxy-node -d $PROXY_IMAGE
 
-declare -A TARGET_TEST_IMAGES
-if [[ -n "$TARGET_DOCKER_TEST_IMAGE" ]]; then
-    echo "[INFO] TARGET_DOCKER_TEST_IMAGE: $TARGET_DOCKER_TEST_IMAGE"
-    IMAGE_NAME=${TEST_IMAGE_NAMES[$TARGET_DOCKER_TEST_IMAGE]}
-    if [[ -z "$IMAGE_NAME" ]]; then
-        echo "[ERROR] The target platform $TARGET_DOCKER_TEST_IMAGE doesn't exist. Check $THIS_DIR/_init.sh"
-        exit 1
-    fi
-    TARGET_TEST_IMAGES=([$TARGET_DOCKER_TEST_IMAGE]=$IMAGE_NAME)
-else
-    echo "[ERROR] Set TARGET_DOCKER_TEST_IMAGE to the docker image name to run the test"
-    for name in "${!TEST_IMAGE_NAMES[@]}"; do
-        echo "  " $name
-    done
-    exit 2
-fi
-
-echo "hello"
-export USERID=$(id -u $(whoami))
-echo "[INFO] USERID=$USERID"
-for name in "${!TARGET_TEST_IMAGES[@]}"; do
-    echo "[INFO] Testing $DRIVER_NAME on $name"
-    docker pull  "${TARGET_TEST_IMAGES[$name]}"
-    docker run \
-        --net $NETWORK_NAME \
-        -v $(cd $THIS_DIR/.. && pwd):/mnt/host \
-        -v $WORKSPACE:/mnt/workspace \
-        --add-host snowflake.reg.local:$GATEWAY_HOST \
-        --add-host testaccount.reg.snowflakecomputing.com:$GATEWAY_HOST \
-        --add-host snowflake.reg.snowflakecomputing.com:$GATEWAY_HOST \
-        --add-host externalaccount.reg.local.snowflakecomputing.com:$GATEWAY_HOST \
-        -e LOCAL_USER_ID=$(id -u $USER) \
-        -e LOCAL_USER_NAME=$USER \
-        -e USERID \
-        -e PROXY_IP \
-        -e PROXY_PORT \
-        -e GIT_COMMIT \
-        -e GIT_BRANCH \
-        -e GIT_URL \
-        -e AWS_ACCESS_KEY_ID \
-        -e AWS_SECRET_ACCESS_KEY \
-        -e GITHUB_ACTIONS \
-        -e GITHUB_SHA \
-        -e RUNNER_TRACKING_ID \
-        "${TARGET_TEST_IMAGES[$name]}" \
-        "/mnt/host/ci/container/test_component.sh"
-    echo "[INFO] Test Results: $WORKSPACE/junit*,xml"
-done
+echo "[INFO] Starting test"
+TARGET_DOCKER_TEST_IMAGE=${TARGET_DOCKER_TEST_IMAGE:-$DRIVER_NAME-centos6-default}
+TEST_IMAGE_NAME="${TEST_IMAGE_NAMES[$TARGET_DOCKER_TEST_IMAGE]}"
+docker pull $TEST_IMAGE_NAME
+docker run \
+    --net $NETWORK_NAME \
+    -v $(cd $THIS_DIR/.. && pwd):/mnt/host \
+    -v $WORKSPACE:/mnt/workspace \
+    --add-host snowflake.reg.local:$GATEWAY_HOST \
+    --add-host testaccount.reg.snowflakecomputing.com:$GATEWAY_HOST \
+    --add-host snowflake.reg.snowflakecomputing.com:$GATEWAY_HOST \
+    --add-host externalaccount.reg.local.snowflakecomputing.com:$GATEWAY_HOST \
+    -e LOCAL_USER_ID=$(id -u $USER) \
+    -e LOCAL_USER_NAME=$USER \
+    -e USERID=$(id -u $(whoami)) \
+    -e PROXY_IP \
+    -e PROXY_PORT \
+    -e GIT_COMMIT \
+    -e GIT_BRANCH \
+    -e GIT_URL \
+    -e AWS_ACCESS_KEY_ID \
+    -e AWS_SECRET_ACCESS_KEY \
+    -e GITHUB_ACTIONS \
+    -e GITHUB_SHA \
+    -e RUNNER_TRACKING_ID \
+    "$TEST_IMAGE_NAME" \
+    "/mnt/host/ci/container/test_component.sh"
+echo "[INFO] Test Results: $WORKSPACE/junit*,xml"

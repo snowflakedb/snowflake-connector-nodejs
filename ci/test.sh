@@ -51,7 +51,6 @@ docker run \
     --add-host externalaccount.reg.local.snowflakecomputing.com:$GATEWAY_HOST \
     -e LOCAL_USER_ID=$(id -u $USER) \
     -e LOCAL_USER_NAME=$USER \
-    -e USERID=$(id -u $(whoami)) \
     -e PROXY_IP \
     -e PROXY_PORT \
     -e GIT_COMMIT \

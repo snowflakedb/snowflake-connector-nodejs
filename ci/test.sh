@@ -54,7 +54,6 @@ else
     exit 2
 fi
 
-echo "hello"
 export USERID=$(id -u $(whoami))
 echo "[INFO] USERID=$USERID"
 for name in "${!TARGET_TEST_IMAGES[@]}"; do

@@ -19,6 +19,11 @@ jobs:
             - name: Build
               shell: bash
               run: ./ci/build.sh
+            - name: WhiteSource Scan
+              shell: bash
+              env:
+                WHITESOURCE_API_KEY: ${{ secrets.WHITESOURCE_API_KEY }}
+              run: ./scripts/wss.sh
             - name: Upload Build Artifact
               uses: actions/upload-artifact@v1
               with:

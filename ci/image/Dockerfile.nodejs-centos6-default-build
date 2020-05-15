@@ -1,9 +1,9 @@
 FROM centos:6.10
 
 # update OS
-RUN yum -y update
-RUN yum -y install epel-release
-RUN yum -y install centos-release-scl
+RUN yum -y update && \
+    yum -y install epel-release && \
+    yum -y install centos-release-scl
 
 # nvm environment variables
 ENV NVM_DIR /usr/local/nvm
@@ -39,10 +39,15 @@ RUN pip install -U awscli
 COPY scripts/aws.sh /usr/local/bin/aws
 RUN chmod a+x /usr/local/bin/aws
 
+# Development tools
+RUN yum -y groupinstall "Development Tools" && \
+    yum -y install zlib-devel
+
 # git
-RUN yum -y install rh-git29
-COPY scripts/git.sh /usr/local/bin/git
-RUN chmod a+x /usr/local/bin/git
+RUN curl -o - https://mirrors.edge.kernel.org/pub/software/scm/git/git-2.26.0.tar.gz | tar xfz - && \
+    cd git-2.26.0 && \
+    ./configure --prefix=/opt/git && make && make install && \
+    ln -s /opt/git/bin/git /usr/local/bin/git
 
 # zstd
 RUN yum -y install zstd
@@ -55,6 +60,9 @@ RUN curl -o /usr/local/bin/gosu -SL "https://github.com/tianon/gosu/releases/dow
 RUN chmod +x /usr/local/bin/gosu
 COPY scripts/entrypoint.sh /usr/local/bin/entrypoint.sh
 RUN chmod +x /usr/local/bin/entrypoint.sh
+
+# Java
+RUN yum -y install java-1.8.0-openjdk-devel
 
 # workspace
 

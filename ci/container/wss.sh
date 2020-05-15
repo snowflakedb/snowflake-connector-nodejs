@@ -3,16 +3,16 @@
 # Run whitesource for NodeJS driver
 #
 set -o pipefail
-
 THIS_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-[[ -z "$WHITESOURCE_API_KEY" ]] && echo "[WARNING] No WHITESOURCE_API_KEY is set. No WhiteSource scan will occurr." && exit 0
+
+[[ -z "$WHITESOURCE_API_KEY" ]] && echo "[WARNING] No WHITESOURCE_API_KEY is set. No WhiteSource scan will occur." && exit 0
 
 export PRODUCT_NAME=NodeJSDriver
 export PROJECT_NAME=NodeJSDriver
 
 DATE=$(date +'%m-%d-%Y')
 
-SCAN_DIRECTORIES=$THIS_DIR/..
+SCAN_DIRECTORIES=$(cd $THIS_DIR/../.. && pwd)
 
 rm -f wss-unified-agent.jar 
 curl -LJO https://github.com/whitesource/unified-agent-distribution/releases/latest/download/wss-unified-agent.jar

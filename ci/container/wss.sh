@@ -2,6 +2,7 @@
 #
 # Run whitesource for NodeJS driver
 #
+set -e
 set -o pipefail
 THIS_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 

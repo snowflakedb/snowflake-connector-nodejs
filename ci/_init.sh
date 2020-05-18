@@ -15,10 +15,10 @@ fi
 export DRIVER_NAME=nodejs
 
 # Build images
-BUILD_IMAGE_VERSION=1
+BUILD_IMAGE_VERSION=2
 
 # Test Images
-TEST_IMAGE_VERSION=1
+TEST_IMAGE_VERSION=2
 
 declare -A BUILD_IMAGE_NAMES=(
     [$DRIVER_NAME-centos6-default]=$DOCKER_REGISTRY_NAME/client-$DRIVER_NAME-centos6-default-build:$BUILD_IMAGE_VERSION

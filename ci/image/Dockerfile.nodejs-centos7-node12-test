@@ -39,10 +39,15 @@ RUN pip install -U awscli
 COPY scripts/aws.sh /usr/local/bin/aws
 RUN chmod a+x /usr/local/bin/aws
 
+# Development tools
+RUN yum -y groupinstall "Development Tools" && \
+    yum -y install zlib-devel
+
 # git
-RUN yum -y install rh-git29
-COPY scripts/git.sh /usr/local/bin/git
-RUN chmod a+x /usr/local/bin/git
+RUN curl -o - https://mirrors.edge.kernel.org/pub/software/scm/git/git-2.26.0.tar.gz | tar xfz - && \
+    cd git-2.26.0 && \
+    ./configure --prefix=/opt/git && make && make install && \
+    ln -s /opt/git/bin/git /usr/local/bin/git
 
 # zstd
 RUN yum -y install zstd

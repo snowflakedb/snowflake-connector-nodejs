@@ -13,11 +13,13 @@ on:
 jobs:
     build:
         name: Build
-        runs-on: ubuntu-16.04
+        runs-on: ubuntu-latest
         steps:
             - uses: actions/checkout@v1
             - name: Build
               shell: bash
+              env:
+                WHITESOURCE_API_KEY: ${{ secrets.WHITESOURCE_API_KEY }}
               run: ./ci/build.sh
             - name: Upload Build Artifact
               uses: actions/upload-artifact@v1
@@ -28,7 +30,7 @@ jobs:
     test-linux:
         needs: build
         name: Tests on Linux
-        runs-on: ubuntu-16.04
+        runs-on: ubuntu-latest
         strategy:
             matrix:
                 image: [ 'nodejs-centos6-default', 'nodejs-centos7-node12', 'nodejs-centos7-fips' ]

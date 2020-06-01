@@ -8,8 +8,8 @@ THIS_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 [[ -z "$WHITESOURCE_API_KEY" ]] && echo "[WARNING] No WHITESOURCE_API_KEY is set. No WhiteSource scan will occur." && exit 0
 
-export PRODUCT_NAME=NodeJSDriver
-export PROJECT_NAME=NodeJSDriver
+export PRODUCT_NAME=snowflake-connector-nodejs
+export PROJECT_NAME=snowflake-connector-nodejs
 
 DATE=$(date +'%m-%d-%Y')
 

@@ -115,7 +115,7 @@ describe('testLoginTokenExpire', function ()
           // the session should refreshed and the sql should succeed
           testUtil.executeCmd(
             connection,
-            'select * from orders limit 10',
+            'select seq8() from table(generator(rowcount=>10))',
             callback
           );
         }

@@ -80,6 +80,9 @@ for name in "${!TARGET_TEST_IMAGES[@]}"; do
         -e AWS_SECRET_ACCESS_KEY \
         -e GITHUB_ACTIONS \
         -e GITHUB_SHA \
+        -e GITHUB_REF \
+        -e GITHUB_HEAD_REF \
+        -e GITHUB_EVENT_NAME \
         -e RUNNER_TRACKING_ID \
         "${TARGET_TEST_IMAGES[$name]}" \
         "/mnt/host/ci/container/test_component.sh"

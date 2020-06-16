@@ -12,6 +12,7 @@ export PRODUCT_NAME=snowflake-connector-nodejs
 export PROD_BRANCH=master
 export PROJECT_VERSION=$GITHUB_SHA
 
+env | grep GITHUB | sort
 if [[ "$GITHUB_EVENT_NAME" == "pull_request" ]]; then
     echo "[INFO] Pull Request"
     IFS="/"

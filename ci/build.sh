@@ -35,7 +35,6 @@ for name in "${!BUILD_IMAGE_NAMES[@]}"; do
         -e GITHUB_ACTIONS \
         -e GITHUB_SHA \
         -e GITHUB_REF \
-        -e GITHUB_HEAD_REF \
         -e GITHUB_EVENT_NAME \
         "${BUILD_IMAGE_NAMES[$name]}" \
         "/mnt/host/ci/container/build_component.sh"

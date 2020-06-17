@@ -10,6 +10,7 @@ THIS_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 export PRODUCT_NAME=snowflake-connector-nodejs
 
 export PROD_BRANCH=master
+export PROD_GIT_REF=refs/heads/$PROD_BRANCH
 export PROJECT_VERSION=$GITHUB_SHA
 
 env | grep GITHUB | sort
@@ -19,9 +20,9 @@ if [[ "$GITHUB_EVENT_NAME" == "pull_request" ]]; then
     read -ra GITHUB_REF_ELEMS <<<"$GITHUB_REF"
     IFS=" "
     export PROJECT_NAME=PR-${GITHUB_REF_ELEMS[2]}
-elif [[ "$GITHUB_HEAD_REF" == "$PROD_BRANCH" ]]; then
+elif [[ "$GITHUB_REF" == "$PROD_GIT_REF" ]]; then
     echo "[INFO] Production branch"
-    export PROJECT_NAME=$GITHUB_HEAD_REF
+    export PROJECT_NAME=$PROD_BRANCH
 else
     echo "[INFO] Non Production branch. Skipping wss..."
     export PROJECT_NAME=

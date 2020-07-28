@@ -20,6 +20,7 @@ var connectionOptionsClientSessionKeepAlive = mockConnectionOptions.clientSessio
 var connectionOptionsForSessionGone = mockConnectionOptions.sessionGone;
 const connectionOptionsFor504 = mockConnectionOptions.http504;
 const connectionOptionsTreatIntegerAsBigInt = mockConnectionOptions.treatIntAsBigInt;
+const connectionOptionsQueryTag = mockConnectionOptions.queryTag;
 
 describe('snowflake.createConnection() synchronous errors', function ()
 {
@@ -1742,6 +1743,39 @@ describe('snowflake.createConnection() JS_TREAT_INTEGER_AS_BIGINT', function ()
         {
           // JS_TREAT_INTEGER_AS_BIGINT is returned.
           assert.equal(true, connection.getJsTreatIntegerAsBigInt());
+          callback();
+        },
+        function (callback)
+        {
+          connection.destroy(function (err)
+          {
+            assert.ok(!err, JSON.stringify(err));
+            callback();
+          })
+        }
+      ],
+      done)
+  });
+});
+
+describe('snowflake.createConnection() QUERY_TAG', function ()
+{
+  it('createConnection() returns connection including QUERY_TAG', function (done)
+  {
+    var connection = snowflake.createConnection(connectionOptionsQueryTag);
+    async.series([
+        function (callback)
+        {
+          connection.connect(function (err)
+          {
+            assert.ok(!err, JSON.stringify(err));
+            callback();
+          });
+        },
+        function (callback)
+        {
+          // QUERY_TAG is returned.
+          assert.equal(true, connection.getQueryTag());
           callback();
         },
         function (callback)

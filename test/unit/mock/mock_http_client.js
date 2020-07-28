@@ -250,6 +250,9 @@ function buildRequestOutputMappings(clientInfo)
                       }, {
                         "name": "JS_TREAT_INTEGER_AS_BIGINT",
                         "value": false
+                      }, {
+                        "name": "QUERY_TAG",
+                        "value": ""
                       }]
                     },
                   "message": null,
@@ -1128,6 +1131,9 @@ function buildRequestOutputMappings(clientInfo)
                       }, {
                         "name": "JS_TREAT_INTEGER_AS_BIGINT",
                         "value": false
+                      }, {
+                        "name": "QUERY_TAG",
+                        "value": ""
                       }]
                     },
                   "message": null,
@@ -1341,6 +1347,9 @@ function buildRequestOutputMappings(clientInfo)
                       }, {
                         "name": "JS_TREAT_INTEGER_AS_BIGINT",
                         "value": false
+                      }, {
+                        "name": "QUERY_TAG",
+                        "value": ""
                       }]
                     },
                   "message": null,
@@ -1371,6 +1380,7 @@ function buildRequestOutputMappings(clientInfo)
                   CLIENT_ENVIRONMENT: clientInfo.environment,
                   SESSION_PARAMETERS: {
                     JS_TREAT_INTEGER_AS_BIGINT: true,
+                    QUERY_TAG: 'testquerytag'
                   }
                 }
             }
@@ -1444,6 +1454,9 @@ function buildRequestOutputMappings(clientInfo)
                       }, {
                         "name": "JS_TREAT_INTEGER_AS_BIGINT",
                         "value": true
+                      }, {
+                        "name": "QUERY_TAG",
+                        "value": ""
                       }]
                     },
                   "message": null,

@@ -13,7 +13,6 @@ describe('testPingPong', function ()
 {
   before(function (done)
   {
-    this.timeout(120000);
     if (!canRunTest)
     {
       done();
@@ -44,7 +43,6 @@ describe('testPingPong', function ()
 
   after(function (done)
   {
-    this.timeout(120000);
     if (!canRunTest)
     {
       done();
@@ -76,7 +74,6 @@ describe('testPingPong', function ()
 
   it("testLongRunning", function (done)
   {
-    this.timeout(120000);
     if (!canRunTest)
     {
       this.skip();

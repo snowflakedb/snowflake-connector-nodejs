@@ -42,5 +42,6 @@
     "email": "support@snowflake.com",
     "url": "https://www.snowflake.com/"
   },
-  "license": "Apache-2.0"
+  "license": "Apache-2.0",
+  "types": "./typings.d.ts"
 }

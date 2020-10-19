@@ -10,6 +10,17 @@ on:
         branches:
             - master
             - prep-**
+    workflow_dispatch:
+        inputs:
+          logLevel:
+            default: warning
+            description: "Log level"
+            required: true
+          tags: 
+            description: "Test scenario tags"
+
+
+
 jobs:
     build:
         name: Build
@@ -101,4 +112,3 @@ jobs:
                 PARAMETERS_SECRET: ${{ secrets.PARAMETERS_SECRET }}
                 CLOUD_PROVIDER: ${{ matrix.cloud }}
               run: ci\\test_windows.bat
-        

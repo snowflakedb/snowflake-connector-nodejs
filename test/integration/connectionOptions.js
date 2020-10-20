@@ -1,6 +1,9 @@
 /*
  * Copyright (c) 2015-2019 Snowflake Computing Inc. All rights reserved.
  */
+const fs = require('fs');
+const crypto = require('crypto');
+
 let snowflakeTestProtocol = process.env.SNOWFLAKE_TEST_PROTOCOL;
 let snowflakeTestHost = process.env.SNOWFLAKE_TEST_HOST;
 let snowflakeTestPort = process.env.SNOWFLAKE_TEST_PORT;
@@ -15,6 +18,9 @@ const snowflakeTestRole = process.env.SNOWFLAKE_TEST_ROLE;
 const snowflakeTestPassword = process.env.SNOWFLAKE_TEST_PASSWORD;
 const snowflakeTestAdminUser = process.env.SNOWFLAKE_TEST_ADMIN_USER;
 const snowflakeTestAdminPassword = process.env.SNOWFLAKE_TEST_ADMIN_PASSWORD;
+const snowflakeTestPrivateKeyUser = process.env.SNOWFLAKE_TEST_PRIVATE_KEY_USER;
+const snowflakeTestPrivateKeyPath = process.env.SNOWFLAKE_TEST_PRIVATE_KEY_PATH;
+const snowflakeTestPrivateKeyPassphrase = process.env.SNOWFLAKE_TEST_PRIVATE_KEY_PASSPHRASE;
 
 if (snowflakeTestProtocol === undefined)
 {
@@ -82,6 +88,30 @@ var wrongPwd =
     account: snowflakeTestAccount
   };
 
+var getPrivateKey = function () {
+  try {
+    const privateKey = fs.readFileSync(snowflakeTestPrivateKeyPath, 'utf-8');
+    const privateKeyPEM = crypto.createPrivateKey({
+      key: privateKey,
+      format: 'pem',
+      passphrase: snowflakeTestPrivateKeyPassphrase,
+    });
+
+    return privateKeyPEM.export({ type: 'pkcs8', format: 'der' });
+  }
+  catch (err) {
+    return 'invalid_private_key';
+  }
+};
+var validKeyPairAuth =
+  {
+    accessUrl: accessUrl,
+    username: snowflakeTestPrivateKeyUser,
+    account: snowflakeTestAccount,
+    privateKey: getPrivateKey(),
+  };
+
+exports.validKeyPairAuth = validKeyPairAuth;
 exports.valid = valid;
 exports.snowflakeAccount = snowflakeAccount;
 exports.wrongUserName = wrongUserName;

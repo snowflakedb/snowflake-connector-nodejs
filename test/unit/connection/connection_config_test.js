@@ -2,9 +2,11 @@
  * Copyright (c) 2015 Snowflake Computing Inc. All rights reserved.
  */
 
-var ConnectionConfig = require('./../../../lib/connection/connection_config');
-var ErrorCodes = require('./../../../lib/errors').codes;
-var assert = require('assert');
+const ConnectionConfig = require('./../../../lib/connection/connection_config');
+const ErrorCodes = require('./../../../lib/errors').codes;
+const assert = require('assert');
+const crypto = require('crypto');
+const GlobalConfig = require('../../../lib/global_config');
 
 describe('ConnectionConfig: basic', function ()
 {
@@ -253,6 +255,16 @@ describe('ConnectionConfig: basic', function ()
             fetchAsString: ['invalid']
           },
         errorCode: ErrorCodes.ERR_CONN_CREATE_INVALID_FETCH_AS_STRING_VALUES
+      },
+      {
+        name: 'invalid privateKey',
+        options:
+          {
+            username: 'username',
+            privateKey: 'invalid',
+            account: 'account',
+          },
+        errorCode: ErrorCodes.ERR_CONN_CREATE_INVALID_PRIVATE_KEY
       }
     ];
 
@@ -507,5 +519,27 @@ describe('ConnectionConfig: basic', function ()
     // verify that the custom value overrode the default value
     assert.strictEqual(
       connectionConfig.getResultPrefetch(), resultPrefetchCustom);
+  });
+
+  it('sets authenticator to key pair if privateKey exists', function () {
+    const keyPair = crypto.generateKeyPairSync('rsa', {
+      modulusLength: 2048,
+      privateKeyEncoding: {
+        type: 'pkcs8',
+        format: 'der'
+      }
+    });
+    const privateKey = keyPair.privateKey;
+
+    const connOption =
+      {
+        username: 'username',
+        account: 'account',
+        privateKey: privateKey,
+      };
+
+    const result = new ConnectionConfig(connOption);
+
+    assert.strictEqual(result.authenticator, GlobalConfig.authenticator.KEY_PAIR);
   });
 });

@@ -1,6 +1,7 @@
 REM 
 REM Tests NodeJS Driver on Windows
 REM
+setlocal
 set TIMEOUT=90000
 python -m venv venv
 call venv\scripts\activate
@@ -9,6 +10,7 @@ pip install -U snowflake-connector-python
 cd %GITHUB_WORKSPACE%
 gpg --quiet --batch --yes --decrypt --passphrase=%PARAMETERS_SECRET% --output parameters.json .github/workflows/parameters_aws.json.gpg
 
+REM DON'T FORGET TO include @echo off here or the password may be leaked!
 echo @echo off>parameters.bat
 jq -r ".testconnection | to_entries | map(\"set \(.key)=\(.value)\") | .[]" parameters.json >> parameters.bat
 call parameters.bat
@@ -18,8 +20,12 @@ if %ERRORLEVEL% NEQ 0 (
 )
 set SNOWFLAKE_TEST_SCHEMA=%RUNNER_TRACKING_ID:-=_%_%GITHUB_SHA%
 
-echo [INFO] Account: %SNOWFLAKE_TEST_ACCOUNT%
-echo [INFO] SCHEMA: %SNOWFLAKE_TEST_SCHEMA%
+echo [INFO] Account:   %SNOWFLAKE_TEST_ACCOUNT%
+echo [INFO] User   :   %SNOWFLAKE_TEST_USER%
+echo [INFO] Database:  %SNOWFLAKE_TEST_DATABASE%
+echo [INFO] Schema:    %SNOWFLAKE_TEST_SCHEMA%
+echo [INFO] Warehouse: %SNOWFLAKE_TEST_WAREHOUSE%
+echo [INFO] Role:      %SNOWFLAKE_TEST_ROLE%
 
 echo [INFO] Creating schema %SNOWFLAKE_TEST_SCHEMA%
 pushd %GITHUB_WORKSPACE%\ci\container

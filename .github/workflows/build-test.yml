@@ -10,6 +10,17 @@ on:
         branches:
             - master
             - prep-**
+    workflow_dispatch:
+        inputs:
+          logLevel:
+            default: warning
+            description: "Log level"
+            required: true
+          tags: 
+            description: "Test scenario tags"
+
+
+
 jobs:
     build:
         name: Build
@@ -89,7 +100,7 @@ jobs:
                 node-version: '12.x'
             - uses: actions/setup-python@v1
               with:
-                python-version: '3.x'
+                python-version: '3.7'
                 architecture: 'x64'
             - name: Download Build Artifacts
               uses: actions/download-artifact@v1
@@ -101,4 +112,3 @@ jobs:
                 PARAMETERS_SECRET: ${{ secrets.PARAMETERS_SECRET }}
                 CLOUD_PROVIDER: ${{ matrix.cloud }}
               run: ci\\test_windows.bat
-        

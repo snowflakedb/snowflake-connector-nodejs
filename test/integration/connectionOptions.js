@@ -18,7 +18,7 @@ const snowflakeTestRole = process.env.SNOWFLAKE_TEST_ROLE;
 const snowflakeTestPassword = process.env.SNOWFLAKE_TEST_PASSWORD;
 const snowflakeTestAdminUser = process.env.SNOWFLAKE_TEST_ADMIN_USER;
 const snowflakeTestAdminPassword = process.env.SNOWFLAKE_TEST_ADMIN_PASSWORD;
-const snowflakeTestPrivateKeyUser = process.env.SNOWFLAKE_TEST_PRIVATE_KEY_USER;
+let snowflakeTestPrivateKeyUser = process.env.SNOWFLAKE_TEST_PRIVATE_KEY_USER;
 const snowflakeTestPrivateKeyPath = process.env.SNOWFLAKE_TEST_PRIVATE_KEY_PATH;
 const snowflakeTestPrivateKeyPassphrase = process.env.SNOWFLAKE_TEST_PRIVATE_KEY_PASSPHRASE;
 
@@ -45,6 +45,11 @@ if (snowflakeTestProxyHost === undefined)
 if (snowflakeTestProxyPort === undefined)
 {
   snowflakeTestProxyPort = '3128';
+}
+
+if (snowflakeTestPrivateKeyUser === undefined)
+{
+  snowflakeTestPrivateKeyUser = snowflakeTestUser;
 }
 
 const accessUrl = snowflakeTestProtocol + '://' + snowflakeTestHost + ':' +

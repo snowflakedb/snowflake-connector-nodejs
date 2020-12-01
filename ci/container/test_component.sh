@@ -7,7 +7,8 @@ THIS_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 export WORKSPACE=${WORKSPACE:-/mnt/workspace}
 export SOURCE_ROOT=${SOURCE_ROOT:-/mnt/host}
 export DRIVER_NAME=nodejs
-export TIMEOUT=120000
+export TIMEOUT=180000
+export SF_OCSP_TEST_OCSP_RESPONDER_TIMEOUT=1000
 
 [[ -z "$GIT_BRANCH" ]] && echo "Set GIT_BRANCH to test" && exit 1
 [[ -z "$GIT_URL" ]] && echo "Set GIT_URL to test" && exit 1

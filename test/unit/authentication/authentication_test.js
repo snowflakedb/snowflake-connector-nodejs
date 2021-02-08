@@ -114,9 +114,7 @@ describe('default authentication', function ()
   assert.strictEqual(
     connection, ret, 'connect() should return the connection');
   });
-
 });
-
 
 describe('external browser authentication', function ()
 {
@@ -148,7 +146,7 @@ describe('external browser authentication', function ()
             data:
             {
               ssoUrl: body['data']['BROWSER_MODE_REDIRECT_PORT'],
-              proofKey: 'mockProofKey'
+              proofKey: mockProofKey
             }
           }
         }
@@ -230,5 +228,4 @@ describe('external browser authentication', function ()
     assert.strictEqual(typeof body['data']['TOKEN'], 'undefined');
     assert.strictEqual(typeof body['data']['PROOF_KEY'], 'undefined');
   });
-
 });

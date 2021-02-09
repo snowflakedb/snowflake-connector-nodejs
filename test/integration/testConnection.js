@@ -133,7 +133,6 @@ describe('Connection test', function ()
   });
 });
 
-
 // Skipped - requires manual interaction to enter credentials on browser
 describe.skip('Connection test - external browser', function ()
 {

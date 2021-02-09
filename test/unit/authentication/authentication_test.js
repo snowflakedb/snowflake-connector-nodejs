@@ -5,120 +5,53 @@
 var snowflake = require('./../../../lib/snowflake');
 
 var assert = require('assert');
-var fs = require('fs');
 var mock = require('mock-require');
 var net = require('net');
-var path = require('path');
 
-var ErrorCodes = require('./../../../lib/constants/gs_errors');
-
+var authenticator = require('./../../../lib/authentication/authentication');
+var auth_default = require('./../../../lib/authentication/auth_default');
 var auth_web = require('./../../../lib/authentication/auth_web');
 var authenticationTypes = require('./../../../lib/authentication/authentication').authenticationTypes;
 
-var obj = JSON.parse(fs.readFileSync(path.resolve(__dirname, "../../parameters.json"), 'utf8'));
-var connectionConfig = obj.testconnection;
+var MockTestUtil = require('./../mock/mock_test_util');
+var assert = require('assert');
 
-var account = connectionConfig.SNOWFLAKE_TEST_ACCOUNT;
-var username = connectionConfig.SNOWFLAKE_TEST_USER;
-var password = connectionConfig.SNOWFLAKE_TEST_PASSWORD;
-var usernameBrowser = connectionConfig.SNOWFLAKE_TEST_BROWSER_USER;
+// get a mock snowflake instance
+var snowflake = MockTestUtil.snowflake;
 
-var defaultConnectionConfig =
-  [
-    {
-      name: 'default',
-      options:
-      {
-        account: account,
-        username: username,
-        password: password,
-      }
-    },
-    {
-      name: 'default - authenticator specified',
-      options:
-      {
-        account: account,
-        username: username,
-        password: password,
-        authenticator: authenticationTypes.DEFAULT_AUTHENTICATOR,
-      }
-    },
-    {
-      name: 'default - wrong password',
-      options:
-      {
-        account: account,
-        username: username,
-        password: '1234',
-      }
-    }
-  ];
-
-var externalConnectionConfig =
-  [
-    {
-      name: 'external browser',
-      options:
-      {
-        account: account,
-        username: usernameBrowser,
-        authenticator: authenticationTypes.EXTERNAL_BROWSER_AUTHENTICATOR
-      }
-    }
-  ];
+// get connection options to connect to this mock snowflake instance
+var mockConnectionOptions = MockTestUtil.connectionOptions;
+var connectionOptions = mockConnectionOptions.default;
+var connectionOptionsDefault = mockConnectionOptions.authenticatorDefault;
+var connectionOptionsExternalBrowser = mockConnectionOptions.authenticatorExternalBrowser;
 
 describe('default authentication', function ()
 {
-  this.timeout(5000);
-  it('default', function (done)
+  it('default - check password', function ()
   {
-    var connection = snowflake.createConnection(defaultConnectionConfig[0].options);
-    var ret = connection.connect(function (err, conn)
-    {
-      done(err);
-    });
+    var auth = new auth_default(connectionOptions.password);
+
+    var body = { data: {} };
+    auth.updateBody(body);
 
     assert.strictEqual(
-      connection, ret, 'connect() should return the connection');
+      body['data']['PASSWORD'], connectionOptions.password, 'Password should be equal');
   });
 
-  it('default - authenticator specified', function (done)
+  it('default - check authenticator', function ()
   {
-    var connection = snowflake.createConnection(defaultConnectionConfig[1].options);
-    var ret = connection.connect(function (err, conn)
-    {
-      done(err);
-    });
+    var body = authenticator.formAuthJSON(connectionOptionsDefault.authenticator,
+      connectionOptionsDefault.account,
+      connectionOptionsDefault.username,
+      {}, {}, {});
 
     assert.strictEqual(
-      connection, ret, 'connect() should return the connection');
-  });
-
-  it('default - incorrect password', function (done)
-  {
-    var connection = snowflake.createConnection(defaultConnectionConfig[2].options);
-    var ret = connection.connect(function (err, conn)
-    {
-      try
-      {
-        assert.equal(err['code'], ErrorCodes.code.INCORRECT_USERNAME_PASSWORD);
-        done();
-      }
-      catch (err)
-      {
-        done(err);
-      }
-    });
-
-  assert.strictEqual(
-    connection, ret, 'connect() should return the connection');
+      body['data']['AUTHENTICATOR'], authenticationTypes.DEFAULT_AUTHENTICATOR, 'Authenticator should be SNOWFLAKE');
   });
 });
 
 describe('external browser authentication', function ()
 {
-  this.timeout(5000);
   var webbrowser;
   var httpclient;
 
@@ -158,23 +91,20 @@ describe('external browser authentication', function ()
     httpclient = require('httpclient');
   });
 
-  // Skipped - requires manual interaction to enter credentials on browser
-  it.skip('external browser', function (done)
+  it('external browser - check authenticator', function ()
   {
-    var connection = snowflake.createConnection(externalConnectionConfig[0].options);
-    var ret = connection.connectAsync(function (err, conn)
-    {
-      done(err);
-    }).then(() =>
-    {
-      assert.strictEqual(
-        connection, ret, 'connect() should return the connection');
-    });
+    var body = authenticator.formAuthJSON(connectionOptionsExternalBrowser.authenticator,
+      connectionOptionsExternalBrowser.account,
+      connectionOptionsExternalBrowser.username,
+      {}, {}, {});
+
+    assert.strictEqual(
+      body['data']['AUTHENTICATOR'], authenticationTypes.EXTERNAL_BROWSER_AUTHENTICATOR, 'Authenticator should be EXTERNALBROWSER');
   });
 
   it('external browser - get success', async function ()
   {
-    var credentials = externalConnectionConfig[0].options;
+    var credentials = connectionOptionsExternalBrowser;
 
     var auth = new auth_web('', '', webbrowser.open, httpclient);
     await auth.authenticate(credentials.authenticator, '', credentials.account, credentials.username);
@@ -217,7 +147,7 @@ describe('external browser authentication', function ()
     webbrowser = require('webbrowser');
     httpclient = require('httpclient');
 
-    var credentials = externalConnectionConfig[0].options;
+    var credentials = connectionOptionsExternalBrowser;
 
     var auth = new auth_web('', '', webbrowser.open, httpclient);
     await auth.authenticate(credentials.authenticator, '', credentials.account, credentials.username);

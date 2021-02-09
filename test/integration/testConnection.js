@@ -77,6 +77,16 @@ describe('Connection test', function ()
     );
   });
 
+  it('Connect using Key Pair', function (done)
+  {
+    var connection = snowflake.createConnection(connOption.validKeyPairAuth);
+    connection.connect(function (err)
+    {
+      assert.ok(!err, JSON.stringify(err));
+      done();
+    });
+  });
+
   it('Wrong Username', function (done)
   {
     var connection = snowflake.createConnection(connOption.wrongUserName);
@@ -98,6 +108,7 @@ describe('Connection test', function ()
       done();
     });
   });
+
   it('Multiple Client', function (done)
   {
     const totalConnections = 10;

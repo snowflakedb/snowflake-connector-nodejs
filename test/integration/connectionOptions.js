@@ -16,6 +16,12 @@ const snowflakeTestPassword = process.env.SNOWFLAKE_TEST_PASSWORD;
 const snowflakeTestAdminUser = process.env.SNOWFLAKE_TEST_ADMIN_USER;
 const snowflakeTestAdminPassword = process.env.SNOWFLAKE_TEST_ADMIN_PASSWORD;
 const snowflakeTestBrowserUser = process.env.SNOWFLAKE_TEST_BROWSER_USER;
+const snowflakeTestPrivateKey = process.env.SNOWFLAKE_TEST_PRIVATE_KEY;
+const snowflakeTestPrivateKeyPath = process.env.SNOWFLAKE_TEST_PRIVATE_KEY_PATH;
+const snowflakeTestPrivateKeyPass = process.env.SNOWFLAKE_TEST_PRIVATE_KEY_PASS;
+const snowflakeTestPrivateKeyPathUnencrypted = process.env.SNOWFLAKE_TEST_PRIVATE_KEY_PATH_UNENCRYPTED;
+const snowflakeTestOauthUser = process.env.SNOWFLAKE_TEST_OAUTH_USER;
+const snowflakeTestToken = process.env.SNOWFLAKE_TEST_OAUTH_TOKEN;
 
 if (snowflakeTestProtocol === undefined)
 {
@@ -103,6 +109,78 @@ var externalBrowserMismatchUser =
   authenticator: 'EXTERNALBROWSER'
 };
 
+var keypairPrivateKey =
+{
+  accessUrl: accessUrl,
+  username: snowflakeTestUser,
+  account: snowflakeTestAccount,
+  warehouse: snowflakeTestWarehouse,
+  database: snowflakeTestDatabase,
+  schema: snowflakeTestSchema,
+  role: snowflakeTestRole,
+  privateKey: snowflakeTestPrivateKey,
+  authenticator: 'SNOWFLAKE_JWT'
+};
+
+var keypairPathEncrypted =
+{
+  accessUrl: accessUrl,
+  username: snowflakeTestUser,
+  account: snowflakeTestAccount,
+  warehouse: snowflakeTestWarehouse,
+  database: snowflakeTestDatabase,
+  schema: snowflakeTestSchema,
+  role: snowflakeTestRole,
+  privateKeyPath: snowflakeTestPrivateKeyPath,
+  privateKeyPass: snowflakeTestPrivateKeyPass,
+  authenticator: 'SNOWFLAKE_JWT'
+};
+
+var keypairPathUnencrypted =
+{
+  accessUrl: accessUrl,
+  username: snowflakeTestUser,
+  account: snowflakeTestAccount,
+  warehouse: snowflakeTestWarehouse,
+  database: snowflakeTestDatabase,
+  schema: snowflakeTestSchema,
+  role: snowflakeTestRole,
+  privateKeyPath: snowflakeTestPrivateKeyPathUnencrypted,
+  authenticator: 'SNOWFLAKE_JWT'
+};
+
+var keypairWrongToken =
+{
+  accessUrl: accessUrl,
+  username: 'node',
+  account: snowflakeTestAccount,
+  privateKey: snowflakeTestPrivateKey,
+  authenticator: 'SNOWFLAKE_JWT'
+};
+
+
+var oauth =
+{
+  accessUrl: accessUrl,
+  username: snowflakeTestOauthUser,
+  account: snowflakeTestAccount,
+  warehouse: snowflakeTestWarehouse,
+  database: snowflakeTestDatabase,
+  schema: snowflakeTestSchema,
+  role: snowflakeTestRole,
+  token: snowflakeTestToken,
+  authenticator: 'OAUTH'
+};
+
+var oauthMismatchUser =
+{
+  accessUrl: accessUrl,
+  username: 'node',
+  account: snowflakeTestAccount,
+  token: snowflakeTestToken,
+  authenticator: 'OAUTH'
+};
+
 exports.valid = valid;
 exports.snowflakeAccount = snowflakeAccount;
 exports.wrongUserName = wrongUserName;
@@ -111,3 +189,9 @@ exports.accessUrl = accessUrl;
 exports.account = snowflakeTestAccount;
 exports.externalBrowser = externalBrowser;
 exports.externalBrowserMismatchUser = externalBrowserMismatchUser;
+exports.keypairPrivateKey = keypairPrivateKey;
+exports.keypairPathEncrypted = keypairPathEncrypted;
+exports.keypairPathUnencrypted = keypairPathUnencrypted;
+exports.keypairWrongToken = keypairWrongToken;
+exports.oauth = oauth;
+exports.oauthMismatchUser = oauthMismatchUser;

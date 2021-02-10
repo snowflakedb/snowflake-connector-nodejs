@@ -2,8 +2,6 @@
  * Copyright (c) 2021 Snowflake Computing Inc. All rights reserved.
  */
 
-var snowflake = require('./../../../lib/snowflake');
-
 var assert = require('assert');
 var mock = require('mock-require');
 var net = require('net');
@@ -11,19 +9,21 @@ var net = require('net');
 var authenticator = require('./../../../lib/authentication/authentication');
 var auth_default = require('./../../../lib/authentication/auth_default');
 var auth_web = require('./../../../lib/authentication/auth_web');
+var auth_keypair = require('./../../../lib/authentication/auth_keypair');
+var auth_oauth = require('./../../../lib/authentication/auth_oauth');
 var authenticationTypes = require('./../../../lib/authentication/authentication').authenticationTypes;
 
 var MockTestUtil = require('./../mock/mock_test_util');
 var assert = require('assert');
 
-// get a mock snowflake instance
-var snowflake = MockTestUtil.snowflake;
-
 // get connection options to connect to this mock snowflake instance
 var mockConnectionOptions = MockTestUtil.connectionOptions;
 var connectionOptions = mockConnectionOptions.default;
-var connectionOptionsDefault = mockConnectionOptions.authenticatorDefault;
-var connectionOptionsExternalBrowser = mockConnectionOptions.authenticatorExternalBrowser;
+var connectionOptionsDefault = mockConnectionOptions.authDefault;
+var connectionOptionsExternalBrowser = mockConnectionOptions.authExternalBrowser;
+var connectionOptionsKeyPair = mockConnectionOptions.authKeyPair;
+var connectionOptionsKeyPairPath = mockConnectionOptions.authKeyPairPath;
+var connectionOptionsOauth = mockConnectionOptions.authOauth;
 
 describe('default authentication', function ()
 {
@@ -91,17 +91,6 @@ describe('external browser authentication', function ()
     httpclient = require('httpclient');
   });
 
-  it('external browser - check authenticator', function ()
-  {
-    var body = authenticator.formAuthJSON(connectionOptionsExternalBrowser.authenticator,
-      connectionOptionsExternalBrowser.account,
-      connectionOptionsExternalBrowser.username,
-      {}, {}, {});
-
-    assert.strictEqual(
-      body['data']['AUTHENTICATOR'], authenticationTypes.EXTERNAL_BROWSER_AUTHENTICATOR, 'Authenticator should be EXTERNALBROWSER');
-  });
-
   it('external browser - get success', async function ()
   {
     var credentials = connectionOptionsExternalBrowser;
@@ -157,5 +146,186 @@ describe('external browser authentication', function ()
 
     assert.strictEqual(typeof body['data']['TOKEN'], 'undefined');
     assert.strictEqual(typeof body['data']['PROOF_KEY'], 'undefined');
+  });
+
+  it('external browser - check authenticator', function ()
+  {
+    var body = authenticator.formAuthJSON(connectionOptionsExternalBrowser.authenticator,
+      connectionOptionsExternalBrowser.account,
+      connectionOptionsExternalBrowser.username,
+      {}, {}, {});
+
+    assert.strictEqual(
+      body['data']['AUTHENTICATOR'], authenticationTypes.EXTERNAL_BROWSER_AUTHENTICATOR, 'Authenticator should be EXTERNALBROWSER');
+  });
+});
+
+describe('key-pair authentication', function ()
+{
+  var cryptomod;
+  var jwtmod;
+  var filesystem;
+
+  var mockToken = 'mockToken';
+  var mockPrivateKeyFile = 'mockPrivateKeyFile';
+  var mockPublicKeyObj = 'mockPublicKeyObj';
+
+  before(function ()
+  {
+    mock('cryptomod', {
+      createPrivateKey: function (options)
+      {
+        assert.strictEqual(options.key, mockPrivateKeyFile);
+
+        if (options.passphrase)
+        {
+          assert.strictEqual(options.passphrase, connectionOptionsKeyPairPath.privateKeyPass);
+        }
+
+        function privKeyObject()
+        {
+          this.export = function ()
+          {
+            return connectionOptionsKeyPair.privateKey;
+          }
+        }
+
+        return new privKeyObject;
+      },
+      createPublicKey: function (options)
+      {
+        assert.strictEqual(options.key, connectionOptionsKeyPair.privateKey);
+
+        function pubKeyObject()
+        {
+          this.export = function ()
+          {
+            return mockPublicKeyObj;
+          }
+        }
+
+        return new pubKeyObject;
+      },
+      createHash: function ()
+      {
+        function createHash()
+        {
+          this.update = function (publicKeyObj)
+          {
+            function update()
+            {
+              assert.strictEqual(publicKeyObj, mockPublicKeyObj);
+              this.digest = function () {}
+            }
+            return new update;
+          }
+        }
+        return new createHash;
+      }
+    });
+    mock('jwtmod', {
+      sign: function (payload, privateKey, algorithm)
+      {
+        return mockToken;
+      }
+    });
+    mock('filesystem', {
+      readFileSync: function (path)
+      {
+        return mockPrivateKeyFile;
+      }
+    });
+
+    cryptomod = require('cryptomod');
+    jwtmod = require('jwtmod');
+    filesystem = require('filesystem');
+  });
+
+  it('key-pair - get token with private key', function ()
+  {
+    var auth = new auth_keypair(connectionOptionsKeyPair.privateKey,
+      connectionOptionsKeyPair.privateKeyPath,
+      connectionOptionsKeyPair.privateKeyPass,
+      cryptomod, jwtmod, filesystem);
+
+    auth.authenticate(connectionOptionsKeyPair.authenticator, '', connectionOptionsKeyPair.account, connectionOptionsKeyPair.username);
+
+    var body = { data: {} };
+    auth.updateBody(body);
+
+    assert.strictEqual(
+      body['data']['TOKEN'], mockToken, 'Token should be equal');
+  });
+
+  it('key-pair - get token with private key path with passphrase', function ()
+  {
+    var auth = new auth_keypair(connectionOptionsKeyPairPath.privateKey,
+      connectionOptionsKeyPairPath.privateKeyPath,
+      connectionOptionsKeyPairPath.privateKeyPass,
+      cryptomod, jwtmod, filesystem);
+
+    auth.authenticate(connectionOptionsKeyPairPath.authenticator, '',
+      connectionOptionsKeyPairPath.account,
+      connectionOptionsKeyPairPath.username);
+
+    var body = { data: {} };
+    auth.updateBody(body);
+
+    assert.strictEqual(
+      body['data']['TOKEN'], mockToken, 'Token should be equal');
+  });
+
+  it('key-pair - get token with private key path without passphrase', function ()
+  {
+    var auth = new auth_keypair(connectionOptionsKeyPairPath.privateKey,
+      connectionOptionsKeyPairPath.privateKeyPath,
+      '',
+      cryptomod, jwtmod, filesystem);
+
+    auth.authenticate(connectionOptionsKeyPairPath.authenticator, '',
+      connectionOptionsKeyPairPath.account,
+      connectionOptionsKeyPairPath.username);
+
+    var body = { data: {} };
+    auth.updateBody(body);
+
+    assert.strictEqual(
+      body['data']['TOKEN'], mockToken, 'Token should be equal');
+  });
+
+  it('key-pair - check authenticator', function ()
+  {
+    var body = authenticator.formAuthJSON(connectionOptionsKeyPair.authenticator,
+      connectionOptionsKeyPair.account,
+      connectionOptionsKeyPair.username,
+      {}, {}, {});
+
+    assert.strictEqual(
+      body['data']['AUTHENTICATOR'], authenticationTypes.KEY_PAIR_AUTHENTICATOR, 'Authenticator should be SNOWFLAKE_JWT');
+  });
+});
+
+describe('oauth authentication', function ()
+{
+  it('oauth - check token', function ()
+  {
+    var auth = new auth_oauth(connectionOptionsOauth.token);
+
+    var body = { data: {} };
+    auth.updateBody(body);
+
+    assert.strictEqual(
+      body['data']['TOKEN'], connectionOptionsOauth.token, 'Token should be equal');
+  });
+
+  it('oauth - check authenticator', function ()
+  {
+    var body = authenticator.formAuthJSON(connectionOptionsOauth.authenticator,
+      connectionOptionsOauth.account,
+      connectionOptionsOauth.username,
+      {}, {}, {});
+
+    assert.strictEqual(
+      body['data']['AUTHENTICATOR'], authenticationTypes.OAUTH_AUTHENTICATOR, 'Authenticator should be OAUTH');
   });
 });

@@ -192,3 +192,190 @@ describe.skip('Connection test - external browser', function ()
     })
   });
 });
+
+describe('Connection test - keypair', function ()
+{
+  it('Simple Connect - specify private key', function (done)
+  {
+    var connection = snowflake.createConnection(connOption.keypairPrivateKey);
+
+    async.series([
+      function (callback)
+      {
+        connection.connect(function (err)
+        {
+          done(err);
+          assert.ok(!err, JSON.stringify(err));
+          callback();
+        });
+      },
+      function (callback)
+      {
+        assert.ok(connection.isUp(), "not active");
+        callback();
+      },
+      function (callback)
+      {
+        connection.destroy(function (err)
+        {
+          assert.ok(!err, JSON.stringify(err));
+          callback();
+        });
+      },
+      function (callback)
+      {
+        assert.ok(!connection.isUp(), "still active");
+        callback();
+      },
+    ],
+    );
+  });
+
+  it.skip('Simple Connect - specify encrypted private key path and passphrase', function (done)
+  {
+    var connection = snowflake.createConnection(connOption.keypairPathEncrypted);
+
+    async.series([
+      function (callback)
+      {
+        connection.connect(function (err)
+        {
+          done(err);
+          assert.ok(!err, JSON.stringify(err));
+          callback();
+        });
+      },
+      function (callback)
+      {
+        assert.ok(connection.isUp(), "not active");
+        callback();
+      },
+      function (callback)
+      {
+        connection.destroy(function (err)
+        {
+          assert.ok(!err, JSON.stringify(err));
+          callback();
+        });
+      },
+      function (callback)
+      {
+        assert.ok(!connection.isUp(), "still active");
+        callback();
+      },
+    ],
+    );
+  });
+
+  it.skip('Simple Connect - specify unencrypted private key path without passphrase', function (done)
+  {
+    var connection = snowflake.createConnection(connOption.keypairPathEncrypted);
+
+    async.series([
+      function (callback)
+      {
+        connection.connect(function (err)
+        {
+          done(err);
+          assert.ok(!err, JSON.stringify(err));
+          callback();
+        });
+      },
+      function (callback)
+      {
+        assert.ok(connection.isUp(), "not active");
+        callback();
+      },
+      function (callback)
+      {
+        connection.destroy(function (err)
+        {
+          assert.ok(!err, JSON.stringify(err));
+          callback();
+        });
+      },
+      function (callback)
+      {
+        assert.ok(!connection.isUp(), "still active");
+        callback();
+      },
+    ],
+    );
+  });
+
+  it('Wrong JWT token', function (done)
+  {
+    var connection = snowflake.createConnection(connOption.keypairWrongToken);
+    connection.connect(function (err)
+    {
+      try
+      {
+        assert.ok(err, 'Incorrect JWT token is passed.');
+        assert.equal('JWT token is invalid.', err["message"]);
+        done();
+      }
+      catch (err)
+      {
+        done(err);
+      }
+    })
+  });
+});
+
+// Skipped - requires manual interaction to obtain oauth token
+describe.skip('Connection test - oauth', function ()
+{
+  it('Simple Connect', function (done)
+  {
+    var connection = snowflake.createConnection(connOption.oauth);
+
+    async.series([
+      function (callback)
+      {
+        connection.connect(function (err)
+        {
+          done(err);
+          assert.ok(!err, JSON.stringify(err));
+          callback();
+        });
+      },
+      function (callback)
+      {
+        assert.ok(connection.isUp(), "not active");
+        callback();
+      },
+      function (callback)
+      {
+        connection.destroy(function (err)
+        {
+          assert.ok(!err, JSON.stringify(err));
+          callback();
+        });
+      },
+      function (callback)
+      {
+        assert.ok(!connection.isUp(), "still active");
+        callback();
+      },
+    ],
+    );
+  });
+
+  it('Mismatched Username', function (done)
+  {
+    var connection = snowflake.createConnection(connOption.oauthMismatchUser);
+    connection.connect(function (err)
+    {
+      try
+      {
+        assert.ok(err, 'Logged in with different user than one on connection string');
+        assert.equal('The user you were trying to authenticate as differs from the user tied to the access token.', err["message"]);
+        done();
+      }
+      catch (err)
+      {
+        done(err);
+      }
+    })
+  });
+});

@@ -96,6 +96,34 @@ var connectionOptionsExternalBrowser =
   authenticator: 'EXTERNALBROWSER'
 };
 
+var connectionOptionsKeyPair =
+{
+  accessUrl: 'http://fakeaccount.snowflakecomputing.com',
+  username: 'fakeusername',
+  account: 'fakeaccount',
+  privateKey: 'fakeprivatekey',
+  authenticator: 'SNOWFLAKE_JWT'
+};
+
+var connectionOptionsKeyPairPath =
+{
+  accessUrl: 'http://fakeaccount.snowflakecomputing.com',
+  username: 'fakeusername',
+  account: 'fakeaccount',
+  privateKeyPath: 'fakeprivatekeypath',
+  privateKeyPass: 'fakeprivatekeypass',
+  authenticator: 'SNOWFLAKE_JWT'
+};
+
+var connectionOptionsOauth =
+{
+  accessUrl: 'http://fakeaccount.snowflakecomputing.com',
+  username: 'fakeusername',
+  account: 'fakeaccount',
+  token: 'faketoken',
+  authenticator: 'OAUTH'
+};
+
 exports.connectionOptions =
   {
     default: connectionOptions,
@@ -105,6 +133,9 @@ exports.connectionOptions =
     sessionGone: connectionOptionsForSessionGone,
     http504: connectionOptions504,
     treatIntAsBigInt: connectionOptionsWithTreatIntAsBigInt,
-    authenticatorDefault: connectionOptionsDefault,
-    authenticatorExternalBrowser: connectionOptionsExternalBrowser
+    authDefault: connectionOptionsDefault,
+    authExternalBrowser: connectionOptionsExternalBrowser,
+    authKeyPair: connectionOptionsKeyPair,
+    authKeyPairPath: connectionOptionsKeyPairPath,
+    authOauth: connectionOptionsOauth
   };

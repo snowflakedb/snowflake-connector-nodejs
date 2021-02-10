@@ -172,6 +172,7 @@ function buildRequestOutputMappings(clientInfo)
               data:
                 {
                   ACCOUNT_NAME: 'fakeaccount',
+                  AUTHENTICATOR: "SNOWFLAKE",
                   LOGIN_NAME: 'fakeusername',
                   PASSWORD: 'fakepassword',
                   CLIENT_APP_ID: 'JavaScript',
@@ -1047,6 +1048,7 @@ function buildRequestOutputMappings(clientInfo)
               data:
                 {
                   ACCOUNT_NAME: 'fakeaccount',
+                  AUTHENTICATOR: "SNOWFLAKE",
                   LOGIN_NAME: 'fakeuserservicename',
                   PASSWORD: 'fakepassword',
                   CLIENT_APP_ID: 'JavaScript',
@@ -1260,6 +1262,7 @@ function buildRequestOutputMappings(clientInfo)
               data:
                 {
                   ACCOUNT_NAME: 'fakeaccount',
+                  AUTHENTICATOR: "SNOWFLAKE",
                   LOGIN_NAME: 'fakeusername',
                   PASSWORD: 'fakepassword',
                   CLIENT_APP_ID: 'JavaScript',
@@ -1364,6 +1367,7 @@ function buildRequestOutputMappings(clientInfo)
               data:
                 {
                   ACCOUNT_NAME: 'fakeaccount',
+                  AUTHENTICATOR: "SNOWFLAKE",
                   LOGIN_NAME: 'fakeusername',
                   PASSWORD: 'fakepassword',
                   CLIENT_APP_ID: 'JavaScript',
@@ -1468,6 +1472,7 @@ function buildRequestOutputMappings(clientInfo)
               data:
                 {
                   ACCOUNT_NAME: 'fakeaccount',
+                  AUTHENTICATOR: "SNOWFLAKE",
                   LOGIN_NAME: 'fakesessiongone',
                   PASSWORD: 'fakepassword',
                   CLIENT_APP_ID: 'JavaScript',
@@ -1553,6 +1558,7 @@ function buildRequestOutputMappings(clientInfo)
               data:
                 {
                   ACCOUNT_NAME: 'fake504',
+                  AUTHENTICATOR: "SNOWFLAKE",
                   LOGIN_NAME: 'fake504user',
                   PASSWORD: 'fakepassword',
                   CLIENT_APP_ID: 'JavaScript',
@@ -1588,6 +1594,7 @@ function buildRequestOutputMappings(clientInfo)
               data:
                 {
                   ACCOUNT_NAME: 'fake504',
+                  AUTHENTICATOR: "SNOWFLAKE",
                   LOGIN_NAME: 'fake504user',
                   PASSWORD: 'fakepassword',
                   CLIENT_APP_ID: 'JavaScript',
@@ -1623,6 +1630,7 @@ function buildRequestOutputMappings(clientInfo)
               data:
                 {
                   ACCOUNT_NAME: 'fake504',
+                  AUTHENTICATOR: "SNOWFLAKE",
                   LOGIN_NAME: 'fake504user',
                   PASSWORD: 'fakepassword',
                   CLIENT_APP_ID: 'JavaScript',

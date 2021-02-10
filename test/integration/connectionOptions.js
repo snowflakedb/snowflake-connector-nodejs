@@ -15,6 +15,7 @@ const snowflakeTestRole = process.env.SNOWFLAKE_TEST_ROLE;
 const snowflakeTestPassword = process.env.SNOWFLAKE_TEST_PASSWORD;
 const snowflakeTestAdminUser = process.env.SNOWFLAKE_TEST_ADMIN_USER;
 const snowflakeTestAdminPassword = process.env.SNOWFLAKE_TEST_ADMIN_PASSWORD;
+const snowflakeTestBrowserUser = process.env.SNOWFLAKE_TEST_BROWSER_USER;
 
 if (snowflakeTestProtocol === undefined)
 {
@@ -82,9 +83,31 @@ var wrongPwd =
     account: snowflakeTestAccount
   };
 
+var externalBrowser =
+{
+  accessUrl: accessUrl,
+  username: snowflakeTestBrowserUser,
+  account: snowflakeTestAccount,
+  warehouse: snowflakeTestWarehouse,
+  database: snowflakeTestDatabase,
+  schema: snowflakeTestSchema,
+  role: snowflakeTestRole,
+  authenticator: 'EXTERNALBROWSER'
+};
+
+var externalBrowserMismatchUser =
+{
+  accessUrl: accessUrl,
+  username: 'node',
+  account: snowflakeTestAccount,
+  authenticator: 'EXTERNALBROWSER'
+};
+
 exports.valid = valid;
 exports.snowflakeAccount = snowflakeAccount;
 exports.wrongUserName = wrongUserName;
 exports.wrongPwd = wrongPwd;
 exports.accessUrl = accessUrl;
 exports.account = snowflakeTestAccount;
+exports.externalBrowser = externalBrowser;
+exports.externalBrowserMismatchUser = externalBrowserMismatchUser;

@@ -193,7 +193,7 @@ describe.skip('Connection test - external browser', function ()
   });
 });
 
-describe('Connection test - keypair', function ()
+describe.skip('Connection test - keypair', function ()
 {
   it('Simple Connect - specify private key', function (done)
   {

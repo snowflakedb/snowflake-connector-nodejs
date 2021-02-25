@@ -253,6 +253,54 @@ describe('ConnectionConfig: basic', function ()
             fetchAsString: ['invalid']
           },
         errorCode: ErrorCodes.ERR_CONN_CREATE_INVALID_FETCH_AS_STRING_VALUES
+      },
+      {
+        name: 'invalid private key value',
+        options:
+        {
+          username: 'username',
+          password: 'password',
+          account: 'account',
+          privateKey: 'abcd',
+          authenticator: 'SNOWFLAKE_JWT'
+        },
+        errorCode: ErrorCodes.ERR_CONN_CREATE_INVALID_PRIVATE_KEY
+      },
+      {
+        name: 'invalid private key path',
+        options:
+        {
+          username: 'username',
+          password: 'password',
+          account: 'account',
+          privateKeyPath: 1234,
+          authenticator: 'SNOWFLAKE_JWT'
+        },
+        errorCode: ErrorCodes.ERR_CONN_CREATE_INVALID_PRIVATE_KEY_PATH
+      },
+      {
+        name: 'invalid private key pass',
+        options:
+        {
+          username: 'username',
+          password: 'password',
+          account: 'account',
+          privateKeyPass: 1234,
+          authenticator: 'SNOWFLAKE_JWT'
+        },
+        errorCode: ErrorCodes.ERR_CONN_CREATE_INVALID_PRIVATE_KEY_PASS
+      },
+      {
+        name: 'invalid oauth token',
+        options:
+        {
+          username: 'username',
+          password: 'password',
+          account: 'account',
+          token: 1234,
+          authenticator: 'OAUTH'
+        },
+        errorCode: ErrorCodes.ERR_CONN_CREATE_INVALID_OAUTH_TOKEN
       }
     ];
 

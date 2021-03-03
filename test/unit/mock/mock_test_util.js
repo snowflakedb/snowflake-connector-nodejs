@@ -124,6 +124,16 @@ var connectionOptionsOauth =
   authenticator: 'OAUTH'
 };
 
+var connectionOptionsOkta =
+{
+  accessUrl: 'http://fakeaccount.snowflakecomputing.com',
+  username: 'fakeusername',
+  account: 'fakeaccount',
+  token: 'faketoken',
+  rawSamlResponse: '<form action="https://fakeaccount.snowflakecomputing.com/fed/login">',
+  authenticator: 'https://dev-12345678.okta.com/'
+};
+
 exports.connectionOptions =
   {
     default: connectionOptions,
@@ -137,5 +147,6 @@ exports.connectionOptions =
     authExternalBrowser: connectionOptionsExternalBrowser,
     authKeyPair: connectionOptionsKeyPair,
     authKeyPairPath: connectionOptionsKeyPairPath,
-    authOauth: connectionOptionsOauth
+    authOauth: connectionOptionsOauth,
+    authOkta: connectionOptionsOkta
   };

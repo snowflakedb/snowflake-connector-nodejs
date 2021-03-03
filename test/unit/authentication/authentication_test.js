@@ -11,6 +11,7 @@ var auth_default = require('./../../../lib/authentication/auth_default');
 var auth_web = require('./../../../lib/authentication/auth_web');
 var auth_keypair = require('./../../../lib/authentication/auth_keypair');
 var auth_oauth = require('./../../../lib/authentication/auth_oauth');
+var auth_okta = require('./../../../lib/authentication/auth_okta');
 var authenticationTypes = require('./../../../lib/authentication/authentication').authenticationTypes;
 
 var MockTestUtil = require('./../mock/mock_test_util');
@@ -24,6 +25,7 @@ var connectionOptionsExternalBrowser = mockConnectionOptions.authExternalBrowser
 var connectionOptionsKeyPair = mockConnectionOptions.authKeyPair;
 var connectionOptionsKeyPairPath = mockConnectionOptions.authKeyPairPath;
 var connectionOptionsOauth = mockConnectionOptions.authOauth;
+var connectionOptionsOkta = mockConnectionOptions.authOkta;
 
 describe('default authentication', function ()
 {
@@ -327,5 +329,182 @@ describe('oauth authentication', function ()
 
     assert.strictEqual(
       body['data']['AUTHENTICATOR'], authenticationTypes.OAUTH_AUTHENTICATOR, 'Authenticator should be OAUTH');
+  });
+});
+
+
+describe('okta authentication', function ()
+{
+  var httpclient;
+
+  var mockssoUrl = connectionOptionsOkta.authenticator;
+  var mockTokenUrl = connectionOptionsOkta.authenticator;
+  var mockCookieToken = 'mockCookieToken';
+
+  var mockSamlResponse = '<form action="https://' + connectionOptionsOkta.account + '.snowflakecomputing.com/fed/login">';
+
+  before(function ()
+  {
+    mock('httpclient', {
+      post: async function (url, body, header)
+      {
+        var json;
+        if (url.startsWith('https://' + connectionOptionsOkta.account))
+        {
+          json =
+          {
+            data: {
+              data:
+              {
+                ssoUrl: mockssoUrl,
+                tokenUrl: mockTokenUrl
+              }
+            }
+          }
+        }
+        if (url === mockTokenUrl)
+        {
+          json =
+          {
+            data: mockCookieToken
+          }
+        }
+        return json;
+      },
+      get: async function (url, body, header)
+      {
+        var json =
+        {
+          data: mockSamlResponse
+        }
+        return json;
+      }
+    });
+
+    httpclient = require('httpclient');
+  });
+
+  it('okta - SAML response success', async function ()
+  {
+    var auth = new auth_okta(connectionOptionsOkta.password,
+      connectionOptionsOkta.region,
+      connectionOptionsOkta.account,
+      httpclient);
+
+    await auth.authenticate(connectionOptionsOkta.authenticator, '', connectionOptionsOkta.account, connectionOptionsOkta.username);
+
+    var body = { data: {} };
+    auth.updateBody(body);
+
+    assert.strictEqual(
+      body['data']['RAW_SAML_RESPONSE'], connectionOptionsOkta.rawSamlResponse, 'SAML response should be equal');
+  });
+
+  it('okta - SAML response fail prefix', async function ()
+  {
+    mock('httpclient', {
+      post: async function (url, body, header)
+      {
+        var json;
+        if (url.startsWith('https://' + connectionOptionsOkta.account))
+        {
+          json =
+          {
+            data: {
+              data:
+              {
+                ssoUrl: mockssoUrl,
+                tokenUrl: 'abcd'
+              }
+            }
+          }
+        }
+        return json;
+      }
+    });
+
+    httpclient = require('httpclient');
+
+    var auth = new auth_okta(connectionOptionsOkta.password,
+      connectionOptionsOkta.region,
+      connectionOptionsOkta.account,
+      httpclient);
+
+    try
+    {
+      await auth.authenticate(connectionOptionsOkta.authenticator, '', connectionOptionsOkta.account, connectionOptionsOkta.username);
+    }
+    catch (err)
+    {
+      assert.strictEqual(err.message, "The prefix of the SSO/token URL and the specified authenticator do not match.");
+    }
+  });
+
+
+  it('okta - SAML response fail postback', async function ()
+  {
+    mock('httpclient', {
+      post: async function (url, body, header)
+      {
+        var json;
+        if (url.startsWith('https://' + connectionOptionsOkta.account))
+        {
+          json =
+          {
+            data: {
+              data:
+              {
+                ssoUrl: mockssoUrl,
+                tokenUrl: mockTokenUrl
+              }
+            }
+          }
+        }
+        if (url === mockTokenUrl)
+        {
+          json =
+          {
+            data: mockCookieToken
+          }
+        }
+        return json;
+      },
+      get: async function (url, body, header)
+      {
+        var json =
+        {
+          data: 'abcd'
+        }
+        return json;
+      }
+    });
+
+    httpclient = require('httpclient');
+
+    var auth = new auth_okta(connectionOptionsOkta.password,
+      connectionOptionsOkta.region,
+      connectionOptionsOkta.account,
+      httpclient);
+
+    try
+    {
+      await auth.authenticate(connectionOptionsOkta.authenticator, '', connectionOptionsOkta.account, connectionOptionsOkta.username);
+    }
+    catch (err)
+    {
+      assert.strictEqual(err.message,
+        "The specified authenticator and destination URL in the SAML assertion do not match: expected: https://fakeaccount.snowflakecomputing.com:443 postback: abcd");
+    }
+  });
+
+  it('okta - check authenticator', function ()
+  {
+    var body = authenticator.formAuthJSON(connectionOptionsOkta.authenticator,
+      connectionOptionsOkta.account,
+      connectionOptionsOkta.username,
+      {}, {}, {});
+
+    assert.strictEqual(
+      body['data']['AUTHENTICATOR'], 'https://dev-12345678.okta.com/' , 'Authenticator should be OAUTH');
   });
 });

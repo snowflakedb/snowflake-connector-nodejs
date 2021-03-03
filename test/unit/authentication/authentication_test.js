@@ -332,7 +332,6 @@ describe('oauth authentication', function ()
   });
 });
 
-
 describe('okta authentication', function ()
 {
   var httpclient;
@@ -340,6 +339,7 @@ describe('okta authentication', function ()
   var mockssoUrl = connectionOptionsOkta.authenticator;
   var mockTokenUrl = connectionOptionsOkta.authenticator;
   var mockCookieToken = 'mockCookieToken';
+  var mockUrl = 'mockUrl';
 
   var mockSamlResponse = '<form action="https://' + connectionOptionsOkta.account + '.snowflakecomputing.com/fed/login">';
 
@@ -440,7 +440,6 @@ describe('okta authentication', function ()
     }
   });
 
-
   it('okta - SAML response fail postback', async function ()
   {
     mock('httpclient', {
@@ -473,7 +472,7 @@ describe('okta authentication', function ()
       {
         var json =
         {
-          data: 'abcd'
+          data: mockUrl
         }
         return json;
       }
@@ -493,7 +492,8 @@ describe('okta authentication', function ()
     catch (err)
     {
       assert.strictEqual(err.message,
-        "The specified authenticator and destination URL in the SAML assertion do not match: expected: https://fakeaccount.snowflakecomputing.com:443 postback: abcd");
+        "The specified authenticator and destination URL in the SAML assertion do not match: expected: https://" +
+        connectionOptionsOkta.account + ".snowflakecomputing.com:443 postback: " + mockUrl);
     }
   });
 

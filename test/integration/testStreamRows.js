@@ -5,7 +5,7 @@ var assert = require('assert');
 var testUtil = require('./testUtil');
 require('events').EventEmitter.prototype._maxListeners = 100;
 
-describe('Test Steam Rows API', function ()
+describe('Test Stream Rows API', function ()
 {
   var connection;
 
@@ -315,9 +315,12 @@ describe('Test Steam Rows API', function ()
   });
 
   it('testLargeResultSet', function (done) {
+    // The test should finish in around 10min
+    this.timeout(600000);
     var expectedRowCount = 100000000;
     connection.execute({
       sqlText: 'select randstr(10, random()) from table(generator(rowcount=>' + expectedRowCount + '))',
+      streamResult: true,
       complete: function (err, stmt) {
         testUtil.checkError(err);
         var rowCount = 0;

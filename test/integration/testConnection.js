@@ -380,7 +380,7 @@ describe.skip('Connection test - oauth', function ()
   });
 });
 
-describe('Connection test - okta', function ()
+describe.skip('Connection test - okta', function ()
 {
   it('Simple Connect', function (done)
   {

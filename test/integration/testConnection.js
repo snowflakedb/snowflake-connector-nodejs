@@ -379,3 +379,42 @@ describe.skip('Connection test - oauth', function ()
     })
   });
 });
+
+describe.skip('Connection test - okta', function ()
+{
+  it('Simple Connect', function (done)
+  {
+    var connection = snowflake.createConnection(connOption.okta);
+
+    async.series([
+      function (callback)
+      {
+        connection.connectAsync(function (err)
+        {
+          done(err);
+          assert.ok(!err, JSON.stringify(err));
+          callback();
+        });
+      },
+      function (callback)
+      {
+        assert.ok(connection.isUp(), "not active");
+        callback();
+      },
+      function (callback)
+      {
+        connection.destroy(function (err)
+        {
+          assert.ok(!err, JSON.stringify(err));
+          callback();
+        });
+      },
+      function (callback)
+      {
+        assert.ok(!connection.isUp(), "still active");
+        callback();
+      },
+    ],
+    );
+  });
+});

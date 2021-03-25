@@ -97,7 +97,7 @@ describe('external browser authentication', function ()
   {
     var credentials = connectionOptionsExternalBrowser;
 
-    var auth = new auth_web('', '', webbrowser.open, httpclient);
+    var auth = new auth_web('', webbrowser.open, httpclient);
     await auth.authenticate(credentials.authenticator, '', credentials.account, credentials.username);
 
     var body = { data: {} };
@@ -140,7 +140,7 @@ describe('external browser authentication', function ()
 
     var credentials = connectionOptionsExternalBrowser;
 
-    var auth = new auth_web('', '', webbrowser.open, httpclient);
+    var auth = new auth_web('', webbrowser.open, httpclient);
     await auth.authenticate(credentials.authenticator, '', credentials.account, credentials.username);
 
     var body = { data: {} };

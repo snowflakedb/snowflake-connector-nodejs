@@ -42,7 +42,7 @@ Test
 Prepare for Test
 ----------------------------------------------------------------------
 
-Set the Snowflake connection info in ``parameters.json`` and place it in $HOME:
+Set the owflake connection info in ``parameters.json`` and place it in $HOME:
 
 .. code-block:: json
 

@@ -191,7 +191,7 @@ describe('Statement.execute()', function ()
       {
         options = testCase.options;
 
-        Statement.createRowStatementPreExec(
+        Statement.createStatementPreExec(
           options.statementOptions,
           options.services,
           options.connectionConfig);

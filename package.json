@@ -47,7 +47,7 @@
     "url": "https://github.com/snowflakedb/snowflake-connector-nodejs"
   },
   "scripts": {
-    "test": "mocha test/unit/*/*.js"
+    "test": "./scripts/run_test.sh"
   },
   "author": {
     "name": "Snowflake Computing, Inc.",

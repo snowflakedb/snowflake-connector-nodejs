@@ -197,6 +197,14 @@ var okta =
   authenticator: snowflakeTestOktaAuth
 };
 
+var privatelink =
+{
+  accessUrl: accessUrl,
+  username: snowflakeTestUser,
+  password: snowflakeTestPassword,
+  account: snowflakeTestAccount + '.privatelink'
+};
+
 exports.valid = valid;
 exports.snowflakeAccount = snowflakeAccount;
 exports.wrongUserName = wrongUserName;
@@ -212,3 +220,4 @@ exports.keypairWrongToken = keypairWrongToken;
 exports.oauth = oauth;
 exports.oauthMismatchUser = oauthMismatchUser;
 exports.okta = okta;
+exports.privatelink = privatelink;

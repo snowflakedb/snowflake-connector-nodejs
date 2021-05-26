@@ -295,8 +295,8 @@ describe('OCSP privatelink', function ()
 
   const resetOCSPvariables = function ()
   {
-    process.env.SF_OCSP_RESPONSE_CACHE_SERVER_URL = '';
-    process.env.SF_OCSP_RESPONDER_URL = '';
+    delete process.env['SF_OCSP_RESPONSE_CACHE_SERVER_URL'];
+    delete process.env['SF_OCSP_RESPONDER_URL'];
   }
 
   this.beforeEach(function ()
@@ -318,8 +318,8 @@ describe('OCSP privatelink', function ()
 
       Check(null, mockFunc, mockReq);
 
-      assert.strictEqual(process.env.SF_OCSP_RESPONSE_CACHE_SERVER_URL, '');
-      assert.strictEqual(process.env.SF_OCSP_RESPONDER_URL, '');
+      assert.strictEqual(process.env.SF_OCSP_RESPONSE_CACHE_SERVER_URL, undefined);
+      assert.strictEqual(process.env.SF_OCSP_RESPONDER_URL, undefined);
 
       done();
     });

@@ -360,7 +360,7 @@ describe('Statement.fetchResult()', function ()
       try
       {
         options = testCase.options;
-        Statement.createRowStatementPostExec(
+        Statement.createStatementPostExec(
           options.statementOptions,
           options.services,
           options.connectionConfig);

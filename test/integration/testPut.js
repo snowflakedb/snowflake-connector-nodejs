@@ -444,14 +444,10 @@ describe('PUT test', function ()
 {
   this.timeout(10000);
 
-  var tmpDir;
   var tmpFile;
 
   this.beforeEach(function (done)
   {
-    // Create a temp directory
-    tmpDir = fs.mkdtempSync(os.tmpdir());
-
     var connection = snowflake.createConnection(connOption.valid);
     connection.connect(function (err)
     {
@@ -468,7 +464,7 @@ describe('PUT test', function ()
     });
 
     fs.closeSync(tmpFile.fd);
-    fs.rmdirSync(tmpDir, { recursive: true });
+    fs.rmSync(tmpFile.name);
   });
 
   var testCases =
@@ -511,7 +507,7 @@ describe('PUT test', function ()
     it(testCase.name, function (done)
     {
       // Create a temp file with specified file extension
-      tmpFile = tmp.fileSync({ dir: tmpDir, postfix: testCase.encoding['file_extension'] });
+      tmpFile = tmp.fileSync({ postfix: testCase.encoding['file_extension'] });
       // Write row data to temp file
       fs.writeFileSync(tmpFile.name, ROW_DATA);
 

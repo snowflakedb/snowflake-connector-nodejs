@@ -7,14 +7,13 @@ const async = require('async');
 const connOption = require('./connectionOptions');
 const fileCompressionType = require('./../../lib/file_transfer_agent/file_compression_type');
 const fs = require('fs');
-const path = require('path');
 const testUtil = require('./testUtil');
+const tmp = require('tmp');
 
 const DATABASE_NAME = connOption.valid.database;
 const SCHEMA_NAME = connOption.valid.schema;
 const TEMP_TABLE_NAME = 'TEMP_TABLE';
-const TEMP_DIR = 'NODEJS_TEMP_DIR';
-const TEMP_FILE_NAME = 'TEMP_FILE_NAME';
+
 const UPLOADED = "UPLOADED";
 
 const COL1 = 'C1';
@@ -44,17 +43,17 @@ describe('PUT test', function ()
   {
     connection = testUtil.createConnection();
     testUtil.connect(connection, done);
-
-    if (!fs.existsSync(TEMP_DIR))
-    {
-      fs.mkdirSync(TEMP_DIR);
-    }
   });
 
   after(function (done)
   {
     testUtil.destroyConnection(connection, done);
-    fs.rmdirSync(TEMP_DIR, { recursive: true });
+  });
+
+  afterEach(function ()
+  {
+    fs.closeSync(tmpFile.fd);
+    fs.rmSync(tmpFile.name);
   });
 
   var testCases =
@@ -90,9 +89,10 @@ describe('PUT test', function ()
     return function (done)
     {
       {
+        // Create a temp file with specified file extension
+        tmpFile = tmp.fileSync({ postfix: testCase.encoding['file_extension'] });
         // Write row data to temp file
-        tmpFile = path.join(TEMP_DIR, TEMP_FILE_NAME + testCase.encoding['file_extension']);
-        fs.writeFileSync(tmpFile, ROW_DATA);
+        fs.writeFileSync(tmpFile.name, ROW_DATA);
 
         async.series(
           [
@@ -105,7 +105,7 @@ describe('PUT test', function ()
             {
               // Upload file
               var statement = connection.execute({
-                sqlText: `PUT file://${tmpFile} @${DATABASE_NAME}.${SCHEMA_NAME}.%${TEMP_TABLE_NAME}`,
+                sqlText: `PUT file://${tmpFile.name} @${DATABASE_NAME}.${SCHEMA_NAME}.%${TEMP_TABLE_NAME}`,
                 complete: function (err, stmt, rows)
                 {
                   var stream = statement.streamRows();

@@ -7,11 +7,13 @@ const async = require('async');
 const connOption = require('./connectionOptions');
 const fileCompressionType = require('./../../lib/file_transfer_agent/file_compression_type');
 const fs = require('fs');
+const path = require('path');
 const testUtil = require('./testUtil');
 
 const DATABASE_NAME = connOption.valid.database;
 const SCHEMA_NAME = connOption.valid.schema;
 const TEMP_TABLE_NAME = 'TEMP_TABLE';
+const TEMP_DIR = 'NODEJS_TEMP_DIR';
 const TEMP_FILE_NAME = 'TEMP_FILE_NAME';
 const UPLOADED = "UPLOADED";
 
@@ -42,16 +44,17 @@ describe('PUT test', function ()
   {
     connection = testUtil.createConnection();
     testUtil.connect(connection, done);
+
+    if (!fs.existsSync(TEMP_DIR))
+    {
+      fs.mkdirSync(TEMP_DIR);
+    }
   });
 
   after(function (done)
   {
     testUtil.destroyConnection(connection, done);
-  });
-
-  afterEach(function ()
-  {
-    fs.rmSync(tmpFile);
+    fs.rmdirSync(TEMP_DIR, { recursive: true });
   });
 
   var testCases =
@@ -88,7 +91,7 @@ describe('PUT test', function ()
     {
       {
         // Write row data to temp file
-        tmpFile = TEMP_FILE_NAME + testCase.encoding['file_extension'];
+        tmpFile = path.join(TEMP_DIR, TEMP_FILE_NAME + testCase.encoding['file_extension']);
         fs.writeFileSync(tmpFile, ROW_DATA);
 
         async.series(

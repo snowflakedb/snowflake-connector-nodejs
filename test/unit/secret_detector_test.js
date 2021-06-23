@@ -5,6 +5,7 @@
 var assert = require('assert');
 var SnowflakeSecretDetector = require('./../../lib/secret_detector');
 
+
 describe('Secret Detector', function ()
 {
   var SecretDetector;
@@ -52,7 +53,7 @@ describe('Secret Detector', function ()
 
   it('exception - masking', async function ()
   {
-    SecretDetector = new SnowflakeSecretDetector(mock);
+    SecretDetector = new SnowflakeSecretDetector(null, mock);
     var result = SecretDetector.maskSecrets('test');
     assert.strictEqual(result.masked, true);
     assert.strictEqual(result.maskedtxt, errstr.toString());
@@ -102,6 +103,7 @@ describe('Secret Detector', function ()
     assert.strictEqual(result.errstr, null);
   });
 
+
   it('test - false positive', async function ()
   {
     var falsePositiveToken = "2020-04-30 23:06:04,069 - MainThread auth.py:397" +
@@ -148,6 +150,7 @@ describe('Secret Detector', function ()
     assert.strictEqual(result.maskedtxt, 'pwd:****');
     assert.strictEqual(result.errstr, null);
   });
+
 
   it('test - token password', async function ()
   {
@@ -225,5 +228,97 @@ describe('Secret Detector', function ()
       "password=" + "****"
     );
     assert.strictEqual(result.errstr, null);
+  });
+
+  it('custom pattern - success', async function ()
+  {
+    var customPatterns = {
+      regex: [
+        String.raw`(testCustomPattern\s*:\s*"([a-z]{8,})")`,
+        String.raw`(testCustomPattern\s*:\s*"([0-9]{8,})")`
+      ],
+      mask: [
+        'maskCustomPattern1',
+        'maskCustomPattern2'
+      ]
+    }
+
+    SecretDetector = new SnowflakeSecretDetector(customPatterns);
+
+    var txt = 'testCustomPattern: "abcdefghijklmnop"';
+    var result = SecretDetector.maskSecrets(txt);
+    assert.strictEqual(result.masked, true);
+    assert.strictEqual(result.maskedtxt, customPatterns.mask[0]);
+    assert.strictEqual(result.errstr, null);
+
+    txt = 'testCustomPattern: "01123456978"';
+    result = SecretDetector.maskSecrets(txt);
+    assert.strictEqual(result.masked, true);
+    assert.strictEqual(result.maskedtxt, customPatterns.mask[1]);
+    assert.strictEqual(result.errstr, null);
+
+    txt = 'password=asdfasdfasdfasdfasdf ' +
+      'testCustomPattern: "abcdefghijklmnop"';
+    var result = SecretDetector.maskSecrets(txt);
+    assert.strictEqual(result.masked, true);
+    assert.strictEqual(result.maskedtxt,
+      "password=**** " +
+      customPatterns.mask[0]);
+    assert.strictEqual(result.errstr, null);
+
+    txt = 'password=asdfasdfasdfasdfasdf ' +
+      'testCustomPattern: "01123456978"';
+    result = SecretDetector.maskSecrets(txt);
+    assert.strictEqual(result.masked, true);
+    assert.strictEqual(result.maskedtxt,
+      "password=**** " +
+      customPatterns.mask[1]);
+    assert.strictEqual(result.errstr, null);
+  });
+
+  it('custom pattern - regex error', async function ()
+  {
+    var customPatterns = {
+      mask: ['maskCustomPattern1', 'maskCustomPattern2']
+    }
+    try
+    {
+      SecretDetector = new SnowflakeSecretDetector(customPatterns);
+    }
+    catch (err)
+    {
+      assert.strictEqual(err.toString(), "Error: The customPatterns object must contain the 'regex' key");
+    }
+  });
+
+  it('custom pattern - mask error', async function ()
+  {
+    var customPatterns = {
+      regex: ['regexCustomPattern1', 'regexCustomPattern2']
+    }
+    try
+    {
+      SecretDetector = new SnowflakeSecretDetector(customPatterns);
+    }
+    catch (err)
+    {
+      assert.strictEqual(err.toString(), "Error: The customPatterns object must contain the 'mask' key");
+    }
+  });
+
+  it('custom pattern - unequal length error', async function ()
+  {
+    var customPatterns = {
+      regex: ['regexCustomPattern1', 'regexCustomPattern2'],
+      mask: ['maskCustomPattern1']
+    }
+    try
+    {
+      SecretDetector = new SnowflakeSecretDetector(customPatterns);
+    }
+    catch (err)
+    {
+      assert.strictEqual(err.toString(), "Error: The customPatterns object must have equal length for both 'regex' and 'mask'");
+    }
   });
 });

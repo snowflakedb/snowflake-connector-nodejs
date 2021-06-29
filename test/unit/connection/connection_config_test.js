@@ -356,6 +356,23 @@ describe('ConnectionConfig: basic', function ()
           }
       },
       {
+        name: 'case insensitive',
+        input:
+        {
+          USERNAME: 'username',
+          PassWord: 'password',
+          AcCoUnT: 'account',
+          ReGiOn: 'region',
+        },
+        options:
+        {
+          accessUrl: 'https://account.region.snowflakecomputing.com',
+          username: 'username',
+          password: 'password',
+          account: 'account',
+        }
+      },
+      {
         name: 'region (deprecated)',
         input:
           {
@@ -510,6 +527,7 @@ describe('ConnectionConfig: basic', function ()
   {
     return function ()
     {
+
       var result_options = new ConnectionConfig(testCase.input);
       Object.keys(testCase.options).forEach(function (key)
       {
@@ -526,19 +544,19 @@ describe('ConnectionConfig: basic', function ()
     it(testCase.name, createItCallback(testCase));
   }
 
+  var username = 'username';
+  var password = 'password';
+  var account = 'account';
+
+  var connectionConfig = new ConnectionConfig(
+    {
+      username: username,
+      password: password,
+      account: account
+    });
+
   it('custom prefetch', function ()
   {
-    var username = 'username';
-    var password = 'password';
-    var account = 'account';
-
-    var connectionConfig = new ConnectionConfig(
-      {
-        username: username,
-        password: password,
-        account: account
-      });
-
     // get the default value of the resultPrefetch parameter
     var resultPrefetchDefault = connectionConfig.getResultPrefetch();
 
@@ -555,5 +573,247 @@ describe('ConnectionConfig: basic', function ()
     // verify that the custom value overrode the default value
     assert.strictEqual(
       connectionConfig.getResultPrefetch(), resultPrefetchCustom);
+  });
+
+  // external params
+  it('custom timeout', function ()
+  {
+    // get the default value of the timeout parameter
+    var resultTimeoutDefault = connectionConfig.getTimeout();
+
+    // create a ConnectionConfig object with a custom value for timeout
+    var resultTimeoutCustom = resultTimeoutDefault + 1;
+    connectionConfig = new ConnectionConfig(
+      {
+        username: username,
+        password: password,
+        account: account,
+        timeout: resultTimeoutCustom
+      });
+
+    // verify that the custom value overrode the default value
+    assert.strictEqual(
+      connectionConfig.getTimeout(), resultTimeoutCustom);
+  });
+
+  it('custom sf retry max login retries', function ()
+  {
+    // get the default value of the sfRetryMaxLoginRetries parameter
+    var sfRetryMaxLoginRetriesDefault = connectionConfig.getRetrySfMaxLoginRetries();
+
+    // create a ConnectionConfig object with a custom value for sfRetryMaxLoginRetries
+    var sfRetryMaxLoginRetriesCustom = sfRetryMaxLoginRetriesDefault + 1;
+    connectionConfig = new ConnectionConfig(
+      {
+        username: username,
+        password: password,
+        account: account,
+        sfRetryMaxLoginRetries: sfRetryMaxLoginRetriesCustom
+      });
+
+    // verify that the custom value overrode the default value
+    assert.strictEqual(
+      connectionConfig.getRetrySfMaxLoginRetries(), sfRetryMaxLoginRetriesCustom);
+  });
+
+  // non-external params
+  it('custom result stream interrupts', function ()
+  {
+    // get the default value of the resultStreamInterrupts parameter
+    var resultStreamInterruptsDefault = connectionConfig.getResultStreamInterrupts();
+
+    // create a ConnectionConfig object with a custom value for resultStreamInterrupts
+    var resultStreamInterruptsCustom = resultStreamInterruptsDefault + 1;
+    connectionConfig = new ConnectionConfig(
+      {
+        username: username,
+        password: password,
+        account: account,
+        resultStreamInterrupts: resultStreamInterruptsCustom
+      });
+
+    // verify that the custom value does not override by the default value
+    assert.strictEqual(
+      connectionConfig.getResultStreamInterrupts(), resultStreamInterruptsDefault);
+  });
+
+  it('custom result chunk cache size', function ()
+  {
+    // get the default value of the resultChunkCacheSize parameter
+    var resultChunkCacheSizeDefault = connectionConfig.getResultChunkCacheSize();
+
+    // create a ConnectionConfig object with a custom value for resultChunkCacheSize
+    var resultChunkCacheSizeCustom = resultChunkCacheSizeDefault + 1;
+    connectionConfig = new ConnectionConfig(
+      {
+        username: username,
+        password: password,
+        account: account,
+        resultChunkCacheSize: resultChunkCacheSizeCustom
+      });
+
+    // verify that the custom value does not override by the default value
+    assert.strictEqual(
+      connectionConfig.getResultChunkCacheSize(), resultChunkCacheSizeDefault);
+  });
+
+  it('custom result processing batch size', function ()
+  {
+    // get the default value of the resultProcessingBatchSize parameter
+    var resultProcessingBatchSizeDefault = connectionConfig.getResultProcessingBatchSize();
+
+    // create a ConnectionConfig object with a custom value for resultProcessingBatchSize
+    var resultProcessingBatchSizeCustom = resultProcessingBatchSizeDefault + 1;
+    connectionConfig = new ConnectionConfig(
+      {
+        username: username,
+        password: password,
+        account: account,
+        resultProcessingBatchSize: resultProcessingBatchSizeCustom
+      });
+
+    // verify that the custom value does not override by the default value
+    assert.strictEqual(
+      connectionConfig.getResultProcessingBatchSize(), resultProcessingBatchSizeDefault);
+  });
+
+  it('custom result processing batch duration', function ()
+  {
+    // get the default value of the resultProcessingBatchDuration parameter
+    var resultProcessingBatchDurationDefault = connectionConfig.getResultProcessingBatchDuration();
+
+    // create a ConnectionConfig object with a custom value for resultProcessingBatchDuration
+    var resultProcessingBatchDurationCustom = resultProcessingBatchDurationDefault + 1;
+    connectionConfig = new ConnectionConfig(
+      {
+        username: username,
+        password: password,
+        account: account,
+        resultProcessingBatchDuration: resultProcessingBatchDurationCustom
+      });
+
+    // verify that the custom value does not override by the default value
+    assert.strictEqual(
+      connectionConfig.getResultProcessingBatchDuration(), resultProcessingBatchDurationDefault);
+  });
+
+  it('custom row stream high water mark', function ()
+  {
+    // get the default value of the rowStreamHighWaterMark parameter
+    var rowStreamHighWaterMarkDefault = connectionConfig.getRowStreamHighWaterMark();
+
+    // create a ConnectionConfig object with a custom value for rowStreamHighWaterMark
+    var rowStreamHighWaterMarkCustom = rowStreamHighWaterMarkDefault + 1;
+    connectionConfig = new ConnectionConfig(
+      {
+        username: username,
+        password: password,
+        account: account,
+        rowStreamHighWaterMark: rowStreamHighWaterMarkCustom
+      });
+
+    // verify that the custom value does not override by the default value
+    assert.strictEqual(
+      connectionConfig.getRowStreamHighWaterMark(), rowStreamHighWaterMarkDefault);
+  });
+
+  it('custom large result set retry max num retries', function ()
+  {
+    // get the default value of the largeResultSetRetryMaxNumRetries parameter
+    var largeResultSetRetryMaxNumRetriesDefault = connectionConfig.getRetryLargeResultSetMaxNumRetries();
+
+    // create a ConnectionConfig object with a custom value for largeResultSetRetryMaxNumRetries
+    var largeResultSetRetryMaxNumRetriesCustom = largeResultSetRetryMaxNumRetriesDefault + 1;
+    connectionConfig = new ConnectionConfig(
+      {
+        username: username,
+        password: password,
+        account: account,
+        largeResultSetRetryMaxNumRetries: largeResultSetRetryMaxNumRetriesCustom
+      });
+
+    // verify that the custom value does not override by the default value
+    assert.strictEqual(
+      connectionConfig.getRetryLargeResultSetMaxNumRetries(), largeResultSetRetryMaxNumRetriesDefault);
+  });
+
+  it('custom large result set retry max sleep time', function ()
+  {
+    // get the default value of the largeResultSetRetryMaxSleepTime parameter
+    var largeResultSetRetryMaxSleepTimeDefault = connectionConfig.getRetryLargeResultSetMaxSleepTime();
+
+    // create a ConnectionConfig object with a custom value for largeResultSetRetryMaxSleepTime
+    var largeResultSetRetryMaxSleepTimeCustom = largeResultSetRetryMaxSleepTimeDefault + 1;
+    connectionConfig = new ConnectionConfig(
+      {
+        username: username,
+        password: password,
+        account: account,
+        largeResultSetRetryMaxSleepTime: largeResultSetRetryMaxSleepTimeCustom
+      });
+
+    // verify that the custom value does not override by the default value
+    assert.strictEqual(
+      connectionConfig.getRetryLargeResultSetMaxSleepTime(), largeResultSetRetryMaxSleepTimeDefault);
+  });
+
+  it('custom sf retry max num retries', function ()
+  {
+    // get the default value of the sfRetryMaxNumRetries parameter
+    var sfRetryMaxNumRetriesDefault = connectionConfig.getRetrySfMaxNumRetries();
+
+    // create a ConnectionConfig object with a custom value for sfRetryMaxNumRetries
+    var sfRetryMaxNumRetriesCustom = sfRetryMaxNumRetriesDefault + 1;
+    connectionConfig = new ConnectionConfig(
+      {
+        username: username,
+        password: password,
+        account: account,
+        sfRetryMaxNumRetries: sfRetryMaxNumRetriesCustom
+      });
+
+    // verify that the custom value does not override by the default value
+    assert.strictEqual(
+      connectionConfig.getRetrySfMaxNumRetries(), sfRetryMaxNumRetriesDefault);
+  });
+
+  it('custom sf retry starting sleep time', function ()
+  {
+    // get the default value of the sfRetryStartingSleepTime parameter
+    var sfRetryStartingSleepTimeDefault = connectionConfig.getRetrySfStartingSleepTime();
+
+    // create a ConnectionConfig object with a custom value for sfRetryStartingSleepTime
+    var sfRetryStartingSleepTimeCustom = sfRetryStartingSleepTimeDefault + 1;
+    connectionConfig = new ConnectionConfig(
+      {
+        username: username,
+        password: password,
+        account: account,
+        sfRetryStartingSleepTime: sfRetryStartingSleepTimeCustom
+      });
+
+    // verify that the custom value does not override by the default value
+    assert.strictEqual(
+      connectionConfig.getRetrySfStartingSleepTime(), sfRetryStartingSleepTimeDefault);
+  });
+
+  it('custom sf retry max sleep time', function ()
+  {
+    // get the default value of the sfRetryMaxSleepTime parameter
+    var sfRetryMaxSleepTimeDefault = connectionConfig.getRetrySfMaxSleepTime();
+
+    // create a ConnectionConfig object with a custom value for sfRetryStartingSleepTime
+    var sfRetryMaxSleepTimeCustom = sfRetryMaxSleepTimeDefault + 1;
+    connectionConfig = new ConnectionConfig(
+      {
+        username: username,
+        password: password,
+        account: account,
+        sfRetryMaxSleepTime: sfRetryMaxSleepTimeCustom
+      });
+
+    // verify that the custom value does not override by the default value
+    assert.strictEqual(
+      connectionConfig.getRetrySfMaxSleepTime(), sfRetryMaxSleepTimeDefault);
   });
 });

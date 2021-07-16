@@ -59,27 +59,27 @@ describe('PUT test', function ()
   var testCases =
     [
       {
-        name: 'S3 upload - gzip',
+        name: 'PUT command - gzip',
         encoding: fileCompressionType.lookupByMimeSubType('gzip'),
       },
       {
-        name: 'S3 upload - bzip2',
+        name: 'PUT command - bzip2',
         encoding: fileCompressionType.lookupByMimeSubType('bz2'),
       },
       {
-        name: 'S3 upload - brotli',
+        name: 'PUT command - brotli',
         encoding: fileCompressionType.lookupByMimeSubType('br'),
       },
       {
-        name: 'S3 upload - deflate',
+        name: 'PUT command - deflate',
         encoding: fileCompressionType.lookupByMimeSubType('deflate'),
       },
       {
-        name: 'S3 upload - raw deflate',
+        name: 'PUT command - raw deflate',
         encoding: fileCompressionType.lookupByMimeSubType('raw_deflate'),
       },
       {
-        name: 'S3 upload - zstd',
+        name: 'PUT command - zstd',
         encoding: fileCompressionType.lookupByMimeSubType('zstd'),
       }
     ];

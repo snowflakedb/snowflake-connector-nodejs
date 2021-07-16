@@ -30,7 +30,7 @@ const ROW_DATA =
 
 describe('PUT test', function ()
 {
-  this.timeout(5000);
+  this.timeout(10000);
 
   var connection;
   var tmpFile;

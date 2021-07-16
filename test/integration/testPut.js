@@ -53,7 +53,7 @@ describe('PUT test', function ()
   afterEach(function ()
   {
     fs.closeSync(tmpFile.fd);
-    fs.rmSync(tmpFile.name);
+    fs.unlinkSync(tmpFile.name);
   });
 
   var testCases =

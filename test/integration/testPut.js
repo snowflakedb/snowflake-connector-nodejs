@@ -100,12 +100,9 @@ describe('PUT test', function ()
             {
               // Create temp table
               testUtil.executeCmd(connection, createTable, callback);
-              console.log(createTable);
             },
             function (callback)
             {
-              console.log(`PUT file://${tmpFile.name} @${DATABASE_NAME}.${SCHEMA_NAME}.%${TEMP_TABLE_NAME}`);
-
               // Upload file
               var statement = connection.execute({
                 sqlText: `PUT file://${tmpFile.name} @${DATABASE_NAME}.${SCHEMA_NAME}.%${TEMP_TABLE_NAME}`,
@@ -134,12 +131,9 @@ describe('PUT test', function ()
             {
               // Copy into temp table
               testUtil.executeCmd(connection, copyInto, callback);
-              console.log(copyInto);
             },
             function (callback)
             {
-              console.log(`SELECT * FROM ${TEMP_TABLE_NAME}`);
-
               // Check the contents are correct
               var statement = connection.execute({
                 sqlText: `SELECT * FROM ${TEMP_TABLE_NAME}`,
@@ -166,8 +160,6 @@ describe('PUT test', function ()
             },
             function (callback)
             {
-              console.log(`SELECT COUNT(*) FROM ${TEMP_TABLE_NAME}`);
-
               // Check the row count is correct
               var statement = connection.execute({
                 sqlText: `SELECT COUNT(*) FROM ${TEMP_TABLE_NAME}`,
@@ -194,13 +186,11 @@ describe('PUT test', function ()
             {
               // Remove files from staging
               testUtil.executeCmd(connection, removeFile, callback);
-              console.log(removeFile);
             },
             function (callback)
             {
               // Drop temp table
               testUtil.executeCmd(connection, dropTable, callback);
-              console.log(dropTable);
             }
           ],
           done

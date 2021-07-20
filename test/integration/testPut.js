@@ -94,6 +94,14 @@ describe('PUT test', function ()
         // Write row data to temp file
         fs.writeFileSync(tmpFile.name, ROW_DATA);
 
+        var putQuery = `PUT file://${tmpFile.name} @${DATABASE_NAME}.${SCHEMA_NAME}.%${TEMP_TABLE_NAME}`;
+        // Windows user contains a '~' in the path which causes an error
+        if (process.platform == "win32")
+        {
+          var fileName = tmpFile.name.substring(tmpFile.name.lastIndexOf('\\'));
+          putQuery = `PUT file://${process.env.USERPROFILE}\\AppData\\Local\\Temp\\${fileName} @${DATABASE_NAME}.${SCHEMA_NAME}.%${TEMP_TABLE_NAME}`;
+        }
+
         async.series(
           [
             function (callback)
@@ -105,7 +113,7 @@ describe('PUT test', function ()
             {
               // Upload file
               var statement = connection.execute({
-                sqlText: `PUT file://${tmpFile.name} @${DATABASE_NAME}.${SCHEMA_NAME}.%${TEMP_TABLE_NAME}`,
+                sqlText: putQuery,
                 complete: function (err, stmt, rows)
                 {
                   var stream = statement.streamRows();

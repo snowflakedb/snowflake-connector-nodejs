@@ -191,7 +191,7 @@ describe('Statement.execute()', function ()
       {
         options = testCase.options;
 
-        Statement.createRowStatementPreExec(
+        Statement.createStatementPreExec(
           options.statementOptions,
           options.services,
           options.connectionConfig);
@@ -360,7 +360,7 @@ describe('Statement.fetchResult()', function ()
       try
       {
         options = testCase.options;
-        Statement.createRowStatementPostExec(
+        Statement.createStatementPostExec(
           options.statementOptions,
           options.services,
           options.connectionConfig);

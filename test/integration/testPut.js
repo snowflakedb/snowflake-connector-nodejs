@@ -95,6 +95,8 @@ describe('PUT test', function ()
         fs.writeFileSync(tmpFile.name, ROW_DATA);
 
         var putQuery = `PUT file://${tmpFile.name} @${DATABASE_NAME}.${SCHEMA_NAME}.%${TEMP_TABLE_NAME}`;
+        console.log("testPutDebug PUT query: " + putQuery);
+
         // Windows user contains a '~' in the path which causes an error
         if (process.platform == "win32")
         {
@@ -112,6 +114,8 @@ describe('PUT test', function ()
             function (callback)
             {
               // Upload file
+              console.log("testPutDebug PUT command start");
+
               var statement = connection.execute({
                 sqlText: putQuery,
                 complete: function (err, stmt, rows)
@@ -123,6 +127,8 @@ describe('PUT test', function ()
                   });
                   stream.on('data', function (row)
                   {
+                    console.log("testPutDebug row['message']: " + row['message']);
+
                     // Check the file is correctly uploaded
                     assert.strictEqual(row['status'], UPLOADED);
                     // Check the target encoding is correct
@@ -130,6 +136,7 @@ describe('PUT test', function ()
                   });
                   stream.on('end', function (row)
                   {
+                    console.log("testPutDebug PUT command end");
                     callback();
                   });
                 }

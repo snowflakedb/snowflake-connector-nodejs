@@ -28,7 +28,8 @@ const ROW_DATA =
   COL1_DATA + "," + COL2_DATA + "," + COL3_DATA + "\n" +
   COL1_DATA + "," + COL2_DATA + "," + COL3_DATA + "\n";
 
-describe('PUT test', function ()
+
+describe.skip('PUT test', function ()
 {
   this.timeout(100000);
 

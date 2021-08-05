@@ -2,6 +2,7 @@
  * Copyright (c) 2015-2021 Snowflake Computing Inc. All rights reserved.
  */
 
+var snowflake = require('./../../lib/snowflake');
 const assert = require('assert');
 const async = require('async');
 const connOption = require('./connectionOptions');

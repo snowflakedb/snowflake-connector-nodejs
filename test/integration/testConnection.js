@@ -8,7 +8,7 @@ const connOption = require('./connectionOptions');
 const testUtil = require('./testUtil');
 const Util = require('./../../lib/util');
 const Core = require('./../../lib/core');
-const stdout = require("test-console").stdout;
+const stderr = require("test-console").stderr;
 
 describe('Connection test', function ()
 {
@@ -424,7 +424,7 @@ describe('Connection test - validate default parameters', function ()
 {
   it('Valid "warehouse" parameter', function ()
   {
-    const output = stdout.inspectSync(() =>
+    const output = stderr.inspectSync(() =>
     {
       snowflake.createConnection({
         account: connOption.valid.account,
@@ -439,7 +439,7 @@ describe('Connection test - validate default parameters', function ()
 
   it('Invalid "warehouse" parameter', function ()
   {
-    const output = stdout.inspectSync(() =>
+    const output = stderr.inspectSync(() =>
     {
       snowflake.createConnection({
         account: connOption.valid.account,
@@ -458,7 +458,7 @@ describe('Connection test - validate default parameters', function ()
 
   it('Valid "database" parameter', function ()
   {
-    const output = stdout.inspectSync(() =>
+    const output = stderr.inspectSync(() =>
     {
       snowflake.createConnection({
         account: connOption.valid.account,
@@ -473,7 +473,7 @@ describe('Connection test - validate default parameters', function ()
 
   it('Invalid "db" parameter', function ()
   {
-    const output = stdout.inspectSync(() =>
+    const output = stderr.inspectSync(() =>
     {
       snowflake.createConnection({
         account: connOption.valid.account,
@@ -491,7 +491,7 @@ describe('Connection test - validate default parameters', function ()
 
   it('Invalid "database" parameter', function ()
   {
-    const output = stdout.inspectSync(() =>
+    const output = stderr.inspectSync(() =>
     {
       snowflake.createConnection({
         account: connOption.valid.account,
@@ -510,7 +510,7 @@ describe('Connection test - validate default parameters', function ()
 
   it('Valid "schema" parameter', function ()
   {
-    const output = stdout.inspectSync(() =>
+    const output = stderr.inspectSync(() =>
     {
       snowflake.createConnection({
         account: connOption.valid.account,
@@ -525,7 +525,7 @@ describe('Connection test - validate default parameters', function ()
 
   it('Invalid "schema" parameter', function ()
   {
-    const output = stdout.inspectSync(() =>
+    const output = stderr.inspectSync(() =>
     {
       snowflake.createConnection({
         account: connOption.valid.account,

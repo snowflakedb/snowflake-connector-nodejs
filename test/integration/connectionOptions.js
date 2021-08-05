@@ -70,7 +70,6 @@ var valid =
 
 var validS3 =
 {
-  host: snowflakeTestHost,
   accessUrl: accessUrl,
   username: snowflakeTestUser,
   password: snowflakeTestPassword,

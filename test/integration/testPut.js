@@ -42,7 +42,7 @@ describe('PUT test', function ()
 
   before(function (done)
   {
-    connection = snowflake.createConnection(connOptions.validS3);
+    connection = snowflake.createConnection(connOption.validS3);
     testUtil.connect(connection, done);
   });
 

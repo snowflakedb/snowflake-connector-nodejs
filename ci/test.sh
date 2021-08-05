@@ -64,7 +64,7 @@ for name in "${!TARGET_TEST_IMAGES[@]}"; do
         -v $(cd $THIS_DIR/.. && pwd):/mnt/host \
         -v $WORKSPACE:/mnt/workspace \
         --add-host snowflake.reg.local:$GATEWAY_HOST \
-        --add-host s3testaccount.reg.snowflakecomputing.com:$GATEWAY_HOST \
+        --add-host testaccount.reg.snowflakecomputing.com:$GATEWAY_HOST \
         --add-host snowflake.reg.snowflakecomputing.com:$GATEWAY_HOST \
         --add-host externalaccount.reg.local.snowflakecomputing.com:$GATEWAY_HOST \
         -e LOCAL_USER_ID=$(id -u $USER) \

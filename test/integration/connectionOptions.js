@@ -7,6 +7,7 @@ let snowflakeTestPort = process.env.SNOWFLAKE_TEST_PORT;
 let snowflakeTestProxyHost = process.env.SNOWFLAKE_TEST_PROXY_HOST;
 let snowflakeTestProxyPort = process.env.SNOWFLAKE_TEST_PROXY_PORT;
 const snowflakeTestAccount = process.env.SNOWFLAKE_TEST_ACCOUNT;
+const snowflakeS3TestAccount = process.env.SNOWFLAKE_S3_TEST_ACCOUNT;
 const snowflakeTestUser = process.env.SNOWFLAKE_TEST_USER;
 const snowflakeTestDatabase = process.env.SNOWFLAKE_TEST_DATABASE;
 const snowflakeTestWarehouse = process.env.SNOWFLAKE_TEST_WAREHOUSE;
@@ -66,6 +67,18 @@ var valid =
     schema: snowflakeTestSchema,
     role: snowflakeTestRole
   };
+
+var validS3 =
+{
+  accessUrl: accessUrl,
+  username: snowflakeTestUser,
+  password: snowflakeTestPassword,
+  account: snowflakeS3TestAccount,
+  warehouse: snowflakeTestWarehouse,
+  database: snowflakeTestDatabase,
+  schema: snowflakeTestSchema,
+  role: snowflakeTestRole
+};
 
 var snowflakeAccount = snowflakeTestAdminUser !== undefined ?
   {
@@ -206,6 +219,7 @@ var privatelink =
 };
 
 exports.valid = valid;
+exports.validS3 = validS3;
 exports.snowflakeAccount = snowflakeAccount;
 exports.wrongUserName = wrongUserName;
 exports.wrongPwd = wrongPwd;

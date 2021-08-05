@@ -10,8 +10,8 @@ const fs = require('fs');
 const testUtil = require('./testUtil');
 const tmp = require('tmp');
 
-const DATABASE_NAME = connOption.valid.database;
-const SCHEMA_NAME = connOption.valid.schema;
+const DATABASE_NAME = connOption.validS3.database;
+const SCHEMA_NAME = connOption.validS3.schema;
 const TEMP_TABLE_NAME = 'TEMP_TABLE';
 
 const UPLOADED = "UPLOADED";
@@ -41,7 +41,7 @@ describe('PUT test', function ()
 
   before(function (done)
   {
-    connection = testUtil.createConnection();
+    connection = snowflake.createConnection(connOptions.validS3);
     testUtil.connect(connection, done);
   });
 

@@ -73,7 +73,7 @@ var validS3 =
   accessUrl: accessUrl,
   username: snowflakeTestUser,
   password: snowflakeTestPassword,
-  account: snowflakeS3TestAccount,
+  account: snowflakeTestAccount,
   warehouse: snowflakeTestWarehouse,
   database: snowflakeTestDatabase,
   schema: snowflakeTestSchema,

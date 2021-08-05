@@ -42,6 +42,8 @@ describe('PUT test', function ()
 
   before(function (done)
   {
+    console.log("testPutDebug SNOWFLAKE_S3_TEST_ACCOUNT: " + process.env.SNOWFLAKE_S3_TEST_ACCOUNT);
+    console.log("testPutDebug connOption.validS3: " + connOption.validS3);
     connection = snowflake.createConnection(connOption.validS3);
     testUtil.connect(connection, done);
   });

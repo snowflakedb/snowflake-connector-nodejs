@@ -42,11 +42,11 @@ describe('PUT test', function ()
 
   before(function (done)
   {
+    console.log("testPutDebug SNOWFLAKE_TEST_ACCOUNT: " + process.env.SNOWFLAKE_TEST_ACCOUNT);
     console.log("testPutDebug SNOWFLAKE_S3_TEST_ACCOUNT: " + process.env.SNOWFLAKE_S3_TEST_ACCOUNT);
     console.log("testPutDebug connOption.validS3 account: " + connOption.validS3.account);
     console.log("testPutDebug connOption.validS3 username: " + connOption.validS3.username);
     console.log("testPutDebug connOption.validS3 accessUrl: " + connOption.validS3.accessUrl);
-
     connection = snowflake.createConnection(connOption.validS3);
     testUtil.connect(connection, done);
   });

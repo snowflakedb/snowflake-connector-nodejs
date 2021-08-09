@@ -301,6 +301,17 @@ describe('ConnectionConfig: basic', function ()
           authenticator: 'OAUTH'
         },
         errorCode: ErrorCodes.ERR_CONN_CREATE_INVALID_OAUTH_TOKEN
+      },
+      {
+        name: 'invalid validateDefaultParameters',
+        options:
+        {
+          username: 'username',
+          password: 'password',
+          account: 'account',
+          validateDefaultParameters: 2
+        },
+        errorCode: ErrorCodes.ERR_CONN_CREATE_INVALID_VALIDATE_DEFAULT_PARAMETERS
       }
     ];
 
@@ -503,6 +514,23 @@ describe('ConnectionConfig: basic', function ()
             password: 'password',
             account: 'account'
           }
+      },
+      {
+        name: 'validate default parameters',
+        input:
+        {
+          username: 'username',
+          password: 'password',
+          account: 'account',
+          validateDefaultParameters: true
+        },
+        options:
+        {
+          accessUrl: 'https://account.snowflakecomputing.com',
+          username: 'username',
+          password: 'password',
+          account: 'account',
+        }
       }
     ];
 

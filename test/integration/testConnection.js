@@ -8,6 +8,7 @@ const connOption = require('./connectionOptions');
 const testUtil = require('./testUtil');
 const Util = require('./../../lib/util');
 const Core = require('./../../lib/core');
+const stderr = require("test-console").stderr;
 
 describe('Connection test', function ()
 {
@@ -416,5 +417,128 @@ describe.skip('Connection test - okta', function ()
       },
     ],
     );
+  });
+});
+
+describe('Connection test - validate default parameters', function ()
+{
+  it('Valid "warehouse" parameter', function ()
+  {
+    const output = stderr.inspectSync(() =>
+    {
+      snowflake.createConnection({
+        account: connOption.valid.account,
+        username: connOption.valid.username,
+        password: connOption.valid.password,
+        warehouse: 'testWarehouse',
+        validateDefaultParameters: true
+      });
+    });
+    assert.deepEqual(output, []);
+  });
+
+  it('Invalid "warehouse" parameter', function ()
+  {
+    const output = stderr.inspectSync(() =>
+    {
+      snowflake.createConnection({
+        account: connOption.valid.account,
+        username: connOption.valid.username,
+        password: connOption.valid.password,
+        waerhouse: 'testWarehouse',
+        validateDefaultParameters: true
+      });
+    });
+    assert.deepEqual(output,
+      [
+        "\"waerhouse\" is an unknown connection parameter\n",
+        "Did you mean \"warehouse\"\n"
+      ]);
+  });
+
+  it('Valid "database" parameter', function ()
+  {
+    const output = stderr.inspectSync(() =>
+    {
+      snowflake.createConnection({
+        account: connOption.valid.account,
+        username: connOption.valid.username,
+        password: connOption.valid.password,
+        database: 'testDatabase',
+        validateDefaultParameters: true
+      });
+    });
+    assert.deepEqual(output, []);
+  });
+
+  it('Invalid "db" parameter', function ()
+  {
+    const output = stderr.inspectSync(() =>
+    {
+      snowflake.createConnection({
+        account: connOption.valid.account,
+        username: connOption.valid.username,
+        password: connOption.valid.password,
+        db: 'testDb',
+        validateDefaultParameters: true
+      });
+    });
+    assert.deepEqual(output,
+      [
+        "\"db\" is an unknown connection parameter\n",
+      ]);
+  });
+
+  it('Invalid "database" parameter', function ()
+  {
+    const output = stderr.inspectSync(() =>
+    {
+      snowflake.createConnection({
+        account: connOption.valid.account,
+        username: connOption.valid.username,
+        password: connOption.valid.password,
+        datbse: 'testDatabase',
+        validateDefaultParameters: true
+      });
+    });
+    assert.deepEqual(output,
+      [
+        "\"datbse\" is an unknown connection parameter\n",
+        "Did you mean \"database\"\n"
+      ]);
+  });
+
+  it('Valid "schema" parameter', function ()
+  {
+    const output = stderr.inspectSync(() =>
+    {
+      snowflake.createConnection({
+        account: connOption.valid.account,
+        username: connOption.valid.username,
+        password: connOption.valid.password,
+        schema: 'testSchema',
+        validateDefaultParameters: true
+      });
+    });
+    assert.deepEqual(output, []);
+  });
+
+  it('Invalid "schema" parameter', function ()
+  {
+    const output = stderr.inspectSync(() =>
+    {
+      snowflake.createConnection({
+        account: connOption.valid.account,
+        username: connOption.valid.username,
+        password: connOption.valid.password,
+        shcema: 'testSchema',
+        validateDefaultParameters: true
+      });
+    });
+    assert.deepEqual(output,
+      [
+        "\"shcema\" is an unknown connection parameter\n",
+        "Did you mean \"schema\"\n"
+      ]);
   });
 });

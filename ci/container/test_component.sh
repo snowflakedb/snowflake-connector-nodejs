@@ -31,9 +31,9 @@ PACKAGE_NAME=$(cd $WORKSPACE && ls snowflake-sdk*.tgz)
 npm install $WORKSPACE/${PACKAGE_NAME}
 
 echo "[INFO] Setting test parameters"
-if [[ -f "$WORKSPACE/parameters.json" ]]; then
+if [[ -f "$WORKSPACE/test/jenkins_parameters.json" ]]; then
     echo "[INFO] Found parameter file in $WORKSPACE"
-    PARAMETER_FILE=$WORKSPACE/parameters.json
+    PARAMETER_FILE=$WORKSPACE/test/jenkins_parameters.json
 else
     echo "[INFO] Use the default test parameters.json"
     PARAMETER_FILE=$SOURCE_ROOT/test/parameters.json

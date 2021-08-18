@@ -11,8 +11,8 @@ const fs = require('fs');
 const testUtil = require('./testUtil');
 const tmp = require('tmp');
 
-const DATABASE_NAME = connOption.validS3.database;
-const SCHEMA_NAME = connOption.validS3.schema;
+const DATABASE_NAME = connOption.valid.database;
+const SCHEMA_NAME = connOption.valid.schema;
 const TEMP_TABLE_NAME = 'TEMP_TABLE';
 
 const UPLOADED = "UPLOADED";
@@ -43,11 +43,7 @@ describe('PUT test', function ()
   before(function (done)
   {
     console.log("testPutDebug SNOWFLAKE_TEST_ACCOUNT: " + process.env.SNOWFLAKE_TEST_ACCOUNT);
-    console.log("testPutDebug SNOWFLAKE_S3_TEST_ACCOUNT: " + process.env.SNOWFLAKE_S3_TEST_ACCOUNT);
-    console.log("testPutDebug connOption.validS3 account: " + connOption.validS3.account);
-    console.log("testPutDebug connOption.validS3 username: " + connOption.validS3.username);
-    console.log("testPutDebug connOption.validS3 accessUrl: " + connOption.validS3.accessUrl);
-    connection = snowflake.createConnection(connOption.validS3);
+    connection = snowflake.createConnection(connOption.valid);
     testUtil.connect(connection, done);
   });
 

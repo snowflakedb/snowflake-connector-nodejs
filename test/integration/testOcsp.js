@@ -8,6 +8,8 @@ const snowflake = require('./../../lib/snowflake');
 const connOption = require('./connectionOptions');
 const SocketUtil = require('./../../lib/agent/socket_util');
 const OcspResponseCache = require('./../../lib/agent/ocsp_response_cache');
+const Check = require('./../../lib/agent/check');
+const Util = require('./../../lib/util');
 
 const sharedLogger = require('./sharedLogger');
 const Logger = require('./../../lib/logger');
@@ -270,5 +272,60 @@ describe('OCSP validation', function ()
     snowflake.configure({ocspFailOpen: true});
 
     done();
+  });
+});
+
+describe('OCSP privatelink', function ()
+{
+  const mockUrl = `http://www.mockAccount.com`;
+  const mockParsedUrl = require('url').parse(mockUrl);
+  const mockDataBuf = Buffer.from('mockData');
+  const mockFunc = function () { return; };
+  const mockReq =
+  {
+    uri: mockUrl,
+    req: {
+      data: mockDataBuf,
+    }
+  };
+
+  const host = Util.construct_hostname(connOption.privatelink.region, connOption.privatelink.account);
+  const ocspResponseCacheServerUrl = `http://ocsp.${host}/ocsp_response_cache.json`;
+  const ocspResponderUrl = `http://ocsp.${host}/retry/${mockParsedUrl.hostname}/${mockDataBuf.toString('base64')}`;
+
+  it('Account with privatelink', function (done)
+  {
+    var connection = snowflake.createConnection(connOption.privatelink);
+
+    connection.connect(function (err)
+    {
+      assert.ok(!err, JSON.stringify(err));
+
+      Check(null, mockFunc, mockReq);
+
+      assert.strictEqual(process.env.SF_OCSP_RESPONSE_CACHE_SERVER_URL, ocspResponseCacheServerUrl);
+      assert.strictEqual(process.env.SF_OCSP_RESPONDER_URL, ocspResponderUrl);
+
+      delete process.env['SF_OCSP_RESPONSE_CACHE_SERVER_URL'];
+      delete process.env['SF_OCSP_RESPONDER_URL'];
+
+      done();
+    });
+  });
+
+  it('Account without privatelink', function (done)
+  {
+    var connection = snowflake.createConnection(connOption.valid);
+    connection.connect(function (err)
+    {
+      assert.ok(!err, JSON.stringify(err));
+
+      Check(null, mockFunc, mockReq);
+
+      assert.strictEqual(process.env.SF_OCSP_RESPONSE_CACHE_SERVER_URL, undefined);
+      assert.strictEqual(process.env.SF_OCSP_RESPONDER_URL, undefined);
+
+      done();
+    });
   });
 });

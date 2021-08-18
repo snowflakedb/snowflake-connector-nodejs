@@ -208,7 +208,6 @@ var privatelink =
 };
 
 exports.valid = valid;
-exports.validS3 = validS3;
 exports.snowflakeAccount = snowflakeAccount;
 exports.wrongUserName = wrongUserName;
 exports.wrongPwd = wrongPwd;

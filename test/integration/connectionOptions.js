@@ -69,18 +69,6 @@ var valid =
     role: snowflakeTestRole
   };
 
-var validS3 =
-{
-  accessUrl: accessUrl,
-  username: snowflakeTestUser,
-  password: snowflakeTestPassword,
-  account: snowflakeS3TestAccount,
-  warehouse: snowflakeTestWarehouse,
-  database: snowflakeTestDatabase,
-  schema: snowflakeTestSchema,
-  role: snowflakeTestRole
-};
-
 var snowflakeAccount = snowflakeTestAdminUser !== undefined ?
   {
     accessUrl: accessUrl,

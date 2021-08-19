@@ -360,8 +360,8 @@ describe('system$get_objects()', function ()
               "S3TESTACCOUNT.NODE_TESTDB.NODE_TESTSCHEMA.T2"
             ],
             "VIEW": [
-              "S3TESTACCOUNT.NODE_TESTDB.NODE_TESTSCHEMA.V3",
               "S3TESTACCOUNT.NODE_TESTDB.NODE_TESTSCHEMA.V2",
+              "S3TESTACCOUNT.NODE_TESTDB.NODE_TESTSCHEMA.V3",
               "S3TESTACCOUNT.NODE_TESTDB.NODE_TESTSCHEMA.V1"
             ]
           },
@@ -383,8 +383,8 @@ describe('system$get_objects()', function ()
               "S3TESTACCOUNT.NODE_TESTDB.NODE_TESTSCHEMA.T2"
             ],
             "VIEW": [
-              "S3TESTACCOUNT.NODE_TESTDB.NODE_TESTSCHEMA.V3",
               "S3TESTACCOUNT.NODE_TESTDB.NODE_TESTSCHEMA.V2",
+              "S3TESTACCOUNT.NODE_TESTDB.NODE_TESTSCHEMA.V3",
               "S3TESTACCOUNT.NODE_TESTDB.NODE_TESTSCHEMA.V1",
               "S3TESTACCOUNT.NODE_TESTDB.NODE_TESTSCHEMA.V4"
             ]

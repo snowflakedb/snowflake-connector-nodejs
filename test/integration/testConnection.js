@@ -542,3 +542,299 @@ describe('Connection test - validate default parameters', function ()
       ]);
   });
 });
+
+describe('Connection test - connection pool', function ()
+{
+  this.timeout(10000);
+
+  it('acquire() 1 connection and release()', function (done)
+  {
+    // Create the connection pool
+    var connectionPool = snowflake.createPool(connOption.valid,
+      {
+        max: 5,
+        min: 0
+      });
+
+    // Acquire one connection
+    const resourcePromise1 = connectionPool.acquire();
+
+    assert.equal(connectionPool.size, 1);
+    assert.equal(connectionPool.pending, 1);
+    assert.equal(connectionPool.spareResourceCapacity, 4);
+
+    // Once acquired, release the connection
+    resourcePromise1.then(function (connection)
+    {
+      assert.ok(connection.isUp(), "not active");
+      assert.equal(connectionPool.pending, 0);
+
+      connectionPool.release(connection).then(() =>
+      {
+        // One connection should be available for use
+        assert.equal(connectionPool.available, 1);
+        done();
+      });
+    });
+  });
+
+
+  it('acquire() 5 connections and release()', function (done)
+  {
+    // Create the connection pool
+    var connectionPool = snowflake.createPool(connOption.valid,
+      {
+        max: 5,
+        min: 0
+      });
+
+    // Acquire 5 connections
+    const resourcePromise1 = connectionPool.acquire();
+    const resourcePromise2 = connectionPool.acquire();
+    const resourcePromise3 = connectionPool.acquire();
+    const resourcePromise4 = connectionPool.acquire();
+    const resourcePromise5 = connectionPool.acquire();
+
+    assert.equal(connectionPool.size, 5);
+    assert.equal(connectionPool.pending, 5);
+    assert.equal(connectionPool.spareResourceCapacity, 0);
+
+    async.series(
+      [
+        function (callback)
+        {
+          // Once acquired, release the connection
+          resourcePromise1.then(function (connection)
+          {
+            assert.ok(connection.isUp(), "not active");
+            assert.equal(connectionPool.pending, 4);
+
+            connectionPool.release(connection).then(() =>
+            {
+              assert.equal(connectionPool.available, 0);
+              callback();
+            });
+          });
+        },
+        function (callback)
+        {
+          // Once acquired, release the connection
+          resourcePromise2.then(function (connection)
+          {
+            assert.ok(connection.isUp(), "not active");
+            assert.equal(connectionPool.pending, 3);
+
+            connectionPool.release(connection).then(() =>
+            {
+              assert.equal(connectionPool.available, 0);
+              callback();
+            });
+          });
+        },
+        function (callback)
+        {
+          // Once acquired, release the connection
+          resourcePromise3.then(function (connection)
+          {
+            assert.ok(connection.isUp(), "not active");
+            assert.equal(connectionPool.pending, 2);
+
+            connectionPool.release(connection).then(() =>
+            {
+              assert.equal(connectionPool.available, 0);
+              callback();
+            });
+          });
+        },
+        function (callback)
+        {
+          // Once acquired, release the connection
+          resourcePromise4.then(function (connection)
+          {
+            assert.ok(connection.isUp(), "not active");
+            assert.equal(connectionPool.pending, 1);
+
+            connectionPool.release(connection).then(() =>
+            {
+              assert.equal(connectionPool.available, 0);
+              callback();
+            });
+          });
+        },
+        function (callback)
+        {
+          // Once acquired, release the connection
+          resourcePromise5.then(function (connection)
+          {
+            assert.ok(connection.isUp(), "not active");
+            assert.equal(connectionPool.pending, 0);
+
+            connectionPool.release(connection).then(() =>
+            {
+              assert.equal(connectionPool.available, 1);
+              callback();
+            });
+          });
+        },
+      ],
+      done);
+  });
+
+  it('acquire() 1 connection and destroy()', function (done)
+  {
+    // Create the connection pool
+    var connectionPool = snowflake.createPool(connOption.valid,
+      {
+        max: 5,
+        min: 0
+      });
+
+    // Acquire one connection
+    const resourcePromise1 = connectionPool.acquire();
+
+    assert.equal(connectionPool.size, 1);
+    assert.equal(connectionPool.pending, 1);
+    assert.equal(connectionPool.spareResourceCapacity, 4);
+
+    // Once acquired, destroy the connection
+    resourcePromise1.then(function (connection)
+    {
+      assert.ok(connection.isUp(), "not active");
+      assert.equal(connectionPool.pending, 0);
+
+      connectionPool.destroy(connection).then(() =>
+      {
+        // No connection should be available for use
+        assert.equal(connectionPool.available, 0);
+        done();
+      });
+    });
+  });
+
+
+  it('acquire() 5 connections and destroy()', function (done)
+  {
+    // Create the connection pool
+    var connectionPool = snowflake.createPool(connOption.valid,
+      {
+        max: 5,
+        min: 0
+      });
+
+    // Acquire 5 connections
+    const resourcePromise1 = connectionPool.acquire();
+    const resourcePromise2 = connectionPool.acquire();
+    const resourcePromise3 = connectionPool.acquire();
+    const resourcePromise4 = connectionPool.acquire();
+    const resourcePromise5 = connectionPool.acquire();
+
+    assert.equal(connectionPool.size, 5);
+    assert.equal(connectionPool.pending, 5);
+    assert.equal(connectionPool.spareResourceCapacity, 0);
+
+    async.series(
+      [
+        function (callback)
+        {
+          // Once acquired, release the connection
+          resourcePromise1.then(function (connection)
+          {
+            assert.ok(connection.isUp(), "not active");
+            assert.equal(connectionPool.pending, 4);
+
+            connectionPool.destroy(connection).then(() =>
+            {
+              assert.equal(connectionPool.available, 0);
+              callback();
+            });
+          });
+        },
+        function (callback)
+        {
+          // Once acquired, release the connection
+          resourcePromise2.then(function (connection)
+          {
+            assert.ok(connection.isUp(), "not active");
+            assert.equal(connectionPool.pending, 3);
+
+            connectionPool.destroy(connection).then(() =>
+            {
+              assert.equal(connectionPool.available, 0);
+              callback();
+            });
+          });
+        },
+        function (callback)
+        {
+          // Once acquired, release the connection
+          resourcePromise3.then(function (connection)
+          {
+            assert.ok(connection.isUp(), "not active");
+            assert.equal(connectionPool.pending, 2);
+
+            connectionPool.destroy(connection).then(() =>
+            {
+              assert.equal(connectionPool.available, 0);
+              callback();
+            });
+          });
+        },
+        function (callback)
+        {
+          // Once acquired, release the connection
+          resourcePromise4.then(function (connection)
+          {
+            assert.ok(connection.isUp(), "not active");
+            assert.equal(connectionPool.pending, 1);
+
+            connectionPool.destroy(connection).then(() =>
+            {
+              assert.equal(connectionPool.available, 0);
+              callback();
+            });
+          });
+        },
+        function (callback)
+        {
+          // Once acquired, release the connection
+          resourcePromise5.then(function (connection)
+          {
+            assert.ok(connection.isUp(), "not active");
+            assert.equal(connectionPool.pending, 0);
+
+            connectionPool.destroy(connection).then(() =>
+            {
+              assert.equal(connectionPool.available, 0);
+              callback();
+            });
+          });
+        },
+      ],
+      done);
+  });
+
+  it('use()', function (done)
+  {
+    // Create the connection pool
+    var connectionPool = snowflake.createPool(connOption.valid,
+      {
+        max: 5,
+        min: 0
+      });
+
+    // Use the connection pool, automatically creates a connection
+    connectionPool.use(async (connection) =>
+    {
+      assert.ok(connection.isUp(), "not active");
+      assert.equal(connectionPool.size, 1);
+      assert.equal(connectionPool.pending, 0);
+      assert.equal(connectionPool.spareResourceCapacity, 4);
+      assert.equal(connectionPool.available, 0);
+    }).then(() =>
+    {
+      assert.equal(connectionPool.size, 1);
+      assert.equal(connectionPool.available, 1);
+      done();
+    });
+  });
+});

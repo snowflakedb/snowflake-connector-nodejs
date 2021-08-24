@@ -149,7 +149,7 @@ describe('system$get_objects()', function ()
         output:
           {
             "DATABASE": [
-              "TESTACCOUNT.NODE_TESTDB"
+              "S3TESTACCOUNT.NODE_TESTDB"
             ]
           },
         callback: done
@@ -166,7 +166,7 @@ describe('system$get_objects()', function ()
         output:
           {
             "SCHEMA": [
-              "TESTACCOUNT.NODE_TESTDB.NODE_TESTSCHEMA"
+              "S3TESTACCOUNT.NODE_TESTDB.NODE_TESTSCHEMA"
             ]
           },
         callback: done
@@ -183,7 +183,7 @@ describe('system$get_objects()', function ()
         output:
           {
             "TABLE": [
-              "TESTACCOUNT.NODE_TESTDB.NODE_TESTSCHEMA.T1"
+              "S3TESTACCOUNT.NODE_TESTDB.NODE_TESTSCHEMA.T1"
             ]
           },
         callback: done
@@ -200,7 +200,7 @@ describe('system$get_objects()', function ()
         output:
           {
             "VIEW": [
-              "TESTACCOUNT.NODE_TESTDB.NODE_TESTSCHEMA.V1"
+              "S3TESTACCOUNT.NODE_TESTDB.NODE_TESTSCHEMA.V1"
             ]
           },
         callback: done
@@ -217,7 +217,7 @@ describe('system$get_objects()', function ()
         output:
           {
             "STAGE": [
-              "TESTACCOUNT.NODE_TESTDB.NODE_TESTSCHEMA.TEST_STAGE"
+              "S3TESTACCOUNT.NODE_TESTDB.NODE_TESTSCHEMA.TEST_STAGE"
             ]
           },
         callback: done
@@ -234,7 +234,7 @@ describe('system$get_objects()', function ()
         output:
           {
             "FILE_FORMAT": [
-              "TESTACCOUNT.NODE_TESTDB.NODE_TESTSCHEMA.TEST_FILE_FORMAT"
+              "S3TESTACCOUNT.NODE_TESTDB.NODE_TESTSCHEMA.TEST_FILE_FORMAT"
             ]
           },
         callback: done
@@ -251,7 +251,7 @@ describe('system$get_objects()', function ()
         output:
           {
             "SEQUENCE": [
-              "TESTACCOUNT.NODE_TESTDB.NODE_TESTSCHEMA.TEST_SEQUENCE"
+              "S3TESTACCOUNT.NODE_TESTDB.NODE_TESTSCHEMA.TEST_SEQUENCE"
             ]
           },
         callback: done
@@ -268,7 +268,7 @@ describe('system$get_objects()', function ()
         output:
           {
             "FUNCTION": [
-              "TESTACCOUNT.NODE_TESTDB.NODE_TESTSCHEMA.ADD1"
+              "S3TESTACCOUNT.NODE_TESTDB.NODE_TESTSCHEMA.ADD1"
             ]
           },
         callback: done
@@ -285,7 +285,7 @@ describe('system$get_objects()', function ()
         output:
           {
             "FUNCTION": [
-              "TESTACCOUNT.NODE_TESTDB.NODE_TESTSCHEMA.ADD1"
+              "S3TESTACCOUNT.NODE_TESTDB.NODE_TESTSCHEMA.ADD1"
             ]
           },
         callback: done
@@ -302,7 +302,7 @@ describe('system$get_objects()', function ()
         output:
           {
             "FUNCTION": [
-              "TESTACCOUNT.NODE_TESTDB.NODE_TESTSCHEMA.ADD1"
+              "S3TESTACCOUNT.NODE_TESTDB.NODE_TESTSCHEMA.ADD1"
             ]
           },
         callback: done
@@ -319,7 +319,7 @@ describe('system$get_objects()', function ()
         output:
           {
             "TABLE": [
-              "TESTACCOUNT.NODE_TESTDB.NODE_TESTSCHEMA.T1"
+              "S3TESTACCOUNT.NODE_TESTDB.NODE_TESTSCHEMA.T1"
             ]
           },
         callback: done
@@ -336,10 +336,10 @@ describe('system$get_objects()', function ()
         output:
           {
             "TABLE": [
-              "TESTACCOUNT.NODE_TESTDB.NODE_TESTSCHEMA.T1"
+              "S3TESTACCOUNT.NODE_TESTDB.NODE_TESTSCHEMA.T1"
             ],
             "VIEW": [
-              "TESTACCOUNT.NODE_TESTDB.NODE_TESTSCHEMA.V1"
+              "S3TESTACCOUNT.NODE_TESTDB.NODE_TESTSCHEMA.V1"
             ]
           },
         callback: done
@@ -356,13 +356,13 @@ describe('system$get_objects()', function ()
         output:
           {
             "TABLE": [
-              "TESTACCOUNT.NODE_TESTDB.NODE_TESTSCHEMA.T1",
-              "TESTACCOUNT.NODE_TESTDB.NODE_TESTSCHEMA.T2"
+              "S3TESTACCOUNT.NODE_TESTDB.NODE_TESTSCHEMA.T1",
+              "S3TESTACCOUNT.NODE_TESTDB.NODE_TESTSCHEMA.T2"
             ],
             "VIEW": [
-              "TESTACCOUNT.NODE_TESTDB.NODE_TESTSCHEMA.V3",
-              "TESTACCOUNT.NODE_TESTDB.NODE_TESTSCHEMA.V2",
-              "TESTACCOUNT.NODE_TESTDB.NODE_TESTSCHEMA.V1"
+              "S3TESTACCOUNT.NODE_TESTDB.NODE_TESTSCHEMA.V2",
+              "S3TESTACCOUNT.NODE_TESTDB.NODE_TESTSCHEMA.V3",
+              "S3TESTACCOUNT.NODE_TESTDB.NODE_TESTSCHEMA.V1"
             ]
           },
         callback: done
@@ -379,14 +379,14 @@ describe('system$get_objects()', function ()
         output:
           {
             "TABLE": [
-              "TESTACCOUNT.NODE_TESTDB.NODE_TESTSCHEMA.T1",
-              "TESTACCOUNT.NODE_TESTDB.NODE_TESTSCHEMA.T2"
+              "S3TESTACCOUNT.NODE_TESTDB.NODE_TESTSCHEMA.T1",
+              "S3TESTACCOUNT.NODE_TESTDB.NODE_TESTSCHEMA.T2"
             ],
             "VIEW": [
-              "TESTACCOUNT.NODE_TESTDB.NODE_TESTSCHEMA.V3",
-              "TESTACCOUNT.NODE_TESTDB.NODE_TESTSCHEMA.V2",
-              "TESTACCOUNT.NODE_TESTDB.NODE_TESTSCHEMA.V1",
-              "TESTACCOUNT.NODE_TESTDB.NODE_TESTSCHEMA.V4"
+              "S3TESTACCOUNT.NODE_TESTDB.NODE_TESTSCHEMA.V2",
+              "S3TESTACCOUNT.NODE_TESTDB.NODE_TESTSCHEMA.V3",
+              "S3TESTACCOUNT.NODE_TESTDB.NODE_TESTSCHEMA.V1",
+              "S3TESTACCOUNT.NODE_TESTDB.NODE_TESTSCHEMA.V4"
             ]
           },
         callback: done
@@ -403,12 +403,12 @@ describe('system$get_objects()', function ()
         output:
           {
             "TABLE": [
-              "TESTACCOUNT.NODE_TESTDB.NODE_TESTSCHEMA.T1",
-              "TESTACCOUNT.NODE_TESTDB.NODE_TESTSCHEMA.T2"
+              "S3TESTACCOUNT.NODE_TESTDB.NODE_TESTSCHEMA.T1",
+              "S3TESTACCOUNT.NODE_TESTDB.NODE_TESTSCHEMA.T2"
             ],
             "VIEW": [
-              "TESTACCOUNT.NODE_TESTDB.NODE_TESTSCHEMA.V2",
-              "TESTACCOUNT.NODE_TESTDB.NODE_TESTSCHEMA.V1"
+              "S3TESTACCOUNT.NODE_TESTDB.NODE_TESTSCHEMA.V2",
+              "S3TESTACCOUNT.NODE_TESTDB.NODE_TESTSCHEMA.V1"
             ]
           },
         callback: done

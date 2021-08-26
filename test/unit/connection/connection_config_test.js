@@ -312,6 +312,28 @@ describe('ConnectionConfig: basic', function ()
           validateDefaultParameters: 2
         },
         errorCode: ErrorCodes.ERR_CONN_CREATE_INVALID_VALIDATE_DEFAULT_PARAMETERS
+      },
+      {
+        name: 'invalid application name',
+        options:
+        {
+          username: 'username',
+          password: 'password',
+          account: 'account',
+          application: '123Test'
+        },
+        errorCode: ErrorCodes.ERR_CONN_CREATE_INVALID_APPLICATION
+      },
+      {
+        name: 'invalid application length',
+        options:
+        {
+          username: 'username',
+          password: 'password',
+          account: 'account',
+          application: 'abcdefghijklmnopABCDEFGHIJKLMNOP1234567890abcdefghijklmnopABCDEFGHIJKLMNOP1234567890'
+        },
+        errorCode: ErrorCodes.ERR_CONN_CREATE_INVALID_APPLICATION
       }
     ];
 
@@ -530,6 +552,22 @@ describe('ConnectionConfig: basic', function ()
           username: 'username',
           password: 'password',
           account: 'account',
+        }
+      },
+      {
+        name: 'application',
+        input:
+        {
+          username: 'username',
+          password: 'password',
+          account: 'account',
+          application: "test123"
+        },
+        options:
+        {
+          accessUrl: 'https://account.snowflakecomputing.com',
+          username: 'username',
+          password: 'password'
         }
       }
     ];

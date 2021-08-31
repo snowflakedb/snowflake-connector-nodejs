@@ -45,7 +45,7 @@ describe('default authentication', function ()
     var body = authenticator.formAuthJSON(connectionOptionsDefault.authenticator,
       connectionOptionsDefault.account,
       connectionOptionsDefault.username,
-      {}, {}, {});
+      {}, {}, {}, {});
 
     assert.strictEqual(
       body['data']['AUTHENTICATOR'], authenticationTypes.DEFAULT_AUTHENTICATOR, 'Authenticator should be SNOWFLAKE');
@@ -155,7 +155,7 @@ describe('external browser authentication', function ()
     var body = authenticator.formAuthJSON(connectionOptionsExternalBrowser.authenticator,
       connectionOptionsExternalBrowser.account,
       connectionOptionsExternalBrowser.username,
-      {}, {}, {});
+      {}, {}, {}, {});
 
     assert.strictEqual(
       body['data']['AUTHENTICATOR'], authenticationTypes.EXTERNAL_BROWSER_AUTHENTICATOR, 'Authenticator should be EXTERNALBROWSER');
@@ -300,7 +300,7 @@ describe('key-pair authentication', function ()
     var body = authenticator.formAuthJSON(connectionOptionsKeyPair.authenticator,
       connectionOptionsKeyPair.account,
       connectionOptionsKeyPair.username,
-      {}, {}, {});
+      {}, {}, {}, {});
 
     assert.strictEqual(
       body['data']['AUTHENTICATOR'], authenticationTypes.KEY_PAIR_AUTHENTICATOR, 'Authenticator should be SNOWFLAKE_JWT');
@@ -325,7 +325,7 @@ describe('oauth authentication', function ()
     var body = authenticator.formAuthJSON(connectionOptionsOauth.authenticator,
       connectionOptionsOauth.account,
       connectionOptionsOauth.username,
-      {}, {}, {});
+      {}, {}, {}, {});
 
     assert.strictEqual(
       body['data']['AUTHENTICATOR'], authenticationTypes.OAUTH_AUTHENTICATOR, 'Authenticator should be OAUTH');
@@ -502,7 +502,7 @@ describe('okta authentication', function ()
     var body = authenticator.formAuthJSON(connectionOptionsOkta.authenticator,
       connectionOptionsOkta.account,
       connectionOptionsOkta.username,
-      {}, {}, {});
+      {}, {}, {}, {});
 
     assert.strictEqual(
       body['data']['AUTHENTICATOR'], 'https://dev-12345678.okta.com/' , 'Authenticator should be OAUTH');

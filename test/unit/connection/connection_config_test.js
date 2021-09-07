@@ -229,7 +229,8 @@ describe('ConnectionConfig: basic', function ()
           password: 'password',
           account: 'account',
           proxyHost: 'proxyHost',
-          proxyPort: 1234
+          proxyPort: 1234,
+          proxyPassword: 'proxyPassword'
         },
         errorCode: ErrorCodes.ERR_CONN_CREATE_MISSING_PROXY_USER
       },
@@ -615,6 +616,42 @@ describe('ConnectionConfig: basic', function ()
           password: 'password',
           account: 'account',
           application: "test123"
+        },
+        options:
+        {
+          accessUrl: 'https://account.snowflakecomputing.com',
+          username: 'username',
+          password: 'password'
+        }
+      },
+      {
+        name: 'proxy without user/password',
+        input:
+        {
+          username: 'username',
+          password: 'password',
+          account: 'account',
+          proxyHost: 'proxyHost',
+          proxyPort: 1234,
+        },
+        options:
+        {
+          accessUrl: 'https://account.snowflakecomputing.com',
+          username: 'username',
+          password: 'password'
+        }
+      },
+      {
+        name: 'proxy with user/password',
+        input:
+        {
+          username: 'username',
+          password: 'password',
+          account: 'account',
+          proxyHost: 'proxyHost',
+          proxyPort: 1234,
+          proxyUser: 'proxyUser',
+          proxyPassword: 'proxyPassword'
         },
         options:
         {

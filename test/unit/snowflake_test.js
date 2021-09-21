@@ -1815,6 +1815,33 @@ describe('snowflake.connect() with 504', function ()
   });
 });
 
+describe('connection.connect() with inferred account success', function ()
+{
+  it('connect() success', function (done)
+  {
+    // regression test for issue #193.  account will be inferred but previously
+    // the hostname parameter was not configured when account was inferred.
+    var connectionOptions = {
+      accessUrl: 'http://fakeaccount.snowflakecomputing.com',
+      username: 'thefakeusername',
+      password: 'thefakepassword',
+    };
+
+    var connection = snowflake.createConnection(connectionOptions);
+    var ret = connection.connect(function (err, conn)
+    {
+      assert.ok(!err, 'there should be no error');
+      assert.strictEqual(conn, connection,
+        'the connect() callback should be invoked with the connection');
+      done();
+    });
+
+    assert.strictEqual(
+      connection, ret, 'connect() should return the connection');
+  });
+});
+
+
 // TODO: test large results
 // TODO: test token renewal
 // TODO: test network errors

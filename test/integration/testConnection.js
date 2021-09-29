@@ -788,19 +788,26 @@ describe('Connection test - connection pool', function ()
     assert.equal(connectionPool.pending, 1);
     assert.equal(connectionPool.spareResourceCapacity, 4);
 
-    // Once acquired, release the connection
-    resourcePromise1.then(function (connection)
-    {
-      assert.ok(connection.isUp(), "not active");
-      assert.equal(connectionPool.pending, 0);
+    async.series(
+      [
+        function (callback)
+        {
+          // Once acquired, release the connection
+          resourcePromise1.then(function (connection)
+          {
+            assert.ok(connection.isUp(), "not active");
+            assert.equal(connectionPool.pending, 0);
 
-      connectionPool.release(connection).then(() =>
-      {
-        // One connection should be available for use
-        assert.equal(connectionPool.available, 1);
-        done();
-      });
-    });
+            connectionPool.release(connection).then(() =>
+            {
+              // One connection should be available for use
+              assert.equal(connectionPool.available, 1);
+              callback();
+            });
+          });
+        }
+      ],
+      done);
   });
 
   it('acquire() 5 connections and release()', function (done)

@@ -91,7 +91,6 @@ pipeline {
                 wgetUpdateGithub('success', 'semgrep', "${BUILD_URL}", '123')
               } catch (err) {
                 wgetUpdateGithub('failure', 'semgrep', "${BUILD_URL}", '123')
-                throw err
               }
             }
           }

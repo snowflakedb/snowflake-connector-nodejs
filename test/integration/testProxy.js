@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 2015-2019 Snowflake Computing Inc. All rights reserved.
  */
-var snowflake = require('../lib/snowflake');
+var snowflake = require('./../../lib/snowflake');
 var async = require('async');
 var testUtil = require('../test/integration/testUtil');
 var connOptions = require('./connectionOptions');

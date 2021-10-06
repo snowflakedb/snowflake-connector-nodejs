@@ -78,11 +78,15 @@ describe('testProxy', function ()
       [
         function (callback)
         {
+          console.log("connect start");
           testUtil.connect(connection, callback);
+          console.log("connect end");
         },
         function (callback)
         {
+          console.log("destroy connect start");
           testUtil.destroyConnection(connection, callback);
+          console.log("destroy connect end");
         }
       ],
       done

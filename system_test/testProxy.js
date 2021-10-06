@@ -17,6 +17,10 @@ describe('testProxy', function ()
         function (callback)
         {
           testUtil.connect(connection, callback);
+        },
+        function (callback)
+        {
+          testUtil.destroyConnection(connection, callback);
         }
       ],
       done
@@ -25,6 +29,7 @@ describe('testProxy', function ()
 
   it('testSimpleSelectWithProxy', function (done)
   {
+    this.timeout(20000);
     var connection = snowflake.createConnection(connOptions.connectionWithProxy);
     async.series(
       [

@@ -3,7 +3,7 @@
  */
 var snowflake = require('./../../lib/snowflake');
 var async = require('async');
-var testUtil = require('../test/integration/testUtil');
+var testUtil = require('./testUtil');
 var connOptions = require('./connectionOptions');
 
 var externalAccount =
@@ -92,7 +92,7 @@ describe('testProxy', function ()
   it('testSimpleSelectWithProxy', function (done)
   {
     this.timeout(20000);
-    var connection = snowflake.createConnection(connOptions.connectionWithProxy);
+    var connection = snowflake.createConnection(connectionWithProxy);
     async.series(
       [
         function (callback)

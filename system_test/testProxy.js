@@ -17,10 +17,6 @@ describe('testProxy', function ()
         function (callback)
         {
           testUtil.connect(connection, callback);
-        },
-        function (callback)
-        {
-          testUtil.destroyConnection(connection, callback);
         }
       ],
       done

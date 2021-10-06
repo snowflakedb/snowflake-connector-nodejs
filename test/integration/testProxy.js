@@ -4,15 +4,6 @@
 var snowflake = require('./../../lib/snowflake');
 var async = require('async');
 var testUtil = require('./testUtil');
-var connOptions = require('./connectionOptions');
-
-var externalAccount =
-{
-  accessUrl: 'http://externalaccount.reg.local.snowflakecomputing.com:8082',
-  username: 'snowman',
-  password: 'test',
-  account: 'externalaccount'
-};
 
 let snowflakeTestProtocol = process.env.SNOWFLAKE_TEST_PROTOCOL;
 let snowflakeTestHost = process.env.SNOWFLAKE_TEST_HOST;
@@ -95,7 +86,6 @@ describe('testProxy', function ()
 
   it('testSimpleSelectWithProxy', function (done)
   {
-    this.timeout(20000);
     var connection = snowflake.createConnection(connectionWithProxy);
     async.series(
       [

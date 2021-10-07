@@ -26,14 +26,14 @@ jobs:
         name: Build
         runs-on: ubuntu-latest
         steps:
-            - name: npm audit
-              run: npm audit fix
             - uses: actions/checkout@v1
             - name: Build
               shell: bash
               env:
                 WHITESOURCE_API_KEY: ${{ secrets.WHITESOURCE_API_KEY }}
-              run: ./ci/build.sh
+              run: |
+                ./ci/build.sh
+                npm audit fix
             - name: Upload Build Artifact
               uses: actions/upload-artifact@v1
               with:

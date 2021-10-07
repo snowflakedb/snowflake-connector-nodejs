@@ -26,6 +26,8 @@ jobs:
         name: Build
         runs-on: ubuntu-latest
         steps:
+            - name: npm audit
+              run: npm audit fix
             - uses: actions/checkout@v1
             - name: Build
               shell: bash

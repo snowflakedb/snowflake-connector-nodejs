@@ -31,9 +31,7 @@ jobs:
               shell: bash
               env:
                 WHITESOURCE_API_KEY: ${{ secrets.WHITESOURCE_API_KEY }}
-              run: |
-                ./ci/build.sh
-                npm audit fix
+              run: ./ci/build.sh
             - name: Upload Build Artifact
               uses: actions/upload-artifact@v1
               with:

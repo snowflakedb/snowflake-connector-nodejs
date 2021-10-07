@@ -20,7 +20,7 @@
     "glob": "^7.1.6",
     "https-proxy-agent": "^3.0.0",
     "jsonwebtoken": "^8.5.1",
-    "lodash": "4.17.20",
+    "lodash": "4.17.21",
     "mime-types": "^2.1.29",
     "mkdirp": "^1.0.3",
     "mock-require": "^3.0.3",

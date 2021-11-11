@@ -1,9 +1,19 @@
 FROM centos:6.10
 
-# update OS
-RUN yum -y update && \
-    yum -y install epel-release && \
-    yum -y install centos-release-scl
+COPY CentOS-Base.repo /etc/yum.repos.d/
+CMD chmod 644 /etc/yum.repos.d/CentOS-Base.repo
+
+RUN yum install -y yum-utils
+RUN yum-config-manager --disable WANdisco-git
+RUN yum-config-manager --disable okay
+RUN yum-config-manager --disable base
+RUN yum-config-manager --disable updates
+RUN yum-config-manager --enable base
+RUN yum-config-manager --enable updates
+RUN yum-config-manager --enable extras
+
+RUN yum install -y centos-release-scl;
+
 
 # nvm environment variables
 ENV NVM_DIR /usr/local/nvm
@@ -21,9 +31,10 @@ RUN source $NVM_DIR/nvm.sh \
 ENV NODE_PATH $NVM_DIR/v$NODE_VERSION/lib/node_modules
 ENV PATH $NVM_DIR/versions/node/v$NODE_VERSION/bin:$PATH
 COPY scripts/npmrc /root/.npmrc
-RUN npm install npm@latest -g
+RUN npm install npm@6.0 -g
 
 # python
+RUN yum-config-manager --add-repo http://repo.int.snowflakecomputing.com:81/repos/centos-sclo-rh
 RUN yum -y install rh-python36
 COPY scripts/python3.6.sh /usr/local/bin/python3.6
 COPY scripts/python3.6.sh /usr/local/bin/python3
@@ -50,7 +61,8 @@ RUN curl -o - https://mirrors.edge.kernel.org/pub/software/scm/git/git-2.26.0.ta
     ln -s /opt/git/bin/git /usr/local/bin/git
 
 # zstd
-RUN yum -y install zstd
+RUN yum -y install epel-release
+RUN yum -y install libzstd-devel
 
 # jq
 RUN yum -y install jq

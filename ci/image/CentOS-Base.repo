@@ -1,0 +1,38 @@
+# yum repo file for snowflake internal backup yum repo
+# Used as a temporary fix for ODBC docker before moving docker
+# maintenace to Engineer Infra Team
+
+[base]
+name=CentOS-$releasever - Base
+baseurl=http://repo.int.snowflakecomputing.com:81/repos/base
+gpgcheck=1
+priority=10
+gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-CentOS-6
+
+[updates]
+name=CentOS-$releasever - Updates
+baseurl=http://repo.int.snowflakecomputing.com:81/repos/updates
+gpgcheck=1
+priority=10
+gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-CentOS-6
+
+[extras]
+name=CentOS-$releasever - Extras
+baseurl=http://repo.int.snowflakecomputing.com:81/repos/extras
+gpgcheck=1
+priority=10
+gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-CentOS-6
+
+[centos-sclo-rh]
+name=CentOS-6.10 - SCLo rh
+baseurl=http://vault.centos.org/centos/6.10/sclo/$basearch/rh/
+gpgcheck=1
+enabled=1
+gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-CentOS-SIG-SCLo
+
+[centos-sclo-sclo]
+name=CentOS-6.10 - SCLo sclo
+baseurl=http://vault.centos.org/centos/6.10/sclo/$basearch/sclo/
+gpgcheck=1
+enabled=1
+gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-CentOS-SIG-SCLo

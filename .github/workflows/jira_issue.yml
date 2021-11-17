@@ -10,6 +10,11 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v2
+        with:
+          repository: snowflakedb/gh-actions
+          ref: jira_v1
+          token: ${{ secrets.SNOWFLAKE_GITHUB_TOKEN }} # stored in GitHub secrets
+          path: .
       - name: create
         id: create
         uses: ./.github/actions/gajira-create
@@ -25,7 +30,7 @@ jobs:
           SUMMARY: "{{ event.issue.title }}"
           DESCRIPTION: "{{ event.issue.body }}\n\n_Created from GitHub Action_ for {{ event.issue.html_url }}"
       - name: update issue
-        uses: ./.github/actions/gajira-issue-update
+        uses: ./jira/gajira-issue-update
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:

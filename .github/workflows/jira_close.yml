@@ -10,11 +10,6 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v2
-        with:
-          repository: snowflakedb/gh-actions
-          ref: jira_v1
-          token: ${{ secrets.SNOWFLAKE_GITHUB_TOKEN }} # stored in GitHub secrets
-          path: .
       - name: Jira login
         uses: atlassian/gajira-login@master
         env:
@@ -29,7 +24,7 @@ jobs:
           jira=$(echo -n $TITLE | awk '{print $1}' | sed -e 's/://')
           echo ::set-output name=jira::$jira
       - name: Close issue
-        uses: ./jira/gajira-close
+        uses: ./.github/actions/gajira-close
         if: startsWith(steps.extract.outputs.jira, 'SNOW-')
         with:
           issue: "${{ steps.extract.outputs.jira }}"

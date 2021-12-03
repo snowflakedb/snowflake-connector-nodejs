@@ -113,7 +113,8 @@ describe('PUT GET test', function ()
         // Windows user contains a '~' in the path which causes an error
         if (process.platform == "win32")
         {
-          getQuery = `GET @${DATABASE_NAME}.${SCHEMA_NAME}.%${TEMP_TABLE_NAME} file://${tmpDir}`;
+          var dirName = tmpDir.substring(tmpDir.lastIndexOf('\\') + 1);
+          getQuery = `GET @${DATABASE_NAME}.${SCHEMA_NAME}.%${TEMP_TABLE_NAME} file://${process.env.USERPROFILE}\\AppData\\Local\\Temp\\${dirName}`;
         }
 
         async.series(

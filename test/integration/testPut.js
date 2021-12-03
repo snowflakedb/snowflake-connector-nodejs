@@ -100,6 +100,7 @@ describe('PUT test', function ()
         {
           var fileName = tmpFile.name.substring(tmpFile.name.lastIndexOf('\\'));
           putQuery = `PUT file://${process.env.USERPROFILE}\\AppData\\Local\\Temp\\${fileName} @${DATABASE_NAME}.${SCHEMA_NAME}.%${TEMP_TABLE_NAME}`;
+          console.log('debug: ' + putQuery);
         }
 
         async.series(

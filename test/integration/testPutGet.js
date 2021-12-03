@@ -116,8 +116,6 @@ describe('PUT GET test', function ()
           getQuery = `GET @${DATABASE_NAME}.${SCHEMA_NAME}.%${TEMP_TABLE_NAME} file://${tmpDir}`;
         }
 
-        console.log('debug: ' + getQuery);
-
         async.series(
           [
             function (callback)

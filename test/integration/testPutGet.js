@@ -109,6 +109,15 @@ describe('PUT GET test', function ()
         var tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'get'));
         var fileSize;
 
+        var getQuery = `GET @${DATABASE_NAME}.${SCHEMA_NAME}.%${TEMP_TABLE_NAME} file://${tmpDir}`;
+        // Windows user contains a '~' in the path which causes an error
+        if (process.platform == "win32")
+        {
+          getQuery = `GET @${DATABASE_NAME}.${SCHEMA_NAME}.%${TEMP_TABLE_NAME} file://${tmpDir}`;
+        }
+
+        console.log('debug: ' + getQuery);
+
         async.series(
           [
             function (callback)
@@ -202,7 +211,7 @@ describe('PUT GET test', function ()
             {
               // Run GET command
               var statement = connection.execute({
-                sqlText: `GET @${DATABASE_NAME}.${SCHEMA_NAME}.%${TEMP_TABLE_NAME} file://${tmpDir}`,
+                sqlText: getQuery,
                 complete: function (err, stmt, rows)
                 {
                   var stream = statement.streamRows();

@@ -4,7 +4,7 @@
   "description": "Node.js driver for Snowflake",
   "dependencies": {
     "@azure/storage-blob": "^12.5.0",
-    "agent-base": "^4.3.0",
+    "agent-base": "^6.0.0",
     "asn1.js-rfc2560": "^5.0.0",
     "asn1.js-rfc5280": "^3.0.0",
     "aws-sdk": "^2.878.0",

@@ -1,0 +1,19 @@
+{
+  "scanSettings": {
+    "configMode": "LOCAL",
+    "configExternalURL": "",
+    "projectToken": "",
+    "baseBranches": []
+  },
+  "checkRunSettings": {
+    "vulnerableCheckRunConclusionLevel": "failure",
+    "displayMode": "diff"
+  },
+  "issueSettings": {
+    "minSeverityLevel": "LOW"
+  },
+  "remediateSettings": {
+    "enableRenovate": false,
+    "commitMessagePrefix": "SNOW-515713"
+  }
+} 

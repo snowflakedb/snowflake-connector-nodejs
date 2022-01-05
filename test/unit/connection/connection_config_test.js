@@ -222,6 +222,60 @@ describe('ConnectionConfig: basic', function ()
         errorCode: ErrorCodes.ERR_CONN_CREATE_INVALID_PROXY_PORT
       },
       {
+        name: 'missing proxyUser',
+        options:
+        {
+          username: 'username',
+          password: 'password',
+          account: 'account',
+          proxyHost: 'proxyHost',
+          proxyPort: 1234,
+          proxyPassword: 'proxyPassword'
+        },
+        errorCode: ErrorCodes.ERR_CONN_CREATE_MISSING_PROXY_USER
+      },
+      {
+        name: 'invalid proxyUser',
+        options:
+        {
+          username: 'username',
+          password: 'password',
+          account: 'account',
+          proxyHost: 'proxyHost',
+          proxyPort: 1234,
+          proxyUser: 1234
+        },
+        errorCode: ErrorCodes.ERR_CONN_CREATE_INVALID_PROXY_USER
+      },
+
+      {
+        name: 'missing proxyPassword',
+        options:
+        {
+          username: 'username',
+          password: 'password',
+          account: 'account',
+          proxyHost: 'proxyHost',
+          proxyPort: 1234,
+          proxyUser: 'proxyUser'
+        },
+        errorCode: ErrorCodes.ERR_CONN_CREATE_MISSING_PROXY_PASS
+      },
+      {
+        name: 'invalid proxyPassword',
+        options:
+        {
+          username: 'username',
+          password: 'password',
+          account: 'account',
+          proxyHost: 'proxyHost',
+          proxyPort: 1234,
+          proxyUser: 'proxyUser',
+          proxyPassword: 1234
+        },
+        errorCode: ErrorCodes.ERR_CONN_CREATE_INVALID_PROXY_PASS
+      },
+      {
         name: 'invalid streamResult',
         options:
           {
@@ -253,6 +307,87 @@ describe('ConnectionConfig: basic', function ()
             fetchAsString: ['invalid']
           },
         errorCode: ErrorCodes.ERR_CONN_CREATE_INVALID_FETCH_AS_STRING_VALUES
+      },
+      {
+        name: 'invalid private key value',
+        options:
+        {
+          username: 'username',
+          password: 'password',
+          account: 'account',
+          privateKey: 'abcd',
+          authenticator: 'SNOWFLAKE_JWT'
+        },
+        errorCode: ErrorCodes.ERR_CONN_CREATE_INVALID_PRIVATE_KEY
+      },
+      {
+        name: 'invalid private key path',
+        options:
+        {
+          username: 'username',
+          password: 'password',
+          account: 'account',
+          privateKeyPath: 1234,
+          authenticator: 'SNOWFLAKE_JWT'
+        },
+        errorCode: ErrorCodes.ERR_CONN_CREATE_INVALID_PRIVATE_KEY_PATH
+      },
+      {
+        name: 'invalid private key pass',
+        options:
+        {
+          username: 'username',
+          password: 'password',
+          account: 'account',
+          privateKeyPass: 1234,
+          authenticator: 'SNOWFLAKE_JWT'
+        },
+        errorCode: ErrorCodes.ERR_CONN_CREATE_INVALID_PRIVATE_KEY_PASS
+      },
+      {
+        name: 'invalid oauth token',
+        options:
+        {
+          username: 'username',
+          password: 'password',
+          account: 'account',
+          token: 1234,
+          authenticator: 'OAUTH'
+        },
+        errorCode: ErrorCodes.ERR_CONN_CREATE_INVALID_OAUTH_TOKEN
+      },
+      {
+        name: 'invalid validateDefaultParameters',
+        options:
+        {
+          username: 'username',
+          password: 'password',
+          account: 'account',
+          validateDefaultParameters: 2
+        },
+        errorCode: ErrorCodes.ERR_CONN_CREATE_INVALID_VALIDATE_DEFAULT_PARAMETERS
+      },
+      {
+        name: 'invalid application name',
+        options:
+        {
+          username: 'username',
+          password: 'password',
+          account: 'account',
+          application: '123Test'
+        },
+        errorCode: ErrorCodes.ERR_CONN_CREATE_INVALID_APPLICATION
+      },
+      {
+        name: 'invalid application length',
+        options:
+        {
+          username: 'username',
+          password: 'password',
+          account: 'account',
+          application: 'abcdefghijklmnopABCDEFGHIJKLMNOP1234567890abcdefghijklmnopABCDEFGHIJKLMNOP1234567890'
+        },
+        errorCode: ErrorCodes.ERR_CONN_CREATE_INVALID_APPLICATION
       }
     ];
 
@@ -455,6 +590,75 @@ describe('ConnectionConfig: basic', function ()
             password: 'password',
             account: 'account'
           }
+      },
+      {
+        name: 'validate default parameters',
+        input:
+        {
+          username: 'username',
+          password: 'password',
+          account: 'account',
+          validateDefaultParameters: true
+        },
+        options:
+        {
+          accessUrl: 'https://account.snowflakecomputing.com',
+          username: 'username',
+          password: 'password',
+          account: 'account',
+        }
+      },
+      {
+        name: 'application',
+        input:
+        {
+          username: 'username',
+          password: 'password',
+          account: 'account',
+          application: "test123"
+        },
+        options:
+        {
+          accessUrl: 'https://account.snowflakecomputing.com',
+          username: 'username',
+          password: 'password'
+        }
+      },
+      {
+        name: 'proxy without user/password',
+        input:
+        {
+          username: 'username',
+          password: 'password',
+          account: 'account',
+          proxyHost: 'proxyHost',
+          proxyPort: 1234,
+        },
+        options:
+        {
+          accessUrl: 'https://account.snowflakecomputing.com',
+          username: 'username',
+          password: 'password'
+        }
+      },
+      {
+        name: 'proxy with user/password',
+        input:
+        {
+          username: 'username',
+          password: 'password',
+          account: 'account',
+          proxyHost: 'proxyHost',
+          proxyPort: 1234,
+          proxyUser: 'proxyUser',
+          proxyPassword: 'proxyPassword'
+        },
+        options:
+        {
+          accessUrl: 'https://account.snowflakecomputing.com',
+          username: 'username',
+          password: 'password'
+        }
       }
     ];
 

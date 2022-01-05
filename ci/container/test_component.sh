@@ -7,7 +7,8 @@ THIS_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 export WORKSPACE=${WORKSPACE:-/mnt/workspace}
 export SOURCE_ROOT=${SOURCE_ROOT:-/mnt/host}
 export DRIVER_NAME=nodejs
-export TIMEOUT=120000
+export TIMEOUT=180000
+export SF_OCSP_TEST_OCSP_RESPONDER_TIMEOUT=1000
 
 [[ -z "$GIT_BRANCH" ]] && echo "Set GIT_BRANCH to test" && exit 1
 [[ -z "$GIT_URL" ]] && echo "Set GIT_URL to test" && exit 1
@@ -30,12 +31,12 @@ PACKAGE_NAME=$(cd $WORKSPACE && ls snowflake-sdk*.tgz)
 npm install $WORKSPACE/${PACKAGE_NAME}
 
 echo "[INFO] Setting test parameters"
-if [[ -f "$WORKSPACE/parameters.json" ]]; then
-    echo "[INFO] Found parameter file in $WORKSPACE"
-    PARAMETER_FILE=$WORKSPACE/parameters.json
-else
+if [[ "$LOCAL_USER_NAME" == "jenkins" ]]; then
     echo "[INFO] Use the default test parameters.json"
     PARAMETER_FILE=$SOURCE_ROOT/test/parameters.json
+else
+    echo "[INFO] Found parameter file in $WORKSPACE"
+    PARAMETER_FILE=$WORKSPACE/parameters.json
 fi
 eval $(jq -r '.testconnection | to_entries | map("export \(.key)=\(.value|tostring)")|.[]' $PARAMETER_FILE)
 

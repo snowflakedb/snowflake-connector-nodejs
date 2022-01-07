@@ -5,9 +5,11 @@ var assert = require('assert');
 var testUtil = require('./testUtil');
 require('events').EventEmitter.prototype._maxListeners = 100;
 
-describe('Test Steam Rows API', function ()
+describe('Test Stream Rows API', function ()
 {
   var connection;
+
+  this.timeout(300000);
 
   before(function (done)
   {
@@ -312,6 +314,29 @@ describe('Test Steam Rows API', function ()
         }, 300);
       }
     });
+  });
+
+  it('testLargeResultSet', function (done) {
+    // The test should finish in around 15min
+    this.timeout(900000);
+    var expectedRowCount = 100000000;
+    connection.execute({
+      sqlText: 'select randstr(10, random()) from table(generator(rowcount=>' + expectedRowCount + '))',
+      streamResult: true,
+      complete: function (err, stmt) {
+        testUtil.checkError(err);
+        var rowCount = 0;
+        var stream = stmt.streamRows();
+        stream.on('data', function () {
+            rowCount++;
+        }).on('end', function () {
+          assert.strictEqual(rowCount, expectedRowCount);
+          done();
+        }).on('error', function (err) {
+          testUtil.checkError(err);
+        });
+      }
+    })
   });
 
   /*it('testPipeIntoFile', function(done)

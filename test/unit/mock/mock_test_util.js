@@ -79,6 +79,61 @@ var connectionOptionsWithTreatIntAsBigInt =
     jsTreatIntegerAsBigInt: true
   };
 
+var connectionOptionsDefault =
+{
+  accessUrl: 'http://fakeaccount.snowflakecomputing.com',
+  username: 'fakeusername',
+  password: 'fakepassword',
+  account: 'fakeaccount',
+  authenticator: 'SNOWFLAKE'
+};
+
+var connectionOptionsExternalBrowser =
+{
+  accessUrl: 'http://fakeaccount.snowflakecomputing.com',
+  username: 'fakeusername',
+  account: 'fakeaccount',
+  authenticator: 'EXTERNALBROWSER'
+};
+
+var connectionOptionsKeyPair =
+{
+  accessUrl: 'http://fakeaccount.snowflakecomputing.com',
+  username: 'fakeusername',
+  account: 'fakeaccount',
+  privateKey: 'fakeprivatekey',
+  authenticator: 'SNOWFLAKE_JWT'
+};
+
+var connectionOptionsKeyPairPath =
+{
+  accessUrl: 'http://fakeaccount.snowflakecomputing.com',
+  username: 'fakeusername',
+  account: 'fakeaccount',
+  privateKeyPath: 'fakeprivatekeypath',
+  privateKeyPass: 'fakeprivatekeypass',
+  authenticator: 'SNOWFLAKE_JWT'
+};
+
+var connectionOptionsOauth =
+{
+  accessUrl: 'http://fakeaccount.snowflakecomputing.com',
+  username: 'fakeusername',
+  account: 'fakeaccount',
+  token: 'faketoken',
+  authenticator: 'OAUTH'
+};
+
+var connectionOptionsOkta =
+{
+  accessUrl: 'http://fakeaccount.snowflakecomputing.com',
+  username: 'fakeusername',
+  account: 'fakeaccount',
+  token: 'faketoken',
+  rawSamlResponse: '<form action="https://fakeaccount.snowflakecomputing.com/fed/login">',
+  authenticator: 'https://dev-12345678.okta.com/'
+};
+
 exports.connectionOptions =
   {
     default: connectionOptions,
@@ -87,5 +142,11 @@ exports.connectionOptions =
     clientSessionKeepAlive: connectionOptionsWithClientSessionKeepAlive,
     sessionGone: connectionOptionsForSessionGone,
     http504: connectionOptions504,
-    treatIntAsBigInt: connectionOptionsWithTreatIntAsBigInt
+    treatIntAsBigInt: connectionOptionsWithTreatIntAsBigInt,
+    authDefault: connectionOptionsDefault,
+    authExternalBrowser: connectionOptionsExternalBrowser,
+    authKeyPair: connectionOptionsKeyPair,
+    authKeyPairPath: connectionOptionsKeyPairPath,
+    authOauth: connectionOptionsOauth,
+    authOkta: connectionOptionsOkta
   };

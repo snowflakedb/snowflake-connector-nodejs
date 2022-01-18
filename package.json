@@ -43,6 +43,7 @@
   },
   "devDependencies": {
     "async": "^2.6.1",
+    "follow-redirects": "1.14.7",
     "insert-module-globals": "^7.2.0",
     "mocha": "9.1.2",
     "vinyl-buffer": "^1.0.1",

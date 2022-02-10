@@ -45,7 +45,7 @@
     "async": "^2.6.1",
     "follow-redirects": "1.14.7",
     "insert-module-globals": "^7.2.0",
-    "mocha": "9.1.2",
+    "mocha": "9.2.0",
     "vinyl-buffer": "^1.0.1",
     "vinyl-source-stream": "^1.1.2"
   },

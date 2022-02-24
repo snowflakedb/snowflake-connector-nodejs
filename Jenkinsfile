@@ -24,8 +24,8 @@ timestamps {
       }
     }
     params = [
-      string(name: 'svn_revision', value: 'main'),
-      string(name: 'branch', value: 'main'),
+      string(name: 'svn_revision', value: 'master'),
+      string(name: 'branch', value: 'master'),
       string(name: 'client_git_commit', value: scmInfo.GIT_COMMIT),
       string(name: 'client_git_branch', value: scmInfo.GIT_BRANCH),
       string(name: 'TARGET_DOCKER_TEST_IMAGE', value: 'nodejs-centos6-default'),

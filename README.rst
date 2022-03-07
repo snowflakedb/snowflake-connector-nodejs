@@ -64,6 +64,23 @@ Run Tests
 
     npm test
 
+
+To specify which test to run, change the "test" value on "package.json":
+
+.. code-block:: json
+
+   "scripts": {
+       "test": "mocha test/unit/snowflake_test.js"
+   },
+
+To run all unit test:
+
+.. code-block:: json
+
+   "scripts": {
+       "test": "mocha test/unit/**/*.js"
+   },
+
 Package
 ======================================================================
 

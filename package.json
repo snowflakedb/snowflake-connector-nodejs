@@ -21,6 +21,7 @@
     "jsonwebtoken": "^8.5.1",
     "mime-types": "^2.1.29",
     "mkdirp": "^1.0.3",
+    "mock-require": "^3.0.3",
     "moment": "^2.23.0",
     "moment-timezone": "^0.5.15",
     "ocsp": "^1.2.0",
@@ -37,7 +38,6 @@
   "devDependencies": {
     "async": "^2.6.1",
     "mocha": "9.2.0",
-    "mock-require": "^3.0.3",
     "test-console": "^2.0.0"
   },
   "repository": {

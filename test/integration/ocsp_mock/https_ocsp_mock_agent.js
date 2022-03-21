@@ -15,21 +15,19 @@ const ErrorCodes = Errors.codes;
  */
 function HttpsMockAgentOcspRevoked(options)
 {
-  return HttpsAgent.apply(this, arguments);
+  var agent = HttpsAgent.apply(this, arguments)
+  agent.createConnection = function (options)
+  {
+    const socket = HttpsAgent.prototype.createConnection.apply(this, arguments);
+    return SocketUtil.secureSocket(socket, options.host, {
+      validateCertChain: function (cert, cb)
+      {
+        cb(Errors.createOCSPError(ErrorCodes.ERR_OCSP_REVOKED));
+      }
+    });
+  };
+  return agent;
 }
-
-Util.inherits(HttpsMockAgentOcspRevoked, HttpsAgent);
-
-HttpsMockAgentOcspRevoked.prototype.createConnection = function (options)
-{
-  const socket = HttpsAgent.prototype.createConnection.apply(this, arguments);
-  return SocketUtil.secureSocket(socket, options.host, {
-    validateCertChain: function (cert, cb)
-    {
-      cb(Errors.createOCSPError(ErrorCodes.ERR_OCSP_REVOKED));
-    }
-  });
-};
 
 /**
  * HttpsMockAgentOcspUnkwown returns unknown error
@@ -38,21 +36,19 @@ HttpsMockAgentOcspRevoked.prototype.createConnection = function (options)
  */
 function HttpsMockAgentOcspUnkwown(options)
 {
-  return HttpsAgent.apply(this, arguments);
+  var agent = HttpsAgent.apply(this, arguments)
+  agent.createConnection = function (options)
+  {
+    const socket = HttpsAgent.prototype.createConnection.apply(this, arguments);
+    return SocketUtil.secureSocket(socket, options.host, {
+      validateCertChain: function (cert, cb)
+      {
+        cb(Errors.createOCSPError(ErrorCodes.ERR_OCSP_REVOKED));
+      }
+    });
+  };
+  return agent;
 }
-
-Util.inherits(HttpsMockAgentOcspUnkwown, HttpsAgent);
-
-HttpsMockAgentOcspUnkwown.prototype.createConnection = function (options)
-{
-  const socket = HttpsAgent.prototype.createConnection.apply(this, arguments);
-  return SocketUtil.secureSocket(socket, options.host, {
-    validateCertChain: function (cert, cb)
-    {
-      cb(Errors.createOCSPError(ErrorCodes.ERR_OCSP_UNKNOWN));
-    }
-  });
-};
 
 /**
  * HttpsMockAgentOcspInvalid returns invalid validity OCSP error
@@ -61,21 +57,19 @@ HttpsMockAgentOcspUnkwown.prototype.createConnection = function (options)
  */
 function HttpsMockAgentOcspInvalid(options)
 {
-  return HttpsAgent.apply(this, arguments);
+  var agent = HttpsAgent.apply(this, arguments)
+  agent.createConnection = function (options)
+  {
+    const socket = HttpsAgent.prototype.createConnection.apply(this, arguments);
+    return SocketUtil.secureSocket(socket, options.host, {
+      validateCertChain: function (cert, cb)
+      {
+        cb(Errors.createOCSPError(ErrorCodes.ERR_OCSP_REVOKED));
+      }
+    });
+  };
+  return agent;
 }
-
-Util.inherits(HttpsMockAgentOcspInvalid, HttpsAgent);
-
-HttpsMockAgentOcspInvalid.prototype.createConnection = function (options)
-{
-  const socket = HttpsAgent.prototype.createConnection.apply(this, arguments);
-  return SocketUtil.secureSocket(socket, options.host, {
-    validateCertChain: function (cert, cb)
-    {
-      cb(Errors.createOCSPError(ErrorCodes.ERR_OCSP_INVALID_VALIDITY));
-    }
-  });
-};
 
 module.exports = {
   HttpsMockAgentOcspRevoked: HttpsMockAgentOcspRevoked,

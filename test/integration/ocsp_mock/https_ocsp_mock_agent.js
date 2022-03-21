@@ -43,7 +43,7 @@ function HttpsMockAgentOcspUnkwown(options)
     return SocketUtil.secureSocket(socket, options.host, {
       validateCertChain: function (cert, cb)
       {
-        cb(Errors.createOCSPError(ErrorCodes.ERR_OCSP_REVOKED));
+        cb(Errors.createOCSPError(ErrorCodes.ERR_OCSP_UNKNOWN));
       }
     });
   };
@@ -64,7 +64,7 @@ function HttpsMockAgentOcspInvalid(options)
     return SocketUtil.secureSocket(socket, options.host, {
       validateCertChain: function (cert, cb)
       {
-        cb(Errors.createOCSPError(ErrorCodes.ERR_OCSP_REVOKED));
+        cb(Errors.createOCSPError(ErrorCodes.ERR_OCSP_INVALID_VALIDITY));
       }
     });
   };

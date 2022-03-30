@@ -272,16 +272,17 @@ describe('Test Bind Varible', function ()
             assert.strictEqual('002049', err['code']);
           }
         },
-        //these three testcases won't return an error
         {
           // more binds entry in the array
           sqlText: insertWithSemiColon,
           binds: ['string', 3, 3],
           verifyResults: function (err)
           {
-            testUtil.checkError(err);
+            assert.ok(err);
+            assert.strictEqual('002100', err['code']);
           }
         },
+        //these two testcases won't return an error
         {
           //no qmark or semicolon but with binds
           sqlText: insertValue,

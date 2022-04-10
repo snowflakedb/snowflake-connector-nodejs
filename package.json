@@ -2,12 +2,14 @@
   "name": "snowflake-sdk",
   "version": "1.6.8",
   "description": "Node.js driver for Snowflake",
+  "peerDependencies": {
+    "aws-sdk": "^2.878.0"
+  },
   "dependencies": {
     "@azure/storage-blob": "^12.5.0",
     "agent-base": "^6.0.2",
     "asn1.js-rfc2560": "^5.0.0",
     "asn1.js-rfc5280": "^3.0.0",
-    "aws-sdk": "^2.878.0",
     "axios": "^0.21.4",
     "big-integer": "^1.6.43",
     "bignumber.js": "^2.4.0",

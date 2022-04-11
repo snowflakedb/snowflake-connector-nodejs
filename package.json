@@ -1,10 +1,10 @@
 {
   "name": "snowflake-sdk",
-  "version": "1.6.5",
+  "version": "1.6.8",
   "description": "Node.js driver for Snowflake",
   "dependencies": {
     "@azure/storage-blob": "^12.5.0",
-    "agent-base": "^4.3.0",
+    "agent-base": "^6.0.2",
     "asn1.js-rfc2560": "^5.0.0",
     "asn1.js-rfc5280": "^3.0.0",
     "aws-sdk": "^2.878.0",
@@ -18,8 +18,11 @@
     "extend": "^3.0.2",
     "generic-pool": "^3.8.2",
     "glob": "^7.1.6",
-    "https-proxy-agent": "^3.0.0",
+    "http-signature": "^1.3.6",
+    "https-proxy-agent": "^5.0.0",
     "jsonwebtoken": "^8.5.1",
+    "json-schema": "^0.4.0",
+    "jsprim": "^2.0.2",
     "lodash": "^4.17.21",
     "mime-types": "^2.1.29",
     "mkdirp": "^1.0.3",
@@ -29,8 +32,8 @@
     "ocsp": "^1.2.0",
     "open": "^7.3.1",
     "python-struct": "^1.1.3",
-    "request": "^2.88.0",
-    "requestretry": "^6.0.0",
+    "request": "^2.88.2",
+    "requestretry": "^7.0.1",
     "simple-lru-cache": "^0.0.2",
     "string-similarity": "^4.0.4",
     "test-console": "^2.0.0",
@@ -40,8 +43,9 @@
   },
   "devDependencies": {
     "async": "^2.6.1",
+    "follow-redirects": "1.14.8",
     "insert-module-globals": "^7.2.0",
-    "mocha": "9.1.2",
+    "mocha": "9.2.0",
     "vinyl-buffer": "^1.0.1",
     "vinyl-source-stream": "^1.1.2"
   },
@@ -50,7 +54,7 @@
     "url": "https://github.com/snowflakedb/snowflake-connector-nodejs"
   },
   "scripts": {
-    "test": "./scripts/run_test.sh"
+    "test": "mocha test/unit/**/*.js"
   },
   "author": {
     "name": "Snowflake Computing, Inc.",

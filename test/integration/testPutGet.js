@@ -9,12 +9,15 @@ const fileCompressionType = require('./../../lib/file_transfer_agent/file_compre
 const fs = require('fs');
 const testUtil = require('./testUtil');
 const tmp = require('tmp');
+const os = require('os');
+const path = require('path');
 
 const DATABASE_NAME = connOption.valid.database;
 const SCHEMA_NAME = connOption.valid.schema;
 const TEMP_TABLE_NAME = 'TEMP_TABLE';
 
 const UPLOADED = "UPLOADED";
+const DOWNLOADED = "DOWNLOADED";
 
 const COL1 = 'C1';
 const COL2 = 'C2';
@@ -28,7 +31,7 @@ const ROW_DATA =
   COL1_DATA + "," + COL2_DATA + "," + COL3_DATA + "\n" +
   COL1_DATA + "," + COL2_DATA + "," + COL3_DATA + "\n";
 
-describe('PUT test', function ()
+describe('PUT GET test', function ()
 {
   this.timeout(100000);
 
@@ -59,27 +62,27 @@ describe('PUT test', function ()
   var testCases =
     [
       {
-        name: 'PUT command - gzip',
+        name: 'gzip',
         encoding: fileCompressionType.lookupByMimeSubType('gzip'),
       },
       {
-        name: 'PUT command - bzip2',
+        name: 'bzip2',
         encoding: fileCompressionType.lookupByMimeSubType('bz2'),
       },
       {
-        name: 'PUT command - brotli',
+        name: 'brotli',
         encoding: fileCompressionType.lookupByMimeSubType('br'),
       },
       {
-        name: 'PUT command - deflate',
+        name: 'deflate',
         encoding: fileCompressionType.lookupByMimeSubType('deflate'),
       },
       {
-        name: 'PUT command - raw deflate',
+        name: 'raw deflate',
         encoding: fileCompressionType.lookupByMimeSubType('raw_deflate'),
       },
       {
-        name: 'PUT command - zstd',
+        name: 'zstd',
         encoding: fileCompressionType.lookupByMimeSubType('zstd'),
       }
     ];
@@ -100,6 +103,18 @@ describe('PUT test', function ()
         {
           var fileName = tmpFile.name.substring(tmpFile.name.lastIndexOf('\\'));
           putQuery = `PUT file://${process.env.USERPROFILE}\\AppData\\Local\\Temp\\${fileName} @${DATABASE_NAME}.${SCHEMA_NAME}.%${TEMP_TABLE_NAME}`;
+        }
+
+        // Create a tmp folder for downloaded files
+        var tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'get'));
+        var fileSize;
+
+        var getQuery = `GET @${DATABASE_NAME}.${SCHEMA_NAME}.%${TEMP_TABLE_NAME} file://${tmpDir}`;
+        // Windows user contains a '~' in the path which causes an error
+        if (process.platform == "win32")
+        {
+          var dirName = tmpDir.substring(tmpDir.lastIndexOf('\\') + 1);
+          getQuery = `GET @${DATABASE_NAME}.${SCHEMA_NAME}.%${TEMP_TABLE_NAME} file://${process.env.USERPROFILE}\\AppData\\Local\\Temp\\${dirName}`;
         }
 
         async.series(
@@ -123,6 +138,7 @@ describe('PUT test', function ()
                   });
                   stream.on('data', function (row)
                   {
+                    fileSize = row.targetSize;
                     // Check the file is correctly uploaded
                     assert.strictEqual(row['status'], UPLOADED);
                     // Check the target encoding is correct
@@ -182,6 +198,40 @@ describe('PUT test', function ()
                   {
                     // Check the row count is correct
                     assert.strictEqual(row['COUNT(*)'], 4);
+                  });
+                  stream.on('end', function (row)
+                  {
+                    callback();
+                  });
+                }
+              });
+            },
+            function (callback)
+            {
+              // Run GET command
+              var statement = connection.execute({
+                sqlText: getQuery,
+                complete: function (err, stmt, rows)
+                {
+                  var stream = statement.streamRows();
+                  stream.on('error', function (err)
+                  {
+                    done(err);
+                  });
+                  stream.on('data', function (row)
+                  {
+                    assert.strictEqual(row.status, DOWNLOADED);
+                    assert.strictEqual(row.size, fileSize);
+                    // Delete the downloaded file
+                    fs.unlink(path.join(tmpDir, row.file), (err) =>
+                    {
+                      if (err) throw (err);
+                      // Delete the temporary folder
+                      fs.rmdir(tmpDir, (err) =>
+                      {
+                        if (err) throw (err);
+                      });
+                    });
                   });
                   stream.on('end', function (row)
                   {

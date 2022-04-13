@@ -16,6 +16,12 @@
     "vinyl-buffer": "^1.0.1",
     "vinyl-source-stream": "^1.1.2"
   },
+  "resolutions": {
+    "async": "3.2.2"
+  },
+  "overrides": {
+    "async": "3.2.2"
+  },
   "author": "Snowflake, Inc.",
   "license": "ISC"
 }

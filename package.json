@@ -41,10 +41,11 @@
     "async": "3.2.2",
     "mocha": "9.2.0"
   },
+  "resolutions": {
+    "async": "3.2.2"
+  },
   "overrides": {
-    "ocsp": {
-      "async": "3.2.2"
-    }
+    "async": "3.2.2"
   },
   "repository": {
     "type": "git",

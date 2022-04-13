@@ -6,7 +6,9 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "dependencies": {},
+  "dependencies": {
+    "async": "3.2.2"
+  },
   "devDependencies": {
     "async": "3.2.2",
     "insert-module-globals": "^7.2.0",

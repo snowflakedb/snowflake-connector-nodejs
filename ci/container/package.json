@@ -8,7 +8,7 @@
   },
   "dependencies": {},
   "devDependencies": {
-    "async": "3.2.3",
+    "async": "^3.2.3",
     "insert-module-globals": "^7.2.0",
     "mocha": "^5.2.0",
     "vinyl-buffer": "^1.0.1",

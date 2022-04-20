@@ -22,7 +22,7 @@
     "mime-types": "^2.1.29",
     "mkdirp": "^1.0.3",
     "mock-require": "^3.0.3",
-    "moment": "^2.23.0",
+    "moment": "^2.29.3",
     "moment-timezone": "^0.5.15",
     "@techteamer/ocsp": "1.0.0",
     "open": "^7.3.1",
@@ -38,6 +38,7 @@
   },
   "devDependencies": {
     "async": "^3.2.3",
+    "qs": "^6.10.3",
     "mocha": "9.2.0"
   },
   "repository": {

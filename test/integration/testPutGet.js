@@ -315,10 +315,7 @@ describe('PUT GET overwrite test', function ()
   var testCases =
     [
       {
-        name: 'upload'
-      },
-      {
-        name: 'overwrite - true'
+        name: 'overwrite'
       },
     ];
 
@@ -336,12 +333,32 @@ describe('PUT GET overwrite test', function ()
             },
             function (callback)
             {
-              // Upload file
-              if (testCase.name == 'overwrite - true')
-              {
-                fs.writeFileSync(tmpFile.name, ROW_DATA_OVERWRITE);
-                putQuery += " OVERWRITE=TRUE";
-              }
+              var statement = connection.execute({
+                sqlText: putQuery,
+                complete: function (err, stmt, rows)
+                {
+                  var stream = statement.streamRows();
+                  stream.on('error', function (err)
+                  {
+                    done(err);
+                  });
+                  stream.on('data', function (row)
+                  {
+                    // Check the file is correctly uploaded
+                    assert.strictEqual(row['status'], UPLOADED);
+                    assert.strictEqual(row.targetSize, ROW_DATA_SIZE);
+                  });
+                  stream.on('end', function (row)
+                  {
+                    callback();
+                  });
+                }
+              });
+            },
+            function (callback)
+            {
+              fs.writeFileSync(tmpFile.name, ROW_DATA_OVERWRITE);
+              putQuery += " OVERWRITE=TRUE";
 
               var statement = connection.execute({
                 sqlText: putQuery,
@@ -354,18 +371,9 @@ describe('PUT GET overwrite test', function ()
                   });
                   stream.on('data', function (row)
                   {
-                    if (testCase.name == testCases[0])
-                    {
-                      // Check the file is correctly uploaded
-                      assert.strictEqual(row['status'], UPLOADED);
-                      assert.strictEqual(row.targetSize, ROW_DATA_SIZE);
-                    }
-                    else if (testCase.name ==  testCases[2])
-                    {
-                      // Check the file is correctly uploaded
-                      assert.strictEqual(row['status'], UPLOADED);
-                      assert.strictEqual(row.targetSize, ROW_DATA_OVERWRITE_SIZE);
-                    }
+                    // Check the file is correctly uploaded
+                    assert.strictEqual(row['status'], UPLOADED);
+                    assert.strictEqual(row.targetSize, ROW_DATA_OVERWRITE_SIZE);
                   });
                   stream.on('end', function (row)
                   {

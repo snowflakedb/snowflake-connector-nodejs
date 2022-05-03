@@ -269,124 +269,124 @@ describe('PUT GET test', function ()
   }
 });
 
-//describe('PUT GET overwrite test', function ()
-//{
-//  this.timeout(100000);
+describe('PUT GET overwrite test', function ()
+{
+  this.timeout(100000);
 
-//  var connection;
-//  var tmpFile;
-//  var createTable = `create or replace table ${TEMP_TABLE_NAME} (${COL1} STRING, ${COL2} STRING, ${COL3} STRING)`;
-//  var removeFile = `REMOVE @${DATABASE_NAME}.${SCHEMA_NAME}.%${TEMP_TABLE_NAME}`;
-//  var dropTable = `DROP TABLE IF EXISTS ${TEMP_TABLE_NAME}`;
+  var connection;
+  var tmpFile;
+  var createTable = `create or replace table ${TEMP_TABLE_NAME} (${COL1} STRING, ${COL2} STRING, ${COL3} STRING)`;
+  var removeFile = `REMOVE @${DATABASE_NAME}.${SCHEMA_NAME}.%${TEMP_TABLE_NAME}`;
+  var dropTable = `DROP TABLE IF EXISTS ${TEMP_TABLE_NAME}`;
 
-//  before(function (done)
-//  {
-//    connection = testUtil.createConnection();
-//    testUtil.connect(connection, done);
-//  });
+  before(function (done)
+  {
+    connection = testUtil.createConnection();
+    testUtil.connect(connection, done);
+  });
 
-//  after(function (done)
-//  {
-//    fs.closeSync(tmpFile.fd);
-//    fs.unlinkSync(tmpFile.name);
+  after(function (done)
+  {
+    fs.closeSync(tmpFile.fd);
+    fs.unlinkSync(tmpFile.name);
 
-//    // Remove files from staging
-//    testUtil.executeCmd(connection, removeFile);
+    // Remove files from staging
+    testUtil.executeCmd(connection, removeFile);
 
-//    // Drop temp table
-//    testUtil.executeCmd(connection, dropTable);
+    // Drop temp table
+    testUtil.executeCmd(connection, dropTable);
 
-//    testUtil.destroyConnection(connection, done);
-//  });
+    testUtil.destroyConnection(connection, done);
+  });
 
-//  // Create a temp file with specified file extension
-//  var tmpFile = tmp.fileSync();
-//  // Write row data to temp file
-//  fs.writeFileSync(tmpFile.name, ROW_DATA);
+  // Create a temp file with specified file extension
+  var tmpFile = tmp.fileSync();
+  // Write row data to temp file
+  fs.writeFileSync(tmpFile.name, ROW_DATA);
 
-//  var putQuery = `PUT file://${tmpFile.name} @${DATABASE_NAME}.${SCHEMA_NAME}.%${TEMP_TABLE_NAME} AUTO_COMPRESS=FALSE`;
-//  // Windows user contains a '~' in the path which causes an error
-//  if (process.platform == "win32")
-//  {
-//    var fileName = tmpFile.name.substring(tmpFile.name.lastIndexOf('\\'));
-//    putQuery = `PUT file://${process.env.USERPROFILE}\\AppData\\Local\\Temp\\${fileName} @${DATABASE_NAME}.${SCHEMA_NAME}.%${TEMP_TABLE_NAME} AUTO_COMPRESS=FALSE`;
-//  }
+  var putQuery = `PUT file://${tmpFile.name} @${DATABASE_NAME}.${SCHEMA_NAME}.%${TEMP_TABLE_NAME} AUTO_COMPRESS=FALSE`;
+  // Windows user contains a '~' in the path which causes an error
+  if (process.platform == "win32")
+  {
+    var fileName = tmpFile.name.substring(tmpFile.name.lastIndexOf('\\'));
+    putQuery = `PUT file://${process.env.USERPROFILE}\\AppData\\Local\\Temp\\${fileName} @${DATABASE_NAME}.${SCHEMA_NAME}.%${TEMP_TABLE_NAME} AUTO_COMPRESS=FALSE`;
+  }
 
-//  var testCases =
-//    [
-//      {
-//        name: 'upload'
-//      },
-//      {
-//        name: 'overwrite - false'
-//      },
-//      {
-//        name: 'overwrite - true'
-//      },
-//    ];
+  var testCases =
+    [
+      {
+        name: 'upload'
+      },
+      {
+        name: 'overwrite - false'
+      },
+      {
+        name: 'overwrite - true'
+      },
+    ];
 
-//  var createItCallback = function (testCase)
-//  {
-//    return function (done)
-//    {
-//      {
-//        async.series(
-//          [
-//            function (callback)
-//            {
-//              // Create temp table
-//              testUtil.executeCmd(connection, createTable, callback);
-//            },
-//            function (callback)
-//            {
-//              // Upload file
-//              if (testCase.name == 'overwrite - true')
-//              {
-//                fs.writeFileSync(tmpFile.name, ROW_DATA_OVERWRITE);
-//                putQuery += " OVERWRITE=TRUE";
-//              }
+  var createItCallback = function (testCase)
+  {
+    return function (done)
+    {
+      {
+        async.series(
+          [
+            function (callback)
+            {
+              // Create temp table
+              testUtil.executeCmd(connection, createTable, callback);
+            },
+            function (callback)
+            {
+              // Upload file
+              if (testCase.name == 'overwrite - true')
+              {
+                fs.writeFileSync(tmpFile.name, ROW_DATA_OVERWRITE);
+                putQuery += " OVERWRITE=TRUE";
+              }
 
-//              var statement = connection.execute({
-//                sqlText: putQuery,
-//                complete: function (err, stmt, rows)
-//                {
-//                  var stream = statement.streamRows();
-//                  stream.on('error', function (err)
-//                  {
-//                    done(err);
-//                  });
-//                  stream.on('data', function (row)
-//                  {
-//                    if (testCase.name == testCases[0])
-//                    {
-//                      // Check the file is correctly uploaded
-//                      assert.strictEqual(row['status'], UPLOADED);
-//                      assert.strictEqual(row.targetSize, ROW_DATA_SIZE);
-//                    }
-//                    else if (testCase.name ==  testCases[2])
-//                    {
-//                      // Check the file is correctly uploaded
-//                      assert.strictEqual(row['status'], UPLOADED);
-//                      assert.strictEqual(row.targetSize, ROW_DATA_OVERWRITE_SIZE);
-//                    }
-//                  });
-//                  stream.on('end', function (row)
-//                  {
-//                    callback();
-//                  });
-//                }
-//              });
-//            }
-//          ],
-//          done
-//        );
-//      };
-//    };
-//  };
+              var statement = connection.execute({
+                sqlText: putQuery,
+                complete: function (err, stmt, rows)
+                {
+                  var stream = statement.streamRows();
+                  stream.on('error', function (err)
+                  {
+                    done(err);
+                  });
+                  stream.on('data', function (row)
+                  {
+                    if (testCase.name == testCases[0])
+                    {
+                      // Check the file is correctly uploaded
+                      assert.strictEqual(row['status'], UPLOADED);
+                      assert.strictEqual(row.targetSize, ROW_DATA_SIZE);
+                    }
+                    else if (testCase.name ==  testCases[2])
+                    {
+                      // Check the file is correctly uploaded
+                      assert.strictEqual(row['status'], UPLOADED);
+                      assert.strictEqual(row.targetSize, ROW_DATA_OVERWRITE_SIZE);
+                    }
+                  });
+                  stream.on('end', function (row)
+                  {
+                    callback();
+                  });
+                }
+              });
+            }
+          ],
+          done
+        );
+      };
+    };
+  };
 
-//  for (var index = 0; index < testCases.length; index++)
-//  {
-//    var testCase = testCases[index];
-//    it(testCase.name, createItCallback(testCase));
-//  }
-//});
+  for (var index = 0; index < testCases.length; index++)
+  {
+    var testCase = testCases[index];
+    it(testCase.name, createItCallback(testCase));
+  }
+});

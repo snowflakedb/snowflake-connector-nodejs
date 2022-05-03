@@ -316,7 +316,7 @@ describe('PUT GET overwrite test', function ()
     [
       {
         name: 'upload'
-      }
+      },
       {
         name: 'overwrite - true'
       },

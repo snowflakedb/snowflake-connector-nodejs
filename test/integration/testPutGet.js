@@ -36,16 +36,16 @@ const ROW_DATA_SIZE = 76;
 const ROW_DATA_OVERWRITE = COL3_DATA + "," + COL1_DATA + "," + COL2_DATA + "\n";
 const ROW_DATA_OVERWRITE_SIZE = 19;
 
-var connection;
-var tmpFile;
-var createTable = `create or replace table ${TEMP_TABLE_NAME} (${COL1} STRING, ${COL2} STRING, ${COL3} STRING)`;
-var copyInto = `COPY INTO ${TEMP_TABLE_NAME}`;
-var removeFile = `REMOVE @${DATABASE_NAME}.${SCHEMA_NAME}.%${TEMP_TABLE_NAME}`;
-var dropTable = `DROP TABLE IF EXISTS ${TEMP_TABLE_NAME}`;
-
 describe('PUT GET test', function ()
 {
   this.timeout(100000);
+
+  var connection;
+  var tmpFile;
+  var createTable = `create or replace table ${TEMP_TABLE_NAME} (${COL1} STRING, ${COL2} STRING, ${COL3} STRING)`;
+  var copyInto = `COPY INTO ${TEMP_TABLE_NAME}`;
+  var removeFile = `REMOVE @${DATABASE_NAME}.${SCHEMA_NAME}.%${TEMP_TABLE_NAME}`;
+  var dropTable = `DROP TABLE IF EXISTS ${TEMP_TABLE_NAME}`;
 
   before(function (done)
   {
@@ -102,12 +102,12 @@ describe('PUT GET test', function ()
         // Write row data to temp file
         fs.writeFileSync(tmpFile.name, ROW_DATA);
 
-        var putQuery = `PUT file://${tmpFile.name} @${DATABASE_NAME}.${SCHEMA_NAME}.%${TEMP_TABLE_NAME} AUTO_COMPRESS=FALSE`;
+        var putQuery = `PUT file://${tmpFile.name} @${DATABASE_NAME}.${SCHEMA_NAME}.%${TEMP_TABLE_NAME}`;
         // Windows user contains a '~' in the path which causes an error
         if (process.platform == "win32")
         {
           var fileName = tmpFile.name.substring(tmpFile.name.lastIndexOf('\\'));
-          putQuery = `PUT file://${process.env.USERPROFILE}\\AppData\\Local\\Temp\\${fileName} @${DATABASE_NAME}.${SCHEMA_NAME}.%${TEMP_TABLE_NAME} AUTO_COMPRESS=FALSE`;
+          putQuery = `PUT file://${process.env.USERPROFILE}\\AppData\\Local\\Temp\\${fileName} @${DATABASE_NAME}.${SCHEMA_NAME}.%${TEMP_TABLE_NAME}`;
         }
 
         // Create a tmp folder for downloaded files
@@ -274,6 +274,12 @@ describe('PUT GET test', function ()
 describe('PUT GET overwrite test', function ()
 {
   this.timeout(100000);
+
+  var connection;
+  var tmpFile;
+  var createTable = `create or replace table ${TEMP_TABLE_NAME} (${COL1} STRING, ${COL2} STRING, ${COL3} STRING)`;
+  var removeFile = `REMOVE @${DATABASE_NAME}.${SCHEMA_NAME}.%${TEMP_TABLE_NAME}`;
+  var dropTable = `DROP TABLE IF EXISTS ${TEMP_TABLE_NAME}`;
 
   before(function (done)
   {

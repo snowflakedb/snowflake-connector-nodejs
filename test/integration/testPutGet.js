@@ -298,7 +298,7 @@ describe('PUT GET overwrite test', function ()
         function (callback)
         {
           connection = testUtil.createConnection();
-          testUtil.connect(connection, done);
+          testUtil.connect(connection, callback);
         },
         function (callback)
         {
@@ -365,7 +365,7 @@ describe('PUT GET overwrite test', function ()
           testUtil.executeCmd(connection, removeFile);
           // Drop temp table
           testUtil.executeCmd(connection, dropTable);
-          testUtil.destroyConnection(connection, done);
+          testUtil.destroyConnection(connection, callback);
         }
       ],
       done

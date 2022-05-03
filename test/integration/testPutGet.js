@@ -279,7 +279,7 @@ describe('PUT GET overwrite test', function ()
   var removeFile = `REMOVE @${DATABASE_NAME}.${SCHEMA_NAME}.%${TEMP_TABLE_NAME}`;
   var dropTable = `DROP TABLE IF EXISTS ${TEMP_TABLE_NAME}`;
 
-  before(function (done)
+  beforeEach(function (done)
   {
     connection = testUtil.createConnection();
     testUtil.connect(connection, done);
@@ -316,10 +316,7 @@ describe('PUT GET overwrite test', function ()
     [
       {
         name: 'upload'
-      },
-      {
-        name: 'overwrite - false'
-      },
+      }
       {
         name: 'overwrite - true'
       },

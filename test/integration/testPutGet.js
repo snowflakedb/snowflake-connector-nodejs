@@ -16,7 +16,6 @@ const DATABASE_NAME = connOption.valid.database;
 const SCHEMA_NAME = connOption.valid.schema;
 const TEMP_TABLE_NAME = 'TEMP_TABLE';
 
-const SKIPPED = "SKIPPED";
 const UPLOADED = "UPLOADED";
 const DOWNLOADED = "DOWNLOADED";
 

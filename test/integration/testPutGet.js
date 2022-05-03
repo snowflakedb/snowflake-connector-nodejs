@@ -348,6 +348,32 @@ describe('PUT GET overwrite test', function ()
             },
             function (callback)
             {
+              var statement = connection.execute({
+                sqlText: putQuery,
+                complete: function (err, stmt, rows)
+                {
+                  var stream = statement.streamRows();
+                  stream.on('error', function (err)
+                  {
+                    done(err);
+                  });
+                  stream.on('data', function (row)
+                  {
+                    if (!connOption.account.includes("gcp"))
+                    {
+                      // Check the file is correctly uploaded
+                      assert.strictEqual(row['status'], SKIPPED);
+                    }
+                  });
+                  stream.on('end', function (row)
+                  {
+                    callback();
+                  });
+                }
+              });
+            },
+            function (callback)
+            {
               fs.writeFileSync(tmpFile.name, ROW_DATA_OVERWRITE);
               putQuery += " OVERWRITE=TRUE";
 

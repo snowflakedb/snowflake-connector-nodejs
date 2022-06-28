@@ -16,7 +16,6 @@ npm install
 rm -f ~/.npmrc
 npm audit
 
-[[ -n "$WHITESOURCE_API_KEY" ]] && $THIS_DIR/wss.sh
 
 echo "[INFO] Uploading Artifacts"
 ARTIFACTS=($(ls snowflake-sdk*))

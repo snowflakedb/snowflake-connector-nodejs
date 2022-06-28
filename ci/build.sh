@@ -29,7 +29,6 @@ for name in "${!BUILD_IMAGE_NAMES[@]}"; do
         -e GIT_URL \
         -e GIT_BRANCH \
         -e GIT_COMMIT \
-        -e WHITESOURCE_API_KEY \
         -e AWS_ACCESS_KEY_ID \
         -e AWS_SECRET_ACCESS_KEY \
         -e GITHUB_ACTIONS \

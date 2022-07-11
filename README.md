@@ -1,15 +1,11 @@
 ********************************************************************************
 NodeJS Driver for Snowflake
 ********************************************************************************
-
-.. image:: https://github.com/snowflakedb/snowflake-connector-nodejs/workflows/Build%20and%20Test/badge.svg?branch=master
-       :target: https://github.com/snowflakedb/snowflake-connector-nodejs/actions?query=workflow%3A%22Build+and+Test%22+branch%3Amaster
-
-.. image:: https://img.shields.io/npm/v/snowflake-sdk.svg
-       :target: https://www.npmjs.com/package/snowflake-sdk
-
-.. image:: http://img.shields.io/:license-Apache%202-brightgreen.svg
-    :target: http://www.apache.org/licenses/LICENSE-2.0.txt
+<p>
+  <a href="https://github.com/snowflakedb/snowflake-connector-nodejs/actions?query=workflow%3A%22Build+and+Test%22+branch%3Amaster" target="_blank"><img src="https://github.com/snowflakedb/snowflake-connector-nodejs/workflows/Build%20and%20Test/badge.svg?branch=master" alt="master" /></a>
+  <a href="https://www.npmjs.com/package/snowflake-sdk" target="_blank"><img src="https://img.shields.io/npm/v/snowflake-sdk.svg" alt="npm" /></a> 
+  <a href="http://www.apache.org/licenses/LICENSE-2.0.txt" target="_blank"><img src="http://img.shields.io/:license-Apache%202-brightgreen.svg" alt="apache" /> </a>
+</p>
 
 Install
 ======================================================================

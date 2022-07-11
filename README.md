@@ -10,21 +10,19 @@ NodeJS Driver for Snowflake
 Install
 ======================================================================
 
-Include :code:`snowflake-sdk` in :code:`dependencies` section in :code:`package.json`:
-
-.. code-block:: json
-
-    {
-      "name": "<your_application_name>",
-      "version": "<your_application_version>",
-      "dependencies": {
-        "...": "...",
-        "snowflake-sdk": "^1.1.0",
-        "...": "..."
-      }
-    }
-
-And run the :code:`npm install`.
+Include ``snowflake-sdk`` in ``dependencies`` section in ``package.json``
+<pre><code>
+{
+  "name": "<your_application_name>",
+  "version": "<your_application_version>",
+  "dependencies": {
+    "...": "...",        
+    "snowflake-sdk": "^1.1.0",
+    "...": "..."
+  }
+}
+</code></pre>  
+And run the <code>npm install</code>
 
 Docs
 ======================================================================
@@ -39,52 +37,47 @@ Prepare for Test
 ----------------------------------------------------------------------
 
 Set the Snowflake connection info in ``parameters.json`` and place it in $HOME:
-
-.. code-block:: json
-
-    {
-        "testconnection": {
-            "SNOWFLAKE_TEST_USER":      "<your_user>",
-            "SNOWFLAKE_TEST_PASSWORD":  "<your_password>",
-            "SNOWFLAKE_TEST_ACCOUNT":   "<your_account>",
-            "SNOWFLAKE_TEST_WAREHOUSE": "<your_warehouse>",
-            "SNOWFLAKE_TEST_DATABASE":  "<your_database>",
-            "SNOWFLAKE_TEST_SCHEMA":    "<your_schema>",
-            "SNOWFLAKE_TEST_ROLE":      "<your_role>"
-        }
-    }
+<pre><code>
+{
+  "testconnection": {
+    "SNOWFLAKE_TEST_USER":      "&lt;your_user&gt;",
+    "SNOWFLAKE_TEST_PASSWORD":  "&lt;your_password&gt;",
+    "SNOWFLAKE_TEST_ACCOUNT":   "&lt;your_account&gt;",
+    "SNOWFLAKE_TEST_WAREHOUSE": "&lt;your_warehouse&gt;",
+    "SNOWFLAKE_TEST_DATABASE":  "&lt;your_database&gt;",
+    "SNOWFLAKE_TEST_SCHEMA":    "&lt;your_schema&gt;",
+    "SNOWFLAKE_TEST_ROLE":      "&lt;your_role&gt;"
+  }
+}
+</code></pre>
 
 Run Tests
 ----------------------------------------------------------------------
-.. code-block:: bash
-
-    npm test
-
+<pre><code>
+npm test
+</code></pre>
 
 To specify which test to run, change the "test" value on "package.json":
-
-.. code-block:: json
-
-   "scripts": {
-       "test": "mocha test/unit/snowflake_test.js"
-   },
+<pre><code>
+"scripts": {
+  "test": "mocha test/unit/snowflake_test.js"
+},
+</code></pre>  
 
 To run all unit test:
-
-.. code-block:: json
-
-   "scripts": {
-       "test": "mocha test/unit/**/*.js"
-   },
+<pre><code>
+"scripts": {
+  "test": "mocha test/unit/**/*.js"
+},
+</code></pre>  
 
 Package
 ======================================================================
 
 The npm package can be built by the command:
-
-.. code-block:: bash
-
-    npm pack
+<pre><code>
+npm pack
+</code></pre>  
 
 Note it is not required to build a package to run tests blow.
 
@@ -95,7 +88,6 @@ Reformat Source code
 ----------------------------------------------------------------------
 
 Use WebStorm code style file to format the source code.
-
-.. code-block:: bash
-
-    format.sh -mask "*.js" -settings $(pwd)/webstorm-codestyle.xml -R $(pwd)/lib/ -R $(pwd)/test -R $(pwd)/system_test
+<pre><code>
+format.sh -mask "*.js" -settings $(pwd)/webstorm-codestyle.xml -R $(pwd)/lib/ -R $(pwd)/test -R $(pwd)/system_test
+</code></pre>  

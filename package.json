@@ -1,6 +1,6 @@
 {
   "name": "snowflake-sdk",
-  "version": "1.6.11",
+  "version": "1.6.12",
   "description": "Node.js driver for Snowflake",
   "dependencies": {
     "@azure/storage-blob": "^12.5.0",

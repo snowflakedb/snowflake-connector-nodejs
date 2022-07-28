@@ -186,7 +186,7 @@ describe('Statement.execute()', function ()
             services: {},
             connectionConfig: null
           },
-        errorCode: ErrorCodes.ERR_CONN_CREATE_INVALID_REQUEST_ID
+        errorCode: ErrorCodes.ERR_CONN_EXEC_STMT_INVALID_REQUEST_ID
       }
     ];
 

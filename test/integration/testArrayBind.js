@@ -1,76 +1,44 @@
-'use strict'
+/*
+ * Copyright (c) 2015-2019 Snowflake Computing Inc. All rights reserved.
+ */
+var async = require('async');
+var assert = require('assert');
+var testUtil = require('./testUtil');
 
-var snowflake = require('snowflake-sdk');
-snowflake.configure({logLevel : 'trace'});
+const sourceRowCount = 30000;
 
-var connection = snowflake.createConnection({
-	account: "simbapartner",
-	username: "SEN",
-	password: "NewPwd4SEN!",
-	database: "TESTDB",
-	SCHEMA: "SEN",
-	warehouse: "SIMBA_WH_TEST",
-	forcestreamput: true
-}
-);
-
-var useSchema = 'use schema SEN';
-var createTestTbl = 'create or replace table testTbl(colA string, colB number, colC date, colD time, colE TIMESTAMP_NTZ, colF TIMESTAMP_TZ)';
-var dropTestTbl = 'drop table if exists testTbl';
-var insertWithQmark = 'insert into testTbl values(?, ?, ?, ?, ?, ?)';
-
-var connection_ID;
-connection.connect
-(
-	function (err, conn) {
-		if(err) {
-			console.error('Unable to connect: ' + err.message);
-		}
-		else {
-			console.log('Successfully connected to Snowflake.');
-			// Optional: store the connection ID.
-			connection_ID = conn.getId();
-			UseSchema();
-		}
-	}
-);
-
-function UseSchema()
+describe('Test Concurrent Execution', function ()
 {
-	console.log('use schema');
-	var schemaStatement = connection.execute({
-		sqlText: useSchema,
-		complete: function (err) {
-			if (err) {
-				console.error('0 failed to change schema: ' + err.message);
-			}
-			else {
-				CreateTable();
-			}
-		}
-	});
-}
+  var connection;
+  var createTable = 'create or replace table testTbl(colA string, colB number, colC date, colD time, colE TIMESTAMP_NTZ, colF TIMESTAMP_TZ)';
+  var insertWithQmark = 'insert into testTbl values(?, ?, ?, ?, ?, ?)';
 
-function CreateTable()
-{
-	console.log('create table execute.');
-	var statement = connection.execute({
-		sqlText: createTestTbl,
-		complete: function (err, stmt, rows) {
-			if (err) {
-				console.error('1 Failed to execute statement due to the following error: ' + err.message);
-			} else {
-				InsertTable();
-			}
-		}
-	});
-}
+  before(function (done)
+  {
+    connection = testUtil.createConnection();
+    testUtil.connect(connection, function ()
+    {
+      connection.execute({
+        sqlText: createTable,
+        complete: function (err)
+        {
+          testUtil.checkError(err);
+          done();
+        }
+      });
+    });
+  });
 
-function InsertTable()
-{
-	console.log('insert table execute.');
+  after(function (done)
+  {
+    testUtil.destroyConnection(connection, done);
+  });
+
+  it('testArrayBind', function (done)
+  {
 	var arrBind = [];
-	for(var i = 0; i<200000; i++)
+	var count = 200000;
+	for(var i = 0; i<count; i++)
 	{
 		arrBind.push(['string'+i, i, "2020-05-11", "12:35:41.3333333", "2022-04-01 23:59:59", "2022-07-08 12:05:30.9999999"]);
 	}
@@ -78,18 +46,11 @@ function InsertTable()
 	var insertStatement = connection.execute({
 		sqlText: insertWithQmark,
 		binds: arrBind,
-		complete: function (err) {
-			if (err) {
-				console.error('1 Failed to execute statement due to the following error: ' + err.message);
-			}
-			else {
-				CloseConnection();
-			}
+		complete: function (err, stmt) {
+			testUtil.checkError(err);
+			assert.strictEqual(stmt.getNumUpdatedRows(), count);
+			done();
 		}
 	});
-}
-
-function CloseConnection()
-{
-	connection.destroy();
-}
+  });
+});

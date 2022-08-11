@@ -177,6 +177,16 @@ describe('Statement.execute()', function ()
             services: {}
           },
         errorCode: ErrorCodes.ERR_INTERNAL_ASSERT_FAILED
+      },
+      {
+        name: 'execute() invalid request id',
+        options:
+          {
+            statementOptions: {sqlText: 'sqlText', requestId: 1234 },
+            services: {},
+            connectionConfig: null
+          },
+        errorCode: ErrorCodes.ERR_CONN_EXEC_STMT_INVALID_REQUEST_ID
       }
     ];
 

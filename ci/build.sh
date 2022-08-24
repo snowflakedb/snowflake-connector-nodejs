@@ -23,6 +23,7 @@ for name in "${!BUILD_IMAGE_NAMES[@]}"; do
     echo "[INFO] Building $DRIVER_NAME on $name"
     docker pull "${BUILD_IMAGE_NAMES[$name]}"
     docker run \
+        -u root \
         -v $(cd $THIS_DIR/.. && pwd):/mnt/host \
         -v $WORKSPACE:/mnt/workspace \
         -e LOCAL_USER_ID=$(id -u $USER) \

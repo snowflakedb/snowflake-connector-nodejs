@@ -26,7 +26,7 @@ source $THIS_DIR/scripts/set_git_info.sh
 sudo curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.35.1/install.sh | sudo bash
 
 # nvm environment variables
-export NVM_DIR="~/.nvm/"
+export NVM_DIR="~/.nvm"
 
 source $NVM_DIR/nvm.sh
 

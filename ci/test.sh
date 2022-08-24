@@ -25,7 +25,7 @@ source $THIS_DIR/scripts/set_git_info.sh
 export NVM_DIR=/usr/local/nvm
 export NODE_VERSION=14.20.0
 
-mkdir -p $NVM_DIR
+sudo mkdir -p $NVM_DIR
 curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.35.1/install.sh | bash
 
 # node
@@ -34,9 +34,8 @@ source $NVM_DIR/nvm.sh \
     && nvm alias default $NODE_VERSION \
     && nvm use $NODE_VERSION
 
-ENV NODE_PATH $NVM_DIR/v$NODE_VERSION/lib/node_modules
-ENV PATH $NVM_DIR/versions/node/v$NODE_VERSION/bin:$PATH
-COPY scripts/npmrc /root/.npmrc
+export NODE_PATH=$NVM_DIR/v$NODE_VERSION/lib/node_modules
+export PATH=$NVM_DIR/versions/node/v$NODE_VERSION/bin:$PATH
 npm install npm@latest -g
 
 echo "[INFO] Creating a subnet for tests"

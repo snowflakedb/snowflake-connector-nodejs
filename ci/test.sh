@@ -22,13 +22,8 @@ source $THIS_DIR/scripts/set_git_info.sh
 
 
 
-# node
-docker run curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.35.1/install.sh | bash
-
-
-export NODE_VERSION=14.20.0
-docker run nvm install $NODE_VERSION
-docker run nvm use $NODE_VERSION
+docker run nvm install 14.20.0
+docker run nvm use 14.20.0
 
 docker run node --version
 

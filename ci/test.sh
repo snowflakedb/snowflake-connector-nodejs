@@ -24,8 +24,6 @@ source $THIS_DIR/scripts/set_git_info.sh
 # nvm environment variables
 
 export NVM_DIR=/home/runner/.nvm
-[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
-[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
 
 source $NVM_DIR/nvm.sh
 

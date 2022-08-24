@@ -4,7 +4,6 @@
 #
 set -o pipefail
 
-cd /mnt/host
 echo "[INFO] Building"
 rm -f snowflake-sdk*.tgz
 npm pack

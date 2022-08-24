@@ -26,7 +26,7 @@ export NVM_DIR=/usr/local/nvm
 export NODE_VERSION=14.20.0
 
 sudo mkdir -p $NVM_DIR
-sudo curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.35.1/install.sh | bash
+sudo curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.35.1/install.sh | sudo bash
 
 # node
 source $NVM_DIR/nvm.sh \

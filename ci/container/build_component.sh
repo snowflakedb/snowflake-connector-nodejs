@@ -10,16 +10,6 @@ THIS_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 cd /mnt/host
 echo "[INFO] Building"
-echo "[INFO] npm version"
-npm -v
-echo "[INFO] node version"
-node -v
-
-
-
-echo "[INFO] curl node"
-curl -sL https://rpm.nodesource.com/setup_14.x | bash -
-
 rm -f snowflake-sdk*.tgz
 npm pack
 npm install

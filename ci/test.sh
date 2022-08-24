@@ -4,6 +4,9 @@
 #
 # - TARGET_DOCKER_TEST_IMAGE - the target Docker image key. It must be registered in _init.sh
 #
+nvm ls 
+nvm use 14.20.0 
+
 set -o pipefail
 THIS_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 source $THIS_DIR/_init.sh

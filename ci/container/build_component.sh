@@ -15,7 +15,10 @@ npm -v
 echo "[INFO] node version"
 node -v
 
-curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.35.1/install.sh | bash
+sudo snap remove curl
+sudo apt install curl
+
+sudo curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.35.1/install.sh | sudo bash
 
 nvm install $NODE_VERSION \
     && nvm alias default $NODE_VERSION \

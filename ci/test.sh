@@ -31,6 +31,7 @@ export NVM_DIR=/home/runner/.nvm
 export NODE_VERSION=14.20.0
 
 # node
+source $NVM_DIR/nvm.sh
 sudo nvm ls
 sudo nvm install $NODE_VERSION
 sudo nvm use $NODE_VERSION

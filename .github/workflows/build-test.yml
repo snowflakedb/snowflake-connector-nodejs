@@ -62,7 +62,7 @@ jobs:
               run: ./ci/test.sh
 
     test-mac:
-        needs: build
+        needs: test-linux
         name: Tests on Mac
         runs-on: macos-latest
         strategy:
@@ -92,7 +92,7 @@ jobs:
               run: /usr/local/bin/bash ./ci/test_mac.sh
 
     test-windows:
-        needs: build
+        needs: test-mac
         name: Tests on Windows
         runs-on: windows-latest
         strategy:

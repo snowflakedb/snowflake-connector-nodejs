@@ -36,14 +36,11 @@ source $NVM_DIR/nvm.sh
 
 command -v nvm
 
+sudo nvm ls
 sudo nvm install $NODE_VERSION
 sudo nvm alias default $NODE_VERSION
 sudo nvm use $NODE_VERSION
 
-export NODE_PATH=$NVM_DIR/v$NODE_VERSION/lib/node_modules
-export PATH=$NVM_DIR/versions/node/v$NODE_VERSION/bin:$PATH
-sudo cp scripts/npmrc /root/.npmrc
-sudo npm install npm@latest -g
 
 
 

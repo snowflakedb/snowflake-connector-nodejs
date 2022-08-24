@@ -44,7 +44,6 @@ jobs:
         runs-on: ubuntu-latest
         strategy:
             matrix:
-                image: [ 'nodejs-centos6-default', 'nodejs-centos7-node12', 'nodejs-centos7-fips' ]
                 cloud: [ 'AWS', 'AZURE', 'GCP' ]
         steps:
             - uses: actions/checkout@v1

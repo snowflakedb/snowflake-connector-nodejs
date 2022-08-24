@@ -15,15 +15,21 @@ npm -v
 echo "[INFO] node version"
 node -v
 
+echo "[INFO] install sudo"
 yum install sudo
 
 export NVM_DIR=./nvm
-mkdir -p $NVM_DIR
+echo "[INFO] mkdir"
+sudo mkdir -p $NVM_DIR
 
+echo "[INFO] install curl-devel"
 sudo yum install curl-devel
+echo "[INFO] install libcurl4-openssl-dev"
 sudo yum install libcurl4-openssl-dev
+echo "[INFO] install nvm"
 sudo curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.35.1/install.sh | bash
 
+echo "[INFO] source nvm"
 source $NVM_DIR/nvm.sh \
   && nvm install $NODE_VERSION \
   && nvm alias default $NODE_VERSION \

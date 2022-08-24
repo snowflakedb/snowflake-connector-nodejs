@@ -17,22 +17,8 @@ node -v
 
 
 
-export NVM_DIR=./nvm
-echo "[INFO] mkdir"
-mkdir -p $NVM_DIR
-
-echo "[INFO] install curl-devel"
-yum install curl-devel
-echo "[INFO] install libcurl4-openssl-dev"
-yum install libcurl4-openssl-dev
-echo "[INFO] install nvm"
-curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.35.1/install.sh | bash
-
-echo "[INFO] source nvm"
-source $NVM_DIR/nvm.sh \
-  && nvm install $NODE_VERSION \
-  && nvm alias default $NODE_VERSION \
-  && nvm use default
+echo "[INFO] install node"
+yum install -y nodejs
 
 rm -f snowflake-sdk*.tgz
 npm pack

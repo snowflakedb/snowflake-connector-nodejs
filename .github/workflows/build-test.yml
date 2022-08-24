@@ -31,7 +31,9 @@ jobs:
               shell: bash
               env:
                 WHITESOURCE_API_KEY: ${{ secrets.WHITESOURCE_API_KEY }}
-              run: ./ci/container/build_component.sh
+              run: |
+                ./ci/container/build_component.sh
+                ./ci/container/upload_artifact.sh
             - name: Upload Build Artifact
               uses: actions/upload-artifact@v1
               with:

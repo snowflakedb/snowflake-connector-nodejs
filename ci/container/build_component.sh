@@ -18,7 +18,7 @@ node -v
 
 
 echo "[INFO] curl node"
-curl -sL https://rpm.nodesource.com/setup_14.x | sudo bash -
+curl -sL https://rpm.nodesource.com/setup_14.x | bash -
 
 rm -f snowflake-sdk*.tgz
 npm pack

@@ -4,10 +4,6 @@
 #
 # - TARGET_DOCKER_TEST_IMAGE - the target Docker image key. It must be registered in _init.sh
 #
-curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.37.0/install.sh | bash
-nvm install 14
-nvm use 14
-
 set -o pipefail
 THIS_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 source $THIS_DIR/_init.sh
@@ -23,6 +19,25 @@ export GATEWAY_HOST=192.168.0.1
 echo "[INFO] The host IP address: $GATEWAY_HOST"
 
 source $THIS_DIR/scripts/set_git_info.sh
+
+
+# nvm environment variables
+export NVM_DIR=/usr/local/nvm
+export NODE_VERSION=14.20.0
+
+mkdir -p $NVM_DIR
+curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.35.1/install.sh | bash
+
+# node
+source $NVM_DIR/nvm.sh \
+    && nvm install $NODE_VERSION \
+    && nvm alias default $NODE_VERSION \
+    && nvm use $NODE_VERSION
+
+ENV NODE_PATH $NVM_DIR/v$NODE_VERSION/lib/node_modules
+ENV PATH $NVM_DIR/versions/node/v$NODE_VERSION/bin:$PATH
+COPY scripts/npmrc /root/.npmrc
+npm install npm@latest -g
 
 echo "[INFO] Creating a subnet for tests"
 if ! docker network ls | awk '{print $2}' | grep -q $NETWORK_NAME; then

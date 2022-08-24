@@ -21,22 +21,11 @@ echo "[INFO] The host IP address: $GATEWAY_HOST"
 source $THIS_DIR/scripts/set_git_info.sh
 
 
-
-# node
-sudo curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.35.1/install.sh | sudo bash
-
-command -v nvm
-
-# nvm environment variables
-export NVM_DIR="/home/runner/.nvm"
-
-source $NVM_DIR/nvm.sh
-
-command -v nvm
-
 export NODE_VERSION=14.20.0
-sudo nvm install $NODE_VERSION
-sudo nvm use $NODE_VERSION
+
+docker run node --version
+docker run nvm install $NODE_VERSION
+docker run nvm use $NODE_VERSION
 
 
 

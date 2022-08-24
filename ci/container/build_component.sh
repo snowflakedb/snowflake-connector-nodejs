@@ -15,7 +15,6 @@ npm -v
 echo "[INFO] node version"
 node -v
 
-snap remove curl
 apt install curl
 
 curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.35.1/install.sh | bash

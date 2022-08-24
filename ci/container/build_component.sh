@@ -15,12 +15,14 @@ npm -v
 echo "[INFO] node version"
 node -v
 
+export NVM_DIR=./nvm
 
 curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.35.1/install.sh | bash
 
-nvm install $NODE_VERSION \
-    && nvm alias default $NODE_VERSION \
-    && nvm use default
+source $NVM_DIR/nvm.sh \
+  && nvm install $NODE_VERSION \
+  && nvm alias default $NODE_VERSION \
+  && nvm use default
 
 rm -f snowflake-sdk*.tgz
 npm pack

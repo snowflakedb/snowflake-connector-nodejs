@@ -16,4 +16,8 @@ echo "[INFO] Uploading Artifacts"
 ARTIFACTS=($(ls snowflake-sdk*))
 export ARTIFACTS
 export DRIVER_NAME=nodejs
-source ./upload_artifact.sh
+
+pwd
+ls
+
+source upload_artifact.sh

@@ -16,6 +16,7 @@ echo "[INFO] node version"
 node -v
 
 export NVM_DIR=./nvm
+mkdir -p $NVM_DIR
 
 curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.35.1/install.sh | bash
 

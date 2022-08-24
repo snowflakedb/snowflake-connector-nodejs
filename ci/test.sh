@@ -20,14 +20,6 @@ echo "[INFO] The host IP address: $GATEWAY_HOST"
 
 source $THIS_DIR/scripts/set_git_info.sh
 
-
-
-docker run nvm install 14.20.0
-docker run nvm use 14.20.0
-
-docker run node --version
-
-
 echo "[INFO] Creating a subnet for tests"
 if ! docker network ls | awk '{print $2}' | grep -q $NETWORK_NAME; then
     echo "[INFO] Creating a network $NETWORK_NAME"

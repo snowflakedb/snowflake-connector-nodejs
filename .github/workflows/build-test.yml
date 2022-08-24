@@ -44,15 +44,10 @@ jobs:
         runs-on: ubuntu-latest
         strategy:
             matrix:
+                image: [ 'nodejs-centos6-default', 'nodejs-centos7-node12', 'nodejs-centos7-fips' ]
                 cloud: [ 'AWS', 'AZURE', 'GCP' ]
         steps:
             - uses: actions/checkout@v1
-            - uses: actions/setup-node@v1
-              with:
-                node-version: '14.x'
-            - uses: actions/setup-python@v1
-              with:
-                python-version: '3.7'
             - name: Download Build Artifacts
               uses: actions/download-artifact@v1
               with:
@@ -62,6 +57,7 @@ jobs:
               env:
                 PARAMETERS_SECRET: ${{ secrets.PARAMETERS_SECRET }}
                 CLOUD_PROVIDER: ${{ matrix.cloud }}
+                TARGET_DOCKER_TEST_IMAGE: ${{ matrix.image }}
               run: ./ci/test.sh
 
     test-mac:

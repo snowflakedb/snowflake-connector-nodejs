@@ -64,10 +64,7 @@ jobs:
                 PARAMETERS_SECRET: ${{ secrets.PARAMETERS_SECRET }}
                 CLOUD_PROVIDER: ${{ matrix.cloud }}
                 TARGET_DOCKER_TEST_IMAGE: ${{ matrix.image }}
-              run: |
-                  nvm ls 
-                  nvm use 14.20.0 
-                  ./ci/test.sh
+              run: ./ci/test.sh
 
     test-mac:
         needs: build

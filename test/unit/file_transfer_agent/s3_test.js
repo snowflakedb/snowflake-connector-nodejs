@@ -138,7 +138,7 @@ describe('S3 client', function ()
             function send()
             {
               let err = new Error();
-              err.code = 'ExpiredToken';
+              err.Code = 'ExpiredToken';
               throw err;
             }
             return new send;
@@ -166,7 +166,7 @@ describe('S3 client', function ()
             function send()
             {
               let err = new Error();
-              err.code = 'NoSuchKey';
+              err.Code = 'NoSuchKey';
               throw err;
             }
             return new send;
@@ -194,7 +194,7 @@ describe('S3 client', function ()
             function send()
             {
               let err = new Error();
-              err.code = '400';
+              err.Code = '400';
               throw err;
             }
             return new send;
@@ -222,7 +222,7 @@ describe('S3 client', function ()
             function send()
             {
               let err = new Error();
-              err.code = 'unknown';
+              err.Code = 'unknown';
               throw err;
             }
             return new send;
@@ -263,7 +263,7 @@ describe('S3 client', function ()
             function done()
             {
               let err = new Error();
-              err.code = 'ExpiredToken';
+              err.Code = 'ExpiredToken';
               throw err;
             }
             return new done;
@@ -306,7 +306,7 @@ describe('S3 client', function ()
             function done()
             {
               let err = new Error();
-              err.code = '10053';
+              err.Code = '10053';
               throw err;
             }
             return new done;
@@ -349,7 +349,7 @@ describe('S3 client', function ()
             function done()
             {
               let err = new Error();
-              err.code = '400';
+              err.Code = '400';
               throw err;
             }
             return new done;

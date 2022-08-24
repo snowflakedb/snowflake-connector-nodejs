@@ -26,7 +26,7 @@ source $THIS_DIR/scripts/set_git_info.sh
 sudo curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.35.1/install.sh | sudo bash
 
 # nvm environment variables
-export NVM_DIR="/home/runner/.nvm"
+export NVM_DIR="~/.nvm/"
 [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
 [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
 
@@ -36,9 +36,9 @@ source $NVM_DIR/nvm.sh
 
 command -v nvm
 
-sudo "/home/runner/.nvm/nvm" install $NODE_VERSION
-sudo "/home/runner/.nvm/nvm" alias default $NODE_VERSION
-sudo "/home/runner/.nvm/nvm" use $NODE_VERSION
+sudo nvm install $NODE_VERSION
+sudo nvm alias default $NODE_VERSION
+sudo nvm use $NODE_VERSION
 
 export NODE_PATH=$NVM_DIR/v$NODE_VERSION/lib/node_modules
 export PATH=$NVM_DIR/versions/node/v$NODE_VERSION/bin:$PATH

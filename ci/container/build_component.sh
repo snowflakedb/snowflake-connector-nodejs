@@ -22,7 +22,7 @@ mkdir -p $NVM_DIR
 
 sudo yum install curl-devel
 sudo yum install libcurl4-openssl-dev
-curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.35.1/install.sh | bash
+sudo curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.35.1/install.sh | bash
 
 source $NVM_DIR/nvm.sh \
   && nvm install $NODE_VERSION \

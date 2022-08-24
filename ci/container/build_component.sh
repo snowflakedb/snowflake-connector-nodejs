@@ -10,6 +10,8 @@ THIS_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 cd /mnt/host
 echo "[INFO] Building"
+nvm install 14.20.0
+nvm use 14.20.0
 rm -f snowflake-sdk*.tgz
 npm pack
 npm install

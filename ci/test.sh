@@ -27,20 +27,14 @@ sudo curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.35.1/install.sh | 
 
 # nvm environment variables
 export NVM_DIR="~/.nvm/"
-[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
-[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
-
-export NODE_VERSION=14.20.0
 
 source $NVM_DIR/nvm.sh
 
 command -v nvm
 
-sudo nvm ls
+export NODE_VERSION=14.20.0
 sudo nvm install $NODE_VERSION
-sudo nvm alias default $NODE_VERSION
 sudo nvm use $NODE_VERSION
-
 
 
 

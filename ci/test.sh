@@ -21,13 +21,13 @@ echo "[INFO] The host IP address: $GATEWAY_HOST"
 source $THIS_DIR/scripts/set_git_info.sh
 
 
-# nvm environment variables
-export NVM_DIR=/usr/local/nvm
-export NODE_VERSION=14.20.0
 
 # node
-sudo mkdir -p $NVM_DIR
 sudo curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.35.1/install.sh | sudo bash
+
+# nvm environment variables
+export NVM_DIR=/home/runner/.nvm
+export NODE_VERSION=14.20.0
 
 source $NVM_DIR/nvm.sh
 sudo nvm install $NODE_VERSION
@@ -38,6 +38,7 @@ export NODE_PATH=$NVM_DIR/v$NODE_VERSION/lib/node_modules
 export PATH=$NVM_DIR/versions/node/v$NODE_VERSION/bin:$PATH
 sudo cp scripts/npmrc /root/.npmrc
 sudo npm install npm@latest -g
+
 
 
 

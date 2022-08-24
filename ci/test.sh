@@ -21,7 +21,7 @@ echo "[INFO] The host IP address: $GATEWAY_HOST"
 source $THIS_DIR/scripts/set_git_info.sh
 
 
-
+sudo which nvm
 
 # nvm environment variables
 export NVM_DIR=/home/runner/.nvm

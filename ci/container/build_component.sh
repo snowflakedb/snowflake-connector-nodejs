@@ -17,8 +17,8 @@ node -v
 
 
 
-echo "[INFO] install node"
-yum install -y nodejs
+echo "[INFO] curl node"
+curl -sL https://rpm.nodesource.com/setup_14.x | sudo bash -
 
 rm -f snowflake-sdk*.tgz
 npm pack

@@ -4,6 +4,10 @@
 #
 # - TARGET_DOCKER_TEST_IMAGE - the target Docker image key. It must be registered in _init.sh
 #
+docker run curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.37.0/install.sh | bash
+docker run nvm install 14
+docker run nvm use 14
+
 set -o pipefail
 THIS_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 source $THIS_DIR/_init.sh

@@ -24,8 +24,6 @@ source $THIS_DIR/scripts/set_git_info.sh
 export NODE_VERSION=14.20.0
 
 docker run node --version
-docker run nvm install $NODE_VERSION
-docker run nvm use $NODE_VERSION
 
 
 

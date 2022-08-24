@@ -5,31 +5,6 @@ RUN yum -y update && \
     yum -y install epel-release && \
     yum -y install centos-release-scl
 
-# nvm environment variables
-ENV NVM_DIR /usr/local/nvm
-ENV NODE_VERSION 14
-
-# node
-RUN mkdir -p $NVM_DIR
-RUN curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.35.1/install.sh | bash
-
-RUN source $NVM_DIR/nvm.sh \
-    && nvm install $NODE_VERSION \
-    && nvm alias default $NODE_VERSION \
-    && nvm use $NODE_VERSION
-
-RUN nvm install 14
-RUN nvm ls
-RUN nvm use 14
-
-RUN echo $(nvm ls)
-RUN echo $(nvm use 14)
-
-ENV NODE_PATH $NVM_DIR/v$NODE_VERSION/lib/node_modules
-ENV PATH $NVM_DIR/versions/node/v$NODE_VERSION/bin:$PATH
-COPY scripts/npmrc /root/.npmrc
-RUN npm install npm@latest -g
-
 # python
 RUN yum -y install rh-python36
 COPY scripts/python3.6.sh /usr/local/bin/python3.6

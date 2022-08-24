@@ -48,12 +48,6 @@ jobs:
                 cloud: [ 'AWS', 'AZURE', 'GCP' ]
         steps:
             - uses: actions/checkout@v1
-            - uses: actions/setup-node@v1
-              with:
-                node-version: '14.x'
-            - uses: actions/setup-python@v1
-              with:
-                python-version: '3.7'
             - name: Download Build Artifacts
               uses: actions/download-artifact@v1
               with:

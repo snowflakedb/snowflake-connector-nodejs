@@ -26,7 +26,10 @@ source $THIS_DIR/scripts/set_git_info.sh
 sudo curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.35.1/install.sh | sudo bash
 
 # nvm environment variables
-export NVM_DIR=/home/runner/.nvm
+export NVM_DIR="/home/runner/.nvm"
+[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
+[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
+
 export NODE_VERSION=14.20.0
 
 source $NVM_DIR/nvm.sh

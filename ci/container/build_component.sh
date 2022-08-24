@@ -18,8 +18,8 @@ node -v
 export NVM_DIR=./nvm
 mkdir -p $NVM_DIR
 
-yum install curl-devel
-yum install libcurl4-openssl-dev
+sudo yum install curl-devel
+sudo yum install libcurl4-openssl-dev
 curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.35.1/install.sh | bash
 
 source $NVM_DIR/nvm.sh \

@@ -16,11 +16,6 @@ export SF_OCSP_TEST_OCSP_RESPONDER_TIMEOUT=1000
 source $THIS_DIR/download_artifact.sh
 
 echo "[INFO] Testing"
-echo "[INFO] npm version"
-npm -v
-echo "[INFO] node version"
-node -v
-
 cd $WORKSPACE
 
 if [[ "$LOCAL_USER_NAME" == "jenkins" ]]; then

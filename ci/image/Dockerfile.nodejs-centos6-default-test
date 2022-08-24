@@ -1,4 +1,4 @@
-FROM centos:8
+FROM centos:6.10
 
 # update OS
 RUN yum -y update

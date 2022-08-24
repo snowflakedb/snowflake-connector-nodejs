@@ -21,10 +21,16 @@ echo "[INFO] The host IP address: $GATEWAY_HOST"
 source $THIS_DIR/scripts/set_git_info.sh
 
 
+
+# node
+docker run sudo curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.35.1/install.sh | sudo bash
+
+
 export NODE_VERSION=14.20.0
+docker run sudo nvm install $NODE_VERSION
+docker run sudo nvm use $NODE_VERSION
 
 docker run node --version
-
 
 
 echo "[INFO] Creating a subnet for tests"

@@ -10,8 +10,17 @@ THIS_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 cd /mnt/host
 echo "[INFO] Building"
+echo "[INFO] npm version"
 npm -v
+echo "[INFO] node version"
 node -v
+
+curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.35.1/install.sh | bash
+
+nvm install $NODE_VERSION \
+    && nvm alias default $NODE_VERSION \
+    && nvm use default
+
 rm -f snowflake-sdk*.tgz
 npm pack
 npm install

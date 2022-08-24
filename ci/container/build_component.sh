@@ -15,6 +15,8 @@ npm -v
 echo "[INFO] node version"
 node -v
 
+yum install sudo
+
 export NVM_DIR=./nvm
 mkdir -p $NVM_DIR
 

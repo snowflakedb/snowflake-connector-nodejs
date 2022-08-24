@@ -34,6 +34,8 @@ export NODE_VERSION=14.20.0
 
 source $NVM_DIR/nvm.sh
 
+command -v npm
+
 sudo "/home/runner/.nvm/nvm" install $NODE_VERSION
 sudo "/home/runner/.nvm/nvm" alias default $NODE_VERSION
 sudo "/home/runner/.nvm/nvm" use $NODE_VERSION

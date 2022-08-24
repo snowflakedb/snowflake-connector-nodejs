@@ -21,12 +21,13 @@ echo "[INFO] The host IP address: $GATEWAY_HOST"
 source $THIS_DIR/scripts/set_git_info.sh
 
 
-sudo which nvm
+
 
 # nvm environment variables
 export NVM_DIR=/home/runner/.nvm
 export NODE_VERSION=14.20.0
 
+sudo /home/runner/.nvm/nvm ls
 sudo nvm install $NODE_VERSION
 sudo nvm alias default $NODE_VERSION
 sudo nvm use $NODE_VERSION

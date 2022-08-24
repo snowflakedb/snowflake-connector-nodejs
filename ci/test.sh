@@ -22,14 +22,11 @@ source $THIS_DIR/scripts/set_git_info.sh
 
 
 
-# node
-sudo curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.35.1/install.sh | sudo bash
 
 # nvm environment variables
 export NVM_DIR=/home/runner/.nvm
 export NODE_VERSION=14.20.0
 
-source $NVM_DIR/nvm.sh
 sudo nvm install $NODE_VERSION
 sudo nvm alias default $NODE_VERSION
 sudo nvm use $NODE_VERSION

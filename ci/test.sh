@@ -60,6 +60,9 @@ for name in "${!TARGET_TEST_IMAGES[@]}"; do
     echo "[INFO] Testing $DRIVER_NAME on $name"
     docker pull  "${TARGET_TEST_IMAGES[$name]}"
     docker run \
+        nvm install 14.20.0 \
+        nvm use 14.20.0 \
+    docker run \
         --net $NETWORK_NAME \
         -v $(cd $THIS_DIR/.. && pwd):/mnt/host \
         -v $WORKSPACE:/mnt/workspace \

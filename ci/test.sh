@@ -29,7 +29,7 @@ export NODE_VERSION=14.20.0
 sudo mkdir -p $NVM_DIR
 sudo curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.35.1/install.sh | sudo bash
 
-sudo source $NVM_DIR/nvm.sh
+source $NVM_DIR/nvm.sh
 sudo nvm install $NODE_VERSION
 sudo nvm alias default $NODE_VERSION
 sudo nvm use $NODE_VERSION

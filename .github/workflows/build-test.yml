@@ -33,7 +33,6 @@ jobs:
                 WHITESOURCE_API_KEY: ${{ secrets.WHITESOURCE_API_KEY }}
               run: |
                 ./ci/container/build_component.sh
-                ./ci/build.sh
             - name: Upload Build Artifact
               uses: actions/upload-artifact@v1
               with:

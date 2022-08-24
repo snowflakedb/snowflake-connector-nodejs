@@ -1,5 +1,5 @@
 FROM centos:6.10
-RUN echo '\n\n\n\necho here centos6\n\n\n\n'
+
 # update OS
 RUN yum -y update && \
     yum -y install epel-release && \
@@ -13,12 +13,10 @@ ENV NODE_VERSION 14.20.0
 RUN mkdir -p $NVM_DIR
 RUN curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.35.1/install.sh | bash
 
-RUN [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh" \
-[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion" 
-
-RUN nvm install $NODE_VERSION \
+RUN source $NVM_DIR/nvm.sh \
+    && nvm install $NODE_VERSION \
     && nvm alias default $NODE_VERSION \
-    && nvm use default
+    && nvm use $NODE_VERSION
 
 ENV NODE_PATH $NVM_DIR/v$NODE_VERSION/lib/node_modules
 ENV PATH $NVM_DIR/versions/node/v$NODE_VERSION/bin:$PATH

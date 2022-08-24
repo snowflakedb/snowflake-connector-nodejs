@@ -32,7 +32,10 @@ export NVM_DIR="/home/runner/.nvm"
 
 export NODE_VERSION=14.20.0
 
+which nvm
 source $NVM_DIR/nvm.sh
+which nvm
+
 sudo nvm install $NODE_VERSION
 sudo nvm alias default $NODE_VERSION
 sudo nvm use $NODE_VERSION

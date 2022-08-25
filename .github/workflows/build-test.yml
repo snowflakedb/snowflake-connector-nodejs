@@ -31,9 +31,7 @@ jobs:
               shell: bash
               env:
                 WHITESOURCE_API_KEY: ${{ secrets.WHITESOURCE_API_KEY }}
-              run: |
-                ./ci/container/build_component.sh
-                ./ci/container/upload_artifact.sh
+              run: ./ci/build.sh
             - name: Upload Build Artifact
               uses: actions/upload-artifact@v1
               with:
@@ -46,6 +44,7 @@ jobs:
         runs-on: ubuntu-latest
         strategy:
             matrix:
+                image: [ 'nodejs-centos6-default' ]
                 cloud: [ 'AWS', 'AZURE', 'GCP' ]
         steps:
             - uses: actions/checkout@v1
@@ -64,6 +63,5 @@ jobs:
               env:
                 PARAMETERS_SECRET: ${{ secrets.PARAMETERS_SECRET }}
                 CLOUD_PROVIDER: ${{ matrix.cloud }}
-              run: |
-                ./ci/container/build_component.sh
-                ./ci/test_mac.sh
+                TARGET_DOCKER_TEST_IMAGE: ${{ matrix.image }}
+              run: ./ci/test.sh

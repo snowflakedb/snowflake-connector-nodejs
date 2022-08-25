@@ -62,7 +62,7 @@ jobs:
               env:
                 PARAMETERS_SECRET: ${{ secrets.PARAMETERS_SECRET }}
                 CLOUD_PROVIDER: ${{ matrix.cloud }}
-              run: ./ci/test.sh
+              run: ./ci/test_mac.sh
 
     test-mac:
         needs: build

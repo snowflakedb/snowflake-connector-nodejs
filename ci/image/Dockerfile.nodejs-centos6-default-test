@@ -1,4 +1,4 @@
-FROM centos:8
+FROM centos:6
 
 # update OS
 RUN yum -y update
@@ -7,7 +7,7 @@ RUN yum -y install centos-release-scl
 
 # nvm environment variables
 ENV NVM_DIR /usr/local/nvm
-ENV NODE_VERSION 14.20.0
+ENV NODE_VERSION 10.00.0
 
 # node
 RUN mkdir -p $NVM_DIR

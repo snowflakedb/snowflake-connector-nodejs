@@ -9,7 +9,6 @@ THIS_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 [[ -z "$GIT_URL" ]] && echo "Set GIT_URL to build" && exit 1
 
 cd /mnt/host
-
 echo "[INFO] Building"
 rm -f snowflake-sdk*.tgz
 npm pack

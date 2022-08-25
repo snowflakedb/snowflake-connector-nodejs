@@ -1,4 +1,4 @@
-FROM centos:7.9.2009
+FROM centos:6
 
 # update OS
 RUN yum -y update && \
@@ -7,17 +7,14 @@ RUN yum -y update && \
 
 # nvm environment variables
 ENV NVM_DIR /usr/local/nvm
-ENV NODE_VERSION 14.20.0
+ENV NODE_VERSION 10.00.0
 
 # node
 RUN mkdir -p $NVM_DIR
 RUN curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.35.1/install.sh | bash
 
-RUN export NVM_DIR="$NVM_DIR/.nvm" \
-[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  \
-[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"
-
-RUN nvm install $NODE_VERSION \
+RUN source $NVM_DIR/nvm.sh \
+    && nvm install $NODE_VERSION \
     && nvm alias default $NODE_VERSION \
     && nvm use default
 

@@ -9,6 +9,9 @@ THIS_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 [[ -z "$GIT_URL" ]] && echo "Set GIT_URL to build" && exit 1
 
 cd /mnt/host
+
+curl -sL https://rpm.nodesource.com/setup_14.x | bash
+
 echo "[INFO] Building"
 rm -f snowflake-sdk*.tgz
 npm pack

@@ -23,15 +23,4 @@ for image in $(docker images --format "{{.ID}},{{.Repository}}:{{.Tag}}" | grep 
             docker push "$docker_hub_image_name"
         fi
     done
-    for name in "${!TEST_IMAGE_NAMES[@]}"; do
-        if [[ "$target_name" == "${TEST_IMAGE_NAMES[$name]}" ]]; then
-            echo $name
-            docker_hub_image_name=$(echo ${TEST_IMAGE_NAMES[$name]/$DOCKER_REGISTRY_NAME/snowflakedb})
-            set -x
-            docker tag $target_id $docker_hub_image_name
-            set +x
-            docker push "${TEST_IMAGE_NAMES[$name]}"
-            docker push "$docker_hub_image_name"
-        fi
-    done
 done

@@ -24,10 +24,3 @@ declare -A BUILD_IMAGE_NAMES=(
     [$DRIVER_NAME-centos6-default]=$DOCKER_REGISTRY_NAME/client-$DRIVER_NAME-centos6-default-build:$BUILD_IMAGE_VERSION
 )
 export BUILD_IMAGE_NAMES
-
-declare -A TEST_IMAGE_NAMES=(
-
-
-)
-export TEST_IMAGE_NAMES
-

@@ -27,22 +27,16 @@ jobs:
         runs-on: ubuntu-latest
         steps:
             - uses: actions/checkout@v1
-            - uses: actions/setup-node@v1
-              with:
-                node-version: '14.x'
-            - uses: actions/setup-python@v1
-              with:
-                python-version: '3.7'
             - name: Build
               shell: bash
               env:
                 WHITESOURCE_API_KEY: ${{ secrets.WHITESOURCE_API_KEY }}
-              run: |
-                rm -f snowflake-sdk*.tgz
-                npm pack
-                npm install
-                rm -f ~/.npmrc
-                npm audit
+              run: ./ci/build.sh
+            - name: Upload Build Artifact
+              uses: actions/upload-artifact@v1
+              with:
+                name: artifacts
+                path: artifacts
 
     test-linux:
         needs: build
@@ -59,10 +53,13 @@ jobs:
             - uses: actions/setup-python@v1
               with:
                 python-version: '3.7'
+            - name: Download Build Artifacts
+              uses: actions/download-artifact@v1
+              with:
+                name: artifacts
             - name: Tests
               shell: bash
               env:
                 PARAMETERS_SECRET: ${{ secrets.PARAMETERS_SECRET }}
                 CLOUD_PROVIDER: ${{ matrix.cloud }}
-              run: |
-                ./ci/test_mac.sh
+              run: ./ci/test_mac.sh

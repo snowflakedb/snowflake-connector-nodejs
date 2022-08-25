@@ -27,16 +27,22 @@ jobs:
         runs-on: ubuntu-latest
         steps:
             - uses: actions/checkout@v1
+            - uses: actions/setup-node@v1
+              with:
+                node-version: '14.x'
+            - uses: actions/setup-python@v1
+              with:
+                python-version: '3.7'
             - name: Build
               shell: bash
               env:
                 WHITESOURCE_API_KEY: ${{ secrets.WHITESOURCE_API_KEY }}
-              run: ./ci/build.sh
-            - name: Upload Build Artifact
-              uses: actions/upload-artifact@v1
-              with:
-                name: artifacts
-                path: artifacts
+              run: |
+                rm -f snowflake-sdk*.tgz
+                npm pack
+                npm install
+                rm -f ~/.npmrc
+                npm audit
 
     test-linux:
         needs: build
@@ -44,7 +50,6 @@ jobs:
         runs-on: ubuntu-latest
         strategy:
             matrix:
-                image: [ 'nodejs-centos6-default' ]
                 cloud: [ 'AWS', 'AZURE', 'GCP' ]
         steps:
             - uses: actions/checkout@v1
@@ -63,5 +68,5 @@ jobs:
               env:
                 PARAMETERS_SECRET: ${{ secrets.PARAMETERS_SECRET }}
                 CLOUD_PROVIDER: ${{ matrix.cloud }}
-                TARGET_DOCKER_TEST_IMAGE: ${{ matrix.image }}
-              run: ./ci/test.sh
+              run: |
+                ./ci/test_mac.sh

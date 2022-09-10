@@ -49,6 +49,7 @@ describe('Test Concurrent Execution', function ()
 		complete: function (err, stmt) {
 			testUtil.checkError(err);
 			assert.strictEqual(stmt.getNumUpdatedRows(), count);
+            done();
 		}
 	});
   });

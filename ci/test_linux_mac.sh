@@ -1,6 +1,6 @@
 #!/bin/bash -e
 #
-# Test NodeJS for Mac
+# Test NodeJS for Linux and Mac
 #
 set -o pipefail
 THIS_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"

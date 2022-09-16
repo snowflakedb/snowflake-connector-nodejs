@@ -516,4 +516,71 @@ describe('Util', function ()
     assert.strictEqual(Object.keys(dst).length, 1);
     assert.ok(dst.hasOwnProperty('a') && (dst.a === 2));
   });
+
+  it('Util.isRetryableHttpError()', function ()
+  {
+    var testCasesPos =
+      [
+        {
+          name: '200 - OK',
+          statusCode: 200,
+          retry403: false,
+          isRetryable: false,
+        },
+        {
+          name: '400 - Bad Request',
+          statusCode: 400,
+          retry403: false,
+          isRetryable: false,
+        },
+        {
+          name: '403 - Forbidden',
+          statusCode: 403,
+          retry403: false,
+          isRetryable: false,
+        },
+        {
+          name: '403 - Forbidden (retry on 403)',
+          statusCode: 403,
+          retry403: true,
+          isRetryable: true,
+        },
+        {
+          name: '404 - Not Found',
+          statusCode: 404,
+          retry403: false,
+          isRetryable: false,
+        },
+        {
+          name: '408 - Request Timeout',
+          statusCode: 408,
+          retry403: false,
+          isRetryable: true,
+        },
+        {
+          name: '500 - Internal Server Error',
+          statusCode: 500,
+          retry403: false,
+          isRetryable: true,
+        },
+        {
+          name: '503 - Service Unavailable',
+          statusCode: 503,
+          retry403: false,
+          isRetryable: true,
+        },
+      ];
+
+    var testCase;
+    var err;
+    for (var index = 0, length = testCasesPos.length; index < length; index++)
+    {
+      testCase = testCasesPos[index];
+      err = {
+        response: { statusCode: testCase.statusCode }
+      };
+      assert.strictEqual(Util.isRetryableHttpError(
+        err.response, testCase.retry403), testCase.isRetryable)
+    }
+  });
 });

@@ -38,41 +38,48 @@ describe('S3 client', function ()
 
   before(function ()
   {
-    mock('s3', {
-      S3: function (params)
+    mock('S3Client', {
+      S3Client: function ()
       {
-        function S3()
+        function S3Client()
         {
-          this.getObject = function (params)
+          this.send = function (metadata)
           {
-            function getObject()
+            function send()
             {
-              this.promise = function ()
-              {
-                function promise()
-                {
-                  this.then = function (callback)
-                  {
-                    callback({
-                      Metadata: ''
-                    });
-                  }
-                }
-                return new promise;
-              }
+              return metadata;
             }
-            return new getObject;
-          }
-          this.upload = function (params)
-          {
-            function upload()
-            {
-              this.promise = function () { };
-            }
-            return new upload;
+            return new send;
           }
         }
-        return new S3;
+        return new S3Client;
+      }
+    });
+    mock('GetObjectCommand', {
+      GetObjectCommand: function ()
+      {
+        function GetObjectCommand()
+        {
+          return { Metadata: '' };
+        }
+        return new GetObjectCommand;
+      }
+    });
+    mock('Upload', {
+      Upload: function ()
+      {
+        function Upload()
+        {
+          this.done = function ()
+          {
+            function done()
+            {
+              return;
+            }
+            return new done;
+          }
+        }
+        return new Upload;
       }
     });
     mock('filesystem', {
@@ -81,10 +88,13 @@ describe('S3 client', function ()
         return data;
       }
     });
-    s3 = require('s3');
+
+    s3 = require('S3Client');
+    get = require('GetObjectCommand');
+    upload = require('Upload');
     filesystem = require('filesystem');
 
-    AWS = new SnowflakeS3Util(s3, filesystem);
+    AWS = new SnowflakeS3Util(s3, get, upload, filesystem);
   });
 
   it('extract bucket name and path', async function ()
@@ -118,36 +128,26 @@ describe('S3 client', function ()
 
   it('get file header - fail expired token', async function ()
   {
-    mock('s3', {
-      S3: function (params)
+    mock('S3Client', {
+      S3Client: function ()
       {
-        function S3()
+        function S3Client()
         {
-          this.getObject = function (params)
+          this.send = function ()
           {
-            function getObject()
+            function send()
             {
-              this.promise = function ()
-              {
-                function promise()
-                {
-                  this.then = function (callback)
-                  {
-                    let err = new Error();
-                    err.code = 'ExpiredToken';
-                    throw err;
-                  }
-                }
-                return new promise;
-              }
+              let err = new Error();
+              err.Code = 'ExpiredToken';
+              throw err;
             }
-            return new getObject;
+            return new send;
           }
         }
-        return new S3;
+        return new S3Client;
       }
     });
-    s3 = require('s3');
+    s3 = require('S3Client');
     var AWS = new SnowflakeS3Util(s3);
 
     await AWS.getFileHeader(meta, dataFile);
@@ -156,36 +156,26 @@ describe('S3 client', function ()
 
   it('get file header - fail no such key', async function ()
   {
-    mock('s3', {
-      S3: function (params)
+    mock('S3Client', {
+      S3Client: function ()
       {
-        function S3()
+        function S3Client()
         {
-          this.getObject = function (params)
+          this.send = function ()
           {
-            function getObject()
+            function send()
             {
-              this.promise = function ()
-              {
-                function promise()
-                {
-                  this.then = function (callback)
-                  {
-                    let err = new Error();
-                    err.code = 'NoSuchKey';
-                    throw err;
-                  }
-                }
-                return new promise;
-              }
+              let err = new Error();
+              err.Code = 'NoSuchKey';
+              throw err;
             }
-            return new getObject;
+            return new send;
           }
         }
-        return new S3;
+        return new S3Client;
       }
     });
-    s3 = require('s3');
+    s3 = require('S3Client');
     var AWS = new SnowflakeS3Util(s3);
 
     await AWS.getFileHeader(meta, dataFile);
@@ -194,36 +184,26 @@ describe('S3 client', function ()
 
   it('get file header - fail HTTP 400', async function ()
   {
-    mock('s3', {
-      S3: function (params)
+    mock('S3Client', {
+      S3Client: function ()
       {
-        function S3()
+        function S3Client()
         {
-          this.getObject = function (params)
+          this.send = function ()
           {
-            function getObject()
+            function send()
             {
-              this.promise = function ()
-              {
-                function promise()
-                {
-                  this.then = function (callback)
-                  {
-                    let err = new Error();
-                    err.code = '400';
-                    throw err;
-                  }
-                }
-                return new promise;
-              }
+              let err = new Error();
+              err.Code = '400';
+              throw err;
             }
-            return new getObject;
+            return new send;
           }
         }
-        return new S3;
+        return new S3Client;
       }
     });
-    s3 = require('s3');
+    s3 = require('S3Client');
     var AWS = new SnowflakeS3Util(s3);
 
     await AWS.getFileHeader(meta, dataFile);
@@ -232,36 +212,26 @@ describe('S3 client', function ()
 
   it('get file header - fail unknown', async function ()
   {
-    mock('s3', {
-      S3: function (params)
+    mock('S3Client', {
+      S3Client: function ()
       {
-        function S3()
+        function S3Client()
         {
-          this.getObject = function (params)
+          this.send = function ()
           {
-            function getObject()
+            function send()
             {
-              this.promise = function ()
-              {
-                function promise()
-                {
-                  this.then = function (callback)
-                  {
-                    let err = new Error();
-                    err.code = 'unknown';
-                    throw err;
-                  }
-                }
-                return new promise;
-              }
+              let err = new Error();
+              err.Code = 'unknown';
+              throw err;
             }
-            return new getObject;
+            return new send;
           }
         }
-        return new S3;
+        return new S3Client;
       }
     });
-    s3 = require('s3');
+    s3 = require('S3Client');
     var AWS = new SnowflakeS3Util(s3);
 
     await AWS.getFileHeader(meta, dataFile);
@@ -276,26 +246,30 @@ describe('S3 client', function ()
 
   it('upload - fail expired token', async function ()
   {
-    mock('s3', {
-      S3: function (params)
+    mock('S3Client', {
+      S3Client: function ()
       {
-        function S3()
+        function S3Client() {}
+        return new S3Client;
+      }
+    });
+    mock('Upload', {
+      Upload: function ()
+      {
+        function Upload()
         {
-          this.upload = function (params)
+          this.done = function ()
           {
-            function upload()
+            function done()
             {
-              this.promise = function ()
-              {
-                let err = new Error();
-                err.code = 'ExpiredToken';
-                throw err;
-              }
+              let err = new Error();
+              err.Code = 'ExpiredToken';
+              throw err;
             }
-            return new upload;
+            return new done;
           }
         }
-        return new S3;
+        return new Upload;
       }
     });
     mock('filesystem', {
@@ -304,9 +278,10 @@ describe('S3 client', function ()
         return data;
       }
     });
-    s3 = require('s3');
+    s3 = require('S3Client');
+    upload = require('Upload');
     filesystem = require('filesystem');
-    var AWS = new SnowflakeS3Util(s3, filesystem);
+    var AWS = new SnowflakeS3Util(s3, {}, upload, filesystem);
 
     await AWS.uploadFile(dataFile, meta, encryptionMetadata);
     assert.strictEqual(meta['resultStatus'], resultStatus.RENEW_TOKEN);
@@ -314,26 +289,30 @@ describe('S3 client', function ()
 
   it('upload - fail wsaeconnaborted', async function ()
   {
-    mock('s3', {
-      S3: function (params)
+    mock('S3Client', {
+      S3Client: function ()
       {
-        function S3()
+        function S3Client() { }
+        return new S3Client;
+      }
+    });
+    mock('Upload', {
+      Upload: function ()
+      {
+        function Upload()
         {
-          this.upload = function (params)
+          this.done = function ()
           {
-            function upload()
+            function done()
             {
-              this.promise = function ()
-              {
-                let err = new Error();
-                err.code = '10053';
-                throw err;
-              }
+              let err = new Error();
+              err.Code = '10053';
+              throw err;
             }
-            return new upload;
+            return new done;
           }
         }
-        return new S3;
+        return new Upload;
       }
     });
     mock('filesystem', {
@@ -342,9 +321,10 @@ describe('S3 client', function ()
         return data;
       }
     });
-    s3 = require('s3');
+    s3 = require('S3Client');
+    upload = require('Upload');
     filesystem = require('filesystem');
-    var AWS = new SnowflakeS3Util(s3, filesystem);
+    var AWS = new SnowflakeS3Util(s3, {}, upload, filesystem);
 
     await AWS.uploadFile(dataFile, meta, encryptionMetadata);
     assert.strictEqual(meta['resultStatus'], resultStatus.NEED_RETRY_WITH_LOWER_CONCURRENCY);
@@ -352,26 +332,30 @@ describe('S3 client', function ()
 
   it('upload - fail HTTP 400', async function ()
   {
-    mock('s3', {
-      S3: function (params)
+    mock('S3Client', {
+      S3Client: function ()
       {
-        function S3()
+        function S3Client() { }
+        return new S3Client;
+      }
+    });
+    mock('Upload', {
+      Upload: function ()
+      {
+        function Upload()
         {
-          this.upload = function (params)
+          this.done = function ()
           {
-            function upload()
+            function done()
             {
-              this.promise = function ()
-              {
-                let err = new Error();
-                err.code = '400';
-                throw err;
-              }
+              let err = new Error();
+              err.Code = '400';
+              throw err;
             }
-            return new upload;
+            return new done;
           }
         }
-        return new S3;
+        return new Upload;
       }
     });
     mock('filesystem', {
@@ -380,9 +364,10 @@ describe('S3 client', function ()
         return data;
       }
     });
-    s3 = require('s3');
+    s3 = require('S3Client');
+    upload = require('Upload');
     filesystem = require('filesystem');
-    var AWS = new SnowflakeS3Util(s3, filesystem);
+    var AWS = new SnowflakeS3Util(s3, {}, upload, filesystem);
 
     await AWS.uploadFile(dataFile, meta, encryptionMetadata);
     assert.strictEqual(meta['resultStatus'], resultStatus.NEED_RETRY);

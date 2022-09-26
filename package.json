@@ -3,7 +3,7 @@
   "version": "1.6.13",
   "description": "Node.js driver for Snowflake",
   "dependencies": {
-    "@azure/storage-blob": "^12.5.0",
+    "@azure/storage-blob": "^12.11.0",
     "agent-base": "^6.0.2",
     "asn1.js-rfc2560": "^5.0.0",
     "asn1.js-rfc5280": "^3.0.0",
@@ -39,6 +39,11 @@
     "async": "^3.2.3",
     "qs": "^6.10.3",
     "mocha": "9.2.0"
+  },
+  "overrides": {
+    "@azure/storage-blob": {
+      "node-fetch": "^3.2.10"
+    }
   },
   "repository": {
     "type": "git",

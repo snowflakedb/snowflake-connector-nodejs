@@ -27,12 +27,6 @@ const snowflakeTestOktaUser = process.env.SNOWFLAKE_TEST_OKTA_USER;
 const snowflakeTestOktaPass = process.env.SNOWFLAKE_TEST_OKTA_PASS;
 const snowflakeTestOktaAuth = process.env.SNOWFLAKE_TEST_OKTA_AUTH;
 
-
-console.log("snowflakeTestDatabase: " + snowflakeTestDatabase);
-console.log("snowflakeTestWarehouse: " + snowflakeTestWarehouse);
-console.log("snowflakeTestSchema: " + snowflakeTestSchema);
-
-
 if (snowflakeTestProtocol === undefined)
 {
   snowflakeTestProtocol = 'https';

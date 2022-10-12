@@ -177,6 +177,36 @@ describe('Statement.execute()', function ()
             services: {}
           },
         errorCode: ErrorCodes.ERR_INTERNAL_ASSERT_FAILED
+      },
+      {
+        name: 'execute() invalid request id with sqlText',
+        options:
+          {
+            statementOptions: {sqlText: 'sqlText', requestId: 1234},
+            services: {},
+            connectionConfig: null
+          },
+        errorCode: ErrorCodes.ERR_CONN_EXEC_STMT_INVALID_REQUEST_ID
+      },
+      {
+        name: 'execute() invalid request id without sqlText',
+        options:
+          {
+            statementOptions: {requestId: 1234},
+            services: {},
+            connectionConfig: null
+          },
+        errorCode: ErrorCodes.ERR_CONN_EXEC_STMT_INVALID_REQUEST_ID
+      },
+      {
+        name: 'execute() missing sqlText and requestId',
+        options:
+          {
+            statementOptions: {},
+            services: {},
+            connectionConfig: null
+          },
+        errorCode: ErrorCodes.ERR_CONN_EXEC_STMT_MISSING_SQL_TEXT
       }
     ];
 

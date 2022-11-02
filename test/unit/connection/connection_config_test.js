@@ -275,6 +275,21 @@ describe('ConnectionConfig: basic', function ()
         },
         errorCode: ErrorCodes.ERR_CONN_CREATE_INVALID_PROXY_PASS
       },
+    {
+      name: 'invalid noProxy',
+      options:
+      {
+        username: 'username',
+        password: 'password',
+        account: 'account',
+        proxyHost: 'proxyHost',
+        proxyPort: 1234,
+        proxyUser: 'proxyUser',
+        proxyPassword: 'proxyPassword',
+        noProxy: 0
+      },
+      errorCode: ErrorCodes.ERR_CONN_CREATE_INVALID_NO_PROXY
+    },
       {
         name: 'invalid streamResult',
         options:
@@ -652,6 +667,26 @@ describe('ConnectionConfig: basic', function ()
           proxyPort: 1234,
           proxyUser: 'proxyUser',
           proxyPassword: 'proxyPassword'
+        },
+        options:
+        {
+          accessUrl: 'https://account.snowflakecomputing.com',
+          username: 'username',
+          password: 'password'
+        }
+      },
+      {
+        name: 'proxy with noproxy',
+        input:
+        {
+          username: 'username',
+          password: 'password',
+          account: 'account',
+          proxyHost: 'proxyHost',
+          proxyPort: 1234,
+          proxyUser: 'proxyUser',
+          proxyPassword: 'proxyPassword',
+          noProxy:  '*.snowflakecomputing.com'
         },
         options:
         {

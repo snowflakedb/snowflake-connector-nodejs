@@ -1080,4 +1080,18 @@ describe('Connection test - connection pool', function ()
       });
     });
   });
+
+  it('invalid password', function (done)
+  {
+    var connectionPool = snowflake.createPool(connOption.wrongPwd,
+      {
+        max: 10,
+        min: 1
+      });
+
+      assert.ok(err, 'Password is an empty string');
+      assert.equal('Incorrect username or password was specified.', err["message"]);
+      done();
+
+  });
 });

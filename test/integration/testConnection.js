@@ -480,6 +480,7 @@ describe('Connection test - validate default parameters', function ()
         username: connOption.valid.username,
         password: connOption.valid.password,
         db: 'testDb',
+        fakeodbc: false,
         validateDefaultParameters: true
       });
     });

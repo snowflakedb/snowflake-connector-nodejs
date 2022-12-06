@@ -486,6 +486,7 @@ describe('Connection test - validate default parameters', function ()
     assert.deepEqual(output,
       [
         "\"db\" is an unknown connection parameter\n",
+        "Did you mean \"fakeodbc\"\n"
       ]);
   });
 
@@ -1079,5 +1080,27 @@ describe('Connection test - connection pool', function ()
         done();
       });
     });
+  });
+
+  it('wrong password', function (done)
+  {
+    var connectionPool = snowflake.createPool(connOption.wrongPwd,
+      {
+        max: 10,
+        min: 1
+      });
+
+    assert.equal(connectionPool.max, 10);
+    assert.equal(connectionPool.min, 1);
+    assert.equal(connectionPool.size, 1);
+
+    // Use the connection pool, automatically creates a new connection
+    connectionPool.use(async (connection) =>
+    {
+      assert.ok(connection.isUp(), "not active");
+      assert.equal(connectionPool.size, 1);
+    });
+    // no login loop with wrong password
+    done();
   });
 });

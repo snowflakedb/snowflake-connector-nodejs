@@ -1,6 +1,6 @@
 {
   "name": "snowflake-sdk",
-  "version": "1.6.15",
+  "version": "1.6.16",
   "description": "Node.js driver for Snowflake",
   "dependencies": {
     "@azure/storage-blob": "^12.11.0",
@@ -22,7 +22,7 @@
     "mime-types": "^2.1.29",
     "mkdirp": "^1.0.3",
     "mock-require": "^3.0.3",
-    "moment": "^2.29.3",
+    "moment": "^2.29.4",
     "moment-timezone": "^0.5.15",
     "@techteamer/ocsp": "1.0.0",
     "open": "^7.3.1",

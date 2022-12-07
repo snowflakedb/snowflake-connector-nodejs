@@ -1103,3 +1103,32 @@ describe('Connection test - connection pool', function ()
     done();
   });
 });
+
+describe('Heartbeat test', function ()
+{
+  var connection = snowflake.createConnection(connOption.valid);
+
+  it('call heartbeat url', function (done)
+  {
+    async.series(
+      [
+        function (callback)
+        {
+          connection.connect(function (err, conn)
+          {
+            assert.ok(!err, JSON.stringify(err));
+            callback();
+          });
+        },
+        function (callback)
+        {
+          connection.heartbeat();
+          callback();
+        }
+      ],
+      function ()
+      {
+        done();
+      });
+  });
+});

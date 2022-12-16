@@ -486,7 +486,6 @@ describe('Connection test - validate default parameters', function ()
     assert.deepEqual(output,
       [
         "\"db\" is an unknown connection parameter\n",
-        "Did you mean \"fakeodbc\"\n"
       ]);
   });
 
@@ -1102,5 +1101,34 @@ describe('Connection test - connection pool', function ()
     });
     // no login loop with wrong password
     done();
+  });
+});
+
+describe('Heartbeat test', function ()
+{
+  var connection = snowflake.createConnection(connOption.valid);
+
+  it('call heartbeat url', function (done)
+  {
+    async.series(
+      [
+        function (callback)
+        {
+          connection.connect(function (err, conn)
+          {
+            assert.ok(!err, JSON.stringify(err));
+            callback();
+          });
+        },
+        function (callback)
+        {
+          connection.heartbeat();
+          callback();
+        }
+      ],
+      function ()
+      {
+        done();
+      });
   });
 });

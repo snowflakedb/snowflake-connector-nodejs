@@ -486,6 +486,7 @@ describe('Connection test - validate default parameters', function ()
     assert.deepEqual(output,
       [
         "\"db\" is an unknown connection parameter\n",
+        "Did you mean \"fakeodbc\"\n"
       ]);
   });
 

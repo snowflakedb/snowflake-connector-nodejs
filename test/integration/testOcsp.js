@@ -10,6 +10,7 @@ const SocketUtil = require('./../../lib/agent/socket_util');
 const OcspResponseCache = require('./../../lib/agent/ocsp_response_cache');
 const Check = require('./../../lib/agent/check');
 const Util = require('./../../lib/util');
+const { exec } = require('child_process');
 
 const sharedLogger = require('./sharedLogger');
 const Logger = require('./../../lib/logger');
@@ -327,5 +328,51 @@ describe('OCSP privatelink', function ()
 
       done();
     });
+  });
+});
+
+describe('Test Ocsp with network delay', function ()
+{
+  this.timeout(500000);
+
+  before(function (done)
+  {
+    exec("sudo tc qdisc add dev eth0 root netem delay 5000ms");
+    done();
+  });
+
+  after(function (done)
+  {
+    exec("sudo tc qdisc delete dev eth0 root");
+    done();
+  });
+
+  it('Force to download cache with network delay', function (done)
+  {
+    const platform = Os.platform();
+    if (platform === "linux")
+    {
+      OcspResponseCache.deleteCache();
+      SocketUtil.variables.OCSP_RESPONSE_CACHE = undefined;
+      snowflake.configure({ocspFailOpen: false});
+      const connection = snowflake.createConnection(connOption.valid);
+
+      async.series([
+          function (callback)
+          {
+            connection.connect(function (err, conn)
+            {
+              assert.ok(!err, JSON.stringify(err));
+              callback();
+            });
+          }
+        ],
+        done
+      );
+    }
+    else
+    {
+      done();
+    }
   });
 });

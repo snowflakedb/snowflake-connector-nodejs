@@ -18,7 +18,7 @@
     "extend": "^3.0.2",
     "generic-pool": "^3.8.2",
     "glob": "^7.1.6",
-    "jsonwebtoken": "^8.5.1",
+    "jsonwebtoken": "^9.0.0",
     "mime-types": "^2.1.29",
     "mkdirp": "^1.0.3",
     "mock-require": "^3.0.3",

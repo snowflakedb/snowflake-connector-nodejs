@@ -9,6 +9,7 @@ var testUtil = require('./testUtil');
 describe('Test multi statement', function ()
 {
   var connection;
+  var alterSessionMultiStatement0 = "alter session set MULTI_STATEMENT_COUNT=0";
   var selectTable = 'select ?; select ?,3; select ?,5,6';
 
   before(function (done)
@@ -20,7 +21,31 @@ describe('Test multi statement', function ()
     testUtil.connect(connection, function ()
     {
       connection.execute({
-        sqlText: createTable,
+        sqlText: alterSessionMultiStatement0,
+        complete: function (err, stmt)
+        {
+          	testUtil.checkError(err);
+		  	done();
+        }
+      });
+    });
+  });
+
+  after(function (done)
+  {
+    testUtil.destroyConnection(connection, done);
+  });
+
+  it('testMultiStatement', function(done)
+  {
+	var bindArr = [1,2,4];
+	var count=0;
+
+	connection = testUtil.createConnection();
+    testUtil.connect(connection, function ()
+    {
+      connection.execute({
+        sqlText: selectTable,
 		binds: bindArr,
         complete: function (err, stmt)
         {
@@ -44,11 +69,5 @@ describe('Test multi statement', function ()
 			});
         }
       });
-    });
-  });
-
-  after(function (done)
-  {
-    testUtil.destroyConnection(connection, done);
   });
 });

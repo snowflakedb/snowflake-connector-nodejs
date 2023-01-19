@@ -69,5 +69,6 @@ describe('Test multi statement', function ()
 			});
         }
       });
+    });
   });
 });

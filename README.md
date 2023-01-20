@@ -7,6 +7,10 @@ NodeJS Driver for Snowflake
   <a href="http://www.apache.org/licenses/LICENSE-2.0.txt" target="_blank"><img src="http://img.shields.io/:license-Apache%202-brightgreen.svg" alt="apache" /> </a>
 </p>
 
+
+| :exclamation:        | For production-affecting issues related to the driver, please [create a case with Snowflake Support](https://community.snowflake.com/s/article/How-To-Submit-a-Support-Case-in-Snowflake-Lodge).   |
+|---------------|:------------------------|
+
 Install
 ======================================================================
 

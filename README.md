@@ -32,7 +32,7 @@ Docs
 ======================================================================
 
 For detailed documentation and basic usage examples, please see the documentation 
-at `NodeJS Driver for Snowflake <https://docs.snowflake.net/manuals/user-guide/nodejs-driver.html>`_
+at <a href="https://docs.snowflake.net/manuals/user-guide/nodejs-driver.html">NodeJS Driver for Snowflake</a>.
 
 Test
 ======================================================================

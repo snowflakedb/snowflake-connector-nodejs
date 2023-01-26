@@ -51,7 +51,7 @@ describe('Test multi statement', function ()
                                 console.log('=== server version =');
                                 console.log(rows);
 
-                                assert.strictEqual(rows[0], '7.3.0');
+                                assert.strictEqual(rows[0]['CURRENT_VERSION()'], '7.3.0');
                                 callback();
                             }
                         });

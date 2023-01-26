@@ -47,8 +47,10 @@ describe('Test multi statement', function ()
                             sqlText: 'select current_version()',
                             complete: function (err, stmt, rows) {
                                 console.log('=== driver version = ' + Util.driverVersion);
+                                assert.strictEqual(Util.driverVersion, '1.6.18');
                                 console.log('=== server version =');
                                 console.log(rows);
+                                assert.strictEqual(rows, '7.3.0');
                                 callback();
                             }
                         });

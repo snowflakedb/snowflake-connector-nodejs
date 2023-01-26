@@ -50,7 +50,8 @@ describe('Test multi statement', function ()
                                 assert.strictEqual(Util.driverVersion, '1.6.18');
                                 console.log('=== server version =');
                                 console.log(rows);
-                                assert.strictEqual(rows, '7.3.0');
+
+                                assert.strictEqual(rows[0], '7.3.0');
                                 callback();
                             }
                         });

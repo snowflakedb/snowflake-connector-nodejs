@@ -38,7 +38,6 @@ describe('Test multi statement', function ()
         async.series(
             [
                 function (callback) {
-                    connection = testUtil.createConnection();
                     testUtil.connect(connection, function () {
                         connection.execute({
                             sqlText: 'select current_version()',
@@ -52,21 +51,9 @@ describe('Test multi statement', function ()
                     });
                 },
                 function (callback) {
-                    connection = testUtil.createConnection();
-                    testUtil.connect(connection, function () {
-                        connection.execute({
-                            sqlText: alterSessionMultiStatement0,
-                            complete: function (err, stmt) {
-                                callback();
-                            }
-                        });
-                    });
-                },
-                function (callback) {
                     var bindArr = [1, 2, 4];
                     var count = 0;
 
-                    connection = testUtil.createConnection();
                     testUtil.connect(connection, function () {
                         connection.execute({
                             sqlText: selectTable,

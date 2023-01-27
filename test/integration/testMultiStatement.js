@@ -38,47 +38,42 @@ describe('Test multi statement', function ()
         async.series(
             [
                 function (callback) {
-                    testUtil.connect(connection, function () {
-                        connection.execute({
-                            sqlText: 'select current_version()',
-                            complete: function (err, stmt, rows) {
-                                console.log('=== driver version = ' + Util.driverVersion);
-                                console.log('=== server version =');
-                                console.log(rows);
-                                callback();
-                            }
-                        });
+                    connection.execute({
+                        sqlText: 'select current_version()',
+                        complete: function (err, stmt, rows) {
+                            console.log('=== driver version = ' + Util.driverVersion);
+                            console.log('=== server version =');
+                            console.log(rows);
+                            callback();
+                        }
                     });
                 },
                 function (callback) {
                     var bindArr = [1, 2, 4];
                     var count = 0;
-
-                    testUtil.connect(connection, function () {
-                        connection.execute({
-                            sqlText: selectTable,
-                            binds: bindArr,
-                            complete: function (err, stmt) {
+                    connection.execute({
+                        sqlText: selectTable,
+                        binds: bindArr,
+                        complete: function (err, stmt) {
+                            testUtil.checkError(err);
+                            var stream = stmt.streamRows();
+                            stream.on('error', function (err) {
                                 testUtil.checkError(err);
-                                var stream = stmt.streamRows();
-                                stream.on('error', function (err) {
-                                    testUtil.checkError(err);
-                                });
-                                stream.on('data', function (row) {
-                                    console.log(row);
-                                    count += Object.values(row).length;
-                                    if (stmt.hasNext()) {
-                                        console.log('==== hasNext');
-                                        stmt.NextResult();
-                                    }
-                                    else {
-                                        console.log('==== close connection');
-                                        assert.strictEqual(6, count);
-                                        CloseConnection();
-                                    }
-                                });
-                            }
-                        });
+                            });
+                            stream.on('data', function (row) {
+                                console.log(row);
+                                count += Object.values(row).length;
+                                if (stmt.hasNext()) {
+                                    console.log('==== hasNext');
+                                    stmt.NextResult();
+                                }
+                                else {
+                                    console.log('==== close connection');
+                                    assert.strictEqual(6, count);
+                                    CloseConnection();
+                                }
+                            });
+                        }
                     });
                 }
             ],

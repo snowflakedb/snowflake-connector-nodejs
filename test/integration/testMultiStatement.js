@@ -70,6 +70,7 @@ describe('Test multi statement', function ()
                                 else {
                                     console.log('==== close connection');
                                     assert.strictEqual(6, count);
+                                    done();
                                 }
                             });
                         }

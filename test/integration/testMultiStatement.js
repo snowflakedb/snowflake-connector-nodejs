@@ -15,9 +15,6 @@ describe('Test multi statement', function ()
 
   before(function (done)
   {
-	var bindArr = [1,2,4];
-	var count=0;
-
     connection = testUtil.createConnection();
     testUtil.connect(connection, function ()
     {
@@ -49,6 +46,17 @@ describe('Test multi statement', function ()
                                 console.log('=== driver version = ' + Util.driverVersion);
                                 console.log('=== server version =');
                                 console.log(rows);
+                                callback();
+                            }
+                        });
+                    });
+                },
+                function (callback) {
+                    connection = testUtil.createConnection();
+                    testUtil.connect(connection, function () {
+                        connection.execute({
+                            sqlText: alterSessionMultiStatement0,
+                            complete: function (err, stmt) {
                                 callback();
                             }
                         });

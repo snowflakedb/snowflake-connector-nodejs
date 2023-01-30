@@ -39,7 +39,7 @@ jobs:
                 path: artifacts
 
     test-mac:
-        needs: test-linux
+        needs: build
         name: Tests on Mac
         runs-on: macos-latest
         strategy:
@@ -69,7 +69,7 @@ jobs:
               run: /usr/local/bin/bash ./ci/test_mac.sh
 
     test-linux:
-        needs: build
+        needs: test-mac
         name: Tests on Linux
         runs-on: ubuntu-latest
         strategy:

@@ -92,7 +92,7 @@ jobs:
               run: ./ci/test.sh
 
     test-windows:
-        needs: test-linux
+        needs: test-linux-required
         name: Tests on Windows
         runs-on: windows-latest
         strategy:

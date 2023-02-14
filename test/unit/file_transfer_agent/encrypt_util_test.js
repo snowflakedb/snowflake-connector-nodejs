@@ -78,8 +78,9 @@ describe('Encryption util', function ()
           {
             return;
           }
-          this.close = function ()
+          this.close = function (resolve)
           {
+            resolve();
             return;
           }
         }

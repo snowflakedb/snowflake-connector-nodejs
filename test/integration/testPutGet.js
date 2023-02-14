@@ -108,6 +108,11 @@ describe('PUT GET test', function ()
         {
           var fileName = tmpFile.name.substring(tmpFile.name.lastIndexOf('\\'));
           putQuery = `PUT file://${process.env.USERPROFILE}\\AppData\\Local\\Temp\\${fileName} @${DATABASE_NAME}.${SCHEMA_NAME}.%${TEMP_TABLE_NAME}`;
+          console.log('debug lines\n');
+          console.log(tmpFile.name);
+          console.log(`PUT file://${process.env.USERPROFILE}\\AppData\\Local\\Temp\\${fileName}`);
+          console.log(process.env.USERPROFILE);
+          console.log('\ndebug lines');
         }
 
         // Create a tmp folder for downloaded files

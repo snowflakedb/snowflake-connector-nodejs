@@ -42,7 +42,7 @@ describe('Test Concurrent Execution', function ()
     testUtil.destroyConnection(connection, done);
   });
 
-  it('testArrayBind', function (done)
+  it('testArrayBindCustomerTable', function (done)
   {
 	var arrBind = [];
 	var count = 1000000;

@@ -58,7 +58,7 @@ describe('Test Concurrent Execution', function ()
             complete: function (err, stmt) {
               testUtil.checkError(err);
               assert.strictEqual(stmt.getNumUpdatedRows(), count);
-              done();
+              callback();
             }
           });
         },
@@ -68,7 +68,7 @@ describe('Test Concurrent Execution', function ()
             sqlText: createNABTable,
             complete: function (err, stmt) {
               testUtil.checkError(err);
-              done();
+              callback();
             }
           });
         },
@@ -86,7 +86,7 @@ describe('Test Concurrent Execution', function ()
             complete: function (err, stmt) {
               testUtil.checkError(err);
               assert.strictEqual(stmt.getNumUpdatedRows(), count);
-              done();
+              callback();
             }
           });
         },
@@ -97,7 +97,7 @@ describe('Test Concurrent Execution', function ()
             complete: function (err, stmt, rows) {
               testUtil.checkError(err);
               NABData = rows[0];
-              done();
+              callback();
             }
           });
         },
@@ -114,7 +114,7 @@ describe('Test Concurrent Execution', function ()
               assert.ok(ABData['COLD'] === NABData['COLD']);
               assert.ok(ABData['COLE'] === NABData['COLE']);
               assert.ok(ABData['COLF'] === NABData['COLF']);
-              done();
+              callback();
             }
           });
         },

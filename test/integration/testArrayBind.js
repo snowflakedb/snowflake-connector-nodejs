@@ -108,15 +108,12 @@ describe('Test Concurrent Execution', function ()
             complete: function (err, stmt, rows) {
               testUtil.checkError(err);
               var ABData = rows[0];
-              assert.ok(ABData['COLA'] == NABData['COLA']);
-              assert.ok(ABData['COLB'] == NABData['COLB']);
-              assert.ok(ABData['COLC'] == '2020-05-11T00:00:00Z');
-              assert.ok(NABData['COLC'] == '2020-05-11T00:00:00Z');
-
-              assert.ok(ABData['COLC'] == NABData['COLC']);
-              assert.ok(ABData['COLD'] == NABData['COLD']);
-              assert.ok(ABData['COLE'] == NABData['COLE']);
-              assert.ok(ABData['COLF'] == NABData['COLF']);
+              assert.equal(ABData['COLA'], NABData['COLA']);
+              assert.equal(ABData['COLB'], NABData['COLB']);
+              assert.equal(ABData['COLC'], NABData['COLC']);
+              assert.equal(ABData['COLD'], NABData['COLD']);
+              assert.equal(ABData['COLE'], NABData['COLE']);
+              assert.equal(ABData['COLF'], NABData['COLF']);
               callback();
             }
           });

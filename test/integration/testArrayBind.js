@@ -64,7 +64,7 @@ describe('Test Concurrent Execution', function ()
         },
         function(callback)
         {
-          var createNABTable = connection.execute({
+          var createNAB = connection.execute({
             sqlText: createNABTable,
             complete: function (err, stmt) {
               testUtil.checkError(err);

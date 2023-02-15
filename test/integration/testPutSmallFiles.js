@@ -4,6 +4,7 @@
 var async = require('async');
 var assert = require('assert');
 var fs = require('fs');
+var os = require('os');
 var path = require('path');
 var testUtil = require('./testUtil');
 

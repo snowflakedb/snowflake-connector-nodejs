@@ -92,7 +92,7 @@ describe('Test Concurrent Execution', function ()
         },
         function(callback)
         {
-          var selectNAB = connection.execute({
+          var selectNABTable = connection.execute({
             sqlText: selectNAB,
             complete: function (err, stmt, rows) {
               testUtil.checkError(err);
@@ -103,7 +103,7 @@ describe('Test Concurrent Execution', function ()
         },
         function (callback) 
         {
-          var selectAB = connection.execute({
+          var selectABTable = connection.execute({
             sqlText: selectAB,
             complete: function (err, stmt, rows) {
               testUtil.checkError(err);

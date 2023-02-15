@@ -89,7 +89,7 @@ describe('Test Concurrent Execution', function ()
             {
               if(j>0)
                 strbuffer += ',';
-              strbuff += arrBind[i][j];
+                strbuffer += arrBind[i][j];
             }
             strbuffer += '\n';
 

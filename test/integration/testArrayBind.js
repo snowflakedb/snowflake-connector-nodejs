@@ -110,6 +110,9 @@ describe('Test Concurrent Execution', function ()
               var ABData = rows[0];
               assert.ok(ABData['COLA'] == NABData['COLA']);
               assert.ok(ABData['COLB'] == NABData['COLB']);
+              assert.ok(ABData['COLC'] == '2020-05-11T00:00:00Z');
+              assert.ok(NABData['COLC'] == '2020-05-11T00:00:00Z');
+
               assert.ok(ABData['COLC'] == NABData['COLC']);
               assert.ok(ABData['COLD'] == NABData['COLD']);
               assert.ok(ABData['COLE'] == NABData['COLE']);

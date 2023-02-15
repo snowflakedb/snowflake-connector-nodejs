@@ -110,10 +110,10 @@ describe('Test Concurrent Execution', function ()
               var ABData = rows[0];
               assert.equal(ABData['COLA'], NABData['COLA']);
               assert.equal(ABData['COLB'], NABData['COLB']);
-              assert.equal(ABData['COLC'], NABData['COLC']);
-              assert.equal(ABData['COLD'], NABData['COLD']);
-              assert.equal(ABData['COLE'], NABData['COLE']);
-              assert.equal(ABData['COLF'], NABData['COLF']);
+              assert.equal(ABData['COLC'].toJSON(), NABData['COLC'].toJSON());
+              assert.equal(ABData['COLD'].toJSON(), NABData['COLD'].toJSON());
+              assert.equal(ABData['COLE'].toJSON(), NABData['COLE'].toJSON());
+              assert.equal(ABData['COLF'].toJSON(), NABData['COLF'].toJSON());
               callback();
             }
           });

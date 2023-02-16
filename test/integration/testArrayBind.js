@@ -8,6 +8,7 @@ const connOption = require('./connectionOptions');
 
 const DATABASE_NAME = connOption.valid.database;
 const SCHEMA_NAME = connOption.valid.schema;
+const WAREHOUSE_NAME = connOption.valid.warehouse;
 
 describe('Test Array Bind', function ()
 {
@@ -19,7 +20,7 @@ describe('Test Array Bind', function ()
   var createNABTable = `create or replace table  ${DATABASE_NAME}.${SCHEMA_NAME}.testNAB(colA string, colB number, colC date, colD time, colE TIMESTAMP_NTZ, colF TIMESTAMP_TZ)`;
   var insertNAB = `insert into  ${DATABASE_NAME}.${SCHEMA_NAME}.testNAB values(?, ?, ?, ?, ?, ?)`;
   var selectNAB = `select * from  ${DATABASE_NAME}.${SCHEMA_NAME}.testNAB where colB = 1`;
-  var useWH = 'use warehouse SIMBA_WH_TEST';
+  var useWH = `use warehouse ${WAREHOUSE_NAME}`;
 
   before(function (done)
   {

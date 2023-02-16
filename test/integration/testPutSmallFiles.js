@@ -11,12 +11,14 @@ const connOption = require('./connectionOptions');
 
 const DATABASE_NAME = connOption.valid.database;
 const SCHEMA_NAME = connOption.valid.schema;
+const WAREHOUSE_NAME = connOption.valid.warehouse;
 
 var connection;
 var files = new Array();
 
 function uploadFiles(callback, index = 0)
 {
+  console.log("--upload files");
   if(index < files.length)
   {
     var putQuery = `PUT file://${files[index]} @${DATABASE_NAME}.${SCHEMA_NAME}.%TESTTBL`;
@@ -43,8 +45,9 @@ function uploadFiles(callback, index = 0)
 
 describe('Test Put Small Files', function ()
 {
+  console.log("--start");
   this.timeout(100000);
-  var useWH = 'use warehouse SIMBA_WH_TEST';
+  var useWH = `use warehouse ${WAREHOUSE_NAME}`;
   var createTable = `create or replace table ${DATABASE_NAME}.${SCHEMA_NAME}.TESTTBL(colA string, colB number, colC date, colD time, colE TIMESTAMP_NTZ, colF TIMESTAMP_TZ)`;
   var copytInto = `copy into ${DATABASE_NAME}.${SCHEMA_NAME}.TESTTBL`;
   var select1row = `select * from ${DATABASE_NAME}.${SCHEMA_NAME}.TESTTBL where colB = 3`;
@@ -53,14 +56,18 @@ describe('Test Put Small Files', function ()
 
   before(function (done)
   {
+    console.log("--connect");
     connection = testUtil.createConnection();
     testUtil.connect(connection, function ()
     {
+      console.log("--connect done");
       connection.execute({
         sqlText: useWH,
         complete: function (err)
         {
+          console.log("--usewh "+err);
           testUtil.checkError(err);
+          
           done();
         }
       });
@@ -74,10 +81,12 @@ describe('Test Put Small Files', function ()
 
   it('testPutSmallFiles', function (done)
   {
+    console.log("--it");
     async.series(
       [
         function(callback)
         {
+          console.log("--create table");
           var createTableStmt = connection.execute({
             sqlText: createTable,
             complete: function (err, stmt) {
@@ -88,6 +97,7 @@ describe('Test Put Small Files', function ()
         },
         function(callback)
         {
+          console.log("--create small files");
           var arrBind = [];
           var filesize = 1024 * 100;
           

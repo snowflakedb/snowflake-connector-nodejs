@@ -4,18 +4,22 @@
 var async = require('async');
 var assert = require('assert');
 var testUtil = require('./testUtil');
+const connOption = require('./connectionOptions');
 
-const sourceRowCount = 30000;
+const DATABASE_NAME = connOption.valid.database;
+const SCHEMA_NAME = connOption.valid.schema;
 
 describe('Test Concurrent Execution', function ()
 {
+  this.timeout(200000);
   var connection;
-  var createABTable = 'create or replace table testAB(colA string, colB number, colC date, colD time, colE TIMESTAMP_NTZ, colF TIMESTAMP_TZ)';
-  var insertAB = 'insert into testAB values(?, ?, ?, ?, ?, ?)';
-  var selectAB = 'select * from testAB where colB = 1';
-  var createNABTable = 'create or replace table testNAB(colA string, colB number, colC date, colD time, colE TIMESTAMP_NTZ, colF TIMESTAMP_TZ)';
-  var insertNAB = 'insert into testNAB values(?, ?, ?, ?, ?, ?)';
-  var selectNAB = 'select * from testNAB where colB = 1';
+  var createABTable = `create or replace table  ${DATABASE_NAME}.${SCHEMA_NAME}.testAB(colA string, colB number, colC date, colD time, colE TIMESTAMP_NTZ, colF TIMESTAMP_TZ)`;
+  var insertAB = `insert into  ${DATABASE_NAME}.${SCHEMA_NAME}.testAB values(?, ?, ?, ?, ?, ?)`;
+  var selectAB = `select * from testAB where colB = 1`;
+  var createNABTable = `create or replace table  ${DATABASE_NAME}.${SCHEMA_NAME}.testNAB(colA string, colB number, colC date, colD time, colE TIMESTAMP_NTZ, colF TIMESTAMP_TZ)`;
+  var insertNAB = `insert into  ${DATABASE_NAME}.${SCHEMA_NAME}.testNAB values(?, ?, ?, ?, ?, ?)`;
+  var selectNAB = `select * from  ${DATABASE_NAME}.${SCHEMA_NAME}.testNAB where colB = 1`;
+  var useWH = 'use warehouse SIMBA_WH_TEST';
 
   before(function (done)
   {
@@ -23,7 +27,7 @@ describe('Test Concurrent Execution', function ()
     testUtil.connect(connection, function ()
     {
       connection.execute({
-        sqlText: createABTable,
+        sqlText: useWH,
         complete: function (err)
         {
           testUtil.checkError(err);
@@ -43,6 +47,16 @@ describe('Test Concurrent Execution', function ()
     var NABData;
     async.series(
       [
+        function(callback)
+        {
+          var createNAB = connection.execute({
+            sqlText: createABTable,
+            complete: function (err, stmt) {
+              testUtil.checkError(err);
+              callback();
+            }
+          });
+        },
         function(callback)
         {
           var arrBind = [];
@@ -108,12 +122,22 @@ describe('Test Concurrent Execution', function ()
             complete: function (err, stmt, rows) {
               testUtil.checkError(err);
               var ABData = rows[0];
+
+              var ABDate = new Date(ABData['COLC']);
+              var ABDataD = new Date(ABData['COLD']).getTime();
+              var ABDataE = new Date(ABData['COLE']).getTime();
+              var ABDataF = new Date(ABData['COLF']).getTime();
+              var NABDate = new Date(NABData['COLC']);
+              var NABDataD = new Date(NABData['COLD']).getTime();
+              var NABDataE = new Date(NABData['COLE']).getTime();
+              var NABDataF = new Date(NABData['COLF']).getTime();
+
               assert.equal(ABData['COLA'], NABData['COLA']);
               assert.equal(ABData['COLB'], NABData['COLB']);
-              assert.equal(ABData['COLC'].toJSON(), NABData['COLC'].toJSON());
-              assert.equal(ABData['COLD'].toJSON(), NABData['COLD'].toJSON());
-              assert.equal(ABData['COLE'].toJSON(), NABData['COLE'].toJSON());
-              assert.equal(ABData['COLF'].toJSON(), NABData['COLF'].toJSON());
+              assert.equal(ABDate.toString(), NABDate.toString());
+              assert.equal(ABDataD.toString(), NABDataD.toString());
+              assert.equal(ABDataE.toString(), NABDataE.toString());
+              assert.equal(ABDataF.toString(), NABDataF.toString());
               callback();
             }
           });

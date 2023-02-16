@@ -7,6 +7,10 @@ var fs = require('fs');
 var os = require('os');
 var path = require('path');
 var testUtil = require('./testUtil');
+const connOption = require('./connectionOptions');
+
+const DATABASE_NAME = connOption.valid.database;
+const SCHEMA_NAME = connOption.valid.schema;
 
 var connection;
 var files = new Array();
@@ -15,7 +19,7 @@ function uploadFiles(callback, index = 0)
 {
   if(index < files.length)
   {
-    var putQuery = 'PUT file://'+files[index]+ " @SmallFilesStage overwrite=true auto_compress=false source_compression=gzip";
+    var putQuery = `PUT file://${files[index]} @${DATABASE_NAME}.${SCHEMA_NAME}.%TESTTBL`;
     var insertStmt = connection.execute({
       sqlText: putQuery,
       complete: function (err, stmt) {
@@ -25,7 +29,7 @@ function uploadFiles(callback, index = 0)
           index++;
           if(index < files.length)
           {
-            uploadFiles(index);
+              uploadFiles(callback, index);
           }
           else
           {
@@ -39,9 +43,13 @@ function uploadFiles(callback, index = 0)
 
 describe('Test Concurrent Execution', function ()
 {
-  
-  var createStage = "create or replace stage SmallFilesStage file_format=( type=csv field_optionally_enclosed_by='\"')";
-  
+  this.timeout(100000);
+  var useWH = 'use warehouse SIMBA_WH_TEST';
+  var createTable = `create or replace table ${DATABASE_NAME}.${SCHEMA_NAME}.TESTTBL(colA string, colB number, colC date, colD time, colE TIMESTAMP_NTZ, colF TIMESTAMP_TZ)`;
+  var copytInto = `copy into ${DATABASE_NAME}.${SCHEMA_NAME}.TESTTBL`;
+  var select1row = `select * from ${DATABASE_NAME}.${SCHEMA_NAME}.TESTTBL where colB = 3`;
+  var selectAll = `select count(*) AS NUM from ${DATABASE_NAME}.${SCHEMA_NAME}.TESTTBL`;
+  var count = 5000;
 
   before(function (done)
   {
@@ -49,7 +57,7 @@ describe('Test Concurrent Execution', function ()
     testUtil.connect(connection, function ()
     {
       connection.execute({
-        sqlText: createStage,
+        sqlText: useWH,
         complete: function (err)
         {
           testUtil.checkError(err);
@@ -70,9 +78,19 @@ describe('Test Concurrent Execution', function ()
       [
         function(callback)
         {
+          var createTableStmt = connection.execute({
+            sqlText: createTable,
+            complete: function (err, stmt) {
+              testUtil.checkError(err);
+              callback();
+            }
+          });
+        },
+        function(callback)
+        {
           var arrBind = [];
-          var filesize = 1024;
-          var count = 5000;
+          var filesize = 1024 * 100;
+          
           for(var i = 0; i<count; i++)
           {
             arrBind.push(['string'+i, i, "2020-05-11", "12:35:41.3333333", "2022-04-01 23:59:59", "2022-07-08 12:05:30.9999999"]);
@@ -86,10 +104,9 @@ describe('Test Concurrent Execution', function ()
             var tmpFolderName = tmpDir.substring(tmpDir.lastIndexOf('\\'));
             tmpDir = process.env.USERPROFILE + '\\AppData\\Local\\Temp\\' + tmpFolderName;
           }
-
           for(var i=0; i<arrBind.length; i++)
           {
-            for(var j=0; j<arrBind.length; j++)
+            for(var j=0; j<arrBind[i].length; j++)
             {
               if(j>0)
                 strbuffer += ',';
@@ -99,7 +116,7 @@ describe('Test Concurrent Execution', function ()
 
             if((strbuffer.length >= filesize) || (i == arrBind.length-1))
             {
-              var fileName = tmpDir + "\\" + (++fileCount).toString();
+              var fileName = path.join(tmpDir, (++fileCount).toString());
               fs.writeFileSync(fileName, strbuffer);
               files.push(fileName);
               strbuffer = "";
@@ -114,10 +131,45 @@ describe('Test Concurrent Execution', function ()
                 fs.unlinkSync(fileName);
               }
             }
-            done();
+            callback();
           }
           uploadFiles(callbackfunc,0);
-          
+        },
+        function copy(callback)
+        {
+          var copyintostmt = connection.execute({
+            sqlText: copytInto,
+            complete: function (err, stmt) {
+              testUtil.checkError(err);
+              callback();
+            }
+          });
+        },
+        function select(callback)
+        {
+          var selectstmt = connection.execute({
+            sqlText: select1row,
+            complete: function (err, stmt, rows) {
+              testUtil.checkError(err);
+              assert.strictEqual(rows[0]['COLA'], 'string3');
+              var dateValue = new Date(rows[0]['COLC']);
+              var timeValue = new Date(rows[0]['COLE']).getTime();
+              assert.strictEqual(dateValue.toDateString(), 'Sun May 10 2020');
+              assert.strictEqual(timeValue.toString(), '1648857599000');
+              callback();
+            }
+          });
+        },
+        function selectall(callback)
+        {
+          var selectstmt = connection.execute({
+            sqlText: selectAll,
+            complete: function (err, stmt, rows) {
+              testUtil.checkError(err);
+              assert.strictEqual(rows[0]['NUM'], count);
+              callback();
+            }
+          });
         },
       ],
       done

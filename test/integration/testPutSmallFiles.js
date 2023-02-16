@@ -41,7 +41,7 @@ function uploadFiles(callback, index = 0)
   }
 }
 
-describe('Test Concurrent Execution', function ()
+describe('Test Put Small Files', function ()
 {
   this.timeout(100000);
   var useWH = 'use warehouse SIMBA_WH_TEST';

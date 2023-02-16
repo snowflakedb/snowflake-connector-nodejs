@@ -9,7 +9,7 @@ const connOption = require('./connectionOptions');
 const DATABASE_NAME = connOption.valid.database;
 const SCHEMA_NAME = connOption.valid.schema;
 
-describe('Test Concurrent Execution', function ()
+describe('Test Array Bind', function ()
 {
   this.timeout(200000);
   var connection;

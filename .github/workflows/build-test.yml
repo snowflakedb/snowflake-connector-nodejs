@@ -38,8 +38,8 @@ jobs:
                 name: artifacts
                 path: artifacts
 
-    test-mac-optional:
-        needs: test-linux-required
+    test-mac-required:
+        needs: build
         name: Tests on Mac
         runs-on: macos-latest
         strategy:

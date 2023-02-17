@@ -18,7 +18,6 @@ var files = new Array();
 
 function uploadFiles(callback, index = 0)
 {
-  console.log("--upload files");
   if(index < files.length)
   {
     var putQuery = `PUT file://${files[index]} @${DATABASE_NAME}.${SCHEMA_NAME}.%TESTTBL`;
@@ -45,7 +44,6 @@ function uploadFiles(callback, index = 0)
 
 describe('Test Put Small Files', function ()
 {
-  console.log("--start");
   this.timeout(100000);
   var useWH = `use warehouse ${WAREHOUSE_NAME}`;
   var createTable = `create or replace table ${DATABASE_NAME}.${SCHEMA_NAME}.TESTTBL(colA string, colB number, colC date, colD time, colE TIMESTAMP_NTZ, colF TIMESTAMP_TZ)`;
@@ -56,16 +54,13 @@ describe('Test Put Small Files', function ()
 
   before(function (done)
   {
-    console.log("--connect");
     connection = testUtil.createConnection();
     testUtil.connect(connection, function ()
     {
-      console.log("--connect done");
       connection.execute({
         sqlText: useWH,
         complete: function (err)
         {
-          console.log("--usewh "+err);
           testUtil.checkError(err);
           
           done();
@@ -81,12 +76,10 @@ describe('Test Put Small Files', function ()
 
   it('testPutSmallFiles', function (done)
   {
-    console.log("--it");
     async.series(
       [
         function(callback)
         {
-          console.log("--create table");
           var createTableStmt = connection.execute({
             sqlText: createTable,
             complete: function (err, stmt) {
@@ -97,7 +90,6 @@ describe('Test Put Small Files', function ()
         },
         function(callback)
         {
-          console.log("--create small files");
           var arrBind = [];
           var filesize = 1024 * 100;
           
@@ -162,9 +154,9 @@ describe('Test Put Small Files', function ()
             complete: function (err, stmt, rows) {
               testUtil.checkError(err);
               assert.strictEqual(rows[0]['COLA'], 'string3');
-              var dateValue = new Date(rows[0]['COLC']);
+              var dateValue = new Date(rows[0]['COLC']).getTime();
               var timeValue = new Date(rows[0]['COLE']).getTime();
-              assert.strictEqual(dateValue.toDateString(), 'Sun May 10 2020');
+              assert.strictEqual(dateValue.toString(), '1589155200000');
               assert.strictEqual(timeValue.toString(), '1648857599000');
               callback();
             }

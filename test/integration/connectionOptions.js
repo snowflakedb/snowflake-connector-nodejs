@@ -13,7 +13,7 @@ const snowflakeTestUser = 'tempaccountadmin';
 const snowflakeTestDatabase = 'testdb';
 const snowflakeTestWarehouse = 'COMPUTE_WH';
 const snowflakeTestSchema = 'testschema';
-const snowflakeTestRole = process.env.SNOWFLAKE_TEST_ROLE;
+const snowflakeTestRole = 'sysadmin';
 const snowflakeTestPassword = 'Password123';
 /*
 const snowflakeTestAccount = process.env.SNOWFLAKE_TEST_ACCOUNT;

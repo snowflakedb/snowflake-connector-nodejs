@@ -51,7 +51,7 @@ describe('Test Concurrent Execution', function ()
   {
     console.log('insert table');
 	var arrBind = [];
-	var count = 6000;
+	var count = 1000000;
 	for(var i = 0; i<count; i++)
 	{
 		arrBind.push(['string'+i, 'appid', "occuredat", "shopid", "type", "id", 10.9, "charge amount currency code",

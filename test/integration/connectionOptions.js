@@ -6,6 +6,14 @@ let snowflakeTestHost = process.env.SNOWFLAKE_TEST_HOST;
 let snowflakeTestPort = process.env.SNOWFLAKE_TEST_PORT;
 let snowflakeTestProxyHost = process.env.SNOWFLAKE_TEST_PROXY_HOST;
 let snowflakeTestProxyPort = process.env.SNOWFLAKE_TEST_PROXY_PORT;
+const snowflakeTestAccount = 'bcaduxf-iq54892';
+const snowflakeTestUser = 'tempaccountadmin';
+const snowflakeTestDatabase = 'testdb';
+const snowflakeTestWarehouse = 'COMPUTE_WH';
+const snowflakeTestSchema = 'testschema';
+const snowflakeTestRole = process.env.SNOWFLAKE_TEST_ROLE;
+const snowflakeTestPassword = 'Password123';
+/*
 const snowflakeTestAccount = process.env.SNOWFLAKE_TEST_ACCOUNT;
 const snowflakeTestUser = process.env.SNOWFLAKE_TEST_USER;
 const snowflakeTestDatabase = process.env.SNOWFLAKE_TEST_DATABASE;
@@ -13,6 +21,7 @@ const snowflakeTestWarehouse = process.env.SNOWFLAKE_TEST_WAREHOUSE;
 const snowflakeTestSchema = process.env.SNOWFLAKE_TEST_SCHEMA;
 const snowflakeTestRole = process.env.SNOWFLAKE_TEST_ROLE;
 const snowflakeTestPassword = process.env.SNOWFLAKE_TEST_PASSWORD;
+*/
 const snowflakeTestAdminUser = process.env.SNOWFLAKE_TEST_ADMIN_USER;
 const snowflakeTestAdminPassword = process.env.SNOWFLAKE_TEST_ADMIN_PASSWORD;
 const snowflakeTestBrowserUser = process.env.SNOWFLAKE_TEST_BROWSER_USER;

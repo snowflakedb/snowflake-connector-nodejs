@@ -45,7 +45,7 @@ jobs:
         strategy:
             max-parallel: 1
             matrix:
-                cloud: [ 'AWS' ]
+                cloud: [ 'GCP' ]
         steps:
             - uses: actions/checkout@v1
             - uses: actions/setup-node@v1

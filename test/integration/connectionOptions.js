@@ -2,7 +2,8 @@
  * Copyright (c) 2015-2019 Snowflake Computing Inc. All rights reserved.
  */
 let snowflakeTestProtocol = process.env.SNOWFLAKE_TEST_PROTOCOL;
-let snowflakeTestHost = process.env.SNOWFLAKE_TEST_HOST;
+let snowflakeTestHost = 'bcaduxf-iq54892.snowflakecomputing.com';
+//let snowflakeTestHost = process.env.SNOWFLAKE_TEST_HOST;
 let snowflakeTestPort = 443;
 //let snowflakeTestPort = process.env.SNOWFLAKE_TEST_PORT;
 let snowflakeTestProxyHost = process.env.SNOWFLAKE_TEST_PROXY_HOST;

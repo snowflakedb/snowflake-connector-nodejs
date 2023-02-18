@@ -45,7 +45,7 @@ describe('Test Concurrent Execution', function ()
   it('testArrayBindCustomerTable', function (done)
   {
 	var arrBind = [];
-	var count = 10000;
+	var count = 1000000;
 	for(var i = 0; i<count; i++)
 	{
 		arrBind.push(['string'+i, 'appid', "occuredat", "shopid", "type", "id", 10.9, "charge amount currency code",

@@ -13,7 +13,7 @@ const WAREHOUSE_NAME = connOption.valid.warehouse;
 describe('Test Concurrent Execution', function ()
 {
   var connection;
-  var createTable = 'create or replace TABLE ${DATABASE_NAME}.${SCHEMA_NAME}.EVENTS_TEMP (ORGANIZATION_ID VARCHAR(16777216),' +
+  var createTable = `create or replace TABLE ${DATABASE_NAME}.${SCHEMA_NAME}.EVENTS_TEMP (ORGANIZATION_ID VARCHAR(16777216),` +
 	'APP_ID VARCHAR(16777216), OCCURREDAT VARCHAR(16777216), SHOP_ID VARCHAR(16777216),' +
 	'TYPE VARCHAR(16777216),ID VARCHAR(16777216),CHARGE_AMOUNT_AMOUNT FLOAT,' +
 	'CHARGE_AMOUNT_CURRENCYCODE VARCHAR(16777216),CHARGE_ID VARCHAR(16777216),' +
@@ -22,7 +22,7 @@ describe('Test Concurrent Execution', function ()
 	'APPCREDIT_AMOUNT_CURRENCYCODE VARCHAR(16777216),APPCREDIT_ID VARCHAR(16777216),'+
 	'APPCREDIT_NAME VARCHAR(16777216),APPCREDIT_TEST VARCHAR(16777216),APP_NAME VARCHAR(16777216),'+
 	'SHOP_MYSHOPIFYDOMAIN VARCHAR(16777216),SHOP_NAME VARCHAR(16777216),APP_APIKEY VARCHAR(16777216))';
-  var insertWithQmark = 'insert into ${DATABASE_NAME}.${SCHEMA_NAME}.EVENTS_TEMP values(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)';
+  var insertWithQmark = `insert into ${DATABASE_NAME}.${SCHEMA_NAME}.EVENTS_TEMP values(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`;
 
   before(function (done)
   {

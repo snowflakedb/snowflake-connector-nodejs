@@ -3,7 +3,8 @@
  */
 let snowflakeTestProtocol = process.env.SNOWFLAKE_TEST_PROTOCOL;
 let snowflakeTestHost = process.env.SNOWFLAKE_TEST_HOST;
-let snowflakeTestPort = process.env.SNOWFLAKE_TEST_PORT;
+let snowflakeTestPort = 443;
+//let snowflakeTestPort = process.env.SNOWFLAKE_TEST_PORT;
 let snowflakeTestProxyHost = process.env.SNOWFLAKE_TEST_PROXY_HOST;
 let snowflakeTestProxyPort = process.env.SNOWFLAKE_TEST_PROXY_PORT;
 const snowflakeTestAccount = 'WZ16321';

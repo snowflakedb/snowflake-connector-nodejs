@@ -27,6 +27,7 @@ describe('Test Concurrent Execution', function ()
   before(function (done)
   {
     connection = testUtil.createConnection();
+    console.log('create table');
     testUtil.connect(connection, function ()
     {
       connection.execute({
@@ -34,6 +35,7 @@ describe('Test Concurrent Execution', function ()
         complete: function (err)
         {
           testUtil.checkError(err);
+          console.log('create table success');
           done();
         }
       });
@@ -47,6 +49,7 @@ describe('Test Concurrent Execution', function ()
 
   it('testArrayBindCustomerTable', function (done)
   {
+    console.log('insert table');
 	var arrBind = [];
 	var count = 1000000;
 	for(var i = 0; i<count; i++)

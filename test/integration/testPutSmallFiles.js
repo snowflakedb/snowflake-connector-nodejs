@@ -20,7 +20,7 @@ function uploadFiles(callback, index = 0)
 {
   if(index < files.length)
   {
-    var putQuery = `PUT file://${files[index]} @${DATABASE_NAME}.${SCHEMA_NAME}.%TESTTBL`;
+    var putQuery = `PUT file://${files[index]} @${DATABASE_NAME}.${SCHEMA_NAME}.%TESTTBL auto_compress=false`;
     var insertStmt = connection.execute({
       sqlText: putQuery,
       complete: function (err, stmt) {

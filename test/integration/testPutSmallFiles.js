@@ -91,7 +91,7 @@ describe('Test Put Small Files', function ()
         function(callback)
         {
           var arrBind = [];
-          var filesize = 1024 * *1024 * 100;
+          var filesize = 1024 * 1024 * 100;
           
           for(var i = 0; i<count; i++)
           {

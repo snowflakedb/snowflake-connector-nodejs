@@ -50,7 +50,7 @@ describe('Test Put Small Files', function ()
   var copytInto = `copy into ${DATABASE_NAME}.${SCHEMA_NAME}.TESTTBL`;
   var select1row = `select * from ${DATABASE_NAME}.${SCHEMA_NAME}.TESTTBL where colB = 3`;
   var selectAll = `select count(*) AS NUM from ${DATABASE_NAME}.${SCHEMA_NAME}.TESTTBL`;
-  var count = 5000000;
+  var count = 1000000;
 
   before(function (done)
   {

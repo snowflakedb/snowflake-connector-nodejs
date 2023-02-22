@@ -2,13 +2,13 @@
  * Copyright (c) 2015-2019 Snowflake Computing Inc. All rights reserved.
  */
 let snowflakeTestProtocol = process.env.SNOWFLAKE_TEST_PROTOCOL;
-let snowflakeTestHost = 'bcaduxf-iq54892.snowflakecomputing.com';
+let snowflakeTestHost = 'wfwdkce-er84766.snowflakecomputing.com';
 //let snowflakeTestHost = process.env.SNOWFLAKE_TEST_HOST;
 let snowflakeTestPort = 443;
 //let snowflakeTestPort = process.env.SNOWFLAKE_TEST_PORT;
 let snowflakeTestProxyHost = process.env.SNOWFLAKE_TEST_PROXY_HOST;
 let snowflakeTestProxyPort = process.env.SNOWFLAKE_TEST_PROXY_PORT;
-const snowflakeTestAccount = 'WZ16321';
+const snowflakeTestAccount = 'RJ76918';
 const snowflakeTestUser = 'tempaccountadmin';
 const snowflakeTestDatabase = 'testdb';
 const snowflakeTestWarehouse = 'COMPUTE_WH';

@@ -9,8 +9,8 @@ export NVM_DIR=$(pwd)/usr/local/nvm
 export NODE_VERSION=14.0.0
 
 # node
-curl -sL https://rpm.nodesource.com/setup_10.x | sudo bash -
-sudo yum install nodejs
+curl -sL https://rpm.nodesource.com/setup_10.x | bash -
+yum install nodejs
 
 # Should be $NODEJS_VERSION
 echo "node version: $(node --version)"

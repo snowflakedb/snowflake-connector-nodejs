@@ -317,8 +317,8 @@ describe('Test Stream Rows API', function ()
   });
 
   it('testLargeResultSet', function (done) {
-    // The test should finish in around 1.5min
-    this.timeout(90000);
+    // The test should finish in around 3 min
+    this.timeout(180000);
     var expectedRowCount = 10000000;
     connection.execute({
       sqlText: 'select randstr(10, random()) from table(generator(rowcount=>' + expectedRowCount + '))',

@@ -4,13 +4,23 @@
 #
 set -o pipefail
 
-export NODE_HOME=$HOME/node
-export NODEJS_VERSION=10.0.0
-export FIPSDIR=$HOME/install-openssl-fips
-export OPENSSL_VERSION=2.0.16
-rm -rf $NODE_HOME
-git clone --branch v$NODEJS_VERSION https://github.com/nodejs/node.git $NODE_HOME
-cd $NODE_HOME && ./configure --openssl-fips=$FIPSDIR && make -j2 &> /dev/null && make install
+# nvm environment variables
+export NVM_DIR=/usr/local/nvm
+export NODE_VERSION=14.0.0
+
+# node
+mkdir -p $NVM_DIR
+curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.35.1/install.sh | bash
+
+$NVM_DIR/nvm.sh \
+    && nvm install $NODE_VERSION \
+    && nvm alias default $NODE_VERSION \
+    && nvm use default
+
+export NODE_PATH=$NVM_DIR/v$NODE_VERSION/lib/node_modules
+export PATH=$NVM_DIR/versions/node/v$NODE_VERSION/bin:$PATH
+cp scripts/npmrc /root/.npmrc
+npm install npm@latest -g
 # Should be $NODEJS_VERSION
 echo "node version: $(node --version)"
 # Should be $OPENSSL_VERSION

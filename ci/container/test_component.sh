@@ -5,7 +5,7 @@
 set -o pipefail
 
 export NODE_HOME=$HOME/node
-export NODEJS_VERSION=14.0.0
+export NODEJS_VERSION=10.0.0
 export FIPSDIR=$HOME/install-openssl-fips
 export OPENSSL_VERSION=2.0.16
 rm -rf $NODE_HOME

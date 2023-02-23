@@ -4,19 +4,6 @@
 #
 set -o pipefail
 
-# nvm environment variables
-export NVM_DIR=$(pwd)/usr/local/nvm
-export NODE_VERSION=14.0.0
-
-# node
-curl -sL https://rpm.nodesource.com/setup_10.x | bash -
-yum install nodejs
-
-# Should be $NODEJS_VERSION
-echo "node version: $(node --version)"
-# Should be $OPENSSL_VERSION
-node -p "process.versions.openssl"
-
 THIS_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 export WORKSPACE=${WORKSPACE:-/mnt/workspace}
 export SOURCE_ROOT=${SOURCE_ROOT:-/mnt/host}

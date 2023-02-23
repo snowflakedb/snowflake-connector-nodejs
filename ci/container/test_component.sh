@@ -3,6 +3,19 @@
 # Test NodeJS Driver for Linux and Mac
 #
 set -o pipefail
+
+export NODE_HOME $HOME/node
+export NODEJS_VERSION 14.0.0
+export FIPSDIR $HOME/install-openssl-fips
+export OPENSSL_VERSION 2.0.16
+rm -rf $NODE_HOME
+git clone --branch v$NODEJS_VERSION https://github.com/nodejs/node.git $NODE_HOME
+cd $NODE_HOME && ./configure --openssl-fips=$FIPSDIR && make -j2 &> /dev/null && make install
+# Should be $NODEJS_VERSION
+echo "node version: $(node --version)"
+# Should be $OPENSSL_VERSION
+node -p "process.versions.openssl"
+
 THIS_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 export WORKSPACE=${WORKSPACE:-/mnt/workspace}
 export SOURCE_ROOT=${SOURCE_ROOT:-/mnt/host}

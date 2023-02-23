@@ -5,22 +5,13 @@
 set -o pipefail
 
 # nvm environment variables
-export NVM_DIR=/usr/local/nvm
+export NVM_DIR=$(pwd)/usr/local/nvm
 export NODE_VERSION=14.0.0
 
 # node
-mkdir -p $NVM_DIR
-curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.35.1/install.sh | bash
+curl -sL https://rpm.nodesource.com/setup_10.x | sudo bash -
+sudo yum install nodejs
 
-$NVM_DIR/nvm.sh \
-    && nvm install $NODE_VERSION \
-    && nvm alias default $NODE_VERSION \
-    && nvm use default
-
-export NODE_PATH=$NVM_DIR/v$NODE_VERSION/lib/node_modules
-export PATH=$NVM_DIR/versions/node/v$NODE_VERSION/bin:$PATH
-cp scripts/npmrc /root/.npmrc
-npm install npm@latest -g
 # Should be $NODEJS_VERSION
 echo "node version: $(node --version)"
 # Should be $OPENSSL_VERSION

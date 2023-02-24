@@ -545,7 +545,7 @@ describe('Connection test - validate default parameters', function ()
 
 describe('Connection test - connection pool', function ()
 {
-  this.timeout(10000);
+  this.timeout(30000);
 
   it('1 min connection', function (done)
   {

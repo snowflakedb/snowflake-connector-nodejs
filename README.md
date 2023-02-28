@@ -75,6 +75,39 @@ To run all unit test:
 },
 </code></pre>  
 
+Getting the Code Coverage
+----------------------------------------------------------------------
+1. Go to nodejs project directory
+```
+cd snowflake-connector-nodejs
+```
+
+2. Install the node connector
+```
+npm install .
+```
+
+3. Install the nyc module which displays the code coverage
+```
+npm install nyc
+```
+
+4. Edit the package.json file and replace the specified test with the one below:
+```
+"scripts": {
+  "test": "nyc mocha test/**/*.js"
+},
+```
+
+5. Using git bash, run the "npm test" command and include the connection parameters in the same line:
+```
+SNOWFLAKE_TEST_USER="user" SNOWFLAKE_TEST_PASSWORD="password" SNOWFLAKE_TEST_ACCOUNT="account" SNOWFLAKE_TEST_WAREHOUSE="warehouse" SNOWFLAKE_TEST_DATABASE="db" SNOWFLAKE_TEST_SCHEMA="schema" npm test
+```
+
+6. The code coverage results will be displayed in the console when the test finishes executing
+<br>
+Note: git bash is the console used for installing the node connector, the nyc module, and running "npm test"
+
 Package
 ======================================================================
 

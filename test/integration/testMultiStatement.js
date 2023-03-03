@@ -9,8 +9,10 @@ var Util = require('./../../lib/util');
 
 describe('Test multi statement', function ()
 {
+  this.timeout(10000);
   var connection;
   var alterSessionMultiStatement0 = "alter session set MULTI_STATEMENT_COUNT=0";
+  var alterSessionMultiStatement1 = "alter session set MULTI_STATEMENT_COUNT=1";
   var selectTable = 'select ?; select ?,3; select ?,5,6';
 
   before(function (done)
@@ -79,5 +81,53 @@ describe('Test multi statement', function ()
             ],
             done
         );
+  });
+  
+  it('testMultiStatementWithParams', function (done) 
+  {
+    async.series(
+      [
+        function (callback) {
+          connection.execute({
+            sqlText: alterSessionMultiStatement1,
+            complete: function (err, stmt, rows) {
+              callback();
+            }
+          });
+        },
+        function (callback) {
+          var bindArr = [1, 2, 4];
+          var count = 0;
+          connection.execute({
+            sqlText: selectTable,
+            binds: bindArr,
+            parameters: { MULTI_STATEMENT_COUNT: 3 },
+            complete: function (err, stmt) {
+              testUtil.checkError(err);
+              var sqlText = stmt.getSqlText();
+              assert.notStrictEqual(sqlText, undefined);
+              var stream = stmt.streamRows();
+              stream.on('error', function (err) {
+                testUtil.checkError(err);
+              });
+              stream.on('data', function (row) {
+                console.log(row);
+                count += Object.values(row).length;
+                if (stmt.hasNext()) {
+                  console.log('==== hasNext');
+                  stmt.NextResult();
+                }
+                else {
+                  console.log('==== close connection');
+                  assert.strictEqual(6, count);
+                  done();
+                }
+              });
+            }
+          });
+        }
+      ],
+      done
+    );
   });
 });

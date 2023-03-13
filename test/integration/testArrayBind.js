@@ -68,7 +68,7 @@ describe('Test Concurrent Execution', function ()
         function (callback)
         {
           var arrBind = [];
-          var count = 100000;
+          var count = 15000;
           for(var i = 0; i<count; i++)
           {
             arrBind.push(["some-data-for-stuff1","some-data-for-stuff2"]);

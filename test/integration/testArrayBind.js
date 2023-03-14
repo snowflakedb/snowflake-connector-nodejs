@@ -147,4 +147,42 @@ describe('Test Array Bind', function ()
       done
     );
   });
+  
+  it('testBindWithJson', function (done)
+  {
+    async.series(
+      [
+        function (callback)
+        {
+          var createSql = 'create or replace table testBindJson(colA varchar(30), colB varchar(30))';
+          testUtil.executeCmd(connection, createSql, callback);
+        },
+        function (callback)
+        {
+          var arrBind = [];
+          var count = 15000;
+          for(var i = 0; i<count; i++)
+          {
+            arrBind.push(["some-data-for-stuff1","some-data-for-stuff2"]);
+          }
+          var insertSql = 'insert into testBindJson(cola,colb) select value:stuff1, value:stuff2 from table(flatten(parse_json(?)))';
+          var insertStatement = connection.execute({
+            sqlText: insertSql,
+            binds: [JSON.stringify(arrBind)],
+            complete: function (err, stmt) {
+              if (err) {
+                console.error('1 Failed to execute statement due to the following error: ' + err.message);
+              }
+              else {
+                console.log('inserted rows=' + stmt.getNumUpdatedRows());
+                assert.strictEqual(stmt.getNumUpdatedRows(), count);
+                done();
+              }
+            }
+          });
+        },
+      ],
+      done
+    );
+  });
 });

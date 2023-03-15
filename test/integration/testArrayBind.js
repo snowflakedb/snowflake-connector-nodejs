@@ -185,4 +185,41 @@ describe('Test Array Bind', function ()
       done
     );
   });
+  it('testBindWithLargeArray', function (done)
+  {
+    async.series(
+      [
+        function (callback)
+        {
+          var createSql = 'create or replace table testBindLargeArray(colA varchar(30))';
+          testUtil.executeCmd(connection, createSql, callback);
+        },
+        function (callback)
+        {
+          var arrBind = [];
+          var count = 70000;
+          for(var i = 0; i<count; i++)
+          {
+            arrBind.push(["some-data-for-stuff1"]);
+          }
+          var insertSql = 'insert into testBindLargeArray(colA) values (?)';
+          var insertStatement = connection.execute({
+            sqlText: insertSql,
+            binds: arrBind,
+            complete: function (err, stmt) {
+              if (err) {
+                console.error('1 Failed to execute statement due to the following error: ' + err.message);
+              }
+              else {
+                console.log('inserted rows=' + stmt.getNumUpdatedRows());
+                assert.strictEqual(stmt.getNumUpdatedRows(), count);
+                done();
+              }
+            }
+          });
+        },
+      ],
+      done
+    );
+  });
 });

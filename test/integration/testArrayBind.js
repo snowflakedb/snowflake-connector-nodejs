@@ -172,6 +172,7 @@ describe('Test Array Bind', function ()
             complete: function (err, stmt) {
               if (err) {
                 console.error('1 Failed to execute statement due to the following error: ' + err.message);
+                done();
               }
               else {
                 console.log('inserted rows=' + stmt.getNumUpdatedRows());
@@ -209,6 +210,7 @@ describe('Test Array Bind', function ()
             complete: function (err, stmt) {
               if (err) {
                 console.error('1 Failed to execute statement due to the following error: ' + err.message);
+                done();
               }
               else {
                 console.log('inserted rows=' + stmt.getNumUpdatedRows());

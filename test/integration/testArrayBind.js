@@ -5,6 +5,7 @@ var async = require('async');
 var assert = require('assert');
 var testUtil = require('./testUtil');
 const connOption = require('./connectionOptions');
+const { error } = require('winston');
 
 const DATABASE_NAME = connOption.valid.database;
 const SCHEMA_NAME = connOption.valid.schema;
@@ -172,7 +173,7 @@ describe('Test Array Bind', function ()
             complete: function (err, stmt) {
               if (err) {
                 console.error('1 Failed to execute statement due to the following error: ' + err.message);
-                done();
+                done(err);
               }
               else {
                 console.log('inserted rows=' + stmt.getNumUpdatedRows());
@@ -210,7 +211,7 @@ describe('Test Array Bind', function ()
             complete: function (err, stmt) {
               if (err) {
                 console.error('1 Failed to execute statement due to the following error: ' + err.message);
-                done();
+                done(err);
               }
               else {
                 console.log('inserted rows=' + stmt.getNumUpdatedRows());

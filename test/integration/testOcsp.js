@@ -79,7 +79,7 @@ describe('OCSP validation', function ()
   it('OCSP validation expired local cache', function (done)
   {
     deleteCache();
-	process.env.SF_OCSP_TEST_CACHE_MAXAGE = 5;
+    process.env.SF_OCSP_TEST_CACHE_MAXAGE = 5;
     const connection = snowflake.createConnection(connOption.valid);
 
     async.series(

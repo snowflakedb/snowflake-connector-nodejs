@@ -339,7 +339,7 @@ describe('Test Array Bind', function ()
       [
         function (callback)
         {
-          var createSql = 'create or replace table TESTDB.SEN.test101 (id INT, type VARCHAR(40), data VARIANT, createdDateTime TIMESTAMP_TZ(0), action VARCHAR(256))';
+          var createSql = 'create or replace table test101 (id INT, type VARCHAR(40), data VARIANT, createdDateTime TIMESTAMP_TZ(0), action VARCHAR(256))';
           testUtil.executeCmd(connection, createSql, callback);
         },
         function (callback)
@@ -389,7 +389,7 @@ describe('Test Array Bind', function ()
             ]
           ];
           
-          var insertTable101 = 'insert into TESTDB.SEN.test101 (id,type,data,createdDateTime,action) select COLUMN1,COLUMN2,TRY_PARSE_JSON(COLUMN3),COLUMN4,COLUMN5 from values  (?,?,?,?,?),(?,?,?,?,?),(?,?,?,?,?),(?,?,?,?,?),(?,?,?,?,?),(?,?,?,?,?)';
+          var insertTable101 = 'insert into test101 (id,type,data,createdDateTime,action) select COLUMN1,COLUMN2,TRY_PARSE_JSON(COLUMN3),COLUMN4,COLUMN5 from values  (?,?,?,?,?),(?,?,?,?,?),(?,?,?,?,?),(?,?,?,?,?),(?,?,?,?,?),(?,?,?,?,?)';
           var insertStatement = connection.execute({
             sqlText: insertTable101,
             binds: dataset.flat(),
@@ -408,7 +408,7 @@ describe('Test Array Bind', function ()
         },
         function (callback)
         {
-          var selectSql = 'select * from TESTDB.SEN.test101 where ID = 5489';
+          var selectSql = 'select * from test101 where ID = 5489';
           var selectABTable = connection.execute({
             sqlText: selectSql,
             complete: function (err, stmt, rows) {

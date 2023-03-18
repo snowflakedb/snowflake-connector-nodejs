@@ -1,6 +1,6 @@
 {
   "name": "nodejs_driver_test",
-  "version": "1.6.18",
+  "version": "1.6.19",
   "description": "Tests for Snowflake Nodejs Driver",
   "main": "index.js",
   "scripts": {

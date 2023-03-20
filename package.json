@@ -31,7 +31,7 @@
     "string-similarity": "^4.0.4",
     "test-console": "^2.0.0",
     "tmp": "^0.2.1",
-    "urllib": "^2.38.0",
+    "urllib": "^3.11.0",
     "uuid": "^3.3.2",
     "winston": "^3.1.0"
   },

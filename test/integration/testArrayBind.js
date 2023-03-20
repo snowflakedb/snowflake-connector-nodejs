@@ -256,7 +256,7 @@ describe('Test Array Bind', function ()
       done
     );
   });
-  /*
+  
   it('testBindWithJson', function (done)
   {
     async.series(
@@ -295,7 +295,7 @@ describe('Test Array Bind', function ()
       done
     );
   });
-  */
+  
   it('testBindWithLargeArray', function (done)
   {
     async.series(

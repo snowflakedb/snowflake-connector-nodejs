@@ -358,35 +358,35 @@ describe('Test Array Bind', function ()
             [
               "5489",
               "SAMPLE",
-              "{\"user\":{\"SAP\":\"KUKY003\",\"email\":\"THERESA.KUK@DISNEY.COM\"}",
+              "{\"user\":{\"SAP\":\"KUKY003\",\"email\":\"THE\"}",
               "2018-11-02T04:14:56.000000Z",
               null
             ],
             [
               "5490",
               "SAMPLE",
-              "{\"user\":{\"SAP\":\"LOW108\",\"email\":\"Jennifer.Lo@disney.com\"}",
+              "{\"user\":{\"SAP\":\"LOW108\",\"email\":\"Jenn\"}",
               "2018-11-02T04:14:56.000000Z",
               null
 			],
 			[
               "5491",
               "SAMPLE",
-              "{\"user\":{\"SAP\":\"LOW108\",\"email\":\"Jennifer.Lo@disney.com\"}",
+              "{\"user\":{\"SAP\":\"LOW108\",\"email\":\"Jennif\"}",
               "2018-11-02T04:14:56.000000Z",
               null
 			],
 			[
               "5492",
               "SAMPLE",
-              "{\"user\":{\"SAP\":\"LOW108\",\"email\":\"Jennifer.Lo@disney.com\"}",
+              "{\"user\":{\"SAP\":\"LOW108\",\"email\":\"Je\"}",
               "2018-11-02T04:14:56.000000Z",
               null
 			],
 			[
               "5493",
               "SAMPLE",
-              "{\"user\":{\"SAP\":\"LOW108\",\"email\":\"Jennifer.Lo@disney.com\"}",
+              "{\"user\":{\"SAP\":\"LOW108\",\"email\":\"Jenn\"}",
               "2018-11-02T04:14:56.000000Z",
               null
 			],

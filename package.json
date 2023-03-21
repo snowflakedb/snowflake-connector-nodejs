@@ -50,7 +50,7 @@
     "url": "https://github.com/snowflakedb/snowflake-connector-nodejs"
   },
   "scripts": {
-    "test": "mocha test/unit/**/*.js"
+    "test": "node --max-old-space-size=4096 ./node_modules/@angular/cli/bin/ng build  mocha test/unit/**/*.js"
   },
   "author": {
     "name": "Snowflake Computing, Inc.",

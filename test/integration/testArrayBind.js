@@ -7,6 +7,7 @@ var assert = require('assert');
 var testUtil = require('./testUtil');
 const connOption = require('./connectionOptions');
 const { error } = require('winston');
+const v8 = require('v8');
 
 const DATABASE_NAME = connOption.valid.database;
 const SCHEMA_NAME = connOption.valid.schema;
@@ -29,6 +30,7 @@ describe('Test Array Bind', function ()
 
   before(function (done)
   {
+	console.log(v8.getHeapStatistics());
     connection = snowflake.createConnection({
       account: connOption.valid.account,
       username: connOption.valid.username,
@@ -55,6 +57,7 @@ describe('Test Array Bind', function ()
   after(function (done)
   {
     testUtil.destroyConnection(connection, done);
+	console.log("after:" + v8.getHeapStatistics());
   });
 
   it('testArrayBind', function (done)

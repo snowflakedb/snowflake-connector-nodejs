@@ -4,6 +4,7 @@
 var assert = require('assert');
 var async = require('async');
 var testUtil = require('./testUtil');
+const v8 = require('v8');
 
 const sourceRowCount = 5000;
 
@@ -18,6 +19,7 @@ describe('Large result Set Tests', function ()
       [
         function (callback)
         {
+		  console.log(v8.getHeapStatistics());
           testUtil.connect(connection, callback);
         }
       ],
@@ -28,6 +30,7 @@ describe('Large result Set Tests', function ()
   after(function (done)
   {
     testUtil.destroyConnection(connection, done);
+	console.log("after:" + v8.getHeapStatistics());
   });
 
   it('testSimpeLarge', function (done)

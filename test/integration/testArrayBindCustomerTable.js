@@ -4,6 +4,7 @@
 var async = require('async');
 var assert = require('assert');
 var testUtil = require('./testUtil');
+const v8 = require('v8');
 
 const sourceRowCount = 30000;
 
@@ -24,6 +25,7 @@ describe('Test Concurrent Execution', function ()
 
   before(function (done)
   {
+	  console.log(v8.getHeapStatistics());
     connection = testUtil.createConnection();
     testUtil.connect(connection, function ()
     {
@@ -48,6 +50,7 @@ describe('Test Concurrent Execution', function ()
   after(function (done)
   {
     testUtil.destroyConnection(connection, done);
+	console.log(v8.getHeapStatistics());
   });
 
   it('testArrayBindCustomerTable', function (done)

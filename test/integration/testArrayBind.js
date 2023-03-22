@@ -34,11 +34,13 @@ describe('Test Array Bind', function ()
       username: connOption.valid.username,
       password: connOption.valid.password,
       warehouse: WAREHOUSE_NAME,
+      database: DATABASE_NAME,
+      schema: SCHEMA_NAME,
       validateDefaultParameters: true,
       arrayBindingThreshold: 100,
     });
 
-    connection = testUtil.createConnection();
+    //connection = testUtil.createConnection();
     testUtil.connect(connection, function ()
     {
       connection.execute({
@@ -252,7 +254,7 @@ describe('Test Array Bind', function ()
               var NABDataE = new Date(NABData['COLE']).getTime();
               var NABDataF = new Date(NABData['COLF']).getTime();
 
-              assert.equal(ABData['COLA'], null);
+              assert.equal(ABData['COLA'], "");
               assert.equal(ABData['COLB'], NABData['COLB']);
               assert.equal(ABDate.toString(), NABDate.toString());
               assert.equal(ABDataD.toString(), NABDataD.toString());

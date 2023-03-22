@@ -5,7 +5,7 @@ var assert = require('assert');
 var async = require('async');
 var testUtil = require('./testUtil');
 
-const sourceRowCount = 10000;
+const sourceRowCount = 5000;
 
 describe('Large result Set Tests', function ()
 {

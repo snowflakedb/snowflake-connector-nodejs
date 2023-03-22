@@ -30,7 +30,7 @@ npm install
 PACKAGE_NAME=$(cd $WORKSPACE && ls snowflake-sdk*.tgz)
 npm install $WORKSPACE/${PACKAGE_NAME}
 
-node --max_old_space_size=10000
+node --max_old_space_size=8096
 
 echo "[INFO] Setting test parameters"
 if [[ "$LOCAL_USER_NAME" == "jenkins" ]]; then

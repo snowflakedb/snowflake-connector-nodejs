@@ -46,7 +46,7 @@ jobs:
             max-parallel: 1
             matrix:
                 image: [ 'nodejs-centos6-default', 'nodejs-centos7-node12' ]
-                cloud: [ 'AZURE', 'GCP' ]
+                cloud: [ 'GCP', 'AZURE' ]
         steps:
             - uses: actions/checkout@v1
             - name: Download Build Artifacts

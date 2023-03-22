@@ -38,8 +38,8 @@ jobs:
                 name: artifacts
                 path: artifacts
 
-    test-linux-optional:
-        needs: test-windows-optional
+    test-linux-required:
+        needs: build
         name: Tests on Linux
         runs-on: ubuntu-latest
         strategy:

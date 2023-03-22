@@ -33,7 +33,7 @@ describe('Test Array Bind', function ()
       account: connOption.valid.account,
       username: connOption.valid.username,
       password: connOption.valid.password,
-      warehouse: 'testWarehouse',
+      warehouse: WAREHOUSE_NAME,
       validateDefaultParameters: true,
       arrayBindingThreshold: 100,
     });

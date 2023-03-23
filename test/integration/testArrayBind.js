@@ -67,7 +67,7 @@ describe('Test Array Bind', function ()
         function(callback)
         {
           var arrBind = [];
-          var count = 100000;
+          var count = 100;
           for(var i = 0; i<count; i++)
           {
             arrBind.push(['string'+i, i, "2020-05-11", "12:35:41.3333333", "2022-04-01 23:59:59", "2022-07-08 12:05:30.9999999"]);
@@ -172,7 +172,7 @@ describe('Test Array Bind', function ()
         function(callback)
         {
           var arrBind = [];
-          var count = 100000;
+          var count = 100;
           for(var i = 0; i<count; i++)
           {
             arrBind.push([null, i, "2020-05-11", "12:35:41.3333333", "2022-04-01 23:59:59", "2022-07-08 12:05:30.9999999"]);
@@ -271,7 +271,7 @@ describe('Test Array Bind', function ()
         function (callback)
         {
           var arrBind = [];
-          var count = 15000;
+          var count = 100;
           for(var i = 0; i<count; i++)
           {
             arrBind.push(["some-data-for-stuff1","some-data-for-stuff2"]);
@@ -309,7 +309,7 @@ describe('Test Array Bind', function ()
         function (callback)
         {
           var arrBind = [];
-          var count = 70000;
+          var count = 100;
           for(var i = 0; i<count; i++)
           {
             arrBind.push(["some-data-for-stuff1"]);

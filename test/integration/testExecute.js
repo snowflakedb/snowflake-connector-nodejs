@@ -239,6 +239,14 @@ describe('Execute test - variant', function ()
         fs.writeFileSync(sampleTempFile.name, sampleData);
 
         var putVariant = `PUT file://${sampleTempFile.name} @${DATABASE_NAME}.${SCHEMA_NAME}.${TEST_VARIANT_STAGE}`;
+
+        // Windows user contains a '~' in the path which causes an error
+        if (process.platform == "win32")
+        {
+          var fileName = sampleTempFile.name.substring(sampleTempFile.name.lastIndexOf('\\'));
+          putVariant = `PUT file://${process.env.USERPROFILE}\\AppData\\Local\\Temp\\${fileName} @${DATABASE_NAME}.${SCHEMA_NAME}.${TEST_VARIANT_STAGE}`;
+        }
+
         var copyIntoVariant = `COPY INTO ${TEST_VARIANT_TABLE} FROM @${DATABASE_NAME}.${SCHEMA_NAME}.${TEST_VARIANT_STAGE}`;
 
         var selectVariant = `select ${TEST_COL} from ${TEST_VARIANT_TABLE}`;

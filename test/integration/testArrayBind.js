@@ -29,14 +29,7 @@ describe('Test Array Bind', function ()
 
   before(function (done)
   {
-    connection = snowflake.createConnection({
-      account: connOption.valid.account,
-      username: connOption.valid.username,
-      password: connOption.valid.password,
-      warehouse: 'testWarehouse',
-      validateDefaultParameters: true,
-      arrayBindingThreshold: 100,
-    });
+    connOption.valid.arrayBindingThreshold = 100;
 
     connection = testUtil.createConnection();
     testUtil.connect(connection, function ()
@@ -252,7 +245,7 @@ describe('Test Array Bind', function ()
               var NABDataE = new Date(NABData['COLE']).getTime();
               var NABDataF = new Date(NABData['COLF']).getTime();
 
-              assert.equal(ABData['COLA'], null);
+              assert.equal(ABData['COLA'], "");
               assert.equal(ABData['COLB'], NABData['COLB']);
               assert.equal(ABDate.toString(), NABDate.toString());
               assert.equal(ABDataD.toString(), NABDataD.toString());

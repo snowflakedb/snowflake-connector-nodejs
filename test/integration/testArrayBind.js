@@ -30,7 +30,7 @@ describe('Test Array Bind', function ()
   before(function (done)
   {
     connOption.valid.arrayBindingThreshold = 3;
-    connection = snowflake.createConnection(connOptions.valid);
+    connection = snowflake.createConnection(connOption.valid);
     testUtil.connect(connection, function ()
     {
       connection.execute({

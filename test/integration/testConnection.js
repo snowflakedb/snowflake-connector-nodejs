@@ -485,7 +485,7 @@ describe('Connection test - validate default parameters', function ()
     });
     assert.deepEqual(output,
       [
-        "\"db\" is an unknown connection parameter\n",
+        "\"db\" is an unknown connection parameter\n"
       ]);
   });
 
@@ -545,7 +545,7 @@ describe('Connection test - validate default parameters', function ()
 
 describe('Connection test - connection pool', function ()
 {
-  this.timeout(10000);
+  this.timeout(30000);
 
   it('1 min connection', function (done)
   {

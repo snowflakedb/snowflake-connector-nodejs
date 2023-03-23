@@ -30,7 +30,7 @@ describe('Test Array Bind', function ()
   before(function (done)
   {
     connOption.valid.arrayBindingThreshold = 3;
-
+    assert.ok(!connOption.valid, JSON.stringify(connOption.valid));
     connection = testUtil.createConnection();
     testUtil.connect(connection, function ()
     {

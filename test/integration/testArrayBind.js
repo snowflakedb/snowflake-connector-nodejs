@@ -29,7 +29,7 @@ describe('Test Array Bind', function ()
 
   before(function (done)
   {
-    connOption.valid.arrayBindingThreshold = 100;
+    connOption.valid.arrayBindingThreshold = 3;
 
     connection = testUtil.createConnection();
     testUtil.connect(connection, function ()
@@ -97,7 +97,7 @@ describe('Test Array Bind', function ()
         function(callback)
         {
           var arrBind = [];
-          var count = 10;
+          var count = 2;
           for(var i = 0; i<count; i++)
           {
             arrBind.push(['string'+i, i, "2020-05-11", "12:35:41.3333333", "2022-04-01 23:59:59", "2022-07-08 12:05:30.9999999"]);
@@ -202,7 +202,7 @@ describe('Test Array Bind', function ()
         function(callback)
         {
           var arrBind = [];
-          var count = 10;
+          var count = 2;
           for(var i = 0; i<count; i++)
           {
             arrBind.push(['string'+i, i, "2020-05-11", "12:35:41.3333333", "2022-04-01 23:59:59", "2022-07-08 12:05:30.9999999"]);

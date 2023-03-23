@@ -30,7 +30,7 @@ describe('Test Array Bind', function ()
   before(function (done)
   {
     connOption.valid.arrayBindingThreshold = 3;
-    connection = testUtil.createConnection();
+    connection = snowflake.createConnection(connOptions.valid);
     testUtil.connect(connection, function ()
     {
       connection.execute({
@@ -51,7 +51,6 @@ describe('Test Array Bind', function ()
 
   it('testArrayBind', function (done)
   {
-    assert.ok(!connOption.valid, JSON.stringify(connOption.valid));
     var NABData;
     async.series(
       [

@@ -67,7 +67,7 @@ describe('Test Array Bind', function ()
         function(callback)
         {
           var arrBind = [];
-          var count = 100;
+          var count = 100000;
           for(var i = 0; i<count; i++)
           {
             arrBind.push(['string'+i, i, "2020-05-11", "12:35:41.3333333", "2022-04-01 23:59:59", "2022-07-08 12:05:30.9999999"]);
@@ -172,7 +172,7 @@ describe('Test Array Bind', function ()
         function(callback)
         {
           var arrBind = [];
-          var count = 100;
+          var count = 100000;
           for(var i = 0; i<count; i++)
           {
             arrBind.push([null, i, "2020-05-11", "12:35:41.3333333", "2022-04-01 23:59:59", "2022-07-08 12:05:30.9999999"]);
@@ -271,7 +271,7 @@ describe('Test Array Bind', function ()
         function (callback)
         {
           var arrBind = [];
-          var count = 100;
+          var count = 15000;
           for(var i = 0; i<count; i++)
           {
             arrBind.push(["some-data-for-stuff1","some-data-for-stuff2"]);
@@ -309,7 +309,7 @@ describe('Test Array Bind', function ()
         function (callback)
         {
           var arrBind = [];
-          var count = 100;
+          var count = 70000;
           for(var i = 0; i<count; i++)
           {
             arrBind.push(["some-data-for-stuff1"]);
@@ -350,45 +350,45 @@ describe('Test Array Bind', function ()
             [
               "5489",
               "SAMPLE",
-              "{\"user\":{\"SAP\":\"KUKY003\",\"email\":\"THE\"}",
+              "{\"user\":{\"SSS\":\"KKKK003\",\"email\":\"THE\"}",
               "2018-11-02T04:14:56.000000Z",
               null
             ],
             [
               "5490",
               "SAMPLE",
-              "{\"user\":{\"SAP\":\"LOW108\",\"email\":\"Jenn\"}",
+              "{\"user\":{\"SSS\":\"LLL108\",\"email\":\"Jenn\"}",
               "2018-11-02T04:14:56.000000Z",
               null
-			],
-			[
+            ],
+            [
               "5491",
               "SAMPLE",
-              "{\"user\":{\"SAP\":\"LOW108\",\"email\":\"Jennif\"}",
+              "{\"user\":{\"SSS\":\"LLL108\",\"email\":\"Jennif\"}",
               "2018-11-02T04:14:56.000000Z",
               null
-			],
-			[
+            ],
+            [
               "5492",
               "SAMPLE",
-              "{\"user\":{\"SAP\":\"LOW108\",\"email\":\"Je\"}",
+              "{\"user\":{\"SSS\":\"LLL108\",\"email\":\"Je\"}",
               "2018-11-02T04:14:56.000000Z",
               null
-			],
-			[
+            ],
+            [
               "5493",
               "SAMPLE",
-              "{\"user\":{\"SAP\":\"LOW108\",\"email\":\"Jenn\"}",
+              "{\"user\":{\"SSS\":\"LLL108\",\"email\":\"Jenn\"}",
               "2018-11-02T04:14:56.000000Z",
               null
-			],
-			[
+            ],
+            [
               "5494",
               "SAMPLE",
-              "{\"user\":{\"SAP\":\"LOW108\",\"email\":\"Jennifer@xxx.com\"}",
+              "{\"user\":{\"SSS\":\"LLL108\",\"email\":\"Jennifer@xxx.com\"}",
               "2018-11-02T04:14:56.000000Z",
               null
-			]
+            ]
           ];
           
           var flatValue = [];

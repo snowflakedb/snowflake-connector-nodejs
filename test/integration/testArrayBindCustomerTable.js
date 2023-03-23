@@ -32,14 +32,7 @@ describe('Test Concurrent Execution', function ()
         complete: function (err)
         {
           testUtil.checkError(err);
-          if(err)
-          {
-            done(err);
-          }
-          else
-          {
-            done();
-          }
+          done();
         }
       });
     });
@@ -52,30 +45,23 @@ describe('Test Concurrent Execution', function ()
 
   it('testArrayBindCustomerTable', function (done)
   {
-	var arrBind = [];
-	var count = 400000;
-	for(var i = 0; i<count; i++)
-	{
-		arrBind.push(['string'+i, 'appid', "occuredat", "shopid", "type", "id", 10.9, "charge amount currency code",
-		'chargeid','chargename','chargetest','chargebillingon', 'reason', 'description', 99.99, 'appcredit amount currency code',
-		'appcreditid','appcreditname','appcredittest','appname','shopmyshopifyoumin','shopname','appapikey']);
-	}
-	
-	var insertStatement = connection.execute({
-		sqlText: insertWithQmark,
-		binds: arrBind,
-		complete: function (err, stmt) {
-			testUtil.checkError(err);
-			assert.strictEqual(stmt.getNumUpdatedRows(), count);
-      if(err)
-      {
-        done(err);
-      }
-      else
-      {
-        done();
-      }
-		}
-	});
+    var arrBind = [];
+    var count = 400000;
+    for(var i = 0; i<count; i++)
+    {
+        arrBind.push(['string'+i, 'appid', "occuredat", "shopid", "type", "id", 10.9, "charge amount currency code",
+        'chargeid','chargename','chargetest','chargebillingon', 'reason', 'description', 99.99, 'appcredit amount currency code',
+        'appcreditid','appcreditname','appcredittest','appname','shopmyshopifyoumin','shopname','appapikey']);
+    }
+
+    var insertStatement = connection.execute({
+        sqlText: insertWithQmark,
+        binds: arrBind,
+        complete: function (err, stmt) {
+            testUtil.checkError(err);
+            assert.strictEqual(stmt.getNumUpdatedRows(), count);
+            done();
+        }
+    });
   });
 });

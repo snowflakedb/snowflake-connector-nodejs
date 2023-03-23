@@ -5,7 +5,7 @@ const snowflake = require('./../../lib/snowflake');
 var async = require('async');
 var assert = require('assert');
 var testUtil = require('./testUtil');
-const connOption = require('./connectionOptions');
+var connOption = require('./connectionOptions');
 const { error } = require('winston');
 
 const DATABASE_NAME = connOption.valid.database;
@@ -30,7 +30,6 @@ describe('Test Array Bind', function ()
   before(function (done)
   {
     connOption.valid.arrayBindingThreshold = 3;
-    assert.ok(!connOption.valid, JSON.stringify(connOption.valid));
     connection = testUtil.createConnection();
     testUtil.connect(connection, function ()
     {
@@ -52,6 +51,7 @@ describe('Test Array Bind', function ()
 
   it('testArrayBind', function (done)
   {
+    assert.ok(!connOption.valid, JSON.stringify(connOption.valid));
     var NABData;
     async.series(
       [

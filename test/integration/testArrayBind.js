@@ -5,7 +5,7 @@ const snowflake = require('./../../lib/snowflake');
 var async = require('async');
 var assert = require('assert');
 var testUtil = require('./testUtil');
-const connOption = require('./connectionOptions');
+var connOption = require('./connectionOptions');
 const { error } = require('winston');
 
 const DATABASE_NAME = connOption.valid.database;
@@ -29,18 +29,8 @@ describe('Test Array Bind', function ()
 
   before(function (done)
   {
-    connection = snowflake.createConnection({
-      account: connOption.valid.account,
-      username: connOption.valid.username,
-      password: connOption.valid.password,
-      warehouse: WAREHOUSE_NAME,
-      database: DATABASE_NAME,
-      schema: SCHEMA_NAME,
-      validateDefaultParameters: true,
-      arrayBindingThreshold: 100,
-    });
-
-    //connection = testUtil.createConnection();
+    connOption.valid.arrayBindingThreshold = 3;
+    connection = snowflake.createConnection(connOption.valid);
     testUtil.connect(connection, function ()
     {
       connection.execute({
@@ -106,7 +96,7 @@ describe('Test Array Bind', function ()
         function(callback)
         {
           var arrBind = [];
-          var count = 10;
+          var count = 2;
           for(var i = 0; i<count; i++)
           {
             arrBind.push(['string'+i, i, "2020-05-11", "12:35:41.3333333", "2022-04-01 23:59:59", "2022-07-08 12:05:30.9999999"]);
@@ -211,7 +201,7 @@ describe('Test Array Bind', function ()
         function(callback)
         {
           var arrBind = [];
-          var count = 10;
+          var count = 2;
           for(var i = 0; i<count; i++)
           {
             arrBind.push(['string'+i, i, "2020-05-11", "12:35:41.3333333", "2022-04-01 23:59:59", "2022-07-08 12:05:30.9999999"]);
@@ -395,7 +385,7 @@ describe('Test Array Bind', function ()
 			[
               "5494",
               "SAMPLE",
-              "{\"user\":{\"SAP\":\"LOW108\",\"email\":\"Jennifer.Lo@disney.com\"}",
+              "{\"user\":{\"SAP\":\"LOW108\",\"email\":\"Jennifer@xxx.com\"}",
               "2018-11-02T04:14:56.000000Z",
               null
 			]

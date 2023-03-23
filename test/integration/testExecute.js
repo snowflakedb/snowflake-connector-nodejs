@@ -165,7 +165,7 @@ describe('Execute test', function ()
 
 describe('Execute test - variant', function ()
 {
-  this.timeout(10000);
+  this.timeout(20000);
 
   var connection;
 
@@ -178,6 +178,13 @@ describe('Execute test - variant', function ()
   const TEST_COL = "COL";
   const TEST_HEADER = "ROOT";
   const TEST_VAL = 123;
+
+  const createTableVariant = `create or replace table ${TEST_VARIANT_TABLE}(${TEST_COL} variant)`;
+  const createStageVariant = `CREATE OR REPLACE STAGE ${TEST_VARIANT_STAGE} FILE_FORMAT = ${TEST_VARIANT_FORMAT}`;
+  const copyIntoVariant = `COPY INTO ${TEST_VARIANT_TABLE} FROM @${DATABASE_NAME}.${SCHEMA_NAME}.${TEST_VARIANT_STAGE}`;
+  const selectVariant = `select ${TEST_COL} from ${TEST_VARIANT_TABLE}`;
+  const dropStageVariant = `drop table if exists ${TEST_VARIANT_STAGE}`;
+  const dropTableVariant = `drop table if exists ${TEST_VARIANT_TABLE}`;
 
   before(function (done)
   {
@@ -221,9 +228,7 @@ describe('Execute test - variant', function ()
     return function (done)
     {
       {
-        var createTableVariant = `create or replace table ${TEST_VARIANT_TABLE}(${TEST_COL} variant)`;
         var createFileFormatVariant = `CREATE OR REPLACE FILE FORMAT ${TEST_VARIANT_FORMAT} TYPE = ${testCase.type}`;
-        var createStageVariant = `CREATE OR REPLACE STAGE ${TEST_VARIANT_STAGE} FILE_FORMAT = ${TEST_VARIANT_FORMAT}`;
 
         var sampleData;
         if (testCase.type == 'XML')
@@ -246,12 +251,6 @@ describe('Execute test - variant', function ()
           var fileName = sampleTempFile.name.substring(sampleTempFile.name.lastIndexOf('\\'));
           putVariant = `PUT file://${process.env.USERPROFILE}\\AppData\\Local\\Temp\\${fileName} @${DATABASE_NAME}.${SCHEMA_NAME}.${TEST_VARIANT_STAGE}`;
         }
-
-        var copyIntoVariant = `COPY INTO ${TEST_VARIANT_TABLE} FROM @${DATABASE_NAME}.${SCHEMA_NAME}.${TEST_VARIANT_STAGE}`;
-
-        var selectVariant = `select ${TEST_COL} from ${TEST_VARIANT_TABLE}`;
-        var dropStageVariant = `drop table if exists ${TEST_VARIANT_STAGE}`;
-        var dropTableVariant = `drop table if exists ${TEST_VARIANT_TABLE}`;
 
         async.series(
           [

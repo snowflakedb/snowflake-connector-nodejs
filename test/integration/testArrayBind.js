@@ -1,10 +1,11 @@
 /*
  * Copyright (c) 2015-2019 Snowflake Computing Inc. All rights reserved.
  */
+const snowflake = require('./../../lib/snowflake');
 var async = require('async');
 var assert = require('assert');
 var testUtil = require('./testUtil');
-const connOption = require('./connectionOptions');
+var connOption = require('./connectionOptions');
 const { error } = require('winston');
 
 const DATABASE_NAME = connOption.valid.database;
@@ -13,7 +14,7 @@ const WAREHOUSE_NAME = connOption.valid.warehouse;
 
 describe('Test Array Bind', function ()
 {
-  this.timeout(200000);
+  this.timeout(300000);
   var connection;
   var createABTable = `create or replace table  ${DATABASE_NAME}.${SCHEMA_NAME}.testAB(colA string, colB number, colC date, colD time, colE TIMESTAMP_NTZ, colF TIMESTAMP_TZ)`;
   var insertAB = `insert into  ${DATABASE_NAME}.${SCHEMA_NAME}.testAB values(?, ?, ?, ?, ?, ?)`;
@@ -28,7 +29,8 @@ describe('Test Array Bind', function ()
 
   before(function (done)
   {
-    connection = testUtil.createConnection();
+    connOption.valid.arrayBindingThreshold = 3;
+    connection = snowflake.createConnection(connOption.valid);
     testUtil.connect(connection, function ()
     {
       connection.execute({
@@ -65,7 +67,7 @@ describe('Test Array Bind', function ()
         function(callback)
         {
           var arrBind = [];
-          var count = 100000;
+          var count = 100;
           for(var i = 0; i<count; i++)
           {
             arrBind.push(['string'+i, i, "2020-05-11", "12:35:41.3333333", "2022-04-01 23:59:59", "2022-07-08 12:05:30.9999999"]);
@@ -94,7 +96,7 @@ describe('Test Array Bind', function ()
         function(callback)
         {
           var arrBind = [];
-          var count = 10;
+          var count = 2;
           for(var i = 0; i<count; i++)
           {
             arrBind.push(['string'+i, i, "2020-05-11", "12:35:41.3333333", "2022-04-01 23:59:59", "2022-07-08 12:05:30.9999999"]);
@@ -170,7 +172,7 @@ describe('Test Array Bind', function ()
         function(callback)
         {
           var arrBind = [];
-          var count = 100000;
+          var count = 100;
           for(var i = 0; i<count; i++)
           {
             arrBind.push([null, i, "2020-05-11", "12:35:41.3333333", "2022-04-01 23:59:59", "2022-07-08 12:05:30.9999999"]);
@@ -199,7 +201,7 @@ describe('Test Array Bind', function ()
         function(callback)
         {
           var arrBind = [];
-          var count = 10;
+          var count = 2;
           for(var i = 0; i<count; i++)
           {
             arrBind.push(['string'+i, i, "2020-05-11", "12:35:41.3333333", "2022-04-01 23:59:59", "2022-07-08 12:05:30.9999999"]);
@@ -269,7 +271,7 @@ describe('Test Array Bind', function ()
         function (callback)
         {
           var arrBind = [];
-          var count = 15000;
+          var count = 100;
           for(var i = 0; i<count; i++)
           {
             arrBind.push(["some-data-for-stuff1","some-data-for-stuff2"]);
@@ -307,7 +309,7 @@ describe('Test Array Bind', function ()
         function (callback)
         {
           var arrBind = [];
-          var count = 70000;
+          var count = 100;
           for(var i = 0; i<count; i++)
           {
             arrBind.push(["some-data-for-stuff1"]);
@@ -348,42 +350,42 @@ describe('Test Array Bind', function ()
             [
               "5489",
               "SAMPLE",
-              "{\"user\":.........}",
+              "{\"user\":{\"SSS\":\"KKKK003\",\"email\":\"THE\"}",
               "2018-11-02T04:14:56.000000Z",
               null
             ],
             [
               "5490",
               "SAMPLE",
-              "{\"user\":.........}",
+              "{\"user\":{\"SSS\":\"LLL108\",\"email\":\"Jenn\"}",
               "2018-11-02T04:14:56.000000Z",
               null
             ],
             [
               "5491",
               "SAMPLE",
-              "{\"user\":.......}",
+              "{\"user\":{\"SSS\":\"LLL108\",\"email\":\"Jennif\"}",
               "2018-11-02T04:14:56.000000Z",
               null
             ],
             [
               "5492",
               "SAMPLE",
-              "{\"user\":.....}",
+              "{\"user\":{\"SSS\":\"LLL108\",\"email\":\"Je\"}",
               "2018-11-02T04:14:56.000000Z",
               null
             ],
             [
               "5493",
               "SAMPLE",
-              "{\"user\":.......}",
+              "{\"user\":{\"SSS\":\"LLL108\",\"email\":\"Jenn\"}",
               "2018-11-02T04:14:56.000000Z",
               null
             ],
             [
               "5494",
               "SAMPLE",
-              "{\"user\":.....}",
+              "{\"user\":{\"SSS\":\"LLL108\",\"email\":\"Jennifer@xxx.com\"}",
               "2018-11-02T04:14:56.000000Z",
               null
             ]

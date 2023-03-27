@@ -18,6 +18,7 @@
     "expand-tilde": "^2.0.2",
     "extend": "^3.0.2",
     "generic-pool": "^3.8.2",
+    "@google-cloud/storage": "^6.9.3",
     "glob": "^7.1.6",
     "jsonwebtoken": "^9.0.0",
     "mime-types": "^2.1.29",

@@ -19,7 +19,7 @@ function HttpsMockAgentOcspRevoked(options)
   agent.createConnection = function (options)
   {
     const socket = HttpsAgent.prototype.createConnection.apply(this, arguments);
-    return SocketUtil.secureSocket(socket, options.host, {
+    return SocketUtil.secureSocket(socket, options.host, null, {
       validateCertChain: function (cert, cb)
       {
         cb(Errors.createOCSPError(ErrorCodes.ERR_OCSP_REVOKED));
@@ -40,7 +40,7 @@ function HttpsMockAgentOcspUnkwown(options)
   agent.createConnection = function (options)
   {
     const socket = HttpsAgent.prototype.createConnection.apply(this, arguments);
-    return SocketUtil.secureSocket(socket, options.host, {
+    return SocketUtil.secureSocket(socket, options.host, null, {
       validateCertChain: function (cert, cb)
       {
         cb(Errors.createOCSPError(ErrorCodes.ERR_OCSP_UNKNOWN));
@@ -61,7 +61,7 @@ function HttpsMockAgentOcspInvalid(options)
   agent.createConnection = function (options)
   {
     const socket = HttpsAgent.prototype.createConnection.apply(this, arguments);
-    return SocketUtil.secureSocket(socket, options.host, {
+    return SocketUtil.secureSocket(socket, options.host, null, {
       validateCertChain: function (cert, cb)
       {
         cb(Errors.createOCSPError(ErrorCodes.ERR_OCSP_INVALID_VALIDITY));

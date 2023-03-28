@@ -13,6 +13,7 @@ describe('GCS client', function ()
   var mockLocation = 'mockLocation';
   var mockTable = 'mockTable';
   var mockPath = 'mockPath';
+  var mockAccessToken = 'mockAccessToken';
   var mockClient = 'mockClient';
   var mockKey = 'mockKey';
   var mockIv = 'mockIv';
@@ -279,11 +280,29 @@ describe('GCS client', function ()
         return data;
       }
     });
+    mock('gcsClient', {
+      bucket: function (bucketName)
+      {
+        var file = function (bucketPath)
+        {
+          var save = function (fileStream, options)
+          {
+            let err = new Error();
+            err.code = 401;
+            throw err;
+          }
+          return save();
+        }
+        return file();
+      }
+    });
     httpclient = require('httpclient');
     filestream = require('filestream');
+    gcsClient = require('gcsClient');
     var GCS = new SnowflakeGCSUtil(httpclient, filestream);
 
     meta.presignedUrl = '';
+    meta.client = { gcsToken: mockAccessToken, gcsClient: gcsClient };
 
     await GCS.uploadFile(dataFile, meta, encryptionMetadata);
     assert.strictEqual(meta['resultStatus'], resultStatus.RENEW_TOKEN);

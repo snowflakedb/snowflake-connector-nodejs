@@ -48,7 +48,7 @@ SELECT CURRENT_VERSION();
   Add this to get standard output.
 
 ```
-var snowflake = require('./snowflake');
+var snowflake = require('snowflake-sdk');
 snowflake.configure(
 {
   logLevel: 'trace'

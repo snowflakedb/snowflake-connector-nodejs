@@ -283,17 +283,23 @@ describe('GCS client', function ()
     mock('gcsClient', {
       bucket: function (bucketName)
       {
-        var file = function (bucketPath)
+        function bucket()
         {
-          var save = function (fileStream, options)
+          this.file = function (bucketPath)
           {
-            let err = new Error();
-            err.code = 401;
-            throw err;
+            function file()
+            {
+              this.save = function (fileStream, options)
+              {
+                let err = new Error();
+                err.code = 401;
+                throw err;
+              }
+            }
+            return new file;
           }
-          return save();
         }
-        return file();
+        return new bucket;
       }
     });
     httpclient = require('httpclient');

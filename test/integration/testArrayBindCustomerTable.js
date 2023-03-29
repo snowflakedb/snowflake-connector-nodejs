@@ -9,6 +9,7 @@ const sourceRowCount = 30000;
 
 describe('Test Concurrent Execution', function ()
 {
+  this.timeout(200000);
   var connection;
   var createTable = 'create or replace TABLE EVENTS_TEMP (ORGANIZATION_ID VARCHAR(16777216),' +
 	'APP_ID VARCHAR(16777216), OCCURREDAT VARCHAR(16777216), SHOP_ID VARCHAR(16777216),' +

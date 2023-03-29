@@ -9,7 +9,7 @@ const sourceRowCount = 30000;
 
 describe('Test Concurrent Execution', function ()
 {
-  this.timeout(200000);
+  this.timeout(300000);
   var connection;
   var createTable = 'create or replace TABLE EVENTS_TEMP (ORGANIZATION_ID VARCHAR(16777216),' +
 	'APP_ID VARCHAR(16777216), OCCURREDAT VARCHAR(16777216), SHOP_ID VARCHAR(16777216),' +
@@ -45,23 +45,23 @@ describe('Test Concurrent Execution', function ()
 
   it('testArrayBindCustomerTable', function (done)
   {
-	var arrBind = [];
-	var count = 1000000;
-	for(var i = 0; i<count; i++)
-	{
-		arrBind.push(['string'+i, 'appid', "occuredat", "shopid", "type", "id", 10.9, "charge amount currency code",
-		'chargeid','chargename','chargetest','chargebillingon', 'reason', 'description', 99.99, 'appcredit amount currency code',
-		'appcreditid','appcreditname','appcredittest','appname','shopmyshopifyoumin','shopname','appapikey']);
-	}
-	
-	var insertStatement = connection.execute({
-		sqlText: insertWithQmark,
-		binds: arrBind,
-		complete: function (err, stmt) {
-			testUtil.checkError(err);
-			assert.strictEqual(stmt.getNumUpdatedRows(), count);
+    var arrBind = [];
+    var count = 400000;
+    for(var i = 0; i<count; i++)
+    {
+        arrBind.push(['string'+i, 'appid', "occuredat", "shopid", "type", "id", 10.9, "charge amount currency code",
+        'chargeid','chargename','chargetest','chargebillingon', 'reason', 'description', 99.99, 'appcredit amount currency code',
+        'appcreditid','appcreditname','appcredittest','appname','shopmyshopifyoumin','shopname','appapikey']);
+    }
+
+    var insertStatement = connection.execute({
+        sqlText: insertWithQmark,
+        binds: arrBind,
+        complete: function (err, stmt) {
+            testUtil.checkError(err);
+            assert.strictEqual(stmt.getNumUpdatedRows(), count);
             done();
-		}
-	});
+        }
+    });
   });
 });

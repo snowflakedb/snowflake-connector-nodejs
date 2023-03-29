@@ -177,7 +177,8 @@ describe('Execute test - variant', function ()
   const TEST_VARIANT_FORMAT = "TEST_VARIANT_FORMAT";
   const TEST_COL = "COL";
   const TEST_HEADER = "ROOT";
-  const TEST_VAL = 123;
+  const TEST_XML_VAL = 123;
+  const TEST_JSON_VAL = "<123>";
 
   const createTableVariant = `create or replace table ${TEST_VARIANT_TABLE}(${TEST_COL} variant)`;
   const createStageVariant = `CREATE OR REPLACE STAGE ${TEST_VARIANT_STAGE} FILE_FORMAT = ${TEST_VARIANT_FORMAT}`;
@@ -233,11 +234,11 @@ describe('Execute test - variant', function ()
         var sampleData;
         if (testCase.type == 'XML')
         {
-          sampleData = `<${TEST_HEADER}>${TEST_VAL}</${TEST_HEADER}>`;
+          sampleData = `<${TEST_HEADER}>${TEST_XML_VAL}</${TEST_HEADER}>`;
         }
         else if (testCase.type == 'JSON')
         {
-          sampleData = `{${TEST_HEADER}: ${TEST_VAL}}`;
+          sampleData = `{${TEST_HEADER}: \"${TEST_JSON_VAL}\"}`;
         }
 
         var sampleTempFile = tmp.fileSync({ postfix: testCase.fileExtension });
@@ -294,7 +295,14 @@ describe('Execute test - variant', function ()
                   stream.on('data', function (row)
                   {
                     // Check the column, header, and value is correct
-                    assert.strictEqual(row[TEST_COL][TEST_HEADER], TEST_VAL);
+                    if (testCase.type == 'XML')
+                    {
+                      assert.strictEqual(row[TEST_COL][TEST_HEADER], TEST_XML_VAL);
+                    }
+                    else if (testCase.type == 'JSON')
+                    {
+                      assert.strictEqual(row[TEST_COL][TEST_HEADER], TEST_JSON_VAL);
+                    }
                   });
                   stream.on('end', function ()
                   {

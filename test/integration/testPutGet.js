@@ -425,3 +425,233 @@ describe('PUT GET overwrite test', function ()
     it(testCase.name, createItCallback(testCase));
   }
 });
+
+describe('PUT GET test with GCS_USE_DOWNSCOPED_CREDENTIAL', function ()
+{
+  this.timeout(100000);
+
+  var connection;
+
+  before(function (done)
+  {
+    connection = testUtil.createConnection();
+    connection.gcsUseDownscopedCredential = true;
+    testUtil.connect(connection, done);
+  });
+
+  after(function (done)
+  {
+    testUtil.destroyConnection(connection, done);
+  });
+
+  it('testSelectLargeQuery', function (done)
+  {
+    async.series(
+      [
+        function (callback)
+        {
+          var rowCount = 100000;
+          // Check the row count is correct
+          var statement = connection.execute({
+            sqlText: `SELECT COUNT(*) FROM (select seq4() from table(generator(rowcount => ${rowCount})))`,
+            complete: function (err, stmt, rows)
+            {
+              var stream = statement.streamRows();
+              stream.on('error', function (err)
+              {
+                done(err);
+              });
+              stream.on('data', function (row)
+              {
+                // Check the row count is correct
+                assert.strictEqual(row['COUNT(*)'], rowCount);
+              });
+              stream.on('end', function (row)
+              {
+                callback();
+              });
+            }
+          });
+        }
+      ],
+      done
+    );
+  });
+
+  it('testUploadDownload', function (done)
+  {
+    var tmpFile;
+    var createTable = `create or replace table ${TEMP_TABLE_NAME} (${COL1} STRING, ${COL2} STRING, ${COL3} STRING)`;
+    var copyInto = `COPY INTO ${TEMP_TABLE_NAME}`;
+    var removeFile = `REMOVE @${DATABASE_NAME}.${SCHEMA_NAME}.%${TEMP_TABLE_NAME}`;
+    var dropTable = `DROP TABLE IF EXISTS ${TEMP_TABLE_NAME}`;
+
+    // Create a temp file with specified file extension
+    tmpFile = tmp.fileSync({ postfix: 'gz' });
+    // Write row data to temp file
+    fs.writeFileSync(tmpFile.name, ROW_DATA);
+
+    var putQuery = `PUT file://${tmpFile.name} @${DATABASE_NAME}.${SCHEMA_NAME}.%${TEMP_TABLE_NAME}`;
+    // Windows user contains a '~' in the path which causes an error
+    if (process.platform == "win32")
+    {
+      var fileName = tmpFile.name.substring(tmpFile.name.lastIndexOf('\\'));
+      putQuery = `PUT file://${process.env.USERPROFILE}\\AppData\\Local\\Temp\\${fileName} @${DATABASE_NAME}.${SCHEMA_NAME}.%${TEMP_TABLE_NAME}`;
+    }
+
+    // Create a tmp folder for downloaded files
+    var tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'get'));
+    var fileSize;
+
+    var getQuery = `GET @${DATABASE_NAME}.${SCHEMA_NAME}.%${TEMP_TABLE_NAME} file://${tmpDir}`;
+    // Windows user contains a '~' in the path which causes an error
+    if (process.platform == "win32")
+    {
+      var dirName = tmpDir.substring(tmpDir.lastIndexOf('\\') + 1);
+      getQuery = `GET @${DATABASE_NAME}.${SCHEMA_NAME}.%${TEMP_TABLE_NAME} file://${process.env.USERPROFILE}\\AppData\\Local\\Temp\\${dirName}`;
+    }
+
+    async.series(
+      [
+        function (callback)
+        {
+          // Create temp table
+          testUtil.executeCmd(connection, createTable, callback);
+        },
+        function (callback)
+        {
+          // Upload file
+          var statement = connection.execute({
+            sqlText: putQuery,
+            complete: function (err, stmt, rows)
+            {
+              var stream = statement.streamRows();
+              stream.on('error', function (err)
+              {
+                done(err);
+              });
+              stream.on('data', function (row)
+              {
+                fileSize = row.targetSize;
+                // Check the file is correctly uploaded
+                assert.strictEqual(row['status'], UPLOADED);
+                // Check the target encoding is correct
+                assert.strictEqual(row['targetCompression'], 'GZIP');
+              });
+              stream.on('end', function (row)
+              {
+                callback();
+              });
+            }
+          });
+        },
+        function (callback)
+        {
+          // Copy into temp table
+          testUtil.executeCmd(connection, copyInto, callback);
+        },
+        function (callback)
+        {
+          // Check the contents are correct
+          var statement = connection.execute({
+            sqlText: `SELECT * FROM ${TEMP_TABLE_NAME}`,
+            complete: function (err, stmt, rows)
+            {
+              var stream = statement.streamRows();
+              stream.on('error', function (err)
+              {
+                done(err);
+              });
+              stream.on('data', function (row)
+              {
+                // Check the row data is correct
+                assert.strictEqual(row[COL1], COL1_DATA);
+                assert.strictEqual(row[COL2], COL2_DATA);
+                assert.strictEqual(row[COL3], COL3_DATA);
+              });
+              stream.on('end', function (row)
+              {
+                callback()
+              });
+            }
+          });
+        },
+        function (callback)
+        {
+          // Check the row count is correct
+          var statement = connection.execute({
+            sqlText: `SELECT COUNT(*) FROM ${TEMP_TABLE_NAME}`,
+            complete: function (err, stmt, rows)
+            {
+              var stream = statement.streamRows();
+              stream.on('error', function (err)
+              {
+                done(err);
+              });
+              stream.on('data', function (row)
+              {
+                // Check the row count is correct
+                assert.strictEqual(row['COUNT(*)'], 4);
+              });
+              stream.on('end', function (row)
+              {
+                callback();
+              });
+            }
+          });
+        },
+        function (callback)
+        {
+          // Run GET command
+          var statement = connection.execute({
+            sqlText: getQuery,
+            complete: function (err, stmt, rows)
+            {
+              var stream = statement.streamRows();
+              stream.on('error', function (err)
+              {
+                done(err);
+              });
+              stream.on('data', function (row)
+              {
+                assert.strictEqual(row.status, DOWNLOADED);
+                assert.strictEqual(row.size, fileSize);
+                // Delete the downloaded file
+                fs.unlink(path.join(tmpDir, row.file), (err) =>
+                {
+                  if (err) throw (err);
+                  // Delete the temporary folder
+                  fs.rmdir(tmpDir, (err) =>
+                  {
+                    if (err) throw (err);
+                  });
+                });
+              });
+              stream.on('end', function (row)
+              {
+                callback();
+              });
+            }
+          });
+        },
+        function (callback)
+        {
+          // Remove files from staging
+          testUtil.executeCmd(connection, removeFile, callback);
+        },
+        function (callback)
+        {
+          // Drop temp table
+          testUtil.executeCmd(connection, dropTable, callback);
+        },
+        function (callback)
+        {
+          fs.closeSync(tmpFile.fd);
+          fs.unlinkSync(tmpFile.name);
+          callback();
+        }
+      ],
+      done
+    );
+  });
+});

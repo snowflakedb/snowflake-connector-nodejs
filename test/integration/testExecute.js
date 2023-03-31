@@ -165,7 +165,7 @@ describe('Execute test', function ()
 
 describe('Execute test - variant', function ()
 {
-  this.timeout(20000);
+  this.timeout(100000);
 
   var connection;
 

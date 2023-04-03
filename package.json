@@ -8,6 +8,7 @@
     "agent-base": "^6.0.2",
     "asn1.js-rfc2560": "^5.0.0",
     "asn1.js-rfc5280": "^3.0.0",
+	"async": "^3.2.3",
     "aws-sdk": "^2.878.0",
     "axios": "^0.27.2",
     "big-integer": "^1.6.43",
@@ -38,7 +39,6 @@
     "winston": "^3.1.0"
   },
   "devDependencies": {
-    "async": "^3.2.3",
     "qs": "^6.10.3",
     "mocha": "^10.1.0"
   },

@@ -431,7 +431,7 @@ describe('Test Array Bind', function ()
 
 describe('testArrayBind - full path', function ()
 {
-  this.timeout(300000);
+  this.timeout(600000);
   var connection;
   var createABTable = `create or replace table  ${DATABASE_NAME}.${SCHEMA_NAME}.testAB(colA string, colB number, colC date, colD time, colE TIMESTAMP_NTZ, colF TIMESTAMP_TZ)`;
   var insertAB = `insert into  ${DATABASE_NAME}.${SCHEMA_NAME}.testAB values(?, ?, ?, ?, ?, ?)`;

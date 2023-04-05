@@ -438,11 +438,14 @@ describe('testArrayBind - full path', function ()
 
   before(function (done)
   {
-    var connOpt = connOption.valid;
-    connOpt.database = null;
-    connOpt.schema = null;
-    connOpt.arrayBindingThreshold = 3;
-    connection = snowflake.createConnection(connOpt);
+    connection = snowflake.createConnection({
+      account: connOption.valid.account,
+      username: connOption.valid.username,
+      password: connOption.valid.password,
+      warehouse: connOption.valid.warehouse,
+      role: connOption.valid.role,
+      arrayBindingThreshold: 3
+    });
     testUtil.connect(connection, function ()
     {
       connection.execute({

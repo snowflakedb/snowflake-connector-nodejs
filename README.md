@@ -7,6 +7,10 @@ NodeJS Driver for Snowflake
   <a href="http://www.apache.org/licenses/LICENSE-2.0.txt" target="_blank"><img src="http://img.shields.io/:license-Apache%202-brightgreen.svg" alt="apache" /> </a>
 </p>
 
+
+| :exclamation:        | For production-affecting issues related to the driver, please [create a case with Snowflake Support](https://community.snowflake.com/s/article/How-To-Submit-a-Support-Case-in-Snowflake-Lodge).   |
+|---------------|:------------------------|
+
 Install
 ======================================================================
 
@@ -28,7 +32,7 @@ Docs
 ======================================================================
 
 For detailed documentation and basic usage examples, please see the documentation 
-at `NodeJS Driver for Snowflake <https://docs.snowflake.net/manuals/user-guide/nodejs-driver.html>`_
+at <a href="https://docs.snowflake.net/manuals/user-guide/nodejs-driver.html">NodeJS Driver for Snowflake</a>.
 
 Test
 ======================================================================
@@ -70,6 +74,39 @@ To run all unit test:
   "test": "mocha test/unit/**/*.js"
 },
 </code></pre>  
+
+Getting the Code Coverage
+----------------------------------------------------------------------
+1. Go to nodejs project directory
+```
+cd snowflake-connector-nodejs
+```
+
+2. Install the node connector
+```
+npm install .
+```
+
+3. Install the nyc module which displays the code coverage
+```
+npm install nyc
+```
+
+4. Edit the package.json file and replace the specified test with the one below:
+```
+"scripts": {
+  "test": "nyc mocha test/**/*.js"
+},
+```
+
+5. Using git bash, run the "npm test" command and include the connection parameters in the same line:
+```
+SNOWFLAKE_TEST_USER="user" SNOWFLAKE_TEST_PASSWORD="password" SNOWFLAKE_TEST_ACCOUNT="account" SNOWFLAKE_TEST_WAREHOUSE="warehouse" SNOWFLAKE_TEST_DATABASE="db" SNOWFLAKE_TEST_SCHEMA="schema" npm test
+```
+
+6. The code coverage results will be displayed in the console when the test finishes executing
+<br>
+Note: git bash is the console used for installing the node connector, the nyc module, and running "npm test"
 
 Package
 ======================================================================

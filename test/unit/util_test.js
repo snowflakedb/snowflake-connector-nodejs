@@ -558,6 +558,12 @@ describe('Util', function ()
           isRetryable: true,
         },
         {
+          name: '429 - Too Many Requests',
+          statusCode: 429,
+          retry403: false,
+          isRetryable: true,
+        },
+        {
           name: '500 - Internal Server Error',
           statusCode: 500,
           retry403: false,

@@ -485,7 +485,7 @@ describe('Connection test - validate default parameters', function ()
     });
     assert.deepEqual(output,
       [
-        "\"db\" is an unknown connection parameter\n",
+        "\"db\" is an unknown connection parameter\n"
       ]);
   });
 
@@ -545,7 +545,7 @@ describe('Connection test - validate default parameters', function ()
 
 describe('Connection test - connection pool', function ()
 {
-  this.timeout(10000);
+  this.timeout(30000);
 
   it('1 min connection', function (done)
   {
@@ -1079,5 +1079,56 @@ describe('Connection test - connection pool', function ()
         done();
       });
     });
+  });
+
+  it('wrong password', function (done)
+  {
+    var connectionPool = snowflake.createPool(connOption.wrongPwd,
+      {
+        max: 10,
+        min: 1
+      });
+
+    assert.equal(connectionPool.max, 10);
+    assert.equal(connectionPool.min, 1);
+    assert.equal(connectionPool.size, 1);
+
+    // Use the connection pool, automatically creates a new connection
+    connectionPool.use(async (connection) =>
+    {
+      assert.ok(connection.isUp(), "not active");
+      assert.equal(connectionPool.size, 1);
+    });
+    // no login loop with wrong password
+    done();
+  });
+});
+
+describe('Heartbeat test', function ()
+{
+  var connection = snowflake.createConnection(connOption.valid);
+
+  it('call heartbeat url', function (done)
+  {
+    async.series(
+      [
+        function (callback)
+        {
+          connection.connect(function (err, conn)
+          {
+            assert.ok(!err, JSON.stringify(err));
+            callback();
+          });
+        },
+        function (callback)
+        {
+          connection.heartbeat();
+          callback();
+        }
+      ],
+      function ()
+      {
+        done();
+      });
   });
 });

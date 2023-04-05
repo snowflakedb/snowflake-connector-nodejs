@@ -275,6 +275,21 @@ describe('ConnectionConfig: basic', function ()
         },
         errorCode: ErrorCodes.ERR_CONN_CREATE_INVALID_PROXY_PASS
       },
+    {
+      name: 'invalid noProxy',
+      options:
+      {
+        username: 'username',
+        password: 'password',
+        account: 'account',
+        proxyHost: 'proxyHost',
+        proxyPort: 1234,
+        proxyUser: 'proxyUser',
+        proxyPassword: 'proxyPassword',
+        noProxy: 0
+      },
+      errorCode: ErrorCodes.ERR_CONN_CREATE_INVALID_NO_PROXY
+    },
       {
         name: 'invalid streamResult',
         options:
@@ -388,7 +403,18 @@ describe('ConnectionConfig: basic', function ()
           application: 'abcdefghijklmnopABCDEFGHIJKLMNOP1234567890abcdefghijklmnopABCDEFGHIJKLMNOP1234567890'
         },
         errorCode: ErrorCodes.ERR_CONN_CREATE_INVALID_APPLICATION
-      }
+      },
+      {
+        name: 'invalid gcsUseDownscopedCredential',
+        options:
+        {
+          username: 'username',
+          password: 'password',
+          account: 'account',
+          gcsUseDownscopedCredential: 1234
+        },
+        errorCode: ErrorCodes.ERR_CONN_CREATE_INVALID_GCS_USE_DOWNSCOPED_CREDENTIAL
+      },
     ];
 
   var createNegativeITCallback = function (testCase)
@@ -652,6 +678,42 @@ describe('ConnectionConfig: basic', function ()
           proxyPort: 1234,
           proxyUser: 'proxyUser',
           proxyPassword: 'proxyPassword'
+        },
+        options:
+        {
+          accessUrl: 'https://account.snowflakecomputing.com',
+          username: 'username',
+          password: 'password'
+        }
+      },
+      {
+        name: 'proxy with noproxy',
+        input:
+        {
+          username: 'username',
+          password: 'password',
+          account: 'account',
+          proxyHost: 'proxyHost',
+          proxyPort: 1234,
+          proxyUser: 'proxyUser',
+          proxyPassword: 'proxyPassword',
+          noProxy:  '*.snowflakecomputing.com'
+        },
+        options:
+        {
+          accessUrl: 'https://account.snowflakecomputing.com',
+          username: 'username',
+          password: 'password'
+        }
+      },
+      {
+        name: 'gcsUseDownscopedCredential',
+        input:
+        {
+          username: 'username',
+          password: 'password',
+          account: 'account',
+          gcsUseDownscopedCredential: true
         },
         options:
         {

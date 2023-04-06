@@ -438,7 +438,8 @@ describe('testArrayBind - full path', function ()
 
   before(function (done)
   {
-    connection = snowflake.createConnection({
+      connection = snowflake.createConnection({
+      accessUrl: connOption.valid.accessUrl,
       account: connOption.valid.account,
       username: connOption.valid.username,
       password: connOption.valid.password,

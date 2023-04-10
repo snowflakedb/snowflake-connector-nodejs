@@ -35,7 +35,7 @@ SHELL [ "/usr/bin/scl", "enable", "devtoolset-8"]
 
 # node-fips environment variables
 ENV NODE_HOME $HOME/node
-ENV NODEJS_VERSION 8.16.2
+ENV NODEJS_VERSION 14.0.0
 ENV FIPSDIR $HOME/install-openssl-fips
 ENV OPENSSL_VERSION 2.0.16
 

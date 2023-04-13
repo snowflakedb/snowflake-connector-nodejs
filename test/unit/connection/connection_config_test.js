@@ -403,7 +403,18 @@ describe('ConnectionConfig: basic', function ()
           application: 'abcdefghijklmnopABCDEFGHIJKLMNOP1234567890abcdefghijklmnopABCDEFGHIJKLMNOP1234567890'
         },
         errorCode: ErrorCodes.ERR_CONN_CREATE_INVALID_APPLICATION
-      }
+      },
+      {
+        name: 'invalid gcsUseDownscopedCredential',
+        options:
+        {
+          username: 'username',
+          password: 'password',
+          account: 'account',
+          gcsUseDownscopedCredential: 1234
+        },
+        errorCode: ErrorCodes.ERR_CONN_CREATE_INVALID_GCS_USE_DOWNSCOPED_CREDENTIAL
+      },
     ];
 
   var createNegativeITCallback = function (testCase)
@@ -687,6 +698,22 @@ describe('ConnectionConfig: basic', function ()
           proxyUser: 'proxyUser',
           proxyPassword: 'proxyPassword',
           noProxy:  '*.snowflakecomputing.com'
+        },
+        options:
+        {
+          accessUrl: 'https://account.snowflakecomputing.com',
+          username: 'username',
+          password: 'password'
+        }
+      },
+      {
+        name: 'gcsUseDownscopedCredential',
+        input:
+        {
+          username: 'username',
+          password: 'password',
+          account: 'account',
+          gcsUseDownscopedCredential: true
         },
         options:
         {

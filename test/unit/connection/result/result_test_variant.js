@@ -60,7 +60,7 @@ describe('Result: test variant', function ()
         {
           // variant
           assert.deepEqual(row.getColumnValue('C1'), {a: 1});
-          assert.Equal(
+          assert.equal(
             row.getColumnValueAsString('C1'), JSON.stringify({a: 1}));
 
           // object

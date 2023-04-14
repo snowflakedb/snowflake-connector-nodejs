@@ -389,6 +389,8 @@ describe('okta authentication', function ()
     var auth = new auth_okta(connectionOptionsOkta.password,
       connectionOptionsOkta.region,
       connectionOptionsOkta.account,
+      connectionOptionsOkta.clientAppid,
+      connectionOptionsOkta.clientAppVersion,
       httpclient);
 
     await auth.authenticate(connectionOptionsOkta.authenticator, '', connectionOptionsOkta.account, connectionOptionsOkta.username);
@@ -428,6 +430,8 @@ describe('okta authentication', function ()
     var auth = new auth_okta(connectionOptionsOkta.password,
       connectionOptionsOkta.region,
       connectionOptionsOkta.account,
+      connectionOptionsOkta.clientAppid,
+      connectionOptionsOkta.clientAppVersion,
       httpclient);
 
     try
@@ -483,6 +487,8 @@ describe('okta authentication', function ()
     var auth = new auth_okta(connectionOptionsOkta.password,
       connectionOptionsOkta.region,
       connectionOptionsOkta.account,
+      connectionOptionsOkta.clientAppid,
+      connectionOptionsOkta.clientAppVersion,
       httpclient);
 
     try

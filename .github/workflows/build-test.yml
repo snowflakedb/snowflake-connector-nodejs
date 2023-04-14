@@ -103,7 +103,7 @@ jobs:
         strategy:
             max-parallel: 1
             matrix:
-                image: [ 'nodejs-centos6-default', 'nodejs-centos7-node12', 'nodejs-centos7-fips' ]
+                image: [ 'nodejs-centos6-default', 'nodejs-centos7-node12' ]
                 cloud: [ 'AWS' ]
         steps:
             - uses: actions/checkout@v1
@@ -184,7 +184,7 @@ jobs:
         strategy:
             max-parallel: 1
             matrix:
-                image: [ 'nodejs-centos6-default', 'nodejs-centos7-node12', 'nodejs-centos7-fips' ]
+                image: [ 'nodejs-centos6-default', 'nodejs-centos7-node12' ]
                 cloud: [ 'AZURE', 'GCP' ]
         steps:
             - uses: actions/checkout@v1

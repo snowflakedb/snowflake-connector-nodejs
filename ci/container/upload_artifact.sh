@@ -12,13 +12,13 @@ if [[ -z "$GITHUB_ACTIONS" ]]; then
     BRANCH=$(basename $GIT_BRANCH)
     for f in "${ARTIFACTS[@]}"; do
         echo $f
-        echo "[INFO] aws s3 cp --only-show-errors $f s3://sfc-jenkins/repository/$DRIVER_NAME/$BRANCH/${GIT_COMMIT}/"
-        aws s3 cp --only-show-errors $f s3://sfc-jenkins/repository/$DRIVER_NAME/$BRANCH/${GIT_COMMIT}/
+        echo "[INFO] aws s3 cp --only-show-errors $f s3://sfc-eng-jenkins/repository/$DRIVER_NAME/$BRANCH/${GIT_COMMIT}/"
+        aws s3 cp --only-show-errors $f s3://sfc-eng-jenkins/repository/$DRIVER_NAME/$BRANCH/${GIT_COMMIT}/
         COMMIT_FILE=$(mktemp)
         cat > $COMMIT_FILE <<COMMIT_FILE_CONTENTS
 ${GIT_COMMIT}
 COMMIT_FILE_CONTENTS
-        aws s3 cp --only-show-errors $COMMIT_FILE s3://sfc-jenkins/repository/$DRIVER_NAME/$BRANCH/latest_commit
+        aws s3 cp --only-show-errors $COMMIT_FILE s3://sfc-eng-jenkins/repository/$DRIVER_NAME/$BRANCH/latest_commit
         rm -f $COMMIT_FILE
     done
 else

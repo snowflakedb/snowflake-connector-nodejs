@@ -191,7 +191,9 @@ jobs:
             max-parallel: 1
             matrix:
                 image: [ 'nodejs-centos6-default', 'nodejs-centos7-node12' ]
-                cloud: [ 'AZURE', 'GCP' ]
+                #REMOVE AZURE for now
+                #cloud: [ 'AZURE', 'GCP' ]
+                cloud: [ 'GCP' ]
         steps:
             - uses: actions/checkout@v1
             - uses: actions/setup-node@v1

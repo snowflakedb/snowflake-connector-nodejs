@@ -234,7 +234,10 @@ describe('Test DataType', function ()
               connection,
               selectVariant,
               [{'COLA': {a: 1, b: [1, 2, 3, -Infinity, undefined], c: {a: 1}}}],
-              callback
+              callback,
+              null,
+              true,
+              false
             );
           }],
         done
@@ -259,7 +262,10 @@ describe('Test DataType', function ()
               connection,
               selectArray,
               [{'COLA': ['a', 1]}],
-              callback
+              callback,
+              null,
+              true,
+              false
             );
           }],
         done

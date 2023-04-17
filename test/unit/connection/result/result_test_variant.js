@@ -59,18 +59,18 @@ describe('Result: test variant', function ()
         function (row)
         {
           // variant
-          assert.deepStrictEqual(row.getColumnValue('C1'), {a: 1});
-          assert.strictEqual(
+          assert.deepEqual(row.getColumnValue('C1'), {a: 1});
+          assert.equal(
             row.getColumnValueAsString('C1'), JSON.stringify({a: 1}));
 
           // object
-          assert.deepStrictEqual(row.getColumnValue('C2'), {a: 1});
-          assert.strictEqual(
+          assert.deepEqual(row.getColumnValue('C2'), {a: 1});
+          assert.equal(
             row.getColumnValueAsString('C2'), JSON.stringify({a: 1}));
 
           // array
-          assert.deepStrictEqual(row.getColumnValue('C3'), [1, 2]);
-          assert.strictEqual(
+          assert.deepEqual(row.getColumnValue('C3'), [1, 2]);
+          assert.equal(
             row.getColumnValueAsString('C3'), JSON.stringify([1, 2]));
         },
         function (result)

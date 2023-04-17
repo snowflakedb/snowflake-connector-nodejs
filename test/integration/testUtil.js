@@ -51,10 +51,11 @@ module.exports.checkError = function (err)
   assert.ok(!err, JSON.stringify(err));
 };
 
-module.exports.executeQueryAndVerify = function (connection, sql, expected, callback, bindArray, normalize)
+module.exports.executeQueryAndVerify = function (connection, sql, expected, callback, bindArray, normalize, strict)
 {
   // Sometimes we may not want to normalize the row first
   normalize = (typeof normalize !== "undefined" && normalize != null) ? normalize : true;
+  strict = (typeof strict !== "undefined" && strict != null) ? strict : true;
   var executeOptions = {};
   executeOptions.sqlText = sql;
   executeOptions.complete = function (err, stmt)
@@ -67,7 +68,14 @@ module.exports.executeQueryAndVerify = function (connection, sql, expected, call
       var row;
       while ((row = stream.read()) !== null)
       {
-        assert.deepStrictEqual(normalize ? normalizeRowObject(row) : row, expected[rowCount]);
+        if (strict)
+        {
+          assert.deepStrictEqual(normalize ? normalizeRowObject(row) : row, expected[rowCount]);
+        }
+        else
+        {
+          assert.deepEqual(normalize ? normalizeRowObject(row) : row, expected[rowCount]);
+        }
         rowCount++;
       }
     });

@@ -107,6 +107,12 @@ jobs:
                 cloud: [ 'AWS' ]
         steps:
             - uses: actions/checkout@v1
+            - uses: actions/setup-node@v1
+              with:
+                node-version: '12.x'
+            - uses: actions/setup-python@v1
+              with:
+                python-version: '3.7'
             - name: Download Build Artifacts
               uses: actions/download-artifact@v1
               with:
@@ -185,9 +191,17 @@ jobs:
             max-parallel: 1
             matrix:
                 image: [ 'nodejs-centos6-default', 'nodejs-centos7-node12' ]
-                cloud: [ 'AZURE', 'GCP' ]
+                #REMOVE AZURE for now
+                #cloud: [ 'AZURE', 'GCP' ]
+                cloud: [ 'GCP' ]
         steps:
             - uses: actions/checkout@v1
+            - uses: actions/setup-node@v1
+              with:
+                node-version: '12.x'
+            - uses: actions/setup-python@v1
+              with:
+                python-version: '3.7'
             - name: Download Build Artifacts
               uses: actions/download-artifact@v1
               with:

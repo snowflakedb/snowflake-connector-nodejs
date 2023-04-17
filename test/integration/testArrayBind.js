@@ -428,3 +428,60 @@ describe('Test Array Bind', function ()
     );
   });
 });
+
+describe('testArrayBind - full path', function ()
+{
+  this.timeout(600000);
+  var connection;
+  var createABTable = `create or replace table  ${DATABASE_NAME}.${SCHEMA_NAME}.testAB(colA string, colB number, colC date, colD time, colE TIMESTAMP_NTZ, colF TIMESTAMP_TZ)`;
+  var insertAB = `insert into  ${DATABASE_NAME}.${SCHEMA_NAME}.testAB values(?, ?, ?, ?, ?, ?)`;
+
+  before(function (done)
+  {
+      connection = snowflake.createConnection({
+      accessUrl: connOption.valid.accessUrl,
+      account: connOption.valid.account,
+      username: connOption.valid.username,
+      password: connOption.valid.password,
+      warehouse: connOption.valid.warehouse,
+      role: connOption.valid.role,
+      arrayBindingThreshold: 3
+    });
+    testUtil.connect(connection, function ()
+    {
+      connection.execute({
+        sqlText: createABTable,
+        complete: function (err)
+        {
+          testUtil.checkError(err);
+          done();
+        }
+      });
+    });
+  });
+
+  it('Full path array bind', function ()
+  {
+    var arrBind = [];
+    var count = 100;
+    for(var i = 0; i<count; i++)
+    {
+      arrBind.push([null, i, "2020-05-11", "12:35:41.3333333", "2022-04-01 23:59:59", "2022-07-08 12:05:30.9999999"]);
+    }
+    
+    var insertABStmt = connection.execute({
+      sqlText: insertAB,
+      binds: arrBind,
+      complete: function (err, stmt) {
+        testUtil.checkError(err);
+        assert.strictEqual(stmt.getNumUpdatedRows(), count);
+        callback();
+      }
+    });
+  });
+  after(function (done)
+  {
+    testUtil.destroyConnection(connection, done);
+  });
+
+});

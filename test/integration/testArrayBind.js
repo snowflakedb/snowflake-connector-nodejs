@@ -79,6 +79,8 @@ describe('Test Array Bind', function ()
             complete: function (err, stmt) {
               testUtil.checkError(err);
               assert.strictEqual(stmt.getNumUpdatedRows(), count);
+              //verify the array binding return statement 
+              assert.ok(insertABStmt);
               callback();
             }
           });

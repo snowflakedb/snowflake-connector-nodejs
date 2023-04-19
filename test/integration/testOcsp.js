@@ -71,6 +71,65 @@ describe('OCSP validation', function ()
       ], done);
   });
 
+  function deleteCache()
+  {
+    OcspResponseCache.deleteCache();
+  }
+
+  it('OCSP validation expired local cache', function (done)
+  {
+    deleteCache();
+    process.env.SF_OCSP_TEST_CACHE_MAXAGE = 5;
+    const connection = snowflake.createConnection(connOption.valid);
+
+    async.series(
+      [
+        function (callback)
+        {
+          connection.connect(function (err)
+          {
+            assert.ok(!err, JSON.stringify(err));
+            callback();
+          });
+        },
+        function (callback)
+        {
+          var numErrors = 0;
+          var numStmtsExecuted = 0;
+          var numStmtsTotal = 5;
+
+          // execute a simple statement several times
+          // and make sure there are no errors
+          for (var index = 0; index < numStmtsTotal; index++)
+          {
+            setTimeout(function () {
+              connection.execute(
+                {
+                  sqlText: 'select 1;',
+                  complete: function (err)
+                  {
+                    if (err)
+                    {
+                      numErrors++;
+                    }
+
+                    numStmtsExecuted++;
+                    if (numStmtsExecuted === (numStmtsTotal - 1))
+                    {
+                      delete process.env['SF_OCSP_TEST_CACHE_MAXAGE'];
+                      assert.strictEqual(numErrors, 0);
+                      callback();
+                    }
+                  }
+                });
+              // cache expire in 5 seconds while 3 seconds per query, so it
+              // would cover both case of expired and not expired
+              }, 3000);
+          }
+        }
+      ], done);
+  });
+
   const httpsEndpoints = [
     {
       accessUrl: "https://sfcsupport.snowflakecomputing.com",
@@ -124,11 +183,6 @@ describe('OCSP validation', function ()
         testOptions(i + 1);
       }
     });
-  }
-
-  function deleteCache()
-  {
-    OcspResponseCache.deleteCache();
   }
 
   it('Test Ocsp with different endpoints', function (done)

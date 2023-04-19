@@ -56,16 +56,18 @@ describe('external browser authentication', function ()
 {
   var webbrowser;
   var httpclient;
+  var browserRedirectPort;
 
   var mockProofKey = 'mockProofKey';
   var mockToken = 'mockToken';
+  var mockSsoURL = 'https://ssoTestURL.okta.com/';
 
   before(function ()
   {
     mock('webbrowser', {
       open: function (url)
       {
-        var client = net.createConnection({ port: url }, () =>
+        var client = net.createConnection({ port: browserRedirectPort }, () =>
         {
           client.write(`GET /?token=${mockToken} HTTP/1.1\r\n`);
         });
@@ -80,11 +82,12 @@ describe('external browser authentication', function ()
           data: {
             data:
             {
-              ssoUrl: body['data']['BROWSER_MODE_REDIRECT_PORT'],
+              ssoUrl: mockSsoURL,
               proofKey: mockProofKey
             }
           }
         }
+        browserRedirectPort = body['data']['BROWSER_MODE_REDIRECT_PORT'];
         return data;
       }
     });
@@ -112,7 +115,7 @@ describe('external browser authentication', function ()
     mock('webbrowser', {
       open: function (url)
       {
-        var client = net.createConnection({ port: url }, () =>
+        var client = net.createConnection({ port: browserRedirectPort }, () =>
         {
           client.write(`\r\n`);
         });
@@ -127,10 +130,11 @@ describe('external browser authentication', function ()
           data: {
             data:
             {
-              ssoUrl: body['data']['BROWSER_MODE_REDIRECT_PORT']
+              ssoUrl: mockSsoURL
             }
           }
         }
+        browserRedirectPort = body['data']['BROWSER_MODE_REDIRECT_PORT'];
         return data;
       }
     });
@@ -389,6 +393,8 @@ describe('okta authentication', function ()
     var auth = new auth_okta(connectionOptionsOkta.password,
       connectionOptionsOkta.region,
       connectionOptionsOkta.account,
+      connectionOptionsOkta.clientAppid,
+      connectionOptionsOkta.clientAppVersion,
       httpclient);
 
     await auth.authenticate(connectionOptionsOkta.authenticator, '', connectionOptionsOkta.account, connectionOptionsOkta.username);
@@ -428,6 +434,8 @@ describe('okta authentication', function ()
     var auth = new auth_okta(connectionOptionsOkta.password,
       connectionOptionsOkta.region,
       connectionOptionsOkta.account,
+      connectionOptionsOkta.clientAppid,
+      connectionOptionsOkta.clientAppVersion,
       httpclient);
 
     try
@@ -483,6 +491,8 @@ describe('okta authentication', function ()
     var auth = new auth_okta(connectionOptionsOkta.password,
       connectionOptionsOkta.region,
       connectionOptionsOkta.account,
+      connectionOptionsOkta.clientAppid,
+      connectionOptionsOkta.clientAppVersion,
       httpclient);
 
     try

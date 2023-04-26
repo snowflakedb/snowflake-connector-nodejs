@@ -295,12 +295,14 @@ describe('PUT GET overwrite test', function ()
     testUtil.destroyConnection(connection, done);
   });
 
-  var putQuery = `PUT file://${tmpFile.name} @${DATABASE_NAME}.${SCHEMA_NAME}.%${TEMP_TABLE_NAME} AUTO_COMPRESS=FALSE`;
+  var putQuery = `
+    PUT file://${tmpFile.name} @${DATABASE_NAME}.${SCHEMA_NAME}.%${TEMP_TABLE_NAME} AUTO_COMPRESS=FALSE`;
   // Windows user contains a '~' in the path which causes an error
   if (process.platform == "win32")
   {
     var fileName = tmpFile.name.substring(tmpFile.name.lastIndexOf('\\'));
-    putQuery = `PUT file://${process.env.USERPROFILE}\\AppData\\Local\\Temp\\${fileName} @${DATABASE_NAME}.${SCHEMA_NAME}.%${TEMP_TABLE_NAME} AUTO_COMPRESS=FALSE`;
+    putQuery = `
+      PUT file://${process.env.USERPROFILE}\\AppData\\Local\\Temp\\${fileName} @${DATABASE_NAME}.${SCHEMA_NAME}.%${TEMP_TABLE_NAME} AUTO_COMPRESS=FALSE`;
   }
 
   var testCases =

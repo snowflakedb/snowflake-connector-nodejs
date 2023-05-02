@@ -79,6 +79,10 @@ describe('Test Array Bind', function ()
             complete: function (err, stmt) {
               testUtil.checkError(err);
               assert.strictEqual(stmt.getNumUpdatedRows(), count);
+              insertABStmt.then((result) => {
+                console.log("sql text = " + result.getSqlText());
+                console.log("num row inserted = " + result.getNumUpdatedRows());
+              });
               callback();
             }
           });

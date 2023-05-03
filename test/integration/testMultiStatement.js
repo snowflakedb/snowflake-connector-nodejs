@@ -130,4 +130,63 @@ describe('Test multi statement', function ()
       done
     );
   });
+
+  it('testMultiStatementStoreProc', function (done) 
+  {
+    async.series(
+      [
+        function (callback) {
+          connection.execute({
+            sqlText: alterSessionMultiStatement0,
+            complete: function (err, stmt, rows) {
+              callback();
+            }
+          });
+        },
+        function (callback) {
+          var count = 0;
+          connection.execute({
+            sqlText: `CREATE OR REPLACE PROCEDURE return_greater(number_1 INTEGER, number_2 INTEGER)
+	RETURNS INTEGER NOT NULL
+	LANGUAGE SQL
+	AS
+	BEGIN
+	IF(number_1 > number_2) THEN
+	RETURN number_1;
+	ELSE
+	RETURN number_2;
+	END IF;
+	END;
+
+	CREATE OR REPLACE PROCEDURE return_smaller(number_1 INTEGER, number_2 INTEGER)
+	RETURNS INTEGER NOT NULL
+	LANGUAGE SQL
+	AS
+	BEGIN
+	IF(number_1 < number_2) THEN
+	RETURN number_1;
+	ELSE
+	RETURN number_2;
+	END IF;
+	END;`,
+            complete: function (err, stmt) {
+              testUtil.checkError(err);
+              var sqlText = stmt.getSqlText();
+              assert.notStrictEqual(sqlText, undefined);
+              console.log("===sqlText:"+sqlText);
+              if (stmt.hasNext()) {
+                console.log('==== hasNext');
+                stmt.NextResult();
+              }
+              else {
+                console.log('==== close connection');
+                done();
+              }
+            }
+          });
+        }
+      ],
+      done
+    );
+  });
 });

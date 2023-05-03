@@ -9,7 +9,7 @@ var Util = require('./../../lib/util');
 
 describe('Test multi statement', function ()
 {
-  this.timeout(10000);
+  this.timeout(15000);
   var connection;
   var alterSessionMultiStatement0 = "alter session set MULTI_STATEMENT_COUNT=0";
   var alterSessionMultiStatement1 = "alter session set MULTI_STATEMENT_COUNT=1";

@@ -7,6 +7,7 @@ var assert = require('assert');
 var testUtil = require('./testUtil');
 var connOption = require('./connectionOptions');
 const { error } = require('winston');
+const { listenerCount } = require('events');
 
 const DATABASE_NAME = connOption.valid.database;
 const SCHEMA_NAME = connOption.valid.schema;
@@ -17,7 +18,7 @@ describe('Test Array Bind', function ()
   this.timeout(300000);
   var connection;
   var createABTable = `create or replace table  ${DATABASE_NAME}.${SCHEMA_NAME}.testAB(colA string, colB number, colC date, colD time, colE TIMESTAMP_NTZ, colF TIMESTAMP_TZ)`;
-  var insertAB = `insert into  ${DATABASE_NAME}.${SCHEMA_NAME}.testAB values(?, ?, ?, ?, ?, ?)`;
+  var insertAB = `insert into testAB values(?, ?, ?, ?, ?, ?)`;
   var selectAB = `select * from testAB where colB = 1`;
   var createNABTable = `create or replace table  ${DATABASE_NAME}.${SCHEMA_NAME}.testNAB(colA string, colB number, colC date, colD time, colE TIMESTAMP_NTZ, colF TIMESTAMP_TZ)`;
   var insertNAB = `insert into  ${DATABASE_NAME}.${SCHEMA_NAME}.testNAB values(?, ?, ?, ?, ?, ?)`;
@@ -79,10 +80,17 @@ describe('Test Array Bind', function ()
             complete: function (err, stmt) {
               testUtil.checkError(err);
               assert.strictEqual(stmt.getNumUpdatedRows(), count);
-              insertABStmt.then((result) => {
-                console.log("sql text = " + result.getSqlText());
-                console.log("num row inserted = " + result.getNumUpdatedRows());
-              });
+              console.log("sql text = " + insertABStmt.getSqlText());
+              assert.strictEqual(insertABStmt.getSqlText(), insertAB);
+              console.log("num row inserted = " + insertABStmt.getNumUpdatedRows());
+              assert.strictEqual(insertABStmt.getNumUpdatedRows(), count);
+              console.log("status = " + insertABStmt.getStatus());
+              console.log("columns = " + insertABStmt.getColumns());
+              console.log("column = " + insertABStmt.getColumn());
+              console.log("num rows = " + insertABStmt.getNumRows());
+              console.log("session state = " + insertABStmt.getSessionState());
+              console.log("request id = " + insertABStmt.getRequestId());
+              console.log("statement id = " + insertABStmt.getStatementId());
               callback();
             }
           });
@@ -442,7 +450,7 @@ describe('testArrayBind - full path', function ()
 
   before(function (done)
   {
-      connection = snowflake.createConnection({
+    connection = snowflake.createConnection({
       accessUrl: connOption.valid.accessUrl,
       account: connOption.valid.account,
       username: connOption.valid.username,
@@ -487,5 +495,5 @@ describe('testArrayBind - full path', function ()
   {
     testUtil.destroyConnection(connection, done);
   });
-
 });
+

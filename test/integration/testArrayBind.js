@@ -497,7 +497,7 @@ describe('testArrayBind - full path', function ()
   });
 });
 
-describe('Test Array Bind Force Error on Create table', function () {
+describe('Test Array Bind with Sataement Cancel', function () {
   this.timeout(300000);
   var connection;
   var createABTable = `create or replace table  ${DATABASE_NAME}.${SCHEMA_NAME}.testAB(colA string, colB number, colC date, colD time, colE TIMESTAMP_NTZ, colF TIMESTAMP_TZ)`;
@@ -507,9 +507,6 @@ describe('Test Array Bind Force Error on Create table', function () {
   var insertNAB = `insert into  ${DATABASE_NAME}.${SCHEMA_NAME}.testNAB values(?, ?, ?, ?, ?, ?)`;
   var selectNAB = `select * from  ${DATABASE_NAME}.${SCHEMA_NAME}.testNAB where colB = 1`;
   var useWH = `use warehouse ${WAREHOUSE_NAME}`;
-  var createNullTable = `create or replace table  ${DATABASE_NAME}.${SCHEMA_NAME}.testNullTB(colA string, colB number, colC date, colD time, colE TIMESTAMP_NTZ, colF TIMESTAMP_TZ)`;
-  var insertNull = `insert into  ${DATABASE_NAME}.${SCHEMA_NAME}.testNullTB values(?, ?, ?, ?, ?, ?)`;
-  var selectNull = `select * from testNullTB where colB = 1`;
 
   before(function (done) {
     connOption.valid.arrayBindingThreshold = 3;
@@ -568,6 +565,15 @@ describe('Test Array Bind Force Error on Create table', function () {
               console.log("request id = " + insertABStmt.getRequestId());
               console.log("statement id = " + insertABStmt.getStatementId());
               callback();
+            }
+          });
+          insertABStmt.cancel(function (err, stmt) {
+            if (err) {
+              console.log("Cancel error=" + err);
+              assert.strictEqual(err, "OperationFailedError: Identified SQL statement is not currently executing.");
+            }
+            else {
+              console.log('Successfully aborted statement');
             }
           });
         },
@@ -648,9 +654,6 @@ describe('Test Array Bind Force Error on Upload file', function () {
   var insertNAB = `insert into  ${DATABASE_NAME}.${SCHEMA_NAME}.testNAB values(?, ?, ?, ?, ?, ?)`;
   var selectNAB = `select * from  ${DATABASE_NAME}.${SCHEMA_NAME}.testNAB where colB = 1`;
   var useWH = `use warehouse ${WAREHOUSE_NAME}`;
-  var createNullTable = `create or replace table  ${DATABASE_NAME}.${SCHEMA_NAME}.testNullTB(colA string, colB number, colC date, colD time, colE TIMESTAMP_NTZ, colF TIMESTAMP_TZ)`;
-  var insertNull = `insert into  ${DATABASE_NAME}.${SCHEMA_NAME}.testNullTB values(?, ?, ?, ?, ?, ?)`;
-  var selectNull = `select * from testNullTB where colB = 1`;
 
   before(function (done) {
     connOption.valid.arrayBindingThreshold = 3;
@@ -778,3 +781,4 @@ describe('Test Array Bind Force Error on Upload file', function () {
     );
   });
 });
+

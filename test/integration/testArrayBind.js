@@ -653,6 +653,7 @@ describe('testArrayBind - full path with cancel', function ()
       warehouse: connOption.valid.warehouse,
       role: connOption.valid.role,
       arrayBindingThreshold: 3,
+      forceStageBindError: 0,
     });
     testUtil.connect(connection, function ()
     {

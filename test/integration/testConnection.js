@@ -1081,7 +1081,7 @@ describe('Connection test - connection pool', function ()
     });
   });
 
-  it('wrong password', function (done)
+  it('wrong password - use', async function ()
   {
     var connectionPool = snowflake.createPool(connOption.wrongPwd,
       {
@@ -1093,15 +1093,42 @@ describe('Connection test - connection pool', function ()
     assert.equal(connectionPool.min, 1);
     assert.equal(connectionPool.size, 1);
 
-    // Use the connection pool, automatically creates a new connection
-    connectionPool.use(async (connection) =>
+    try 
     {
-      assert.ok(connection.isUp(), "not active");
-      assert.equal(connectionPool.size, 1);
-    });
-    // no login loop with wrong password
-    done();
+      // Use the connection pool, automatically creates a new connection
+      await connectionPool.use(async (connection) =>
+      {
+        assert.ok(connection.isUp(), "not active");
+        assert.equal(connectionPool.size, 1);
+      });
+    } 
+    catch (err)
+    {
+      assert.strictEqual(err.message, "Incorrect username or password was specified.");
+    }
   });
+
+  it('wrong password - acquire', async function ()
+  {
+      var connectionPool = snowflake.createPool(connOption.wrongPwd,
+        {
+          max: 10,
+          min: 1
+        });
+
+      assert.equal(connectionPool.max, 10);
+      assert.equal(connectionPool.min, 1);
+      assert.equal(connectionPool.size, 1);
+
+      try 
+      {
+       await connectionPool.acquire();
+      } 
+      catch (err)
+      {
+        assert.strictEqual(err.message, "Incorrect username or password was specified.");
+      }
+    });
 });
 
 describe('Heartbeat test', function ()

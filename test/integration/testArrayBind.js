@@ -662,7 +662,13 @@ describe('testArrayBind - full path with cancel', function ()
         complete: function (err)
         {
           testUtil.checkError(err);
-          done();
+          connection.execute({
+            sqlText: "drop stage SYSTEM$BIND",
+            complete: function(err)
+            {
+              done();
+            }
+          });
         }
       });
     });

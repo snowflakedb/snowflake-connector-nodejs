@@ -1717,11 +1717,11 @@ function buildRequestOutputMappings(clientInfo)
       request:
         {
           method: 'POST',
-          url: 'http://fake504.snowflakecomputing.com/session/logout-request',
+          url: 'http://fake504.snowflakecomputing.com/session?delete=true',
           headers:
             {
               'Accept': 'application/json',
-              'Authorization': 'Snowflake Token="MASTER_TOKEN"',
+              'Authorization': 'Snowflake Token="SESSION_TOKEN"',
               'Content-Type': 'application/json'
             }
         },

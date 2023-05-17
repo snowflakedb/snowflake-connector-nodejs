@@ -40,7 +40,6 @@ MockHttpClient.prototype.request = function (request)
       buildRequestToOutputMap(buildRequestOutputMappings(this._clientInfo));
   }
 
-
   // Closing a session includes a unique uuid for requestID and requestGUID as query parameters in the url
   // Example: http://fake504.snowflakecomputing.com/session?delete=true&requestId=a40454c6-c3bb-4824-b0f3-bae041d9d6a2&request_guid=32443e0d-4080-457e-8678-561ed346e4e0
   if (request.url.includes('session?delete=true'))
@@ -1722,7 +1721,8 @@ function buildRequestOutputMappings(clientInfo)
             {
               'Accept': 'application/json',
               'Authorization': 'Snowflake Token="SESSION_TOKEN"',
-              'Content-Type': 'application/json'
+              'Content-Type': 'application/json',
+              "X-Snowflake-Service": "fakeservicename2"
             }
         },
       output:

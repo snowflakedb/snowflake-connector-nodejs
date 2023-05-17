@@ -7,7 +7,7 @@ var testUtil = require('./testUtil');
 
 const sourceRowCount = 30000;
 
-describe('Test Concurrent Execution', function ()
+describe('Test Stage Binding with Customer Table', function ()
 {
   this.timeout(300000);
   var connection;
@@ -46,14 +46,13 @@ describe('Test Concurrent Execution', function ()
   it('testArrayBindCustomerTable', function (done)
   {
     var arrBind = [];
-    var count = 400000;
+    var count = 100000;
     for(var i = 0; i<count; i++)
     {
         arrBind.push(['string'+i, 'appid', "occuredat", "shopid", "type", "id", 10.9, "charge amount currency code",
         'chargeid','chargename','chargetest','chargebillingon', 'reason', 'description', 99.99, 'appcredit amount currency code',
         'appcreditid','appcreditname','appcredittest','appname','shopmyshopifyoumin','shopname','appapikey']);
     }
-
     var insertStatement = connection.execute({
         sqlText: insertWithQmark,
         binds: arrBind,

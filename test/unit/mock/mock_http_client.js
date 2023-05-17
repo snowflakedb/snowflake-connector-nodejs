@@ -40,8 +40,18 @@ MockHttpClient.prototype.request = function (request)
       buildRequestToOutputMap(buildRequestOutputMappings(this._clientInfo));
   }
 
+
+  // Closing a session includes a unique uuid for requestID and requestGUID as query parameters in the url
+  // Example: http://fake504.snowflakecomputing.com/session?delete=true&requestId=a40454c6-c3bb-4824-b0f3-bae041d9d6a2&request_guid=32443e0d-4080-457e-8678-561ed346e4e0
+  if (request.url.includes('session?delete=true'))
+  {
+    // Remove the requestID and requestGUID query parameter for the mock HTTP client
+    request.url = request.url.substring(0, request.url.indexOf('&requestId='));
+  }
+
   // get the output of the specified request from the map
   var requestOutput = this._mapRequestToOutput[serializeRequest(request)];
+
   Errors.assertInternal(Util.isObject(requestOutput),
     'no response available for: ' + serializeRequest(request));
 
@@ -263,12 +273,42 @@ function buildRequestOutputMappings(clientInfo)
       request:
         {
           method: 'POST',
-          url: 'http://fakeaccount.snowflakecomputing.com/session/logout-request',
+          url: 'http://fakeaccount.snowflakecomputing.com/session?delete=true',
           headers:
             {
               'Accept': 'application/json',
-              'Authorization': 'Snowflake Token="MASTER_TOKEN"',
-              'Content-Type': 'application/json'
+              'Authorization': 'Snowflake Token="SESSION_TOKEN"',
+              'Content-Type': 'application/json',
+            }
+        },
+      output:
+        {
+          err: null,
+          response:
+            {
+              statusCode: 200,
+              statusMessage: "OK",
+              body:
+                {
+                  code: null,
+                  data: null,
+                  message: null,
+                  success: true
+                }
+            }
+        }
+    },
+    {
+      request:
+        {
+          method: 'POST',
+          url: 'http://fakeaccount.snowflakecomputing.com/session?delete=true',
+          headers:
+            {
+              'Accept': 'application/json',
+              'Authorization': 'Snowflake Token="SESSION_TOKEN"',
+              'Content-Type': 'application/json',
+              "X-Snowflake-Service": "fakeservicename2"
             }
         },
       output:
@@ -1518,12 +1558,13 @@ function buildRequestOutputMappings(clientInfo)
       request:
         {
           method: 'POST',
-          url: 'http://fakeaccount.snowflakecomputing.com/session/logout-request',
+          url: 'http://fakeaccount.snowflakecomputing.com/session?delete=true',
           headers:
             {
               'Accept': 'application/json',
-              'Authorization': 'Snowflake Token="SESSION_GONE_MASTER_TOKEN"',
-              'Content-Type': 'application/json'
+              'Authorization': 'Snowflake Token="SESSION_GONE_TOKEN"',
+              'Content-Type': 'application/json',
+              "X-Snowflake-Service": "fakeservicename2"
             }
         },
       output:

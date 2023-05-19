@@ -40,11 +40,11 @@ MockHttpClient.prototype.request = function (request)
       buildRequestToOutputMap(buildRequestOutputMappings(this._clientInfo));
   }
 
-  // Closing a session includes a unique uuid for requestID and requestGUID as query parameters in the url
-  // Example: http://fake504.snowflakecomputing.com/session?delete=true&requestId=a40454c6-c3bb-4824-b0f3-bae041d9d6a2&request_guid=32443e0d-4080-457e-8678-561ed346e4e0
+  // Closing a connection includes a requestID as a query parameter in the url
+  // Example: http://fake504.snowflakecomputing.com/session?delete=true&requestId=a40454c6-c3bb-4824-b0f3-bae041d9d6a2
   if (request.url.includes('session?delete=true'))
   {
-    // Remove the requestID and requestGUID query parameter for the mock HTTP client
+    // Remove the requestID query parameter for the mock HTTP client
     request.url = request.url.substring(0, request.url.indexOf('&requestId='));
   }
 

@@ -103,7 +103,7 @@ jobs:
         strategy:
             max-parallel: 1
             matrix:
-                image: [ 'nodejs-centos6-default', 'nodejs-centos7-node12' ]
+                image: [ 'nodejs-centos6-default', 'nodejs-centos7-node12', 'nodejs-centos7-fips' ]
                 cloud: [ 'AWS' ]
         steps:
             - uses: actions/checkout@v1
@@ -190,7 +190,7 @@ jobs:
         strategy:
             max-parallel: 1
             matrix:
-                image: [ 'nodejs-centos6-default', 'nodejs-centos7-node12' ]
+                image: [ 'nodejs-centos6-default', 'nodejs-centos7-node12', 'nodejs-centos7-fips' ]
                 #REMOVE AZURE for now
                 #cloud: [ 'AZURE', 'GCP' ]
                 cloud: [ 'GCP' ]

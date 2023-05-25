@@ -37,7 +37,7 @@ at <a href="https://docs.snowflake.net/manuals/user-guide/nodejs-driver.html">No
 Test
 ======================================================================
 
-Prepare for Tests
+Prepare for tests
 ----------------------------------------------------------------------
 
 Specify env variables:
@@ -59,7 +59,7 @@ Run hang webserver:
 python3 ci/container/hang_webserver.py 12345 &
 ```
 
-Run Tests
+Run tests
 ----------------------------------------------------------------------
 
 Run unit tests:
@@ -83,7 +83,7 @@ Run integration tests:
 npm test:integration
 ```
 
-Getting the Code Coverage
+Getting the code coverage
 ----------------------------------------------------------------------
 1. Go to nodejs project directory
 ```
@@ -129,7 +129,7 @@ Note it is not required to build a package to run tests blow.
 Development
 ======================================================================
 
-Reformat Source code
+Reformat source code
 ----------------------------------------------------------------------
 
 Use WebStorm code style file to format the source code.

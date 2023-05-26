@@ -55,7 +55,12 @@
     "url": "https://github.com/snowflakedb/snowflake-connector-nodejs"
   },
   "scripts": {
-    "test": "mocha test/unit/**/*.js"
+    "test": "mocha -timeout 180000 --recursive --full-trace test/unit/**/*.js test/unit/*.js",
+    "test:integration": "mocha -timeout 180000 --recursive --full-trace test/integration/**/*.js test/integration/*.js",
+    "test:single": "mocha -timeout 180000 --full-trace test/unit/snowflake_test.js",
+    "test:system": "mocha -timeout 180000 --recursive --full-trace system_test/*.js",
+    "test:unit": "mocha -timeout 180000 --recursive --full-trace test/unit/**/*.js test/unit/*.js",
+    "test:ci": "mocha -timeout 180000 --recursive --full-trace test/**/*.js system_test/*.js"
   },
   "author": {
     "name": "Snowflake Computing, Inc.",

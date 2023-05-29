@@ -1131,31 +1131,33 @@ describe('Connection test - connection pool', function ()
     });
 });
 
-describe('Heartbeat test', function ()
+describe('Connection Test - Heartbeat', function ()
 {
-  var connection = snowflake.createConnection(connOption.valid);
+  let connection;
 
-  it('call heartbeat url', function (done)
+  beforeEach(done =>
   {
-    async.series(
-      [
-        function (callback)
-        {
-          connection.connect(function (err, conn)
-          {
-            assert.ok(!err, JSON.stringify(err));
-            callback();
-          });
-        },
-        function (callback)
-        {
-          connection.heartbeat();
-          callback();
-        }
-      ],
-      function ()
-      {
-        done();
-      });
+    connection = snowflake.createConnection(connOption.valid);
+    testUtil.connect(connection, done);
+  });
+
+  after(done =>
+  {
+    testUtil.destroyConnection(connection, done);
+  });
+
+  it('call heartbeat url with default callback', () =>
+  {
+    connection.heartbeat();
+  });
+
+  it('call heartbeat url with callback', done =>
+  {
+    connection.heartbeat(err => err ? done(err) : done());
+  });
+
+  it('call heartbeat url as promise', async () =>
+  {
+    await connection.heartbeatAsync();
   });
 });

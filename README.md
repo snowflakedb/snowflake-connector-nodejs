@@ -131,6 +131,25 @@ Development
 Reformat source code
 ----------------------------------------------------------------------
 
+Check formatting on all files:
+
+```
+npm run lint:check:all
+```
+
+Check formatting of single file or directory e.g. `test/unit/snowflake_test.js`:
+
+```
+npm run lint:check -- test/unit/snowflake_test.js
+```
+
+Fix potentially fixable formatting errors and warnings of single file or directory e.g. `test/unit/logger`:
+
+```
+npm run lint:fix -- test/unit/logger
+```
+
+
 Use WebStorm code style file to format the source code.
 ```
 format.sh -mask "*.js" -settings $(pwd)/webstorm-codestyle.xml -R $(pwd)/lib/ -R $(pwd)/test -R $(pwd)/system_test

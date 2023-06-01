@@ -67,7 +67,7 @@ env | grep SNOWFLAKE_ | grep -v PASS
 echo "[INFO] Starting hang_webserver.py 12345"
 python3 $THIS_DIR/hang_webserver.py 12345 &
 MOCHA_CMD=(
-    "mocha" "--timeout" "$TIMEOUT" "--recursive" "--full-trace"
+   "nyc --no-clean" "mocha" "--timeout" "$TIMEOUT" "--recursive" "--full-trace"
 )
 
 if [[ -z "$GITHUB_ACTIONS" ]]; then

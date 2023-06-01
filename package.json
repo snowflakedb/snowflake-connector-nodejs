@@ -1,6 +1,6 @@
 {
   "name": "snowflake-sdk",
-  "version": "1.6.21",
+  "version": "1.6.22",
   "description": "Node.js driver for Snowflake",
   "dependencies": {
     "@azure/storage-blob": "^12.11.0",
@@ -15,6 +15,7 @@
     "big-integer": "^1.6.43",
     "bignumber.js": "^2.4.0",
     "binascii": "0.0.2",
+    "bn.js": "^5.2.1",
     "browser-request": "^0.3.3",
     "debug": "^3.2.6",
     "expand-tilde": "^2.0.2",
@@ -23,6 +24,7 @@
     "generic-pool": "^3.8.2",
     "@google-cloud/storage": "^6.9.3",
     "glob": "^7.1.6",
+    "https-proxy-agent": "^5.0.1",
     "jsonwebtoken": "^9.0.0",
     "mime-types": "^2.1.29",
     "mkdirp": "^1.0.3",
@@ -53,7 +55,12 @@
     "url": "https://github.com/snowflakedb/snowflake-connector-nodejs"
   },
   "scripts": {
-    "test": "mocha test/unit/**/*.js"
+    "test": "mocha -timeout 180000 --recursive --full-trace test/unit/**/*.js test/unit/*.js",
+    "test:integration": "mocha -timeout 180000 --recursive --full-trace test/integration/**/*.js test/integration/*.js",
+    "test:single": "mocha -timeout 180000 --full-trace test/unit/snowflake_test.js",
+    "test:system": "mocha -timeout 180000 --recursive --full-trace system_test/*.js",
+    "test:unit": "mocha -timeout 180000 --recursive --full-trace test/unit/**/*.js test/unit/*.js",
+    "test:ci": "mocha -timeout 180000 --recursive --full-trace test/**/*.js system_test/*.js"
   },
   "author": {
     "name": "Snowflake Computing, Inc.",

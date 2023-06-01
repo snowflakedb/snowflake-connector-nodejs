@@ -41,7 +41,6 @@
   },
   "devDependencies": {
     "mocha": "^10.1.0",
-    "mocha-json-output-reporter": "^2.1.0",
     "mock-require": "^3.0.3",
     "nyc": "^15.1.0",
     "qs": "^6.10.3",
@@ -62,6 +61,7 @@
     "test:single": "nyc --no-clean mocha -timeout 180000 --full-trace test/unit/snowflake_test.js",
     "test:system": "nyc --no-clean mocha -timeout 180000 --recursive --full-trace system_test/*.js",
     "test:unit": "nyc --no-clean mocha -timeout 180000 --recursive --full-trace test/unit/**/*.js test/unit/util_test.js",
+    "test:ci": "nyc --no-clean mocha -timeout 180000 --recursive --full-trace test/**/*.js system_test/*.js",
     "test:coverage": "nyc report --reporter=json --reporter=text"
   },
   "author": {

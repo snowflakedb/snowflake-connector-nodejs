@@ -124,12 +124,6 @@ jobs:
                 CLOUD_PROVIDER: ${{ matrix.cloud }}
                 TARGET_DOCKER_TEST_IMAGE: ${{ matrix.image }}
               run: ./ci/test.sh
-#            - name: Generate NYC report
-#              run:  npm test:coverage
-#            - name: Report NYC coverage
-#              uses: sidx1024/report-nyc-coverage-github-action@v1.2.7
-#              with:
-#                coverage_file: "coverage/coverage-final.json"
 
     test-mac-optional:
         needs: test-linux-required

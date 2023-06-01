@@ -42,6 +42,7 @@
   "devDependencies": {
     "mocha": "^10.1.0",
     "mock-require": "^3.0.3",
+    "nyc": "^15.1.0",
     "qs": "^6.10.3",
     "test-console": "^2.0.0"
   },
@@ -60,7 +61,8 @@
     "test:single": "mocha -timeout 180000 --full-trace test/unit/snowflake_test.js",
     "test:system": "mocha -timeout 180000 --recursive --full-trace system_test/*.js",
     "test:unit": "mocha -timeout 180000 --recursive --full-trace test/unit/**/*.js test/unit/*.js",
-    "test:ci": "mocha -timeout 180000 --recursive --full-trace test/**/*.js system_test/*.js"
+    "test:ci": "mocha -timeout 180000 --recursive --full-trace test/**/*.js system_test/*.js",
+    "test:coverage": "nyc --reporter=html mocha -timeout 180000 test/unit/*.js "
   },
   "author": {
     "name": "Snowflake Computing, Inc.",

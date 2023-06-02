@@ -43,6 +43,17 @@ describe('ConnectionConfig: basic', function ()
         errorCode: ErrorCodes.ERR_CONN_CREATE_MISSING_USERNAME
       },
       {
+        name: 'missing browser timeout with EXTERNALBROWSER authenticator',
+        options:
+          {
+            authenticator: 'EXTERNALBROWSER',
+            username: 'admin',
+            account: 'snowflake',
+            browserActionTimeout: -1
+          },
+        errorCode: ErrorCodes.ERR_CONN_CREATE_INVALID_BROWSER_TIMEOUT
+      },
+      {
         name: 'missing username with EXTERNALBROWSER authenticator',
         options: 
           { 
@@ -514,7 +525,7 @@ describe('ConnectionConfig: basic', function ()
           username: 'username',
           password: 'password',
           account: 'account',
-          application: 'abcdefghijklmnopABCDEFGHIJKLMNOP1234567890abcdefghijklmnopABCDEFGHIJKLMNOP1234567890'
+          application: '0123456789012345678901!%$##234567890123456789012345678901234567890'
         },
         errorCode: ErrorCodes.ERR_CONN_CREATE_INVALID_APPLICATION
       },

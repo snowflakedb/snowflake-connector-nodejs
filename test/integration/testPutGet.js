@@ -657,3 +657,182 @@ describe('PUT GET test with GCS_USE_DOWNSCOPED_CREDENTIAL', function ()
     );
   });
 });
+
+describe('PUT GET test multiple files', function ()
+{
+  this.timeout(100000);
+
+  var connection;
+
+  before(function (done)
+  {
+    connection = testUtil.createConnection();
+    connection.gcsUseDownscopedCredential = true;
+    testUtil.connect(connection, done);
+  });
+
+  after(function (done)
+  {
+    testUtil.destroyConnection(connection, done);
+  });
+
+  it('testDownloadMultifiles', function (done)
+  {
+    var tmpFile1, tmpFile2;
+    var createTable = `create or replace table ${TEMP_TABLE_NAME} (${COL1} STRING, ${COL2} STRING, ${COL3} STRING)`;
+    var removeFile = `REMOVE @${DATABASE_NAME}.${SCHEMA_NAME}.%${TEMP_TABLE_NAME}`;
+    var dropTable = `DROP TABLE IF EXISTS ${TEMP_TABLE_NAME}`;
+
+    // Create two temp file with specified file extension
+    tmpFile1 = tmp.fileSync({ postfix: 'gz' });
+    tmpFile2 = tmp.fileSync({ postfix: 'gz' });
+    // Write row data to temp file
+    fs.writeFileSync(tmpFile1.name, ROW_DATA);
+    fs.writeFileSync(tmpFile2.name, ROW_DATA);
+
+    var putQuery1 = `PUT file://${tmpFile1.name} @${DATABASE_NAME}.${SCHEMA_NAME}.%${TEMP_TABLE_NAME}`;
+    // Windows user contains a '~' in the path which causes an error
+    if (process.platform == "win32")
+    {
+      var fileName = tmpFile1.name.substring(tmpFile1.name.lastIndexOf('\\'));
+      putQuery1 = `PUT file://${process.env.USERPROFILE}\\AppData\\Local\\Temp\\${fileName} @${DATABASE_NAME}.${SCHEMA_NAME}.%${TEMP_TABLE_NAME}`;
+    }
+
+    var putQuery2 = `PUT file://${tmpFile2.name} @${DATABASE_NAME}.${SCHEMA_NAME}.%${TEMP_TABLE_NAME}`;
+    // Windows user contains a '~' in the path which causes an error
+    if (process.platform == "win32")
+    {
+      var fileName = tmpFile2.name.substring(tmpFile2.name.lastIndexOf('\\'));
+      putQuery2 = `PUT file://${process.env.USERPROFILE}\\AppData\\Local\\Temp\\${fileName} @${DATABASE_NAME}.${SCHEMA_NAME}.%${TEMP_TABLE_NAME}`;
+    }
+
+    // Create a tmp folder for downloaded files
+    var tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'get'));
+    var fileSize;
+
+    var getQuery = `GET @${DATABASE_NAME}.${SCHEMA_NAME}.%${TEMP_TABLE_NAME} file://${tmpDir}`;
+    // Windows user contains a '~' in the path which causes an error
+    if (process.platform == "win32")
+    {
+      var dirName = tmpDir.substring(tmpDir.lastIndexOf('\\') + 1);
+      getQuery = `GET @${DATABASE_NAME}.${SCHEMA_NAME}.%${TEMP_TABLE_NAME} file://${process.env.USERPROFILE}\\AppData\\Local\\Temp\\${dirName}`;
+    }
+
+    async.series(
+      [
+        function (callback)
+        {
+          // Create temp table
+          testUtil.executeCmd(connection, createTable, callback);
+        },
+        function (callback)
+        {
+          // Upload file
+          var statement = connection.execute({
+            sqlText: putQuery1,
+            complete: function (err, stmt, rows)
+            {
+              var stream = statement.streamRows();
+              stream.on('error', function (err)
+              {
+                done(err);
+              });
+              stream.on('data', function (row)
+              {
+                fileSize = row.targetSize;
+                // Check the file is correctly uploaded
+                assert.strictEqual(row['status'], UPLOADED);
+                // Check the target encoding is correct
+                assert.strictEqual(row['targetCompression'], 'GZIP');
+              });
+              stream.on('end', function (row)
+              {
+                callback();
+              });
+            }
+          });
+        },
+        function (callback)
+        {
+          // Upload file
+          var statement = connection.execute({
+            sqlText: putQuery2,
+            complete: function (err, stmt, rows)
+            {
+              var stream = statement.streamRows();
+              stream.on('error', function (err)
+              {
+                done(err);
+              });
+              stream.on('data', function (row)
+              {
+                fileSize = row.targetSize;
+                // Check the file is correctly uploaded
+                assert.strictEqual(row['status'], UPLOADED);
+                // Check the target encoding is correct
+                assert.strictEqual(row['targetCompression'], 'GZIP');
+              });
+              stream.on('end', function (row)
+              {
+                callback();
+              });
+            }
+          });
+        },
+        function (callback)
+        {
+          // Run GET command
+          var statement = connection.execute({
+            sqlText: getQuery,
+            complete: function (err, stmt, rows)
+            {
+              var stream = statement.streamRows();
+              stream.on('error', function (err)
+              {
+                done(err);
+              });
+              stream.on('data', function (row)
+              {
+                assert.strictEqual(row.status, DOWNLOADED);
+                assert.strictEqual(row.size, fileSize);
+                // Delete the downloaded file
+                fs.unlink(path.join(tmpDir, row.file), (err) =>
+                {
+                  if (err) throw (err);
+                  // Delete the temporary folder
+                  fs.rmdir(tmpDir, (err) =>
+                  {
+                    if (err) throw (err);
+                  });
+                });
+              });
+              stream.on('end', function (row)
+              {
+                callback();
+              });
+            }
+          });
+        },
+        function (callback)
+        {
+          // Remove files from staging
+          testUtil.executeCmd(connection, removeFile, callback);
+        },
+        function (callback)
+        {
+          // Drop temp table
+          testUtil.executeCmd(connection, dropTable, callback);
+        },
+        function (callback)
+        {
+          fs.closeSync(tmpFile1.fd);
+          fs.unlinkSync(tmpFile1.name);
+          fs.closeSync(tmpFile2.fd);
+          fs.unlinkSync(tmpFile2.name);
+          callback();
+        }
+      ],
+      done
+    );
+  });
+});

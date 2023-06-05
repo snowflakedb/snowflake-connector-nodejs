@@ -422,14 +422,27 @@ describe('Test Stream Rows HighWaterMark', function ()
                 }
 
                 // assert the amount of rows read per loop never exceeds the highWaterMark threshold
-                assert.ok(rowIndex <= highWaterMark);
+                try
+                {
+                  assert.ok(rowIndex <= highWaterMark);
+                }
+                catch (err)
+                {
+                  stream.destroy(err); // passes error to the stream error event
+                }
               });
               stream.on('end', function ()
               {
-                // assert the total number of rows is equal to the specified row count
-                assert.strictEqual(actualRowCount, expectedRowCount);
-
-                callback();
+                try
+                {
+                  // assert the total number of rows is equal to the specified row count
+                  assert.strictEqual(actualRowCount, expectedRowCount);
+                  callback();
+                }
+                catch (err)
+                {
+                  callback(err);
+                }
               });
             }
           });

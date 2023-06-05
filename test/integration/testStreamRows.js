@@ -454,39 +454,11 @@ describe('Test Stream Rows HighWaterMark', function ()
 
   const highWaterMarkValue = 10; // default parameter value is 10 (based on PARAM_ROW_STREAM_HIGH_WATER_MARK)
 
-  it('test1000Rows', function (done)
+  [1000, 10000, 100000, 1000000].forEach(rowCount =>
   {
-    testingFunc(
-      highWaterMarkValue,
-      1000,
-      done
-    );
-  });
-
-  it('test10000Rows', function (done)
-  {
-    testingFunc(
-      highWaterMarkValue,
-      10000,
-      done
-    );
-  });
-
-  it('test100000Rows', function (done)
-  {
-    testingFunc(
-      highWaterMarkValue,
-      100000,
-      done
-    );
-  });
-
-  it('test1000000Rows', function (done)
-  {
-    testingFunc(
-      highWaterMarkValue,
-      1000000,
-      done
-    );
+    it(`test ${rowCount} rows`, done =>
+    {
+      testingFunc(highWaterMarkValue, rowCount, done);
+    });
   });
 });

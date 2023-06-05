@@ -14,6 +14,9 @@ let snowflakeTestHost = process.env.SNOWFLAKE_TEST_HOST;
 let snowflakeTestPort = process.env.SNOWFLAKE_TEST_PORT;
 let snowflakeTestProxyHost = process.env.SNOWFLAKE_TEST_PROXY_HOST;
 let snowflakeTestProxyPort = process.env.SNOWFLAKE_TEST_PROXY_PORT;
+const snowflakeTestProxyProtocol = process.env.SNOWFLAKE_TEST_PROXY_PROTOCOL;
+const snowflakeTestProxyUser = process.env.SNOWFLAKE_TEST_PROXY_USER;
+const snowflakeTestProxyPassword = process.env.SNOWFLAKE_TEST_PROXY_PASSWORD;
 const snowflakeTestAccount = process.env.SNOWFLAKE_TEST_ACCOUNT;
 const snowflakeTestUser = process.env.SNOWFLAKE_TEST_USER;
 const snowflakeTestDatabase = process.env.SNOWFLAKE_TEST_DATABASE;
@@ -61,7 +64,10 @@ const connectionWithProxy =
     schema: snowflakeTestSchema,
     role: snowflakeTestRole,
     proxyHost: snowflakeTestProxyHost,
-    proxyPort: parseInt(snowflakeTestProxyPort, 10)
+    proxyPort: parseInt(snowflakeTestProxyPort, 10),
+    proxyProtocol: snowflakeTestProxyProtocol,
+    proxyUser: snowflakeTestProxyUser,
+    proxyPassword: snowflakeTestProxyPassword,
   };
 
 exports.externalAccount = externalAccount;

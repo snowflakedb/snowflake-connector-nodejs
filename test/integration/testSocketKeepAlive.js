@@ -5,13 +5,14 @@
 const assert = require('assert');
 const snowflake = require('../../lib/snowflake');
 const connOption = require('./connectionOptions');
+const connOptionInternal = require('../../system_test/connectionOptions'); // TODO: refactor this into a single connectionOptions library?
 const async = require('async');
 const testUtil = require('./testUtil');
 const { performance } = require('perf_hooks');
 
 describe('Test socketKeepAlive functionality', function ()
 {
-  this.timeout(15_000);
+  this.timeout(30_000);
 
   var connection;
   const LOOP_COUNT = 3;
@@ -80,6 +81,7 @@ describe('Test socketKeepAlive functionality', function ()
 
   const testCases = [
     ['direct connection', connOption.valid],
+    ['proxied connection', connOptionInternal.connectionWithProxy]
   ];
 
   for (const [title, connOptions] of testCases) {

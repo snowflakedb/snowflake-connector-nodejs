@@ -376,7 +376,7 @@ describe('Test Stream Rows API', function ()
 
 });
 
-describe('testHighWaterMark', function ()
+describe('Test Stream Rows HighWaterMark', function ()
 {
   this.timeout(300000);
 

@@ -11,7 +11,7 @@ const { performance } = require('perf_hooks');
 
 describe('Test socketKeepAlive functionality', function ()
 {
-  this.timeout(20_000);
+  this.timeout(15_000);
 
   var connection;
   const LOOP_COUNT = 3;

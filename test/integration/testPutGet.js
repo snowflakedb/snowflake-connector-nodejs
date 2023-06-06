@@ -869,14 +869,14 @@ describe('PUT GET test multiple files', function ()
       getQuery = `GET @${DATABASE_NAME}.${SCHEMA_NAME}.%${TEMP_TABLE_NAME} file://${process.env.USERPROFILE}\\AppData\\Local\\Temp\\${dirName}`;
     }
 
-    // Create two temp file with specified file extension
+    // Create temp files with specified prefix
     for (let i = 0; i < count; i++) {
       var tmpFile = tmp.fileSync({ prefix: 'testUploadDownloadMultifiles'});
       fs.writeFileSync(tmpFile.name, ROW_DATA);
       tmpFiles.push(tmpFile);
     }
 
-    var putQuery = `PUT file://testUploadDownloadMultifiles* @${DATABASE_NAME}.${SCHEMA_NAME}.%${TEMP_TABLE_NAME}`;
+    var putQuery = `PUT file://${os.tmpdir()}/testUploadDownloadMultifiles* @${DATABASE_NAME}.${SCHEMA_NAME}.%${TEMP_TABLE_NAME}`;
     // Windows user contains a '~' in the path which causes an error
     if (process.platform == "win32")
     {

@@ -10,7 +10,7 @@ const Util = require('./../../lib/util');
 const Core = require('./../../lib/core');
 const stderr = require("test-console").stderr;
 
-xdescribe('Connection test', function ()
+describe('Connection test', function ()
 {
   it('return tokens in qaMode', function ()
     {

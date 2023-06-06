@@ -1131,19 +1131,19 @@ describe('Connection test - connection pool', function ()
     });
 });
 
-describe('Connection Test - Heartbeat', function ()
+describe('Connection Test - Heartbeat', () =>
 {
   let connection;
 
-  beforeEach(done =>
+  before(async () =>
   {
     connection = snowflake.createConnection(connOption.valid);
-    testUtil.connect(connection, done);
+    await testUtil.connectAsync(connection);
   });
 
-  after(done =>
+  after(async () =>
   {
-    testUtil.destroyConnection(connection, done);
+    await testUtil.destroyConnectionAsync(connection);
   });
 
   it('call heartbeat url with default callback', () =>
@@ -1158,6 +1158,44 @@ describe('Connection Test - Heartbeat', function ()
 
   it('call heartbeat url as promise', async () =>
   {
-    await connection.heartbeatAsync();
+    const rows = await connection.heartbeatAsync();
+    assert.ok(rows.success);
   });
+});
+
+describe('Connection Test - isValid', () =>
+{
+  let connection;
+
+  beforeEach(async () =>
+  {
+    connection = snowflake.createConnection(connOption.valid);
+    await testUtil.connectAsync(connection);
+  });
+
+  afterEach(async () =>
+  {
+    if (connection.isUp())
+    {
+      await testUtil.destroyConnectionAsync(connection);
+    }
+  });
+
+  it('connection is valid after connect', async () =>
+  {
+    const result = await connection.isValidAsync();
+
+    assert.equal(result, true);
+  });
+
+  it('connection is invalid after destroy', async () =>
+  {
+    await testUtil.destroyConnectionAsync(connection);
+
+    const result = await connection.isValidAsync();
+
+    assert.equal(result, false);
+  });
+
+  // there is no way to test heartbeat fail to running instance of snowflake
 });

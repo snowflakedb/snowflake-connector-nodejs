@@ -11,6 +11,7 @@ const testUtil = require('./testUtil');
 const tmp = require('tmp');
 const os = require('os');
 const path = require('path');
+const zlib = require('zlib');
 
 const DATABASE_NAME = connOption.valid.database;
 const SCHEMA_NAME = connOption.valid.schema;
@@ -795,16 +796,158 @@ describe('PUT GET test multiple files', function ()
               {
                 assert.strictEqual(row.status, DOWNLOADED);
                 assert.strictEqual(row.size, fileSize);
-                // Delete the downloaded file
-                fs.unlink(path.join(tmpDir, row.file), (err) =>
-                {
-                  if (err) throw (err);
-                  // Delete the temporary folder
-                  fs.rmdir(tmpDir, (err) =>
-                  {
-                    if (err) throw (err);
-                  });
-                });
+
+                // Decompress the downloaded file
+                var compressedFile = path.join(tmpDir,row.file);
+                var decompressedFile = path.join(tmpDir,'de-'+row.file);
+                const fileContents = fs.createReadStream(compressedFile);
+                const writeStream = fs.createWriteStream(decompressedFile);
+                const unzip = zlib.createGunzip();
+
+                fileContents.pipe(unzip).pipe(writeStream).on('finish', function() {
+                  // Verify the data of the downloaded file
+                  var data = fs.readFileSync(decompressedFile).toString();
+                  assert.strictEqual(data, ROW_DATA);
+                  fs.unlinkSync(compressedFile);
+                  fs.unlinkSync(decompressedFile);
+                })
+              });
+              stream.on('end', function (row)
+              {
+                callback();
+              });
+            }
+          });
+        },
+        function (callback)
+        {
+          // Remove files from staging
+          testUtil.executeCmd(connection, removeFile, callback);
+        },
+        function (callback)
+        {
+          // Drop temp table
+          testUtil.executeCmd(connection, dropTable, callback);
+        },
+        function (callback)
+        {       
+          fs.closeSync(tmpFile1.fd);
+          fs.unlinkSync(tmpFile1.name);
+          fs.closeSync(tmpFile2.fd);
+          fs.unlinkSync(tmpFile2.name);
+
+          // Delete the temporary folder
+          fs.rmdir(tmpDir, (err) =>
+          {
+            if (err) throw (err);
+          });
+          callback();
+        }
+      ],
+      done
+    );
+  });
+
+  it('testUploadMultifiles', function (done)
+  {
+    const count = 5;
+    var tmpFiles = [];
+    var createTable = `create or replace table ${TEMP_TABLE_NAME} (${COL1} STRING, ${COL2} STRING, ${COL3} STRING)`;
+    var removeFile = `REMOVE @${DATABASE_NAME}.${SCHEMA_NAME}.%${TEMP_TABLE_NAME}`;
+    var dropTable = `DROP TABLE IF EXISTS ${TEMP_TABLE_NAME}`;
+
+    // Create a tmp folder for downloaded files
+    var tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'get'));
+
+    var fileSize;
+
+    var getQuery = `GET @${DATABASE_NAME}.${SCHEMA_NAME}.%${TEMP_TABLE_NAME} file://${tmpDir}`;
+    // Windows user contains a '~' in the path which causes an error
+    if (process.platform == "win32")
+    {
+      var dirName = tmpDir.substring(tmpDir.lastIndexOf('\\') + 1);
+      getQuery = `GET @${DATABASE_NAME}.${SCHEMA_NAME}.%${TEMP_TABLE_NAME} file://${process.env.USERPROFILE}\\AppData\\Local\\Temp\\${dirName}`;
+    }
+
+    // Create two temp file with specified file extension
+    for (let i = 0; i < count; i++) {
+      var tmpFile = tmp.fileSync({ prefix: 'testUploadDownloadMultifiles'});
+      fs.writeFileSync(tmpFile.name, ROW_DATA);
+      tmpFiles.push(tmpFile);
+    }
+
+    var putQuery = `PUT file://testUploadDownloadMultifiles* @${DATABASE_NAME}.${SCHEMA_NAME}.%${TEMP_TABLE_NAME}`;
+    // Windows user contains a '~' in the path which causes an error
+    if (process.platform == "win32")
+    {
+      putQuery = `PUT file://${process.env.USERPROFILE}\\AppData\\Local\\Temp\\testUploadDownloadMultifiles* @${DATABASE_NAME}.${SCHEMA_NAME}.%${TEMP_TABLE_NAME}`;
+    }
+
+    async.series(
+      [
+        function (callback)
+        {
+          // Create temp table
+          testUtil.executeCmd(connection, createTable, callback);
+        },
+        function (callback)
+        {
+          // Upload file
+          var statement = connection.execute({
+            sqlText: putQuery,
+            complete: function (err, stmt, rows)
+            {
+              var stream = statement.streamRows();
+              stream.on('error', function (err)
+              {
+                done(err);
+              });
+              stream.on('data', function (row)
+              {
+                fileSize = row.targetSize;
+                // Check the file is correctly uploaded
+                assert.strictEqual(row['status'], UPLOADED);
+                // Check the target encoding is correct
+                assert.strictEqual(row['targetCompression'], 'GZIP');
+              });
+              stream.on('end', function (row)
+              {
+                callback();
+              });
+            }
+          });
+        },
+        function (callback)
+        {
+          // Run GET command
+          var statement = connection.execute({
+            sqlText: getQuery,
+            complete: function (err, stmt, rows)
+            {
+              var stream = statement.streamRows();
+              stream.on('error', function (err)
+              {
+                done(err);
+              });
+              stream.on('data', function (row)
+              {
+                assert.strictEqual(row.status, DOWNLOADED);
+                assert.strictEqual(row.size, fileSize);
+
+                // Decompress the downloaded file
+                var compressedFile = path.join(tmpDir,row.file);
+                var decompressedFile = path.join(tmpDir,'de-'+row.file);
+                const fileContents = fs.createReadStream(compressedFile);
+                const writeStream = fs.createWriteStream(decompressedFile);
+                const unzip = zlib.createGunzip();
+
+                fileContents.pipe(unzip).pipe(writeStream).on('finish', function() {
+                  // Verify the data of the downloaded file
+                  var data = fs.readFileSync(decompressedFile).toString();
+                  assert.strictEqual(data, ROW_DATA);
+                  fs.unlinkSync(compressedFile);
+                  fs.unlinkSync(decompressedFile);
+                }) 
               });
               stream.on('end', function (row)
               {
@@ -825,10 +968,15 @@ describe('PUT GET test multiple files', function ()
         },
         function (callback)
         {
-          fs.closeSync(tmpFile1.fd);
-          fs.unlinkSync(tmpFile1.name);
-          fs.closeSync(tmpFile2.fd);
-          fs.unlinkSync(tmpFile2.name);
+          for (let i = 0; i < count; i++) {
+            fs.closeSync(tmpFiles[i].fd);
+            fs.unlinkSync(tmpFiles[i].name);
+          }
+          // Delete the temporary folder
+          fs.rmdir(tmpDir, (err) =>
+          {
+            if (err) throw (err);
+          });
           callback();
         }
       ],

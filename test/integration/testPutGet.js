@@ -37,10 +37,46 @@ const ROW_DATA_SIZE = 76;
 const ROW_DATA_OVERWRITE = COL3_DATA + "," + COL1_DATA + "," + COL2_DATA + "\n";
 const ROW_DATA_OVERWRITE_SIZE = 19;
 
+function getPlatformTmpPath(tmpPath){
+  var path = `file://${tmpPath}`;
+  // Windows user contains a '~' in the path which causes an error
+  if (process.platform == "win32")
+  {
+    var fileName = tmpPath.substring(tmpPath.lastIndexOf('\\'));
+    path = `file://${process.env.USERPROFILE}\\AppData\\Local\\Temp\\${fileName}`;
+  }
+  return path;
+}
+
+function executePutCmd(connection, putQuery, callback, results){
+  // Upload file
+  var statement = connection.execute({
+    sqlText: putQuery,
+    complete: function (err, stmt, rows)
+    {
+      var stream = statement.streamRows();
+      stream.on('error', function (err)
+      {
+        callback(err);
+      });
+      stream.on('data', function (row)
+      {
+        results.fileSize = row.targetSize;
+        // Check the file is correctly uploaded
+        assert.strictEqual(row['status'], UPLOADED);
+        // Check the target encoding is correct
+        assert.strictEqual(row['targetCompression'], 'GZIP');
+      });
+      stream.on('end', function (row)
+      {
+        callback();
+      });
+    }
+  });
+}
+
 describe('PUT GET test', function ()
 {
-  this.timeout(100000);
-
   var connection;
   var tmpFile;
   var createTable = `create or replace table ${TEMP_TABLE_NAME} (${COL1} STRING, ${COL2} STRING, ${COL3} STRING)`;
@@ -272,8 +308,6 @@ describe('PUT GET test', function ()
 
 describe('PUT GET overwrite test', function ()
 {
-  this.timeout(100000);
-
   var connection;
   var tmpFile;
   var createTable = `create or replace table ${TEMP_TABLE_NAME} (${COL1} STRING, ${COL2} STRING, ${COL3} STRING)`;
@@ -431,8 +465,6 @@ describe('PUT GET overwrite test', function ()
 
 describe('PUT GET test with GCS_USE_DOWNSCOPED_CREDENTIAL', function ()
 {
-  this.timeout(100000);
-
   var connection;
 
   before(function (done)
@@ -661,28 +693,53 @@ describe('PUT GET test with GCS_USE_DOWNSCOPED_CREDENTIAL', function ()
 
 describe('PUT GET test multiple files', function ()
 {
-  this.timeout(100000);
-
   var connection;
+  var stage = `@${DATABASE_NAME}.${SCHEMA_NAME}.%${TEMP_TABLE_NAME}`;
+  var removeFile = `REMOVE ${stage}`;
 
   before(function (done)
   {
     connection = testUtil.createConnection();
     connection.gcsUseDownscopedCredential = true;
-    testUtil.connect(connection, done);
+    async.series(
+      [
+        function (callback)
+        {
+          testUtil.connect(connection, callback);
+        },
+        function (callback)
+        {
+          var createTable = `create or replace table ${TEMP_TABLE_NAME} (${COL1} STRING, ${COL2} STRING, ${COL3} STRING)`;
+          // Create temp table
+          testUtil.executeCmd(connection, createTable, callback);
+        }
+      ],
+      done
+    );
   });
 
   after(function (done)
-  {
-    testUtil.destroyConnection(connection, done);
+  { 
+    async.series(
+      [
+        function (callback)
+        {
+          var dropTable = `DROP TABLE IF EXISTS ${TEMP_TABLE_NAME}`;
+          // Drop temp table
+          testUtil.executeCmd(connection, dropTable, callback);
+        },
+        function (callback)
+        {
+          testUtil.destroyConnection(connection, callback);
+        }
+      ],
+      done
+    );
   });
 
   it('testDownloadMultifiles', function (done)
   {
     var tmpFile1, tmpFile2;
-    var createTable = `create or replace table ${TEMP_TABLE_NAME} (${COL1} STRING, ${COL2} STRING, ${COL3} STRING)`;
-    var removeFile = `REMOVE @${DATABASE_NAME}.${SCHEMA_NAME}.%${TEMP_TABLE_NAME}`;
-    var dropTable = `DROP TABLE IF EXISTS ${TEMP_TABLE_NAME}`;
 
     // Create two temp file with specified file extension
     tmpFile1 = tmp.fileSync({ postfix: 'gz' });
@@ -691,94 +748,28 @@ describe('PUT GET test multiple files', function ()
     fs.writeFileSync(tmpFile1.name, ROW_DATA);
     fs.writeFileSync(tmpFile2.name, ROW_DATA);
 
-    var putQuery1 = `PUT file://${tmpFile1.name} @${DATABASE_NAME}.${SCHEMA_NAME}.%${TEMP_TABLE_NAME}`;
-    // Windows user contains a '~' in the path which causes an error
-    if (process.platform == "win32")
-    {
-      var fileName = tmpFile1.name.substring(tmpFile1.name.lastIndexOf('\\'));
-      putQuery1 = `PUT file://${process.env.USERPROFILE}\\AppData\\Local\\Temp\\${fileName} @${DATABASE_NAME}.${SCHEMA_NAME}.%${TEMP_TABLE_NAME}`;
-    }
+    var tmpfilePath1 = getPlatformTmpPath(tmpFile1.name);
+    var tmpfilePath2 = getPlatformTmpPath(tmpFile2.name);
 
-    var putQuery2 = `PUT file://${tmpFile2.name} @${DATABASE_NAME}.${SCHEMA_NAME}.%${TEMP_TABLE_NAME}`;
-    // Windows user contains a '~' in the path which causes an error
-    if (process.platform == "win32")
-    {
-      var fileName = tmpFile2.name.substring(tmpFile2.name.lastIndexOf('\\'));
-      putQuery2 = `PUT file://${process.env.USERPROFILE}\\AppData\\Local\\Temp\\${fileName} @${DATABASE_NAME}.${SCHEMA_NAME}.%${TEMP_TABLE_NAME}`;
-    }
+    var putQuery1 = `PUT ${tmpfilePath1} ${stage}`;
+    var putQuery2 = `PUT ${tmpfilePath2} ${stage}`;
 
     // Create a tmp folder for downloaded files
     var tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'get'));
-    var fileSize;
-
-    var getQuery = `GET @${DATABASE_NAME}.${SCHEMA_NAME}.%${TEMP_TABLE_NAME} file://${tmpDir}`;
-    // Windows user contains a '~' in the path which causes an error
-    if (process.platform == "win32")
-    {
-      var dirName = tmpDir.substring(tmpDir.lastIndexOf('\\') + 1);
-      getQuery = `GET @${DATABASE_NAME}.${SCHEMA_NAME}.%${TEMP_TABLE_NAME} file://${process.env.USERPROFILE}\\AppData\\Local\\Temp\\${dirName}`;
-    }
+    var results = {};
+ 
+    var tmpdirPath = getPlatformTmpPath(tmpDir);
+    var getQuery = `GET ${stage} ${tmpdirPath}`;
 
     async.series(
       [
         function (callback)
         {
-          // Create temp table
-          testUtil.executeCmd(connection, createTable, callback);
+          fileSize = executePutCmd(connection, putQuery1, callback, results);
         },
         function (callback)
         {
-          // Upload file
-          var statement = connection.execute({
-            sqlText: putQuery1,
-            complete: function (err, stmt, rows)
-            {
-              var stream = statement.streamRows();
-              stream.on('error', function (err)
-              {
-                done(err);
-              });
-              stream.on('data', function (row)
-              {
-                fileSize = row.targetSize;
-                // Check the file is correctly uploaded
-                assert.strictEqual(row['status'], UPLOADED);
-                // Check the target encoding is correct
-                assert.strictEqual(row['targetCompression'], 'GZIP');
-              });
-              stream.on('end', function (row)
-              {
-                callback();
-              });
-            }
-          });
-        },
-        function (callback)
-        {
-          // Upload file
-          var statement = connection.execute({
-            sqlText: putQuery2,
-            complete: function (err, stmt, rows)
-            {
-              var stream = statement.streamRows();
-              stream.on('error', function (err)
-              {
-                done(err);
-              });
-              stream.on('data', function (row)
-              {
-                fileSize = row.targetSize;
-                // Check the file is correctly uploaded
-                assert.strictEqual(row['status'], UPLOADED);
-                // Check the target encoding is correct
-                assert.strictEqual(row['targetCompression'], 'GZIP');
-              });
-              stream.on('end', function (row)
-              {
-                callback();
-              });
-            }
-          });
+          fileSize = executePutCmd(connection, putQuery2, callback, results);
         },
         function (callback)
         {
@@ -790,12 +781,12 @@ describe('PUT GET test multiple files', function ()
               var stream = statement.streamRows();
               stream.on('error', function (err)
               {
-                done(err);
+                callback(err);
               });
               stream.on('data', function (row)
               {
                 assert.strictEqual(row.status, DOWNLOADED);
-                assert.strictEqual(row.size, fileSize);
+                assert.strictEqual(row.size, results.fileSize);
 
                 // Decompress the downloaded file
                 var compressedFile = path.join(tmpDir,row.file);
@@ -825,11 +816,6 @@ describe('PUT GET test multiple files', function ()
           testUtil.executeCmd(connection, removeFile, callback);
         },
         function (callback)
-        {
-          // Drop temp table
-          testUtil.executeCmd(connection, dropTable, callback);
-        },
-        function (callback)
         {       
           fs.closeSync(tmpFile1.fd);
           fs.unlinkSync(tmpFile1.name);
@@ -852,22 +838,13 @@ describe('PUT GET test multiple files', function ()
   {
     const count = 5;
     var tmpFiles = [];
-    var createTable = `create or replace table ${TEMP_TABLE_NAME} (${COL1} STRING, ${COL2} STRING, ${COL3} STRING)`;
-    var removeFile = `REMOVE @${DATABASE_NAME}.${SCHEMA_NAME}.%${TEMP_TABLE_NAME}`;
-    var dropTable = `DROP TABLE IF EXISTS ${TEMP_TABLE_NAME}`;
 
     // Create a tmp folder for downloaded files
     var tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'get'));
+    var results = {};
 
-    var fileSize;
-
-    var getQuery = `GET @${DATABASE_NAME}.${SCHEMA_NAME}.%${TEMP_TABLE_NAME} file://${tmpDir}`;
-    // Windows user contains a '~' in the path which causes an error
-    if (process.platform == "win32")
-    {
-      var dirName = tmpDir.substring(tmpDir.lastIndexOf('\\') + 1);
-      getQuery = `GET @${DATABASE_NAME}.${SCHEMA_NAME}.%${TEMP_TABLE_NAME} file://${process.env.USERPROFILE}\\AppData\\Local\\Temp\\${dirName}`;
-    }
+    var tmpdirPath = getPlatformTmpPath(tmpDir);
+    var getQuery = `GET ${stage} ${tmpdirPath}`;
 
     // Create temp files with specified prefix
     for (let i = 0; i < count; i++) {
@@ -876,46 +853,13 @@ describe('PUT GET test multiple files', function ()
       tmpFiles.push(tmpFile);
     }
 
-    var putQuery = `PUT file://${os.tmpdir()}/testUploadDownloadMultifiles* @${DATABASE_NAME}.${SCHEMA_NAME}.%${TEMP_TABLE_NAME}`;
-    // Windows user contains a '~' in the path which causes an error
-    if (process.platform == "win32")
-    {
-      putQuery = `PUT file://${process.env.USERPROFILE}\\AppData\\Local\\Temp\\testUploadDownloadMultifiles* @${DATABASE_NAME}.${SCHEMA_NAME}.%${TEMP_TABLE_NAME}`;
-    }
+    var putQuery = `PUT file://${os.tmpdir()}/testUploadDownloadMultifiles* ${stage}`;
 
     async.series(
       [
         function (callback)
         {
-          // Create temp table
-          testUtil.executeCmd(connection, createTable, callback);
-        },
-        function (callback)
-        {
-          // Upload file
-          var statement = connection.execute({
-            sqlText: putQuery,
-            complete: function (err, stmt, rows)
-            {
-              var stream = statement.streamRows();
-              stream.on('error', function (err)
-              {
-                done(err);
-              });
-              stream.on('data', function (row)
-              {
-                fileSize = row.targetSize;
-                // Check the file is correctly uploaded
-                assert.strictEqual(row['status'], UPLOADED);
-                // Check the target encoding is correct
-                assert.strictEqual(row['targetCompression'], 'GZIP');
-              });
-              stream.on('end', function (row)
-              {
-                callback();
-              });
-            }
-          });
+          fileSize = executePutCmd(connection, putQuery, callback, results);
         },
         function (callback)
         {
@@ -927,12 +871,12 @@ describe('PUT GET test multiple files', function ()
               var stream = statement.streamRows();
               stream.on('error', function (err)
               {
-                done(err);
+                callback(err);
               });
               stream.on('data', function (row)
               {
                 assert.strictEqual(row.status, DOWNLOADED);
-                assert.strictEqual(row.size, fileSize);
+                assert.strictEqual(row.size, results.fileSize);
 
                 // Decompress the downloaded file
                 var compressedFile = path.join(tmpDir,row.file);
@@ -960,11 +904,6 @@ describe('PUT GET test multiple files', function ()
         {
           // Remove files from staging
           testUtil.executeCmd(connection, removeFile, callback);
-        },
-        function (callback)
-        {
-          // Drop temp table
-          testUtil.executeCmd(connection, dropTable, callback);
         },
         function (callback)
         {

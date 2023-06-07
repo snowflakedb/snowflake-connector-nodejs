@@ -1131,31 +1131,71 @@ describe('Connection test - connection pool', function ()
     });
 });
 
-describe('Heartbeat test', function ()
+describe('Connection Test - Heartbeat', () =>
 {
-  var connection = snowflake.createConnection(connOption.valid);
+  let connection;
 
-  it('call heartbeat url', function (done)
+  before(async () =>
   {
-    async.series(
-      [
-        function (callback)
-        {
-          connection.connect(function (err, conn)
-          {
-            assert.ok(!err, JSON.stringify(err));
-            callback();
-          });
-        },
-        function (callback)
-        {
-          connection.heartbeat();
-          callback();
-        }
-      ],
-      function ()
-      {
-        done();
-      });
+    connection = snowflake.createConnection(connOption.valid);
+    await testUtil.connectAsync(connection);
   });
+
+  after(async () =>
+  {
+    await testUtil.destroyConnectionAsync(connection);
+  });
+
+  it('call heartbeat url with default callback', () =>
+  {
+    connection.heartbeat();
+  });
+
+  it('call heartbeat url with callback', done =>
+  {
+    connection.heartbeat(err => err ? done(err) : done());
+  });
+
+  it('call heartbeat url as promise', async () =>
+  {
+    const rows = await connection.heartbeatAsync();
+    assert.ok(rows.success);
+  });
+});
+
+describe('Connection Test - isValid', () =>
+{
+  let connection;
+
+  beforeEach(async () =>
+  {
+    connection = snowflake.createConnection(connOption.valid);
+    await testUtil.connectAsync(connection);
+  });
+
+  afterEach(async () =>
+  {
+    if (connection.isUp())
+    {
+      await testUtil.destroyConnectionAsync(connection);
+    }
+  });
+
+  it('connection is valid after connect', async () =>
+  {
+    const result = await connection.isValidAsync();
+
+    assert.equal(result, true);
+  });
+
+  it('connection is invalid after destroy', async () =>
+  {
+    await testUtil.destroyConnectionAsync(connection);
+
+    const result = await connection.isValidAsync();
+
+    assert.equal(result, false);
+  });
+
+  // there is no way to test heartbeat fail to running instance of snowflake
 });

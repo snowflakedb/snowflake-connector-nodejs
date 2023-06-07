@@ -71,11 +71,10 @@ or
 npm test:unit
 ```
 
-To specify which test to run, change the selected file in "test:single" script in "package.json":
+To run single test file use `test:single` script, e.g. run tests in `test/unit/snowflake_test.js` only:
+
 ```
-"scripts": {
-  "test:single": "... test/unit/snowflake_test.js"
-},
+npm run test:single -- test/unit/snowflake_test.js
 ```
 
 Run integration tests:

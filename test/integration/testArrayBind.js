@@ -6,8 +6,7 @@ var async = require('async');
 var assert = require('assert');
 var testUtil = require('./testUtil');
 var connOption = require('./connectionOptions');
-const { error } = require('winston');
-const { listenerCount } = require('events');
+const Logger = require('../../lib/logger');
 
 const DATABASE_NAME = connOption.valid.database;
 const SCHEMA_NAME = connOption.valid.schema;
@@ -498,7 +497,8 @@ describe('testArrayBind - full path', function ()
   });
 });
 
-describe('Test Array Bind Force Error on Upload file', function () {
+describe('Test Array Bind Force Error on Upload file', function ()
+{
   this.timeout(300000);
   var connection;
   var createABTable = `create or replace table  ${DATABASE_NAME}.${SCHEMA_NAME}.testAB(colA string, colB number, colC date, colD time, colE TIMESTAMP_NTZ, colF TIMESTAMP_TZ)`;
@@ -638,81 +638,78 @@ describe('Test Array Bind Force Error on Upload file', function () {
 
 describe('testArrayBind - full path with cancel', function ()
 {
-  this.timeout(600000);
-  var connection;
-  var createABTable = `create or replace table  ${DATABASE_NAME}.${SCHEMA_NAME}.testAB(colA string, colB number, colC date, colD time, colE TIMESTAMP_NTZ, colF TIMESTAMP_TZ, colG string)`;
-  var insertSQL = `insert into  ${DATABASE_NAME}.${SCHEMA_NAME}.testAB values(?, ?, ?, ?, ?, ?, SYSTEM$WAIT(100))`;
+  let connection;
+  const tableName = `${DATABASE_NAME}.${SCHEMA_NAME}.testAB`;
 
-  before(function (done)
+  const rowsToInsert = 10;
+  const delayPerRowMs = 5000;
+  const cancelInsertAfterMs = 2000;
+
+  // SYSTEM$WAIT is not supported as insert with binds in regression test, so it's set as default for last column
+  const createABTable = `create or replace table ${tableName}(colA string, colB number, colC date, colD time, colE TIMESTAMP_NTZ, colF TIMESTAMP_TZ, colG string default SYSTEM$WAIT(${delayPerRowMs}, 'MILLISECONDS'))`;
+  const insertSQL = `insert into ${tableName}(colA, colB, colC, colD, colE, colF)
+                     values (?, ?, ?, ?, ?, ?)`;
+
+  before(async () =>
   {
     connection = snowflake.createConnection({
-      accessUrl: connOption.valid.accessUrl,
-      account: connOption.valid.account,
-      username: connOption.valid.username,
-      password: connOption.valid.password,
-      warehouse: connOption.valid.warehouse,
-      role: connOption.valid.role,
+      ...connOption.valid,
       arrayBindingThreshold: 3,
       forceStageBindError: 0,
     });
-    testUtil.connect(connection, function ()
-    {
-      console.log(createABTable);
-      connection.execute({
-        sqlText: createABTable,
-        complete: function (err)
-        {
-          testUtil.checkError(err);
-          connection.execute({
-            sqlText: "drop stage SYSTEM$BIND",
-            complete: function(err)
-            {
-              done();
-            }
-          });
-        }
-      });
-    });
+    await testUtil.connectAsync(connection);
+    await testUtil.executeCmdAsync(connection, createABTable);
+    await testUtil.executeCmdAsync(connection, 'drop stage if exists SYSTEM$BIND');
   });
-  
-  it('Full path array bind with cancel', function (done)
+
+  it('Full path array bind with cancel', done =>
   {
-    var arrBind = [];
-    var count = 10;
-    for(var i = 0; i<count; i++)
+    const arrBind = [];
+    for (let i = 0; i < rowsToInsert; i++)
     {
-      arrBind.push([null, i, "2020-05-11", "12:35:41.3333333", "2022-04-01 23:59:59", "2022-07-08 12:05:30.9999999"]);
+      arrBind.push([null, i, '2020-05-11', '12:35:41.3333333', '2022-04-01 23:59:59', '2022-07-08 12:05:30.9999999']);
     }
-    
-    var insertABStmt = connection.execute({
+
+    const insertABStmt = connection.execute({
       sqlText: insertSQL,
       binds: arrBind,
-      complete: function (err, stmt) {
-        console.log(stmt.getSqlText());
-        if(err)
+      complete: function (err)
+      {
+        Logger.getInstance().trace('Finished insert: %s', insertSQL);
+        if (err)
         {
-          console.log("insert error=" + err);
-          assert.equal(err, "OperationFailedError: SQL execution canceled");
+          Logger.getInstance().trace('insert error=%s', JSON.stringify(err));
+          assert.equal(err, 'OperationFailedError: SQL execution canceled');
+          done();
         }
-        done();
+        else
+        {
+          done(new Error('Insert should be cancelled'));
+        }
       }
     });
-    console.log(" setTimeout ");
-    
-    setTimeout(function () {
-      insertABStmt.cancel(function (err, stmt) {
-        console.log(" cancel ");
-        if (err) {
-          console.log("Full path array bind with cancel: Cancel error=" + err);
+
+    Logger.getInstance().trace('setting timeout');
+    setTimeout(() =>
+    {
+      Logger.getInstance().trace('Cancel sent');
+      insertABStmt.cancel(function (err)
+      {
+        if (err)
+        {
+          Logger.getInstance().trace('Full path array bind with cancel: Cancel error=%s', JSON.stringify(err));
         }
-        else {
-          console.log('Full path array bind with cancel: Successfully aborted statement');
+        else
+        {
+          Logger.getInstance().trace('Full path array bind with cancel: Successfully aborted statement');
         }
       });
-    }, 3000);
+    }, cancelInsertAfterMs);
   });
-  after(function (done)
+
+  after(async () =>
   {
-    testUtil.destroyConnection(connection, done);
+    await testUtil.executeCmdAsync(connection, `DROP TABLE IF EXISTS ${tableName}`);
+    await testUtil.destroyConnectionAsync(connection);
   });
 });

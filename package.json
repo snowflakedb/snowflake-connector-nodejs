@@ -48,7 +48,8 @@
   "overrides": {
     "@azure/storage-blob": {
       "node-fetch": "^3.2.10"
-    }
+    },
+    "word-wrap" : "npm:@aashutoshrathi/word-wrap@1.2.5"
   },
   "repository": {
     "type": "git",

@@ -854,6 +854,11 @@ describe('PUT GET test multiple files', function ()
     }
 
     var putQuery = `PUT file://${os.tmpdir()}/testUploadDownloadMultifiles* ${stage}`;
+    // Windows user contains a '~' in the path which causes an error
+    if (process.platform == "win32")
+    {
+      putQuery = `PUT file://${process.env.USERPROFILE}\\AppData\\Local\\Temp\\testUploadDownloadMultifiles* ${stage}`;
+    }
 
     async.series(
       [

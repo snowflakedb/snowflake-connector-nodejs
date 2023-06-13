@@ -32,8 +32,7 @@ describe('Connection test', function ()
         sessionTokenExpirationTime: undefined
       });
     }
-  )
-  ;
+  );
 
   it('does not return tokens when not in qaMode', function ()
     {
@@ -99,16 +98,17 @@ describe('Connection test', function ()
       done();
     });
   });
+
   it('Multiple Client', function (done)
   {
     const totalConnections = 10;
-    var connections = [];
-    for (var i = 0; i < totalConnections; i++)
+    const connections = [];
+    for (let i = 0; i < totalConnections; i++)
     {
       connections.push(snowflake.createConnection(connOption.valid));
     }
-    var completedConnection = 0;
-    for (i = 0; i < totalConnections; i++)
+    let completedConnection = 0;
+    for (let i = 0; i < totalConnections; i++)
     {
       connections[i].connect(function (err, conn)
       {
@@ -126,11 +126,28 @@ describe('Connection test', function ()
         });
       });
     }
-    setTimeout(function ()
+    const sleepMs = 500;
+    const maxSleep = 60000;
+    let sleepFromStartChecking = 0;
+
+    const timeout = () => setTimeout(() =>
     {
-      assert.strictEqual(completedConnection, totalConnections);
-      done();
-    }, 60000);
+      sleepFromStartChecking += sleepMs;
+      if (completedConnection === totalConnections)
+      {
+        done();
+      }
+      else if (sleepFromStartChecking <= maxSleep)
+      {
+        timeout();
+      }
+      else
+      {
+        done(`Max after ${maxSleep} it's expected to complete ${totalConnections} but completed ${completedConnection}`)
+      }
+    }, sleepMs);
+
+    timeout();
   });
 });
 

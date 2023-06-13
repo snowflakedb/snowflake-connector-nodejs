@@ -1159,7 +1159,7 @@ describe('Connection Test - Heartbeat', () =>
   it('call heartbeat url as promise', async () =>
   {
     const rows = await connection.heartbeatAsync();
-    assert.ok(rows.success);
+    assert.deepEqual(rows,  [ { '1': 1 } ]);
   });
 });
 

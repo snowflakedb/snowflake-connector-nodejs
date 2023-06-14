@@ -19,6 +19,13 @@ module.exports.connect = function (connection, callback)
   });
 };
 
+module.exports.connectAsync = function (connection)
+{
+  return new Promise((resolve, reject) => {
+    connection.connect(err => err ? reject(err) : resolve())
+  });
+};
+
 module.exports.destroyConnection = function (connection, callback)
 {
   connection.destroy(function (err)
@@ -26,6 +33,13 @@ module.exports.destroyConnection = function (connection, callback)
     assert.ok(!err, JSON.stringify(err));
     callback();
   })
+};
+
+module.exports.destroyConnectionAsync = function (connection)
+{
+  return new Promise((resolve, reject) => {
+    connection.destroy(err => err ? reject(err) : resolve());
+  });
 };
 
 module.exports.executeCmd = function (connection, sql, callback, bindArray)
@@ -44,6 +58,18 @@ module.exports.executeCmd = function (connection, sql, callback, bindArray)
   }
 
   connection.execute(executeOptions);
+};
+
+module.exports.executeCmdAsync = function (connection, sqlText, binds = undefined)
+{
+  return new Promise((resolve, reject) =>
+  {
+    connection.execute({
+      sqlText,
+      binds,
+      complete: (err, _, rows) => err ? reject(err) : resolve(rows)
+    });
+  });
 };
 
 module.exports.checkError = function (err)

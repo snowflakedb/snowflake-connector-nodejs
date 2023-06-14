@@ -2,6 +2,7 @@
  * Copyright (c) 2015-2019 Snowflake Computing Inc. All rights reserved.
  */
 var assert = require('assert');
+var async = require('async');
 var testUtil = require('./testUtil');
 require('events').EventEmitter.prototype._maxListeners = 100;
 
@@ -372,4 +373,92 @@ describe('Test Stream Rows API', function ()
       }
     });
   });*/
+
+});
+
+describe('Test Stream Rows HighWaterMark', function ()
+{
+  this.timeout(300000);
+
+  before(function (done)
+  {
+    connection = testUtil.createConnection();
+    testUtil.connect(connection, done);
+  });
+
+  after(function (done)
+  {
+    testUtil.destroyConnection(connection, done);
+  });
+
+  var testingFunc = function (highWaterMark, expectedRowCount, callback)
+  {
+    async.series(
+      [
+        function (callback)
+        {
+          // select table with row count equal to expectedRowCount
+          var statement = connection.execute({
+            sqlText: `SELECT seq8() FROM table(generator(rowCount => ${expectedRowCount}));`,
+            streamResult: true,
+            complete: function ()
+            {
+              var actualRowCount = 0;
+              var rowIndex;
+
+              var stream = statement.streamRows();
+              stream.on('error', function (err)
+              {
+                callback(err);
+              });
+              stream.on('readable', function ()
+              {
+                rowIndex = 0;
+
+                while (this.read() !== null)
+                {
+                  actualRowCount++;
+                  rowIndex++;
+                }
+
+                // assert the amount of rows read per loop never exceeds the highWaterMark threshold
+                try
+                {
+                  assert.ok(rowIndex <= highWaterMark);
+                }
+                catch (err)
+                {
+                  stream.destroy(err); // passes error to the stream error event
+                }
+              });
+              stream.on('end', function ()
+              {
+                try
+                {
+                  // assert the total number of rows is equal to the specified row count
+                  assert.strictEqual(actualRowCount, expectedRowCount);
+                  callback();
+                }
+                catch (err)
+                {
+                  callback(err);
+                }
+              });
+            }
+          });
+        }
+      ],
+      callback
+    );
+  };
+
+  const highWaterMarkValue = 10; // default parameter value is 10 (based on PARAM_ROW_STREAM_HIGH_WATER_MARK)
+
+  [1000, 10000, 100000, 1000000].forEach(rowCount =>
+  {
+    it(`test ${rowCount} rows`, done =>
+    {
+      testingFunc(highWaterMarkValue, rowCount, done);
+    });
+  });
 });

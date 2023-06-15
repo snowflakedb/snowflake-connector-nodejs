@@ -122,38 +122,24 @@ describe('Large Result Set Tests For Variant Column Type', function ()
   const createTableWithVariant = 'create or replace table testVariantTable(colA variant)';
   const dropTableWithVariant = 'drop table if exists testVariantTable';
 
-  before(function (done)
+  this.beforeAll(function (done)
   {
-    async.series(
-      [
-        function (callback)
-        {
-          testUtil.connect(connection, callback);
-        },
-        function (callback)
-        {
-          testUtil.executeCmd(connection, createTableWithVariant, callback);
-        }
-      ],
-      done
-    );
+    testUtil.connect(connection, done);
   });
 
-  after(function (done)
+  beforeEach(function (done)
   {
-    async.series(
-      [
-        function (callback)
-        {
-          testUtil.executeCmd(connection, dropTableWithVariant, callback);
-        },
-        function (callback)
-        {
-          testUtil.destroyConnection(connection, callback);
-        }
-      ],
-      done
-    );
+    testUtil.executeCmd(connection, createTableWithVariant, done);
+  });
+
+  afterEach(function (done)
+  {
+    testUtil.executeCmd(connection, dropTableWithVariant, done);
+  });
+
+  this.afterAll(function (done)
+  {
+    testUtil.destroyConnection(connection, done);
   });
 
   it('testSelectOnVariantColumnForLargeResultSets', function (done)

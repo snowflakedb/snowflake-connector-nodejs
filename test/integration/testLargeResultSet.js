@@ -122,9 +122,14 @@ describe('Large Result Set Tests For Variant Column Type', function ()
   const createTableWithVariant = 'create or replace table testVariantTable(colA variant)';
   const dropTableWithVariant = 'drop table if exists testVariantTable';
 
-  this.beforeAll(function (done)
+  before(function (done)
   {
     testUtil.connect(connection, done);
+  });
+
+  after(function (done)
+  {
+    testUtil.destroyConnection(connection, done);
   });
 
   beforeEach(function (done)
@@ -135,11 +140,6 @@ describe('Large Result Set Tests For Variant Column Type', function ()
   afterEach(function (done)
   {
     testUtil.executeCmd(connection, dropTableWithVariant, done);
-  });
-
-  this.afterAll(function (done)
-  {
-    testUtil.destroyConnection(connection, done);
   });
 
   it('testSelectOnVariantColumnForLargeResultSets', function (done)

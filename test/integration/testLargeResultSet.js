@@ -116,8 +116,6 @@ describe('Large result Set Tests', function ()
 
   describe('Large Result Set Tests For Variant Column Type', function ()
   {
-    var connection = testUtil.createConnection();
-
     const createTableWithVariant = 'create or replace table testVariantTable(colA variant)';
     const dropTableWithVariant = 'drop table if exists testVariantTable';
 

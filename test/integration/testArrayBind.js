@@ -33,16 +33,19 @@ describe('Test Array Bind', function ()
       ...connOption.valid,
       arrayBindingThreshold: 3,
     });
-    testUtil.connect(connection, function ()
+    testUtil.connect(connection, err =>
     {
-      connection.execute({
-        sqlText: useWH,
-        complete: function (err)
-        {
-          testUtil.checkError(err);
-          done();
-        }
-      });
+      if (err)
+      {
+        done(err)
+      }
+      else
+      {
+        connection.execute({
+          sqlText: useWH,
+          complete: done
+        });
+      }
     });
   });
 
@@ -81,17 +84,8 @@ describe('Test Array Bind', function ()
             complete: function (err, stmt) {
               testUtil.checkError(err);
               assert.strictEqual(stmt.getNumUpdatedRows(), count);
-              console.log("sql text = " + insertABStmt.getSqlText());
               assert.strictEqual(insertABStmt.getSqlText(), insertAB);
-              console.log("num row inserted = " + insertABStmt.getNumUpdatedRows());
               assert.strictEqual(insertABStmt.getNumUpdatedRows(), count);
-              console.log("status = " + insertABStmt.getStatus());
-              console.log("columns = " + insertABStmt.getColumns());
-              console.log("column = " + insertABStmt.getColumn());
-              console.log("num rows = " + insertABStmt.getNumRows());
-              console.log("session state = " + insertABStmt.getSessionState());
-              console.log("request id = " + insertABStmt.getRequestId());
-              console.log("statement id = " + insertABStmt.getStatementId());
               callback();
             }
           });
@@ -295,13 +289,11 @@ describe('Test Array Bind', function ()
             binds: [JSON.stringify(arrBind)],
             complete: function (err, stmt) {
               if (err) {
-                console.error('1 Failed to execute statement due to the following error: ' + err.message);
-                done(err);
+                callback(err);
               }
               else {
-                console.log('inserted rows=' + stmt.getNumUpdatedRows());
                 assert.strictEqual(stmt.getNumUpdatedRows(), count);
-                done();
+                callback();
               }
             }
           });
@@ -333,13 +325,11 @@ describe('Test Array Bind', function ()
             binds: arrBind,
             complete: function (err, stmt) {
               if (err) {
-                console.error('1 Failed to execute statement due to the following error: ' + err.message);
-                done(err);
+                callback(err);
               }
               else {
-                console.log('inserted rows=' + stmt.getNumUpdatedRows());
                 assert.strictEqual(stmt.getNumUpdatedRows(), count);
-                done();
+                callback();
               }
             }
           });
@@ -413,11 +403,9 @@ describe('Test Array Bind', function ()
             fetchAsString: ['Number', 'Date', 'JSON'],
             complete: function (err, stmt) {
               if (err) {
-                console.error('1 Failed to execute statement due to the following error: ' + err.message);
-                done(err);
+                callback(err);
               }
               else {
-                console.log('inserted rows=' + stmt.getNumUpdatedRows());
                 callback();
               }
             }
@@ -432,7 +420,7 @@ describe('Test Array Bind', function ()
               testUtil.checkError(err);
               var result = rows[0];
               assert.equal(result['TYPE'], "SAMPLE");
-              done();
+              callback();
             }
           });
         },
@@ -460,16 +448,22 @@ describe('testArrayBind - full path', function ()
       role: connOption.valid.role,
       arrayBindingThreshold: 3
     });
-    testUtil.connect(connection, function ()
+    testUtil.connect(connection, function (err)
     {
-      connection.execute({
-        sqlText: createABTable,
-        complete: function (err)
-        {
-          testUtil.checkError(err);
-          done();
-        }
-      });
+      if (err)
+      {
+        done(err)
+      }
+      else
+      {
+        connection.execute({
+          sqlText: createABTable,
+          complete: function (err)
+          {
+            done(err);
+          }
+        });
+      }
     });
   });
 
@@ -487,7 +481,6 @@ describe('testArrayBind - full path', function ()
       binds: arrBind,
       complete: function (err, stmt) {
         testUtil.checkError(err);
-        console.log("stmt.getNumUpdatedRows()="+stmt.getNumUpdatedRows())
         assert.strictEqual(stmt.getNumUpdatedRows(), count);
         done();
       }
@@ -558,17 +551,8 @@ describe('Test Array Bind Force Error on Upload file', function ()
             complete: function (err, stmt) {
               testUtil.checkError(err);
               assert.strictEqual(stmt.getNumUpdatedRows(), count);
-              console.log("sql text = " + insertABStmt.getSqlText());
               assert.strictEqual(insertABStmt.getSqlText(), insertAB);
-              console.log("num row inserted = " + insertABStmt.getNumUpdatedRows());
               assert.strictEqual(insertABStmt.getNumUpdatedRows(), count);
-              console.log("status = " + insertABStmt.getStatus());
-              console.log("columns = " + insertABStmt.getColumns());
-              console.log("column = " + insertABStmt.getColumn());
-              console.log("num rows = " + insertABStmt.getNumRows());
-              console.log("session state = " + insertABStmt.getSessionState());
-              console.log("request id = " + insertABStmt.getRequestId());
-              console.log("statement id = " + insertABStmt.getStatementId());
               callback();
             }
           });

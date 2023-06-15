@@ -114,7 +114,7 @@ describe('Large result Set Tests', function ()
     });
   });
 
-  it('testSelectOnVariantColumnForLargeResultSets', function (done)
+  it('testVariantLarge', function (done)
   {
     const createTableWithVariant = 'create or replace table testVariantTable(colA variant)';
     const insertVariant = 'insert into testVariantTable select value from table(flatten(parse_json(?)))';

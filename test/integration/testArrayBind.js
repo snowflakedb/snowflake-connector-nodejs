@@ -29,8 +29,10 @@ describe('Test Array Bind', function ()
 
   before(function (done)
   {
-    connOption.valid.arrayBindingThreshold = 3;
-    connection = snowflake.createConnection(connOption.valid);
+    connection = snowflake.createConnection({
+      ...connOption.valid,
+      arrayBindingThreshold: 3,
+    });
     testUtil.connect(connection, function ()
     {
       connection.execute({
@@ -510,9 +512,11 @@ describe('Test Array Bind Force Error on Upload file', function ()
   var useWH = `use warehouse ${WAREHOUSE_NAME}`;
 
   before(function (done) {
-    connOption.valid.arrayBindingThreshold = 3;
-    connOption.valid.forceStageBindError = 1;
-    connection = snowflake.createConnection(connOption.valid);
+    connection = snowflake.createConnection({
+      ...connOption.valid,
+      arrayBindingThreshold: 3,
+      forceStageBindError: 1,
+    });
     testUtil.connect(connection, function () {
       connection.execute({
         sqlText: useWH,

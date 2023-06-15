@@ -1,36 +1,28 @@
 /*
  * Copyright (c) 2015-2019 Snowflake Computing Inc. All rights reserved.
  */
-var assert = require('assert');
-var async = require('async');
-var testUtil = require('./testUtil');
+const assert = require('assert');
+const testUtil = require('./testUtil');
 
 const sourceRowCount = 10000;
 
 describe('Large result Set Tests', function ()
 {
-  var connection = testUtil.createConnection();
-  var selectAllFromOrders = 'select randstr(1000,random()) from table(generator(rowcount=>' + sourceRowCount + '))';
+  let connection;
+  const selectAllFromOrders = `select randstr(1000,random()) from table(generator(rowcount=>${sourceRowCount}))`;
 
-  before(function (done)
+  before(async () =>
   {
-    async.series(
-      [
-        function (callback)
-        {
-          testUtil.connect(connection, callback);
-        }
-      ],
-      done
-    );
+    connection = testUtil.createConnection();
+    await testUtil.connectAsync(connection);
   });
 
-  after(function (done)
+  after(async () =>
   {
-    testUtil.destroyConnection(connection, done);
+    await testUtil.destroyConnectionAsync(connection);
   });
 
-  it('testSimpeLarge', function (done)
+  it('testSimpleLarge', function (done)
   {
     connection.execute({
       sqlText: selectAllFromOrders,

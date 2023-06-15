@@ -178,17 +178,15 @@ describe('Large result Set Tests', function ()
             {
               callback(err);
             }
-            else
+
+            try
             {
-              try
-              {
-                assert.strictEqual(stmt.getNumUpdatedRows(), sourceRowCount);
-                callback();
-              }
-              catch (err)
-              {
-                callback(err);
-              }
+              assert.strictEqual(stmt.getNumUpdatedRows(), sourceRowCount);
+              callback();
+            }
+            catch (err)
+            {
+              callback(err);
             }
           }
         });
@@ -204,31 +202,29 @@ describe('Large result Set Tests', function ()
             {
               callback(err);
             }
-            else
+
+            var stream = stmt.streamRows();
+            var rowCount = 0;
+            stream.on('data', function ()
             {
-              var stream = stmt.streamRows();
-              var rowCount = 0;
-              stream.on('data', function ()
+              rowCount++;
+            });
+            stream.on('error', function (err)
+            {
+              callback(err);
+            });
+            stream.on('end', function ()
+            {
+              try
               {
-                rowCount++;
-              });
-              stream.on('error', function (err)
+                assert.strictEqual(rowCount, sourceRowCount);
+                callback();
+              }
+              catch (err)
               {
                 callback(err);
-              });
-              stream.on('end', function ()
-              {
-                try
-                {
-                  assert.strictEqual(rowCount, sourceRowCount);
-                  callback();
-                }
-                catch (err)
-                {
-                  callback(err);
-                }
-              });
-            }
+              }
+            });
           }
         });
       },

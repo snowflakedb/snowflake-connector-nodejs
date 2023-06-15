@@ -114,129 +114,135 @@ describe('Large result Set Tests', function ()
     });
   });
 
-  it('testSelectOnVariantColumnForLargeResultSets', function (done)
+  describe('Large Result Set Tests For Variant Column Type', function ()
   {
     const createTableWithVariant = 'create or replace table testVariantTable(colA variant)';
-    const insertVariant = 'insert into testVariantTable select value from table(flatten(parse_json(?)))';
-    const selectVariant = 'select * from testVariantTable';
     const dropTableWithVariant = 'drop table if exists testVariantTable';
 
-    const arrJSON = [];
-    const sampleJSON = {
-      "root":
-      {
-        "key":
-          [
-            {
-              "key1": "value1",
-              "key2": "value2",
-              "key3": "value3",
-              "key4": "value4",
-              "key5":
+    before(function (done)
+    {
+      testUtil.executeCmd(connection, createTableWithVariant, done);
+    });
+
+    after(function (done)
+    {
+      testUtil.executeCmd(connection, dropTableWithVariant, done);
+    });
+
+    it('testSelectOnVariantColumnForLargeResultSets', function (done)
+    {
+      const insertVariant = 'insert into testVariantTable select value from table(flatten(parse_json(?)))';
+      const selectVariant = 'select * from testVariantTable';
+
+      const arrJSON = [];
+      const sampleJSON = {
+        "root":
+        {
+          "key":
+            [
               {
-                "key":
+                "key1": "value1",
+                "key2": "value2",
+                "key3": "value3",
+                "key4": "value4",
+                "key5":
+                {
+                  "key":
+                    [
+                      { "key1": "value1", "key2": "value2" },
+                      { "key1": "value1", "key2": "value2" },
+                      { "key1": "value1", "key2": "value2" },
+                      { "key1": "value1", "key2": "value2" }
+                    ]
+                },
+                "key6":
                   [
-                    { "key1": "value1", "key2": "value2" },
-                    { "key1": "value1", "key2": "value2" },
-                    { "key1": "value1", "key2": "value2" },
-                    { "key1": "value1", "key2": "value2" }
+                    { "key1": "value1", "key": "value" },
+                    { "key1": "value1", "key": "value" },
+                    { "key1": "value1", "key": "value" },
+                    { "key1": "value1", "key": "value" },
+                    { "key1": "value1", "key": "value" },
+                    { "key1": "value1", "key": "value" },
+                    { "key1": "value1", "key": "value" }
                   ]
               },
-              "key6":
-                [
-                  { "key1": "value1", "key": "value" },
-                  { "key1": "value1", "key": "value" },
-                  { "key1": "value1", "key": "value" },
-                  { "key1": "value1", "key": "value" },
-                  { "key1": "value1", "key": "value" },
-                  { "key1": "value1", "key": "value" },
-                  { "key1": "value1", "key": "value" }
-                ]
-            },
-          ]
+            ]
+        }
+      };
+
+      for (var i = 0; i < sourceRowCount; i++)
+      {
+        arrJSON.push(sampleJSON);
       }
-    };
 
-    for (var i = 0; i < sourceRowCount; i++)
-    {
-      arrJSON.push(sampleJSON);
-    }
-
-    async.series([
-      function (callback)
-      {
-        testUtil.executeCmd(connection, createTableWithVariant, callback);
-      },
-      function (callback)
-      {
-        connection.execute({
-          sqlText: insertVariant,
-          binds: [JSON.stringify(arrJSON)],
-          complete: function (err, stmt)
-          {
-            if (err)
+      async.series([
+        function (callback)
+        {
+          connection.execute({
+            sqlText: insertVariant,
+            binds: [JSON.stringify(arrJSON)],
+            complete: function (err, stmt)
             {
-              callback(err);
-            }
-            else
-            {
-              try
-              {
-                assert.strictEqual(stmt.getNumUpdatedRows(), sourceRowCount);
-                callback();
-              }
-              catch (err)
+              if (err)
               {
                 callback(err);
               }
-            }
-          }
-        });
-      },
-      function (callback)
-      {
-        connection.execute({
-          sqlText: selectVariant,
-          streamResult: true,
-          complete: function (err, stmt)
-          {
-            if (err)
-            {
-              callback(err);
-            }
-            else
-            {
-              var stream = stmt.streamRows();
-              var rowCount = 0;
-              stream.on('data', function ()
-              {
-                rowCount++;
-              });
-              stream.on('error', function (err)
-              {
-                callback(err);
-              });
-              stream.on('end', function ()
+              else
               {
                 try
                 {
-                  assert.strictEqual(rowCount, sourceRowCount);
+                  assert.strictEqual(stmt.getNumUpdatedRows(), sourceRowCount);
                   callback();
                 }
                 catch (err)
                 {
                   callback(err);
                 }
-              });
+              }
             }
-          }
-        });
-      },
-      function (callback)
-      {
-        testUtil.executeCmd(connection, dropTableWithVariant, callback);
-      }],
-      done
-    );
+          });
+        },
+        function (callback)
+        {
+          connection.execute({
+            sqlText: selectVariant,
+            streamResult: true,
+            complete: function (err, stmt)
+            {
+              if (err)
+              {
+                callback(err);
+              }
+              else
+              {
+                var stream = stmt.streamRows();
+                var rowCount = 0;
+                stream.on('data', function ()
+                {
+                  rowCount++;
+                });
+                stream.on('error', function (err)
+                {
+                  callback(err);
+                });
+                stream.on('end', function ()
+                {
+                  try
+                  {
+                    assert.strictEqual(rowCount, sourceRowCount);
+                    callback();
+                  }
+                  catch (err)
+                  {
+                    callback(err);
+                  }
+                });
+              }
+            }
+          });
+        }],
+        done
+      );
+    });
   });
 });

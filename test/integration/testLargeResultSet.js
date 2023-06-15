@@ -113,13 +113,53 @@ describe('Large result Set Tests', function ()
       }
     });
   });
+});
+
+describe('Large Result Set Tests For Variant Column Type', function ()
+{
+  var connection = testUtil.createConnection();
+
+  const createTableWithVariant = 'create or replace table testVariantTable(colA variant)';
+  const dropTableWithVariant = 'drop table if exists testVariantTable';
+
+  before(function (done)
+  {
+    async.series(
+      [
+        function (callback)
+        {
+          testUtil.connect(connection, callback);
+        },
+        function (callback)
+        {
+          testUtil.executeCmd(connection, createTableWithVariant, callback);
+        }
+      ],
+      done
+    );
+  });
+
+  after(function (done)
+  {
+    async.series(
+      [
+        function (callback)
+        {
+          testUtil.executeCmd(connection, dropTableWithVariant, callback);
+        },
+        function (callback)
+        {
+          testUtil.destroyConnection(connection, callback);
+        }
+      ],
+      done
+    );
+  });
 
   it('testSelectOnVariantColumnForLargeResultSets', function (done)
   {
-    const createTableWithVariant = 'create or replace table testVariantTable(colA variant)';
     const insertVariant = 'insert into testVariantTable select value from table(flatten(parse_json(?)))';
     const selectVariant = 'select * from testVariantTable';
-    const dropTableWithVariant = 'drop table if exists testVariantTable';
 
     const arrJSON = [];
     const sampleJSON = {
@@ -163,10 +203,6 @@ describe('Large result Set Tests', function ()
     }
 
     async.series([
-      function (callback)
-      {
-        testUtil.executeCmd(connection, createTableWithVariant, callback);
-      },
       function (callback)
       {
         connection.execute({
@@ -231,10 +267,6 @@ describe('Large result Set Tests', function ()
             }
           }
         });
-      },
-      function (callback)
-      {
-        testUtil.executeCmd(connection, dropTableWithVariant, callback);
       }],
       done
     );

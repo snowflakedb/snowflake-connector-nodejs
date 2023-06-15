@@ -121,7 +121,7 @@ describe('Large result Set Tests', function ()
     const selectVariant = 'select * from testVariantTable';
     const dropTableWithVariant = 'drop table if exists testVariantTable';
 
-    const arrJSON = [];
+    var arrJSON = [];
     const sampleJSON = {
       "root":
       {

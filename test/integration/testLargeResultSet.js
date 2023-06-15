@@ -123,36 +123,12 @@ describe('Large result Set Tests', function ()
 
     before(function (done)
     {
-      async.series(
-        [
-          function (callback)
-          {
-            testUtil.connect(connection, callback);
-          },
-          function (callback)
-          {
-            testUtil.executeCmd(connection, createTableWithVariant, callback);
-          }
-        ],
-        done
-      );
+      testUtil.executeCmd(connection, createTableWithVariant, done);
     });
 
     after(function (done)
     {
-      async.series(
-        [
-          function (callback)
-          {
-            testUtil.executeCmd(connection, dropTableWithVariant, callback);
-          },
-          function (callback)
-          {
-            testUtil.destroyConnection(connection, callback);
-          }
-        ],
-        done
-      );
+      testUtil.executeCmd(connection, dropTableWithVariant, done);
     });
 
     it('testSelectOnVariantColumnForLargeResultSets', function (done)

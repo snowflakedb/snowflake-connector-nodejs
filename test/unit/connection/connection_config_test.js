@@ -35,10 +35,61 @@ describe('ConnectionConfig: basic', function ()
         errorCode: ErrorCodes.ERR_CONN_CREATE_MISSING_USERNAME
       },
       {
+        name: 'missing username',
+        options: 
+          { 
+            authenticator: 'SNOWFLAKE'
+          },
+        errorCode: ErrorCodes.ERR_CONN_CREATE_MISSING_USERNAME
+      },
+      {
+        name: 'missing username',
+        options: 
+          { 
+            authenticator: 'EXTERNALBROWSER'
+          },
+        errorCode: ErrorCodes.ERR_CONN_CREATE_MISSING_USERNAME
+      },
+      {
+        name: 'missing username',
+        options: 
+          { 
+            authenticator: 'SNOWFLAKE_JWT'
+          },
+        errorCode: ErrorCodes.ERR_CONN_CREATE_MISSING_USERNAME
+      },
+      {
         name: 'undefined username',
         options:
           {
             username: undefined
+          },
+        errorCode: ErrorCodes.ERR_CONN_CREATE_MISSING_USERNAME
+      },
+      {
+        name: 'undefined username',
+        options:
+          {
+            username: undefined,
+            authenticator: 'SNOWFLAKE'
+          },
+        errorCode: ErrorCodes.ERR_CONN_CREATE_MISSING_USERNAME
+      },
+      {
+        name: 'undefined username',
+        options:
+          {
+            username: undefined,
+            authenticator: 'EXTERNALBROWSER'
+          },
+        errorCode: ErrorCodes.ERR_CONN_CREATE_MISSING_USERNAME
+      },
+      {
+        name: 'undefined username',
+        options:
+          {
+            username: undefined,
+            authenticator: 'SNOWFLAKE_JWT'
           },
         errorCode: ErrorCodes.ERR_CONN_CREATE_MISSING_USERNAME
       },
@@ -51,10 +102,64 @@ describe('ConnectionConfig: basic', function ()
         errorCode: ErrorCodes.ERR_CONN_CREATE_MISSING_USERNAME
       },
       {
+        name: 'null username',
+        options:
+          {
+            username: null,
+            authenticator: 'SNOWFLAKE'
+          },
+        errorCode: ErrorCodes.ERR_CONN_CREATE_MISSING_USERNAME
+      },
+      {
+        name: 'null username',
+        options:
+          {
+            username: null,
+            authenticator: 'EXTERNALBROWSER'
+          },
+        errorCode: ErrorCodes.ERR_CONN_CREATE_MISSING_USERNAME
+      },
+      {
+        name: 'null username',
+        options:
+          {
+            username: null,
+            authenticator: 'SNOWFLAKE_JWT'
+          },
+        errorCode: ErrorCodes.ERR_CONN_CREATE_MISSING_USERNAME
+      },
+      {
         name: 'invalid username',
         options:
           {
             username: 0
+          },
+        errorCode: ErrorCodes.ERR_CONN_CREATE_INVALID_USERNAME
+      },
+      {
+        name: 'invalid username',
+        options:
+          {
+            username: 0,
+            authenticator: 'SNOWFLAKE'
+          },
+        errorCode: ErrorCodes.ERR_CONN_CREATE_INVALID_USERNAME
+      },
+      {
+        name: 'invalid username',
+        options:
+          {
+            username: 0,
+            authenticator: 'EXTERNALBROWSER'
+          },
+        errorCode: ErrorCodes.ERR_CONN_CREATE_INVALID_USERNAME
+      },
+      {
+        name: 'invalid username',
+        options:
+          {
+            username: 0,
+            authenticator: 'SNOWFLAKE_JWT'
           },
         errorCode: ErrorCodes.ERR_CONN_CREATE_INVALID_USERNAME
       },
@@ -720,6 +825,20 @@ describe('ConnectionConfig: basic', function ()
           accessUrl: 'https://account.snowflakecomputing.com',
           username: 'username',
           password: 'password'
+        }
+      },
+      {
+        name: 'oauthwithoutusername',
+        input:
+        {
+          account: 'account',
+          authenticator: 'OAUTH',
+          token: 'token'
+        },
+        options:
+        {
+          accessUrl: 'https://account.snowflakecomputing.com',
+          account: 'account'
         }
       }
     ];

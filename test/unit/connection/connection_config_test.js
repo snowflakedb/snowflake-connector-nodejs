@@ -146,6 +146,15 @@ describe('ConnectionConfig: basic', function ()
         errorCode: ErrorCodes.ERR_CONN_CREATE_INVALID_USERNAME
       },
       {
+        name: 'invalid username with OAUTH authenticator',
+        options:
+          {
+            username: 0,
+            authenticator: 'OAUTH'
+          },
+        errorCode: ErrorCodes.ERR_CONN_CREATE_INVALID_USERNAME
+      },
+      {
         name: 'invalid username with EXTERNALBROWSER authenticator',
         options:
           {

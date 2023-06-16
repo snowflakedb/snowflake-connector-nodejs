@@ -109,71 +109,75 @@ describe('Large result Set Tests', function ()
 
   describe('Large Result Set Tests For Variant Column Type', function ()
   {
+    const createTempTable = 'create or replace table testVariantTemp(value string)';
     const createTableWithVariant = 'create or replace table testVariantTable(colA variant)';
     const dropTableWithVariant = 'drop table if exists testVariantTable';
+    const dropTempTable = 'drop table if exists testVariantTemp';
 
-    before(function (done)
+    before(async () =>
     {
-      testUtil.executeCmd(connection, createTableWithVariant, done);
+      await testUtil.executeCmdAsync(connection, createTableWithVariant);
+      await testUtil.executeCmdAsync(connection, createTempTable);
     });
 
-    after(function (done)
+    after(async () =>
     {
-      testUtil.executeCmd(connection, dropTableWithVariant, done);
+      await testUtil.executeCmdAsync(connection, dropTableWithVariant);
+      await testUtil.executeCmdAsync(connection, dropTempTable);
     });
 
     it('testSelectOnVariantColumnForLargeResultSets', function (done)
     {
-      const insertVariant = 'insert into testVariantTable select value from table(flatten(parse_json(?)))';
+      const insertTemp = 'insert into testVariantTemp values (?)';
+      const insertVariant = 'insert into testVariantTable select parse_json(value) from testVariantTemp';
       const selectVariant = 'select * from testVariantTable';
 
       const arrJSON = [];
-      const sampleJSON = {
-        "root":
-        {
-          "key":
-            [
-              {
-                "key1": "value1",
-                "key2": "value2",
-                "key3": "value3",
-                "key4": "value4",
-                "key5":
-                {
-                  "key":
-                    [
-                      { "key1": "value1", "key2": "value2" },
-                      { "key1": "value1", "key2": "value2" },
-                      { "key1": "value1", "key2": "value2" },
-                      { "key1": "value1", "key2": "value2" }
-                    ]
-                },
-                "key6":
-                  [
-                    { "key1": "value1", "key": "value" },
-                    { "key1": "value1", "key": "value" },
-                    { "key1": "value1", "key": "value" },
-                    { "key1": "value1", "key": "value" },
-                    { "key1": "value1", "key": "value" },
-                    { "key1": "value1", "key": "value" },
-                    { "key1": "value1", "key": "value" }
-                  ]
-              },
-            ]
-        }
-      };
-
-      for (var i = 0; i < sourceRowCount; i++)
+      for (let i = 0; i < sourceRowCount; i++)
       {
-        arrJSON.push(sampleJSON);
+        const sampleJSON = {
+          "root":
+            {
+              "key":
+                [
+                  {
+                    "key1": i,
+                    "key2": "value2",
+                    "key3": "value3",
+                    "key4": "value4",
+                    "key5":
+                      {
+                        "key":
+                          [
+                            { "key1": "value1", "key2": "value2" },
+                            { "key1": "value1", "key2": "value2" },
+                            { "key1": "value1", "key2": "value2" },
+                            { "key1": "value1", "key2": "value2" }
+                          ]
+                      },
+                    "key6":
+                      [
+                        { "key1": "value1", "key": "value" },
+                        { "key1": "value1", "key": "value" },
+                        { "key1": "value1", "key": "value" },
+                        { "key1": "value1", "key": "value" },
+                        { "key1": "value1", "key": "value" },
+                        { "key1": "value1", "key": "value" },
+                        { "key1": "value1", "key": "value" }
+                      ]
+                  },
+                ]
+            }
+        };
+        arrJSON.push([JSON.stringify(sampleJSON)]);
       }
 
       async.series([
         function (callback)
         {
           connection.execute({
-            sqlText: insertVariant,
-            binds: [JSON.stringify(arrJSON)],
+            sqlText: insertTemp,
+            binds: arrJSON,
             complete: function (err, stmt)
             {
               if (err)
@@ -194,6 +198,13 @@ describe('Large result Set Tests', function ()
               }
             }
           });
+        },
+        function (callback)
+        {
+          connection.execute({
+            sqlText: insertVariant,
+            complete: (err) => callback(err)
+          })
         },
         function (callback)
         {

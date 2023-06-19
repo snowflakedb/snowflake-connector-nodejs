@@ -22,8 +22,8 @@ describe('Test multi statement', function ()
         sqlText: alterSessionMultiStatement0,
         complete: function (err, stmt)
         {
-          	testUtil.checkError(err);
-		  	done();
+          testUtil.checkError(err);
+          done();
         }
       });
     });

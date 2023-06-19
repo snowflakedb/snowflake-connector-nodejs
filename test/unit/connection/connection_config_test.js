@@ -837,7 +837,7 @@ describe('ConnectionConfig: basic', function ()
         }
       },
       {
-        name: 'oauthwithoutusername',
+        name: 'oauth without username',
         input:
         {
           account: 'account',

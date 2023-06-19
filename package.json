@@ -39,6 +39,7 @@
     "winston": "^3.1.0"
   },
   "devDependencies": {
+    "eslint": "^8.41.0",
     "mocha": "^10.1.0",
     "mock-require": "^3.0.3",
     "qs": "^6.10.3",
@@ -54,6 +55,9 @@
     "url": "https://github.com/snowflakedb/snowflake-connector-nodejs"
   },
   "scripts": {
+    "lint:check" : "eslint",
+    "lint:check:all" : "eslint lib system_test test",
+    "lint:fix" : "eslint --fix",
     "test": "mocha -timeout 180000 --recursive --full-trace test/unit/**/*.js test/unit/*.js",
     "test:integration": "mocha -timeout 180000 --recursive --full-trace test/integration/**/*.js test/integration/*.js",
     "test:single": "mocha -timeout 180000 --full-trace",

@@ -42,7 +42,6 @@
     "eslint": "^8.41.0",
     "mocha": "^10.1.0",
     "mock-require": "^3.0.3",
-    "qs": "^6.10.3",
     "test-console": "^2.0.0"
   },
   "overrides": {

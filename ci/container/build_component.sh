@@ -14,7 +14,9 @@ rm -f snowflake-sdk*.tgz
 echo "[DEBUG] Version"
 npm version
 echo "[DEBUG] Installing newer node - bundled npm version 6.0.1 does not support setting audit level"
-export NVM_DIR=`pwd`/nvm
+export NVM_PARENT_DIR=`pwd`/ignore
+mkdir -p $NVM_PARENT_DIR
+export NVM_DIR="$NVM_PARENT_DIR/nvm"
 cp -r /usr/local/nvm $NVM_DIR
 source $NVM_DIR/nvm.sh && nvm install 10
 echo "[DEBUG] Packing"

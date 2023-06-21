@@ -8,45 +8,45 @@ var testUtil = require('./testUtil');
 var connOption = require('./connectionOptions');
 const Logger = require('../../lib/logger');
 
-const DATABASE_NAME = connOption.valid.database;
-const SCHEMA_NAME = connOption.valid.schema;
-const WAREHOUSE_NAME = connOption.valid.warehouse;
-
 describe('Test Array Bind', function ()
 {
   this.timeout(300000);
   var connection;
-  var createABTable = `create or replace table  ${DATABASE_NAME}.${SCHEMA_NAME}.testAB(colA string, colB number, colC date, colD time, colE TIMESTAMP_NTZ, colF TIMESTAMP_TZ)`;
+  var createABTable = `create or replace table testAB(colA string, colB number, colC date, colD time, colE TIMESTAMP_NTZ, colF TIMESTAMP_TZ)`;
   var insertAB = `insert into testAB values(?, ?, ?, ?, ?, ?)`;
   var selectAB = `select * from testAB where colB = 1`;
-  var createNABTable = `create or replace table  ${DATABASE_NAME}.${SCHEMA_NAME}.testNAB(colA string, colB number, colC date, colD time, colE TIMESTAMP_NTZ, colF TIMESTAMP_TZ)`;
-  var insertNAB = `insert into  ${DATABASE_NAME}.${SCHEMA_NAME}.testNAB values(?, ?, ?, ?, ?, ?)`;
-  var selectNAB = `select * from  ${DATABASE_NAME}.${SCHEMA_NAME}.testNAB where colB = 1`;
-  var useWH = `use warehouse ${WAREHOUSE_NAME}`;
-  var createNullTable = `create or replace table  ${DATABASE_NAME}.${SCHEMA_NAME}.testNullTB(colA string, colB number, colC date, colD time, colE TIMESTAMP_NTZ, colF TIMESTAMP_TZ)`;
-  var insertNull = `insert into  ${DATABASE_NAME}.${SCHEMA_NAME}.testNullTB values(?, ?, ?, ?, ?, ?)`;
+  var createNABTable = `create or replace table testNAB(colA string, colB number, colC date, colD time, colE TIMESTAMP_NTZ, colF TIMESTAMP_TZ)`;
+  var insertNAB = `insert into testNAB values(?, ?, ?, ?, ?, ?)`;
+  var selectNAB = `select * from testNAB where colB = 1`;
+  var createNullTable = `create or replace table testNullTB(colA string, colB number, colC date, colD time, colE TIMESTAMP_NTZ, colF TIMESTAMP_TZ)`;
+  var insertNull = `insert into testNullTB values(?, ?, ?, ?, ?, ?)`;
   var selectNull = `select * from testNullTB where colB = 1`;
+
+  const usedTableNames = [
+    'testAB', 'testNAB', 'testNullTB',
+  ];
 
   before(function (done)
   {
-    connOption.valid.arrayBindingThreshold = 3;
-    connection = snowflake.createConnection(connOption.valid);
-    testUtil.connect(connection, function ()
+
+    connection = snowflake.createConnection({
+      ...connOption.valid,
+      arrayBindingThreshold: 3,
+    });
+    testUtil.connect(connection, err =>
     {
-      connection.execute({
-        sqlText: useWH,
-        complete: function (err)
-        {
-          testUtil.checkError(err);
-          done();
-        }
-      });
+        done(err)
     });
   });
 
-  after(function (done)
+  afterEach(async () =>
   {
-    testUtil.destroyConnection(connection, done);
+    await testUtil.dropTablesIgnoringErrorsAsync(connection, usedTableNames);
+  });
+
+  after(async () =>
+  {
+    await testUtil.destroyConnectionAsync(connection);
   });
 
   it('testArrayBind', function (done)
@@ -79,17 +79,8 @@ describe('Test Array Bind', function ()
             complete: function (err, stmt) {
               testUtil.checkError(err);
               assert.strictEqual(stmt.getNumUpdatedRows(), count);
-              console.log("sql text = " + insertABStmt.getSqlText());
               assert.strictEqual(insertABStmt.getSqlText(), insertAB);
-              console.log("num row inserted = " + insertABStmt.getNumUpdatedRows());
               assert.strictEqual(insertABStmt.getNumUpdatedRows(), count);
-              console.log("status = " + insertABStmt.getStatus());
-              console.log("columns = " + insertABStmt.getColumns());
-              console.log("column = " + insertABStmt.getColumn());
-              console.log("num rows = " + insertABStmt.getNumRows());
-              console.log("session state = " + insertABStmt.getSessionState());
-              console.log("request id = " + insertABStmt.getRequestId());
-              console.log("statement id = " + insertABStmt.getStatementId());
               callback();
             }
           });
@@ -172,11 +163,10 @@ describe('Test Array Bind', function ()
       [
         function(callback)
         {
-          var createNAB = connection.execute({
+          connection.execute({
             sqlText: createNullTable,
-            complete: function (err, stmt) {
-              testUtil.checkError(err);
-              callback();
+            complete: function (err) {
+              callback(err);
             }
           });
         },
@@ -189,23 +179,31 @@ describe('Test Array Bind', function ()
             arrBind.push([null, i, "2020-05-11", "12:35:41.3333333", "2022-04-01 23:59:59", "2022-07-08 12:05:30.9999999"]);
           }
           
-          var insertABStmt = connection.execute({
+          connection.execute({
             sqlText: insertNull,
             binds: arrBind,
             complete: function (err, stmt) {
-              testUtil.checkError(err);
-              assert.strictEqual(stmt.getNumUpdatedRows(), count);
-              callback();
+              if (err)
+              {
+                callback(err);
+              }
+              else if (stmt.getNumUpdatedRows() !== count)
+              {
+                callback(new Error(`Expected number of inserted rows to be ${count} but was ${stmt.getNumUpdatedRows()}`))
+              }
+              else
+              {
+                callback();
+              }
             }
           });
         },
         function(callback)
         {
-          var createNAB = connection.execute({
+          connection.execute({
             sqlText: createNABTable,
-            complete: function (err, stmt) {
-              testUtil.checkError(err);
-              callback();
+            complete: function (err) {
+              callback(err);
             }
           });
         },
@@ -213,55 +211,84 @@ describe('Test Array Bind', function ()
         {
           var arrBind = [];
           var count = 2;
-          for(var i = 0; i<count; i++)
+          for(let i = 0; i<count; i++)
           {
             arrBind.push(['string'+i, i, "2020-05-11", "12:35:41.3333333", "2022-04-01 23:59:59", "2022-07-08 12:05:30.9999999"]);
           }
-          var insertNABStmt = connection.execute({
+          connection.execute({
             sqlText: insertNAB,
             binds: arrBind,
             complete: function (err, stmt) {
-              testUtil.checkError(err);
-              assert.strictEqual(stmt.getNumUpdatedRows(), count);
-              callback();
+              if (err)
+              {
+                callback(err);
+              }
+              else if (stmt.getNumUpdatedRows() !== count)
+              {
+                callback(new Error(`Expected number of inserted rows to be ${count} but was ${stmt.getNumUpdatedRows()}`))
+              }
+              else
+              {
+                callback();
+              }
             }
           });
         },
         function(callback)
         {
-          var selectNABTable = connection.execute({
+          connection.execute({
             sqlText: selectNAB,
             complete: function (err, stmt, rows) {
-              testUtil.checkError(err);
-              NABData = rows[0];
-              callback();
+              if (err)
+              {
+                callback(err);
+              }
+              else
+              {
+                NABData = rows[0];
+                callback();
+              }
             }
           });
         },
-        function (callback) 
+        function (callback)
         {
-          var selectABTable = connection.execute({
+          connection.execute({
             sqlText: selectNull,
-            complete: function (err, stmt, rows) {
-              testUtil.checkError(err);
-              var ABData = rows[0];
+            complete: function (err, stmt, rows)
+            {
+              if (err)
+              {
+                callback(err);
+              }
+              else
+              {
+                try
+                {
+                  var ABData = rows[0];
 
-              var ABDate = new Date(ABData['COLC']);
-              var ABDataD = new Date(ABData['COLD']).getTime();
-              var ABDataE = new Date(ABData['COLE']).getTime();
-              var ABDataF = new Date(ABData['COLF']).getTime();
-              var NABDate = new Date(NABData['COLC']);
-              var NABDataD = new Date(NABData['COLD']).getTime();
-              var NABDataE = new Date(NABData['COLE']).getTime();
-              var NABDataF = new Date(NABData['COLF']).getTime();
+                  var ABDate = new Date(ABData['COLC']);
+                  var ABDataD = new Date(ABData['COLD']).getTime();
+                  var ABDataE = new Date(ABData['COLE']).getTime();
+                  var ABDataF = new Date(ABData['COLF']).getTime();
+                  var NABDate = new Date(NABData['COLC']);
+                  var NABDataD = new Date(NABData['COLD']).getTime();
+                  var NABDataE = new Date(NABData['COLE']).getTime();
+                  var NABDataF = new Date(NABData['COLF']).getTime();
 
-              assert.equal(ABData['COLA'], "");
-              assert.equal(ABData['COLB'], NABData['COLB']);
-              assert.equal(ABDate.toString(), NABDate.toString());
-              assert.equal(ABDataD.toString(), NABDataD.toString());
-              assert.equal(ABDataE.toString(), NABDataE.toString());
-              assert.equal(ABDataF.toString(), NABDataF.toString());
-              callback();
+                  assert.equal(ABData['COLA'], '');
+                  assert.equal(ABData['COLB'], NABData['COLB']);
+                  assert.equal(ABDate.toString(), NABDate.toString());
+                  assert.equal(ABDataD.toString(), NABDataD.toString());
+                  assert.equal(ABDataE.toString(), NABDataE.toString());
+                  assert.equal(ABDataF.toString(), NABDataF.toString());
+                  callback();
+                }
+                catch (e)
+                {
+                  callback(e);
+                }
+              }
             }
           });
         },
@@ -293,13 +320,11 @@ describe('Test Array Bind', function ()
             binds: [JSON.stringify(arrBind)],
             complete: function (err, stmt) {
               if (err) {
-                console.error('1 Failed to execute statement due to the following error: ' + err.message);
-                done(err);
+                callback(err);
               }
               else {
-                console.log('inserted rows=' + stmt.getNumUpdatedRows());
                 assert.strictEqual(stmt.getNumUpdatedRows(), count);
-                done();
+                callback();
               }
             }
           });
@@ -331,13 +356,11 @@ describe('Test Array Bind', function ()
             binds: arrBind,
             complete: function (err, stmt) {
               if (err) {
-                console.error('1 Failed to execute statement due to the following error: ' + err.message);
-                done(err);
+                callback(err);
               }
               else {
-                console.log('inserted rows=' + stmt.getNumUpdatedRows());
                 assert.strictEqual(stmt.getNumUpdatedRows(), count);
-                done();
+                callback();
               }
             }
           });
@@ -411,11 +434,9 @@ describe('Test Array Bind', function ()
             fetchAsString: ['Number', 'Date', 'JSON'],
             complete: function (err, stmt) {
               if (err) {
-                console.error('1 Failed to execute statement due to the following error: ' + err.message);
-                done(err);
+                callback(err);
               }
               else {
-                console.log('inserted rows=' + stmt.getNumUpdatedRows());
                 callback();
               }
             }
@@ -430,7 +451,7 @@ describe('Test Array Bind', function ()
               testUtil.checkError(err);
               var result = rows[0];
               assert.equal(result['TYPE'], "SAMPLE");
-              done();
+              callback();
             }
           });
         },
@@ -440,34 +461,42 @@ describe('Test Array Bind', function ()
   });
 });
 
-describe('testArrayBind - full path', function ()
+describe('Test Array Bind - full path', function ()
 {
+  const DATABASE_NAME = connOption.valid.database;
+  const SCHEMA_NAME = connOption.valid.schema;
+
   this.timeout(600000);
   var connection;
-  var createABTable = `create or replace table  ${DATABASE_NAME}.${SCHEMA_NAME}.testAB(colA string, colB number, colC date, colD time, colE TIMESTAMP_NTZ, colF TIMESTAMP_TZ)`;
-  var insertAB = `insert into  ${DATABASE_NAME}.${SCHEMA_NAME}.testAB values(?, ?, ?, ?, ?, ?)`;
+  const fullTableName = `${DATABASE_NAME}.${SCHEMA_NAME}.testAB`;
+  var createABTable = `create or replace table ${fullTableName}(colA string, colB number, colC date, colD time, colE TIMESTAMP_NTZ, colF TIMESTAMP_TZ)`;
+  var insertAB = `insert into ${fullTableName} values(?, ?, ?, ?, ?, ?)`;
   
   before(function (done)
   {
     connection = snowflake.createConnection({
-      accessUrl: connOption.valid.accessUrl,
-      account: connOption.valid.account,
-      username: connOption.valid.username,
-      password: connOption.valid.password,
-      warehouse: connOption.valid.warehouse,
-      role: connOption.valid.role,
+      ...connOption.valid,
+      // Set schema and database to null to ensure that full path to table is passed in commands
+      schema: undefined,
+      database: undefined,
       arrayBindingThreshold: 3
     });
-    testUtil.connect(connection, function ()
+    testUtil.connect(connection, function (err)
     {
-      connection.execute({
-        sqlText: createABTable,
-        complete: function (err)
-        {
-          testUtil.checkError(err);
-          done();
-        }
-      });
+      if (err)
+      {
+        done(err)
+      }
+      else
+      {
+        connection.execute({
+          sqlText: createABTable,
+          complete: function (err)
+          {
+            done(err);
+          }
+        });
+      }
     });
   });
 
@@ -480,20 +509,21 @@ describe('testArrayBind - full path', function ()
       arrBind.push([null, i, "2020-05-11", "12:35:41.3333333", "2022-04-01 23:59:59", "2022-07-08 12:05:30.9999999"]);
     }
     
-    var insertABStmt = connection.execute({
+    connection.execute({
       sqlText: insertAB,
       binds: arrBind,
       complete: function (err, stmt) {
         testUtil.checkError(err);
-        console.log("stmt.getNumUpdatedRows()="+stmt.getNumUpdatedRows())
         assert.strictEqual(stmt.getNumUpdatedRows(), count);
         done();
       }
     });
   });
-  after(function (done)
+
+  after(async () =>
   {
-    testUtil.destroyConnection(connection, done);
+    await testUtil.dropTablesIgnoringErrorsAsync(connection, [fullTableName]);
+    await testUtil.destroyConnectionAsync(connection);
   });
 });
 
@@ -501,31 +531,34 @@ describe('Test Array Bind Force Error on Upload file', function ()
 {
   this.timeout(300000);
   var connection;
-  var createABTable = `create or replace table  ${DATABASE_NAME}.${SCHEMA_NAME}.testAB(colA string, colB number, colC date, colD time, colE TIMESTAMP_NTZ, colF TIMESTAMP_TZ)`;
+  var createABTable = `create or replace table testAB(colA string, colB number, colC date, colD time, colE TIMESTAMP_NTZ, colF TIMESTAMP_TZ)`;
   var insertAB = `insert into testAB values(?, ?, ?, ?, ?, ?)`;
   var selectAB = `select * from testAB where colB = 1`;
-  var createNABTable = `create or replace table  ${DATABASE_NAME}.${SCHEMA_NAME}.testNAB(colA string, colB number, colC date, colD time, colE TIMESTAMP_NTZ, colF TIMESTAMP_TZ)`;
-  var insertNAB = `insert into  ${DATABASE_NAME}.${SCHEMA_NAME}.testNAB values(?, ?, ?, ?, ?, ?)`;
-  var selectNAB = `select * from  ${DATABASE_NAME}.${SCHEMA_NAME}.testNAB where colB = 1`;
-  var useWH = `use warehouse ${WAREHOUSE_NAME}`;
+  var createNABTable = `create or replace table testNAB(colA string, colB number, colC date, colD time, colE TIMESTAMP_NTZ, colF TIMESTAMP_TZ)`;
+  var insertNAB = `insert into testNAB values(?, ?, ?, ?, ?, ?)`;
+  var selectNAB = `select * from testNAB where colB = 1`;
+
+  const usedTableNames = ['testAB', 'testNAB'];
 
   before(function (done) {
-    connOption.valid.arrayBindingThreshold = 3;
-    connOption.valid.forceStageBindError = 1;
-    connection = snowflake.createConnection(connOption.valid);
-    testUtil.connect(connection, function () {
-      connection.execute({
-        sqlText: useWH,
-        complete: function (err) {
-          testUtil.checkError(err);
-          done();
-        }
-      });
+    connection = snowflake.createConnection({
+      ...connOption.valid,
+      arrayBindingThreshold: 3,
+      forceStageBindError: 1,
+    });
+    testUtil.connect(connection, function (err)
+    {
+      done(err);
     });
   });
 
-  after(function (done) {
-    testUtil.destroyConnection(connection, done);
+  afterEach(async () =>
+  {
+  });
+
+  after(async () => {
+    await testUtil.dropTablesIgnoringErrorsAsync(connection, usedTableNames);
+    await testUtil.destroyConnectionAsync(connection);
   });
 
   it('testArrayBind force upload file error', function (done) {
@@ -554,17 +587,8 @@ describe('Test Array Bind Force Error on Upload file', function ()
             complete: function (err, stmt) {
               testUtil.checkError(err);
               assert.strictEqual(stmt.getNumUpdatedRows(), count);
-              console.log("sql text = " + insertABStmt.getSqlText());
               assert.strictEqual(insertABStmt.getSqlText(), insertAB);
-              console.log("num row inserted = " + insertABStmt.getNumUpdatedRows());
               assert.strictEqual(insertABStmt.getNumUpdatedRows(), count);
-              console.log("status = " + insertABStmt.getStatus());
-              console.log("columns = " + insertABStmt.getColumns());
-              console.log("column = " + insertABStmt.getColumn());
-              console.log("num rows = " + insertABStmt.getNumRows());
-              console.log("session state = " + insertABStmt.getSessionState());
-              console.log("request id = " + insertABStmt.getRequestId());
-              console.log("statement id = " + insertABStmt.getStatementId());
               callback();
             }
           });
@@ -636,14 +660,19 @@ describe('Test Array Bind Force Error on Upload file', function ()
   });
 });
 
-describe('testArrayBind - full path with cancel', function ()
+describe('Test Array Bind - full path with cancel', function ()
 {
   let connection;
+  const DATABASE_NAME = connOption.valid.database;
+  const SCHEMA_NAME = connOption.valid.schema;
   const tableName = `${DATABASE_NAME}.${SCHEMA_NAME}.testAB`;
 
   const rowsToInsert = 10;
-  const delayPerRowMs = 5000;
-  const cancelInsertAfterMs = 2000;
+  // we need query to be executed long enough to be able to send cancel before it ends,
+  // but we cannot send it too early because its executing could not start yet
+  // (then we receive error that query is not running, so we cannot cancel it)
+  const delayPerRowMs = 10000;
+  const cancelInsertAfterMs = 4000;
 
   // SYSTEM$WAIT is not supported as insert with binds in regression test, so it's set as default for last column
   const createABTable = `create or replace table ${tableName}(colA string, colB number, colC date, colD time, colE TIMESTAMP_NTZ, colF TIMESTAMP_TZ, colG string default SYSTEM$WAIT(${delayPerRowMs}, 'MILLISECONDS'))`;
@@ -654,12 +683,14 @@ describe('testArrayBind - full path with cancel', function ()
   {
     connection = snowflake.createConnection({
       ...connOption.valid,
+      // Set schema and database to null to ensure that full path to table is passed in commands
+      schema: undefined,
+      database: undefined,
       arrayBindingThreshold: 3,
       forceStageBindError: 0,
     });
     await testUtil.connectAsync(connection);
     await testUtil.executeCmdAsync(connection, createABTable);
-    await testUtil.executeCmdAsync(connection, 'drop stage if exists SYSTEM$BIND');
   });
 
   it('Full path array bind with cancel', done =>
@@ -709,7 +740,7 @@ describe('testArrayBind - full path with cancel', function ()
 
   after(async () =>
   {
-    await testUtil.executeCmdAsync(connection, `DROP TABLE IF EXISTS ${tableName}`);
+    await testUtil.dropTablesIgnoringErrorsAsync(connection, [tableName]);
     await testUtil.destroyConnectionAsync(connection);
   });
 });

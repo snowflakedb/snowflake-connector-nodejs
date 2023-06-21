@@ -60,16 +60,33 @@ module.exports.executeCmd = function (connection, sql, callback, bindArray)
   connection.execute(executeOptions);
 };
 
-module.exports.executeCmdAsync = function (connection, sqlText, binds = undefined)
-{
-  return new Promise((resolve, reject) =>
-  {
+const executeCmdAsync = function (connection, sqlText, binds = undefined) {
+  return new Promise((resolve, reject) => {
     connection.execute({
       sqlText,
       binds,
       complete: (err, _, rows) => err ? reject(err) : resolve(rows)
     });
   });
+};
+
+module.exports.executeCmdAsync = executeCmdAsync;
+
+/**
+ * Drop tables one by one if exist - any connection error is ignored
+ * @param connection Connection
+ * @param tableNames string[]
+ * @return {Promise<void>}
+ */
+module.exports.dropTablesIgnoringErrorsAsync = async (connection, tableNames) => {
+  for (let tableIdx in tableNames) {
+    const tableName = tableNames[tableIdx];
+    try {
+      await executeCmdAsync(connection, `DROP TABLE IF EXISTS ${tableName}`);
+    } catch (e) {
+      console.warn(`Cannot drop table ${tableName}: ${JSON.stringify(e)}`);
+    }
+  }
 };
 
 module.exports.checkError = function (err)

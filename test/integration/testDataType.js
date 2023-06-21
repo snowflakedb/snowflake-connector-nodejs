@@ -31,7 +31,8 @@ describe('Test DataType', function ()
   var insertDouble = 'insert into testDouble values(123.456)';
   var insertLargeNumber = 'insert into testNumber values (12345678901234567890123456789012345678)';
   var insertRegularSizedNumber = 'insert into testNumber values (100000001)';
-  var insertVariant = 'insert into testVariant select parse_json(\'{a : 1 , b :[1 , 2 , 3, -Infinity, undefined], c : {a : 1}}\')';
+  var insertVariantJSON = 'insert into testVariant select parse_json(\'{a : 1 , b :[1 , 2 , 3, -Infinity, undefined], c : {a : 1}}\')';
+  var insertVariantXML = 'insert into testVariant select parse_xml(\'<root><a>1</a><b>1</b><c><a>1</a></c></root>\')';
   var insertArray = 'insert into testArray select parse_json(\'["a", 1]\')';
   var insertDate = 'insert into testDate values(to_date(\'2012-11-11\'))';
   var insertTime = 'insert into testTime values(to_time(\'12:34:56.789789789\'))';
@@ -216,7 +217,7 @@ describe('Test DataType', function ()
 
   describe('testSemiStructuredDataType', function ()
   {
-    it('testVariant', function (done)
+    it('testVariantJSON', function (done)
     {
       async.series(
         [
@@ -226,7 +227,7 @@ describe('Test DataType', function ()
           },
           function (callback)
           {
-            testUtil.executeCmd(connection, insertVariant, callback);
+            testUtil.executeCmd(connection, insertVariantJSON, callback);
           },
           function (callback)
           {
@@ -234,6 +235,34 @@ describe('Test DataType', function ()
               connection,
               selectVariant,
               [{'COLA': {a: 1, b: [1, 2, 3, -Infinity, undefined], c: {a: 1}}}],
+              callback,
+              null,
+              true,
+              false
+            );
+          }],
+        done
+      );
+    });
+
+    it('testVariantXML', function (done)
+    {
+      async.series(
+        [
+          function (callback)
+          {
+            testUtil.executeCmd(connection, createTableWithVariant, callback);
+          },
+          function (callback)
+          {
+            testUtil.executeCmd(connection, insertVariantXML, callback);
+          },
+          function (callback)
+          {
+            testUtil.executeQueryAndVerify(
+              connection,
+              selectVariant,
+              [{ 'COLA': { root: { a: 1, b: 1, c: { a: 1 } } }}],
               callback,
               null,
               true,

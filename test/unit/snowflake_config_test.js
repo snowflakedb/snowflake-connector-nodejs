@@ -10,23 +10,20 @@ const GlobalConfig = require('./../../lib/global_config');
 
 const LOG_LEVEL_TAGS = require('./../../lib/logger/core').LOG_LEVEL_TAGS;
 
-describe('Snowflake Configure Tests', function ()
-{
-  var originalConfig;
+describe('Snowflake Configure Tests', function () {
+  let originalConfig;
 
-  before(function ()
-  {
+  before(function () {
     originalConfig = {
       logLevel: Logger.getInstance().getLevelTag(),
       insecureConnect: GlobalConfig.isInsecureConnect(),
       ocspFailOpen: GlobalConfig.getOcspFailOpen(),
       jsonColumnVariantParser: GlobalConfig.jsonColumnVariantParser,
-      xmlColumnVariantParser: GlobalConfig.xmlColumnVariantParser,
-    }
+      xmlColumnVariantParser: GlobalConfig.xmlColumnVariantParser
+    };
   });
 
-  after(function ()
-  {
+  after(function () {
     snowflake.configure(originalConfig);
   });
 
@@ -34,7 +31,7 @@ describe('Snowflake Configure Tests', function ()
   //// Test invalid arguments                                            ////
   ///////////////////////////////////////////////////////////////////////////
 
-  var negativeTestCases =
+  const negativeTestCases =
     [
       {
         name: 'invalid logLevel',
@@ -63,31 +60,23 @@ describe('Snowflake Configure Tests', function ()
       },
     ];
 
-  var createNegativeITCallback = function (testCase)
-  {
-    return function ()
-    {
-      var error;
+  const createNegativeITCallback = function (testCase) {
+    return function () {
+      let error;
 
-      try
-      {
+      try {
         snowflake.configure(testCase.options);
-      }
-      catch (err)
-      {
+      } catch (err) {
         error = err;
-      }
-      finally
-      {
+      } finally {
         assert.ok(error);
         assert.strictEqual(error.code, testCase.errorCode);
       }
     };
   };
 
-  var index, length, testCase;
-  for (index = 0, length = negativeTestCases.length; index < length; index++)
-  {
+  let index, length, testCase;
+  for (index = 0, length = negativeTestCases.length; index < length; index++) {
     testCase = negativeTestCases[index];
     it(testCase.name, createNegativeITCallback(testCase));
   }
@@ -96,7 +85,7 @@ describe('Snowflake Configure Tests', function ()
   //// Test valid arguments                                              ////
   ///////////////////////////////////////////////////////////////////////////
 
-  var testCases =
+  const testCases =
     [
       {
         name: 'logLevel error',
@@ -165,50 +154,39 @@ describe('Snowflake Configure Tests', function ()
         name: 'json parser',
         options:
         {
-          jsonColumnVariantParser: rawColumnValue => require('vm').runInNewContext("(" + rawColumnValue + ")")
+          jsonColumnVariantParser: rawColumnValue => require('vm').runInNewContext('(' + rawColumnValue + ')')
         }
       },
       {
         name: 'xml parser',
         options:
         {
-          xmlColumnVariantParser: rawColumnValue => (require("fast-xml-parser").XMLParser()).parse(rawColumnValue)
+          xmlColumnVariantParser: rawColumnValue => (require('fast-xml-parser').XMLParser()).parse(rawColumnValue)
         }
       },
     ];
 
-  var createItCallback = function (testCase)
-  {
-    return function ()
-    {
+  const createItCallback = function (testCase) {
+    return function () {
       snowflake.configure(testCase.options);
-      Object.keys(testCase.options).forEach(function (key)
-      {
-        var ref = testCase.options[key];
-        var val;
-        if (key == 'logLevel')
-        {
+      Object.keys(testCase.options).forEach(function (key) {
+        const ref = testCase.options[key];
+        let val;
+        if (key == 'logLevel') {
           val = Logger.getInstance().getLevelTag();
-        }
-        else if (key == 'insecureConnect')
-        {
+        } else if (key == 'insecureConnect') {
           val = GlobalConfig.isInsecureConnect();
-        }
-        else if (key == 'ocspFailOpen')
-        {
+        } else if (key == 'ocspFailOpen') {
           val = GlobalConfig.getOcspFailOpen();
-        }
-        else
-        {
-          val = GlobalConfig[key]
+        } else {
+          val = GlobalConfig[key];
         }
         assert.strictEqual(val, ref);
-      })
+      });
     };
   };
 
-  for (index = 0, length = testCases.length; index < length; index++)
-  {
+  for (index = 0, length = testCases.length; index < length; index++) {
     testCase = testCases[index];
     it(testCase.name, createItCallback(testCase));
   }

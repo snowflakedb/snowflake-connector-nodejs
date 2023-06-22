@@ -19,7 +19,9 @@ describe('Snowflake Configure Tests', function ()
     originalConfig = {
       logLevel: Logger.getInstance().getLevelTag(),
       insecureConnect: GlobalConfig.isInsecureConnect(),
-      ocspFailOpen: GlobalConfig.getOcspFailOpen()
+      ocspFailOpen: GlobalConfig.getOcspFailOpen(),
+      jsonColumnVariantParser: GlobalConfig.jsonColumnVariantParser,
+      xmlColumnVariantParser: GlobalConfig.xmlColumnVariantParser,
     }
   });
 

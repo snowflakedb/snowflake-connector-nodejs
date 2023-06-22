@@ -12,6 +12,22 @@ const LOG_LEVEL_TAGS = require('./../../lib/logger/core').LOG_LEVEL_TAGS;
 
 describe('Snowflake Configure Tests', function ()
 {
+  var originalConfig;
+
+  before(function ()
+  {
+    originalConfig = {
+      logLevel: Logger.getInstance().getLevelTag(),
+      insecureConnect: GlobalConfig.isInsecureConnect(),
+      ocspFailOpen: GlobalConfig.getOcspFailOpen()
+    }
+  });
+
+  after(function ()
+  {
+    snowflake.configure(originalConfig);
+  });
+
   ///////////////////////////////////////////////////////////////////////////
   //// Test invalid arguments                                            ////
   ///////////////////////////////////////////////////////////////////////////
@@ -175,6 +191,10 @@ describe('Snowflake Configure Tests', function ()
         else if (key == 'insecureConnect')
         {
           val = GlobalConfig.isInsecureConnect();
+        }
+        else if (key == 'ocspFailOpen')
+        {
+          val = GlobalConfig.getOcspFailOpen();
         }
         else
         {

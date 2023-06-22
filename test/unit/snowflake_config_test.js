@@ -57,8 +57,8 @@ describe('Snowflake Configure Tests', function () {
         },
       ];
 
-    const createNegativeITCallback = function (testCase) {
-      return function () {
+    negativeTestCases.forEach(testCase => {
+      it(testCase.name, function () {
         let error;
 
         try {
@@ -69,14 +69,8 @@ describe('Snowflake Configure Tests', function () {
           assert.ok(error);
           assert.strictEqual(error.code, testCase.errorCode);
         }
-      };
-    };
-
-    let index, length, testCase;
-    for (index = 0, length = negativeTestCases.length; index < length; index++) {
-      testCase = negativeTestCases[index];
-      it(testCase.name, createNegativeITCallback(testCase));
-    }
+      });
+    });
   });
 
   describe('Test valid arguments', function () {
@@ -161,8 +155,8 @@ describe('Snowflake Configure Tests', function () {
         },
       ];
 
-    const createItCallback = function (testCase) {
-      return function () {
+    testCases.forEach(testCase => {
+      it(testCase.name, function () {
         snowflake.configure(testCase.options);
         Object.keys(testCase.options).forEach(function (key) {
           const ref = testCase.options[key];
@@ -178,13 +172,7 @@ describe('Snowflake Configure Tests', function () {
           }
           assert.strictEqual(val, ref);
         });
-      };
-    };
-
-    let index, length, testCase;
-    for (index = 0, length = testCases.length; index < length; index++) {
-      testCase = testCases[index];
-      it(testCase.name, createItCallback(testCase));
-    }
+      });
+    });
   });
 });

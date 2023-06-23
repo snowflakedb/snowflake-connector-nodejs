@@ -2,6 +2,8 @@
  * Copyright (c) 2015-2019 Snowflake Computing Inc. All rights reserved.
  */
 var async = require('async');
+const GlobalConfig = require('./../../lib/global_config');
+const snowflake = require('./../../lib/snowflake');
 var testUtil = require('./testUtil');
 const sharedStatement = require('./sharedStatements');
 var bigInt = require("big-integer");
@@ -33,6 +35,7 @@ describe('Test DataType', function ()
   var insertLargeNumber = 'insert into testNumber values (12345678901234567890123456789012345678)';
   var insertRegularSizedNumber = 'insert into testNumber values (100000001)';
   const insertVariantJSON = 'insert into testVariant select parse_json(\'{a : 1 , b :[1 , 2 , 3, -Infinity, undefined], c : {a : 1}}\')';
+  const insertVariantJSONForCustomParser = 'insert into testVariant select parse_json(\'{a : 1 , b :[1 , 2 , 3], c : {a : 1}}\')';
   const insertVariantXML = 'insert into testVariant select parse_xml(\'<root><a>1</a><b>1</b><c><a>1</a></c></root>\')';
   var insertArray = 'insert into testArray select parse_json(\'["a", 1]\')';
   var insertDate = 'insert into testDate values(to_date(\'2012-11-11\'))';
@@ -281,6 +284,52 @@ describe('Test DataType', function ()
             }],
           done
         );
+      });
+
+      describe('testCustomParser', function ()
+      {
+        let originalParserConfig;
+
+        before(() =>
+        {
+          originalParserConfig = {
+            jsonColumnVariantParser: GlobalConfig.jsonColumnVariantParser,
+            xmlColumnVariantParser: GlobalConfig.xmlColumnVariantParser
+          }
+        });
+
+        after(() =>
+        {
+          snowflake.configure(originalParserConfig);
+        });
+
+        it('testJSONCustomParser', function (done)
+        {
+          async.series(
+            [
+              function (callback)
+              {
+                snowflake.configure({
+                  jsonColumnVariantParser: rawColumnValue => JSON.parse(rawColumnValue)
+                })
+                testUtil.executeCmd(connection, insertVariantJSONForCustomParser, callback);
+              },
+              function (callback)
+              {
+                testUtil.executeQueryAndVerify(
+                  connection,
+                  selectVariant,
+                  [{ 'COLA': { a: 1, b: [1, 2, 3,], c: { a: 1 } } }],
+                  callback
+                );
+              }
+            ],
+            done
+          );
+        });
+
+        // TODO SNOW - 830291: add custom xml parser test
+        //it('testXMLCustomParser', function (done) {});
       });
     });
 

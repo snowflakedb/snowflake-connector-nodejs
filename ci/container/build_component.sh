@@ -14,6 +14,7 @@ rm -f snowflake-sdk*.tgz
 echo "[DEBUG] Version"
 npm version
 echo "[DEBUG] Installing newer node - bundled npm version 6.0.1 does not support setting audit level"
+# TODO SNOW-847264: Don't install node manually when proper build image will be used
 export NVM_PARENT_DIR=`pwd`/ignore
 mkdir -p $NVM_PARENT_DIR
 export NVM_DIR="$NVM_PARENT_DIR/nvm"
@@ -25,7 +26,7 @@ echo "[DEBUG] Installing"
 npm install
 rm -f ~/.npmrc
 echo "[DEBUG] Auditing"
-npm audit --audit-level moderate # TODO SNOW-841052 fast-xml-parser has low vulnerability - when new version will be released `moderate` option should be removed
+npm audit --audit-level high # TODO SNOW-841052: semver (indirect dep of urllib) has moderate vulnerability - when fix will be available `high` option should be removed
 
 echo "[INFO] Uploading Artifacts"
 ARTIFACTS=($(ls snowflake-sdk*))

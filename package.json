@@ -49,8 +49,14 @@
     "@azure/storage-blob": {
       "node-fetch": "^3.2.10"
     },
-    "win-release": {
-      "semver": "^7.5.2"
+    "urllib": {
+      "default-user-agent": {
+        "os-name": {
+          "win-release": {
+            "semver": "^7.5.2"
+          }
+        }
+      }
     }
   },
   "repository": {

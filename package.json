@@ -49,7 +49,7 @@
     "@azure/storage-blob": {
       "node-fetch": "^3.2.10"
     },
-    "urllib": {
+    "win-release": {
       "semver": "^7.5.2"
     }
   },

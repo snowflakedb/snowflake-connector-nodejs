@@ -48,7 +48,8 @@
   "overrides": {
     "@azure/storage-blob": {
       "node-fetch": "^3.2.10"
-    }
+    },
+    "semver": "^7.5.2"
   },
   "repository": {
     "type": "git",

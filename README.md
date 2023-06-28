@@ -148,9 +148,3 @@ Fix potentially fixable formatting errors and warnings of single file or directo
 ```
 npm run lint:fix -- test/unit/logger
 ```
-
-
-Use WebStorm code style file to format the source code.
-```
-format.sh -mask "*.js" -settings $(pwd)/webstorm-codestyle.xml -R $(pwd)/lib/ -R $(pwd)/test -R $(pwd)/system_test
-```

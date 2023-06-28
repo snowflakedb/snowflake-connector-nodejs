@@ -1,13 +1,16 @@
 /*
  * Copyright (c) 2015-2019 Snowflake Computing Inc. All rights reserved.
  */
-var snowflake = require('./../../lib/snowflake');
-var connOptions = require('./connectionOptions');
-var assert = require('assert');
+const snowflake = require('./../../lib/snowflake');
+const connOptions = require('./connectionOptions');
+const assert = require('assert');
+const fs = require('fs');
 
-module.exports.createConnection = function ()
-{
-  return snowflake.createConnection(connOptions.valid);
+module.exports.createConnection = function (validConnectionOptionsOverride = {}) {
+  return snowflake.createConnection({
+    ...connOptions.valid,
+    validConnectionOptionsOverride,
+  });
 };
 
 module.exports.connect = function (connection, callback)
@@ -42,22 +45,19 @@ module.exports.destroyConnectionAsync = function (connection)
   });
 };
 
-module.exports.executeCmd = function (connection, sql, callback, bindArray)
-{
-  var executeOptions = {};
-  executeOptions.sqlText = sql;
-  executeOptions.complete = function (err)
-  {
-    assert.ok(!err, JSON.stringify(err));
-    callback();
-  };
-
-  if (bindArray !== undefined && bindArray != null)
-  {
-    executeOptions.binds = bindArray;
-  }
-
-  connection.execute(executeOptions);
+/**
+ *
+ * @param connection Active connection
+ * @param sql sql to execute
+ * @param callback callback function (err) => any
+ * @param bindArray optional binds
+ */
+module.exports.executeCmd = function (connection, sql, callback, bindArray) {
+  connection.execute({
+    sqlText: sql,
+    binds: bindArray !== undefined && bindArray != null ? bindArray : undefined,
+    complete: err => callback(err)
+  });
 };
 
 const executeCmdAsync = function (connection, sqlText, binds = undefined) {
@@ -169,5 +169,31 @@ function normalizeRowObject(row)
   return normalizedRow;
 }
 
+/**
+ * @param file FileSyncObject
+ */
+module.exports.deleteFileSyncIgnoringErrors = function (file) {
+  if (file) {
+    try {
+      fs.closeSync(file.fd);
+      fs.unlinkSync(file.name);
+    } catch (e) {
+      console.warn(`Cannot remove file ${file.name}: ${JSON.stringify(e)}`);
+    }
+  }
+};
 
-
+/**
+ * @param directory string file path
+ */
+module.exports.deleteFolderSyncIgnoringErrors = function (directory) {
+  try {
+    if (fs.rm) { // node >= 14 has rm method for recursive delete and rmdir with recursive flag is deprecated
+      fs.rmSync(directory, { recursive: true });
+    } else {
+      fs.rmdirSync(directory, { recursive: true });
+    }
+  } catch (e) {
+    console.warn(`Cannot delete folder ${directory}: ${JSON.stringify(e)}`);
+  }
+};

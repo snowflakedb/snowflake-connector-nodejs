@@ -10,6 +10,11 @@ module.exports.createConnection = function ()
   return snowflake.createConnection(connOptions.valid);
 };
 
+module.exports.createConnectionPool = function ()
+{
+  return snowflake.createPool(connOptions.valid, {max: 10, min: 0, testOnBorrow: true});
+};
+
 module.exports.connect = function (connection, callback)
 {
   connection.connect(function (err)
@@ -58,6 +63,26 @@ module.exports.executeCmd = function (connection, sql, callback, bindArray)
   }
 
   connection.execute(executeOptions);
+};
+
+module.exports.executeCmdUsePool = function (connectionPool, sql, callback, bindArray)
+{
+  var executeOptions = {};
+  executeOptions.sqlText = sql;
+  executeOptions.complete = function (err)
+  {
+    assert.ok(!err, JSON.stringify(err));
+    callback();
+  };
+
+  if (bindArray !== undefined && bindArray != null)
+  {
+    executeOptions.binds = bindArray;
+  }
+  
+  connectionPool.use(async (clientConnection) => {
+    await clientConnection.execute(executeOptions);
+  });
 };
 
 const executeCmdAsync = function (connection, sqlText, binds = undefined) {
@@ -138,6 +163,54 @@ module.exports.executeQueryAndVerify = function (connection, sql, expected, call
   }
 
   connection.execute(executeOptions);
+};
+
+module.exports.executeQueryAndVerifyUsePool = function (connectionPool, sql, expected, callback, bindArray, normalize, strict)
+{
+  // Sometimes we may not want to normalize the row first
+  normalize = (typeof normalize !== "undefined" && normalize != null) ? normalize : true;
+  strict = (typeof strict !== "undefined" && strict != null) ? strict : true;
+  var executeOptions = {};
+  executeOptions.sqlText = sql;
+  executeOptions.complete = function (err, stmt)
+  {
+    assert.ok(!err, JSON.stringify(err));
+    var rowCount = 0;
+    var stream = stmt.streamRows();
+    stream.on('readable', function ()
+    {
+      var row;
+      while ((row = stream.read()) !== null)
+      {
+        if (strict)
+        {
+          assert.deepStrictEqual(normalize ? normalizeRowObject(row) : row, expected[rowCount]);
+        }
+        else
+        {
+          assert.deepEqual(normalize ? normalizeRowObject(row) : row, expected[rowCount]);
+        }
+        rowCount++;
+      }
+    });
+    stream.on('error', function (err)
+    {
+      assert.ok(!err, JSON.stringify(err));
+    });
+    stream.on('end', function ()
+    {
+      assert.strictEqual(rowCount, expected.length);
+      callback();
+    });
+  };
+  if (bindArray != null && bindArray != undefined)
+  {
+    executeOptions.binds = bindArray;
+  }
+
+  connectionPool.use(async (clientConnection) => {
+    await clientConnection.execute(executeOptions);
+  });
 };
 
 function normalizeRowObject(row)

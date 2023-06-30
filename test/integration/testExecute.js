@@ -340,3 +340,141 @@ describe('Execute test - variant', function ()
     it(testCase.name, createItCallback(testCase));
   }
 });
+
+describe('Execute test with Pool', function ()
+{
+  var connectionPool;
+  var createNodeTSQL = 'create or replace table NodeT(colA number, colB varchar)';
+  var selectAllSQL = 'select * from NodeT';
+  var insertNodeTSQL = 'insert into NodeT values(1, \'a\')';
+  var updateNodeTSQL = 'update NodeT set COLA = 2, COLB = \'b\' where COLA = 1';
+  var dropNodeTSQL = 'drop table if exists NodeT';
+
+  before(function (done)
+  {
+    connectionPool = testUtil.createConnectionPool();
+    done();
+  });
+
+  it('testSimpleInsert', function (done)
+  {
+    async.series(
+      [
+        function (callback)
+        {
+          testUtil.executeCmdUsePool(connectionPool, createNodeTSQL, callback);
+        },
+        function (callback)
+        {
+          var insertCount = 5;
+          var insertValues = function (i)
+          {
+            if (i < insertCount)
+            {
+              testUtil.executeCmdUsePool(connectionPool,
+                insertNodeTSQL,
+                function ()
+                {
+                  insertValues(i + 1);
+                });
+            }
+            else
+            {
+              callback();
+            }
+          };
+          insertValues(0);
+        },
+        function (callback)
+        {
+          testUtil.executeQueryAndVerifyUsePool(
+            connectionPool,
+            selectAllSQL,
+            [{'COLA': 1, 'COLB': 'a'},
+              {'COLA': 1, 'COLB': 'a'},
+              {'COLA': 1, 'COLB': 'a'},
+              {'COLA': 1, 'COLB': 'a'},
+              {'COLA': 1, 'COLB': 'a'}],
+            callback
+          );
+        },
+        function (callback)
+        {
+          testUtil.executeCmdUsePool(
+            connectionPool,
+            dropNodeTSQL,
+            callback
+          );
+        }
+      ],
+      done
+    );
+  });
+
+  it('testSimpleUpdate', function (done)
+  {
+    async.series([
+        function (callback)
+        {
+          testUtil.executeCmdUsePool(connectionPool, createNodeTSQL, callback);
+        },
+        function (callback)
+        {
+          testUtil.executeCmdUsePool(connectionPool, insertNodeTSQL, callback);
+        },
+        function (callback)
+        {
+          testUtil.executeCmdUsePool(connectionPool, updateNodeTSQL, callback);
+        },
+        function (callback)
+        {
+          testUtil.executeQueryAndVerifyUsePool(
+            connectionPool,
+            selectAllSQL,
+            [{'COLA': 2, 'COLB': 'b'}],
+            callback
+          );
+        },
+        function (callback)
+        {
+          testUtil.executeCmdUsePool(
+            connectionPool,
+            dropNodeTSQL,
+            callback
+          );
+        }],
+      done
+    );
+  });
+
+  it('testDDLResultSet', function (done)
+  {
+    async.series(
+      [
+        function (callback)
+        {
+          testUtil.executeQueryAndVerifyUsePool(
+            connectionPool,
+            createNodeTSQL,
+            [{'status': 'Table NODET successfully created.'}],
+            callback
+          );
+        },
+        function (callback)
+        {
+          testUtil.executeQueryAndVerifyUsePool(
+            connectionPool,
+            insertNodeTSQL,
+            [{'number of rows inserted': 1}],
+            callback
+          );
+        },
+        function (callback)
+        {
+          testUtil.executeCmdUsePool(connectionPool, dropNodeTSQL, callback);
+        }
+      ],
+      done
+    );
+  });
+});

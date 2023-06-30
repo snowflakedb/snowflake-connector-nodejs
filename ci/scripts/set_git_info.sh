@@ -11,12 +11,15 @@ if [[ -z "$GITHUB_ACTIONS" ]]; then
     export client_git_commit=${client_git_commit:-$(git log --pretty=oneline | head -1 | awk '{print $1}')}
 else
     if [[ "$CLOUD_PROVIDER" == "AZURE" ]]; then
-        gpg --quiet --batch --yes --decrypt --passphrase="$PARAMETERS_SECRET" --output $THIS_DIR/../parameters.json $THIS_DIR/../.github/workflows/parameters_azure.json.gpg
+        ENCODED_PARAMETERS_FILE="$THIS_DIR/../.github/workflows/parameters_azure.json.gpg"
     elif [[ "$CLOUD_PROVIDER" == "GCP" ]]; then
-        gpg --quiet --batch --yes --decrypt --passphrase="$PARAMETERS_SECRET" --output $THIS_DIR/../parameters.json $THIS_DIR/../.github/workflows/parameters_gcp.json.gpg
+        ENCODED_PARAMETERS_FILE="$THIS_DIR/../.github/workflows/parameters_gcp.json.gpg"
+    elif [[ "$CLOUD_PROVIDER" == "AWS" ]]; then
+        ENCODED_PARAMETERS_FILE="$THIS_DIR/../.github/workflows/parameters_aws.json.gpg"
     else
-        gpg --quiet --batch --yes --decrypt --passphrase="$PARAMETERS_SECRET" --output $THIS_DIR/../parameters.json $THIS_DIR/../.github/workflows/parameters_aws.json.gpg
+        echo "[ERROR] unknown cloud provider"
     fi
+    gpg --quiet --batch --yes --decrypt --passphrase="$PARAMETERS_SECRET" --output $THIS_DIR/../parameters.json $ENCODED_PARAMETERS_FILE
     export client_git_url=https://github.com/${GITHUB_REPOSITORY}.git
     export client_git_branch=origin/$(basename ${GITHUB_REF})
     export client_git_commit=${GITHUB_SHA}

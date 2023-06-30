@@ -13,8 +13,11 @@ if "%CLOUD_PROVIDER%"=="AZURE" (
   set ENCODED_PARAMETERS_FILE=.github/workflows/parameters_azure.json.gpg
 ) else if "%CLOUD_PROVIDER%"=="GCP" (
   set ENCODED_PARAMETERS_FILE=.github/workflows/parameters_gcp.json.gpg
-) else (
+) else if "%CLOUD_PROVIDER%"=="AWS" (
   set ENCODED_PARAMETERS_FILE=.github/workflows/parameters_aws.json.gpg
+) else (
+  echo === unknown cloud provider
+  exit /b 1
 )
 
 gpg --quiet --batch --yes --decrypt --passphrase=%PARAMETERS_SECRET% --output parameters.json %ENCODED_PARAMETERS_FILE%

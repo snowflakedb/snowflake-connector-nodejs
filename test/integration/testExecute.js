@@ -478,3 +478,78 @@ describe('Execute test with Pool', function ()
     );
   });
 });
+
+describe('Execute test use Pool for multiple connections', function ()
+{
+  var connectionPool;
+  var createNodeASQL = 'create or replace table NodeA(colA number, colB varchar);';
+  var createNodeBSQL = 'create or replace table NodeB(colA number, colB varchar);';
+  var selectAllSQLFromNodeA = 'select * from NodeA;';
+  var selectAllSQLFromNodeB = 'select * from NodeB;';
+  var insertNodeASQL = 'insert into NodeA values(1, \'a\');';
+  var insertNodeBSQL = 'insert into NodeB values(1, \'b\');';
+  var dropNodeASQL = 'drop table if exists NodeA;';
+  var dropNodeBSQL = 'drop table if exists NodeB;';
+
+  before(function (done)
+  {
+    connectionPool = testUtil.createConnectionPool();
+    async.parallel(
+      [
+        function (callback)
+        {
+          testUtil.executeCmdUsePool(connectionPool, createNodeASQL+insertNodeASQL, callback);
+        },
+        function (callback)
+        {
+          testUtil.executeCmdUsePool(connectionPool, createNodeBSQL+insertNodeBSQL, callback);
+        }
+      ],
+      done
+    );
+  });
+
+  after(function (done)
+  {
+    async.parallel(
+      [
+        function (callback)
+        {
+          testUtil.executeCmdUsePool(connectionPool, dropNodeASQL, callback);
+        },
+        function (callback)
+        {
+          testUtil.executeCmdUsePool(connectionPool, dropNodeBSQL, callback);
+        }
+      ],
+      done
+    );
+  });
+
+  it('testSimpleInsert', function (done)
+  {    
+    async.parallel(
+      [
+        function (callback)
+        {
+          testUtil.executeQueryAndVerifyUsePool(
+            connectionPool,
+            selectAllSQLFromNodeA,
+            [{'COLA': 1, 'COLB': 'a'}],
+            callback
+          );
+        },
+        function (callback)
+        {
+          testUtil.executeQueryAndVerifyUsePool(
+            connectionPool,
+            selectAllSQLFromNodeB,
+            [{'COLA': 1, 'COLB': 'b'}],
+            callback
+          );
+        }
+      ],
+      done
+    );
+  });
+});

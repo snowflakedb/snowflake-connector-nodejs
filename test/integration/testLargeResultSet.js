@@ -4,10 +4,11 @@
 const assert = require('assert');
 const async = require('async');
 const testUtil = require('./testUtil');
+const { configureLogger } = require('../configureLogger');
 
 const sourceRowCount = 10000;
 
-describe('Large result Set Tests', function ()
+describe.only('Large result Set Tests', function ()
 {
   let connection;
   const selectAllFromOrders = `select randstr(1000,random()) from table(generator(rowcount=>${sourceRowCount}))`;
@@ -16,7 +17,12 @@ describe('Large result Set Tests', function ()
   {
     connection = testUtil.createConnection();
     await testUtil.connectAsync(connection);
+    // setting ROWS_PER_RESULTSET causes invalid, not encoded chunks from GCP
+    await testUtil.executeCmdAsync(connection, 'alter session set ROWS_PER_RESULTSET = 1000000');
   });
+
+  beforeEach(() => configureLogger('TRACE'));
+  afterEach(() => configureLogger('ERROR'));
 
   after(async () =>
   {

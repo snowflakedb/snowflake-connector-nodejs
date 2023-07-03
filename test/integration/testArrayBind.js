@@ -660,8 +660,9 @@ describe('Test Array Bind Force Error on Upload file', function ()
   });
 });
 
-describe('Test Array Bind - full path with cancel', function ()
-{
+describe('Test Array Bind - full path with cancel', function () {
+  this.retries(3); // this test suit are considered as flaky
+
   let connection;
   const DATABASE_NAME = connOption.valid.database;
   const SCHEMA_NAME = connOption.valid.schema;

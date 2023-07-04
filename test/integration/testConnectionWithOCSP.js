@@ -58,8 +58,12 @@ describe('Connection with OCSP test', function ()
         {
           connection.connect(function (err)
           {
-            assert.strictEqual(err.code, Errors.codes.ERR_SF_RESPONSE_FAILURE);
-            callback();
+            try {
+              assert.strictEqual(err.code, Errors.codes.ERR_SF_RESPONSE_FAILURE);
+              callback();
+            } catch (e) {
+              callback(e);
+            }
           });
         }
       ],

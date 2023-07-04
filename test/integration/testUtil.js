@@ -10,6 +10,11 @@ module.exports.createConnection = function ()
   return snowflake.createConnection(connOptions.valid);
 };
 
+module.exports.createProxyConnection = function ()
+{
+  return snowflake.createConnection(connOptions.connectionWithProxy);
+};
+
 module.exports.createConnectionPool = function ()
 {
   return snowflake.createPool(connOptions.valid, {max: 10, min: 0, testOnBorrow: true});

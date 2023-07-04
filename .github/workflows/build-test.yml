@@ -50,7 +50,7 @@ jobs:
             - uses: actions/checkout@v1
             - uses: actions/setup-node@v1
               with:
-                node-version: '16.x'
+                node-version: '17.x'
             - uses: actions/setup-python@v1
               with:
                 python-version: '3.7'
@@ -80,7 +80,7 @@ jobs:
             - uses: actions/checkout@v1
             - uses: actions/setup-node@v1
               with:
-                node-version: '18.x'
+                node-version: '17.x'
             - uses: actions/setup-python@v1
               with:
                 python-version: '3.7'
@@ -109,7 +109,7 @@ jobs:
             - uses: actions/checkout@v1
             - uses: actions/setup-node@v1
               with:
-                node-version: '12.x'
+                node-version: '17.x'
             - uses: actions/setup-python@v1
               with:
                 python-version: '3.7'
@@ -137,7 +137,7 @@ jobs:
             - uses: actions/checkout@v1
             - uses: actions/setup-node@v1
               with:
-                node-version: '12.x'
+                node-version: '17.x'
             - uses: actions/setup-python@v1
               with:
                 python-version: '3.7'
@@ -167,7 +167,7 @@ jobs:
             - uses: actions/checkout@v1
             - uses: actions/setup-node@v1
               with:
-                node-version: '12.x'
+                node-version: '17.x'
             - uses: actions/setup-python@v1
               with:
                 python-version: '3.7'
@@ -198,7 +198,7 @@ jobs:
             - uses: actions/checkout@v1
             - uses: actions/setup-node@v1
               with:
-                node-version: '12.x'
+                node-version: '17.x'
             - uses: actions/setup-python@v1
               with:
                 python-version: '3.7'

@@ -6,8 +6,7 @@ var assert = require('assert');
 var async = require('async');
 var connOption = require('./connectionOptions').valid;
 var testUtil = require('./testUtil');
-var fs = require('fs');
-var tmp = require('tmp');
+const Os = require('os');
 
 describe('Execute proxy test', function ()
 {

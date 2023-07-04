@@ -494,15 +494,23 @@ describe('Execute test use Pool for multiple connections', function ()
   before(function (done)
   {
     connectionPool = testUtil.createConnectionPool();
-    async.parallel(
+    async.series(
       [
         function (callback)
         {
-          testUtil.executeCmdUsePool(connectionPool, createNodeASQL+insertNodeASQL, callback);
+          testUtil.executeCmdUsePool(connectionPool, createNodeASQL, callback);
         },
         function (callback)
         {
-          testUtil.executeCmdUsePool(connectionPool, createNodeBSQL+insertNodeBSQL, callback);
+          testUtil.executeCmdUsePool(connectionPool, createNodeBSQL, callback);
+        },
+        function (callback)
+        {
+          testUtil.executeCmdUsePool(connectionPool, insertNodeASQL, callback);
+        },
+        function (callback)
+        {
+          testUtil.executeCmdUsePool(connectionPool, insertNodeBSQL, callback);
         }
       ],
       done
@@ -511,7 +519,7 @@ describe('Execute test use Pool for multiple connections', function ()
 
   after(function (done)
   {
-    async.parallel(
+    async.series(
       [
         function (callback)
         {

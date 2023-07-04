@@ -263,13 +263,13 @@ describe('SNOW-743920: Large result set with ~35 chunks', function () {
 
   before(async () => {
     connection = testUtil.createConnection();
+    configureLogger('TRACE');
     await testUtil.connectAsync(connection);
     // setting ROWS_PER_RESULTSET causes invalid, not encoded chunks from GCP
     // await testUtil.executeCmdAsync(connection, 'alter session set ROWS_PER_RESULTSET = 1000000');
     await testUtil.executeCmdAsync(connection, 'alter session set USE_CACHED_RESULT = false;');
     await testUtil.executeCmdAsync(connection, createTable);
     await testUtil.executeCmdAsync(connection, populateData);
-    configureLogger('TRACE');
   });
 
   after(async () => {

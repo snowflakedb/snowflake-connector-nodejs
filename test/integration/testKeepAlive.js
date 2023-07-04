@@ -56,7 +56,7 @@ describe.skip('keepAlive perf test', function ()
             {
               var start = performance.now();
               var statement = connection.execute({
-                sqlText: "SELECT L_COMMENT from SNOWFLAKE_SAMPLE_DATA.TPCH_SF100.LINEITEM limit 10000;",
+                sqlText: "SELECT VALUE from VARIANT_TABLE2 limit 10000;",
                 complete: function (err, stmt, rows)
                 {
                   var stream = statement.streamRows();

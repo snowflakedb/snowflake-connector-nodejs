@@ -9,6 +9,8 @@ const connOption = require('../connectionOptions');
 const Errors = require('../../../lib/errors');
 const ErrorCodes = Errors.codes;
 const HttpsMockAgent = require('./https_ocsp_mock_agent');
+const {configureLogger} = require("../../configureLogger");
+const testUtil = require("../testUtil");
 
 function cloneConnOption(connOption)
 {
@@ -24,6 +26,11 @@ describe('Connection test with OCSP Mock', function ()
 {
   const valid = cloneConnOption(connOption.valid);
   const isHttps = valid.accessUrl.startsWith("https");
+  before(async () =>
+  {
+    configureLogger('TRACE');
+  });
+
 
   function connect(errcode, connection, callback)
   {
@@ -76,18 +83,20 @@ describe('Connection test with OCSP Mock', function ()
     );
   });
 
-  it('Connection failure with OCSP unknown error', function (done)
-  {
+  it('Connection failure with OCSP unknown error', function (done) {
     valid.agentClass = HttpsMockAgent.HttpsMockAgentOcspUnkwown;
     const connection = snowflake.createConnection(valid);
 
     async.series([
-        function (callback)
-        {
-          connect(ErrorCodes.ERR_OCSP_UNKNOWN, connection, callback);
+        function (callback) {
+      try {
+        connect(ErrorCodes.ERR_OCSP_UNKNOWN, connection, callback);
+      } catch (err){
+        console.log(`err ${err}`);
+      }
+
         },
-        function (callback)
-        {
+        function (callback) {
           destroy(connection, callback);
         }
       ],
@@ -95,18 +104,15 @@ describe('Connection test with OCSP Mock', function ()
     );
   });
 
-  it('Connection failure with invalid validity OCSP error', function (done)
-  {
+  it('Connection failure with invalid validity OCSP error', function (done) {
     valid.agentClass = HttpsMockAgent.HttpsMockAgentOcspInvalid;
     const connection = snowflake.createConnection(valid);
 
     async.series([
-        function (callback)
-        {
+        function (callback) {
           connect(ErrorCodes.ERR_OCSP_INVALID_VALIDITY, connection, callback);
         },
-        function (callback)
-        {
+        function (callback) {
           destroy(connection, callback);
         }
       ],

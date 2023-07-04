@@ -45,6 +45,11 @@
     "mock-require": "^3.0.3",
     "test-console": "^2.0.0"
   },
+  "overrides": {
+    "@azure/storage-blob": {
+      "node-fetch": "^3.2.10"
+    }
+  },
   "repository": {
     "type": "git",
     "url": "https://github.com/snowflakedb/snowflake-connector-nodejs"

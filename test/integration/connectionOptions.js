@@ -205,6 +205,20 @@ var privatelink =
   account: snowflakeTestAccount + '.privatelink'
 };
 
+const connectionWithProxy =
+  {
+    accessUrl: accessUrl,
+    username: snowflakeTestUser,
+    password: snowflakeTestPassword,
+    account: snowflakeTestAccount,
+    warehouse: snowflakeTestWarehouse,
+    database: snowflakeTestDatabase,
+    schema: snowflakeTestSchema,
+    role: snowflakeTestRole,
+    proxyHost: snowflakeTestProxyHost,
+    proxyPort: parseInt(snowflakeTestProxyPort, 10)
+  };
+
 exports.valid = valid;
 exports.snowflakeAccount = snowflakeAccount;
 exports.wrongUserName = wrongUserName;
@@ -221,3 +235,4 @@ exports.oauth = oauth;
 exports.oauthMismatchUser = oauthMismatchUser;
 exports.okta = okta;
 exports.privatelink = privatelink;
+exports.connectionWithProxy = connectionWithProxy;

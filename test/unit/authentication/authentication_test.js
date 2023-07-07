@@ -72,6 +72,7 @@ describe('external browser authentication', function ()
   const mockSsoURL = 'https://ssoTestURL.okta.com/';
 
   const credentials = connectionOptionsExternalBrowser;
+  const BROWSER_ACTION_TIMEOUT = 10000;
 
   before(function ()
   {
@@ -109,7 +110,7 @@ describe('external browser authentication', function ()
 
   it('external browser - authenticate method is thenable', done =>
   {
-    const auth = new auth_web('', webbrowser.open, httpclient);
+    const auth = new auth_web('', BROWSER_ACTION_TIMEOUT, webbrowser.open, httpclient);
 
     auth.authenticate(credentials.authenticator, '', credentials.account, credentials.username)
       .then(done)
@@ -118,7 +119,7 @@ describe('external browser authentication', function ()
 
   it('external browser - get success', async function ()
   {
-    var auth = new auth_web('', webbrowser.open, httpclient);
+    const auth = new auth_web('', BROWSER_ACTION_TIMEOUT, webbrowser.open, httpclient);
     await auth.authenticate(credentials.authenticator, '', credentials.account, credentials.username);
 
     var body = { data: {} };
@@ -160,7 +161,7 @@ describe('external browser authentication', function ()
     webbrowser = require('webbrowser');
     httpclient = require('httpclient');
 
-    var auth = new auth_web('', webbrowser.open, httpclient);
+    const auth = new auth_web('', BROWSER_ACTION_TIMEOUT, webbrowser.open, httpclient);
     await auth.authenticate(credentials.authenticator, '', credentials.account, credentials.username);
 
     var body = { data: {} };

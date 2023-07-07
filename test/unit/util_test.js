@@ -589,4 +589,48 @@ describe('Util', function ()
         err.response, testCase.retry403), testCase.isRetryable)
     }
   });
+
+  describe('isPrivateKey', () => {
+    [
+      // pragma: allowlist nextline secret
+      { name: 'trimmed already key', key: '-----BEGIN PRIVATE KEY-----\ntest\n-----END PRIVATE KEY-----' },
+      {
+        name: 'key with whitespaces at the beginning',
+        // pragma: allowlist nextline secret
+        key: '   -----BEGIN PRIVATE KEY-----\ntest\n-----END PRIVATE KEY-----'
+      },
+      {
+        name: 'key with whitespaces at the end',
+        // pragma: allowlist nextline secret
+        key: '-----BEGIN PRIVATE KEY-----\ntest\n-----END PRIVATE KEY-----\n\n\n'
+      },
+    ].forEach(({ name, key }) => {
+      it(`${name} is valid`, () => {
+        assert.ok(Util.isPrivateKey(key));
+      });
+    });
+
+    [
+      { name: 'key without beginning and end', key: 'test' },
+      { name: 'key with missing beginning', key: 'test\n-----END PRIVATE KEY-----' },
+      {
+        name: 'key with missing ending',
+        // pragma: allowlist nextline secret
+        key: '   -----BEGIN PRIVATE KEY-----\ntest'
+      },
+      {
+        name: 'key with invalid beginning',
+        key: '-----BEGIN PUBLIC KEY-----\ntest\n-----END PRIVATE KEY-----\n\n\n'
+      },
+      {
+        name: 'key with invalid end',
+        // pragma: allowlist nextline secret
+        key: '-----BEGIN PRIVATE KEY-----\ntest\n-----END PUBLIC KEY-----\n\n\n'
+      },
+    ].forEach(({ name, key }) => {
+      it(`${name} is invalid`, () => {
+        assert.ok(!Util.isPrivateKey(key));
+      });
+    });
+  });
 });

@@ -32,8 +32,7 @@ describe('Connection test', function ()
         sessionTokenExpirationTime: undefined
       });
     }
-  )
-  ;
+  );
 
   it('does not return tokens when not in qaMode', function ()
     {
@@ -42,40 +41,13 @@ describe('Connection test', function ()
     }
   )
   ;
-  it('Simple Connect', function (done)
-  {
-    var connection = snowflake.createConnection(connOption.valid);
+  it('Simple Connect', async function () {
+    const connection = snowflake.createConnection(connOption.valid);
 
-    async.series([
-        function (callback)
-        {
-          connection.connect(function (err)
-          {
-            assert.ok(!err, JSON.stringify(err));
-            callback();
-          });
-        },
-        function (callback)
-        {
-          assert.ok(connection.isUp(), "not active");
-          callback();
-        },
-        function (callback)
-        {
-          connection.destroy(function (err)
-          {
-            assert.ok(!err, JSON.stringify(err));
-            callback();
-          });
-        },
-        function (callback)
-        {
-          assert.ok(!connection.isUp(), "still active");
-          callback();
-        },
-      ],
-      done
-    );
+    await testUtil.connectAsync(connection);
+    assert.ok(connection.isUp(), "not active");
+    await testUtil.destroyConnectionAsync(connection);
+    assert.ok(!connection.isUp(), "still active");
   });
 
   it('Wrong Username', function (done)
@@ -99,16 +71,17 @@ describe('Connection test', function ()
       done();
     });
   });
+
   it('Multiple Client', function (done)
   {
     const totalConnections = 10;
-    var connections = [];
-    for (var i = 0; i < totalConnections; i++)
+    const connections = [];
+    for (let i = 0; i < totalConnections; i++)
     {
       connections.push(snowflake.createConnection(connOption.valid));
     }
-    var completedConnection = 0;
-    for (i = 0; i < totalConnections; i++)
+    let completedConnection = 0;
+    for (let i = 0; i < totalConnections; i++)
     {
       connections[i].connect(function (err, conn)
       {
@@ -126,71 +99,81 @@ describe('Connection test', function ()
         });
       });
     }
-    setTimeout(function ()
+    const sleepMs = 500;
+    const maxSleep = 60000;
+    let sleepFromStartChecking = 0;
+
+    const timeout = () => setTimeout(() =>
     {
-      assert.strictEqual(completedConnection, totalConnections);
-      done();
-    }, 60000);
+      sleepFromStartChecking += sleepMs;
+      if (completedConnection === totalConnections)
+      {
+        done();
+      }
+      else if (sleepFromStartChecking <= maxSleep)
+      {
+        timeout();
+      }
+      else
+      {
+        done(`Max after ${maxSleep} it's expected to complete ${totalConnections} but completed ${completedConnection}`)
+      }
+    }, sleepMs);
+
+    timeout();
   });
 });
 
 // Skipped - requires manual interaction to enter credentials on browser
-describe.skip('Connection test - external browser', function ()
-{
+describe.skip('Connection test - external browser', function () {
   this.timeout(10000);
 
-  it('Simple Connect', function (done)
-  {
-    var connection = snowflake.createConnection(connOption.externalBrowser);
+  it('Simple Connect', function (done) {
+    const connection = snowflake.createConnection(connOption.externalBrowser);
 
-    async.series([
-        function (callback)
-        {
-          connection.connectAsync(function (err)
-          {
+    connection.connectAsync(function (err, connection) {
+      try {
+        assert.ok(connection.isUp(), 'not active');
+        testUtil.destroyConnection(connection, function (err, r) {
+          try {
+            assert.ok(!connection.isUp(), 'not active');
+            done();
+          } catch (err) {
             done(err);
-            assert.ok(!err, JSON.stringify(err));
-            callback();
-          });
-        },
-        function (callback)
-        {
-          assert.ok(connection.isUp(), "not active");
-          callback();
-        },
-        function (callback)
-        {
-          connection.destroy(function (err)
-          {
-            assert.ok(!err, JSON.stringify(err));
-            callback();
-          });
-        },
-        function (callback)
-        {
-          assert.ok(!connection.isUp(), "still active");
-          callback();
-        },
-      ],
-    );
-  });
-
-  it('Mismatched Username', function (done)
-  {
-    var connection = snowflake.createConnection(connOption.externalBrowserMismatchUser);
-    connection.connectAsync(function (err)
-    {
-      try
-      {
-        assert.ok(err, 'Logged in with different user than one on connection string');
-        assert.equal('The user you were trying to authenticate as differs from the user currently logged in at the IDP.', err["message"]);
-        done();
-      }
-      catch (err)
-      {
+          }
+        });
+      } catch (err) {
         done(err);
       }
-    })
+    });
+  });
+
+
+  it('Connect - external browser timeout', function (done) {
+    const connection = snowflake.createConnection(connOption.externalBrowserWithShortTimeout);
+
+    connection.connectAsync(function (err) {
+      try {
+        const browserActionTimeout = connOption.externalBrowserWithShortTimeout.browserActionTimeout;
+        assert.ok(err, `Browser action timed out after ${browserActionTimeout} ms.`);
+        done();
+      } catch (err) {
+        done(err);
+      }
+    });
+  });
+
+  it('Mismatched Username', function (done) {
+    var connection = snowflake.createConnection(connOption.externalBrowserMismatchUser);
+    connection.connectAsync(function (err) {
+      try {
+        assert.ok(err, 'Logged in with different user than one on connection string');
+        assert.equal('The user you were trying to authenticate as differs from the user currently logged in at the IDP.', err['message']);
+        done();
+      } catch (err) {
+        done(err);
+      }
+    });
   });
 });
 
@@ -1159,7 +1142,7 @@ describe('Connection Test - Heartbeat', () =>
   it('call heartbeat url as promise', async () =>
   {
     const rows = await connection.heartbeatAsync();
-    assert.ok(rows.success);
+    assert.deepEqual(rows,  [ { '1': 1 } ]);
   });
 });
 

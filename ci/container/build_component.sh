@@ -11,11 +11,13 @@ THIS_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 cd /mnt/host
 echo "[INFO] Building"
 rm -f snowflake-sdk*.tgz
+echo "[DEBUG] Version"
+npm version
+echo "[DEBUG] Packing"
 npm pack
+echo "[DEBUG] Installing"
 npm install
 rm -f ~/.npmrc
-npm audit
-
 
 echo "[INFO] Uploading Artifacts"
 ARTIFACTS=($(ls snowflake-sdk*))

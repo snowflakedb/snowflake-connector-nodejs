@@ -208,7 +208,7 @@ describe('Execute test - variant', function () {
       }
 
       testUtil.executeCmdAsync(connection, putVariant)
-        .then(()=> testUtil.executeCmdAsync(connection, copyIntoVariant))
+        .then(() => testUtil.executeCmdAsync(connection, copyIntoVariant))
         .then(() => {
           connection.execute({
             sqlText: selectVariant,
@@ -231,8 +231,8 @@ describe('Execute test - variant', function () {
               }
             }
           })
-          .catch((err) => done(err));
         })
+        .catch((err) => done(err));
     };
   };
 
@@ -316,6 +316,19 @@ describe('Execute test - variant', function () {
           assertionCheck: (row) => {
             assert.strictEqual(row[TEST_COL]['node'][TEST_HEADER][ELEMENT_VALUE_FIELD], TEST_XML_VAL)
             assert.equal(row[TEST_COL]['node'][TEST_HEADER]['attributes'][TEST_ATTRIBUTE_CUSTOM_PREFIX + TEST_ATTRIBUTE_NAME], TEST_ATTRIBUTE_VALUE);
+          }
+        },
+        {
+          name: 'xml_with_group_attributes_group_without_prefixes',
+          type: 'XML',
+          fileExtension: '.xml',
+          sampleData: `<node><${TEST_HEADER} ${TEST_ATTRIBUTE_NAME}=${TEST_ATTRIBUTE_VALUE}>${TEST_XML_VAL}</${TEST_HEADER}></node>`,
+          ignoreAttributes: false,
+          attributeNamePrefix: '',
+          attributesGroupName: '@_',
+          assertionCheck: (row) => {
+            assert.strictEqual(row[TEST_COL]['node'][TEST_HEADER][ELEMENT_VALUE_FIELD], TEST_XML_VAL);
+            assert.strictEqual(row[TEST_COL]['node'][TEST_HEADER]['@_'][TEST_ATTRIBUTE_NAME], TEST_ATTRIBUTE_VALUE);
           }
         },
         {

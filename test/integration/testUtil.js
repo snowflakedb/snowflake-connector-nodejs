@@ -13,43 +13,35 @@ module.exports.createConnection = function (validConnectionOptionsOverride = {})
   });
 };
 
-module.exports.createProxyConnection = function ()
-{
+module.exports.createProxyConnection = function () {
   return snowflake.createConnection(connOptions.connectionWithProxy);
 };
 
-module.exports.createConnectionPool = function ()
-{
+module.exports.createConnectionPool = function () {
   return snowflake.createPool(connOptions.valid, {max: 10, min: 0, testOnBorrow: true});
 };
 
-module.exports.connect = function (connection, callback)
-{
-  connection.connect(function (err)
-  {
+module.exports.connect = function (connection, callback) {
+  connection.connect(function (err) {
     assert.ok(!err, JSON.stringify(err));
     callback();
   });
 };
 
-module.exports.connectAsync = function (connection)
-{
+module.exports.connectAsync = function (connection) {
   return new Promise((resolve, reject) => {
-    connection.connect(err => err ? reject(err) : resolve())
+    connection.connect(err => err ? reject(err) : resolve());
   });
 };
 
-module.exports.destroyConnection = function (connection, callback)
-{
-  connection.destroy(function (err)
-  {
+module.exports.destroyConnection = function (connection, callback) {
+  connection.destroy(function (err) {
     assert.ok(!err, JSON.stringify(err));
     callback();
-  })
+  });
 };
 
-module.exports.destroyConnectionAsync = function (connection)
-{
+module.exports.destroyConnectionAsync = function (connection) {
   return new Promise((resolve, reject) => {
     connection.destroy(err => err ? reject(err) : resolve());
   });
@@ -70,23 +62,13 @@ module.exports.executeCmd = function (connection, sql, callback, bindArray) {
   });
 };
 
-module.exports.executeCmdUsePool = function (connectionPool, sql, callback, bindArray)
-{
-  var executeOptions = {};
-  executeOptions.sqlText = sql;
-  executeOptions.complete = function (err)
-  {
-    assert.ok(!err, JSON.stringify(err));
-    callback();
-  };
-
-  if (bindArray !== undefined && bindArray != null)
-  {
-    executeOptions.binds = bindArray;
-  }
-  
+module.exports.executeCmdUsePool = function (connectionPool, sql, callback, bindArray) {
   connectionPool.use(async (clientConnection) => {
-    await clientConnection.execute(executeOptions);
+    await clientConnection.execute({
+      sqlText: sql,
+      binds: bindArray !== undefined && bindArray != null ? bindArray : undefined,
+      complete: err => callback(err)
+    });
   });
 };
 
@@ -109,7 +91,7 @@ module.exports.executeCmdAsync = executeCmdAsync;
  * @return {Promise<void>}
  */
 module.exports.dropTablesIgnoringErrorsAsync = async (connection, tableNames) => {
-  for (let tableIdx in tableNames) {
+  for (const tableIdx in tableNames) {
     const tableName = tableNames[tableIdx];
     try {
       await executeCmdAsync(connection, `DROP TABLE IF EXISTS ${tableName}`);
@@ -119,97 +101,76 @@ module.exports.dropTablesIgnoringErrorsAsync = async (connection, tableNames) =>
   }
 };
 
-module.exports.checkError = function (err)
-{
+module.exports.checkError = function (err) {
   assert.ok(!err, JSON.stringify(err));
 };
 
-module.exports.executeQueryAndVerify = function (connection, sql, expected, callback, bindArray, normalize, strict)
-{
+module.exports.executeQueryAndVerify = function (connection, sql, expected, callback, bindArray, normalize, strict) {
   // Sometimes we may not want to normalize the row first
-  normalize = (typeof normalize !== "undefined" && normalize != null) ? normalize : true;
-  strict = (typeof strict !== "undefined" && strict != null) ? strict : true;
-  var executeOptions = {};
+  normalize = (typeof normalize !== 'undefined' && normalize != null) ? normalize : true;
+  strict = (typeof strict !== 'undefined' && strict != null) ? strict : true;
+  const executeOptions = {};
   executeOptions.sqlText = sql;
-  executeOptions.complete = function (err, stmt)
-  {
+  executeOptions.complete = function (err, stmt) {
     assert.ok(!err, JSON.stringify(err));
-    var rowCount = 0;
-    var stream = stmt.streamRows();
-    stream.on('readable', function ()
-    {
-      var row;
-      while ((row = stream.read()) !== null)
-      {
-        if (strict)
-        {
+    let rowCount = 0;
+    const stream = stmt.streamRows();
+    stream.on('readable', function () {
+      let row;
+      while ((row = stream.read()) !== null) {
+        if (strict) {
           assert.deepStrictEqual(normalize ? normalizeRowObject(row) : row, expected[rowCount]);
-        }
-        else
-        {
+        } else {
           assert.deepEqual(normalize ? normalizeRowObject(row) : row, expected[rowCount]);
         }
         rowCount++;
       }
     });
-    stream.on('error', function (err)
-    {
+    stream.on('error', function (err) {
       assert.ok(!err, JSON.stringify(err));
     });
-    stream.on('end', function ()
-    {
+    stream.on('end', function () {
       assert.strictEqual(rowCount, expected.length);
       callback();
     });
   };
-  if (bindArray != null && bindArray != undefined)
-  {
+  if (bindArray != null && bindArray != undefined) {
     executeOptions.binds = bindArray;
   }
 
   connection.execute(executeOptions);
 };
 
-module.exports.executeQueryAndVerifyUsePool = function (connectionPool, sql, expected, callback, bindArray, normalize, strict)
-{
+module.exports.executeQueryAndVerifyUsePool = function (connectionPool, sql, expected, callback, bindArray, normalize, strict) {
   // Sometimes we may not want to normalize the row first
-  normalize = (typeof normalize !== "undefined" && normalize != null) ? normalize : true;
-  strict = (typeof strict !== "undefined" && strict != null) ? strict : true;
-  var executeOptions = {};
+  normalize = (typeof normalize !== 'undefined' && normalize != null) ? normalize : true;
+  strict = (typeof strict !== 'undefined' && strict != null) ? strict : true;
+  const executeOptions = {};
   executeOptions.sqlText = sql;
-  executeOptions.complete = function (err, stmt)
-  {
+  executeOptions.complete = function (err, stmt) {
     assert.ok(!err, JSON.stringify(err));
-    var rowCount = 0;
-    var stream = stmt.streamRows();
-    stream.on('readable', function ()
-    {
-      var row;
-      while ((row = stream.read()) !== null)
-      {
-        if (strict)
-        {
+    let rowCount = 0;
+    const stream = stmt.streamRows();
+    stream.on('readable', function () {
+      let row;
+      while ((row = stream.read()) !== null) {
+        if (strict) {
           assert.deepStrictEqual(normalize ? normalizeRowObject(row) : row, expected[rowCount]);
-        }
-        else
-        {
+        } else {
           assert.deepEqual(normalize ? normalizeRowObject(row) : row, expected[rowCount]);
         }
         rowCount++;
       }
     });
-    stream.on('error', function (err)
-    {
+    stream.on('error', function (err) {
       assert.ok(!err, JSON.stringify(err));
     });
-    stream.on('end', function ()
-    {
+    stream.on('end', function () {
       assert.strictEqual(rowCount, expected.length);
       callback();
     });
   };
-  if (bindArray != null && bindArray != undefined)
-  {
+  if (bindArray != null && bindArray != undefined) {
     executeOptions.binds = bindArray;
   }
 
@@ -218,28 +179,20 @@ module.exports.executeQueryAndVerifyUsePool = function (connectionPool, sql, exp
   });
 };
 
-function normalizeRowObject(row)
-{
-  var normalizedRow = {};
-  for (var key in row)
-  {
-    if (row.hasOwnProperty(key))
-    {
-      var convertToString = (row[key] !== null) && (row[key] !== undefined)
+function normalizeRowObject(row) {
+  const normalizedRow = {};
+  for (const key in row) {
+    if (row.hasOwnProperty(key)) {
+      const convertToString = (row[key] !== null) && (row[key] !== undefined)
         && (typeof row[key].toJSON === 'function');
-      var convertToJSNumber = (row[key] !== null) && (row[key] !== undefined)
+      const convertToJSNumber = (row[key] !== null) && (row[key] !== undefined)
         && (typeof row[key].toJSNumber === 'function');
       // If this is a bigInt type then convert to JS Number instead of string JSON representation
-      if (convertToJSNumber)
-      {
+      if (convertToJSNumber) {
         normalizedRow[key] = row[key].toJSNumber();
-      }
-      else if (convertToString)
-      {
+      } else if (convertToString) {
         normalizedRow[key] = row[key].toJSON();
-      }
-      else
-      {
+      } else {
         normalizedRow[key] = row[key];
       }
     }

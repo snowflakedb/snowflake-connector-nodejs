@@ -13,4 +13,4 @@ __pycache__/
 wss-*-agent.config
 wss-unified-agent.jar
 whitesource/
-
+.nyc_output

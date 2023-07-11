@@ -84,36 +84,11 @@ npm test:integration
 
 Getting the code coverage
 ----------------------------------------------------------------------
-1. Go to nodejs project directory
-```
-cd snowflake-connector-nodejs
-```
 
-2. Install the node connector
+Run tests and show code coverage report
 ```
-npm install .
+npm run test:ci:coverage
 ```
-
-3. Install the nyc module which displays the code coverage
-```
-npm install nyc
-```
-
-4. Edit the package.json file and replace the specified test with the one below:
-```
-"scripts": {
-  "test": "nyc mocha test/**/*.js"
-},
-```
-
-5. Using git bash, run the "npm test" command and include the connection parameters in the same line:
-```
-SNOWFLAKE_TEST_USER="user" SNOWFLAKE_TEST_PASSWORD="password" SNOWFLAKE_TEST_ACCOUNT="account" SNOWFLAKE_TEST_WAREHOUSE="warehouse" SNOWFLAKE_TEST_DATABASE="db" SNOWFLAKE_TEST_SCHEMA="schema" npm test
-```
-
-6. The code coverage results will be displayed in the console when the test finishes executing
-<br>
-Note: git bash is the console used for installing the node connector, the nyc module, and running "npm test"
 
 Package
 ======================================================================

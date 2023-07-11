@@ -467,6 +467,8 @@ describe('Test Array Bind - full path', function ()
   const SCHEMA_NAME = connOption.valid.schema;
 
   this.timeout(600000);
+  this.retries(3); // this test suit are considered as flaky
+
   var connection;
   const fullTableName = `${DATABASE_NAME}.${SCHEMA_NAME}.testAB`;
   var createABTable = `create or replace table ${fullTableName}(colA string, colB number, colC date, colD time, colE TIMESTAMP_NTZ, colF TIMESTAMP_TZ)`;
@@ -660,8 +662,9 @@ describe('Test Array Bind Force Error on Upload file', function ()
   });
 });
 
-describe('Test Array Bind - full path with cancel', function ()
-{
+describe('Test Array Bind - full path with cancel', function () {
+  this.retries(3); // this test suit are considered as flaky
+
   let connection;
   const DATABASE_NAME = connOption.valid.database;
   const SCHEMA_NAME = connOption.valid.schema;

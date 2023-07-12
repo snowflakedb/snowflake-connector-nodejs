@@ -19,16 +19,7 @@ describe('Execute test with Pool', function () {
   });
 
   after(function (done) {
-    async.series([
-      function (callback) {
-        testUtil.executeCmdUsePool(
-          connectionPool,
-          dropNodeTSQL,
-          callback
-        );
-      }],
-    done
-    );
+    testUtil.executeCmdUsePool(connectionPool, dropNodeTSQL, done);
   });
 
   it('testSimpleInsert', function (done) {

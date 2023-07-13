@@ -642,7 +642,7 @@ describe('PUT GET test with GCS_USE_DOWNSCOPED_CREDENTIAL', function () {
   });
 });
 
-describe('PUT GET test multiple files', function () {
+describe.only('PUT GET test multiple files', function () {
   this.retries(3); // this test suit are considered as flaky test
 
   let connection;

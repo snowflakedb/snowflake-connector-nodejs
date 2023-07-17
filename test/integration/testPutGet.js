@@ -971,7 +971,7 @@ describe('PUT GET test without compress', function () {
   }
 });
 
-describe('PUT GET test with zero byte file', function () {
+describe('PUT GET test with different size', function () {
   let connection;
   const stage = `@${DATABASE_NAME}.${SCHEMA_NAME}.%${TEMP_TABLE_NAME}`;
   const createTable = `create or replace table ${TEMP_TABLE_NAME} (${COL1} STRING, ${COL2} STRING, ${COL3} STRING)`;

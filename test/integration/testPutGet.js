@@ -126,6 +126,10 @@ describe('PUT GET test', function () {
       {
         name: 'zstd',
         encoding: fileCompressionType.lookupByMimeSubType('zstd'),
+      },
+      {
+        name: 'GziP', // Verify case insensitive
+        encoding: fileCompressionType.lookupByMimeSubType('GziP'),
       }
     ];
 
@@ -312,7 +316,7 @@ describe('PUT GET overwrite test', function () {
   });
 
   let putQuery = `
-    PUT file://${tmpFile.name} @${DATABASE_NAME}.${SCHEMA_NAME}.%${TEMP_TABLE_NAME} AUTO_COMPRESS=FALSE`;
+    PUT file://${tmpFile.name} @${DATABASE_NAME}.${SCHEMA_NAME}.%${TEMP_TABLE_NAME}`;
   // Windows user contains a '~' in the path which causes an error
   if (process.platform == 'win32') {
     const fileName = tmpFile.name.substring(tmpFile.name.lastIndexOf('\\'));
@@ -642,7 +646,7 @@ describe('PUT GET test with GCS_USE_DOWNSCOPED_CREDENTIAL', function () {
   });
 });
 
-describe('PUT GET test multiple files', function () {
+describe('PUT GET test with multiple files', function () {
   this.retries(3); // this test suit are considered as flaky test
 
   let connection;
@@ -855,5 +859,317 @@ describe('PUT GET test multiple files', function () {
     }
 
     setTimeout(checkResult, 100);
+  }
+});
+
+describe('PUT GET test without compress', function () {
+  let connection;
+  const stage = `@${DATABASE_NAME}.${SCHEMA_NAME}.%${TEMP_TABLE_NAME}`;
+  const createTable = `create or replace table ${TEMP_TABLE_NAME} (${COL1} STRING, ${COL2} STRING, ${COL3} STRING)`;
+  const removeFile = `REMOVE ${stage}`;
+  const dropTable = `DROP TABLE IF EXISTS ${TEMP_TABLE_NAME}`;
+
+  // Create a temp file without specified file extension
+  const tmpFile = tmp.fileSync();
+  // Write row data to temp file
+  fs.writeFileSync(tmpFile.name, ROW_DATA);  
+  // Create a tmp folder for downloaded files
+  const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'get'));
+
+  before(async () => {
+    connection = testUtil.createConnection();
+    await testUtil.connectAsync(connection);
+    await testUtil.executeCmdAsync(connection, createTable);
+  });
+
+  after(async () => {
+    testUtil.deleteFileSyncIgnoringErrors(tmpFile);
+    testUtil.deleteFolderSyncIgnoringErrors(tmpDir);
+
+    await testUtil.executeCmdAsync(connection, removeFile);
+    await testUtil.executeCmdAsync(connection, dropTable);
+    await testUtil.destroyConnectionAsync(connection);
+  });
+
+  const tmpfilePath = getPlatformTmpPath(tmpFile.name);
+  const putQuery = `PUT ${tmpfilePath} ${stage} AUTO_COMPRESS=FALSE`;
+
+  const tmpdirPath = getPlatformTmpPath(tmpDir);
+  const getQuery = `GET ${stage} ${tmpdirPath}`;
+
+  const testCases =
+    [
+      {
+        name: 'no compress'
+      },
+    ];
+
+  const createItCallback = function () {
+    return function (done) {
+      {
+        async.series(
+          [
+            function (callback) {
+              connection.execute({
+                sqlText: putQuery,
+                complete: function (err, stmt) {
+                  if(err){
+                    callback(err);
+                  }else {
+                    const stream = stmt.streamRows();
+                    stream.on('error', function (err) {
+                      callback(err);
+                    });
+                    stream.on('data', function (row) {
+                      // Check the file is correctly uploaded
+                      assert.strictEqual(row['status'], UPLOADED);
+                      assert.strictEqual(row.targetSize, ROW_DATA_SIZE);
+                    });
+                    stream.on('end', function () {
+                      callback();
+                    });
+                  }
+                }
+              });
+            },
+            function (callback) {
+              connection.execute({
+                sqlText: getQuery,
+                complete: function (err, stmt) {
+                  if(err){
+                    callback(err);
+                  }else {
+                    const stream = stmt.streamRows();
+                    stream.on('error', function (err) {
+                      callback(err);
+                    });
+                    stream.on('data', function (row) {
+                      assert.strictEqual(row['status'], DOWNLOADED);
+                      // Verify if the file is not compressed.
+                      const file = path.join(tmpDir, row.file);
+                      const data = fs.readFileSync(file).toString();
+                      assert.strictEqual(data, ROW_DATA);
+                    });
+                    stream.on('end', function () {
+                      callback();
+                    });
+                  }
+                }
+              });
+            }
+          ],
+          done
+        );
+      }
+
+    };
+  };
+
+  for (let index = 0; index < testCases.length; index++) {
+    const testCase = testCases[index];
+    it(testCase.name, createItCallback());
+  }
+});
+
+describe('PUT GET test with zero byte file', function () {
+  let connection;
+  const stage = `@${DATABASE_NAME}.${SCHEMA_NAME}.%${TEMP_TABLE_NAME}`;
+  const createTable = `create or replace table ${TEMP_TABLE_NAME} (${COL1} STRING, ${COL2} STRING, ${COL3} STRING)`;
+  const removeFile = `REMOVE ${stage}`;
+  const dropTable = `DROP TABLE IF EXISTS ${TEMP_TABLE_NAME}`;
+
+  // Create a temp file without specified file extension
+  const zeroByteFile = tmp.fileSync();
+  const largeFile = tmp.fileSync(); 
+  // Create a tmp folder for downloaded files
+  const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'get'));
+
+  before(async () => {
+    connection = testUtil.createConnection();
+    await testUtil.connectAsync(connection);
+    await testUtil.executeCmdAsync(connection, createTable);
+  });
+
+  afterEach(async () => {
+    await testUtil.executeCmdAsync(connection, removeFile);
+  });
+
+  after(async () => {
+    testUtil.deleteFileSyncIgnoringErrors(zeroByteFile);
+    testUtil.deleteFileSyncIgnoringErrors(largeFile);
+    testUtil.deleteFolderSyncIgnoringErrors(tmpDir);
+    await testUtil.executeCmdAsync(connection, dropTable);
+    await testUtil.destroyConnectionAsync(connection);
+  });
+
+  const createEmptyFileOfSize = (fileName, size) => {
+    return new Promise((resolve) => {
+      const fh = fs.openSync(fileName, 'w');
+      fs.writeSync(fh, 'ok', Math.max(0, size - 2));
+      fs.closeSync(fh);
+      resolve(true);
+    });
+  };
+
+  // Create a file of 100 MB
+  createEmptyFileOfSize(largeFile.name, 100*1024*1024);
+
+  const zeroByteFilePath = getPlatformTmpPath(zeroByteFile.name);
+  const largeFilePath = getPlatformTmpPath(largeFile.name);
+
+  const tmpdirPath = getPlatformTmpPath(tmpDir);
+  const getQuery = `GET ${stage} ${tmpdirPath}`;
+
+  const testCases =
+    [
+      {
+        name: 'zero byte file',
+        putQuery: `PUT ${zeroByteFilePath} ${stage} AUTO_COMPRESS=FALSE`,
+        size: 0
+      },
+      {
+        name: 'large size file',
+        putQuery: `PUT ${largeFilePath} ${stage} AUTO_COMPRESS=FALSE`,
+        size: 100*1024*1024
+      }
+    ];
+
+  const createItCallback = function (testCase) {
+    return function (done) {
+      {
+        async.series(
+          [
+            function (callback) {
+              connection.execute({
+                sqlText: testCase.putQuery,
+                complete: function (err, stmt) {
+                  if(err){
+                    callback(err);
+                  }else {
+                    const stream = stmt.streamRows();
+                    stream.on('error', function (err) {
+                      callback(err);
+                    });
+                    stream.on('data', function (row) {
+                      // Check the file is correctly uploaded
+                      assert.strictEqual(row['status'], UPLOADED);
+                      assert.strictEqual(row.targetSize, testCase.size);
+                    });
+                    stream.on('end', function () {
+                      callback();
+                    });
+                  }
+                }
+              });
+            },
+            function (callback) {
+              connection.execute({
+                sqlText: getQuery,
+                complete: function (err, stmt) {
+                  if(err){
+                    callback(err);
+                  }else {
+                    const stream = stmt.streamRows();
+                    stream.on('error', function (err) {
+                      callback(err);
+                    });
+                    stream.on('data', function (row) {
+                      assert.strictEqual(row['status'], DOWNLOADED);
+                      // Verify the size of the file
+                      const file = path.join(tmpDir, row.file);
+                      const size = fs.statSync(file).size;
+                      assert.strictEqual(size, testCase.size);
+                    });
+                    stream.on('end', function () {
+                      callback();
+                    });
+                  }
+                }
+              });
+            }
+          ],
+          done
+        );
+      }
+    };
+  };
+
+  for (let index = 0; index < testCases.length; index++) {
+    const testCase = testCases[index];
+    it(testCase.name, createItCallback(testCase));
+  }
+});
+
+describe('PUT GET test with error', function () {
+  let connection;
+  const stage = `@${DATABASE_NAME}.${SCHEMA_NAME}.%${TEMP_TABLE_NAME}`;
+  const stage_not_exist = `@${DATABASE_NAME}.${SCHEMA_NAME}.%NONEXISTTABLE`;
+  const createTable = `create or replace table ${TEMP_TABLE_NAME} (${COL1} STRING, ${COL2} STRING, ${COL3} STRING)`;
+  const removeFile = `REMOVE ${stage}`;
+  const dropTable = `DROP TABLE IF EXISTS ${TEMP_TABLE_NAME}`;
+
+  // Create a temp file without specified file extension
+  const tmpFile = tmp.fileSync(); 
+
+  before(async () => {
+    connection = testUtil.createConnection();
+    await testUtil.connectAsync(connection);
+    await testUtil.executeCmdAsync(connection, createTable);
+  });
+
+  after(async () => {
+    testUtil.deleteFileSyncIgnoringErrors(tmpFile);
+
+    await testUtil.executeCmdAsync(connection, removeFile);
+    await testUtil.executeCmdAsync(connection, dropTable);
+    await testUtil.destroyConnectionAsync(connection);
+  });
+
+  const tmpfilePath = getPlatformTmpPath(tmpFile.name);
+
+  const testCases =
+    [
+      {
+        name: 'file not exist',
+        putQuery: `PUT file_not_exist.txt ${stage}  OVERWRITE=true`,
+      },
+      {
+        name: 'compresssed file not exist',
+        putQuery: `PUT file_not_exist.gzip ${stage}  OVERWRITE=true`,
+      },
+      {
+        name: 'stage not exist',
+        putQuery: `PUT ${tmpfilePath} ${stage_not_exist}`,
+      },
+    ];
+
+  const createItCallback = function (testCase) {
+    return function (done) {
+      {
+        async.series(
+          [
+            function (callback) {
+              connection.execute({
+                sqlText: testCase.putQuery,
+                complete: function (err) {
+                  if(err){
+                    assert.strictEqual(err.data.type, 'COMPILATION');
+                    callback();
+                  }else {
+                    callback(err);
+                  }
+                }
+              });
+            }
+          ],
+          done
+        );
+      }
+    };
+  };
+
+  for (let index = 0; index < testCases.length; index++) {
+    const testCase = testCases[index];
+    it(testCase.name, createItCallback(testCase));
   }
 });

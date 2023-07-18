@@ -11,6 +11,7 @@ const OcspResponseCache = require('./../../lib/agent/ocsp_response_cache');
 
 const sharedLogger = require('./sharedLogger');
 const Logger = require('./../../lib/logger');
+const { hangWebServerUrl } = require('../hangWebserver');
 Logger.getInstance().setLogger(sharedLogger.logger);
 
 let testCounter = 0;
@@ -244,7 +245,7 @@ describe('Connection with OCSP test', function ()
     // cache server is used
     SocketUtil.variables.SF_OCSP_RESPONSE_CACHE_SERVER_ENABLED = true;
     // fake OCSP responder.
-    process.env.SF_OCSP_RESPONSE_CACHE_SERVER_URL = 'http://localhost:12345/hang';
+    process.env.SF_OCSP_RESPONSE_CACHE_SERVER_URL = `${hangWebServerUrl}/hang`;
     process.env.SF_OCSP_TEST_OCSP_RESPONSE_CACHE_SERVER_TIMEOUT = 1000;
 
     snowflake.configure({ocspFailOpen: true});
@@ -280,7 +281,7 @@ describe('Connection with OCSP test', function ()
     // cache server is used
     SocketUtil.variables.SF_OCSP_RESPONSE_CACHE_SERVER_ENABLED = true;
     // fake OCSP responder.
-    process.env.SF_OCSP_RESPONSE_CACHE_SERVER_URL = 'http://localhost:12345/hang';
+    process.env.SF_OCSP_RESPONSE_CACHE_SERVER_URL = `${hangWebServerUrl}/hang`;
     process.env.SF_OCSP_TEST_OCSP_RESPONSE_CACHE_SERVER_TIMEOUT = 1000;
 
     snowflake.configure({ocspFailOpen: false});
@@ -320,7 +321,7 @@ describe('Connection with OCSP test', function ()
     // no cache server is used
     SocketUtil.variables.SF_OCSP_RESPONSE_CACHE_SERVER_ENABLED = false;
     // fake OCSP responder.
-    process.env.SF_OCSP_RESPONDER_URL = 'http://localhost:12345/hang';
+    process.env.SF_OCSP_RESPONDER_URL = `${hangWebServerUrl}/hang`;
     process.env.SF_OCSP_TEST_OCSP_RESPONDER_TIMEOUT = 1000;
 
     snowflake.configure({ocspFailOpen: true});
@@ -356,7 +357,7 @@ describe('Connection with OCSP test', function ()
     // no cache server is used
     SocketUtil.variables.SF_OCSP_RESPONSE_CACHE_SERVER_ENABLED = false;
     // fake OCSP responder.
-    process.env.SF_OCSP_RESPONDER_URL = 'http://localhost:12345/hang';
+    process.env.SF_OCSP_RESPONDER_URL = `${hangWebServerUrl}/hang`;
     process.env.SF_OCSP_TEST_OCSP_RESPONDER_TIMEOUT = 1000;
 
     snowflake.configure({ocspFailOpen: false});
@@ -400,8 +401,8 @@ describe('Connection with OCSP test', function ()
     // no cache server is used
     SocketUtil.variables.SF_OCSP_RESPONSE_CACHE_SERVER_ENABLED = true;
     // fake OCSP responder.
-    process.env.SF_OCSP_RESPONSE_CACHE_SERVER_URL = 'http://localhost:12345/hang';
-    process.env.SF_OCSP_RESPONDER_URL = 'http://localhost:12345/hang';
+    process.env.SF_OCSP_RESPONSE_CACHE_SERVER_URL = `${hangWebServerUrl}/hang`;
+    process.env.SF_OCSP_RESPONDER_URL = `${hangWebServerUrl}/hang`;
     process.env.SF_OCSP_TEST_OCSP_RESPONDER_TIMEOUT = 1000;
     process.env.SF_OCSP_TEST_OCSP_RESPONSE_CACHE_SERVER_TIMEOUT = 1000;
 
@@ -438,7 +439,7 @@ describe('Connection with OCSP test', function ()
     // no cache server is used
     SocketUtil.variables.SF_OCSP_RESPONSE_CACHE_SERVER_ENABLED = false;
     // fake OCSP responder.
-    process.env.SF_OCSP_RESPONDER_URL = 'http://localhost:12345/403';
+    process.env.SF_OCSP_RESPONDER_URL = `${hangWebServerUrl}/403`;
 
     snowflake.configure({ocspFailOpen: false});
     const connection = snowflake.createConnection(getConnectionOptions());
@@ -480,7 +481,7 @@ describe('Connection with OCSP test', function ()
     // no cache server is used
     SocketUtil.variables.SF_OCSP_RESPONSE_CACHE_SERVER_ENABLED = false;
     // fake OCSP responder.
-    process.env.SF_OCSP_RESPONDER_URL = 'http://localhost:12345/403';
+    process.env.SF_OCSP_RESPONDER_URL = `${hangWebServerUrl}/403`;
 
     snowflake.configure({ocspFailOpen: true});
     const connection = snowflake.createConnection(getConnectionOptions());
@@ -513,7 +514,7 @@ describe('Connection with OCSP test', function ()
     // no cache server is used
     SocketUtil.variables.SF_OCSP_RESPONSE_CACHE_SERVER_ENABLED = false;
     // fake OCSP responder.
-    process.env.SF_OCSP_RESPONDER_URL = 'http://localhost:12345/404';
+    process.env.SF_OCSP_RESPONDER_URL = `${hangWebServerUrl}/404`;
 
     snowflake.configure({ocspFailOpen: false});
     const connection = snowflake.createConnection(getConnectionOptions());

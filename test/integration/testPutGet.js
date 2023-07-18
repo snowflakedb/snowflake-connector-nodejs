@@ -316,7 +316,7 @@ describe('PUT GET overwrite test', function () {
   });
 
   let putQuery = `
-    PUT file://${tmpFile.name} @${DATABASE_NAME}.${SCHEMA_NAME}.%${TEMP_TABLE_NAME}`;
+    PUT file://${tmpFile.name} @${DATABASE_NAME}.${SCHEMA_NAME}.%${TEMP_TABLE_NAME} AUTO_COMPRESS=FALSE`;
   // Windows user contains a '~' in the path which causes an error
   if (process.platform == 'win32') {
     const fileName = tmpFile.name.substring(tmpFile.name.lastIndexOf('\\'));

@@ -28,22 +28,17 @@ fi
 echo "[INFO] Build is using node versions"
 npm version
 
-set +e
-npm version | grep "node: '12"
-usingNode12=$?
-set -e
-if [ $usingNode12 -eq 0 ]
-then
-  echo "[DEBUG] We are using node v12"
-else
+usingNode12=$(npm version | grep "node: '12" || true)
+if [[ -z ${usingNode12} ]]; then
   echo "[DEBUG] Installing newer node 12"
   export NVM_DIR=`pwd`/nvm
   cp -r /usr/local/nvm $NVM_DIR
   source $NVM_DIR/nvm.sh
   nvm install 12
-
   echo "[INFO] Build is using node versions"
   npm version
+else
+  echo "[DEBUG] We are using node v12"
 fi
 
 echo "[INFO] Installing"

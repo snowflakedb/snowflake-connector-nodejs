@@ -715,6 +715,7 @@ describe('PUT GET test multiple files', function () {
           // Run GET command
           connection.execute({
             sqlText: getQuery,
+            streamResult: true,
             complete: function (err, stmt) {
               if (err) {
                 callback(err);
@@ -789,6 +790,7 @@ describe('PUT GET test multiple files', function () {
           // Run GET command
           connection.execute({
             sqlText: getQuery,
+            streamResult: true,
             complete: function (err, stmt) {
               if (err) {
                 callback(err);

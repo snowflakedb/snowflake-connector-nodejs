@@ -87,7 +87,7 @@ if __name__=='__main__':
 
     PORT = int(sys.argv[1])
 
-    server = SimpleHttpServer('localhost', PORT)
+    server = SimpleHttpServer('127.0.0.1', PORT)
     print('HTTP Server Running on PORT {}..........'.format(PORT))
     server.start()
     server.waitForThread()

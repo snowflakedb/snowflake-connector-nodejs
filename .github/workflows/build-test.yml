@@ -69,6 +69,10 @@ jobs:
                 PARAMETERS_SECRET: ${{ secrets.PARAMETERS_SECRET }}
                 CLOUD_PROVIDER: ${{ matrix.cloud }}
               run: /usr/local/bin/bash ./ci/test_mac.sh
+            - uses: actions/upload-artifact@master
+              with:
+                name: codeCoverage
+                path: .nyc_output
 
     test-windows-required:
         needs: build
@@ -210,3 +214,24 @@ jobs:
                 CLOUD_PROVIDER: ${{ matrix.cloud }}
                 TARGET_DOCKER_TEST_IMAGE: ${{ matrix.image }}
               run: ./ci/test.sh
+
+    display_code_coverage:
+        needs: test-mac-required
+        name: Display code coverage
+        runs-on: macos-latest
+        steps:
+          - uses: actions/checkout@v1
+          - uses: actions/setup-node@v1
+            with:
+              node-version: '18.x'
+          - name: Download Build Artifacts
+            uses: actions/download-artifact@v1
+            with:
+              name: artifacts
+          - uses: actions/download-artifact@master
+            with:
+              name: codeCoverage
+              path: .nyc_output
+          - name: Display code coverage
+            shell: bash
+            run: npx nyc report --reporter=text

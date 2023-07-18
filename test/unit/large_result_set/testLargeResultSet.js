@@ -3,14 +3,15 @@ const LargeResultSetService = require('../../../lib/services/large_result_set');
 
 const httpClient = require('../../../lib/http/node');
 const ConnectionConfig = require('../../../lib/connection/connection_config');
+const { hangWebServerUrl } = require('../../hangWebserver');
 
 describe('LargeResultSetService', () =>
 {
   let httpClientInstance;
   let largeResultSetService;
 
-  // it's python hang webserver address
-  const baseUrl = `http://127.0.0.1:12345`;
+  // it's python hang webserver address to test retries and errors
+  const baseUrl = hangWebServerUrl;
 
   beforeEach(() =>
   {

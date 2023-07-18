@@ -5,6 +5,7 @@
 const async = require('async');
 const testUtil = require('./testUtil');
 const os = require('os');
+const { configureLogger } = require('../configureLogger');
 
 describe('Execute proxy test', function () {
   const platform = os.platform();
@@ -17,6 +18,7 @@ describe('Execute proxy test', function () {
     const dropNodeTSQL = 'drop table if exists NodeT';
 
     before(function (done) {
+      configureLogger('TRACE')
       connection = testUtil.createProxyConnection();
       async.series([
         function (callback) {
@@ -36,6 +38,7 @@ describe('Execute proxy test', function () {
         }],
       done
       );
+      configureLogger('ERROR')
     });
 
     it('testSimpleInsert', function (done) {

@@ -28,19 +28,6 @@ fi
 echo "[INFO] Build is using node versions"
 npm version
 
-usingNode16=$(npm version | grep "node: '16" || true)
-if [[ -z ${usingNode16} ]]; then
-  echo "[DEBUG] Installing newer node 16"
-  export NVM_DIR=`pwd`/nvm
-  cp -r /usr/local/nvm $NVM_DIR
-  source $NVM_DIR/nvm.sh
-  nvm install 16
-  echo "[INFO] Build is using node versions"
-  npm version
-else
-  echo "[DEBUG] We are using node v16"
-fi
-
 echo "[INFO] Installing"
 cp $SOURCE_ROOT/ci/container/package.json .
 npm install

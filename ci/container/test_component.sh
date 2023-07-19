@@ -88,7 +88,7 @@ python3 $THIS_DIR/hang_webserver.py 12345 > hang_webserver.out 2>&1 &
 if [[ "$SHOULD_GENERATE_COVERAGE_REPORT" -eq "1" && "$CLOUD_PROVIDER" == "AWS" ]];
   then
     MOCHA_CMD=(
-       "npx" "nyc" "mocha" "--exit" "--timeout" "$TIMEOUT" "--recursive" "--full-trace"
+       "npx" "nyc" "--reporter=lcov" "--reporter=text" "mocha" "--exit" "--timeout" "$TIMEOUT" "--recursive" "--full-trace"
     )
   else
     MOCHA_CMD=(

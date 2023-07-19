@@ -69,10 +69,11 @@ jobs:
                 PARAMETERS_SECRET: ${{ secrets.PARAMETERS_SECRET }}
                 CLOUD_PROVIDER: ${{ matrix.cloud }}
               run: /usr/local/bin/bash ./ci/test_mac.sh
-            - uses: actions/upload-artifact@master
+            - name: Upload lcov coverage directory
+              uses: actions/upload-artifact@v1
               with:
                 name: codeCoverage
-                path: .nyc_output
+                path: coverage
 
     test-windows-required:
         needs: build
@@ -215,23 +216,26 @@ jobs:
                 TARGET_DOCKER_TEST_IMAGE: ${{ matrix.image }}
               run: ./ci/test.sh
 
-    display_code_coverage:
+    upload_code_coverage: # it's separate job because codecov action can fail https://github.com/codecov/codecov-action/issues/598 (and we want to know about it), but we don't want to fail required mac build
         needs: test-mac-required
-        name: Display code coverage
-        runs-on: macos-latest
+        name: Upload code coverage
+        runs-on: ubuntu-latest
         steps:
-          - uses: actions/checkout@v1
-          - uses: actions/setup-node@v1
-            with:
-              node-version: '18.x'
-          - name: Download Build Artifacts
-            uses: actions/download-artifact@v1
-            with:
-              name: artifacts
-          - uses: actions/download-artifact@master
+          - uses: actions/download-artifact@v1
             with:
               name: codeCoverage
-              path: .nyc_output
-          - name: Display code coverage
-            shell: bash
-            run: npx nyc report --reporter=text
+              path: coverage
+          # codecov action sometimes fails but retry works - until action provides retry let's retry on our own https://github.com/codecov/codecov-action/issues/926
+          - name: Upload coverage reports to Codecov with GitHub Action (take 1)
+            id: uploadToCodeCovTake1
+            uses: codecov/codecov-action@v3
+            continue-on-error: true
+            with:
+              fail_ci_if_error: true
+          - name: Upload coverage reports to Codecov with GitHub Action (take 2)
+            id: uploadToCodeCovTake2
+            # only run when take 1 failed
+            if: steps.uploadToCodeCovTake1.outcome == 'failure'
+            uses: codecov/codecov-action@v3
+            with:
+              fail_ci_if_error: true

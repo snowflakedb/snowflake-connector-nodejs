@@ -28,17 +28,17 @@ fi
 echo "[INFO] Build is using node versions"
 npm version
 
-usingNode12=$(npm version | grep "node: '12" || true)
-if [[ -z ${usingNode12} ]]; then
-  echo "[DEBUG] Installing newer node 12"
+usingNode16=$(npm version | grep "node: '16" || true)
+if [[ -z ${usingNode16} ]]; then
+  echo "[DEBUG] Installing newer node 16"
   export NVM_DIR=`pwd`/nvm
   cp -r /usr/local/nvm $NVM_DIR
   source $NVM_DIR/nvm.sh
-  nvm install 12
+  nvm install 16
   echo "[INFO] Build is using node versions"
   npm version
 else
-  echo "[DEBUG] We are using node v12"
+  echo "[DEBUG] We are using node v16"
 fi
 
 echo "[INFO] Installing"
@@ -82,8 +82,8 @@ env | grep SNOWFLAKE_ | grep -v PASS
 [[ -n "$PROXY_IP" ]] && echo "[INFO] SNOWFLAKE_TEST_PROXY_HOST=$PROXY_IP" && export SNOWFLAKE_TEST_PROXY_HOST=$PROXY_IP
 [[ -n "$PROXY_PORT" ]] && echo "[INFO] SNOWFLAKE_TEST_PROXY_PORT=$PROXY_PORT" && export SNOWFLAKE_TEST_PROXY_PORT=$PROXY_PORT
 
-echo "[INFO] Starting hang_webserver.py 12345"
-python3 $THIS_DIR/hang_webserver.py 12345 > hang_webserver.out 2>&1 &
+echo "[INFO] Starting hang_webserver.py 16345"
+python3 $THIS_DIR/hang_webserver.py 16345 > hang_webserver.out 2>&1 &
 
 if [[ "$SHOULD_GENERATE_COVERAGE_REPORT" -eq "1" && "$CLOUD_PROVIDER" == "AWS" ]];
   then

@@ -70,7 +70,7 @@ jobs:
                 CLOUD_PROVIDER: ${{ matrix.cloud }}
               run: /usr/local/bin/bash ./ci/test_mac.sh
             - name: Upload lcov coverage directory
-              uses: actions/upload-artifact@v1
+              uses: actions/upload-artifact@v3
               with:
                 name: codeCoverage
                 path: coverage
@@ -221,7 +221,10 @@ jobs:
         name: Upload code coverage
         runs-on: ubuntu-latest
         steps:
-          - uses: actions/download-artifact@v1
+          - name: Checkout # it is still recommended to checkout https://about.codecov.io/blog/uploading-code-coverage-in-a-separate-job-on-github-actions/
+            uses: actions/checkout@v3
+          - name: Download code coverage result
+            uses: actions/download-artifact@v3
             with:
               name: codeCoverage
               path: coverage

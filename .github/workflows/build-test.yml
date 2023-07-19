@@ -162,12 +162,40 @@ jobs:
         strategy:
             max-parallel: 1
             matrix:
-                cloud: [ 'AZURE', 'GCP' ]
+                cloud: [ 'AZURE']
         steps:
             - uses: actions/checkout@v1
             - uses: actions/setup-node@v1
               with:
-                node-version: '12.x'
+                node-version: '14.x'
+            - uses: actions/setup-python@v1
+              with:
+                python-version: '3.7'
+                architecture: 'x64'
+            - name: Download Build Artifacts
+              uses: actions/download-artifact@v1
+              with:
+                name: artifacts
+            - name: Tests
+              shell: cmd
+              env:
+                PARAMETERS_SECRET: ${{ secrets.PARAMETERS_SECRET }}
+                CLOUD_PROVIDER: ${{ matrix.cloud }}
+              run: ci\\test_windows.bat
+
+    test-windows-optional:
+        needs: test-mac-optional
+        name: Tests on Windows
+        runs-on: windows-latest
+        strategy:
+            max-parallel: 1
+            matrix:
+                cloud: [ 'GCP' ]
+        steps:
+            - uses: actions/checkout@v1
+            - uses: actions/setup-node@v1
+              with:
+                node-version: '18.x'
             - uses: actions/setup-python@v1
               with:
                 python-version: '3.7'

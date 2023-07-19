@@ -24,6 +24,24 @@ if [[ "$LOCAL_USER_NAME" == "jenkins" ]]; then
 else
     export PATH=$WORKSPACE/node_modules/mocha/bin:$PATH
 fi
+
+echo "[INFO] Build is using node versions"
+npm version
+
+usingNode12=$(npm version | grep "node: '12" || true)
+if [[ -z ${usingNode12} ]]; then
+  echo "[DEBUG] Installing newer node 12"
+  export NVM_DIR=`pwd`/nvm
+  cp -r /usr/local/nvm $NVM_DIR
+  source $NVM_DIR/nvm.sh
+  nvm install 12
+  echo "[INFO] Build is using node versions"
+  npm version
+else
+  echo "[DEBUG] We are using node v12"
+fi
+
+echo "[INFO] Installing"
 cp $SOURCE_ROOT/ci/container/package.json .
 npm install
 
@@ -70,7 +88,7 @@ python3 $THIS_DIR/hang_webserver.py 12345 > hang_webserver.out 2>&1 &
 if [[ "$SHOULD_GENERATE_COVERAGE_REPORT" -eq "1" && "$CLOUD_PROVIDER" == "AWS" ]];
   then
     MOCHA_CMD=(
-       "npx" "nyc" "mocha" "--exit" "--timeout" "$TIMEOUT" "--recursive" "--full-trace"
+       "npx" "nyc" "--reporter=lcov" "--reporter=text" "mocha" "--exit" "--timeout" "$TIMEOUT" "--recursive" "--full-trace"
     )
   else
     MOCHA_CMD=(

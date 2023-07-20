@@ -76,7 +76,7 @@ jobs:
                 path: coverage
 
     test-windows-required:
-        needs: build}else {
+        needs: build
         name: Tests on Windows
         runs-on: windows-latest
         strategy:

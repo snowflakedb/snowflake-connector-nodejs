@@ -1076,10 +1076,9 @@ describe('PUT GET test with different size', function () {
     };
   };
 
-  for (let index = 0; index < testCases.length; index++) {
-    const testCase = testCases[index];
+  testCases.forEach(testCase => {
     it(testCase.name, createItCallback(testCase));
-  }
+  })
 });
 
 describe('PUT GET test with error', function () {
@@ -1141,8 +1140,7 @@ describe('PUT GET test with error', function () {
     };
   };
 
-  for (let index = 0; index < testCases.length; index++) {
-    const testCase = testCases[index];
+  testCases.forEach(testCase => {
     it(testCase.name, createItCallback(testCase));
-  }
+  })
 });

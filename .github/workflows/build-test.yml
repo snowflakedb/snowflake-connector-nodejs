@@ -108,7 +108,7 @@ jobs:
         runs-on: ubuntu-latest
         strategy:
             matrix:
-                image: [ 'nodejs-centos7-node12' ]
+                image: [ 'nodejs-centos6-default', 'nodejs-centos7-node12' ]
                 cloud: [ 'AWS' ]
         steps:
             - uses: actions/checkout@v1
@@ -192,7 +192,7 @@ jobs:
         runs-on: ubuntu-latest
         strategy:
             matrix:
-                image: [ 'nodejs-centos7-node12' ]
+                image: [ 'nodejs-centos6-default', 'nodejs-centos7-node12' ]
                 #REMOVE AZURE for now
                 #cloud: [ 'AZURE', 'GCP' ]
                 cloud: [ 'GCP' ]

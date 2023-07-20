@@ -259,6 +259,21 @@ describe('snowflake.createConnection() synchronous errors', function ()
             proxyPort: 'proxyPort'
           },
         errorCode: ErrorCodes.ERR_CONN_CREATE_INVALID_PROXY_PORT
+      },
+      {
+        name: 'invalid row mode',
+        options:
+          {
+            username: 'username',
+            password: 'password',
+            account: 'account',
+            warehouse: 'warehouse',
+            database: 'database',
+            schema: 'schema',
+            role: 'role',
+            rowMode: 'unknown'
+          },
+        errorCode: ErrorCodes.ERR_STMT_STREAM_ROWS_INVALID_ROW_MODE
       }
     ];
 
@@ -698,37 +713,14 @@ function testStatementFetchRows(statement)
         errorCode: ErrorCodes.ERR_STMT_FETCH_ROWS_MISSING_END
       },
       {
-        name: 'fetchRows() undefined end()',
+        name: 'fetchRows() row mode invalid',
         options:
           {
-            each: function ()
-            {
-            },
-            end: undefined
+            each: function () {},
+            end: function () {},
+            rowMode: 'invalid'
           },
-        errorCode: ErrorCodes.ERR_STMT_FETCH_ROWS_MISSING_END
-      },
-      {
-        name: 'fetchRows() null end()',
-        options:
-          {
-            each: function ()
-            {
-            },
-            end: null
-          },
-        errorCode: ErrorCodes.ERR_STMT_FETCH_ROWS_MISSING_END
-      },
-      {
-        name: 'fetchRows() invalid end()',
-        options:
-          {
-            each: function ()
-            {
-            },
-            end: ''
-          },
-        errorCode: ErrorCodes.ERR_STMT_FETCH_ROWS_INVALID_END
+        errorCode: ErrorCodes.ERR_STMT_STREAM_ROWS_INVALID_ROW_MODE
       }
     ];
 

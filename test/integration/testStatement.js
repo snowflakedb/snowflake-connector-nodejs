@@ -13,8 +13,14 @@ var testUtil = require('./testUtil');
 
 describe('Statement Tests', function ()
 {
-  var connection = snowflake.createConnection(connectionOptions.valid);
-  var sqlText = 'select 1 as "c1";';
+  let connection;
+  const sqlText = 'select 1 as "c1";';
+
+  beforeEach(() =>
+  {
+    connection = snowflake.createConnection(connectionOptions.valid);
+  });
+
   it('with a valid token', function (done)
     {
 
@@ -118,8 +124,7 @@ describe('Statement Tests', function ()
           done();
         });
     }
-  )
-  ;
+  );
 
   it('with an invalid token', function (done)
   {
@@ -252,20 +257,20 @@ describe('Statement Tests', function ()
   });
 });
 
-
 describe('Call Statement', function ()
 {
-  this.timeout(10000);
-  var connection = snowflake.createConnection(connectionOptions.valid);
+  let connection;
+
+  beforeEach(async () =>
+  {
+    connection = snowflake.createConnection(connectionOptions.valid);
+    await testUtil.connectAsync(connection);
+  });
 
   it('call statement', function (done)
   {
     async.series(
       [
-        function (callback)
-        {
-          testUtil.connect(connection, callback);
-        },
         function (callback)
         {
           var statement = connection.execute({

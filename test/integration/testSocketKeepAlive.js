@@ -31,10 +31,18 @@ describe('Test socketKeepAlive functionality', function ()
             if (err)
             {
               console.error('Unable to connect: ' + err.message);
+              console.timeEnd('connecting');
             } else
             {
-              console.timeEnd('connecting');
-              callback();
+              conn.execute({
+                sqlText: `use warehouse ${connOptions.warehouse}`,
+                complete: function (err)
+                {
+                  testUtil.checkError(err);
+                  console.timeEnd('connecting');
+                  callback();
+                }
+              });
             }
           });
         },
@@ -53,7 +61,7 @@ describe('Test socketKeepAlive functionality', function ()
                   var stream = statement.streamRows();
                   stream.on('error', function (err)
                   {
-                    done(err);
+                    queryLoopDone(err);
                   });
                   stream.on('data', function (row)
                   {
@@ -72,7 +80,6 @@ describe('Test socketKeepAlive functionality', function ()
             });
           }
           console.log(`total elapsed: ${sum}, query average: ${(sum / LOOP_COUNT)}`);
-          console.timeEnd('execution');
         }
       ],
       () => queryLoopDone(sum)
@@ -99,6 +106,7 @@ describe('Test socketKeepAlive functionality', function ()
       
         afterEach(function (done)
         {
+          console.timeEnd('execution');
           testUtil.destroyConnection(connection, done);
         });
 

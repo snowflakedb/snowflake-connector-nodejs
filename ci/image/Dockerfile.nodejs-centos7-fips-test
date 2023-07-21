@@ -43,7 +43,7 @@ ENV OPENSSL_CONF /usr/local/ssl/openssl.cnf
 ENV FIPSCONF /usr/local/ssl/fipsmodule.cnf
 ENV OPENSSL_MODULES=/usr/local/lib64/ossl-modules
 
-# Install OpenSSL 
+# Install OpenSSL
 RUN cd $HOME
 RUN curl https://www.openssl.org/source/openssl-$OPENSSL_VERSION.tar.gz -o $HOME/openssl-fips-$OPENSSL_VERSION.tar.gz
 RUN tar -xvf $HOME/openssl-fips-$OPENSSL_VERSION.tar.gz
@@ -70,14 +70,13 @@ RUN sed -i '75i[algorithm_sect]' $OPENSSL_CONF
 RUN git clone --branch v$NODEJS_VERSION https://github.com/nodejs/node.git $NODE_HOME
 RUN gcc --version
 RUN g++ --version
-RUN cd $NODE_HOME && ./configure --shared-openssl --shared-openssl-libpath=/usr/local/lib64 --shared-openssl-includes=/usr/local/include/openssl --openssl-is-fips
-RUN make -j2 &> /dev/null && make install
+RUN cd $NODE_HOME && ./configure --shared-openssl --shared-openssl-libpath=/usr/local/lib64 --shared-openssl-includes=/usr/local/include/openssl --openssl-is-fips && make -j2 &> /dev/null && make install
 # Should be $NODEJS_VERSION
 RUN node --version
 # Should be $OPENSSL_VERSION
 RUN node -p "process.versions.openssl"
-# Should be 1 (fips is enabled by default)
-RUN node --enable-fips -p 'crypto.getFips()'
+# Should be 1 (FIPS is enabled by default)
+RUN node -p 'crypto.getFips()'
 
 # workspace
 RUN mkdir -p /home/user

@@ -55,7 +55,7 @@ if (snowflakeTestProxyPort === undefined)
 const accessUrl = snowflakeTestProtocol + '://' + snowflakeTestHost + ':' +
   snowflakeTestPort;
 
-var valid =
+const valid =
   {
     accessUrl: accessUrl,
     username: snowflakeTestUser,
@@ -67,7 +67,7 @@ var valid =
     role: snowflakeTestRole
   };
 
-var snowflakeAccount = snowflakeTestAdminUser !== undefined ?
+const snowflakeAccount = snowflakeTestAdminUser !== undefined ?
   {
     accessUrl: accessUrl,
     username: snowflakeTestAdminUser,
@@ -75,7 +75,7 @@ var snowflakeAccount = snowflakeTestAdminUser !== undefined ?
     account: 'snowflake'
   } : undefined;
 
-var wrongUserName =
+const wrongUserName =
   {
 
     accessUrl: accessUrl,
@@ -84,7 +84,7 @@ var wrongUserName =
     account: snowflakeTestAccount
   };
 
-var wrongPwd =
+const wrongPwd =
   {
 
     accessUrl: accessUrl,
@@ -93,7 +93,7 @@ var wrongPwd =
     account: snowflakeTestAccount
   };
 
-var externalBrowser =
+const externalBrowser =
 {
   accessUrl: accessUrl,
   username: snowflakeTestBrowserUser,
@@ -105,7 +105,12 @@ var externalBrowser =
   authenticator: 'EXTERNALBROWSER'
 };
 
-var externalBrowserMismatchUser =
+const externalBrowserWithShortTimeout = {
+  ...externalBrowser,
+  browserActionTimeout: 100,
+};
+
+const externalBrowserMismatchUser =
 {
   accessUrl: accessUrl,
   username: 'node',
@@ -113,7 +118,7 @@ var externalBrowserMismatchUser =
   authenticator: 'EXTERNALBROWSER'
 };
 
-var keypairPrivateKey =
+const keypairPrivateKey =
 {
   accessUrl: accessUrl,
   username: snowflakeTestPrivateKeyUser,
@@ -126,7 +131,7 @@ var keypairPrivateKey =
   authenticator: 'SNOWFLAKE_JWT'
 };
 
-var keypairPathEncrypted =
+const keypairPathEncrypted =
 {
   accessUrl: accessUrl,
   username: snowflakeTestPrivateKeyUser,
@@ -140,7 +145,7 @@ var keypairPathEncrypted =
   authenticator: 'SNOWFLAKE_JWT'
 };
 
-var keypairPathUnencrypted =
+const keypairPathUnencrypted =
 {
   accessUrl: accessUrl,
   username: snowflakeTestPrivateKeyUser,
@@ -153,7 +158,7 @@ var keypairPathUnencrypted =
   authenticator: 'SNOWFLAKE_JWT'
 };
 
-var keypairWrongToken =
+const keypairWrongToken =
 {
   accessUrl: accessUrl,
   username: 'node',
@@ -162,7 +167,7 @@ var keypairWrongToken =
   authenticator: 'SNOWFLAKE_JWT'
 };
 
-var oauth =
+const oauth =
 {
   accessUrl: accessUrl,
   username: snowflakeTestOauthUser,
@@ -175,7 +180,7 @@ var oauth =
   authenticator: 'OAUTH'
 };
 
-var oauthMismatchUser =
+const oauthMismatchUser =
 {
   accessUrl: accessUrl,
   username: 'node',
@@ -184,7 +189,7 @@ var oauthMismatchUser =
   authenticator: 'OAUTH'
 };
 
-var okta =
+const okta =
 {
   accessUrl: accessUrl,
   username: snowflakeTestOktaUser,
@@ -197,13 +202,27 @@ var okta =
   authenticator: snowflakeTestOktaAuth
 };
 
-var privatelink =
+const privatelink =
 {
   accessUrl: accessUrl,
   username: snowflakeTestUser,
   password: snowflakeTestPassword,
   account: snowflakeTestAccount + '.privatelink'
 };
+
+const connectionWithProxy =
+  {
+    accessUrl: accessUrl,
+    username: snowflakeTestUser,
+    password: snowflakeTestPassword,
+    account: snowflakeTestAccount,
+    warehouse: snowflakeTestWarehouse,
+    database: snowflakeTestDatabase,
+    schema: snowflakeTestSchema,
+    role: snowflakeTestRole,
+    proxyHost: snowflakeTestProxyHost,
+    proxyPort: parseInt(snowflakeTestProxyPort, 10)
+  };
 
 exports.valid = valid;
 exports.snowflakeAccount = snowflakeAccount;
@@ -212,6 +231,7 @@ exports.wrongPwd = wrongPwd;
 exports.accessUrl = accessUrl;
 exports.account = snowflakeTestAccount;
 exports.externalBrowser = externalBrowser;
+exports.externalBrowserWithShortTimeout = externalBrowserWithShortTimeout;
 exports.externalBrowserMismatchUser = externalBrowserMismatchUser;
 exports.keypairPrivateKey = keypairPrivateKey;
 exports.keypairPathEncrypted = keypairPathEncrypted;
@@ -221,3 +241,4 @@ exports.oauth = oauth;
 exports.oauthMismatchUser = oauthMismatchUser;
 exports.okta = okta;
 exports.privatelink = privatelink;
+exports.connectionWithProxy = connectionWithProxy;

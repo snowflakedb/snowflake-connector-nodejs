@@ -65,10 +65,18 @@ env | grep SNOWFLAKE_ | grep -v PASS
 [[ -n "$PROXY_PORT" ]] && echo "[INFO] SNOWFLAKE_TEST_PROXY_PORT=$PROXY_PORT" && export SNOWFLAKE_TEST_PROXY_PORT=$PROXY_PORT
 
 echo "[INFO] Starting hang_webserver.py 12345"
-python3 $THIS_DIR/hang_webserver.py 12345 &
-MOCHA_CMD=(
-    "mocha" "--timeout" "$TIMEOUT" "--recursive" "--full-trace"
-)
+python3 $THIS_DIR/hang_webserver.py 12345 > hang_webserver.out 2>&1 &
+
+if [[ "$SHOULD_GENERATE_COVERAGE_REPORT" -eq "1" && "$CLOUD_PROVIDER" == "AWS" ]];
+  then
+    MOCHA_CMD=(
+       "npx" "nyc" "--reporter=lcov" "--reporter=text" "mocha" "--exit" "--timeout" "$TIMEOUT" "--recursive" "--full-trace"
+    )
+  else
+    MOCHA_CMD=(
+        "mocha" "--timeout" "$TIMEOUT" "--recursive" "--full-trace"
+    )
+fi
 
 if [[ -z "$GITHUB_ACTIONS" ]]; then
     MOCHA_CMD+=(

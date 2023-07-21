@@ -19,7 +19,10 @@ on:
           tags: 
             description: "Test scenario tags"
 
-
+concurrency:
+  # older builds for the same pull request numer or branch should be cancelled
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
 
 jobs:
     build:
@@ -43,7 +46,6 @@ jobs:
         name: Tests on Mac
         runs-on: macos-latest
         strategy:
-            max-parallel: 1
             matrix:
                 cloud: [ 'AWS' ]
         steps:
@@ -67,13 +69,17 @@ jobs:
                 PARAMETERS_SECRET: ${{ secrets.PARAMETERS_SECRET }}
                 CLOUD_PROVIDER: ${{ matrix.cloud }}
               run: /usr/local/bin/bash ./ci/test_mac.sh
+            - name: Upload lcov coverage directory
+              uses: actions/upload-artifact@v3
+              with:
+                name: codeCoverage
+                path: coverage
 
     test-windows-required:
-        needs: test-mac-required
+        needs: build
         name: Tests on Windows
         runs-on: windows-latest
         strategy:
-            max-parallel: 1
             matrix:
                 cloud: [ 'AWS' ]
         steps:
@@ -97,11 +103,10 @@ jobs:
               run: ci\\test_windows.bat
 
     test-linux-required:
-        needs: test-windows-required
+        needs: build
         name: Tests on Linux
         runs-on: ubuntu-latest
         strategy:
-            max-parallel: 1
             matrix:
                 image: [ 'nodejs-centos6-default', 'nodejs-centos7-node12' ]
                 cloud: [ 'AWS' ]
@@ -126,11 +131,10 @@ jobs:
               run: ./ci/test.sh
 
     test-mac-optional:
-        needs: test-linux-required
+        needs: test-mac-required
         name: Tests on Mac
         runs-on: macos-latest
         strategy:
-            max-parallel: 1
             matrix:
                 cloud: [ 'AZURE', 'GCP' ]
         steps:
@@ -156,11 +160,10 @@ jobs:
               run: /usr/local/bin/bash ./ci/test_mac.sh
 
     test-windows-optional:
-        needs: test-mac-optional
+        needs: test-windows-required
         name: Tests on Windows
         runs-on: windows-latest
         strategy:
-            max-parallel: 1
             matrix:
                 cloud: [ 'AZURE', 'GCP' ]
         steps:
@@ -184,11 +187,10 @@ jobs:
               run: ci\\test_windows.bat
 
     test-linux-optional:
-        needs: test-windows-optional
+        needs: test-linux-required
         name: Tests on Linux
         runs-on: ubuntu-latest
         strategy:
-            max-parallel: 1
             matrix:
                 image: [ 'nodejs-centos6-default', 'nodejs-centos7-node12' ]
                 #REMOVE AZURE for now
@@ -214,3 +216,29 @@ jobs:
                 TARGET_DOCKER_TEST_IMAGE: ${{ matrix.image }}
               run: ./ci/test.sh
 
+    upload_code_coverage: # it's separate job because codecov action can fail https://github.com/codecov/codecov-action/issues/598 (and we want to know about it), but we don't want to fail required mac build
+        needs: test-mac-required
+        name: Upload code coverage
+        runs-on: ubuntu-latest
+        steps:
+          - name: Checkout # it is still recommended to checkout https://about.codecov.io/blog/uploading-code-coverage-in-a-separate-job-on-github-actions/
+            uses: actions/checkout@v3
+          - name: Download code coverage result
+            uses: actions/download-artifact@v3
+            with:
+              name: codeCoverage
+              path: coverage
+          # codecov action sometimes fails but retry works - until action provides retry let's retry on our own https://github.com/codecov/codecov-action/issues/926
+          - name: Upload coverage reports to Codecov with GitHub Action (take 1)
+            id: uploadToCodeCovTake1
+            uses: codecov/codecov-action@v3
+            continue-on-error: true
+            with:
+              fail_ci_if_error: true
+          - name: Upload coverage reports to Codecov with GitHub Action (take 2)
+            id: uploadToCodeCovTake2
+            # only run when take 1 failed
+            if: steps.uploadToCodeCovTake1.outcome == 'failure'
+            uses: codecov/codecov-action@v3
+            with:
+              fail_ci_if_error: true

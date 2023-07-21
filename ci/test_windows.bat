@@ -8,7 +8,19 @@ call venv\scripts\activate
 pip install -U snowflake-connector-python
 
 cd %GITHUB_WORKSPACE%
-gpg --quiet --batch --yes --decrypt --passphrase=%PARAMETERS_SECRET% --output parameters.json .github/workflows/parameters_aws.json.gpg
+
+if "%CLOUD_PROVIDER%"=="AZURE" (
+  set ENCODED_PARAMETERS_FILE=.github/workflows/parameters_azure.json.gpg
+) else if "%CLOUD_PROVIDER%"=="GCP" (
+  set ENCODED_PARAMETERS_FILE=.github/workflows/parameters_gcp.json.gpg
+) else if "%CLOUD_PROVIDER%"=="AWS" (
+  set ENCODED_PARAMETERS_FILE=.github/workflows/parameters_aws.json.gpg
+) else (
+  echo === unknown cloud provider
+  exit /b 1
+)
+
+gpg --quiet --batch --yes --decrypt --passphrase=%PARAMETERS_SECRET% --output parameters.json %ENCODED_PARAMETERS_FILE%
 
 REM DON'T FORGET TO include @echo off here or the password may be leaked!
 echo @echo off>parameters.bat
@@ -48,7 +60,7 @@ if %ERRORLEVEL% NEQ 0 (
 )
 echo [INFO] Starting hang_webserver.py 12345
 pushd %GITHUB_WORKSPACE%\ci\container
-start /b python hang_webserver.py 12345
+start /b python hang_webserver.py 12345 > hang_webserver.out 2>&1
 popd
 
 echo [INFO] Testing

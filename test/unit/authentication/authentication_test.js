@@ -15,7 +15,6 @@ var auth_okta = require('./../../../lib/authentication/auth_okta');
 var authenticationTypes = require('./../../../lib/authentication/authentication').authenticationTypes;
 
 var MockTestUtil = require('./../mock/mock_test_util');
-var assert = require('assert');
 
 // get connection options to connect to this mock snowflake instance
 var mockConnectionOptions = MockTestUtil.connectionOptions;
@@ -29,6 +28,16 @@ var connectionOptionsOkta = mockConnectionOptions.authOkta;
 
 describe('default authentication', function ()
 {
+
+  it('default - authenticate method is thenable', done =>
+  {
+    const auth = new auth_default(connectionOptions.password);
+
+    auth.authenticate()
+      .then(done)
+      .catch(done);
+  });
+
   it('default - check password', function ()
   {
     var auth = new auth_default(connectionOptions.password);
@@ -58,9 +67,12 @@ describe('external browser authentication', function ()
   var httpclient;
   var browserRedirectPort;
 
-  var mockProofKey = 'mockProofKey';
-  var mockToken = 'mockToken';
-  var mockSsoURL = 'https://ssoTestURL.okta.com/';
+  const mockProofKey = 'mockProofKey';
+  const mockToken = 'mockToken';
+  const mockSsoURL = 'https://ssoTestURL.okta.com/';
+
+  const credentials = connectionOptionsExternalBrowser;
+  const BROWSER_ACTION_TIMEOUT = 10000;
 
   before(function ()
   {
@@ -96,11 +108,18 @@ describe('external browser authentication', function ()
     httpclient = require('httpclient');
   });
 
+  it('external browser - authenticate method is thenable', done =>
+  {
+    const auth = new auth_web('', BROWSER_ACTION_TIMEOUT, webbrowser.open, httpclient);
+
+    auth.authenticate(credentials.authenticator, '', credentials.account, credentials.username)
+      .then(done)
+      .catch(done);
+  });
+
   it('external browser - get success', async function ()
   {
-    var credentials = connectionOptionsExternalBrowser;
-
-    var auth = new auth_web('', webbrowser.open, httpclient);
+    const auth = new auth_web('', BROWSER_ACTION_TIMEOUT, webbrowser.open, httpclient);
     await auth.authenticate(credentials.authenticator, '', credentials.account, credentials.username);
 
     var body = { data: {} };
@@ -142,9 +161,7 @@ describe('external browser authentication', function ()
     webbrowser = require('webbrowser');
     httpclient = require('httpclient');
 
-    var credentials = connectionOptionsExternalBrowser;
-
-    var auth = new auth_web('', webbrowser.open, httpclient);
+    const auth = new auth_web('', BROWSER_ACTION_TIMEOUT, webbrowser.open, httpclient);
     await auth.authenticate(credentials.authenticator, '', credentials.account, credentials.username);
 
     var body = { data: {} };
@@ -247,6 +264,18 @@ describe('key-pair authentication', function ()
     filesystem = require('filesystem');
   });
 
+  it('key-pair - authenticate method is thenable', done =>
+  {
+    const auth = new auth_keypair(connectionOptionsKeyPair.privateKey,
+      connectionOptionsKeyPair.privateKeyPath,
+      connectionOptionsKeyPair.privateKeyPass,
+      cryptomod, jwtmod, filesystem);
+
+    auth.authenticate(connectionOptionsKeyPair.authenticator, '', connectionOptionsKeyPair.account, connectionOptionsKeyPair.username)
+      .then(done)
+      .catch(done);
+  });
+
   it('key-pair - get token with private key', function ()
   {
     var auth = new auth_keypair(connectionOptionsKeyPair.privateKey,
@@ -313,6 +342,15 @@ describe('key-pair authentication', function ()
 
 describe('oauth authentication', function ()
 {
+  it('oauth - authenticate method is thenable', done =>
+  {
+    const auth = new auth_oauth(connectionOptionsOauth.token);
+
+    auth.authenticate(connectionOptionsKeyPair.authenticator, '', connectionOptionsKeyPair.account, connectionOptionsKeyPair.username)
+      .then(done)
+      .catch(done);
+  });
+
   it('oauth - check token', function ()
   {
     var auth = new auth_oauth(connectionOptionsOauth.token);
@@ -387,6 +425,20 @@ describe('okta authentication', function ()
 
     httpclient = require('httpclient');
   });
+
+  it('okta - authenticate method is thenable', done =>
+  {
+    const auth = new auth_okta(connectionOptionsOkta.password,
+      connectionOptionsOkta.region,
+      connectionOptionsOkta.account,
+      connectionOptionsOkta.clientAppid,
+      connectionOptionsOkta.clientAppVersion,
+      httpclient);
+
+    auth.authenticate(connectionOptionsOkta.authenticator, '', connectionOptionsOkta.account, connectionOptionsOkta.username)
+      .then(done)
+      .catch(done);
+  })
 
   it('okta - SAML response success', async function ()
   {

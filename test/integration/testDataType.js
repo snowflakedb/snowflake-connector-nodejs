@@ -2,6 +2,8 @@
  * Copyright (c) 2015-2019 Snowflake Computing Inc. All rights reserved.
  */
 var async = require('async');
+const GlobalConfig = require('./../../lib/global_config');
+const snowflake = require('./../../lib/snowflake');
 var testUtil = require('./testUtil');
 const sharedStatement = require('./sharedStatements');
 var bigInt = require("big-integer");
@@ -28,10 +30,13 @@ describe('Test DataType', function ()
   var dropTableWithTime = 'drop table if exists testTime';
   var dropTableWithTimestamp = 'drop table if exists testTimestamp';
   var dropTableWithBoolean = 'drop table if exists testBoolean';
+  const truncateTableWithVariant = 'truncate table if exists testVariant;'
   var insertDouble = 'insert into testDouble values(123.456)';
   var insertLargeNumber = 'insert into testNumber values (12345678901234567890123456789012345678)';
   var insertRegularSizedNumber = 'insert into testNumber values (100000001)';
-  var insertVariant = 'insert into testVariant select parse_json(\'{a : 1 , b :[1 , 2 , 3, -Infinity, undefined], c : {a : 1}}\')';
+  const insertVariantJSON = 'insert into testVariant select parse_json(\'{a : 1 , b :[1 , 2 , 3, -Infinity, undefined], c : {a : 1}}\')';
+  const insertVariantJSONForCustomParser = 'insert into testVariant select parse_json(\'{a : 1 , b :[1 , 2 , 3], c : {a : 1}}\')';
+  const insertVariantXML = 'insert into testVariant select parse_xml(\'<root><a>1</a><b>1</b><c><a>1</a></c></root>\')';
   var insertArray = 'insert into testArray select parse_json(\'["a", 1]\')';
   var insertDate = 'insert into testDate values(to_date(\'2012-11-11\'))';
   var insertTime = 'insert into testTime values(to_time(\'12:34:56.789789789\'))';
@@ -216,32 +221,116 @@ describe('Test DataType', function ()
 
   describe('testSemiStructuredDataType', function ()
   {
-    it('testVariant', function (done)
+    describe('testVariant', function ()
     {
-      async.series(
-        [
-          function (callback)
-          {
-            testUtil.executeCmd(connection, createTableWithVariant, callback);
-          },
-          function (callback)
-          {
-            testUtil.executeCmd(connection, insertVariant, callback);
-          },
-          function (callback)
-          {
-            testUtil.executeQueryAndVerify(
-              connection,
-              selectVariant,
-              [{'COLA': {a: 1, b: [1, 2, 3, -Infinity, undefined], c: {a: 1}}}],
-              callback,
-              null,
-              true,
-              false
-            );
-          }],
-        done
-      );
+      before(async () =>
+      {
+        await testUtil.executeCmdAsync(connection, createTableWithVariant);
+      });
+
+      after(async () =>
+      {
+        await testUtil.executeCmdAsync(connection, dropTableWithVariant);
+      });
+
+      afterEach(async () =>
+      {
+        await testUtil.executeCmdAsync(connection, truncateTableWithVariant);
+      });
+
+      it('testJSON', function (done)
+      {
+        async.series(
+          [
+            function (callback)
+            {
+              testUtil.executeCmd(connection, insertVariantJSON, callback);
+            },
+            function (callback)
+            {
+              testUtil.executeQueryAndVerify(
+                connection,
+                selectVariant,
+                [{ 'COLA': { a: 1, b: [1, 2, 3, -Infinity, undefined], c: { a: 1 } } }],
+                callback,
+                null,
+                true,
+                false
+              );
+            }],
+          done
+        );
+      });
+
+      it('testXML', function (done)
+      {
+        async.series(
+          [
+            function (callback)
+            {
+              testUtil.executeCmd(connection, insertVariantXML, callback);
+            },
+            function (callback)
+            {
+              testUtil.executeQueryAndVerify(
+                connection,
+                selectVariant,
+                [{ 'COLA': { root: { a: 1, b: 1, c: { a: 1 } } } }],
+                callback,
+                null,
+                true,
+                false
+              );
+            }],
+          done
+        );
+      });
+
+      describe('testCustomParser', function ()
+      {
+        let originalParserConfig;
+
+        before(() =>
+        {
+          originalParserConfig = {
+            jsonColumnVariantParser: GlobalConfig.jsonColumnVariantParser,
+            xmlColumnVariantParser: GlobalConfig.xmlColumnVariantParser
+          }
+        });
+
+        after(() =>
+        {
+          snowflake.configure(originalParserConfig);
+        });
+
+        it('testJSONCustomParser', function (done)
+        {
+          async.series(
+            [
+              function (callback)
+              {
+                snowflake.configure({
+                  jsonColumnVariantParser: rawColumnValue => JSON.parse(rawColumnValue)
+                })
+                testUtil.executeCmd(connection, insertVariantJSONForCustomParser, callback);
+              },
+              function (callback)
+              {
+                testUtil.executeQueryAndVerify(
+                  connection,
+                  selectVariant,
+                  [{ 'COLA': { a: 1, b: [1, 2, 3,], c: { a: 1 } } }],
+                  callback
+                );
+              }
+            ],
+            done
+          );
+        });
+
+        // TODO SNOW - 830291: add custom xml parser test
+        //it('testXMLCustomParser', function (done) {});
+      });
     });
 
     it('testArray', function (done)

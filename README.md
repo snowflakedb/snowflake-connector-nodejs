@@ -5,6 +5,7 @@ NodeJS Driver for Snowflake
   <a href="https://github.com/snowflakedb/snowflake-connector-nodejs/actions?query=workflow%3A%22Build+and+Test%22+branch%3Amaster" target="_blank"><img src="https://github.com/snowflakedb/snowflake-connector-nodejs/workflows/Build%20and%20Test/badge.svg?branch=master" alt="master" /></a>
   <a href="https://www.npmjs.com/package/snowflake-sdk" target="_blank"><img src="https://img.shields.io/npm/v/snowflake-sdk.svg" alt="npm" /></a> 
   <a href="http://www.apache.org/licenses/LICENSE-2.0.txt" target="_blank"><img src="http://img.shields.io/:license-Apache%202-brightgreen.svg" alt="apache" /> </a>
+  <a href="https://codecov.io/gh/snowflakedb/snowflake-connector-nodejs" target="_blank"><img src="https://codecov.io/gh/snowflakedb/snowflake-connector-nodejs/branch/master/graph/badge.svg?token=QZMWDu35ds" alt="codecov" /></a>
 </p>
 
 
@@ -84,36 +85,11 @@ npm test:integration
 
 Getting the code coverage
 ----------------------------------------------------------------------
-1. Go to nodejs project directory
-```
-cd snowflake-connector-nodejs
-```
 
-2. Install the node connector
+Run tests and show code coverage report
 ```
-npm install .
+npm run test:ci:coverage
 ```
-
-3. Install the nyc module which displays the code coverage
-```
-npm install nyc
-```
-
-4. Edit the package.json file and replace the specified test with the one below:
-```
-"scripts": {
-  "test": "nyc mocha test/**/*.js"
-},
-```
-
-5. Using git bash, run the "npm test" command and include the connection parameters in the same line:
-```
-SNOWFLAKE_TEST_USER="user" SNOWFLAKE_TEST_PASSWORD="password" SNOWFLAKE_TEST_ACCOUNT="account" SNOWFLAKE_TEST_WAREHOUSE="warehouse" SNOWFLAKE_TEST_DATABASE="db" SNOWFLAKE_TEST_SCHEMA="schema" npm test
-```
-
-6. The code coverage results will be displayed in the console when the test finishes executing
-<br>
-Note: git bash is the console used for installing the node connector, the nyc module, and running "npm test"
 
 Package
 ======================================================================

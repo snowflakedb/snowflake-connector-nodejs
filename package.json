@@ -42,28 +42,34 @@
     "eslint": "^8.41.0",
     "mocha": "^10.1.0",
     "mock-require": "^3.0.3",
+    "nyc": "^15.1.0",
     "test-console": "^2.0.0"
   },
   "overrides": {
     "@azure/storage-blob": {
       "node-fetch": "^3.2.10"
     },
-    "semver": "^7.5.2"
+    "semver": "^7.5.2",
+    "vm2": "../_EXCLUDED_"
   },
   "repository": {
     "type": "git",
     "url": "https://github.com/snowflakedb/snowflake-connector-nodejs"
   },
   "scripts": {
-    "lint:check" : "eslint",
-    "lint:check:all" : "eslint lib system_test test",
-    "lint:fix" : "eslint --fix",
+    "lint:check": "eslint",
+    "lint:check:all": "eslint lib system_test test",
+    "lint:fix": "eslint --fix",
     "test": "mocha -timeout 180000 --recursive --full-trace test/unit/**/*.js test/unit/*.js",
     "test:integration": "mocha -timeout 180000 --recursive --full-trace test/integration/**/*.js test/integration/*.js",
     "test:single": "mocha -timeout 180000 --full-trace",
     "test:system": "mocha -timeout 180000 --recursive --full-trace system_test/*.js",
     "test:unit": "mocha -timeout 180000 --recursive --full-trace test/unit/**/*.js test/unit/*.js",
-    "test:ci": "mocha -timeout 180000 --recursive --full-trace test/**/*.js system_test/*.js"
+    "test:unit:coverage": "nyc npm run test:unit",
+    "test:ci": "mocha -timeout 180000 --recursive --full-trace test/**/*.js",
+    "test:ci:coverage": "nyc npm run test:ci",
+    "test:ci:withSystemTests": "mocha -timeout 180000 --recursive --full-trace test/**/*.js system_test/*.js",
+    "test:ci:withSystemTests:coverage": "nyc npm run test:ci:withSystemTests"
   },
   "author": {
     "name": "Snowflake Computing, Inc.",

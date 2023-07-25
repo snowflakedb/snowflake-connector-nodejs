@@ -130,18 +130,18 @@ jobs:
                 TARGET_DOCKER_TEST_IMAGE: ${{ matrix.image }}
               run: ./ci/test.sh
 
-    test-mac-azure-optional:
+    test-mac-optional:
         needs: test-mac-required
         name: Tests on Mac
         runs-on: macos-latest
         strategy:
             matrix:
-                cloud: [ 'AZURE' ]
+                cloud: [ 'AZURE', 'GCP' ]
         steps:
             - uses: actions/checkout@v1
             - uses: actions/setup-node@v1
               with:
-                node-version: '16.x'
+                node-version: '12.x'
             - uses: actions/setup-python@v1
               with:
                 python-version: '3.7'

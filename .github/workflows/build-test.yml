@@ -130,7 +130,7 @@ jobs:
                 TARGET_DOCKER_TEST_IMAGE: ${{ matrix.image }}
               run: ./ci/test.sh
 
-    test-mac-optional-azure:
+    test-mac-azure-optional:
         needs: test-mac-required
         name: Tests on Mac
         runs-on: macos-latest

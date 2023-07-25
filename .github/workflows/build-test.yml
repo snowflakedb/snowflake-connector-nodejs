@@ -52,7 +52,7 @@ jobs:
             - uses: actions/checkout@v1
             - uses: actions/setup-node@v1
               with:
-                node-version: '20.x'
+                node-version: '12.x'
             - uses: actions/setup-python@v1
               with:
                 python-version: '3.7'
@@ -86,7 +86,7 @@ jobs:
             - uses: actions/checkout@v1
             - uses: actions/setup-node@v1
               with:
-                node-version: '20.x'
+                node-version: '12.x'
             - uses: actions/setup-python@v1
               with:
                 python-version: '3.7'
@@ -102,46 +102,75 @@ jobs:
                 CLOUD_PROVIDER: ${{ matrix.cloud }}
               run: ci\\test_windows.bat
 
-    # test-linux-required:
-    #     needs: build
-    #     name: Tests on Linux
-    #     runs-on: ubuntu-latest
-    #     strategy:
-    #         matrix:
-    #             image: [ 'nodejs-centos6-default', 'nodejs-centos7-node12' ]
-    #             cloud: [ 'AWS' ]
-    #     steps:
-    #         - uses: actions/checkout@v1
-    #         - uses: actions/setup-node@v1
-    #           with:
-    #             node-version: '20.x'
-    #         - uses: actions/setup-python@v1
-    #           with:
-    #             python-version: '3.7'
-    #         - name: Download Build Artifacts
-    #           uses: actions/download-artifact@v1
-    #           with:
-    #             name: artifacts
-    #         - name: Tests
-    #           shell: bash
-    #           env:
-    #             PARAMETERS_SECRET: ${{ secrets.PARAMETERS_SECRET }}
-    #             CLOUD_PROVIDER: ${{ matrix.cloud }}
-    #             TARGET_DOCKER_TEST_IMAGE: ${{ matrix.image }}
-    #           run: ./ci/test.sh
+    test-linux-required:
+        needs: build
+        name: Tests on Linux
+        runs-on: ubuntu-latest
+        strategy:
+            matrix:
+                image: [ 'nodejs-centos6-default', 'nodejs-centos7-node12' ]
+                cloud: [ 'AWS' ]
+        steps:
+            - uses: actions/checkout@v1
+            - uses: actions/setup-node@v1
+              with:
+                node-version: '12.x'
+            - uses: actions/setup-python@v1
+              with:
+                python-version: '3.7'
+            - name: Download Build Artifacts
+              uses: actions/download-artifact@v1
+              with:
+                name: artifacts
+            - name: Tests
+              shell: bash
+              env:
+                PARAMETERS_SECRET: ${{ secrets.PARAMETERS_SECRET }}
+                CLOUD_PROVIDER: ${{ matrix.cloud }}
+                TARGET_DOCKER_TEST_IMAGE: ${{ matrix.image }}
+              run: ./ci/test.sh
 
-    test-mac-optional:
+    test-mac-AZURE-optional:
         needs: test-mac-required
         name: Tests on Mac
         runs-on: macos-latest
         strategy:
             matrix:
-                cloud: [ 'AZURE', 'GCP' ]
+                cloud: [ 'AZURE' ]
         steps:
             - uses: actions/checkout@v1
             - uses: actions/setup-node@v1
               with:
-                node-version: '20.x'
+                node-version: '16.x'
+            - uses: actions/setup-python@v1
+              with:
+                python-version: '3.7'
+            - name: Download Build Artifacts
+              uses: actions/download-artifact@v1
+              with:
+                name: artifacts
+            - name: Install Homebrew Bash
+              shell: bash
+              run: brew install bash
+            - name: Tests
+              shell: bash
+              env:
+                PARAMETERS_SECRET: ${{ secrets.PARAMETERS_SECRET }}
+                CLOUD_PROVIDER: ${{ matrix.cloud }}
+              run: /usr/local/bin/bash ./ci/test_mac
+
+    test-mac-GCP-optional:
+        needs: test-mac-required
+        name: Tests on Mac
+        runs-on: macos-latest
+        strategy:
+            matrix:
+                cloud: [ 'GCP' ]
+        steps:
+            - uses: actions/checkout@v1
+            - uses: actions/setup-node@v1
+              with:
+                node-version: '19.x'
             - uses: actions/setup-python@v1
               with:
                 python-version: '3.7'
@@ -159,18 +188,18 @@ jobs:
                 CLOUD_PROVIDER: ${{ matrix.cloud }}
               run: /usr/local/bin/bash ./ci/test_mac.sh
 
-    test-windows-optional:
+    test-windows-GCP-optional:
         needs: test-windows-required
         name: Tests on Windows
         runs-on: windows-latest
         strategy:
             matrix:
-                cloud: [ 'AZURE', 'GCP' ]
+                cloud: [ 'AZURE' ]
         steps:
             - uses: actions/checkout@v1
             - uses: actions/setup-node@v1
               with:
-                node-version: '20.x'
+                node-version: '16.x'
             - uses: actions/setup-python@v1
               with:
                 python-version: '3.7'
@@ -186,59 +215,86 @@ jobs:
                 CLOUD_PROVIDER: ${{ matrix.cloud }}
               run: ci\\test_windows.bat
 
-    # test-linux-optional:
-    #     needs: test-linux-required
-    #     name: Tests on Linux
-    #     runs-on: ubuntu-latest
-    #     strategy:
-    #         matrix:
-    #             image: [ 'nodejs-centos6-default', 'nodejs-centos7-node12' ]
-    #             #REMOVE AZURE for now
-    #             #cloud: [ 'AZURE', 'GCP' ]
-    #             cloud: [ 'GCP' ]
-    #     steps:
-    #         - uses: actions/checkout@v1
-    #         - uses: actions/setup-node@v1
-    #           with:
-    #             node-version: '20.x'
-    #         - uses: actions/setup-python@v1
-    #           with:
-    #             python-version: '3.7'
-    #         - name: Download Build Artifacts
-    #           uses: actions/download-artifact@v1
-    #           with:
-    #             name: artifacts
-    #         - name: Tests
-    #           shell: bash
-    #           env:
-    #             PARAMETERS_SECRET: ${{ secrets.PARAMETERS_SECRET }}
-    #             CLOUD_PROVIDER: ${{ matrix.cloud }}
-    #             TARGET_DOCKER_TEST_IMAGE: ${{ matrix.image }}
-    #           run: ./ci/test.sh
+      test-windows-GCP-optional:
+        needs: test-windows-required
+        name: Tests on Windows
+        runs-on: windows-latest
+        strategy:
+            matrix:
+                cloud: [ 'GCP' ]
+        steps:
+            - uses: actions/checkout@v1
+            - uses: actions/setup-node@v1
+              with:
+                node-version: '19.x'
+            - uses: actions/setup-python@v1
+              with:
+                python-version: '3.7'
+                architecture: 'x64'
+            - name: Download Build Artifacts
+              uses: actions/download-artifact@v1
+              with:
+                name: artifacts
+            - name: Tests
+              shell: cmd
+              env:
+                PARAMETERS_SECRET: ${{ secrets.PARAMETERS_SECRET }}
+                CLOUD_PROVIDER: ${{ matrix.cloud }}
+              run: ci\\test_windows.bat
 
-    # upload_code_coverage: # it's separate job because codecov action can fail https://github.com/codecov/codecov-action/issues/598 (and we want to know about it), but we don't want to fail required mac build
-    #     needs: test-mac-required
-    #     name: Upload code coverage
-    #     runs-on: ubuntu-latest
-    #     steps:
-    #       - name: Checkout # it is still recommended to checkout https://about.codecov.io/blog/uploading-code-coverage-in-a-separate-job-on-github-actions/
-    #         uses: actions/checkout@v3
-    #       - name: Download code coverage result
-    #         uses: actions/download-artifact@v3
-    #         with:
-    #           name: codeCoverage
-    #           path: coverage
-    #       # codecov action sometimes fails but retry works - until action provides retry let's retry on our own https://github.com/codecov/codecov-action/issues/926
-    #       - name: Upload coverage reports to Codecov with GitHub Action (take 1)
-    #         id: uploadToCodeCovTake1
-    #         uses: codecov/codecov-action@v3
-    #         continue-on-error: true
-    #         with:
-    #           fail_ci_if_error: true
-    #       - name: Upload coverage reports to Codecov with GitHub Action (take 2)
-    #         id: uploadToCodeCovTake2
-    #         # only run when take 1 failed
-    #         if: steps.uploadToCodeCovTake1.outcome == 'failure'
-    #         uses: codecov/codecov-action@v3
-    #         with:
-    #           fail_ci_if_error: true
+    test-linux-optional:
+        needs: test-linux-required
+        name: Tests on Linux
+        runs-on: ubuntu-latest
+        strategy:
+            matrix:
+                image: [ 'nodejs-centos6-default', 'nodejs-centos7-node12' ]
+                #REMOVE AZURE for now
+                #cloud: [ 'AZURE', 'GCP' ]
+                cloud: [ 'GCP' ]
+        steps:
+            - uses: actions/checkout@v1
+            - uses: actions/setup-node@v1
+              with:
+                node-version: '12.x'
+            - uses: actions/setup-python@v1
+              with:
+                python-version: '3.7'
+            - name: Download Build Artifacts
+              uses: actions/download-artifact@v1
+              with:
+                name: artifacts
+            - name: Tests
+              shell: bash
+              env:
+                PARAMETERS_SECRET: ${{ secrets.PARAMETERS_SECRET }}
+                CLOUD_PROVIDER: ${{ matrix.cloud }}
+                TARGET_DOCKER_TEST_IMAGE: ${{ matrix.image }}
+              run: ./ci/test.sh
+
+    upload_code_coverage: # it's separate job because codecov action can fail https://github.com/codecov/codecov-action/issues/598 (and we want to know about it), but we don't want to fail required mac build
+        needs: test-mac-required
+        name: Upload code coverage
+        runs-on: ubuntu-latest
+        steps:
+          - name: Checkout # it is still recommended to checkout https://about.codecov.io/blog/uploading-code-coverage-in-a-separate-job-on-github-actions/
+            uses: actions/checkout@v3
+          - name: Download code coverage result
+            uses: actions/download-artifact@v3
+            with:
+              name: codeCoverage
+              path: coverage
+          # codecov action sometimes fails but retry works - until action provides retry let's retry on our own https://github.com/codecov/codecov-action/issues/926
+          - name: Upload coverage reports to Codecov with GitHub Action (take 1)
+            id: uploadToCodeCovTake1
+            uses: codecov/codecov-action@v3
+            continue-on-error: true
+            with:
+              fail_ci_if_error: true
+          - name: Upload coverage reports to Codecov with GitHub Action (take 2)
+            id: uploadToCodeCovTake2
+            # only run when take 1 failed
+            if: steps.uploadToCodeCovTake1.outcome == 'failure'
+            uses: codecov/codecov-action@v3
+            with:
+              fail_ci_if_error: true

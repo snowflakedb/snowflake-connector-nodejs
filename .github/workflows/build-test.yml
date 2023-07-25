@@ -186,6 +186,33 @@ jobs:
                 CLOUD_PROVIDER: ${{ matrix.cloud }}
               run: ci\\test_windows.bat
 
+    test-windows-gcp-optional:
+        needs: test-windows-required
+        name: Tests on Windows
+        runs-on: windows-latest
+        strategy:
+            matrix:
+                cloud: [ 'GCP' ]
+        steps:
+            - uses: actions/checkout@v1
+            - uses: actions/setup-node@v1
+              with:
+                node-version: '12.x'
+            - uses: actions/setup-python@v1
+              with:
+                python-version: '3.7'
+                architecture: 'x64'
+            - name: Download Build Artifacts
+              uses: actions/download-artifact@v1
+              with:
+                name: artifacts
+            - name: Tests
+              shell: cmd
+              env:
+                PARAMETERS_SECRET: ${{ secrets.PARAMETERS_SECRET }}
+                CLOUD_PROVIDER: ${{ matrix.cloud }}
+              run: ci\\test_windows.bat
+
     test-linux-optional:
         needs: test-linux-required
         name: Tests on Linux

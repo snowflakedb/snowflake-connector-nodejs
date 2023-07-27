@@ -9,7 +9,7 @@ const fs = require('fs');
 module.exports.createConnection = function (validConnectionOptionsOverride = {}) {
   return snowflake.createConnection({
     ...connOptions.valid,
-    validConnectionOptionsOverride,
+    ...validConnectionOptionsOverride,
   });
 };
 

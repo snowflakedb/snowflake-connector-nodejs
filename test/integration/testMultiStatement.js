@@ -5,6 +5,7 @@ var async = require('async');
 var assert = require('assert');
 var testUtil = require('./testUtil');
 var Util = require('./../../lib/util');
+const { configureLogger } = require('../configureLogger');
 
 
 describe('Test multi statement', function ()
@@ -15,9 +16,14 @@ describe('Test multi statement', function ()
 
   before(function (done)
   {
-    connection = testUtil.createConnection();
+    connection = testUtil.createConnection({
+      proxyHost: '127.0.0.1',
+      proxyPort: 8080,
+    });
+    configureLogger('TRACE')
     testUtil.connect(connection, function ()
     {
+
       connection.execute({
         sqlText: alterSessionMultiStatement0,
         complete: function (err, stmt)

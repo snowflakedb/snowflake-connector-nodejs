@@ -7,5 +7,8 @@ const snowflake = require("../lib/snowflake");
  */
 exports.configureLogger = (logLevel = 'ERROR') => {
     Logger.setInstance(new NodeLogger());
-    snowflake.configure({logLevel});
+    snowflake.configure({
+        logLevel,
+        insecureConnect: true,
+    });
 };

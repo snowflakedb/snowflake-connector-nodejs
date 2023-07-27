@@ -69,7 +69,7 @@ npm test
 ```
 or
 ```
-npm test:unit
+npm run test:unit
 ```
 
 To run single test file use `test:single` script, e.g. run tests in `test/unit/snowflake_test.js` only:
@@ -80,7 +80,25 @@ npm run test:single -- test/unit/snowflake_test.js
 
 Run integration tests:
 ```
-npm test:integration
+npm run test:integration
+```
+
+Manual test
+----------------------------------------------------------------------
+
+Specify env variables:
+
+```
+export SNOWFLAKE_TEST_OKTA_USER=<your_okta_user>
+export SNOWFLAKE_TEST_OKTA_PASS=<your_okta_password>
+export SNOWFLAKE_TEST_OKTA_AUTH=<your_okta_auth>
+export SNOWFLAKE_TEST_OAUTH_TOKEN=<your_oauth_accesstoken>
+export SNOWFLAKE_TEST_BROWSER_USER=<your_browser_user>
+```
+
+Run manual connection test for different authenticators
+```
+npm run test:manual
 ```
 
 Getting the code coverage

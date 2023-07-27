@@ -69,7 +69,8 @@
     "test:ci": "mocha -timeout 180000 --recursive --full-trace test/**/*.js",
     "test:ci:coverage": "nyc npm run test:ci",
     "test:ci:withSystemTests": "mocha -timeout 180000 --recursive --full-trace test/**/*.js system_test/*.js",
-    "test:ci:withSystemTests:coverage": "nyc npm run test:ci:withSystemTests"
+    "test:ci:withSystemTests:coverage": "nyc npm run test:ci:withSystemTests",
+    "test:manual": "python EnableConnectAsyncTests.py && mocha -timeout 180000 --full-trace --full-trace test/manual/testConnection.js"
   },
   "author": {
     "name": "Snowflake Computing, Inc.",

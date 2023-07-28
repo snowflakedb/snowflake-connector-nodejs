@@ -89,6 +89,7 @@ Manual test
 Specify env variables:
 
 ```
+export RUN_MANUAL_TESTS_ONLY=true
 export SNOWFLAKE_TEST_OKTA_USER=<your_okta_user>
 export SNOWFLAKE_TEST_OKTA_PASS=<your_okta_password>
 export SNOWFLAKE_TEST_OKTA_AUTH=<your_okta_auth>

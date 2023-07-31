@@ -126,6 +126,10 @@ describe('PUT GET test', function () {
       {
         name: 'zstd',
         encoding: fileCompressionType.lookupByMimeSubType('zstd'),
+      },
+      {
+        name: 'GziP', // Verify case insensitive
+        encoding: fileCompressionType.lookupByMimeSubType('GziP'),
       }
     ];
 
@@ -192,7 +196,7 @@ describe('PUT GET test', function () {
               connection.execute({
                 sqlText: `SELECT * FROM ${TEMP_TABLE_NAME}`,
                 complete: function (err, stmt) {
-                  if(err){
+                  if (err) {
                     callback(err);
                   } else {
                     const stream = stmt.streamRows();
@@ -217,9 +221,9 @@ describe('PUT GET test', function () {
               connection.execute({
                 sqlText: `SELECT COUNT(*) FROM ${TEMP_TABLE_NAME}`,
                 complete: function (err, stmt) {
-                  if(err){
+                  if (err) {
                     callback(err);
-                  }else {
+                  } else {
                     const stream = stmt.streamRows();
                     stream.on('error', function (err) {
                       callback(err);
@@ -240,9 +244,9 @@ describe('PUT GET test', function () {
               connection.execute({
                 sqlText: getQuery,
                 complete: function (err, stmt) {
-                  if(err){
+                  if (err) {
                     callback(err);
-                  }else {
+                  } else {
                     const stream = stmt.streamRows();
                     stream.on('error', function (err) {
                       callback(err);
@@ -336,9 +340,9 @@ describe('PUT GET overwrite test', function () {
               connection.execute({
                 sqlText: putQuery,
                 complete: function (err, stmt) {
-                  if(err){
+                  if (err) {
                     callback(err);
-                  }else {
+                  } else {
                     const stream = stmt.streamRows();
                     stream.on('error', function (err) {
                       callback(err);
@@ -359,9 +363,9 @@ describe('PUT GET overwrite test', function () {
               connection.execute({
                 sqlText: putQuery,
                 complete: function (err, stmt) {
-                  if(err){
+                  if (err) {
                     callback(err);
-                  }else {
+                  } else {
                     const stream = stmt.streamRows();
                     stream.on('error', function (err) {
                       callback(err);
@@ -386,9 +390,9 @@ describe('PUT GET overwrite test', function () {
               connection.execute({
                 sqlText: putQuery,
                 complete: function (err, stmt) {
-                  if(err){
+                  if (err) {
                     callback(err);
-                  }else {
+                  } else {
                     const stream = stmt.streamRows();
                     stream.on('error', function (err) {
                       callback(err);
@@ -558,9 +562,9 @@ describe('PUT GET test with GCS_USE_DOWNSCOPED_CREDENTIAL', function () {
           connection.execute({
             sqlText: `SELECT * FROM ${TEMP_TABLE_NAME}`,
             complete: function (err, stmt) {
-              if(err){
+              if (err) {
                 callback(err);
-              }else {
+              } else {
                 const stream = stmt.streamRows();
                 stream.on('error', function (err) {
                   callback(err);
@@ -583,9 +587,9 @@ describe('PUT GET test with GCS_USE_DOWNSCOPED_CREDENTIAL', function () {
           connection.execute({
             sqlText: `SELECT COUNT(*) FROM ${TEMP_TABLE_NAME}`,
             complete: function (err, stmt) {
-              if(err){
+              if (err) {
                 callback(err);
-              }else {
+              } else {
                 const stream = stmt.streamRows();
                 stream.on('error', function (err) {
                   callback(err);
@@ -606,9 +610,9 @@ describe('PUT GET test with GCS_USE_DOWNSCOPED_CREDENTIAL', function () {
           connection.execute({
             sqlText: getQuery,
             complete: function (err, stmt) {
-              if(err){
+              if (err) {
                 callback(err); 
-              }else {
+              } else {
                 const stream = stmt.streamRows();
                 stream.on('error', function (err) {
                   callback(err);
@@ -642,7 +646,7 @@ describe('PUT GET test with GCS_USE_DOWNSCOPED_CREDENTIAL', function () {
   });
 });
 
-describe('PUT GET test multiple files', function () {
+describe('PUT GET test with multiple files', function () {
   this.retries(3); // this test suit are considered as flaky test
 
   let connection;
@@ -855,5 +859,313 @@ describe('PUT GET test multiple files', function () {
     }
 
     setTimeout(checkResult, 100);
+  }
+});
+
+describe('PUT GET test without compress', function () {
+  let connection;
+  const stage = `@${DATABASE_NAME}.${SCHEMA_NAME}.%${TEMP_TABLE_NAME}`;
+  const createTable = `create or replace table ${TEMP_TABLE_NAME} (${COL1} STRING, ${COL2} STRING, ${COL3} STRING)`;
+  const removeFile = `REMOVE ${stage}`;
+  const dropTable = `DROP TABLE IF EXISTS ${TEMP_TABLE_NAME}`;
+
+  let tmpFile = null;
+  let tmpDir = null;
+  let tmpfilePath = '';
+  let putQuery = '';
+  let tmpdirPath = '';
+  let getQuery = '';
+
+  before(async () => {
+    // Create a temp file without specified file extension
+    tmpFile = tmp.fileSync();
+    // Write row data to temp file
+    fs.writeFileSync(tmpFile.name, ROW_DATA);  
+    // Create a tmp folder for downloaded files
+    tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'get'));
+    tmpfilePath = getPlatformTmpPath(tmpFile.name);
+    putQuery = `PUT ${tmpfilePath} ${stage} AUTO_COMPRESS=FALSE`;
+    tmpdirPath = getPlatformTmpPath(tmpDir);
+    getQuery = `GET ${stage} ${tmpdirPath}`;
+    
+    connection = testUtil.createConnection();
+    await testUtil.connectAsync(connection);
+    await testUtil.executeCmdAsync(connection, createTable);
+  });
+
+  after(async () => {
+    testUtil.deleteFileSyncIgnoringErrors(tmpFile);
+    testUtil.deleteFolderSyncIgnoringErrors(tmpDir);
+
+    await testUtil.executeCmdAsync(connection, removeFile);
+    await testUtil.executeCmdAsync(connection, dropTable);
+    await testUtil.destroyConnectionAsync(connection);
+  });
+
+  it('testNoCompress', function (done) {
+    async.series(
+      [
+        function (callback) {
+          connection.execute({
+            sqlText: putQuery,
+            complete: function (err, stmt) {
+              if (err) {
+                callback(err);
+              } else {
+                const stream = stmt.streamRows();
+                stream.on('error', function (err) {
+                  callback(err);
+                });
+                stream.on('data', function (row) {
+                  // Check the file is correctly uploaded
+                  assert.strictEqual(row['status'], UPLOADED);
+                  assert.strictEqual(row.targetSize, ROW_DATA_SIZE);
+                });
+                stream.on('end', function () {
+                  callback();
+                });
+              }
+            }
+          });
+        },
+        function (callback) {
+          connection.execute({
+            sqlText: getQuery,
+            complete: function (err, stmt) {
+              if (err) {
+                callback(err);
+              } else {
+                const stream = stmt.streamRows();
+                stream.on('error', function (err) {
+                  callback(err);
+                });
+                stream.on('data', function (row) {
+                  assert.strictEqual(row['status'], DOWNLOADED);
+                  // Verify if the file is not compressed.
+                  const file = path.join(tmpDir, row.file);
+                  const data = fs.readFileSync(file).toString();
+                  assert.strictEqual(data, ROW_DATA);
+                });
+                stream.on('end', function () {
+                  callback();
+                });
+              }
+            }
+          });
+        }
+      ],
+      done
+    );
+  });
+});
+
+describe('PUT GET test with different size', function () {
+  let connection;
+  const stage = `@${DATABASE_NAME}.${SCHEMA_NAME}.%${TEMP_TABLE_NAME}`;
+  const createTable = `create or replace table ${TEMP_TABLE_NAME} (${COL1} STRING, ${COL2} STRING, ${COL3} STRING)`;
+  const removeFile = `REMOVE ${stage}`;
+  const dropTable = `DROP TABLE IF EXISTS ${TEMP_TABLE_NAME}`;
+
+  let zeroByteFile = null;
+  let largeFile = null; 
+  let tmpDir = null;
+  let zeroByteFilePath = '';
+  let largeFilePath = '';
+  let tmpdirPath = '';
+  let getQuery = '';
+
+  before(async () => {
+    // Create a temp file without specified file extension
+    zeroByteFile = tmp.fileSync();
+    largeFile = tmp.fileSync(); 
+    // Create a tmp folder for downloaded files
+    tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'get'));
+    // Create a file of 100 MB
+    const fh = fs.openSync(largeFile.name, 'w');
+    fs.writeSync(fh, 'ok', Math.max(0, 100*1024*1024 - 2));
+    fs.closeSync(fh);
+
+    zeroByteFilePath = getPlatformTmpPath(zeroByteFile.name);
+    largeFilePath = getPlatformTmpPath(largeFile.name);
+    tmpdirPath = getPlatformTmpPath(tmpDir);
+    getQuery = `GET ${stage} ${tmpdirPath}`;
+
+    connection = testUtil.createConnection();
+    await testUtil.connectAsync(connection);
+    await testUtil.executeCmdAsync(connection, createTable);
+  });
+
+  afterEach(async () => {
+    await testUtil.executeCmdAsync(connection, removeFile);
+  });
+
+  after(async () => {
+    testUtil.deleteFileSyncIgnoringErrors(zeroByteFile);
+    testUtil.deleteFileSyncIgnoringErrors(largeFile);
+    testUtil.deleteFolderSyncIgnoringErrors(tmpDir);
+    await testUtil.executeCmdAsync(connection, dropTable);
+    await testUtil.destroyConnectionAsync(connection);
+  });
+
+  it('zero byte file', function (done) {
+    async.series(
+      [
+        function (callback) {
+          executePutWithFileSize(
+            `PUT ${zeroByteFilePath} ${stage} AUTO_COMPRESS=FALSE`,
+            0,
+            callback);
+        },
+        function (callback) {
+          executeGetWithFileSize(getQuery, 0, callback);
+        }
+      ],
+      done
+    );
+  });
+
+  it('large size file', function (done) {
+    async.series(
+      [
+        function (callback) {
+          executePutWithFileSize(
+            `PUT ${largeFilePath} ${stage} AUTO_COMPRESS=FALSE`,
+            100*1024*1024,
+            callback);
+        },
+        function (callback) {
+          executeGetWithFileSize(getQuery, 100*1024*1024, callback);
+        }
+      ],
+      done
+    );
+  });
+
+  function executePutWithFileSize(putQuery, fileSize, callback) {
+    connection.execute({
+      sqlText: putQuery,
+      complete: function (err, stmt) {
+        if (err) {
+          callback(err);
+        } else {
+          const stream = stmt.streamRows();
+          stream.on('error', function (err) {
+            callback(err);
+          });
+          stream.on('data', function (row) {
+            // Check the file is correctly uploaded
+            assert.strictEqual(row['status'], UPLOADED);
+            assert.strictEqual(row.targetSize, fileSize);
+          });
+          stream.on('end', function () {
+            callback();
+          });
+        }
+      }
+    });
+  }
+
+  function executeGetWithFileSize(getQuery, fileSize, callback) {
+    connection.execute({
+      sqlText: getQuery,
+      complete: function (err, stmt) {
+        if (err) {
+          callback(err);
+        } else {
+          const stream = stmt.streamRows();
+          stream.on('error', function (err) {
+            callback(err);
+          });
+          stream.on('data', function (row) {
+            assert.strictEqual(row['status'], DOWNLOADED);
+            // Verify the size of the file
+            const file = path.join(tmpDir, row.file);
+            const size = fs.statSync(file).size;
+            assert.strictEqual(size, fileSize);
+          });
+          stream.on('end', function () {
+            callback();
+          });
+        }
+      }
+    });
+  }
+});
+
+describe('PUT GET test with error', function () {
+  let connection;
+  const stage = `@${DATABASE_NAME}.${SCHEMA_NAME}.%${TEMP_TABLE_NAME}`;
+  const stage_not_exist = `@${DATABASE_NAME}.${SCHEMA_NAME}.%NONEXISTTABLE`;
+  const createTable = `create or replace table ${TEMP_TABLE_NAME} (${COL1} STRING, ${COL2} STRING, ${COL3} STRING)`;
+  const removeFile = `REMOVE ${stage}`;
+  const dropTable = `DROP TABLE IF EXISTS ${TEMP_TABLE_NAME}`;
+
+  let tmpFile = null; 
+  let tmpfilePath = null;
+  let testCases = null;
+
+  before(async () => {
+    // Create a temp file without specified file extension
+    tmpFile = tmp.fileSync(); 
+    tmpfilePath = getPlatformTmpPath(tmpFile.name);
+    
+    connection = testUtil.createConnection();
+    await testUtil.connectAsync(connection);
+    await testUtil.executeCmdAsync(connection, createTable);
+  });
+
+  after(async () => {
+    testUtil.deleteFileSyncIgnoringErrors(tmpFile);
+
+    await testUtil.executeCmdAsync(connection, removeFile);
+    await testUtil.executeCmdAsync(connection, dropTable);
+    await testUtil.destroyConnectionAsync(connection);
+  });
+
+  it('file not exist', function (done) {
+    async.series(
+      [
+        function (callback) {
+          verifyCompilationError(`PUT file_not_exist.txt ${stage}  OVERWRITE=true`, callback);
+        }
+      ],
+      done
+    );
+  });
+  
+  it('compresssed file not exist', function (done) {
+    async.series(
+      [
+        function (callback) {
+          verifyCompilationError(`PUT file_not_exist.gzip ${stage}  OVERWRITE=true`, callback);
+        }
+      ],
+      done
+    );
+  });
+  
+  it('stage not exist', function (done) {
+    async.series(
+      [
+        function (callback) {
+          verifyCompilationError(`PUT ${tmpfilePath} ${stage_not_exist}`, callback);
+        }
+      ],
+      done
+    );
+  });
+
+  function verifyCompilationError(putQuery, callback) {
+    connection.execute({
+      sqlText: putQuery,
+      complete: function (err) {
+        if (err) {
+          assert.strictEqual(err.data.type, 'COMPILATION');
+          callback();
+        } else {
+          assert.ok(err, 'there should be an error');
+        }
+      }
+    });
   }
 });

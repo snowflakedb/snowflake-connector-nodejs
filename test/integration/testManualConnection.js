@@ -1,23 +1,23 @@
-const snowflake = require('./../../lib/snowflake');
-const async = require('async');
-const assert = require('assert');
-const connOption = require('./connectionOptions');
-const testUtil = require('./testUtil');
+const snowflake = require("./../../lib/snowflake");
+const async = require("async");
+const assert = require("assert");
+const connOption = require("./connectionOptions");
+const testUtil = require("./testUtil");
 
-if (process.env.RUN_MANUAL_TESTS_ONLY == 'true') {
-  describe.only('Run manual tests', function () {
-    describe('Connection test - external browser', function () {
-      it('Simple Connect', function (done) {
+if (process.env.RUN_MANUAL_TESTS_ONLY == "true") {
+  describe.only("Run manual tests", function () {
+    describe("Connection test - external browser", function () {
+      it("Simple Connect", function (done) {
         const connection = snowflake.createConnection(
           connOption.externalBrowser
         );
 
         connection.connectAsync(function (err, connection) {
           try {
-            assert.ok(connection.isUp(), 'not active');
+            assert.ok(connection.isUp(), "not active");
             testUtil.destroyConnection(connection, function (err, r) {
               try {
-                assert.ok(!connection.isUp(), 'not active');
+                assert.ok(!connection.isUp(), "not active");
                 done();
               } catch (err) {
                 done(err);
@@ -29,7 +29,7 @@ if (process.env.RUN_MANUAL_TESTS_ONLY == 'true') {
         });
       });
 
-      it('Connect - external browser timeout', function (done) {
+      it("Connect - external browser timeout", function (done) {
         const connection = snowflake.createConnection(
           connOption.externalBrowserWithShortTimeout
         );
@@ -49,7 +49,7 @@ if (process.env.RUN_MANUAL_TESTS_ONLY == 'true') {
         });
       });
 
-      it('Mismatched Username', function (done) {
+      it("Mismatched Username", function (done) {
         const connection = snowflake.createConnection(
           connOption.externalBrowserMismatchUser
         );
@@ -57,11 +57,11 @@ if (process.env.RUN_MANUAL_TESTS_ONLY == 'true') {
           try {
             assert.ok(
               err,
-              'Logged in with different user than one on connection string'
+              "Logged in with different user than one on connection string"
             );
             assert.equal(
-              'The user you were trying to authenticate as differs from the user currently logged in at the IDP.',
-              err['message']
+              "The user you were trying to authenticate as differs from the user currently logged in at the IDP.",
+              err["message"]
             );
             done();
           } catch (err) {
@@ -71,8 +71,8 @@ if (process.env.RUN_MANUAL_TESTS_ONLY == 'true') {
       });
     });
 
-    describe('Connection test - oauth', function () {
-      it('Simple Connect', function (done) {
+    describe("Connection test - oauth", function () {
+      it("Simple Connect", function (done) {
         const connection = snowflake.createConnection(connOption.oauth);
 
         async.series([
@@ -84,7 +84,7 @@ if (process.env.RUN_MANUAL_TESTS_ONLY == 'true') {
             });
           },
           function (callback) {
-            assert.ok(connection.isUp(), 'not active');
+            assert.ok(connection.isUp(), "not active");
             callback();
           },
           function (callback) {
@@ -94,13 +94,13 @@ if (process.env.RUN_MANUAL_TESTS_ONLY == 'true') {
             });
           },
           function (callback) {
-            assert.ok(!connection.isUp(), 'still active');
+            assert.ok(!connection.isUp(), "still active");
             callback();
           },
         ]);
       });
 
-      it('Mismatched Username', function (done) {
+      it("Mismatched Username", function (done) {
         const connection = snowflake.createConnection(
           connOption.oauthMismatchUser
         );
@@ -108,11 +108,11 @@ if (process.env.RUN_MANUAL_TESTS_ONLY == 'true') {
           try {
             assert.ok(
               err,
-              'Logged in with different user than one on connection string'
+              "Logged in with different user than one on connection string"
             );
             assert.equal(
-              'The user you were trying to authenticate as differs from the user tied to the access token.',
-              err['message']
+              "The user you were trying to authenticate as differs from the user tied to the access token.",
+              err["message"]
             );
             done();
           } catch (err) {
@@ -122,8 +122,8 @@ if (process.env.RUN_MANUAL_TESTS_ONLY == 'true') {
       });
     });
 
-    describe('Connection test - okta', function () {
-      it('Simple Connect', function (done) {
+    describe("Connection test - okta", function () {
+      it("Simple Connect", function (done) {
         const connection = snowflake.createConnection(connOption.okta);
 
         async.series([
@@ -135,7 +135,7 @@ if (process.env.RUN_MANUAL_TESTS_ONLY == 'true') {
             });
           },
           function (callback) {
-            assert.ok(connection.isUp(), 'not active');
+            assert.ok(connection.isUp(), "not active");
             callback();
           },
           function (callback) {
@@ -145,15 +145,15 @@ if (process.env.RUN_MANUAL_TESTS_ONLY == 'true') {
             });
           },
           function (callback) {
-            assert.ok(!connection.isUp(), 'still active');
+            assert.ok(!connection.isUp(), "still active");
             callback();
           },
         ]);
       });
     });
 
-    describe.skip('Connection test - keypair', function () {
-      it('Simple Connect - specify private key', function (done) {
+    describe("Connection test - keypair", function () {
+      it("Simple Connect - specify private key", function (done) {
         const connection = snowflake.createConnection(
           connOption.keypairPrivateKey
         );
@@ -167,7 +167,7 @@ if (process.env.RUN_MANUAL_TESTS_ONLY == 'true') {
             });
           },
           function (callback) {
-            assert.ok(connection.isUp(), 'not active');
+            assert.ok(connection.isUp(), "not active");
             callback();
           },
           function (callback) {
@@ -177,13 +177,13 @@ if (process.env.RUN_MANUAL_TESTS_ONLY == 'true') {
             });
           },
           function (callback) {
-            assert.ok(!connection.isUp(), 'still active');
+            assert.ok(!connection.isUp(), "still active");
             callback();
           },
         ]);
       });
 
-      it.skip('Simple Connect - specify encrypted private key path and passphrase', function (done) {
+      it("Simple Connect - specify encrypted private key path and passphrase", function (done) {
         const connection = snowflake.createConnection(
           connOption.keypairPathEncrypted
         );
@@ -197,7 +197,7 @@ if (process.env.RUN_MANUAL_TESTS_ONLY == 'true') {
             });
           },
           function (callback) {
-            assert.ok(connection.isUp(), 'not active');
+            assert.ok(connection.isUp(), "not active");
             callback();
           },
           function (callback) {
@@ -207,13 +207,13 @@ if (process.env.RUN_MANUAL_TESTS_ONLY == 'true') {
             });
           },
           function (callback) {
-            assert.ok(!connection.isUp(), 'still active');
+            assert.ok(!connection.isUp(), "still active");
             callback();
           },
         ]);
       });
 
-      it.skip('Simple Connect - specify unencrypted private key path without passphrase', function (done) {
+      it("Simple Connect - specify unencrypted private key path without passphrase", function (done) {
         const connection = snowflake.createConnection(
           connOption.keypairPathEncrypted
         );
@@ -227,7 +227,7 @@ if (process.env.RUN_MANUAL_TESTS_ONLY == 'true') {
             });
           },
           function (callback) {
-            assert.ok(connection.isUp(), 'not active');
+            assert.ok(connection.isUp(), "not active");
             callback();
           },
           function (callback) {
@@ -237,20 +237,20 @@ if (process.env.RUN_MANUAL_TESTS_ONLY == 'true') {
             });
           },
           function (callback) {
-            assert.ok(!connection.isUp(), 'still active');
+            assert.ok(!connection.isUp(), "still active");
             callback();
           },
         ]);
       });
 
-      it('Wrong JWT token', function (done) {
+      it("Wrong JWT token", function (done) {
         const connection = snowflake.createConnection(
           connOption.keypairWrongToken
         );
         connection.connect(function (err) {
           try {
-            assert.ok(err, 'Incorrect JWT token is passed.');
-            assert.equal('JWT token is invalid.', err['message']);
+            assert.ok(err, "Incorrect JWT token is passed.");
+            assert.equal("JWT token is invalid.", err["message"]);
             done();
           } catch (err) {
             done(err);

@@ -107,6 +107,7 @@ jobs:
         name: Tests on Linux
         runs-on: ubuntu-latest
         strategy:
+            fail-fast: false
             matrix:
                 image: [ 'nodejs-centos6-default', 'nodejs-centos7-node12' ]
                 cloud: [ 'AWS' ]
@@ -131,10 +132,11 @@ jobs:
               run: ./ci/test.sh
 
     test-mac-optional:
-        needs: test-mac-required
+        needs: build
         name: Tests on Mac
         runs-on: macos-latest
         strategy:
+            fail-fast: false
             matrix:
                 cloud: [ 'AZURE', 'GCP' ]
         steps:
@@ -160,10 +162,11 @@ jobs:
               run: /usr/local/bin/bash ./ci/test_mac.sh
 
     test-windows-optional:
-        needs: test-windows-required
+        needs: build
         name: Tests on Windows
         runs-on: windows-latest
         strategy:
+            fail-fast: false
             matrix:
                 cloud: [ 'AZURE', 'GCP' ]
         steps:
@@ -187,10 +190,11 @@ jobs:
               run: ci\\test_windows.bat
 
     test-linux-optional:
-        needs: test-linux-required
+        needs: build
         name: Tests on Linux
         runs-on: ubuntu-latest
         strategy:
+            fail-fast: false
             matrix:
                 image: [ 'nodejs-centos6-default', 'nodejs-centos7-node12' ]
                 #REMOVE AZURE for now

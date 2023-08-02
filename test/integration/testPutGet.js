@@ -763,8 +763,8 @@ describe('PUT GET test with multiple files', function () {
     );
   });
 
-  it('testUploadMultifiles', function (done) {
-    const count = 5;
+  it.only('testUploadMultifiles', function (done) {
+    const count = 100;
     const results = {};
     const tmpdirPath = getPlatformTmpPath(tmpDir);
     const getQuery = `GET ${stage} ${tmpdirPath}`;

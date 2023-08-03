@@ -7,6 +7,7 @@ const assert = require("assert");
 const connOption = require("./connectionOptions");
 const testUtil = require("./testUtil");
 const Util = require("./../../lib/util");
+const Logger = require('./../configureLogger');
 const Core = require("./../../lib/core");
 const stderr = require("test-console").stderr;
 
@@ -34,6 +35,7 @@ describe("Connection test", function () {
     const connection = snowflake.createConnection(connOption.valid);
     assert.deepEqual(connection.getTokens(), {});
   });
+
   it("Simple Connect", async function () {
     const connection = snowflake.createConnection(connOption.valid);
 

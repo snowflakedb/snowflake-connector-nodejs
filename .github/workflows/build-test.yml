@@ -1,23 +1,23 @@
 name: Build and Test
 
 on:
-    push:
-        branches:
-            - master
-        tags:
-            - v*
-    pull_request:
-        branches:
-            - master
-            - prep-**
-    workflow_dispatch:
-        inputs:
-          logLevel:
-            default: warning
-            description: "Log level"
-            required: true
-          tags: 
-            description: "Test scenario tags"
+  push:
+    branches:
+      - master
+    tags:
+      - v*
+  pull_request:
+    branches:
+      - master
+      - prep-**
+  workflow_dispatch:
+    inputs:
+      logLevel:
+        default: warning
+        description: "Log level"
+        required: true
+      tags:
+        description: "Test scenario tags"
 
 concurrency:
   # older builds for the same pull request numer or branch should be cancelled
@@ -25,276 +25,222 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-    build:
-        name: Build
-        runs-on: ubuntu-latest
-        steps:
-            - uses: actions/checkout@v1
-            - name: Build
-              shell: bash
-              env:
-                WHITESOURCE_API_KEY: ${{ secrets.WHITESOURCE_API_KEY }}
-              run: ./ci/build.sh
-            - name: Upload Build Artifact
-              uses: actions/upload-artifact@v1
-              with:
-                name: artifacts
-                path: artifacts
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v1
+      - name: Build
+        shell: bash
+        env:
+          WHITESOURCE_API_KEY: ${{ secrets.WHITESOURCE_API_KEY }}
+        run: ./ci/build.sh
+      - name: Upload Build Artifact
+        uses: actions/upload-artifact@v1
+        with:
+          name: artifacts
+          path: artifacts
 
-    test-mac-required:
-        needs: build
-        name: Tests on Mac
-        runs-on: macos-latest
-        strategy:
-            matrix:
-                cloud: [ 'AWS' ]
-        steps:
-            - uses: actions/checkout@v1
-            - uses: actions/setup-node@v1
-              with:
-                node-version: '12.x'
-            - uses: actions/setup-python@v1
-              with:
-                python-version: '3.7'
-            - name: Download Build Artifacts
-              uses: actions/download-artifact@v1
-              with:
-                name: artifacts
-            - name: Install Homebrew Bash
-              shell: bash
-              run: brew install bash
-            - name: Tests
-              shell: bash
-              env:
-                PARAMETERS_SECRET: ${{ secrets.PARAMETERS_SECRET }}
-                CLOUD_PROVIDER: ${{ matrix.cloud }}
-              run: /usr/local/bin/bash ./ci/test_mac.sh
-            - name: Upload lcov coverage directory
-              uses: actions/upload-artifact@v3
-              with:
-                name: codeCoverage
-                path: coverage
+  test-mac-required:
+    needs: build
+    name: Tests on Mac
+    runs-on: macos-latest
+    strategy:
+      matrix:
+        cloud: ["AWS"]
+    steps:
+      - uses: actions/checkout@v1
+      - uses: actions/setup-node@v1
+        with:
+          node-version: "12.x"
+      - uses: actions/setup-python@v1
+        with:
+          python-version: "3.7"
+      - name: Download Build Artifacts
+        uses: actions/download-artifact@v1
+        with:
+          name: artifacts
+      - name: Install Homebrew Bash
+        shell: bash
+        run: brew install bash
+      - name: Tests
+        shell: bash
+        env:
+          PARAMETERS_SECRET: ${{ secrets.PARAMETERS_SECRET }}
+          CLOUD_PROVIDER: ${{ matrix.cloud }}
+        run: /usr/local/bin/bash ./ci/test_mac.sh
+      - name: Upload lcov coverage directory
+        uses: actions/upload-artifact@v3
+        with:
+          name: codeCoverage
+          path: coverage
 
-    test-windows-required:
-        needs: build
-        name: Tests on Windows
-        runs-on: windows-latest
-        strategy:
-            matrix:
-                cloud: [ 'AWS' ]
-        steps:
-            - uses: actions/checkout@v1
-            - uses: actions/setup-node@v1
-              with:
-                node-version: '12.x'
-            - uses: actions/setup-python@v1
-              with:
-                python-version: '3.7'
-                architecture: 'x64'
-            - name: Download Build Artifacts
-              uses: actions/download-artifact@v1
-              with:
-                name: artifacts
-            - name: Tests
-              shell: cmd
-              env:
-                PARAMETERS_SECRET: ${{ secrets.PARAMETERS_SECRET }}
-                CLOUD_PROVIDER: ${{ matrix.cloud }}
-              run: ci\\test_windows.bat
+  test-windows-required:
+    needs: build
+    name: Tests on Windows
+    runs-on: windows-latest
+    strategy:
+      matrix:
+        cloud: ["AWS"]
+    steps:
+      - uses: actions/checkout@v1
+      - uses: actions/setup-node@v1
+        with:
+          node-version: "12.x"
+      - uses: actions/setup-python@v1
+        with:
+          python-version: "3.7"
+          architecture: "x64"
+      - name: Download Build Artifacts
+        uses: actions/download-artifact@v1
+        with:
+          name: artifacts
+      - name: Tests
+        shell: cmd
+        env:
+          PARAMETERS_SECRET: ${{ secrets.PARAMETERS_SECRET }}
+          CLOUD_PROVIDER: ${{ matrix.cloud }}
+        run: ci\\test_windows.bat
 
-    test-linux-required:
-        needs: build
-        name: Tests on Linux
-        runs-on: ubuntu-latest
-        strategy:
-            matrix:
-                image: [ 'nodejs-centos6-default', 'nodejs-centos7-node12' ]
-                cloud: [ 'AWS' ]
-        steps:
-            - uses: actions/checkout@v1
-            - uses: actions/setup-node@v1
-              with:
-                node-version: '12.x'
-            - uses: actions/setup-python@v1
-              with:
-                python-version: '3.7'
-            - name: Download Build Artifacts
-              uses: actions/download-artifact@v1
-              with:
-                name: artifacts
-            - name: Tests
-              shell: bash
-              env:
-                PARAMETERS_SECRET: ${{ secrets.PARAMETERS_SECRET }}
-                CLOUD_PROVIDER: ${{ matrix.cloud }}
-                TARGET_DOCKER_TEST_IMAGE: ${{ matrix.image }}
-              run: ./ci/test.sh
+  test-linux-required:
+    needs: build
+    name: Tests on Linux
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        image: ["nodejs-centos6-default", "nodejs-centos7-node12"]
+        cloud: ["AWS"]
+    steps:
+      - uses: actions/checkout@v1
+      - uses: actions/setup-node@v1
+        with:
+          node-version: "12.x"
+      - uses: actions/setup-python@v1
+        with:
+          python-version: "3.7"
+      - name: Download Build Artifacts
+        uses: actions/download-artifact@v1
+        with:
+          name: artifacts
+      - name: Tests
+        shell: bash
+        env:
+          PARAMETERS_SECRET: ${{ secrets.PARAMETERS_SECRET }}
+          CLOUD_PROVIDER: ${{ matrix.cloud }}
+          TARGET_DOCKER_TEST_IMAGE: ${{ matrix.image }}
+        run: ./ci/test.sh
 
-    test-mac-azure-optional:
-        needs: test-mac-required
-        name: Tests on Mac
-        runs-on: macos-latest
-        strategy:
-            matrix:
-                cloud: [ 'AZURE' ]
-        steps:
-            - uses: actions/checkout@v1
-            - uses: actions/setup-node@v1
-              with:
-                node-version: '16.x'
-            - uses: actions/setup-python@v1
-              with:
-                python-version: '3.7'
-            - name: Download Build Artifacts
-              uses: actions/download-artifact@v1
-              with:
-                name: artifacts
-            - name: Install Homebrew Bash
-              shell: bash
-              run: brew install bash
-            - name: Tests
-              shell: bash
-              env:
-                PARAMETERS_SECRET: ${{ secrets.PARAMETERS_SECRET }}
-                CLOUD_PROVIDER: ${{ matrix.cloud }}
-              run: /usr/local/bin/bash ./ci/test_mac.sh
+  test-mac-azure-gcp-optional:
+    needs: test-mac-required
+    name: Tests on Mac
+    runs-on: macos-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        cloud: ["AZURE", "GCP"]
+    steps:
+      - uses: actions/checkout@v1
+      - uses: actions/setup-node@v1
+        with:
+          nodeVersion: ["16.x", "18.x"]
+      - uses: actions/setup-python@v1
+        with:
+          python-version: "3.7"
+      - name: Download Build Artifacts
+        uses: actions/download-artifact@v1
+        with:
+          name: artifacts
+      - name: Install Homebrew Bash
+        shell: bash
+        run: brew install bash
+      - name: Tests
+        shell: bash
+        env:
+          PARAMETERS_SECRET: ${{ secrets.PARAMETERS_SECRET }}
+          CLOUD_PROVIDER: ${{ matrix.cloud }}
+        run: /usr/local/bin/bash ./ci/test_mac.sh
 
-    test-mac-gcp-optional:
-        needs: test-mac-required
-        name: Tests on Mac
-        runs-on: macos-latest
-        strategy:
-            matrix:
-                cloud: [ 'GCP' ]
-        steps:
-            - uses: actions/checkout@v1
-            - uses: actions/setup-node@v1
-              with:
-                node-version: '18.x'
-            - uses: actions/setup-python@v1
-              with:
-                python-version: '3.7'
-            - name: Download Build Artifacts
-              uses: actions/download-artifact@v1
-              with:
-                name: artifacts
-            - name: Install Homebrew Bash
-              shell: bash
-              run: brew install bash
-            - name: Tests
-              shell: bash
-              env:
-                PARAMETERS_SECRET: ${{ secrets.PARAMETERS_SECRET }}
-                CLOUD_PROVIDER: ${{ matrix.cloud }}
-              run: /usr/local/bin/bash ./ci/test_mac.sh
+  test-windows-azure-gcp-optional:
+    needs: test-windows-required
+    name: Tests on Windows
+    runs-on: windows-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        cloud: ["AZURE", "GCP"]
+    steps:
+      - uses: actions/checkout@v1
+      - uses: actions/setup-node@v1
+        with:
+          node-version: ["16.x", "18.x"]
+      - uses: actions/setup-python@v1
+        with:
+          python-version: "3.7"
+          architecture: "x64"
+      - name: Download Build Artifacts
+        uses: actions/download-artifact@v1
+        with:
+          name: artifacts
+      - name: Tests
+        shell: cmd
+        env:
+          PARAMETERS_SECRET: ${{ secrets.PARAMETERS_SECRET }}
+          CLOUD_PROVIDER: ${{ matrix.cloud }}
+        run: ci\\test_windows.bat
 
-    test-windows-azure-optional:
-        needs: test-windows-required
-        name: Tests on Windows
-        runs-on: windows-latest
-        strategy:
-            matrix:
-                cloud: [ 'AZURE' ]
-        steps:
-            - uses: actions/checkout@v1
-            - uses: actions/setup-node@v1
-              with:
-                node-version: '16.x'
-            - uses: actions/setup-python@v1
-              with:
-                python-version: '3.7'
-                architecture: 'x64'
-            - name: Download Build Artifacts
-              uses: actions/download-artifact@v1
-              with:
-                name: artifacts
-            - name: Tests
-              shell: cmd
-              env:
-                PARAMETERS_SECRET: ${{ secrets.PARAMETERS_SECRET }}
-                CLOUD_PROVIDER: ${{ matrix.cloud }}
-              run: ci\\test_windows.bat
+  test-linux-optional:
+    needs: test-linux-required
+    name: Tests on Linux
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        image: ["nodejs-centos6-default", "nodejs-centos7-node12"]
+        #REMOVE AZURE for now
+        #cloud: [ 'AZURE', 'GCP' ]
+        cloud: ["GCP"]
+    steps:
+      - uses: actions/checkout@v1
+      - uses: actions/setup-node@v1
+        with:
+          node-version: "12.x"
+      - uses: actions/setup-python@v1
+        with:
+          python-version: "3.7"
+      - name: Download Build Artifacts
+        uses: actions/download-artifact@v1
+        with:
+          name: artifacts
+      - name: Tests
+        shell: bash
+        env:
+          PARAMETERS_SECRET: ${{ secrets.PARAMETERS_SECRET }}
+          CLOUD_PROVIDER: ${{ matrix.cloud }}
+          TARGET_DOCKER_TEST_IMAGE: ${{ matrix.image }}
+        run: ./ci/test.sh
 
-    test-windows-gcp-optional:
-        needs: test-windows-required
-        name: Tests on Windows
-        runs-on: windows-latest
-        strategy:
-            matrix:
-                cloud: [ 'GCP' ]
-        steps:
-            - uses: actions/checkout@v1
-            - uses: actions/setup-node@v1
-              with:
-                node-version: '18.x'
-            - uses: actions/setup-python@v1
-              with:
-                python-version: '3.7'
-                architecture: 'x64'
-            - name: Download Build Artifacts
-              uses: actions/download-artifact@v1
-              with:
-                name: artifacts
-            - name: Tests
-              shell: cmd
-              env:
-                PARAMETERS_SECRET: ${{ secrets.PARAMETERS_SECRET }}
-                CLOUD_PROVIDER: ${{ matrix.cloud }}
-              run: ci\\test_windows.bat
-
-    test-linux-optional:
-        needs: test-linux-required
-        name: Tests on Linux
-        runs-on: ubuntu-latest
-        strategy:
-            matrix:
-                image: [ 'nodejs-centos6-default', 'nodejs-centos7-node12' ]
-                #REMOVE AZURE for now
-                #cloud: [ 'AZURE', 'GCP' ]
-                cloud: [ 'GCP' ]
-        steps:
-            - uses: actions/checkout@v1
-            - uses: actions/setup-node@v1
-              with:
-                node-version: '12.x'
-            - uses: actions/setup-python@v1
-              with:
-                python-version: '3.7'
-            - name: Download Build Artifacts
-              uses: actions/download-artifact@v1
-              with:
-                name: artifacts
-            - name: Tests
-              shell: bash
-              env:
-                PARAMETERS_SECRET: ${{ secrets.PARAMETERS_SECRET }}
-                CLOUD_PROVIDER: ${{ matrix.cloud }}
-                TARGET_DOCKER_TEST_IMAGE: ${{ matrix.image }}
-              run: ./ci/test.sh
-
-    upload_code_coverage: # it's separate job because codecov action can fail https://github.com/codecov/codecov-action/issues/598 (and we want to know about it), but we don't want to fail required mac build
-        needs: test-mac-required
-        name: Upload code coverage
-        runs-on: ubuntu-latest
-        steps:
-          - name: Checkout # it is still recommended to checkout https://about.codecov.io/blog/uploading-code-coverage-in-a-separate-job-on-github-actions/
-            uses: actions/checkout@v3
-          - name: Download code coverage result
-            uses: actions/download-artifact@v3
-            with:
-              name: codeCoverage
-              path: coverage
-          # codecov action sometimes fails but retry works - until action provides retry let's retry on our own https://github.com/codecov/codecov-action/issues/926
-          - name: Upload coverage reports to Codecov with GitHub Action (take 1)
-            id: uploadToCodeCovTake1
-            uses: codecov/codecov-action@v3
-            continue-on-error: true
-            with:
-              fail_ci_if_error: true
-          - name: Upload coverage reports to Codecov with GitHub Action (take 2)
-            id: uploadToCodeCovTake2
-            # only run when take 1 failed
-            if: steps.uploadToCodeCovTake1.outcome == 'failure'
-            uses: codecov/codecov-action@v3
-            with:
-              fail_ci_if_error: true
+  upload_code_coverage: # it's separate job because codecov action can fail https://github.com/codecov/codecov-action/issues/598 (and we want to know about it), but we don't want to fail required mac build
+    needs: test-mac-required
+    name: Upload code coverage
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout # it is still recommended to checkout https://about.codecov.io/blog/uploading-code-coverage-in-a-separate-job-on-github-actions/
+        uses: actions/checkout@v3
+      - name: Download code coverage result
+        uses: actions/download-artifact@v3
+        with:
+          name: codeCoverage
+          path: coverage
+      # codecov action sometimes fails but retry works - until action provides retry let's retry on our own https://github.com/codecov/codecov-action/issues/926
+      - name: Upload coverage reports to Codecov with GitHub Action (take 1)
+        id: uploadToCodeCovTake1
+        uses: codecov/codecov-action@v3
+        continue-on-error: true
+        with:
+          fail_ci_if_error: true
+      - name: Upload coverage reports to Codecov with GitHub Action (take 2)
+        id: uploadToCodeCovTake2
+        # only run when take 1 failed
+        if: steps.uploadToCodeCovTake1.outcome == 'failure'
+        uses: codecov/codecov-action@v3
+        with:
+          fail_ci_if_error: true

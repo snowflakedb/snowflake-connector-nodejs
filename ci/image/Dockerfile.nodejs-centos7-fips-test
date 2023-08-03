@@ -35,7 +35,7 @@ SHELL [ "/usr/bin/scl", "enable", "devtoolset-8"]
 
 # node-fips environment variables
 ENV NODE_HOME $HOME/node
-ENV NODEJS_VERSION 18.0.0
+ENV NODEJS_VERSION 18.17.0
 ENV OPENSSL_VERSION 3.0.8
 ENV PKG_CONFIG_PATH "/usr/local/lib64/pkgconfig"
 ENV LD_LIBRARY_PATH "${LD_LIBRARY_PATH}:/usr/local/lib64"
@@ -59,6 +59,7 @@ RUN yum -y install openssl-devel
 RUN cd $HOME/openssl-fips && ./config enable-fips && make && make install
 
 # Enable FIPS by editing the openssl.cnf file
+RUN sed -i "s/openssl_conf = openssl_init/nodejs_conf = openssl_init/g" $OPENSSL_CONF
 RUN sed -i "s/# .include fipsmodule.cnf/.include ${FIPSCONF//\//\\/}/g" $OPENSSL_CONF
 RUN sed -i 's/# fips = fips_sect/fips = fips_sect/g' $OPENSSL_CONF
 RUN sed -i 's/# activate = 1/activate = 1/g' $OPENSSL_CONF

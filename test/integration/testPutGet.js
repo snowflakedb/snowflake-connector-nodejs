@@ -12,10 +12,11 @@ const tmp = require('tmp');
 const os = require('os');
 const path = require('path');
 const zlib = require('zlib');
+const { v4: uuidv4 } = require('uuid');
 
 const DATABASE_NAME = connOption.valid.database;
 const SCHEMA_NAME = connOption.valid.schema;
-const TEMP_TABLE_NAME = 'TEMP_TABLE';
+const TEMP_TABLE_NAME = `TEMP_TABLE`;
 
 const SKIPPED = 'SKIPPED';
 const UPLOADED = 'UPLOADED';
@@ -149,7 +150,7 @@ describe('PUT GET test', function () {
         }
 
         // Create a tmp folder for downloaded files
-        const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'get'));
+        const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), `get`));
         let fileSize;
 
         let getQuery = `GET @${DATABASE_NAME}.${SCHEMA_NAME}.%${TEMP_TABLE_NAME} file://${tmpDir}`;
@@ -647,8 +648,6 @@ describe('PUT GET test with GCS_USE_DOWNSCOPED_CREDENTIAL', function () {
 });
 
 describe('PUT GET test with multiple files', function () {
-  this.retries(3); // this test suit are considered as flaky test
-
   let connection;
   let tmpDir;
   const stage = `@${DATABASE_NAME}.${SCHEMA_NAME}.%${TEMP_TABLE_NAME}`;
@@ -665,7 +664,7 @@ describe('PUT GET test with multiple files', function () {
   });
 
   beforeEach(() => {
-    tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'get'));
+    tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), `get${uuidv4()}`));
     tmpFiles = [];
   });
 
@@ -789,6 +788,22 @@ describe('PUT GET test with multiple files', function () {
       [
         function (callback) {
           executePutCmd(connection, putQuery, callback, results);
+        },
+        function (callback) {
+          connection.execute({
+            sqlText: `LIST ${stage}`,
+            complete: function (err, _, rows) {
+              if(err){
+                callback(err);
+              }else {
+                console.log(`Files on stage are`);
+                rows.forEach(row => {
+                  console.log(`Single file: ${JSON.stringify(row)}`);
+                });
+                callback();
+              }
+            }
+          });
         },
         function (callback) {
           // Run GET command

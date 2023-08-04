@@ -213,24 +213,16 @@ jobs:
         name: Upload code coverage
         runs-on: ubuntu-latest
         steps:
-          - name: Checkout # it is still recommended to checkout https://about.codecov.io/blog/uploading-code-coverage-in-a-separate-job-on-github-actions/
+          - name: Checkout # it is still recommended to check out https://about.codecov.io/blog/uploading-code-coverage-in-a-separate-job-on-github-actions/
             uses: actions/checkout@v3
           - name: Download code coverage result
             uses: actions/download-artifact@v3
             with:
               name: codeCoverage
               path: coverage
-          # codecov action sometimes fails but retry works - until action provides retry let's retry on our own https://github.com/codecov/codecov-action/issues/926
-          - name: Upload coverage reports to Codecov with GitHub Action (take 1)
-            id: uploadToCodeCovTake1
-            uses: codecov/codecov-action@v3
-            continue-on-error: true
-            with:
-              fail_ci_if_error: true
-          - name: Upload coverage reports to Codecov with GitHub Action (take 2)
-            id: uploadToCodeCovTake2
-            # only run when take 1 failed
-            if: steps.uploadToCodeCovTake1.outcome == 'failure'
+          - name: Upload coverage reports to Codecov
             uses: codecov/codecov-action@v3
             with:
+              # without the token code cov may fail because of Github limits https://github.com/codecov/codecov-action/issues/557
+              token: ${{ secrets.CODE_COV_UPLOAD_TOKEN }}
               fail_ci_if_error: true

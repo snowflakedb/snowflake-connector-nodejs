@@ -15,19 +15,7 @@ NodeJS Driver for Snowflake
 Install
 ======================================================================
 
-Include ``snowflake-sdk`` in ``dependencies`` section in ``package.json``
-```
-{
-  "name": "<your_application_name>",
-  "version": "<your_application_version>",
-  "dependencies": {
-    "...": "...",        
-    "snowflake-sdk": "^1.6.22",
-    "...": "..."
-  }
-}
-```
-And run the <code>npm install</code>
+Run `npm i snowflake-sdk` in your existing NodeJs project.
 
 Docs
 ======================================================================

@@ -103,34 +103,34 @@ jobs:
         run: ci\\test_windows.bat
 
   test-linux-required:
-    needs: build
-    name: Tests on Linux
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        image: ["nodejs-centos6-default", "nodejs-centos7-node12"]
-        cloud: ["AWS"]
-    steps:
-      - uses: actions/checkout@v1
-      - uses: actions/setup-node@v1
-        with:
-          node-version: "12.x"
-      - uses: actions/setup-python@v1
-        with:
-          python-version: "3.7"
-      - name: Download Build Artifacts
-        uses: actions/download-artifact@v1
-        with:
-          name: artifacts
-      - name: Tests
-        shell: bash
-        env:
-          PARAMETERS_SECRET: ${{ secrets.PARAMETERS_SECRET }}
-          CLOUD_PROVIDER: ${{ matrix.cloud }}
-          TARGET_DOCKER_TEST_IMAGE: ${{ matrix.image }}
-        run: ./ci/test.sh
+      needs: build
+      name: Tests on Linux
+      runs-on: ubuntu-latest
+      strategy:
+        fail-fast: false
+        matrix:
+          image:
+            [
+              "nodejs-centos6-default",
+              "nodejs-centos7-node12",
+              "nodejs-centos7-node14",
+            ]
+          cloud: ["AWS"]
+      steps:
+        - uses: actions/checkout@v1
+        - name: Download Build Artifacts
+          uses: actions/download-artifact@v1
+          with:
+            name: artifacts
+        - name: Tests
+          shell: bash
+          env:
+            PARAMETERS_SECRET: ${{ secrets.PARAMETERS_SECRET }}
+            CLOUD_PROVIDER: ${{ matrix.cloud }}
+            TARGET_DOCKER_TEST_IMAGE: ${{ matrix.image }}
+          run: ./ci/test.sh
 
-  test-mac-azure-gcp-optional:
+ test-mac-azure-gcp-optional:
     needs: test-mac-required
     name: Tests on Mac
     runs-on: macos-latest
@@ -189,36 +189,36 @@ jobs:
         run: ci\\test_windows.bat
 
   test-linux-optional:
-    needs: test-linux-required
-    name: Tests on Linux
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        image: ["nodejs-centos6-default", "nodejs-centos7-node12"]
-        #REMOVE AZURE for now
-        #cloud: [ 'AZURE', 'GCP' ]
-        cloud: ["GCP"]
-    steps:
-      - uses: actions/checkout@v1
-      - uses: actions/setup-node@v1
-        with:
-          node-version: "12.x"
-      - uses: actions/setup-python@v1
-        with:
-          python-version: "3.7"
-      - name: Download Build Artifacts
-        uses: actions/download-artifact@v1
-        with:
-          name: artifacts
-      - name: Tests
-        shell: bash
-        env:
-          PARAMETERS_SECRET: ${{ secrets.PARAMETERS_SECRET }}
-          CLOUD_PROVIDER: ${{ matrix.cloud }}
-          TARGET_DOCKER_TEST_IMAGE: ${{ matrix.image }}
-        run: ./ci/test.sh
+      needs: build
+      name: Tests on Linux
+      runs-on: ubuntu-latest
+      strategy:
+        fail-fast: false
+        matrix:
+          image:
+            [
+              "nodejs-centos6-default",
+              "nodejs-centos7-node12",
+              "nodejs-centos7-node14",
+            ]
+          #REMOVE AZURE for now
+          #cloud: [ 'AZURE', 'GCP' ]
+          cloud: ["GCP"]
+      steps:
+        - uses: actions/checkout@v1
+        - name: Download Build Artifacts
+          uses: actions/download-artifact@v1
+          with:
+            name: artifacts
+        - name: Tests
+          shell: bash
+          env:
+            PARAMETERS_SECRET: ${{ secrets.PARAMETERS_SECRET }}
+            CLOUD_PROVIDER: ${{ matrix.cloud }}
+            TARGET_DOCKER_TEST_IMAGE: ${{ matrix.image }}
+          run: ./ci/test.sh
 
-  upload_code_coverage: # it's separate job because codecov action can fail https://github.com/codecov/codecov-action/issues/598 (and we want to know about it), but we don't want to fail required mac build
+   upload_code_coverage: # it's separate job because codecov action can fail https://github.com/codecov/codecov-action/issues/598 (and we want to know about it), but we don't want to fail required mac build
     needs: test-mac-required
     name: Upload code coverage
     runs-on: ubuntu-latest

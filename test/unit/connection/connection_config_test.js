@@ -54,14 +54,6 @@ describe('ConnectionConfig: basic', function ()
         errorCode: ErrorCodes.ERR_CONN_CREATE_INVALID_BROWSER_TIMEOUT
       },
       {
-        name: 'missing username with EXTERNALBROWSER authenticator',
-        options: 
-          { 
-            authenticator: 'EXTERNALBROWSER'
-          },
-        errorCode: ErrorCodes.ERR_CONN_CREATE_MISSING_USERNAME
-      },
-      {
         name: 'missing username with SNOWFLAKE_JWT authenticator',
         options: 
           { 
@@ -83,15 +75,6 @@ describe('ConnectionConfig: basic', function ()
           {
             username: undefined,
             authenticator: 'SNOWFLAKE'
-          },
-        errorCode: ErrorCodes.ERR_CONN_CREATE_MISSING_USERNAME
-      },
-      {
-        name: 'undefined username with EXTERNALBROWSER authenticator',
-        options:
-          {
-            username: undefined,
-            authenticator: 'EXTERNALBROWSER'
           },
         errorCode: ErrorCodes.ERR_CONN_CREATE_MISSING_USERNAME
       },
@@ -118,15 +101,6 @@ describe('ConnectionConfig: basic', function ()
           {
             username: null,
             authenticator: 'SNOWFLAKE'
-          },
-        errorCode: ErrorCodes.ERR_CONN_CREATE_MISSING_USERNAME
-      },
-      {
-        name: 'null username with EXTERNALBROWSER authenticator',
-        options:
-          {
-            username: null,
-            authenticator: 'EXTERNALBROWSER'
           },
         errorCode: ErrorCodes.ERR_CONN_CREATE_MISSING_USERNAME
       },
@@ -854,6 +828,19 @@ describe('ConnectionConfig: basic', function ()
           account: 'account',
           authenticator: 'OAUTH',
           token: 'token'
+        },
+        options:
+        {
+          accessUrl: 'https://account.snowflakecomputing.com',
+          account: 'account'
+        }
+      },
+      {
+        name: 'external browser without username and password',
+        input:
+        {
+          account: 'account',
+          authenticator: 'EXTERNALBROWSER'
         },
         options:
         {

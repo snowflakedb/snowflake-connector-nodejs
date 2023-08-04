@@ -647,8 +647,6 @@ describe('PUT GET test with GCS_USE_DOWNSCOPED_CREDENTIAL', function () {
 });
 
 describe('PUT GET test with multiple files', function () {
-  this.retries(3); // this test suit are considered as flaky test
-
   let connection;
   let tmpDir;
   const stage = `@${DATABASE_NAME}.${SCHEMA_NAME}.%${TEMP_TABLE_NAME}`;

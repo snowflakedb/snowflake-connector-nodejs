@@ -2,97 +2,57 @@
  * Copyright (c) 2015-2019 Snowflake Computing Inc. All rights reserved.
  */
 
-const HttpsAgent = require('urllib').Agent;
-const Util = require('../../../lib/util');
 const SocketUtil = require('../../../lib/agent/socket_util');
 const Errors = require('../../../lib/errors');
-const {buildConnector} = require('undici');
-const {Agent} = require('urllib');
+const { buildConnector } = require('undici');
+const { Agent } = require('urllib');
 const ErrorCodes = Errors.codes;
 
-/**
- * HttpsMockAgentOcspRevoked - return revoked error
- * @param options
- * @constructor
- */
+function createMockedAgentFailingOnValidateCertChain(errorCode) {
+  function createConnectFunction (connector, errorCode) {
+    return function connect ({ hostname, host, protocol, port, servername, localAddress, httpSocket }, callback) {
+      console.log(`Calling connect with ${hostname}, ${host}, ${protocol}, ${port}, ${servername}, ${localAddress}, ${httpSocket}`)
+      return connector({ hostname, host, protocol, port, servername, localAddress, httpSocket }, (err, socket) => {
+        console.log(`Error is ${err} and socket is ${JSON.stringify(socket)}`);
+        if(err){
+          callback(err, socket);
+        }else {
+          // let socketError;
+          // socket.on('error', err => {
+          //   // event handle run after returned socket from secureSocket
+          //   socketError = err;
+          // })
+          const {socket: secSocket, socketError } = SocketUtil.secureSocket(socket, host, null, {
+            // There is the most important part where we are overriding mock
+            validateCertChain: function (cert, cb) {
+              cb(Errors.createOCSPError(errorCode));
+            }
+          });
+          if(!secSocket.destroyed) {
+            callback(err, secSocket);
+          } else {
+            console.log(`Socket is destroyed ${JSON.stringify(secSocket)} with error ${socketError}`)
+            // callback(Errors.createOCSPError(ErrorCodes.ERR_OCSP_REVOKED), null);
+            callback(socketError, null);
+          }
+        }
+      });
+    };
+  }
 
-// TODO : SNOW-876346 - Refactor creating of mock agents.
-function HttpsMockAgentOcspRevoked() {
-  function connect({ hostname, host, protocol, port, servername, localAddress, httpSocket }, callback) {
-    const socket = connector({ hostname, host, protocol, port, servername, localAddress, httpSocket }, callback);
-    return SocketUtil.secureSocket(socket, host, null, {
-      validateCertChain: function (cert, cb) {
-        cb(Errors.createOCSPError(ErrorCodes.ERR_OCSP_REVOKED));
-      }
+  return () => {
+    const connector = buildConnector({
+      // maxCachedSessions: 0,
     });
-  }
-  let connector;
-  let agent;
-  if (!connector) {
-    connector = buildConnector({timeout:100000});
-  }
-
-  if (!agent) {
-    agent = new Agent({connect});
-  }
-  return agent;
-}
-
-/**
- * HttpsMockAgentOcspUnkwown returns unknown error
- * @param options
- * @constructor
- */
-function HttpsMockAgentOcspUnkwown(options) {
-  function connect({ hostname, host, protocol, port, servername, localAddress, httpSocket }, callback) {
-    const socket = connector({ hostname, host, protocol, port, servername, localAddress, httpSocket }, callback);
-    return SocketUtil.secureSocket(socket, host, null, {
-      validateCertChain: function (cert, cb){
-        cb(Errors.createOCSPError(ErrorCodes.ERR_OCSP_UNKNOWN));
-      }
+    console.log("Creating agent...")
+    return new Agent({
+      connect: createConnectFunction(connector, errorCode),
     });
-  }
-  let connector;
-  let agent;
-  if (!connector) {
-    connector = buildConnector({timeout:100000});
-  }
-
-  if (!agent) {
-    agent = new Agent({connect});
-  }
-  return agent;
-}
-
-/**
- * HttpsMockAgentOcspInvalid returns invalid validity OCSP error
- * @param options
- * @constructor
- */
-function HttpsMockAgentOcspInvalid(options) {
-  function connect({ hostname, host, protocol, port, servername, localAddress, httpSocket }, callback) {
-    const socket = connector({ hostname, host, protocol, port, servername, localAddress, httpSocket }, callback);
-    return SocketUtil.secureSocket(socket, host, null, {
-      validateCertChain: function (cert, cb) {
-        cb(Errors.createOCSPError(ErrorCodes.ERR_OCSP_INVALID_VALIDITY));
-      }
-    });
-  }
-  let connector;
-  let agent;
-  if (!connector) {
-    connector = buildConnector({timeout:100000});
-  }
-
-  if (!agent) {
-    agent = new Agent({connect});
-  }
-  return agent;
-
+  };
 }
 
 module.exports = {
-  HttpsMockAgentOcspRevoked: HttpsMockAgentOcspRevoked,
-  HttpsMockAgentOcspUnkwown: HttpsMockAgentOcspUnkwown,
-  HttpsMockAgentOcspInvalid: HttpsMockAgentOcspInvalid
+  HttpsMockAgentOcspRevoked: createMockedAgentFailingOnValidateCertChain(ErrorCodes.ERR_OCSP_REVOKED),
+  HttpsMockAgentOcspUnkwown: createMockedAgentFailingOnValidateCertChain(ErrorCodes.ERR_OCSP_UNKNOWN),
+  HttpsMockAgentOcspInvalid: createMockedAgentFailingOnValidateCertChain(ErrorCodes.ERR_OCSP_INVALID_VALIDITY),
 };

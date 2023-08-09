@@ -10,7 +10,6 @@ const SocketUtil = require('./../../lib/agent/socket_util');
 const OcspResponseCache = require('./../../lib/agent/ocsp_response_cache');
 
 const { hangWebServerUrl } = require('../hangWebserver');
-const { configureLogger } = require('../configureLogger');
 let testCounter = 0;
 
 const testConnectionOptions = {
@@ -67,7 +66,6 @@ describe('Connection with OCSP test', function ()
   it('OCSP Validity Error - Fail Open', function (done)
   {
     deleteCache();
-    configureLogger('TRACE');
     SocketUtil.variables.OCSP_RESPONSE_CACHE = undefined;
     SocketUtil.variables.SF_OCSP_RESPONSE_CACHE_SERVER_ENABLED = false;
     // inject validity error

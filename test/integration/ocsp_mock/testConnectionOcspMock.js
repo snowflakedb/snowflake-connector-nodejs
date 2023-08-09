@@ -9,7 +9,6 @@ const connOption = require('../connectionOptions');
 const Errors = require('../../../lib/errors');
 const ErrorCodes = Errors.codes;
 const HttpsMockAgent = require('./https_ocsp_mock_agent');
-const { configureLogger } = require('../../configureLogger');
 
 function cloneConnOption(connOption)
 {
@@ -24,18 +23,13 @@ function cloneConnOption(connOption)
 // HTTPS agent keeps recreating socket instead of giving up...
 describe('Connection test with OCSP Mock', function ()
 {
-  this.timeout(30000)
   const valid = cloneConnOption(connOption.valid);
   const isHttps = valid.accessUrl.startsWith("https");
-
-  before(() => configureLogger('TRACE'));
-  after(() => configureLogger('ERROR'));
 
   function connect(errcode, connection, callback)
   {
     connection.connect(function (err)
     {
-      console.log(`Connection finished with err: ${JSON.stringify(err)}`)
       if (isHttps)
       {
         assert.equal(err.cause.code, errcode);

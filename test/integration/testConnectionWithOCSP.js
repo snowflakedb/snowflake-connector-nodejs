@@ -101,7 +101,7 @@ describe('Connection with OCSP test', function ()
     // inject validity error
     process.env.SF_OCSP_TEST_INJECT_VALIDITY_ERROR = 'true';
 
-    snowflake.configure({ocspFailOpen: false, logLevel: 'TRACE'});
+    snowflake.configure({ocspFailOpen: false});
     const connection = snowflake.createConnection(getConnectionOptions());
 
     async.series([

@@ -33,6 +33,7 @@
     "simple-lru-cache": "^0.0.2",
     "string-similarity": "^4.0.4",
     "tmp": "^0.2.1",
+    "undici": "^5.23.0",
     "urllib": "^3.17.1",
     "uuid": "^3.3.2",
     "winston": "^3.1.0"

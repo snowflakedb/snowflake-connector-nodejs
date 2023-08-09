@@ -52,7 +52,7 @@ jobs:
             - uses: actions/checkout@v1
             - uses: actions/setup-node@v1
               with:
-                node-version: '12.x'
+                node-version: '14.x'
             - uses: actions/setup-python@v1
               with:
                 python-version: '3.7'
@@ -86,7 +86,7 @@ jobs:
             - uses: actions/checkout@v1
             - uses: actions/setup-node@v1
               with:
-                node-version: '12.x'
+                node-version: '14.x'
             - uses: actions/setup-python@v1
               with:
                 python-version: '3.7'
@@ -109,7 +109,7 @@ jobs:
         strategy:
             fail-fast: false
             matrix:
-                image: [ 'nodejs-centos6-default', 'nodejs-centos7-node12', 'nodejs-centos7-node14' ]
+                image: [ 'nodejs-centos7-node14' ]
                 cloud: [ 'AWS' ]
         steps:
             - uses: actions/checkout@v1
@@ -133,11 +133,12 @@ jobs:
             fail-fast: false
             matrix:
                 cloud: [ 'AZURE', 'GCP' ]
+                nodeVersion: [ '14.x', '16.x', '18.x']
         steps:
             - uses: actions/checkout@v1
             - uses: actions/setup-node@v1
               with:
-                node-version: '12.x'
+                node-version: ${{ matrix.nodeVersion }}
             - uses: actions/setup-python@v1
               with:
                 python-version: '3.7'
@@ -163,11 +164,12 @@ jobs:
             fail-fast: false
             matrix:
                 cloud: [ 'AZURE', 'GCP' ]
+                nodeVersion: [ '14.x', '16.x', '18.x']
         steps:
             - uses: actions/checkout@v1
             - uses: actions/setup-node@v1
               with:
-                node-version: '12.x'
+                node-version: ${{ matrix.nodeVersion }}
             - uses: actions/setup-python@v1
               with:
                 python-version: '3.7'
@@ -190,10 +192,8 @@ jobs:
         strategy:
             fail-fast: false
             matrix:
-                image: [ 'nodejs-centos6-default', 'nodejs-centos7-node12' , 'nodejs-centos7-node14']
-                #REMOVE AZURE for now
-                #cloud: [ 'AZURE', 'GCP' ]
-                cloud: [ 'GCP' ]
+                image: [ 'nodejs-centos7-node14']
+                cloud: [ 'AZURE', 'GCP' ]
         steps:
             - uses: actions/checkout@v1
             - name: Download Build Artifacts

@@ -123,7 +123,9 @@ jobs:
                 PARAMETERS_SECRET: ${{ secrets.PARAMETERS_SECRET }}
                 CLOUD_PROVIDER: ${{ matrix.cloud }}
                 TARGET_DOCKER_TEST_IMAGE: ${{ matrix.image }}
-              run: ./ci/test.sh
+              run: |
+                export NODE_OPTIONS=--openssl-legacy-provider
+                ./ci/test.sh
 
     test-mac-optional:
         needs: build
@@ -206,7 +208,9 @@ jobs:
                 PARAMETERS_SECRET: ${{ secrets.PARAMETERS_SECRET }}
                 CLOUD_PROVIDER: ${{ matrix.cloud }}
                 TARGET_DOCKER_TEST_IMAGE: ${{ matrix.image }}
-              run: ./ci/test.sh
+              run: |
+                export NODE_OPTIONS=--openssl-legacy-provider
+                ./ci/test.sh
 
     upload_code_coverage: # it's separate job because codecov action can fail https://github.com/codecov/codecov-action/issues/598 (and we want to know about it), but we don't want to fail required mac build
         needs: test-mac-required

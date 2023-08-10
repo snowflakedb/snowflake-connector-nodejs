@@ -34,7 +34,7 @@
     "simple-lru-cache": "^0.0.2",
     "string-similarity": "^4.0.4",
     "tmp": "^0.2.1",
-    "urllib": "^2.38.0",
+    "urllib": "^2.41.0",
     "uuid": "^3.3.2",
     "winston": "^3.1.0"
   },
@@ -49,8 +49,7 @@
     "@azure/storage-blob": {
       "node-fetch": "^3.2.10"
     },
-    "semver": "^7.5.2",
-    "vm2": "../_EXCLUDED_"
+    "semver": "^7.5.2"
   },
   "repository": {
     "type": "git",
@@ -69,7 +68,8 @@
     "test:ci": "mocha -timeout 180000 --recursive --full-trace test/**/*.js",
     "test:ci:coverage": "nyc npm run test:ci",
     "test:ci:withSystemTests": "mocha -timeout 180000 --recursive --full-trace test/**/*.js system_test/*.js",
-    "test:ci:withSystemTests:coverage": "nyc npm run test:ci:withSystemTests"
+    "test:ci:withSystemTests:coverage": "nyc npm run test:ci:withSystemTests",
+    "test:manual": "mocha -timeout 180000 --full-trace --full-trace test/integration/testManualConnection.js"
   },
   "author": {
     "name": "Snowflake Computing, Inc.",

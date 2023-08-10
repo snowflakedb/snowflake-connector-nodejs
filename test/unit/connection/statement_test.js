@@ -377,6 +377,16 @@ describe('Statement.fetchResult()', function ()
             connectionConfig: null
           },
         errorCode: ErrorCodes.ERR_INTERNAL_ASSERT_FAILED
+      },
+      {
+        name: 'fetchResult() invali row mode',
+        options:
+          {
+            statementOptions: {statementId: 'foo', rowMode: 'invalid'},
+            services: {},
+            connectionConfig: null
+          },
+        errorCode: ErrorCodes.ERR_STMT_STREAM_ROWS_INVALID_ROW_MODE
       }
     ];
 

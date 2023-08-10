@@ -1,0 +1,61 @@
+FROM centos:7
+# Dockerfile.nodejs-centos7-node14-build is equal to Dockerfile.nodejs-centos7-node14-test
+
+# update OS
+RUN yum -y update && \
+    yum -y install epel-release && \
+    yum -y install centos-release-scl
+
+# nvm environment variables
+ENV NVM_DIR /usr/local/nvm
+ENV NODE_VERSION 14.21.3
+
+# node
+RUN mkdir -p $NVM_DIR && \
+    curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.4/install.sh | bash && \
+    source $NVM_DIR/nvm.sh \
+    && nvm install $NODE_VERSION \
+    && nvm alias default $NODE_VERSION \
+    && nvm use default
+
+ENV NODE_PATH $NVM_DIR/v$NODE_VERSION/lib/node_modules
+ENV PATH $NVM_DIR/versions/node/v$NODE_VERSION/bin:$PATH
+COPY scripts/npmrc /root/.npmrc
+
+# python
+RUN yum -y install rh-python36
+COPY scripts/python3.6.sh /usr/local/bin/python3.6
+COPY scripts/python3.6.sh /usr/local/bin/python3
+RUN chmod a+x /usr/local/bin/python3.6 && \
+    chmod a+x /usr/local/bin/python3
+COPY scripts/pip.sh /usr/local/bin/pip
+RUN chmod a+x /usr/local/bin/pip && \
+    pip install -U pip && \
+    pip install -U snowflake-connector-python
+
+# aws
+RUN pip install -U awscli
+COPY scripts/aws.sh /usr/local/bin/aws
+RUN chmod a+x /usr/local/bin/aws
+
+# Development tools + git + zstd + jq + gosu
+RUN yum -y groupinstall "Development Tools" && \
+    yum -y install zlib-devel && \
+    curl -o - https://mirrors.edge.kernel.org/pub/software/scm/git/git-2.26.0.tar.gz | tar xfz - && \
+    cd git-2.26.0 && \
+    ./configure --prefix=/opt/git && make && make install && \
+    ln -s /opt/git/bin/git /usr/local/bin/git && \
+    yum -y install zstd && \
+    yum -y install jq && \
+    curl -o /usr/local/bin/gosu -SL "https://github.com/tianon/gosu/releases/download/1.11/gosu-amd64" && \
+    chmod +x /usr/local/bin/gosu
+
+# workspace
+RUN mkdir -p /home/user && \
+    chmod 777 /home/user
+WORKDIR /home/user
+
+# entry point
+COPY scripts/entrypoint.sh /usr/local/bin/entrypoint.sh
+RUN chmod +x /usr/local/bin/entrypoint.sh
+ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]

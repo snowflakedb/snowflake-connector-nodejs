@@ -13,11 +13,6 @@ const Util = require('./../../lib/util');
 const { exec } = require('child_process');
 const testUtil = require('./testUtil');
 
-const sharedLogger = require('./sharedLogger');
-const Logger = require('./../../lib/logger');
-Logger.getInstance().setLogger(sharedLogger.logger);
-
-
 describe('OCSP validation', function ()
 {
   it('OCSP validation with server reusing SSL sessions', function (done)

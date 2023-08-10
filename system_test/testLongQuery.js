@@ -5,12 +5,16 @@ var snowflake = require('./../lib/snowflake');
 var connOption = require('../test/integration/connectionOptions');
 var testUtil = require('../test/integration/testUtil');
 var async = require('async');
+const { configureLogger } = require('../test/configureLogger');
 
 // This test can run only if Snowflake account is available.
 var canRunTest = connOption.snowflakeAccount !== undefined;
 
 describe('testPingPong', function ()
 {
+  before(() => configureLogger('TRACE'));
+  after(() => configureLogger('ERROR'));
+
   before(function (done)
   {
     if (!canRunTest)

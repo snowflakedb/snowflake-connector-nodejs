@@ -70,11 +70,11 @@ python3 $THIS_DIR/hang_webserver.py 12345 > hang_webserver.out 2>&1 &
 if [[ "$SHOULD_GENERATE_COVERAGE_REPORT" == "1" ]];
   then
     MOCHA_CMD=(
-       "npx" "nyc" "--reporter=lcov" "--reporter=text" "mocha" "--exit" "--timeout" "$TIMEOUT" "--recursive" "--full-trace"
+       "npx" "nyc" "--reporter=lcov" "--reporter=text" "_mocha" "--exit" "--timeout" "$TIMEOUT" "--recursive" "--full-trace"
     )
   else
     MOCHA_CMD=(
-        "mocha" "--timeout" "$TIMEOUT" "--recursive" "--full-trace"
+        "_mocha" "--timeout" "$TIMEOUT" "--recursive" "--full-trace"
     )
 fi
 
@@ -91,8 +91,11 @@ else
     )
 fi
 
+
 if [[ -z "$GITHUB_ACTIONS" ]]; then
     echo "[INFO] Running Internal Tests. Test result: $WORKSPACE/junit-system-test.xml"
+    # Set NODE_DEBUG if you need more logs during internal tests
+    # export NODE_DEBUG=urllib:*,net,tls,undici
     if ! ${MOCHA_CMD[@]} "$SOURCE_ROOT/system_test/**/*.js"; then
         echo "[ERROR] Test failed"
         [[ -f "$WORKSPACE/junit.xml" ]] && cat $WORKSPACE/junit.xml
@@ -100,7 +103,9 @@ if [[ -z "$GITHUB_ACTIONS" ]]; then
     elif [[ -f "$WORKSPACE/junit.xml" ]]; then
         cp -f $WORKSPACE/junit.xml $WORKSPACE/junit-system-test.xml
     fi
+    export NODE_DEBUG=
 fi
+
 
 echo "[INFO] Running Tests: Test result: $WORKSPACE/junit.xml"
 if ! ${MOCHA_CMD[@]} "$SOURCE_ROOT/test/**/*.js"; then

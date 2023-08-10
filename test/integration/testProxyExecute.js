@@ -5,10 +5,13 @@
 const async = require('async');
 const testUtil = require('./testUtil');
 const os = require('os');
+const { configureLogger } = require('../configureLogger');
+const connOptions = require('./connectionOptions');
 
 describe('Execute proxy test', function () {
   const platform = os.platform();
-  if (platform === 'linux') {
+  // only linux tests are configured with squid docker and squid works correctly with https, not with http with custom port
+  if (platform === 'linux' && connOptions.connectionWithProxy.accessUrl.startsWith('https://')) {
     let connection;
     const createNodeTSQL = 'create or replace table NodeT(colA number, colB varchar)';
     const selectAllSQL = 'select * from NodeT';
@@ -16,6 +19,8 @@ describe('Execute proxy test', function () {
     const updateNodeTSQL = 'update NodeT set COLA = 2, COLB = \'b\' where COLA = 1';
     const dropNodeTSQL = 'drop table if exists NodeT';
 
+    before(() => configureLogger('TRACE'));
+    after(() => configureLogger('ERROR'));
     before(function (done) {
       connection = testUtil.createProxyConnection();
       async.series([

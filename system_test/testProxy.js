@@ -6,8 +6,8 @@ var async = require('async');
 var testUtil = require('../test/integration/testUtil');
 var connOptions = require('./connectionOptions');
 
-
-describe('testProxy', function ()
+// proxy connection to Snowflake exposed via HTTP does not happen in real environment
+describe.skip('testProxy', function ()
 {
   it('testConnectionWithProxy', function (done)
   {

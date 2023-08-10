@@ -10,7 +10,7 @@
   },
   "devDependencies": {
     "async": "^3.2.3",
-    "mocha": "^5.2.0",
+    "mocha": "^10.1.0",
     "mock-require": "^3.0.3",
     "nyc": "^15.1.0",
     "test-console": "^2.0.0"

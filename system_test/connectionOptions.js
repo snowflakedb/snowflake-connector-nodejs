@@ -61,7 +61,7 @@ const connectionWithProxy =
     schema: snowflakeTestSchema,
     role: snowflakeTestRole,
     proxyHost: snowflakeTestProxyHost,
-    proxyPort: parseInt(snowflakeTestProxyPort, 10)
+    proxyPort: parseInt(snowflakeTestProxyPort, 10),
   };
 
 exports.externalAccount = externalAccount;

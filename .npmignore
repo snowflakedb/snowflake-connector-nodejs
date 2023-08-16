@@ -15,3 +15,7 @@ system_test/
 scripts/
 ci/
 .github/
+.eslintrc.js
+.pre-commit-config.yaml
+Jenkinsfile
+whitesource.config

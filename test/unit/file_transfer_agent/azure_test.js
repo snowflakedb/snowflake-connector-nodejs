@@ -110,11 +110,11 @@ describe('Azure client', function () {
   });
 
   it('extract bucket name and path', async function () {
-    verifyNameAndPath('sfc-dev1-regression/test_sub_dir/', 'sfc-dev1-regression', 'test_sub_dir/');
-    verifyNameAndPath('sfc-dev1-regression/stakeda/test_stg/test_sub_dir/', 'sfc-dev1-regression', 'stakeda/test_stg/test_sub_dir/');
-    verifyNameAndPath('sfc-dev1-regression/', 'sfc-dev1-regression', '');
-    verifyNameAndPath('sfc-dev1-regression//', 'sfc-dev1-regression', '/');
-    verifyNameAndPath('sfc-dev1-regression///', 'sfc-dev1-regression', '//');
+    verifyNameAndPath('sfc-eng-regression/test_sub_dir/', 'sfc-eng-regression', 'test_sub_dir/');
+    verifyNameAndPath('sfc-eng-regression/stakeda/test_stg/test_sub_dir/', 'sfc-eng-regression', 'stakeda/test_stg/test_sub_dir/');
+    verifyNameAndPath('sfc-eng-regression/', 'sfc-eng-regression', '');
+    verifyNameAndPath('sfc-eng-regression//', 'sfc-eng-regression', '/');
+    verifyNameAndPath('sfc-eng-regression///', 'sfc-eng-regression', '//');
   });
 
   it('get file header - success', async function () {

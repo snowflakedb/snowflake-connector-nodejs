@@ -89,24 +89,24 @@ describe('S3 client', function ()
 
   it('extract bucket name and path', async function ()
   {
-    var result = AWS.extractBucketNameAndPath('sfc-dev1-regression/test_sub_dir/');
-    assert.strictEqual(result.bucketName, 'sfc-dev1-regression');
+    var result = AWS.extractBucketNameAndPath('sfc-eng-regression/test_sub_dir/');
+    assert.strictEqual(result.bucketName, 'sfc-eng-regression');
     assert.strictEqual(result.s3path, 'test_sub_dir/');
 
-    var result = AWS.extractBucketNameAndPath('sfc-dev1-regression/stakeda/test_stg/test_sub_dir/');
-    assert.strictEqual(result.bucketName, 'sfc-dev1-regression');
+    var result = AWS.extractBucketNameAndPath('sfc-eng-regression/stakeda/test_stg/test_sub_dir/');
+    assert.strictEqual(result.bucketName, 'sfc-eng-regression');
     assert.strictEqual(result.s3path, 'stakeda/test_stg/test_sub_dir/');
 
-    var result = AWS.extractBucketNameAndPath('sfc-dev1-regression/');
-    assert.strictEqual(result.bucketName, 'sfc-dev1-regression');
+    var result = AWS.extractBucketNameAndPath('sfc-eng-regression/');
+    assert.strictEqual(result.bucketName, 'sfc-eng-regression');
     assert.strictEqual(result.s3path, '');
 
-    var result = AWS.extractBucketNameAndPath('sfc-dev1-regression//');
-    assert.strictEqual(result.bucketName, 'sfc-dev1-regression');
+    var result = AWS.extractBucketNameAndPath('sfc-eng-regression//');
+    assert.strictEqual(result.bucketName, 'sfc-eng-regression');
     assert.strictEqual(result.s3path, '/');
 
-    var result = AWS.extractBucketNameAndPath('sfc-dev1-regression///');
-    assert.strictEqual(result.bucketName, 'sfc-dev1-regression');
+    var result = AWS.extractBucketNameAndPath('sfc-eng-regression///');
+    assert.strictEqual(result.bucketName, 'sfc-eng-regression');
     assert.strictEqual(result.s3path, '//');
   });
 

@@ -74,24 +74,24 @@ describe('GCS client', function ()
   {
     var GCS = new SnowflakeGCSUtil();
 
-    var result = GCS.extractBucketNameAndPath('sfc-dev1-regression/test_sub_dir/');
-    assert.strictEqual(result.bucketName, 'sfc-dev1-regression');
+    var result = GCS.extractBucketNameAndPath('sfc-eng-regression/test_sub_dir/');
+    assert.strictEqual(result.bucketName, 'sfc-eng-regression');
     assert.strictEqual(result.path, 'test_sub_dir/');
 
-    var result = GCS.extractBucketNameAndPath('sfc-dev1-regression/stakeda/test_stg/test_sub_dir/');
-    assert.strictEqual(result.bucketName, 'sfc-dev1-regression');
+    var result = GCS.extractBucketNameAndPath('sfc-eng-regression/stakeda/test_stg/test_sub_dir/');
+    assert.strictEqual(result.bucketName, 'sfc-eng-regression');
     assert.strictEqual(result.path, 'stakeda/test_stg/test_sub_dir/');
 
-    var result = GCS.extractBucketNameAndPath('sfc-dev1-regression/');
-    assert.strictEqual(result.bucketName, 'sfc-dev1-regression');
+    var result = GCS.extractBucketNameAndPath('sfc-eng-regression/');
+    assert.strictEqual(result.bucketName, 'sfc-eng-regression');
     assert.strictEqual(result.path, '');
 
-    var result = GCS.extractBucketNameAndPath('sfc-dev1-regression//');
-    assert.strictEqual(result.bucketName, 'sfc-dev1-regression');
+    var result = GCS.extractBucketNameAndPath('sfc-eng-regression//');
+    assert.strictEqual(result.bucketName, 'sfc-eng-regression');
     assert.strictEqual(result.path, '/');
 
-    var result = GCS.extractBucketNameAndPath('sfc-dev1-regression///');
-    assert.strictEqual(result.bucketName, 'sfc-dev1-regression');
+    var result = GCS.extractBucketNameAndPath('sfc-eng-regression///');
+    assert.strictEqual(result.bucketName, 'sfc-eng-regression');
     assert.strictEqual(result.path, '//');
   });
 

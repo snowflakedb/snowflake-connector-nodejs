@@ -44,7 +44,9 @@ describe('system$get_objects()', function () {
   // create two connections, one to testaccount and another to the snowflake
   // account
   const connTestaccount = snowflake.createConnection(connOptions.valid);
-  const connSnowflake = snowflake.createConnection(connOptions.snowflakeAccount);
+  const connSnowflake = snowflake.createConnection(
+    connOptions.snowflakeAccount
+  );
 
   before(function (done) {
     // set up the two connections and create a bunch of objects in testaccount;
@@ -378,7 +380,7 @@ function testGetObjectsOnStmt(options) {
           sqlText: sql,
           complete: function (err, statement, rows) {
             assert.ok(!err);
-            queryId = statement.getQueryId();
+            queryId = statement.getStatementId();
             callback();
           },
         });

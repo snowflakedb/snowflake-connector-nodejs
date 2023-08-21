@@ -41,98 +41,14 @@ jobs:
                 name: artifacts
                 path: artifacts
 
-    test-mac-required:
-        needs: build
-        name: Tests on Mac
-        runs-on: macos-latest
-        strategy:
-            matrix:
-                cloud: [ 'AWS' ]
-        steps:
-            - uses: actions/checkout@v1
-            - uses: actions/setup-node@v1
-              with:
-                node-version: '14.x'
-            - uses: actions/setup-python@v1
-              with:
-                python-version: '3.7'
-            - name: Download Build Artifacts
-              uses: actions/download-artifact@v1
-              with:
-                name: artifacts
-            - name: Install Homebrew Bash
-              shell: bash
-              run: brew install bash
-            - name: Tests
-              shell: bash
-              env:
-                PARAMETERS_SECRET: ${{ secrets.PARAMETERS_SECRET }}
-                CLOUD_PROVIDER: ${{ matrix.cloud }}
-              run: /usr/local/bin/bash ./ci/test_mac.sh
-            - name: Upload lcov coverage directory
-              uses: actions/upload-artifact@v3
-              with:
-                name: codeCoverage
-                path: coverage
-
-    test-windows-required:
-        needs: build
-        name: Tests on Windows
-        runs-on: windows-latest
-        strategy:
-            matrix:
-                cloud: [ 'AWS' ]
-        steps:
-            - uses: actions/checkout@v1
-            - uses: actions/setup-node@v1
-              with:
-                node-version: '14.x'
-            - uses: actions/setup-python@v1
-              with:
-                python-version: '3.7'
-                architecture: 'x64'
-            - name: Download Build Artifacts
-              uses: actions/download-artifact@v1
-              with:
-                name: artifacts
-            - name: Tests
-              shell: cmd
-              env:
-                PARAMETERS_SECRET: ${{ secrets.PARAMETERS_SECRET }}
-                CLOUD_PROVIDER: ${{ matrix.cloud }}
-              run: ci\\test_windows.bat
-
-    test-linux-required:
-        needs: build
-        name: Tests on Linux
-        runs-on: ubuntu-latest
-        strategy:
-            fail-fast: false
-            matrix:
-                image: [ 'nodejs-centos7-node14', 'nodejs-centos7-fips' ]
-                cloud: [ 'AWS' ]
-        steps:
-            - uses: actions/checkout@v1
-            - name: Download Build Artifacts
-              uses: actions/download-artifact@v1
-              with:
-                name: artifacts
-            - name: Tests
-              shell: bash
-              env:
-                PARAMETERS_SECRET: ${{ secrets.PARAMETERS_SECRET }}
-                CLOUD_PROVIDER: ${{ matrix.cloud }}
-                TARGET_DOCKER_TEST_IMAGE: ${{ matrix.image }}
-              run: ./ci/test.sh
-
-    test-mac-optional:
+    test-mac:
         needs: build
         name: Tests on Mac
         runs-on: macos-latest
         strategy:
             fail-fast: false
             matrix:
-                cloud: [ 'AZURE', 'GCP' ]
+                cloud: [ 'AWS', 'AZURE', 'GCP' ]
                 nodeVersion: [ '14.x', '16.x', '18.x']
         steps:
             - uses: actions/checkout@v1
@@ -155,15 +71,21 @@ jobs:
                 PARAMETERS_SECRET: ${{ secrets.PARAMETERS_SECRET }}
                 CLOUD_PROVIDER: ${{ matrix.cloud }}
               run: /usr/local/bin/bash ./ci/test_mac.sh
+            - name: Upload coverage reports to Codecov
+              uses: codecov/codecov-action@v3
+              with:
+                # without the token code cov may fail because of Github limits https://github.com/codecov/codecov-action/issues/557
+                token: ${{ secrets.CODE_COV_UPLOAD_TOKEN }}
+                fail_ci_if_error: true
 
-    test-windows-optional:
+    test-windows:
         needs: build
         name: Tests on Windows
         runs-on: windows-latest
         strategy:
             fail-fast: false
             matrix:
-                cloud: [ 'AZURE', 'GCP' ]
+                cloud: [ 'AWS', 'AZURE', 'GCP' ]
                 nodeVersion: [ '14.x', '16.x', '18.x']
         steps:
             - uses: actions/checkout@v1
@@ -185,15 +107,15 @@ jobs:
                 CLOUD_PROVIDER: ${{ matrix.cloud }}
               run: ci\\test_windows.bat
 
-    test-linux-optional:
+    test-linux:
         needs: build
         name: Tests on Linux
         runs-on: ubuntu-latest
         strategy:
             fail-fast: false
             matrix:
-                image: [ 'nodejs-centos7-node14', 'nodejs-centos7-fips' ]
-                cloud: [ 'AZURE', 'GCP' ]
+                image: [ 'nodejs-centos7-node14']
+                cloud: [ 'AWS', 'AZURE', 'GCP' ]
         steps:
             - uses: actions/checkout@v1
             - name: Download Build Artifacts
@@ -207,22 +129,3 @@ jobs:
                 CLOUD_PROVIDER: ${{ matrix.cloud }}
                 TARGET_DOCKER_TEST_IMAGE: ${{ matrix.image }}
               run: ./ci/test.sh
-
-    upload_code_coverage: # it's separate job because codecov action can fail https://github.com/codecov/codecov-action/issues/598 (and we want to know about it), but we don't want to fail required mac build
-        needs: test-mac-required
-        name: Upload code coverage
-        runs-on: ubuntu-latest
-        steps:
-          - name: Checkout # it is still recommended to check out https://about.codecov.io/blog/uploading-code-coverage-in-a-separate-job-on-github-actions/
-            uses: actions/checkout@v3
-          - name: Download code coverage result
-            uses: actions/download-artifact@v3
-            with:
-              name: codeCoverage
-              path: coverage
-          - name: Upload coverage reports to Codecov
-            uses: codecov/codecov-action@v3
-            with:
-              # without the token code cov may fail because of Github limits https://github.com/codecov/codecov-action/issues/557
-              token: ${{ secrets.CODE_COV_UPLOAD_TOKEN }}
-              fail_ci_if_error: true

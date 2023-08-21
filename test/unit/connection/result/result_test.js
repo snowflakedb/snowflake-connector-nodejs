@@ -99,7 +99,7 @@ describe("Result", function () {
 
         assert.strictEqual(result.getTotalRows(), responseData.total);
         assert.strictEqual(result.getReturnedRows(), responseData.returned);
-        assert.strictEqual(result.getQueryId(), responseData.queryId);
+        assert.strictEqual(result.getStatementId(), responseData.queryId);
         assert.strictEqual(result.getVersion(), String(responseData.version));
 
         const sessionState = result.getSessionState();

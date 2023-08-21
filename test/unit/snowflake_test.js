@@ -729,9 +729,7 @@ describe("connection.execute() statement successful", function () {
 
               assert.strictEqual(statement.getNumRows(), 1);
               assert.ok(Util.isObject(statement.getSessionState()));
-              assert.ok(
-                Util.string.isNotNullOrEmpty(statement.getStatementId())
-              );
+              assert.ok(Util.string.isNotNullOrEmpty(statement.getQueryId()));
 
               testStatementFetchRows(statement);
 
@@ -752,7 +750,7 @@ describe("connection.execute() statement successful", function () {
           assert.strictEqual(statement.getColumns(), undefined);
           assert.strictEqual(statement.getNumRows(), undefined);
           assert.strictEqual(statement.getSessionState(), undefined);
-          assert.strictEqual(statement.getStatementId(), undefined);
+          assert.strictEqual(statement.getQueryId(), undefined);
         },
         function (callback) {
           const rows = [];
@@ -829,9 +827,7 @@ describe("connection.execute() statement failure", function () {
               assert.strictEqual(statement.getNumRows(), undefined);
               assert.strictEqual(statement.getSessionState(), undefined);
 
-              assert.ok(
-                Util.string.isNotNullOrEmpty(statement.getStatementId())
-              );
+              assert.ok(Util.string.isNotNullOrEmpty(statement.getQueryId()));
 
               callback();
             },
@@ -850,7 +846,7 @@ describe("connection.execute() statement failure", function () {
           assert.strictEqual(statement.getColumns(), undefined);
           assert.strictEqual(statement.getNumRows(), undefined);
           assert.strictEqual(statement.getSessionState(), undefined);
-          assert.strictEqual(statement.getStatementId(), undefined);
+          assert.strictEqual(statement.getQueryId(), undefined);
         },
         function (callback) {
           testStatementFetchRows(statement);
@@ -1074,7 +1070,7 @@ describe("connection.fetchResult() statement successful", function () {
           testStatementFetchRows(statement);
 
           // the statement id should be the same as what was passed in
-          assert.strictEqual(statement.getStatementId(), statementId);
+          assert.strictEqual(statement.getQueryId(), statementId);
 
           // the sql text and request id should be undefined
           assert.strictEqual(statement.getSqlText(), undefined);
@@ -1160,9 +1156,7 @@ describe("connection.fetchResult() statement failure", function () {
               assert.strictEqual(statement.getNumRows(), undefined);
               assert.strictEqual(statement.getSessionState(), undefined);
 
-              assert.ok(
-                Util.string.isNotNullOrEmpty(statement.getStatementId())
-              );
+              assert.ok(Util.string.isNotNullOrEmpty(statement.getQueryId()));
 
               callback();
             },
@@ -1171,7 +1165,7 @@ describe("connection.fetchResult() statement failure", function () {
           testStatementFetchRows(statement);
 
           // the statement id should be the same as what was passed in
-          assert.strictEqual(statement.getStatementId(), statementId);
+          assert.strictEqual(statement.getQueryId(), statementId);
 
           // the sql text and request id should be undefined
           assert.strictEqual(statement.getSqlText(), undefined);

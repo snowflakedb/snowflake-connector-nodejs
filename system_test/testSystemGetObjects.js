@@ -380,7 +380,7 @@ function testGetObjectsOnStmt(options) {
           sqlText: sql,
           complete: function (err, statement, rows) {
             assert.ok(!err);
-            queryId = statement.getStatementId();
+            queryId = statement.getQueryId();
             callback();
           },
         });

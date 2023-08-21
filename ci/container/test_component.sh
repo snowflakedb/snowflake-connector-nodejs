@@ -67,7 +67,7 @@ env | grep SNOWFLAKE_ | grep -v PASS
 echo "[INFO] Starting hang_webserver.py 12345"
 python3 $THIS_DIR/hang_webserver.py 12345 > hang_webserver.out 2>&1 &
 
-if [[ "$SHOULD_GENERATE_COVERAGE_REPORT" -eq "1" && "$CLOUD_PROVIDER" == "AWS" ]];
+if [[ "$SHOULD_GENERATE_COVERAGE_REPORT" == "1" ]];
   then
     MOCHA_CMD=(
        "npx" "nyc" "--reporter=lcov" "--reporter=text" "mocha" "--exit" "--timeout" "$TIMEOUT" "--recursive" "--full-trace"

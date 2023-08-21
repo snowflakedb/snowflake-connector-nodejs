@@ -2,11 +2,11 @@
  * Copyright (c) 2015 Snowflake Computing Inc. All rights reserved.
  */
 
-const Util = require('./../../lib/util');
-const ErrorCodes = require('./../../lib/errors').codes;
-const MockTestUtil = require('./mock/mock_test_util');
-const assert = require('assert');
-const async = require('async');
+const Util = require("./../../lib/util");
+const ErrorCodes = require("./../../lib/errors").codes;
+const MockTestUtil = require("./mock/mock_test_util");
+const assert = require("assert");
+const async = require("async");
 
 // get a mock snowflake instance
 const snowflake = MockTestUtil.snowflake;
@@ -26,233 +26,233 @@ const connectionOptionsFor504 = mockConnectionOptions.http504;
 const connectionOptionsTreatIntegerAsBigInt =
   mockConnectionOptions.treatIntAsBigInt;
 
-describe('snowflake.createConnection() synchronous errors', function () {
+describe("snowflake.createConnection() synchronous errors", function () {
   const testCases = [
     {
-      name: 'missing options',
+      name: "missing options",
       errorCode: ErrorCodes.ERR_CONN_CREATE_MISSING_OPTIONS,
     },
     {
-      name: 'undefined options',
+      name: "undefined options",
       options: undefined,
       errorCode: ErrorCodes.ERR_CONN_CREATE_MISSING_OPTIONS,
     },
     {
-      name: 'null options',
+      name: "null options",
       options: null,
       errorCode: ErrorCodes.ERR_CONN_CREATE_MISSING_OPTIONS,
     },
     {
-      name: 'invalid options',
-      options: 'invalid',
+      name: "invalid options",
+      options: "invalid",
       errorCode: ErrorCodes.ERR_CONN_CREATE_INVALID_OPTIONS,
     },
     {
-      name: 'missing username',
+      name: "missing username",
       options: {},
       errorCode: ErrorCodes.ERR_CONN_CREATE_MISSING_USERNAME,
     },
     {
-      name: 'undefined username',
+      name: "undefined username",
       options: {
         username: undefined,
       },
       errorCode: ErrorCodes.ERR_CONN_CREATE_MISSING_USERNAME,
     },
     {
-      name: 'null username',
+      name: "null username",
       options: {
         username: null,
       },
       errorCode: ErrorCodes.ERR_CONN_CREATE_MISSING_USERNAME,
     },
     {
-      name: 'invalid username',
+      name: "invalid username",
       options: {
         username: 0,
       },
       errorCode: ErrorCodes.ERR_CONN_CREATE_INVALID_USERNAME,
     },
     {
-      name: 'missing password',
+      name: "missing password",
       options: {
-        username: 'username',
+        username: "username",
       },
       errorCode: ErrorCodes.ERR_CONN_CREATE_MISSING_PASSWORD,
     },
     {
-      name: 'undefined password',
+      name: "undefined password",
       options: {
-        username: 'username',
+        username: "username",
         password: undefined,
       },
       errorCode: ErrorCodes.ERR_CONN_CREATE_MISSING_PASSWORD,
     },
     {
-      name: 'null password',
+      name: "null password",
       options: {
-        username: 'username',
+        username: "username",
         password: null,
       },
       errorCode: ErrorCodes.ERR_CONN_CREATE_MISSING_PASSWORD,
     },
     {
-      name: 'invalid password',
+      name: "invalid password",
       options: {
-        username: 'username',
+        username: "username",
         password: 0,
       },
       errorCode: ErrorCodes.ERR_CONN_CREATE_INVALID_PASSWORD,
     },
     {
-      name: 'missing account',
+      name: "missing account",
       options: {
-        username: 'username',
-        password: 'password',
+        username: "username",
+        password: "password",
       },
       errorCode: ErrorCodes.ERR_CONN_CREATE_MISSING_ACCOUNT,
     },
     {
-      name: 'undefined account',
+      name: "undefined account",
       options: {
-        username: 'username',
-        password: 'password',
+        username: "username",
+        password: "password",
         account: undefined,
       },
       errorCode: ErrorCodes.ERR_CONN_CREATE_MISSING_ACCOUNT,
     },
     {
-      name: 'null account',
+      name: "null account",
       options: {
-        username: 'username',
-        password: 'password',
+        username: "username",
+        password: "password",
         account: null,
       },
       errorCode: ErrorCodes.ERR_CONN_CREATE_MISSING_ACCOUNT,
     },
     {
-      name: 'invalid account',
+      name: "invalid account",
       options: {
-        username: 'username',
-        password: 'password',
+        username: "username",
+        password: "password",
         account: 0,
       },
       errorCode: ErrorCodes.ERR_CONN_CREATE_INVALID_ACCOUNT,
     },
     {
-      name: 'invalid warehouse',
+      name: "invalid warehouse",
       options: {
-        username: 'username',
-        password: 'password',
-        account: 'account',
+        username: "username",
+        password: "password",
+        account: "account",
         warehouse: 0,
       },
       errorCode: ErrorCodes.ERR_CONN_CREATE_INVALID_WAREHOUSE,
     },
     {
-      name: 'invalid database',
+      name: "invalid database",
       options: {
-        username: 'username',
-        password: 'password',
-        account: 'account',
-        warehouse: 'warehouse',
+        username: "username",
+        password: "password",
+        account: "account",
+        warehouse: "warehouse",
         database: 0,
       },
       errorCode: ErrorCodes.ERR_CONN_CREATE_INVALID_DATABASE,
     },
     {
-      name: 'invalid schema',
+      name: "invalid schema",
       options: {
-        username: 'username',
-        password: 'password',
-        account: 'account',
-        warehouse: 'warehouse',
-        database: 'database',
+        username: "username",
+        password: "password",
+        account: "account",
+        warehouse: "warehouse",
+        database: "database",
         schema: 0,
       },
       errorCode: ErrorCodes.ERR_CONN_CREATE_INVALID_SCHEMA,
     },
     {
-      name: 'invalid role',
+      name: "invalid role",
       options: {
-        username: 'username',
-        password: 'password',
-        account: 'account',
-        warehouse: 'warehouse',
-        database: 'database',
-        schema: 'schema',
+        username: "username",
+        password: "password",
+        account: "account",
+        warehouse: "warehouse",
+        database: "database",
+        schema: "schema",
         role: 0,
       },
       errorCode: ErrorCodes.ERR_CONN_CREATE_INVALID_ROLE,
     },
     {
-      name: 'missing proxyHost',
+      name: "missing proxyHost",
       options: {
-        username: 'username',
-        password: 'password',
-        account: 'account',
-        warehouse: 'warehouse',
-        database: 'database',
-        schema: 'schema',
-        role: 'role',
-        proxyPort: '',
+        username: "username",
+        password: "password",
+        account: "account",
+        warehouse: "warehouse",
+        database: "database",
+        schema: "schema",
+        role: "role",
+        proxyPort: "",
       },
       errorCode: ErrorCodes.ERR_CONN_CREATE_MISSING_PROXY_HOST,
     },
     {
-      name: 'invalid proxyHost',
+      name: "invalid proxyHost",
       options: {
-        username: 'username',
-        password: 'password',
-        account: 'account',
-        warehouse: 'warehouse',
-        database: 'database',
-        schema: 'schema',
-        role: 'role',
+        username: "username",
+        password: "password",
+        account: "account",
+        warehouse: "warehouse",
+        database: "database",
+        schema: "schema",
+        role: "role",
         proxyHost: 0,
       },
       errorCode: ErrorCodes.ERR_CONN_CREATE_INVALID_PROXY_HOST,
     },
     {
-      name: 'missing proxyPort',
+      name: "missing proxyPort",
       options: {
-        username: 'username',
-        password: 'password',
-        account: 'account',
-        warehouse: 'warehouse',
-        database: 'database',
-        schema: 'schema',
-        role: 'role',
-        proxyHost: 'proxyHost',
+        username: "username",
+        password: "password",
+        account: "account",
+        warehouse: "warehouse",
+        database: "database",
+        schema: "schema",
+        role: "role",
+        proxyHost: "proxyHost",
       },
       errorCode: ErrorCodes.ERR_CONN_CREATE_MISSING_PROXY_PORT,
     },
     {
-      name: 'invalid proxyPort',
+      name: "invalid proxyPort",
       options: {
-        username: 'username',
-        password: 'password',
-        account: 'account',
-        warehouse: 'warehouse',
-        database: 'database',
-        schema: 'schema',
-        role: 'role',
-        proxyHost: 'proxyHost',
-        proxyPort: 'proxyPort',
+        username: "username",
+        password: "password",
+        account: "account",
+        warehouse: "warehouse",
+        database: "database",
+        schema: "schema",
+        role: "role",
+        proxyHost: "proxyHost",
+        proxyPort: "proxyPort",
       },
       errorCode: ErrorCodes.ERR_CONN_CREATE_INVALID_PROXY_PORT,
     },
     {
-      name: 'invalid row mode',
+      name: "invalid row mode",
       options: {
-        username: 'username',
-        password: 'password',
-        account: 'account',
-        warehouse: 'warehouse',
-        database: 'database',
-        schema: 'schema',
-        role: 'role',
-        rowMode: 'unknown',
+        username: "username",
+        password: "password",
+        account: "account",
+        warehouse: "warehouse",
+        database: "database",
+        schema: "schema",
+        role: "role",
+        rowMode: "unknown",
       },
       errorCode: ErrorCodes.ERR_STMT_STREAM_ROWS_INVALID_ROW_MODE,
     },
@@ -280,19 +280,19 @@ describe('snowflake.createConnection() synchronous errors', function () {
   }
 });
 
-describe('snowflake.createConnection() success', function () {
-  it('createConnection() returns connection', function () {
+describe("snowflake.createConnection() success", function () {
+  it("createConnection() returns connection", function () {
     const connection = snowflake.createConnection(connectionOptions);
     assert.ok(connection);
   });
 });
 
-describe('connection.connect() synchronous errors', function () {
-  it('connect() with invalid callback', function () {
+describe("connection.connect() synchronous errors", function () {
+  it("connect() with invalid callback", function () {
     let error = null;
 
     try {
-      snowflake.createConnection(connectionOptions).connect('invalid');
+      snowflake.createConnection(connectionOptions).connect("invalid");
     } catch (err) {
       error = err;
     } finally {
@@ -305,15 +305,15 @@ describe('connection.connect() synchronous errors', function () {
   });
 });
 
-describe('connection.connect() success', function () {
-  it('connect() success', function (done) {
+describe("connection.connect() success", function () {
+  it("connect() success", function (done) {
     const connection = snowflake.createConnection(connectionOptions);
     const ret = connection.connect(function (err, conn) {
-      assert.ok(!err, 'there should be no error');
+      assert.ok(!err, "there should be no error");
       assert.strictEqual(
         conn,
         connection,
-        'the connect() callback should be invoked with the connection'
+        "the connect() callback should be invoked with the connection"
       );
       done();
     });
@@ -321,13 +321,13 @@ describe('connection.connect() success', function () {
     assert.strictEqual(
       connection,
       ret,
-      'connect() should return the connection'
+      "connect() should return the connection"
     );
   });
 });
 
-describe('connection.connect() asynchronous errors', function () {
-  it('connect() while already connecting', function (done) {
+describe("connection.connect() asynchronous errors", function () {
+  it("connect() while already connecting", function (done) {
     // create a connection and connect
     const connection = snowflake.createConnection(connectionOptions).connect();
 
@@ -336,7 +336,7 @@ describe('connection.connect() asynchronous errors', function () {
       assert.strictEqual(
         conn,
         connection,
-        'the connect() callback should be invoked with the connection'
+        "the connect() callback should be invoked with the connection"
       );
       assert.ok(err);
       assert.strictEqual(
@@ -347,18 +347,18 @@ describe('connection.connect() asynchronous errors', function () {
     });
   });
 
-  it('connect() while already connected', function (done) {
+  it("connect() while already connected", function (done) {
     const connection = snowflake.createConnection(connectionOptions);
 
     async.series(
       [
         function (callback) {
           connection.connect(function (err, conn) {
-            assert.ok(!err, 'there should be no error');
+            assert.ok(!err, "there should be no error");
             assert.strictEqual(
               conn,
               connection,
-              'the connect() callback should be invoked with the connection'
+              "the connect() callback should be invoked with the connection"
             );
             callback();
           });
@@ -370,7 +370,7 @@ describe('connection.connect() asynchronous errors', function () {
             assert.strictEqual(
               conn,
               connection,
-              'the connect() callback should be invoked with the connection'
+              "the connect() callback should be invoked with the connection"
             );
             assert.ok(err);
             assert.strictEqual(
@@ -387,29 +387,29 @@ describe('connection.connect() asynchronous errors', function () {
     );
   });
 
-  it('connect() while fatally disconnected', function (done) {
+  it("connect() while fatally disconnected", function (done) {
     const connection = snowflake.createConnection(connectionOptions);
 
     async.series(
       [
         function (callback) {
           connection.connect(function (err, conn) {
-            assert.ok(!err, 'there should be no error');
+            assert.ok(!err, "there should be no error");
             assert.strictEqual(
               conn,
               connection,
-              'the connect() callback should be invoked with the connection'
+              "the connect() callback should be invoked with the connection"
             );
             callback();
           });
         },
         function (callback) {
           connection.destroy(function (err, conn) {
-            assert.ok(!err, 'there should be no error');
+            assert.ok(!err, "there should be no error");
             assert.strictEqual(
               conn,
               connection,
-              'the logout() callback should be invoked with the connection'
+              "the logout() callback should be invoked with the connection"
             );
             callback();
           });
@@ -418,11 +418,11 @@ describe('connection.connect() asynchronous errors', function () {
           // connection.connect() should fail at this point because the
           // connection has been destroyed
           connection.connect(function (err, conn) {
-            assert.ok(err, 'there should be an error');
+            assert.ok(err, "there should be an error");
             assert.strictEqual(
               conn,
               connection,
-              'the connect() callback should be invoked with the connection'
+              "the connect() callback should be invoked with the connection"
             );
             assert.strictEqual(
               err.code,
@@ -438,7 +438,7 @@ describe('connection.connect() asynchronous errors', function () {
     );
   });
 
-  it('connect() with external browser authenticator', function (done) {
+  it("connect() with external browser authenticator", function (done) {
     // create a connection and connect with external browser
     const connection = snowflake.createConnection(
       connectionOptionsExternalBrowser
@@ -457,7 +457,7 @@ describe('connection.connect() asynchronous errors', function () {
     }
   });
 
-  it('connect() with okta authenticator', function (done) {
+  it("connect() with okta authenticator", function (done) {
     // create a connection and connect with okta
     const connection = snowflake.createConnection(connectionOptionsOkta);
 
@@ -475,108 +475,108 @@ describe('connection.connect() asynchronous errors', function () {
   });
 });
 
-describe('connection.execute() synchronous errors', function () {
+describe("connection.execute() synchronous errors", function () {
   const connection = snowflake.createConnection(connectionOptions);
 
   const testCases = [
     {
-      name: 'missing options',
+      name: "missing options",
       errorCode: ErrorCodes.ERR_CONN_EXEC_STMT_MISSING_OPTIONS,
     },
     {
-      name: 'undefined options',
+      name: "undefined options",
       options: undefined,
       errorCode: ErrorCodes.ERR_CONN_EXEC_STMT_MISSING_OPTIONS,
     },
     {
-      name: 'null options',
+      name: "null options",
       options: null,
       errorCode: ErrorCodes.ERR_CONN_EXEC_STMT_MISSING_OPTIONS,
     },
     {
-      name: 'invalid options',
-      options: 'invalid',
+      name: "invalid options",
+      options: "invalid",
       errorCode: ErrorCodes.ERR_CONN_EXEC_STMT_INVALID_OPTIONS,
     },
     {
-      name: 'missing sql text',
+      name: "missing sql text",
       options: {},
       errorCode: ErrorCodes.ERR_CONN_EXEC_STMT_MISSING_SQL_TEXT,
     },
     {
-      name: 'undefined sql text',
+      name: "undefined sql text",
       options: {
         sqlText: undefined,
       },
       errorCode: ErrorCodes.ERR_CONN_EXEC_STMT_MISSING_SQL_TEXT,
     },
     {
-      name: 'null sql text',
+      name: "null sql text",
       options: {
         sqlText: null,
       },
       errorCode: ErrorCodes.ERR_CONN_EXEC_STMT_MISSING_SQL_TEXT,
     },
     {
-      name: 'invalid sql text',
+      name: "invalid sql text",
       options: {
         sqlText: 0,
       },
       errorCode: ErrorCodes.ERR_CONN_EXEC_STMT_INVALID_SQL_TEXT,
     },
     {
-      name: 'invalid binds',
+      name: "invalid binds",
       options: {
-        sqlText: '',
-        binds: 'invalid',
+        sqlText: "",
+        binds: "invalid",
       },
       errorCode: ErrorCodes.ERR_CONN_EXEC_STMT_INVALID_BINDS,
     },
     {
-      name: 'invalid bind values',
+      name: "invalid bind values",
       options: {
-        sqlText: '',
+        sqlText: "",
         binds: [function () {}],
       },
       errorCode: ErrorCodes.ERR_CONN_EXEC_STMT_INVALID_BIND_VALUES,
     },
     {
-      name: 'invalid parameters',
+      name: "invalid parameters",
       options: {
-        sqlText: '',
-        parameters: 'invalid',
+        sqlText: "",
+        parameters: "invalid",
       },
       errorCode: ErrorCodes.ERR_CONN_EXEC_STMT_INVALID_PARAMETERS,
     },
     {
-      name: 'invalid complete',
+      name: "invalid complete",
       options: {
-        sqlText: '',
-        complete: 'invalid',
+        sqlText: "",
+        complete: "invalid",
       },
       errorCode: ErrorCodes.ERR_CONN_EXEC_STMT_INVALID_COMPLETE,
     },
     {
-      name: 'invalid streamResult',
+      name: "invalid streamResult",
       options: {
-        sqlText: '',
-        streamResult: 'invalid',
+        sqlText: "",
+        streamResult: "invalid",
       },
       errorCode: ErrorCodes.ERR_CONN_EXEC_STMT_INVALID_STREAM_RESULT,
     },
     {
-      name: 'invalid fetchAsString',
+      name: "invalid fetchAsString",
       options: {
-        sqlText: '',
-        fetchAsString: 'invalid',
+        sqlText: "",
+        fetchAsString: "invalid",
       },
       errorCode: ErrorCodes.ERR_CONN_EXEC_STMT_INVALID_FETCH_AS_STRING,
     },
     {
-      name: 'invalid fetchAsString values',
+      name: "invalid fetchAsString values",
       options: {
-        sqlText: '',
-        fetchAsString: ['invalid'],
+        sqlText: "",
+        fetchAsString: ["invalid"],
       },
       errorCode: ErrorCodes.ERR_CONN_EXEC_STMT_INVALID_FETCH_AS_STRING_VALUES,
     },
@@ -607,63 +607,63 @@ describe('connection.execute() synchronous errors', function () {
 function testStatementFetchRows(statement) {
   const testCases = [
     {
-      name: 'fetchRows() missing options',
+      name: "fetchRows() missing options",
       errorCode: ErrorCodes.ERR_STMT_FETCH_ROWS_MISSING_OPTIONS,
     },
     {
-      name: 'fetchRows() undefined options',
+      name: "fetchRows() undefined options",
       options: undefined,
       errorCode: ErrorCodes.ERR_STMT_FETCH_ROWS_MISSING_OPTIONS,
     },
     {
-      name: 'fetchRows() null options',
+      name: "fetchRows() null options",
       options: null,
       errorCode: ErrorCodes.ERR_STMT_FETCH_ROWS_MISSING_OPTIONS,
     },
     {
-      name: 'fetchRows() invalid options',
-      options: 'invalid',
+      name: "fetchRows() invalid options",
+      options: "invalid",
       errorCode: ErrorCodes.ERR_STMT_FETCH_ROWS_INVALID_OPTIONS,
     },
     {
-      name: 'fetchRows() missing each()',
+      name: "fetchRows() missing each()",
       options: {},
       errorCode: ErrorCodes.ERR_STMT_FETCH_ROWS_MISSING_EACH,
     },
     {
-      name: 'fetchRows() undefined each()',
+      name: "fetchRows() undefined each()",
       options: {
         each: undefined,
       },
       errorCode: ErrorCodes.ERR_STMT_FETCH_ROWS_MISSING_EACH,
     },
     {
-      name: 'fetchRows() null each()',
+      name: "fetchRows() null each()",
       options: {
         each: null,
       },
       errorCode: ErrorCodes.ERR_STMT_FETCH_ROWS_MISSING_EACH,
     },
     {
-      name: 'fetchRows() invalid each()',
+      name: "fetchRows() invalid each()",
       options: {
-        each: 'invalid',
+        each: "invalid",
       },
       errorCode: ErrorCodes.ERR_STMT_FETCH_ROWS_INVALID_EACH,
     },
     {
-      name: 'fetchRows() missing end()',
+      name: "fetchRows() missing end()",
       options: {
         each: function () {},
       },
       errorCode: ErrorCodes.ERR_STMT_FETCH_ROWS_MISSING_END,
     },
     {
-      name: 'fetchRows() row mode invalid',
+      name: "fetchRows() row mode invalid",
       options: {
         each: function () {},
         end: function () {},
-        rowMode: 'invalid',
+        rowMode: "invalid",
       },
       errorCode: ErrorCodes.ERR_STMT_STREAM_ROWS_INVALID_ROW_MODE,
     },
@@ -686,23 +686,23 @@ function testStatementFetchRows(statement) {
   }
 }
 
-describe('connection.execute() statement successful', function () {
+describe("connection.execute() statement successful", function () {
   const connection = snowflake.createConnection(connectionOptions);
   const sqlText = 'select 1 as "c1";';
-  const requestId = 'foobar';
+  const requestId = "foobar";
 
-  it('statement api', function (done) {
+  it("statement api", function (done) {
     let statement;
 
     async.series(
       [
         function (callback) {
           connection.connect(function (err, conn) {
-            assert.ok(!err, 'there should be no error');
+            assert.ok(!err, "there should be no error");
             assert.strictEqual(
               conn,
               connection,
-              'the connect() callback should be invoked with the statement'
+              "the connect() callback should be invoked with the statement"
             );
 
             callback();
@@ -713,11 +713,11 @@ describe('connection.execute() statement successful', function () {
             sqlText: sqlText,
             requestId: requestId,
             complete: function (err, stmt) {
-              assert.ok(!err, 'there should be no error');
+              assert.ok(!err, "there should be no error");
               assert.strictEqual(
                 stmt,
                 statement,
-                'the execute() callback should be invoked with the statement'
+                "the execute() callback should be invoked with the statement"
               );
 
               // we should only have one column c1
@@ -725,13 +725,11 @@ describe('connection.execute() statement successful', function () {
               assert.ok(Util.isArray(columns));
               assert.strictEqual(columns.length, 1);
               assert.ok(Util.isObject(columns[0]));
-              assert.strictEqual(columns[0].getName(), 'c1');
+              assert.strictEqual(columns[0].getName(), "c1");
 
               assert.strictEqual(statement.getNumRows(), 1);
               assert.ok(Util.isObject(statement.getSessionState()));
-              assert.ok(
-                Util.string.isNotNullOrEmpty(statement.getStatementId())
-              );
+              assert.ok(Util.string.isNotNullOrEmpty(statement.getQueryId()));
 
               testStatementFetchRows(statement);
 
@@ -752,7 +750,7 @@ describe('connection.execute() statement successful', function () {
           assert.strictEqual(statement.getColumns(), undefined);
           assert.strictEqual(statement.getNumRows(), undefined);
           assert.strictEqual(statement.getSessionState(), undefined);
-          assert.strictEqual(statement.getStatementId(), undefined);
+          assert.strictEqual(statement.getQueryId(), undefined);
         },
         function (callback) {
           const rows = [];
@@ -761,22 +759,22 @@ describe('connection.execute() statement successful', function () {
               rows.push(row);
             },
             end: function (err, stmt) {
-              assert.ok(!err, 'there should be no error');
+              assert.ok(!err, "there should be no error");
               assert.strictEqual(
                 stmt,
                 statement,
-                'the end() callback should be invoked with the statement'
+                "the end() callback should be invoked with the statement"
               );
               assert.strictEqual(
                 rows.length,
                 1,
-                'there should only be one row'
+                "there should only be one row"
               );
               assert.strictEqual(
-                rows[0].getColumnValue('c1'),
+                rows[0].getColumnValue("c1"),
                 1,
-                'the row should only have one column c1 and its value ' +
-                  'should be 1'
+                "the row should only have one column c1 and its value " +
+                  "should be 1"
               );
 
               callback();
@@ -791,23 +789,23 @@ describe('connection.execute() statement successful', function () {
   });
 });
 
-describe('connection.execute() statement failure', function () {
+describe("connection.execute() statement failure", function () {
   const connection = snowflake.createConnection(connectionOptions);
-  const sqlText = 'select;';
-  const requestId = 'foobar';
+  const sqlText = "select;";
+  const requestId = "foobar";
 
-  it('statement api', function (done) {
+  it("statement api", function (done) {
     let statement;
 
     async.series(
       [
         function (callback) {
           connection.connect(function (err, conn) {
-            assert.ok(!err, 'there should be no error');
+            assert.ok(!err, "there should be no error");
             assert.strictEqual(
               conn,
               connection,
-              'the connect() callback should be invoked with the statement'
+              "the connect() callback should be invoked with the statement"
             );
 
             callback();
@@ -818,20 +816,18 @@ describe('connection.execute() statement failure', function () {
             sqlText: sqlText,
             requestId: requestId,
             complete: function (err, stmt) {
-              assert.ok(err, 'there should be an error');
+              assert.ok(err, "there should be an error");
               assert.strictEqual(
                 stmt,
                 statement,
-                'the execute() callback should be invoked with the statement'
+                "the execute() callback should be invoked with the statement"
               );
 
               assert.strictEqual(statement.getColumns(), undefined);
               assert.strictEqual(statement.getNumRows(), undefined);
               assert.strictEqual(statement.getSessionState(), undefined);
 
-              assert.ok(
-                Util.string.isNotNullOrEmpty(statement.getStatementId())
-              );
+              assert.ok(Util.string.isNotNullOrEmpty(statement.getQueryId()));
 
               callback();
             },
@@ -850,7 +846,7 @@ describe('connection.execute() statement failure', function () {
           assert.strictEqual(statement.getColumns(), undefined);
           assert.strictEqual(statement.getNumRows(), undefined);
           assert.strictEqual(statement.getSessionState(), undefined);
-          assert.strictEqual(statement.getStatementId(), undefined);
+          assert.strictEqual(statement.getQueryId(), undefined);
         },
         function (callback) {
           testStatementFetchRows(statement);
@@ -858,11 +854,11 @@ describe('connection.execute() statement failure', function () {
           statement.fetchRows({
             each: function () {},
             end: function (err, stmt) {
-              assert.ok(err, 'there should be an error');
+              assert.ok(err, "there should be an error");
               assert.strictEqual(
                 stmt,
                 statement,
-                'the execute() callback should be invoked with the statement'
+                "the execute() callback should be invoked with the statement"
               );
 
               callback();
@@ -877,21 +873,21 @@ describe('connection.execute() statement failure', function () {
   });
 });
 
-describe('too many concurrent requests', function () {
-  it('too many concurrent requests per user', function (done) {
+describe("too many concurrent requests", function () {
+  it("too many concurrent requests per user", function (done) {
     const connection = snowflake.createConnection(connectionOptions);
-    const sqlText = 'select \'too many concurrent queries\';';
-    const requestId = 'foobar';
+    const sqlText = "select 'too many concurrent queries';";
+    const requestId = "foobar";
 
     async.series(
       [
         function (callback) {
           connection.connect(function (err, conn) {
-            assert.ok(!err, 'there should be no error');
+            assert.ok(!err, "there should be no error");
             assert.strictEqual(
               conn,
               connection,
-              'the connect() callback should be invoked with the statement'
+              "the connect() callback should be invoked with the statement"
             );
 
             callback();
@@ -902,8 +898,8 @@ describe('too many concurrent requests', function () {
             sqlText: sqlText,
             requestId: requestId,
             complete: function (err, statement) {
-              assert.ok(err, 'there should be an error');
-              assert.strictEqual(err.code, '000610');
+              assert.ok(err, "there should be an error");
+              assert.strictEqual(err.code, "000610");
 
               callback();
             },
@@ -917,84 +913,84 @@ describe('too many concurrent requests', function () {
   });
 });
 
-describe('connection.fetchResult() synchronous errors', function () {
+describe("connection.fetchResult() synchronous errors", function () {
   const connection = snowflake.createConnection(connectionOptions);
 
   const testCases = [
     {
-      name: 'missing options',
+      name: "missing options",
       errorCode: ErrorCodes.ERR_CONN_FETCH_RESULT_MISSING_OPTIONS,
     },
     {
-      name: 'undefined options',
+      name: "undefined options",
       options: undefined,
       errorCode: ErrorCodes.ERR_CONN_FETCH_RESULT_MISSING_OPTIONS,
     },
     {
-      name: 'null options',
+      name: "null options",
       options: null,
       errorCode: ErrorCodes.ERR_CONN_FETCH_RESULT_MISSING_OPTIONS,
     },
     {
-      name: 'invalid options',
-      options: 'invalid',
+      name: "invalid options",
+      options: "invalid",
       errorCode: ErrorCodes.ERR_CONN_FETCH_RESULT_INVALID_OPTIONS,
     },
     {
-      name: 'missing statement id',
+      name: "missing statement id",
       options: {},
       errorCode: ErrorCodes.ERR_CONN_FETCH_RESULT_MISSING_STATEMENT_ID,
     },
     {
-      name: 'undefined statement id',
+      name: "undefined statement id",
       options: {
         statementId: undefined,
       },
       errorCode: ErrorCodes.ERR_CONN_FETCH_RESULT_MISSING_STATEMENT_ID,
     },
     {
-      name: 'null statement id',
+      name: "null statement id",
       options: {
         statementId: null,
       },
       errorCode: ErrorCodes.ERR_CONN_FETCH_RESULT_MISSING_STATEMENT_ID,
     },
     {
-      name: 'invalid statement id',
+      name: "invalid statement id",
       options: {
         statementId: 0,
       },
       errorCode: ErrorCodes.ERR_CONN_FETCH_RESULT_INVALID_STATEMENT_ID,
     },
     {
-      name: 'invalid complete',
+      name: "invalid complete",
       options: {
-        statementId: '',
-        complete: 'invalid',
+        statementId: "",
+        complete: "invalid",
       },
       errorCode: ErrorCodes.ERR_CONN_FETCH_RESULT_INVALID_COMPLETE,
     },
     {
-      name: 'invalid streamResult',
+      name: "invalid streamResult",
       options: {
-        statementId: '',
-        streamResult: 'invalid',
+        statementId: "",
+        streamResult: "invalid",
       },
       errorCode: ErrorCodes.ERR_CONN_FETCH_RESULT_INVALID_STREAM_RESULT,
     },
     {
-      name: 'invalid fetchAsString',
+      name: "invalid fetchAsString",
       options: {
-        statementId: '',
-        fetchAsString: 'invalid',
+        statementId: "",
+        fetchAsString: "invalid",
       },
       errorCode: ErrorCodes.ERR_CONN_FETCH_RESULT_INVALID_FETCH_AS_STRING,
     },
     {
-      name: 'invalid fetchAsString values',
+      name: "invalid fetchAsString values",
       options: {
-        statementId: '',
-        fetchAsString: ['invalid'],
+        statementId: "",
+        fetchAsString: ["invalid"],
       },
       errorCode:
         ErrorCodes.ERR_CONN_FETCH_RESULT_INVALID_FETCH_AS_STRING_VALUES,
@@ -1023,22 +1019,22 @@ describe('connection.fetchResult() synchronous errors', function () {
   }
 });
 
-describe('connection.fetchResult() statement successful', function () {
+describe("connection.fetchResult() statement successful", function () {
   const connection = snowflake.createConnection(connectionOptions);
-  const statementId = 'df2852ef-e082-4bb3-94a4-e540bf0e70c6';
+  const statementId = "df2852ef-e082-4bb3-94a4-e540bf0e70c6";
 
-  it('statement api', function (done) {
+  it("statement api", function (done) {
     let statement;
 
     async.series(
       [
         function (callback) {
           connection.connect(function (err, conn) {
-            assert.ok(!err, 'there should be no error');
+            assert.ok(!err, "there should be no error");
             assert.strictEqual(
               conn,
               connection,
-              'the connect() callback should be invoked with the connection'
+              "the connect() callback should be invoked with the connection"
             );
 
             callback();
@@ -1048,11 +1044,11 @@ describe('connection.fetchResult() statement successful', function () {
           statement = connection.fetchResult({
             statementId: statementId,
             complete: function (err, stmt) {
-              assert.ok(!err, 'there should be no error');
+              assert.ok(!err, "there should be no error");
               assert.strictEqual(
                 stmt,
                 statement,
-                'the fetchRow() callback should be invoked with the statement'
+                "the fetchRow() callback should be invoked with the statement"
               );
 
               // we should only have one column c1
@@ -1060,7 +1056,7 @@ describe('connection.fetchResult() statement successful', function () {
               assert.ok(Util.isArray(columns));
               assert.strictEqual(columns.length, 1);
               assert.ok(Util.isObject(columns[0]));
-              assert.strictEqual(columns[0].getName(), 'c1');
+              assert.strictEqual(columns[0].getName(), "c1");
 
               assert.strictEqual(statement.getNumRows(), 1);
               assert.ok(Util.isObject(statement.getSessionState()));
@@ -1074,7 +1070,7 @@ describe('connection.fetchResult() statement successful', function () {
           testStatementFetchRows(statement);
 
           // the statement id should be the same as what was passed in
-          assert.strictEqual(statement.getStatementId(), statementId);
+          assert.strictEqual(statement.getQueryId(), statementId);
 
           // the sql text and request id should be undefined
           assert.strictEqual(statement.getSqlText(), undefined);
@@ -1094,22 +1090,22 @@ describe('connection.fetchResult() statement successful', function () {
               rows.push(row);
             },
             end: function (err, stmt) {
-              assert.ok(!err, 'there should be no error');
+              assert.ok(!err, "there should be no error");
               assert.strictEqual(
                 stmt,
                 statement,
-                'the end() callback should be invoked with the statement'
+                "the end() callback should be invoked with the statement"
               );
               assert.strictEqual(
                 rows.length,
                 1,
-                'there should only be one row'
+                "there should only be one row"
               );
               assert.strictEqual(
-                rows[0].getColumnValue('c1'),
+                rows[0].getColumnValue("c1"),
                 1,
-                'the row should only have one column c1 and its value ' +
-                  'should be 1'
+                "the row should only have one column c1 and its value " +
+                  "should be 1"
               );
 
               callback();
@@ -1124,22 +1120,22 @@ describe('connection.fetchResult() statement successful', function () {
   });
 });
 
-describe('connection.fetchResult() statement failure', function () {
+describe("connection.fetchResult() statement failure", function () {
   const connection = snowflake.createConnection(connectionOptions);
-  const statementId = '13f12818-de4c-41d2-bf19-f115ee8a5cc1';
+  const statementId = "13f12818-de4c-41d2-bf19-f115ee8a5cc1";
 
-  it('statement api', function (done) {
+  it("statement api", function (done) {
     let statement;
 
     async.series(
       [
         function (callback) {
           connection.connect(function (err, conn) {
-            assert.ok(!err, 'there should be no error');
+            assert.ok(!err, "there should be no error");
             assert.strictEqual(
               conn,
               connection,
-              'the connect() callback should be invoked with the connection'
+              "the connect() callback should be invoked with the connection"
             );
 
             callback();
@@ -1149,20 +1145,18 @@ describe('connection.fetchResult() statement failure', function () {
           statement = connection.fetchResult({
             statementId: statementId,
             complete: function (err, stmt) {
-              assert.ok(err, 'there should be an error');
+              assert.ok(err, "there should be an error");
               assert.strictEqual(
                 stmt,
                 statement,
-                'the execute() callback should be invoked with the statement'
+                "the execute() callback should be invoked with the statement"
               );
 
               assert.strictEqual(statement.getColumns(), undefined);
               assert.strictEqual(statement.getNumRows(), undefined);
               assert.strictEqual(statement.getSessionState(), undefined);
 
-              assert.ok(
-                Util.string.isNotNullOrEmpty(statement.getStatementId())
-              );
+              assert.ok(Util.string.isNotNullOrEmpty(statement.getQueryId()));
 
               callback();
             },
@@ -1171,7 +1165,7 @@ describe('connection.fetchResult() statement failure', function () {
           testStatementFetchRows(statement);
 
           // the statement id should be the same as what was passed in
-          assert.strictEqual(statement.getStatementId(), statementId);
+          assert.strictEqual(statement.getQueryId(), statementId);
 
           // the sql text and request id should be undefined
           assert.strictEqual(statement.getSqlText(), undefined);
@@ -1190,11 +1184,11 @@ describe('connection.fetchResult() statement failure', function () {
           statement.fetchRows({
             each: function () {},
             end: function (err, stmt) {
-              assert.ok(err, 'there should be an error');
+              assert.ok(err, "there should be an error");
               assert.strictEqual(
                 stmt,
                 statement,
-                'the execute() callback should be invoked with the statement'
+                "the execute() callback should be invoked with the statement"
               );
 
               callback();
@@ -1209,39 +1203,39 @@ describe('connection.fetchResult() statement failure', function () {
   });
 });
 
-describe('statement.cancel()', function () {
-  it('cancel a statement before it has been executed', function (done) {
+describe("statement.cancel()", function () {
+  it("cancel a statement before it has been executed", function (done) {
     const connection = snowflake.createConnection(connectionOptions);
     const statement = connection.execute({
       sqlText: 'select 1 as "c1";',
-      requestId: 'foobar',
+      requestId: "foobar",
     });
 
     statement.cancel(function (err, stmt) {
-      assert.ok(err, 'there should be an error');
+      assert.ok(err, "there should be an error");
       assert.strictEqual(
         stmt,
         statement,
-        'the cancel() callback should be invoked with the statement'
+        "the cancel() callback should be invoked with the statement"
       );
       done();
     });
   });
 
-  it('cancel a running statement', function (done) {
+  it("cancel a running statement", function (done) {
     const connection = snowflake.createConnection(connectionOptions);
     connection.connect(function (err, conn) {
-      assert.ok(!err, 'should not get an error');
+      assert.ok(!err, "should not get an error");
 
       const statement = connection.execute({
-        sqlText: 'select count(*) from table(generator(timelimit=>10));',
-        requestId: 'b97fee20-a805-11e5-a0ab-ddd3321ed586',
+        sqlText: "select count(*) from table(generator(timelimit=>10));",
+        requestId: "b97fee20-a805-11e5-a0ab-ddd3321ed586",
         complete: function (err, stmt) {
-          assert.ok(err, 'there should be an error');
+          assert.ok(err, "there should be an error");
           assert.strictEqual(
             err.sqlState,
-            '57014',
-            'the error should have the right sql state'
+            "57014",
+            "the error should have the right sql state"
           );
 
           context.completed = true;
@@ -1258,11 +1252,11 @@ describe('statement.cancel()', function () {
 
       setTimeout(function () {
         statement.cancel(function (err, stmt) {
-          assert.ok(!err, 'there should be no error');
+          assert.ok(!err, "there should be no error");
           assert.strictEqual(
             stmt,
             statement,
-            'the cancel() callback should be invoked with the statement'
+            "the cancel() callback should be invoked with the statement"
           );
 
           context.canceled = true;
@@ -1274,60 +1268,60 @@ describe('statement.cancel()', function () {
     });
   });
 
-  it('cancel a statement that doesn\'t exist', function (done) {
+  it("cancel a statement that doesn't exist", function (done) {
     const connection = snowflake.createConnection(connectionOptions);
     const statement = connection.fetchResult({
-      statementId: 'foobar',
+      statementId: "foobar",
     });
 
     statement.cancel(function (err, stmt) {
-      assert.ok(err, 'there should be an error');
+      assert.ok(err, "there should be an error");
       assert.strictEqual(
         stmt,
         statement,
-        'the cancel() callback should be invoked with the statement'
+        "the cancel() callback should be invoked with the statement"
       );
       done();
     });
   });
 
-  it('cancel a successful statement', function (done) {
+  it("cancel a successful statement", function (done) {
     const connection = snowflake.createConnection(connectionOptions);
     const statement = connection.fetchResult({
-      statementId: 'df2852ef-e082-4bb3-94a4-e540bf0e70c6',
+      statementId: "df2852ef-e082-4bb3-94a4-e540bf0e70c6",
     });
 
     statement.cancel(function (err, stmt) {
-      assert.ok(err, 'there should be an error');
+      assert.ok(err, "there should be an error");
       assert.strictEqual(
         stmt,
         statement,
-        'the cancel() callback should be invoked with the statement'
+        "the cancel() callback should be invoked with the statement"
       );
       done();
     });
   });
 
-  it('cancel a failed statement', function (done) {
+  it("cancel a failed statement", function (done) {
     const connection = snowflake.createConnection(connectionOptions);
     const statement = connection.fetchResult({
-      statementId: '13f12818-de4c-41d2-bf19-f115ee8a5cc1',
+      statementId: "13f12818-de4c-41d2-bf19-f115ee8a5cc1",
     });
 
     statement.cancel(function (err, stmt) {
-      assert.ok(err, 'there should be an error');
+      assert.ok(err, "there should be an error");
       assert.strictEqual(
         stmt,
         statement,
-        'the cancel() callback should be invoked with the statement'
+        "the cancel() callback should be invoked with the statement"
       );
       done();
     });
   });
 });
 
-describe('connection.destroy()', function () {
-  it('destroy without connecting', function (done) {
+describe("connection.destroy()", function () {
+  it("destroy without connecting", function (done) {
     const connection = snowflake.createConnection(connectionOptions);
     connection.destroy(function (err, conn) {
       assert.ok(err);
@@ -1335,13 +1329,13 @@ describe('connection.destroy()', function () {
       assert.strictEqual(
         conn,
         connection,
-        'the logout() callback should be invoked with the connection'
+        "the logout() callback should be invoked with the connection"
       );
       done();
     });
   });
 
-  it('destroy while connecting', function (done) {
+  it("destroy while connecting", function (done) {
     const connection = snowflake.createConnection(connectionOptions);
 
     const context = {
@@ -1350,11 +1344,11 @@ describe('connection.destroy()', function () {
     };
 
     connection.connect(function (err, conn) {
-      assert.ok(!err, 'there should be no error');
+      assert.ok(!err, "there should be no error");
       assert.strictEqual(
         conn,
         connection,
-        'the connect() callback should be invoked with the connection'
+        "the connect() callback should be invoked with the connection"
       );
 
       context.connectcomplete = true;
@@ -1364,11 +1358,11 @@ describe('connection.destroy()', function () {
     });
 
     connection.destroy(function (err, conn) {
-      assert.ok(!err, 'there should be no error');
+      assert.ok(!err, "there should be no error");
       assert.strictEqual(
         conn,
         connection,
-        'the logout() callback should be invoked with the connection'
+        "the logout() callback should be invoked with the connection"
       );
 
       context.destroycomplete = true;
@@ -1378,29 +1372,29 @@ describe('connection.destroy()', function () {
     });
   });
 
-  it('destroy after connected', function (done) {
+  it("destroy after connected", function (done) {
     const connection = snowflake.createConnection(connectionOptions);
 
     async.series(
       [
         function (callback) {
           connection.connect(function (err, conn) {
-            assert.ok(!err, 'there should be no error');
+            assert.ok(!err, "there should be no error");
             assert.strictEqual(
               conn,
               connection,
-              'the connect() callback should be invoked with the connection'
+              "the connect() callback should be invoked with the connection"
             );
             callback();
           });
         },
         function (callback) {
           connection.destroy(function (err, conn) {
-            assert.ok(!err, 'there should be no error');
+            assert.ok(!err, "there should be no error");
             assert.strictEqual(
               conn,
               connection,
-              'the logout() callback should be invoked with the connection'
+              "the logout() callback should be invoked with the connection"
             );
             callback();
           });
@@ -1412,29 +1406,29 @@ describe('connection.destroy()', function () {
     );
   });
 
-  it('destroy while disconnected', function (done) {
+  it("destroy while disconnected", function (done) {
     const connection = snowflake.createConnection(connectionOptions);
 
     async.series(
       [
         function (callback) {
           connection.connect(function (err, conn) {
-            assert.ok(!err, 'there should be no error');
+            assert.ok(!err, "there should be no error");
             assert.strictEqual(
               conn,
               connection,
-              'the connect() callback should be invoked with the connection'
+              "the connect() callback should be invoked with the connection"
             );
             callback();
           });
         },
         function (callback) {
           connection.destroy(function (err, conn) {
-            assert.ok(!err, 'there should be no error');
+            assert.ok(!err, "there should be no error");
             assert.strictEqual(
               conn,
               connection,
-              'the logout() callback should be invoked with the connection'
+              "the logout() callback should be invoked with the connection"
             );
             callback();
           });
@@ -1443,11 +1437,11 @@ describe('connection.destroy()', function () {
           // connection.destroy() should fail at this point because the
           // connection has been destroyed
           connection.destroy(function (err, conn) {
-            assert.ok(err, 'there should be an error');
+            assert.ok(err, "there should be an error");
             assert.strictEqual(
               conn,
               connection,
-              'the connect() callback should be invoked with the connection'
+              "the connect() callback should be invoked with the connection"
             );
             assert.strictEqual(
               err.code,
@@ -1464,8 +1458,8 @@ describe('connection.destroy()', function () {
   });
 });
 
-describe('serialize connection', function () {
-  it('serialize before connecting', function (done) {
+describe("serialize connection", function () {
+  it("serialize before connecting", function (done) {
     const connection = snowflake.createConnection(connectionOptions);
     const serializedConnection = connection.serialize();
 
@@ -1473,7 +1467,7 @@ describe('serialize connection', function () {
     done();
   });
 
-  it('serialize when connected', function (done) {
+  it("serialize when connected", function (done) {
     const connection = snowflake.createConnection(connectionOptions);
     let statementFirst;
     let statementSecond;
@@ -1482,7 +1476,7 @@ describe('serialize connection', function () {
       [
         function (callback) {
           const sqlText = 'select 1 as "c1";';
-          const requestId = 'foobar';
+          const requestId = "foobar";
 
           connection.connect(function (err, conn) {
             assert.ok(!err);
@@ -1491,12 +1485,12 @@ describe('serialize connection', function () {
               sqlText: sqlText,
               requestId: requestId,
               complete: function (err, stmt) {
-                assert.ok(!err, 'there should be no error');
+                assert.ok(!err, "there should be no error");
                 assert.strictEqual(
                   stmt,
                   statementFirst,
-                  'the execute() callback should be invoked with the ' +
-                    'statement'
+                  "the execute() callback should be invoked with the " +
+                    "statement"
                 );
 
                 callback();
@@ -1515,13 +1509,13 @@ describe('serialize connection', function () {
           // execute a statement using the connection copy
           statementSecond = connectionCopy.execute({
             sqlText: 'select 1 as "c2";',
-            requestId: 'foobar',
+            requestId: "foobar",
             complete: function (err, stmt) {
-              assert.ok(!err, 'there should be no error');
+              assert.ok(!err, "there should be no error");
               assert.strictEqual(
                 stmt,
                 statementSecond,
-                'the execute() callback should be invoked with the statement'
+                "the execute() callback should be invoked with the statement"
               );
 
               callback();
@@ -1536,35 +1530,35 @@ describe('serialize connection', function () {
   });
 });
 
-describe('deserialize connection synchronous errors', function () {
+describe("deserialize connection synchronous errors", function () {
   const testCases = [
     {
-      name: 'missing serializedConnection',
+      name: "missing serializedConnection",
       connectionOptions: connectionOptionsDeserialize,
       errorCode: ErrorCodes.ERR_CONN_DESERIALIZE_MISSING_CONFIG,
     },
     {
-      name: 'undefined serializedConnection',
+      name: "undefined serializedConnection",
       connectionOptions: connectionOptionsDeserialize,
       serializedConnection: undefined,
       errorCode: ErrorCodes.ERR_CONN_DESERIALIZE_MISSING_CONFIG,
     },
     {
-      name: 'null serializedConnection',
+      name: "null serializedConnection",
       connectionOptions: connectionOptionsDeserialize,
       serializedConnection: null,
       errorCode: ErrorCodes.ERR_CONN_DESERIALIZE_MISSING_CONFIG,
     },
     {
-      name: 'invalid serializedConnection: not a string',
+      name: "invalid serializedConnection: not a string",
       connectionOptions: connectionOptionsDeserialize,
       serializedConnection: 0,
       errorCode: ErrorCodes.ERR_CONN_DESERIALIZE_INVALID_CONFIG_TYPE,
     },
     {
-      name: 'invalid serializedConnection: not json',
+      name: "invalid serializedConnection: not json",
       connectionOptions: connectionOptionsDeserialize,
-      serializedConnection: 'invalid',
+      serializedConnection: "invalid",
       errorCode: ErrorCodes.ERR_CONN_DESERIALIZE_INVALID_CONFIG_FORM,
     },
   ];
@@ -1594,8 +1588,8 @@ describe('deserialize connection synchronous errors', function () {
   }
 });
 
-describe('snowflake.createConnection() SERVICE_NAME', function () {
-  it('createConnection() returns connection including SERVICE_NAME', function (done) {
+describe("snowflake.createConnection() SERVICE_NAME", function () {
+  it("createConnection() returns connection including SERVICE_NAME", function (done) {
     const connection = snowflake.createConnection(connectionOptionsServiceName);
     async.series(
       [
@@ -1607,14 +1601,14 @@ describe('snowflake.createConnection() SERVICE_NAME', function () {
         },
         function (callback) {
           // SERVICE_NAME is returned.
-          assert.equal('fakeservicename', connection.getServiceName());
+          assert.equal("fakeservicename", connection.getServiceName());
           callback();
         },
         function (callback) {
           // submitting a query with SERVICE_NAME
           connection.execute({
-            sqlText: 'select * from faketable',
-            requestId: 'foobar',
+            sqlText: "select * from faketable",
+            requestId: "foobar",
             complete: function (err, stmt) {
               assert.ok(!err, JSON.stringify(err));
               callback();
@@ -1623,7 +1617,7 @@ describe('snowflake.createConnection() SERVICE_NAME', function () {
         },
         function (callback) {
           // SERVICE_NAME is updated.
-          assert.equal('fakeservicename2', connection.getServiceName());
+          assert.equal("fakeservicename2", connection.getServiceName());
           callback();
         },
       ],
@@ -1632,8 +1626,8 @@ describe('snowflake.createConnection() SERVICE_NAME', function () {
   });
 });
 
-describe('snowflake.createConnection() CLIENT_SESSION_KEEP_ALIVE', function () {
-  it('createConnection() returns connection including CLIENT_SESSION_KEEP_ALIVE', function (done) {
+describe("snowflake.createConnection() CLIENT_SESSION_KEEP_ALIVE", function () {
+  it("createConnection() returns connection including CLIENT_SESSION_KEEP_ALIVE", function (done) {
     const connection = snowflake.createConnection(
       connectionOptionsClientSessionKeepAlive
     );
@@ -1666,8 +1660,8 @@ describe('snowflake.createConnection() CLIENT_SESSION_KEEP_ALIVE', function () {
   });
 });
 
-describe('snowflake.createConnection() JS_TREAT_INTEGER_AS_BIGINT', function () {
-  it('createConnection() returns connection including JS_TREAT_INTEGER_AS_BIGINT', function (done) {
+describe("snowflake.createConnection() JS_TREAT_INTEGER_AS_BIGINT", function () {
+  it("createConnection() returns connection including JS_TREAT_INTEGER_AS_BIGINT", function (done) {
     const connection = snowflake.createConnection(
       connectionOptionsTreatIntegerAsBigInt
     );
@@ -1696,8 +1690,8 @@ describe('snowflake.createConnection() JS_TREAT_INTEGER_AS_BIGINT', function () 
   });
 });
 
-describe('snowflake.destroyConnection()', function () {
-  it('destroyConnection() ignores SESSION_GONE error', function (done) {
+describe("snowflake.destroyConnection()", function () {
+  it("destroyConnection() ignores SESSION_GONE error", function (done) {
     const connection = snowflake.createConnection(
       connectionOptionsForSessionGone
     );
@@ -1722,11 +1716,11 @@ describe('snowflake.destroyConnection()', function () {
   });
 });
 
-describe('snowflake.connect() with 504', function () {
+describe("snowflake.connect() with 504", function () {
   /*
    * The connection is retired three times and get success.
    */
-  it('retry 504', function (done) {
+  it("retry 504", function (done) {
     const connection = snowflake.createConnection(connectionOptionsFor504);
     async.series(
       [

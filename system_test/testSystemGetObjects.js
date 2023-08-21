@@ -8,38 +8,38 @@
  * functionality more than core driver behavior.
  */
 
-const assert = require('assert');
-const async = require('async');
-const util = require('util');
-const snowflake = require('./../lib/snowflake');
-const connOptions = require('../test/integration/connectionOptions');
-const testUtil = require('../test/integration/testUtil');
+const assert = require("assert");
+const async = require("async");
+const util = require("util");
+const snowflake = require("./../lib/snowflake");
+const connOptions = require("../test/integration/connectionOptions");
+const testUtil = require("../test/integration/testUtil");
 
-describe('system$get_objects()', function () {
-  const createDatabase = 'create or replace database node_testdb;';
-  const createSchema = 'create or replace schema node_testschema;';
-  const createTableT1 = 'create or replace table t1 (c1 number);';
-  const createTableT2 = 'create or replace table t2 (c1 number);';
-  const createViewV1 = 'create or replace view v1 as select * from t1;';
-  const createViewV2 = 'create or replace view v2 as select * from t2;';
-  const createViewV3 = 'create or replace view v3 as select v1.c1 from v1, v2;';
-  const createViewV4 = 'create or replace view v4 as select * from v3;';
+describe("system$get_objects()", function () {
+  const createDatabase = "create or replace database node_testdb;";
+  const createSchema = "create or replace schema node_testschema;";
+  const createTableT1 = "create or replace table t1 (c1 number);";
+  const createTableT2 = "create or replace table t2 (c1 number);";
+  const createViewV1 = "create or replace view v1 as select * from t1;";
+  const createViewV2 = "create or replace view v2 as select * from t2;";
+  const createViewV3 = "create or replace view v3 as select v1.c1 from v1, v2;";
+  const createViewV4 = "create or replace view v4 as select * from v3;";
   const createStage =
-    'create or replace stage test_stage ' + 'url = \'s3://some_url\';';
+    "create or replace stage test_stage " + "url = 's3://some_url';";
   const createFileFormat =
-    'create or replace file format ' + 'test_file_format type = \'csv\';';
-  const createSequence = 'create or replace sequence test_sequence;';
+    "create or replace file format " + "test_file_format type = 'csv';";
+  const createSequence = "create or replace sequence test_sequence;";
   const createSqlUdfAdd1Number =
-    'create or replace function add1 (n number) ' +
-    'returns number as \'n + 1\';';
+    "create or replace function add1 (n number) " +
+    "returns number as 'n + 1';";
   const createSqlUdfAdd1String =
-    'create or replace function add1 (s string) ' +
-    'returns string as \'s || \'\'1\'\'\';';
+    "create or replace function add1 (s string) " +
+    "returns string as 's || ''1''';";
   const createJsUdfAdd1Double =
-    'create or replace function add1 (n double) ' +
-    'returns double language javascript as ' +
-    '\'return n + 1;\';';
-  const dropDatabase = 'drop database node_testdb;';
+    "create or replace function add1 (n double) " +
+    "returns double language javascript as " +
+    "'return n + 1;';";
+  const dropDatabase = "drop database node_testdb;";
 
   // create two connections, one to testaccount and another to the snowflake
   // account
@@ -134,207 +134,207 @@ describe('system$get_objects()', function () {
     );
   });
 
-  it('desc database', function (done) {
+  it("desc database", function (done) {
     testGetObjectsOnStmt({
       connTestaccount: connTestaccount,
       connSnowflake: connSnowflake,
-      sql: 'desc database node_testdb;',
+      sql: "desc database node_testdb;",
       output: {
-        DATABASE: ['S3TESTACCOUNT.NODE_TESTDB'],
+        DATABASE: ["S3TESTACCOUNT.NODE_TESTDB"],
       },
       callback: done,
     });
   });
 
-  it('desc schema', function (done) {
+  it("desc schema", function (done) {
     testGetObjectsOnStmt({
       connTestaccount: connTestaccount,
       connSnowflake: connSnowflake,
-      sql: 'desc schema node_testschema;',
+      sql: "desc schema node_testschema;",
       output: {
-        SCHEMA: ['S3TESTACCOUNT.NODE_TESTDB.NODE_TESTSCHEMA'],
+        SCHEMA: ["S3TESTACCOUNT.NODE_TESTDB.NODE_TESTSCHEMA"],
       },
       callback: done,
     });
   });
 
-  it('desc table', function (done) {
+  it("desc table", function (done) {
     testGetObjectsOnStmt({
       connTestaccount: connTestaccount,
       connSnowflake: connSnowflake,
-      sql: 'desc table t1;',
+      sql: "desc table t1;",
       output: {
-        TABLE: ['S3TESTACCOUNT.NODE_TESTDB.NODE_TESTSCHEMA.T1'],
+        TABLE: ["S3TESTACCOUNT.NODE_TESTDB.NODE_TESTSCHEMA.T1"],
       },
       callback: done,
     });
   });
 
-  it('desc view', function (done) {
+  it("desc view", function (done) {
     testGetObjectsOnStmt({
       connTestaccount: connTestaccount,
       connSnowflake: connSnowflake,
-      sql: 'desc view v1;',
+      sql: "desc view v1;",
       output: {
-        VIEW: ['S3TESTACCOUNT.NODE_TESTDB.NODE_TESTSCHEMA.V1'],
+        VIEW: ["S3TESTACCOUNT.NODE_TESTDB.NODE_TESTSCHEMA.V1"],
       },
       callback: done,
     });
   });
 
-  it('desc stage', function (done) {
+  it("desc stage", function (done) {
     testGetObjectsOnStmt({
       connTestaccount: connTestaccount,
       connSnowflake: connSnowflake,
-      sql: 'desc stage test_stage;',
+      sql: "desc stage test_stage;",
       output: {
-        STAGE: ['S3TESTACCOUNT.NODE_TESTDB.NODE_TESTSCHEMA.TEST_STAGE'],
+        STAGE: ["S3TESTACCOUNT.NODE_TESTDB.NODE_TESTSCHEMA.TEST_STAGE"],
       },
       callback: done,
     });
   });
 
-  it('desc file format', function (done) {
+  it("desc file format", function (done) {
     testGetObjectsOnStmt({
       connTestaccount: connTestaccount,
       connSnowflake: connSnowflake,
-      sql: 'desc file format test_file_format;',
+      sql: "desc file format test_file_format;",
       output: {
         FILE_FORMAT: [
-          'S3TESTACCOUNT.NODE_TESTDB.NODE_TESTSCHEMA.TEST_FILE_FORMAT',
+          "S3TESTACCOUNT.NODE_TESTDB.NODE_TESTSCHEMA.TEST_FILE_FORMAT",
         ],
       },
       callback: done,
     });
   });
 
-  it('desc sequence', function (done) {
+  it("desc sequence", function (done) {
     testGetObjectsOnStmt({
       connTestaccount: connTestaccount,
       connSnowflake: connSnowflake,
-      sql: 'desc sequence test_sequence;',
+      sql: "desc sequence test_sequence;",
       output: {
-        SEQUENCE: ['S3TESTACCOUNT.NODE_TESTDB.NODE_TESTSCHEMA.TEST_SEQUENCE'],
+        SEQUENCE: ["S3TESTACCOUNT.NODE_TESTDB.NODE_TESTSCHEMA.TEST_SEQUENCE"],
       },
       callback: done,
     });
   });
 
-  it('desc function add1(number)', function (done) {
+  it("desc function add1(number)", function (done) {
     testGetObjectsOnStmt({
       connTestaccount: connTestaccount,
       connSnowflake: connSnowflake,
-      sql: 'desc function add1(number);',
+      sql: "desc function add1(number);",
       output: {
-        FUNCTION: ['S3TESTACCOUNT.NODE_TESTDB.NODE_TESTSCHEMA.ADD1'],
+        FUNCTION: ["S3TESTACCOUNT.NODE_TESTDB.NODE_TESTSCHEMA.ADD1"],
       },
       callback: done,
     });
   });
 
-  it('desc function add1(string)', function (done) {
+  it("desc function add1(string)", function (done) {
     testGetObjectsOnStmt({
       connTestaccount: connTestaccount,
       connSnowflake: connSnowflake,
-      sql: 'desc function add1(string);',
+      sql: "desc function add1(string);",
       output: {
-        FUNCTION: ['S3TESTACCOUNT.NODE_TESTDB.NODE_TESTSCHEMA.ADD1'],
+        FUNCTION: ["S3TESTACCOUNT.NODE_TESTDB.NODE_TESTSCHEMA.ADD1"],
       },
       callback: done,
     });
   });
 
-  it('desc function add1(double)', function (done) {
+  it("desc function add1(double)", function (done) {
     testGetObjectsOnStmt({
       connTestaccount: connTestaccount,
       connSnowflake: connSnowflake,
-      sql: 'desc function add1(double);',
+      sql: "desc function add1(double);",
       output: {
-        FUNCTION: ['S3TESTACCOUNT.NODE_TESTDB.NODE_TESTSCHEMA.ADD1'],
+        FUNCTION: ["S3TESTACCOUNT.NODE_TESTDB.NODE_TESTSCHEMA.ADD1"],
       },
       callback: done,
     });
   });
 
-  it('select from table', function (done) {
+  it("select from table", function (done) {
     testGetObjectsOnStmt({
       connTestaccount: connTestaccount,
       connSnowflake: connSnowflake,
-      sql: 'select count(*) from t1;',
+      sql: "select count(*) from t1;",
       output: {
-        TABLE: ['S3TESTACCOUNT.NODE_TESTDB.NODE_TESTSCHEMA.T1'],
+        TABLE: ["S3TESTACCOUNT.NODE_TESTDB.NODE_TESTSCHEMA.T1"],
       },
       callback: done,
     });
   });
 
-  it('select from view on top of table', function (done) {
+  it("select from view on top of table", function (done) {
     testGetObjectsOnStmt({
       connTestaccount: connTestaccount,
       connSnowflake: connSnowflake,
-      sql: 'select count(*) from v1;',
+      sql: "select count(*) from v1;",
       output: {
-        TABLE: ['S3TESTACCOUNT.NODE_TESTDB.NODE_TESTSCHEMA.T1'],
-        VIEW: ['S3TESTACCOUNT.NODE_TESTDB.NODE_TESTSCHEMA.V1'],
+        TABLE: ["S3TESTACCOUNT.NODE_TESTDB.NODE_TESTSCHEMA.T1"],
+        VIEW: ["S3TESTACCOUNT.NODE_TESTDB.NODE_TESTSCHEMA.V1"],
       },
       callback: done,
     });
   });
 
-  it('select from view on top of view', function (done) {
+  it("select from view on top of view", function (done) {
     testGetObjectsOnStmt({
       connTestaccount: connTestaccount,
       connSnowflake: connSnowflake,
-      sql: 'select count(*) from v3;',
+      sql: "select count(*) from v3;",
       output: {
         TABLE: [
-          'S3TESTACCOUNT.NODE_TESTDB.NODE_TESTSCHEMA.T1',
-          'S3TESTACCOUNT.NODE_TESTDB.NODE_TESTSCHEMA.T2',
+          "S3TESTACCOUNT.NODE_TESTDB.NODE_TESTSCHEMA.T1",
+          "S3TESTACCOUNT.NODE_TESTDB.NODE_TESTSCHEMA.T2",
         ],
         VIEW: [
-          'S3TESTACCOUNT.NODE_TESTDB.NODE_TESTSCHEMA.V2',
-          'S3TESTACCOUNT.NODE_TESTDB.NODE_TESTSCHEMA.V3',
-          'S3TESTACCOUNT.NODE_TESTDB.NODE_TESTSCHEMA.V1',
+          "S3TESTACCOUNT.NODE_TESTDB.NODE_TESTSCHEMA.V2",
+          "S3TESTACCOUNT.NODE_TESTDB.NODE_TESTSCHEMA.V3",
+          "S3TESTACCOUNT.NODE_TESTDB.NODE_TESTSCHEMA.V1",
         ],
       },
       callback: done,
     });
   });
 
-  it('select from view on top of view on top of view', function (done) {
+  it("select from view on top of view on top of view", function (done) {
     testGetObjectsOnStmt({
       connTestaccount: connTestaccount,
       connSnowflake: connSnowflake,
-      sql: 'select count(*) from v4;',
+      sql: "select count(*) from v4;",
       output: {
         TABLE: [
-          'S3TESTACCOUNT.NODE_TESTDB.NODE_TESTSCHEMA.T1',
-          'S3TESTACCOUNT.NODE_TESTDB.NODE_TESTSCHEMA.T2',
+          "S3TESTACCOUNT.NODE_TESTDB.NODE_TESTSCHEMA.T1",
+          "S3TESTACCOUNT.NODE_TESTDB.NODE_TESTSCHEMA.T2",
         ],
         VIEW: [
-          'S3TESTACCOUNT.NODE_TESTDB.NODE_TESTSCHEMA.V2',
-          'S3TESTACCOUNT.NODE_TESTDB.NODE_TESTSCHEMA.V3',
-          'S3TESTACCOUNT.NODE_TESTDB.NODE_TESTSCHEMA.V1',
-          'S3TESTACCOUNT.NODE_TESTDB.NODE_TESTSCHEMA.V4',
+          "S3TESTACCOUNT.NODE_TESTDB.NODE_TESTSCHEMA.V2",
+          "S3TESTACCOUNT.NODE_TESTDB.NODE_TESTSCHEMA.V3",
+          "S3TESTACCOUNT.NODE_TESTDB.NODE_TESTSCHEMA.V1",
+          "S3TESTACCOUNT.NODE_TESTDB.NODE_TESTSCHEMA.V4",
         ],
       },
       callback: done,
     });
   });
 
-  it('select from tables and views', function (done) {
+  it("select from tables and views", function (done) {
     testGetObjectsOnStmt({
       connTestaccount: connTestaccount,
       connSnowflake: connSnowflake,
-      sql: 'select t1.c1 from t1, t2, v1, v2 where t1.c1 = t2.c1;',
+      sql: "select t1.c1 from t1, t2, v1, v2 where t1.c1 = t2.c1;",
       output: {
         TABLE: [
-          'S3TESTACCOUNT.NODE_TESTDB.NODE_TESTSCHEMA.T1',
-          'S3TESTACCOUNT.NODE_TESTDB.NODE_TESTSCHEMA.T2',
+          "S3TESTACCOUNT.NODE_TESTDB.NODE_TESTSCHEMA.T1",
+          "S3TESTACCOUNT.NODE_TESTDB.NODE_TESTSCHEMA.T2",
         ],
         VIEW: [
-          'S3TESTACCOUNT.NODE_TESTDB.NODE_TESTSCHEMA.V2',
-          'S3TESTACCOUNT.NODE_TESTDB.NODE_TESTSCHEMA.V1',
+          "S3TESTACCOUNT.NODE_TESTDB.NODE_TESTSCHEMA.V2",
+          "S3TESTACCOUNT.NODE_TESTDB.NODE_TESTSCHEMA.V1",
         ],
       },
       callback: done,
@@ -367,8 +367,8 @@ function testGetObjectsOnStmt(options) {
    */
   function buildSqlSystem$GetObjects(queryId) {
     return util.format(
-      'select system$get_objects(%s)',
-      util.format('\'execute \\\'%s\\\';\'', queryId)
+      "select system$get_objects(%s)",
+      util.format("'execute \\'%s\\';'", queryId)
     );
   }
 
@@ -380,7 +380,7 @@ function testGetObjectsOnStmt(options) {
           sqlText: sql,
           complete: function (err, statement, rows) {
             assert.ok(!err);
-            queryId = statement.getStatementId();
+            queryId = statement.getQueryId();
             callback();
           },
         });
@@ -388,7 +388,7 @@ function testGetObjectsOnStmt(options) {
       function (callback) {
         // run system$get_objects('execute [query_id];') from the snowflake
         // account and verify that we get the desired output
-        const columnName = 'map';
+        const columnName = "map";
         const sqlText = util.format(
           '%s as "%s";',
           buildSqlSystem$GetObjects(queryId),

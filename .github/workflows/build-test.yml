@@ -40,7 +40,7 @@ jobs:
         with:
           name: artifacts
           path: artifacts
-
+          
   test-mac-required:
     needs: build
     name: Tests on Mac

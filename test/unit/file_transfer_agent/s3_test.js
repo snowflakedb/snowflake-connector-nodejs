@@ -43,36 +43,34 @@ describe('S3 client', function ()
       {
         function S3()
         {
-          this.getObject = function (params)
+          this.send = function (command)
           {
-            function getObject()
+            function send()
             {
-              this.promise = function ()
-              {
-                function promise()
-                {
-                  this.then = function (callback)
-                  {
-                    callback({
-                      Metadata: ''
-                    });
-                  }
-                }
-                return new promise;
-              }
+              return {
+                Metadata: ''
+              };
             }
-            return new getObject;
-          }
-          this.upload = function (params)
-          {
-            function upload()
-            {
-              this.promise = function () { };
-            }
-            return new upload;
-          }
+            return new send;
+          };
         }
         return new S3;
+      },
+      GetObjectCommand: function (params)
+      {
+        function GetObjectCommand()
+        {
+          return;
+        }
+        return new GetObjectCommand;
+      },
+      PutObjectCommand: function (params)
+      {
+        function PutObjectCommand()
+        {
+          return;
+        }
+        return new PutObjectCommand;
       }
     });
     mock('filesystem', {
@@ -123,28 +121,26 @@ describe('S3 client', function ()
       {
         function S3()
         {
-          this.getObject = function (params)
+          this.send = function (command)
           {
-            function getObject()
+            function send()
             {
-              this.promise = function ()
-              {
-                function promise()
-                {
-                  this.then = function (callback)
-                  {
-                    let err = new Error();
-                    err.code = 'ExpiredToken';
-                    throw err;
-                  }
-                }
-                return new promise;
-              }
+              let err = new Error();
+              err['Code'] = 'ExpiredToken';
+              throw err;
             }
-            return new getObject;
-          }
+            return new send;
+          };
         }
         return new S3;
+      },
+      GetObjectCommand: function (params)
+      {
+        function GetObjectCommand()
+        {
+          return;
+        }
+        return new GetObjectCommand;
       }
     });
     s3 = require('s3');
@@ -161,28 +157,26 @@ describe('S3 client', function ()
       {
         function S3()
         {
-          this.getObject = function (params)
+          this.send = function (command)
           {
-            function getObject()
+            function send()
             {
-              this.promise = function ()
-              {
-                function promise()
-                {
-                  this.then = function (callback)
-                  {
-                    let err = new Error();
-                    err.code = 'NoSuchKey';
-                    throw err;
-                  }
-                }
-                return new promise;
-              }
+              let err = new Error();
+              err['Code'] = 'NoSuchKey';
+              throw err;
             }
-            return new getObject;
-          }
+            return new send;
+          };
         }
         return new S3;
+      },
+      GetObjectCommand: function (params)
+      {
+        function GetObjectCommand()
+        {
+          return;
+        }
+        return new GetObjectCommand;
       }
     });
     s3 = require('s3');
@@ -194,33 +188,32 @@ describe('S3 client', function ()
 
   it('get file header - fail HTTP 400', async function ()
   {
+
     mock('s3', {
       S3: function (params)
       {
         function S3()
         {
-          this.getObject = function (params)
+          this.send = function (command)
           {
-            function getObject()
+            function send()
             {
-              this.promise = function ()
-              {
-                function promise()
-                {
-                  this.then = function (callback)
-                  {
-                    let err = new Error();
-                    err.code = '400';
-                    throw err;
-                  }
-                }
-                return new promise;
-              }
+              let err = new Error();
+              err['Code'] = '400';
+              throw err;
             }
-            return new getObject;
-          }
+            return new send;
+          };
         }
         return new S3;
+      },
+      GetObjectCommand: function (params)
+      {
+        function GetObjectCommand()
+        {
+          return;
+        }
+        return new GetObjectCommand;
       }
     });
     s3 = require('s3');
@@ -237,28 +230,26 @@ describe('S3 client', function ()
       {
         function S3()
         {
-          this.getObject = function (params)
+          this.send = function (command)
           {
-            function getObject()
+            function send()
             {
-              this.promise = function ()
-              {
-                function promise()
-                {
-                  this.then = function (callback)
-                  {
-                    let err = new Error();
-                    err.code = 'unknown';
-                    throw err;
-                  }
-                }
-                return new promise;
-              }
+              let err = new Error();
+              err['Code'] = 'unknown';
+              throw err;
             }
-            return new getObject;
-          }
+            return new send;
+          };
         }
         return new S3;
+      },
+      GetObjectCommand: function (params)
+      {
+        function GetObjectCommand()
+        {
+          return;
+        }
+        return new GetObjectCommand;
       }
     });
     s3 = require('s3');
@@ -281,21 +272,26 @@ describe('S3 client', function ()
       {
         function S3()
         {
-          this.upload = function (params)
+          this.send = function (command)
           {
-            function upload()
+            function send()
             {
-              this.promise = function ()
-              {
-                let err = new Error();
-                err.code = 'ExpiredToken';
-                throw err;
-              }
+              let err = new Error();
+              err['Code'] = 'ExpiredToken';
+              throw err;
             }
-            return new upload;
-          }
+            return new send;
+          };
         }
         return new S3;
+      },
+      PutObjectCommand: function (params)
+      {
+        function PutObjectCommand()
+        {
+          return;
+        }
+        return new PutObjectCommand;
       }
     });
     mock('filesystem', {
@@ -319,21 +315,26 @@ describe('S3 client', function ()
       {
         function S3()
         {
-          this.upload = function (params)
+          this.send = function (command)
           {
-            function upload()
+            function send()
             {
-              this.promise = function ()
-              {
-                let err = new Error();
-                err.code = '10053';
-                throw err;
-              }
+              let err = new Error();
+              err['Code'] = '10053';
+              throw err;
             }
-            return new upload;
-          }
+            return new send;
+          };
         }
         return new S3;
+      },
+      PutObjectCommand: function (params)
+      {
+        function PutObjectCommand()
+        {
+          return;
+        }
+        return new PutObjectCommand;
       }
     });
     mock('filesystem', {
@@ -357,21 +358,26 @@ describe('S3 client', function ()
       {
         function S3()
         {
-          this.upload = function (params)
+          this.send = function (command)
           {
-            function upload()
+            function send()
             {
-              this.promise = function ()
-              {
-                let err = new Error();
-                err.code = '400';
-                throw err;
-              }
+              let err = new Error();
+              err['Code'] = '400';
+              throw err;
             }
-            return new upload;
-          }
+            return new send;
+          };
         }
         return new S3;
+      },
+      PutObjectCommand: function (params)
+      {
+        function PutObjectCommand()
+        {
+          return;
+        }
+        return new PutObjectCommand;
       }
     });
     mock('filesystem', {

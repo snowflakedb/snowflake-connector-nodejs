@@ -74,7 +74,7 @@ describe('Statement Tests', function ()
 
                   assert.strictEqual(statement.getNumRows(), 1);
                   assert.ok(statement.getSessionState());
-                  assert.ok(statement.getStatementId());
+                  assert.ok(statement.getQueryId());
 
                   callback();
                 }
@@ -88,7 +88,7 @@ describe('Statement Tests', function ()
             assert.strictEqual(statement.getColumns(), undefined);
             assert.strictEqual(statement.getNumRows(), undefined);
             assert.strictEqual(statement.getSessionState(), undefined);
-            assert.strictEqual(statement.getStatementId(), undefined);
+            assert.strictEqual(statement.getQueryId(), undefined);
           },
           function (callback)
           {
@@ -154,7 +154,7 @@ describe('Statement Tests', function ()
           assert.strictEqual(statement.getColumns(), undefined);
           assert.strictEqual(statement.getNumRows(), undefined);
           assert.strictEqual(statement.getSessionState(), undefined);
-          assert.strictEqual(statement.getStatementId(), undefined);
+          assert.strictEqual(statement.getQueryId(), undefined);
         },
         function (callback)
         {
@@ -205,7 +205,7 @@ describe('Statement Tests', function ()
 
                 assert.strictEqual(statement.getNumRows(), 1);
                 assert.ok(statement.getSessionState());
-                assert.ok(statement.getStatementId());
+                assert.ok(statement.getQueryId());
 
                 callback();
               }
@@ -219,7 +219,7 @@ describe('Statement Tests', function ()
           assert.strictEqual(statement.getColumns(), undefined);
           assert.strictEqual(statement.getNumRows(), undefined);
           assert.strictEqual(statement.getSessionState(), undefined);
-          assert.strictEqual(statement.getStatementId(), undefined);
+          assert.strictEqual(statement.getQueryId(), undefined);
         },
         function (callback)
         {

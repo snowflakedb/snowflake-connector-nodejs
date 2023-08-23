@@ -74,7 +74,7 @@ describe('S3 client', function ()
       }
     });
     mock('filesystem', {
-      readFileSync: async function (data)
+      readFileSync: function (data)
       {
         return data;
       }
@@ -295,7 +295,7 @@ describe('S3 client', function ()
       }
     });
     mock('filesystem', {
-      readFileSync: async function (data)
+      readFileSync: function (data)
       {
         return data;
       }
@@ -338,7 +338,7 @@ describe('S3 client', function ()
       }
     });
     mock('filesystem', {
-      readFileSync: async function (data)
+      readFileSync: function (data)
       {
         return data;
       }
@@ -381,7 +381,7 @@ describe('S3 client', function ()
       }
     });
     mock('filesystem', {
-      readFileSync: async function (data)
+      readFileSync: function (data)
       {
         return data;
       }

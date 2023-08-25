@@ -392,19 +392,19 @@ function testGetObjectsOnStmt(options) {
   var sql = options.sql;
   var output = options.output;
 
-  var statementId;
+  var queryId;
 
   /**
    * Builds the SQL text for a system$get_objects('execute [query_id];')
    * statement.
    *
-   * @param {String} statementId
+   * @param {String} queryId
    *
    * @returns {String}
    */
-  function buildSqlSystem$GetObjects(statementId) {
+  function buildSqlSystem$GetObjects(queryId) {
     return util.format('select system$get_objects(%s)',
-      util.format('\'execute \\\'%s\\\';\'', statementId));
+      util.format('\'execute \\\'%s\\\';\'', queryId));
   }
 
   async.series([
@@ -415,7 +415,7 @@ function testGetObjectsOnStmt(options) {
           sqlText: sql,
           complete: function (err, statement, rows) {
             assert.ok(!err);
-            statementId = statement.getQueryId();
+            queryId = statement.getQueryId();
             callback();
           }
         });
@@ -425,7 +425,7 @@ function testGetObjectsOnStmt(options) {
       // account and verify that we get the desired output
       var columnName = 'map';
       var sqlText = util.format('%s as "%s";',
-        buildSqlSystem$GetObjects(statementId), columnName);
+        buildSqlSystem$GetObjects(queryId), columnName);
       connSnowflake.execute(
         {
           sqlText: sqlText,

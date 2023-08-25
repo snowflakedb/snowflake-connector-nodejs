@@ -1004,37 +1004,37 @@ describe('connection.fetchResult() synchronous errors', function ()
       {
         name: 'missing query id',
         options: {},
-        errorCode: ErrorCodes.ERR_CONN_FETCH_RESULT_MISSING_QUERY_ID
+        errorCode: ErrorCodes.ERR_CONN_FETCH_RESULT_MISSING_STATEMENT_ID
       },
       {
         name: 'undefined query id',
         options:
           {
-            queryId: undefined
+            statementId: undefined
           },
-        errorCode: ErrorCodes.ERR_CONN_FETCH_RESULT_MISSING_QUERY_ID
+        errorCode: ErrorCodes.ERR_CONN_FETCH_RESULT_MISSING_STATEMENT_ID
       },
       {
         name: 'null query id',
         options:
           {
-            queryId: null
+            statementId: null
           },
-        errorCode: ErrorCodes.ERR_CONN_FETCH_RESULT_MISSING_QUERY_ID
+        errorCode: ErrorCodes.ERR_CONN_FETCH_RESULT_MISSING_STATEMENT_ID
       },
       {
         name: 'invalid query id',
         options:
           {
-            queryId: 0
+            statementId: 0
           },
-        errorCode: ErrorCodes.ERR_CONN_FETCH_RESULT_INVALID_QUERY_ID
+        errorCode: ErrorCodes.ERR_CONN_FETCH_RESULT_INVALID_STATEMENT_ID
       },
       {
         name: 'invalid complete',
         options:
           {
-            queryId: '',
+            statementId: '',
             complete: 'invalid'
           },
         errorCode: ErrorCodes.ERR_CONN_FETCH_RESULT_INVALID_COMPLETE
@@ -1043,7 +1043,7 @@ describe('connection.fetchResult() synchronous errors', function ()
         name: 'invalid streamResult',
         options:
           {
-            queryId: '',
+            statementId: '',
             streamResult: 'invalid'
           },
         errorCode: ErrorCodes.ERR_CONN_FETCH_RESULT_INVALID_STREAM_RESULT
@@ -1052,7 +1052,7 @@ describe('connection.fetchResult() synchronous errors', function ()
         name: 'invalid fetchAsString',
         options:
           {
-            queryId: '',
+            statementId: '',
             fetchAsString: 'invalid'
           },
         errorCode: ErrorCodes.ERR_CONN_FETCH_RESULT_INVALID_FETCH_AS_STRING
@@ -1061,7 +1061,7 @@ describe('connection.fetchResult() synchronous errors', function ()
         name: 'invalid fetchAsString values',
         options:
           {
-            queryId: '',
+            statementId: '',
             fetchAsString: ['invalid']
           },
         errorCode: ErrorCodes.ERR_CONN_FETCH_RESULT_INVALID_FETCH_AS_STRING_VALUES
@@ -1101,7 +1101,7 @@ describe('connection.fetchResult() synchronous errors', function ()
 describe('connection.fetchResult() statement successful', function ()
 {
   var connection = snowflake.createConnection(connectionOptions);
-  var queryId = 'df2852ef-e082-4bb3-94a4-e540bf0e70c6';
+  var statementId = 'df2852ef-e082-4bb3-94a4-e540bf0e70c6';
 
   it('statement api', function (done)
   {
@@ -1124,7 +1124,7 @@ describe('connection.fetchResult() statement successful', function ()
         {
           statement = connection.fetchResult(
             {
-              queryId: queryId,
+              statementId: statementId,
               complete: function (err, stmt)
               {
                 assert.ok(!err, 'there should be no error');
@@ -1150,7 +1150,7 @@ describe('connection.fetchResult() statement successful', function ()
           testStatementFetchRows(statement);
 
           // the query id should be the same as what was passed in
-          assert.strictEqual(statement.getQueryId(), queryId);
+          assert.strictEqual(statement.getQueryId(), statementId);
 
           // the sql text and request id should be undefined
           assert.strictEqual(statement.getSqlText(), undefined);
@@ -1197,7 +1197,7 @@ describe('connection.fetchResult() statement successful', function ()
 describe('connection.fetchResult() statement failure', function ()
 {
   var connection = snowflake.createConnection(connectionOptions);
-  var queryId = '13f12818-de4c-41d2-bf19-f115ee8a5cc1';
+  var statementId = '13f12818-de4c-41d2-bf19-f115ee8a5cc1';
 
   it('statement api', function (done)
   {
@@ -1220,7 +1220,7 @@ describe('connection.fetchResult() statement failure', function ()
         {
           statement = connection.fetchResult(
             {
-              queryId: queryId,
+              statementId: statementId,
               complete: function (err, stmt)
               {
                 assert.ok(err, 'there should be an error');
@@ -1240,7 +1240,7 @@ describe('connection.fetchResult() statement failure', function ()
           testStatementFetchRows(statement);
 
           // the query id should be the same as what was passed in
-          assert.strictEqual(statement.getQueryId(), queryId);
+          assert.strictEqual(statement.getQueryId(), statementId);
 
           // the sql text and request id should be undefined
           assert.strictEqual(statement.getSqlText(), undefined);
@@ -1354,7 +1354,7 @@ describe('statement.cancel()', function ()
     var connection = snowflake.createConnection(connectionOptions);
     var statement = connection.fetchResult(
       {
-        queryId: 'foobar'
+        statementId: 'foobar'
       });
 
     statement.cancel(function (err, stmt)
@@ -1371,7 +1371,7 @@ describe('statement.cancel()', function ()
     var connection = snowflake.createConnection(connectionOptions);
     var statement = connection.fetchResult(
       {
-        queryId: 'df2852ef-e082-4bb3-94a4-e540bf0e70c6'
+        statementId: 'df2852ef-e082-4bb3-94a4-e540bf0e70c6'
       });
 
     statement.cancel(function (err, stmt)
@@ -1388,7 +1388,7 @@ describe('statement.cancel()', function ()
     var connection = snowflake.createConnection(connectionOptions);
     var statement = connection.fetchResult(
       {
-        queryId: '13f12818-de4c-41d2-bf19-f115ee8a5cc1'
+        statementId: '13f12818-de4c-41d2-bf19-f115ee8a5cc1'
       });
 
     statement.cancel(function (err, stmt)

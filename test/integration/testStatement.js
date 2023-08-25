@@ -50,7 +50,7 @@ describe('Statement Tests', function () {
         }
         ,
         function (callback) {
-          const statement = goodConnection.execute(
+           statement = goodConnection.execute(
             {
               sqlText: sqlText,
               complete: function (err, stmt) {

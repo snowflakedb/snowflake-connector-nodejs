@@ -791,6 +791,7 @@ describe('connection.execute() statement successful', function ()
 
                 assert.strictEqual(statement.getNumRows(), 1);
                 assert.ok(Util.isObject(statement.getSessionState()));
+                assert.ok(Util.string.isNotNullOrEmpty(statement.getStatementId()));
                 assert.ok(Util.string.isNotNullOrEmpty(statement.getQueryId()));
 
                 testStatementFetchRows(statement);

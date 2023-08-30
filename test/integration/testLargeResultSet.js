@@ -4,11 +4,12 @@
 const assert = require('assert');
 const async = require('async');
 const testUtil = require('./testUtil');
-
-const sourceRowCount = 10000;
+const { configureLogger } = require('../configureLogger');
 
 describe('Large result Set Tests', function ()
 {
+  const sourceRowCount = 10000;
+
   let connection;
   const selectAllFromOrders = `select randstr(1000,random()) from table(generator(rowcount=>${sourceRowCount}))`;
 
@@ -247,6 +248,78 @@ describe('Large result Set Tests', function ()
         }],
         done
       );
+    });
+  });
+});
+
+describe('SNOW-743920: Large result set with ~35 chunks', function () {
+  let connection;
+  const tableName = 'test_table';
+  const sourceRowCount = 251002;
+  const generatedRowSize = 350;
+  const createTable = `create or replace table ${tableName} (data string)`;
+  const populateData = `insert into ${tableName} select randstr(${generatedRowSize}, random()) from table (generator(rowcount =>${sourceRowCount}))`;
+  const selectData = `select * from ${tableName}`;
+
+  before(async () => {
+    connection = testUtil.createConnection();
+    await testUtil.connectAsync(connection);
+    // setting ROWS_PER_RESULTSET causes invalid, not encoded chunks from GCP
+    // await testUtil.executeCmdAsync(connection, 'alter session set ROWS_PER_RESULTSET = 1000000');
+    await testUtil.executeCmdAsync(connection, 'alter session set USE_CACHED_RESULT = false;');
+    await testUtil.executeCmdAsync(connection, createTable);
+    await testUtil.executeCmdAsync(connection, populateData);
+    configureLogger('TRACE');
+  });
+
+  after(async () => {
+    configureLogger('ERROR');
+    await testUtil.dropTablesIgnoringErrorsAsync(connection, [tableName]);
+    await testUtil.destroyConnectionAsync(connection);
+  });
+
+  it('fetch result set with many chunks without streaming', done => {
+    connection.execute({
+      sqlText: selectData,
+      complete: function (err, _, rows) {
+        if (err) {
+          done(err);
+        } else {
+          try {
+            testUtil.checkError(err);
+            assert.strictEqual(rows.length, sourceRowCount);
+            done();
+          } catch (e) {
+            done(e);
+          }
+        }
+      }
+    });
+  });
+
+  it('fetch result set with many chunks with streaming', done => {
+    const rows = [];
+    connection.execute({
+      sqlText: selectData,
+      streamResult: true,
+      complete: function (err, stmt) {
+        if (err) {
+          done(err);
+        } else {
+          stmt.streamRows()
+            .on('error', () => done(err))
+            .on('data', row => rows.push(row))
+            .on('end', () => {
+              try {
+                testUtil.checkError(err);
+                assert.strictEqual(rows.length, sourceRowCount);
+                done();
+              } catch (e) {
+                done(e);
+              }
+            });
+        }
+      }
     });
   });
 });

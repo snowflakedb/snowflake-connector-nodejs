@@ -1,6 +1,6 @@
 {
   "name": "snowflake-sdk",
-  "version": "1.6.23",
+  "version": "1.8.0",
   "description": "Node.js driver for Snowflake",
   "dependencies": {
     "@azure/storage-blob": "^12.11.0",
@@ -8,7 +8,6 @@
     "@techteamer/ocsp": "1.0.0",
     "asn1.js-rfc2560": "^5.0.0",
     "asn1.js-rfc5280": "^3.0.0",
-    "async": "^3.2.3",
     "aws-sdk": "^2.878.0",
     "axios": "^0.27.2",
     "big-integer": "^1.6.43",
@@ -31,11 +30,12 @@
     "simple-lru-cache": "^0.0.2",
     "string-similarity": "^4.0.4",
     "tmp": "^0.2.1",
-    "urllib": "^2.40.0",
+    "urllib": "^2.41.0",
     "uuid": "^3.3.2",
     "winston": "^3.1.0"
   },
   "devDependencies": {
+    "async": "^3.2.3",
     "eslint": "^8.41.0",
     "mocha": "^10.1.0",
     "mock-require": "^3.0.3",
@@ -46,8 +46,7 @@
     "@azure/storage-blob": {
       "node-fetch": "^3.2.10"
     },
-    "semver": "^7.5.2",
-    "vm2": "../_EXCLUDED_"
+    "semver": "^7.5.2"
   },
   "repository": {
     "type": "git",
@@ -66,7 +65,8 @@
     "test:ci": "mocha -timeout 180000 --recursive --full-trace test/**/*.js",
     "test:ci:coverage": "nyc npm run test:ci",
     "test:ci:withSystemTests": "mocha -timeout 180000 --recursive --full-trace test/**/*.js system_test/*.js",
-    "test:ci:withSystemTests:coverage": "nyc npm run test:ci:withSystemTests"
+    "test:ci:withSystemTests:coverage": "nyc npm run test:ci:withSystemTests",
+    "test:manual": "mocha -timeout 180000 --full-trace --full-trace test/integration/testManualConnection.js"
   },
   "author": {
     "name": "Snowflake Computing, Inc.",

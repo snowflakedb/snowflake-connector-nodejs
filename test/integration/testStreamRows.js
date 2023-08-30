@@ -366,6 +366,7 @@ describe('Test Stream Rows API', function ()
           fs.readFile(outputFileName, function(err, data)
           {
             testUtil.checkError(err);
+            // pragma: allowlist nextline secret
             assert.strictEqual(checksum(data), '52d6d6c7de1e882e448d5e615e6c2264');
             done();
           })

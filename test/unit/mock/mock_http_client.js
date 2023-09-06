@@ -188,7 +188,7 @@ function buildRequestOutputMappings(clientInfo)
                   CLIENT_APP_VERSION: clientInfo.version,
                   CLIENT_ENVIRONMENT: clientInfo.environment,
                   SESSION_PARAMETERS: {}
-                }
+                },
             }
         },
       output:
@@ -341,8 +341,10 @@ function buildRequestOutputMappings(clientInfo)
           json:
             {
               disableOfflineChunks: false,
-              sqlText: 'select 1 as "c1";'
+              sqlText: 'select 1 as "c1";',
+              queryContextDTO: { entries: [] }
             }
+            
         },
       output:
         {
@@ -444,7 +446,8 @@ function buildRequestOutputMappings(clientInfo)
           json:
             {
               disableOfflineChunks: false,
-              sqlText: 'select 1 as "c2";'
+              sqlText: 'select 1 as "c2";',
+              queryContextDTO: { entries: [] }
             }
         },
       output:
@@ -552,7 +555,8 @@ function buildRequestOutputMappings(clientInfo)
                 {
                   "1": {type: 'TEXT', value: 'false'},
                   "2": {type: 'TEXT', value: '1967-06-23'}
-                }
+                },
+                queryContextDTO: { entries: [] }
             }
         },
       output:
@@ -667,7 +671,8 @@ function buildRequestOutputMappings(clientInfo)
           json:
             {
               disableOfflineChunks: false,
-              sqlText: 'select;'
+              sqlText: 'select;',
+              queryContextDTO: { entries: [] }
             }
         },
       output:
@@ -844,7 +849,7 @@ function buildRequestOutputMappings(clientInfo)
             },
           json:
             {
-              requestId: 'foobar'
+              requestId: 'foobar',
             }
         },
       output:
@@ -977,7 +982,8 @@ function buildRequestOutputMappings(clientInfo)
           json:
             {
               disableOfflineChunks: false,
-              sqlText: 'select count(*) from table(generator(timelimit=>10));'
+              sqlText: 'select count(*) from table(generator(timelimit=>10));',
+              queryContextDTO: { entries: [] }
             }
         },
       output:
@@ -1018,7 +1024,7 @@ function buildRequestOutputMappings(clientInfo)
             },
           json:
             {
-              requestId: 'b97fee20-a805-11e5-a0ab-ddd3321ed586'
+              requestId: 'b97fee20-a805-11e5-a0ab-ddd3321ed586',
             }
         },
       output:
@@ -1052,7 +1058,8 @@ function buildRequestOutputMappings(clientInfo)
           json:
             {
               disableOfflineChunks: false,
-              sqlText: 'select \'too many concurrent queries\';'
+              sqlText: 'select \'too many concurrent queries\';',
+              queryContextDTO: { entries: [] }
             }
         },
       output:
@@ -1094,7 +1101,7 @@ function buildRequestOutputMappings(clientInfo)
                   CLIENT_APP_VERSION: clientInfo.version,
                   CLIENT_ENVIRONMENT: clientInfo.environment,
                   SESSION_PARAMETERS: {}
-                }
+                },
             }
         },
       output:
@@ -1192,7 +1199,8 @@ function buildRequestOutputMappings(clientInfo)
           json:
             {
               disableOfflineChunks: false,
-              sqlText: 'select * from faketable'
+              sqlText: 'select * from faketable',
+              queryContextDTO: { entries: [] }
             }
         },
       output:
@@ -1677,7 +1685,7 @@ function buildRequestOutputMappings(clientInfo)
                   CLIENT_APP_VERSION: clientInfo.version,
                   CLIENT_ENVIRONMENT: clientInfo.environment,
                   SESSION_PARAMETERS: {}
-                }
+                },
             }
         },
       output:

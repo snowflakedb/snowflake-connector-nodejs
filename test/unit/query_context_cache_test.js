@@ -62,8 +62,6 @@ function TestingQCC(){
     assert.strictEqual(size,this.MAX_CAPACITY);
     const elements = Array.from(this.qcc.getElements());
     for (let i = 0; i < size; i++) {
-      console.log("Context",Context);
-      console.log(elements[i]);
       assert.strictEqual(this.expectedIDs[i], elements[i].getId());
       assert.strictEqual(this.expectedReadTimestamp[i], elements[i].getReadTimestamp());
       assert.strictEqual(this.expectedPriority[i], elements[i].getPriority());
@@ -73,7 +71,7 @@ function TestingQCC(){
 }
 
 describe('QueryContextCacheTest', function() {
-   const testingQcc = new TestingQCC();
+  const testingQcc = new TestingQCC();
 
   /** Test for empty cache */
   it('testIsEmpty',function(){
@@ -180,7 +178,7 @@ describe('QueryContextCacheTest', function() {
   
   it('testEmptyCacheWithEmptyResponseData',function() {
     testingQcc.initCacheWithData();
-    testingQcc.qcc.deserializeQueryContext("''");
+    testingQcc.qcc.deserializeQueryContext({});
     assert.strictEqual(testingQcc.qcc.getSize(),0,'Empty cache');
   });
   
@@ -203,7 +201,6 @@ describe('QueryContextCacheTest', function() {
     // Init testingQcc.qcc
     testingQcc.initCacheWithDataWithContext(null);
     testingQcc.assertCacheDataWithContext(null);
-    // const queryContextDTO = testingQcc.qcc.getQueryContextDTO();
     const response = testingQcc.qcc.getSerializeQueryContext();
     //Clear testingQcc.qcc
     testingQcc.qcc.clearCache();

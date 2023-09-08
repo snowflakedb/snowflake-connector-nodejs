@@ -447,7 +447,6 @@ function buildRequestOutputMappings(clientInfo)
             {
               disableOfflineChunks: false,
               sqlText: 'select 1 as "c2";',
-              queryContextDTO: { entries: [] }
             }
         },
       output:

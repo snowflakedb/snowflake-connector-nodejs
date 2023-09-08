@@ -1,7 +1,7 @@
 const QueryContextCache = require('../../lib/queryContextCache.js');
 const assert = require('assert');
 
-function TestingQCC(){
+function TestingQCC () {
   this.qcc = null;
   this.BASE_READ_TIMESTAMP = 1668727958;
   this.CONTEXT = 'Some query Context';
@@ -12,15 +12,15 @@ function TestingQCC(){
   this.expectedReadTimestamp;
   this.expectedPriority;
   
-  this.initCache = function() {
+  this.initCache = function () {
     this.qcc = new QueryContextCache(this.MAX_CAPACITY);
   };
   
-  this.initCacheWithData = function() {
+  this.initCacheWithData = function () {
     this.initCacheWithDataWithContext(this.CONTEXT);
   };
   
-  this.initCacheWithDataWithContext = function(Context) {
+  this.initCacheWithDataWithContext = function (Context) {
     this.qcc = new QueryContextCache(this.MAX_CAPACITY);
     this.expectedIDs = [];
     this.expectedReadTimestamp = [];
@@ -34,7 +34,7 @@ function TestingQCC(){
     this.qcc.syncPriorityMap();
   };
     
-  this.initCacheWithDataInRandomOrder = function() {
+  this.initCacheWithDataInRandomOrder = function () {
     this.qcc = new QueryContextCache(this.MAX_CAPACITY);
     this.expectedIDs = [];
     this.expectedReadTimestamp = [];
@@ -53,11 +53,11 @@ function TestingQCC(){
     this.qcc.syncPriorityMap();
   };
 
-  this.assertCacheData = function() {
+  this.assertCacheData = function () {
     this.assertCacheDataWithContext(this.CONTEXT);
   };
   
-  this.assertCacheDataWithContext = function(Context) {
+  this.assertCacheDataWithContext = function (Context) {
     const size = this.qcc.getSize();
     assert.strictEqual(size,this.MAX_CAPACITY);
     const elements = Array.from(this.qcc.getElements());
@@ -70,28 +70,29 @@ function TestingQCC(){
   };
 }
 
-describe('QueryContextCacheTest', function() {
+describe('QueryContextCacheTest', function () {
   const testingQcc = new TestingQCC();
 
   /** Test for empty cache */
-  it('testIsEmpty',function(){
+  it('testIsEmpty',function () {
     testingQcc.initCache();
     assert.strictEqual(testingQcc.qcc.getSize(), 0);
   });
   
-  it('testWithSomeData',function(){
+  it('testWithSomeData',function () {
     testingQcc.initCacheWithData();
-    // Compare elements
 
+    // Compare elements
     testingQcc.assertCacheData();
   });
   
-  it('testWithSomeDataInRandomOrder',function(){
+  it('testWithSomeDataInRandomOrder',function () {
     testingQcc.initCacheWithDataInRandomOrder();
+
     // Compare elements
     testingQcc.assertCacheData();
   });
-  it('testMoreThanCapacity',function() {
+  it('testMoreThanCapacity',function () {
     testingQcc.initCacheWithData();
   
     // Add one more element at the end
@@ -104,8 +105,9 @@ describe('QueryContextCacheTest', function() {
     testingQcc.assertCacheData();
   });
   
-  it('testUpdateTimestamp',function() {
+  it('testUpdateTimestamp',function () {
     testingQcc.initCacheWithData();
+
     // Add one more element with new TS with existing id
     const updatedID = 1;
     testingQcc.expectedReadTimestamp[updatedID] = testingQcc.BASE_READ_TIMESTAMP + updatedID + 10;
@@ -118,12 +120,12 @@ describe('QueryContextCacheTest', function() {
     testingQcc.assertCacheData();
   });
   
-  it('testUpdatePriority', function() {
+  it('testUpdatePriority', function () {
     testingQcc.initCacheWithData();
+
     // Add one more element with new priority with existing id
     const updatedID = 3;
     const updatedPriority = testingQcc.BASE_PRIORITY + updatedID + 7;
-  
     testingQcc.expectedPriority[updatedID] = updatedPriority;
     testingQcc.qcc.merge(
       testingQcc.BASE_ID + updatedID, testingQcc.BASE_READ_TIMESTAMP + updatedID, testingQcc.expectedPriority[updatedID], testingQcc.CONTEXT);
@@ -142,7 +144,7 @@ describe('QueryContextCacheTest', function() {
     testingQcc.assertCacheData();
   });
   
-  it('testAddSamePriority',function() {
+  it('testAddSamePriority',function () {
     testingQcc.initCacheWithData();
   
     // Add one more element with same priority
@@ -158,8 +160,9 @@ describe('QueryContextCacheTest', function() {
     testingQcc.assertCacheData();
   });
   
-  it('testAddSameIDButStaleTimestamp', function(){
+  it('testAddSameIDButStaleTimestamp', function () {
     testingQcc.initCacheWithData();
+
     // Add one more element with same priority
     const i = 2;
     testingQcc.qcc.merge(testingQcc.BASE_ID + i, testingQcc.BASE_READ_TIMESTAMP + i - 10, testingQcc.BASE_PRIORITY + i, testingQcc.CONTEXT);
@@ -170,42 +173,43 @@ describe('QueryContextCacheTest', function() {
     testingQcc.assertCacheData();
   });
   
-  it('testEmptyCacheWithNullData', function() {
+  it('testEmptyCacheWithNullData', function () {
     testingQcc.initCacheWithData();
     testingQcc.qcc.deserializeQueryContext(null);
     assert.strictEqual(testingQcc.qcc.getSize(),0,'Empty cache');
   });
   
-  it('testEmptyCacheWithEmptyResponseData',function() {
+  it('testEmptyCacheWithEmptyResponseData',function () {
     testingQcc.initCacheWithData();
     testingQcc.qcc.deserializeQueryContext({});
     assert.strictEqual(testingQcc.qcc.getSize(),0,'Empty cache');
   });
   
-  it('testSerializeRequestAndDeserializeResponseData', function() {
+  it('testSerializeRequestAndDeserializeResponseData', function () {
     testingQcc.initCacheWithData();
     testingQcc.assertCacheData();
   
     // const queryContextDTO = testingQcc.qcc.getQueryContextDTO();
     const response = testingQcc.qcc.getSerializeQueryContext();
+
     // Clear testingQcc.qcc
     testingQcc.qcc.clearCache();
     assert.strictEqual(testingQcc.qcc.getSize(),0,'Empty cache');
-  
     testingQcc.qcc.deserializeQueryContext(response);
-
     testingQcc.assertCacheData();
   });
   
-  it('testSerializeRequestAndDeserializeResponseDataWithNulltestingCONTEXT', function() {
+  it('testSerializeRequestAndDeserializeResponseDataWithNulltestingCONTEXT', function () {
+
     // Init testingQcc.qcc
     testingQcc.initCacheWithDataWithContext(null);
     testingQcc.assertCacheDataWithContext(null);
     const response = testingQcc.qcc.getSerializeQueryContext();
+
     //Clear testingQcc.qcc
     testingQcc.qcc.clearCache();
     assert.strictEqual(testingQcc.qcc.getSize(), 0,'Empty cache');
-  
+
     testingQcc.qcc.deserializeQueryContext(response);
     testingQcc.assertCacheDataWithContext(null);
   });

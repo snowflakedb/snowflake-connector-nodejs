@@ -10,7 +10,7 @@
     "asn1.js-rfc2560": "^5.0.0",
     "asn1.js-rfc5280": "^3.0.0",
     "aws-sdk": "^2.878.0",
-    "axios": "^0.27.2",
+    "axios": "^1.5.0",
     "big-integer": "^1.6.43",
     "bignumber.js": "^2.4.0",
     "binascii": "0.0.2",
@@ -33,7 +33,6 @@
     "simple-lru-cache": "^0.0.2",
     "string-similarity": "^4.0.4",
     "tmp": "^0.2.1",
-    "urllib": "^2.41.0",
     "uuid": "^3.3.2",
     "winston": "^3.1.0"
   },

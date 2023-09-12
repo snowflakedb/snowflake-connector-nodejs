@@ -92,6 +92,7 @@ describe('QueryContextCacheTest', function () {
     // Compare elements
     testingQcc.assertCacheData();
   });
+  
   it('testMoreThanCapacity',function () {
     testingQcc.initCacheWithData();
   

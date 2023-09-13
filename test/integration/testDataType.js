@@ -184,6 +184,7 @@ describe('Test DataType', function ()
             testUtil.executeQueryAndVerify(
               connection,
               selectNumber,
+              // pragma: allowlist nextline secret
               [{'COLA': bigInt("12345678901234567890123456789012345678")}],
               callback,
               null,
@@ -310,7 +311,7 @@ describe('Test DataType', function ()
               function (callback)
               {
                 snowflake.configure({
-                  jsonColumnVariantParser: rawColumnValue => JSON.parse(rawColumnValue)
+                  jsonColumnVariantParser: rawColumnValue => require('vm').runInNewContext('(' + rawColumnValue + ')')
                 })
                 testUtil.executeCmd(connection, insertVariantJSONForCustomParser, callback);
               },

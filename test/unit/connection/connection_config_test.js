@@ -514,6 +514,17 @@ describe('ConnectionConfig: basic', function ()
         },
         errorCode: ErrorCodes.ERR_CONN_CREATE_INVALID_GCS_USE_DOWNSCOPED_CREDENTIAL
       },
+      {
+        name: 'invalid disableQueryContextCache',
+        options:
+        {
+          username: 'username',
+          password: 'password',
+          account: 'account',
+          disableQueryContextCache: 1234
+        },
+        errorCode: ErrorCodes.ERR_CONN_CREATE_INVALID_DISABLED_QUERY_CONTEXT_CACHE
+      },
     ];
 
   var createNegativeITCallback = function (testCase)
@@ -847,7 +858,23 @@ describe('ConnectionConfig: basic', function ()
           accessUrl: 'https://account.snowflakecomputing.com',
           account: 'account'
         }
-      }
+      },
+      {
+        name: 'disableQueryContextCache',
+        input:
+        {
+          username: 'username',
+          password: 'password',
+          account: 'account',
+          disableQueryContextCache: true
+        },
+        options:
+        {
+          accessUrl: 'https://account.snowflakecomputing.com',
+          username: 'username',
+          password: 'password'
+        }
+      },
     ];
 
   var createItCallback = function (testCase)

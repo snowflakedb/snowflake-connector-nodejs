@@ -514,6 +514,17 @@ describe('ConnectionConfig: basic', function ()
         },
         errorCode: ErrorCodes.ERR_CONN_CREATE_INVALID_GCS_USE_DOWNSCOPED_CREDENTIAL
       },
+       {
+        name: 'invalid includeRetryReason',
+        options:
+        {
+          username: 'username',
+          password: 'password',
+          account: 'account',
+          includeRetryReason: 'invalid'
+        },
+        errorCode: ErrorCodes.ERR_CONN_CREATE_INVALID_INCLUDE_RETRY_REASON
+      },
     ];
 
   var createNegativeITCallback = function (testCase)

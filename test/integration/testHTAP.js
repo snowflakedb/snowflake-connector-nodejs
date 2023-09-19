@@ -45,42 +45,41 @@ describe('Query Context Cache test', function () {
 
   function createQueryTest () {
     const testingSet = [];
+    let testingfunction;
     for(let i = 0; i < querySet.length; i++) {
-      const testingFunction = function(callback) {
-        const {sqlTexts,QccSize} = querySet[i];
-        connection.execute({
-          sqlText: sqlTexts[0],
-          complete: function (err) {
-            if (err) {
-              callback(err);
-            }
-          }
-        });
-        connection.execute({
-          sqlText: sqlTexts[1],
-          complete: function (err) {
-            if (err) {
-              callback(err);
-            }
-          }
-        });
-        connection.execute({
-          sqlText: sqlTexts[2],
-          complete: function (err, stmt) {
-            assert.ok(!err,'There should be no error!');
-            assert.strictEqual(stmt.getQueryContextCacheSize(), QccSize);
-            assert.strictEqual(stmt.getQueryContextDTOSize(),QccSize);
-            callback(); 
-          }
-        });
-      };
-      testingSet.push(testingFunction);
+      const {sqlTexts,QccSize} = querySet[i];
+      for(let k = 0; k < sqlTexts.length; k++){
+        if(k!==sqlTexts.length-1){
+          testingfunction = function(callback) {
+            connection.execute({
+              sqlText: sqlTexts[k],
+              complete: function () {
+                callback();
+              }
+            });
+          };
+        }
+        else{
+          testingfunction = function(callback) {
+            connection.execute({
+              sqlText: sqlTexts[2],
+              complete: function (err, stmt) {
+                assert.ok(!err,'There should be no error!');
+                assert.strictEqual(stmt.getQueryContextCacheSize(), QccSize);
+                assert.strictEqual(stmt.getQueryContextDTOSize(), QccSize);
+                callback(); 
+              }
+            });
+          };
+        }
+        testingSet.push(testingfunction);
+      }
     }
     return testingSet;
   }
-
+  
   it('test Query Context Cache', function (done) {
-    let queryTests = createQueryTest();
+    const queryTests = createQueryTest();
     async.series(
       [
         function (callback) {
@@ -88,7 +87,6 @@ describe('Query Context Cache test', function () {
             assert.ok(!err, 'there should be no error');
             assert.strictEqual(conn, connection,
               'the connect() callback should be invoked with the statement');
-
             callback();
           });
         },
@@ -98,5 +96,4 @@ describe('Query Context Cache test', function () {
         done();
       });
   });
-
 });

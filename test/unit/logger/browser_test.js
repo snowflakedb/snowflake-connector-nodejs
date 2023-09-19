@@ -1,115 +1,165 @@
 /*
- * Copyright (c) 2015-2019 Snowflake Computing Inc. All rights reserved.
+ * Copyright (c) 2015-2023 Snowflake Computing Inc. All rights reserved.
  */
 
-var Logger = require('./../../../lib/logger/browser');
-var assert = require('assert');
+const Logger = require('./../../../lib/logger/browser');
+const {logTagToLevel, LOG_LEVEL_TAGS} = require('./../../../lib/logger/core');
+const assert = require('assert');
 
-describe('Logger - browser', function ()
-{
+describe('Logger - browser', function () {
   // TODO: negative tests
   // TODO: configuration tests
 
-  var ERROR = 'ERROR';
-  var WARN = 'WARN';
-  var INFO = 'INFO';
-  var DEBUG = 'DEBUG';
-  var TRACE = 'TRACE';
+  const ERROR = 'ERROR';
+  const WARN = 'WARN';
+  const INFO = 'INFO';
+  const DEBUG = 'DEBUG';
+  const TRACE = 'TRACE';
 
-  var LOG_MSG_ERROR = '0 error';
-  var LOG_MSG_WARN = '1 warn';
-  var LOG_MSG_INFO = '2 info';
-  var LOG_MSG_DEBUG = '3 debug';
-  var LOG_MSG_TRACE = '4 trace';
+  const LOG_MSG_ERROR = '0 error';
+  const LOG_MSG_WARN = '1 warn';
+  const LOG_MSG_INFO = '2 info';
+  const LOG_MSG_DEBUG = '3 debug';
+  const LOG_MSG_TRACE = '4 trace';
 
-  var FULL_LOG_MSG_ERROR = ERROR + ': ' + LOG_MSG_ERROR;
-  var FULL_LOG_MSG_WARN = WARN + ': ' + LOG_MSG_WARN;
-  var FULL_LOG_MSG_INFO = INFO + ': ' + LOG_MSG_INFO;
-  var FULL_LOG_MSG_DEBUG = DEBUG + ': ' + LOG_MSG_DEBUG;
-  var FULL_LOG_MSG_TRACE = TRACE + ': ' + LOG_MSG_TRACE;
+  const FULL_LOG_MSG_ERROR = ERROR + ': ' + LOG_MSG_ERROR;
+  const FULL_LOG_MSG_WARN = WARN + ': ' + LOG_MSG_WARN;
+  const FULL_LOG_MSG_INFO = INFO + ': ' + LOG_MSG_INFO;
+  const FULL_LOG_MSG_DEBUG = DEBUG + ': ' + LOG_MSG_DEBUG;
+  const FULL_LOG_MSG_TRACE = TRACE + ': ' + LOG_MSG_TRACE;
 
-  var logMessages = function (logger)
-  {
+  function logMessages (logger) {
     logger.error(LOG_MSG_ERROR);
     logger.warn(LOG_MSG_WARN);
     logger.info(LOG_MSG_INFO);
     logger.debug(LOG_MSG_DEBUG);
     logger.trace(LOG_MSG_TRACE);
-  };
+  }
 
-  var createLogger = function (level)
-  {
+  function createLogger (level) {
     return new Logger(
       {
         includeTimestamp: false,
         level: level
       });
-  };
+  }
 
-  it('test all levels', function ()
-  {
-    var logger;
-    var logBuffer;
+  it('should use info level as default', function () {
+    // given
+    const logger = createLogger();
 
-    // default log level is 2 (Info)
-    logger = createLogger();
-    assert.strictEqual(logger.getLevel(), 2);
+    // when
+    const level = logger.getLevel();
 
-    // create a new logger with the log level set to error and log some messages
-    logger = createLogger(0);
+    // then
+    assert.strictEqual(level, logTagToLevel(LOG_LEVEL_TAGS.INFO));
+  });
+
+  it('should log messages when a logger level is error', function () {
+    // given
+    const logger = createLogger(logTagToLevel(LOG_LEVEL_TAGS.ERROR));
+
+    // when
     logMessages(logger);
-    logBuffer = logger.getLogBuffer();
 
-    // we should only have an error message
+    // then
+    const logBuffer = logger.getLogBuffer();
     assert.strictEqual(logBuffer.length, 1);
     assert.strictEqual(logBuffer[0], FULL_LOG_MSG_ERROR);
+  });
 
-    // create a new logger with the log level set to warn and log some messages
-    logger = createLogger(1);
+  it('should log messages when a logger level is warn', function () {
+    // given
+    const logger = createLogger(logTagToLevel(LOG_LEVEL_TAGS.WARN));
+
+    // when
     logMessages(logger);
-    logBuffer = logger.getLogBuffer();
 
-    // we should have one error message and one warn message
+    // then
+    const logBuffer = logger.getLogBuffer();
     assert.strictEqual(logBuffer.length, 2);
     assert.strictEqual(logBuffer[0], FULL_LOG_MSG_ERROR);
     assert.strictEqual(logBuffer[1], FULL_LOG_MSG_WARN);
+  });
 
-    // create a new logger with the log level set to info and log some messages
-    logger = createLogger(2);
+  it('should log messages when a logger level is info', function () {
+    // given
+    const logger = createLogger(logTagToLevel(LOG_LEVEL_TAGS.INFO));
+
+    // when
     logMessages(logger);
-    logBuffer = logger.getLogBuffer();
 
-    // we should have one error message, one warn message and one info message
+    // then
+    const logBuffer = logger.getLogBuffer();
     assert.strictEqual(logBuffer.length, 3);
     assert.strictEqual(logBuffer[0], FULL_LOG_MSG_ERROR);
     assert.strictEqual(logBuffer[1], FULL_LOG_MSG_WARN);
     assert.strictEqual(logBuffer[2], FULL_LOG_MSG_INFO);
+  });
 
-    // create a new logger with the log level set to debug and log some messages
-    logger = createLogger(3);
+  it('should log messages when a logger level is debug', function () {
+    // given
+    const logger = createLogger(logTagToLevel(LOG_LEVEL_TAGS.DEBUG));
+
+    // when
     logMessages(logger);
-    logBuffer = logger.getLogBuffer();
 
-    // we should have one error message, one warn message, one info message and
-    // one debug message
+    // then
+    const logBuffer = logger.getLogBuffer();
     assert.strictEqual(logBuffer.length, 4);
     assert.strictEqual(logBuffer[0], FULL_LOG_MSG_ERROR);
     assert.strictEqual(logBuffer[1], FULL_LOG_MSG_WARN);
     assert.strictEqual(logBuffer[2], FULL_LOG_MSG_INFO);
     assert.strictEqual(logBuffer[3], FULL_LOG_MSG_DEBUG);
+  });
 
-    // create a new logger with the log level set to trace and log some messages
-    logger = createLogger(4);
+  it('should log messages when a logger level is trace', function () {
+    // given
+    const logger = createLogger(logTagToLevel(LOG_LEVEL_TAGS.TRACE));
+
+    // when
     logMessages(logger);
-    logBuffer = logger.getLogBuffer();
 
-    // we should have one error message, one warn message, one info message,
-    // one debug message and one trace message
+    // then
+    const logBuffer = logger.getLogBuffer();
     assert.strictEqual(logBuffer.length, 5);
     assert.strictEqual(logBuffer[0], FULL_LOG_MSG_ERROR);
     assert.strictEqual(logBuffer[1], FULL_LOG_MSG_WARN);
     assert.strictEqual(logBuffer[2], FULL_LOG_MSG_INFO);
     assert.strictEqual(logBuffer[3], FULL_LOG_MSG_DEBUG);
     assert.strictEqual(logBuffer[4], FULL_LOG_MSG_TRACE);
+  });
+
+  it('should not log anything when a logger level is off', function () {
+    // given
+    const logger = createLogger(logTagToLevel(LOG_LEVEL_TAGS.OFF));
+
+    // when
+    logMessages(logger);
+
+    // then
+    const logBuffer = logger.getLogBuffer();
+    assert.strictEqual(logBuffer.length, 0);
+  });
+
+  it('should change logger log level', function () {
+    // given
+    const logger = createLogger(logTagToLevel(LOG_LEVEL_TAGS.ERROR));
+
+    // when
+    logMessages(logger);
+    logger.configure({
+      level: logTagToLevel(LOG_LEVEL_TAGS.INFO),
+      filePath: 'it does not matter'
+    });
+    logMessages(logger);
+
+    // then
+    const logBuffer = logger.getLogBuffer();
+    assert.strictEqual(logBuffer.length, 4);
+    assert.strictEqual(logBuffer[0], FULL_LOG_MSG_ERROR);
+    assert.strictEqual(logBuffer[1], FULL_LOG_MSG_ERROR);
+    assert.strictEqual(logBuffer[2], FULL_LOG_MSG_WARN);
+    assert.strictEqual(logBuffer[3], FULL_LOG_MSG_INFO);
   });
 });

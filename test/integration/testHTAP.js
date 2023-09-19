@@ -43,8 +43,8 @@ describe('Query Context Cache test', function () {
     },
   ];
 
-  function createTests () {
-    const functionArray = [];
+  function createQueryTest () {
+    const testingSet = [];
     for(let i = 0; i < querySet.length; i++) {
       const testingFunction = function(callback) {
         const {sqlTexts,QccSize} = querySet[i];
@@ -71,16 +71,16 @@ describe('Query Context Cache test', function () {
             assert.strictEqual(stmt.getQueryContextCacheSize(), QccSize);
             assert.strictEqual(stmt.getQueryContextDTOSize(),QccSize);
             callback(); 
-
           }
         });
       };
-      functionArray.push(testingFunction);
+      testingSet.push(testingFunction);
     }
-    return functionArray;
+    return testingSet;
   }
 
   it('test Query Context Cache', function (done) {
+    let queryTests = createQueryTest();
     async.series(
       [
         function (callback) {
@@ -92,7 +92,7 @@ describe('Query Context Cache test', function () {
             callback();
           });
         },
-        ...createTests()
+        ...queryTests
       ],
       function () {
         done();

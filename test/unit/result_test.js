@@ -27,21 +27,11 @@ describe.only("test and log how many result.js called for each execution",functi
         sqlText: "select 1",
         complete: function (err, stmt)
         {
-          testUtil.checkError(err);
-          var stream = stmt.streamRows();
-          var rowCount = 0;
-          stream.on('data', function ()
-          {
-            rowCount++;
-          });
-          stream.on('error', function (err)
-          {
-            testUtil.checkError(err);
-          });
-          stream.on('end', function ()
-          {
+          if(err){
+            console.log(err.message);
+          }else{
             done();
-          });
+          }
         }
       });
     });

@@ -3,10 +3,12 @@ const async = require('async');
 const connOption = require('./connectionOptions').valid;
 const testUtil = require('./testUtil');
 
-if(process.env.CLOUD_PROVIDER === 'AWS'){
+// Only the AWS servers support the hybrid table in the GitHub action.
+if (process.env.CLOUD_PROVIDER === 'AWS') {
   describe('Query Context Cache test', function () {
     this.timeout(1000000);
     let connection;
+    
     before((done) => {
       connection = testUtil.createConnection(connOption);
       async.series([
@@ -19,6 +21,7 @@ if(process.env.CLOUD_PROVIDER === 'AWS'){
     after(async () => {
       await testUtil.destroyConnectionAsync(connection);
     });
+
     const querySet = [
       {
         sqlTexts:[
@@ -90,14 +93,9 @@ if(process.env.CLOUD_PROVIDER === 'AWS'){
     }
   
     it('test Query Context Cache', function (done) {
-      const queryTests = createQueryTest();
-      async.series(
-        [
-          ...queryTests
-        ],
-        function () {
-          done();
-        });
+      async.series(createQueryTest(), function () {
+        done();
+      });
     });
   });
 }

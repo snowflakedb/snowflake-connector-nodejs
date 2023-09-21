@@ -252,7 +252,7 @@ describe('Large result Set Tests', function ()
   });
 });
 
-describe('SNOW-743920: Large result set with ~35 chunks', function () {
+describe('SNOW-743920:Large result set with ~35 chunks', function () {
   let connection;
   const tableName = 'test_table';
   const sourceRowCount = 251002;
@@ -263,7 +263,6 @@ describe('SNOW-743920: Large result set with ~35 chunks', function () {
 
   before(async () => {
     connection = testUtil.createConnection();
-    configureLogger('TRACE');
     await testUtil.connectAsync(connection);
     // setting ROWS_PER_RESULTSET causes invalid, not encoded chunks from GCP
     // await testUtil.executeCmdAsync(connection, 'alter session set ROWS_PER_RESULTSET = 1000000');
@@ -273,7 +272,6 @@ describe('SNOW-743920: Large result set with ~35 chunks', function () {
   });
 
   after(async () => {
-    configureLogger('ERROR');
     await testUtil.dropTablesIgnoringErrorsAsync(connection, [tableName]);
     await testUtil.destroyConnectionAsync(connection);
   });

@@ -936,6 +936,71 @@ describe('connection.execute() statement failure', function ()
   });
 });
 
+describe('connection.execute() with requestId', function () {
+  const connection = snowflake.createConnection(connectionOptions);
+  const sqlText = 'select 1;';
+  const requestId = 'SNOW-728803-requestId';
+
+  it('keep original sqlText when resubmitting requests', function (done) {
+    let statement;
+
+    async.series(
+      [
+        function (callback) {
+          connection.connect(function (err, conn) {
+            assert.ok(!err, 'there should be no error');
+            assert.strictEqual(conn, connection,
+              'the connect() callback should be invoked with the statement');
+
+            callback();
+          });
+        },
+        function (callback) {
+          // 1st request fails with an error
+          statement = connection.execute(
+            {
+              sqlText: sqlText,
+              complete: function (err, stmt) {
+                assert.ok(err, 'there should be an error');
+                assert.strictEqual(stmt, statement,
+                  'the execute() callback should be invoked with the statement');
+
+                callback();
+              }
+            });
+        },
+        function (callback) {
+          // 2nd request with sqlText and requestId specified
+          statement = connection.execute(
+            {
+              sqlText: sqlText,
+              requestId: requestId,
+              complete: function (err, stmt) {
+                // if there's an error, fail the test with the error
+                if (err) {
+                  done(err);
+                }
+
+                assert.ok(!err, 'there should be no error');
+                assert.strictEqual(stmt, statement,
+                  'the execute() callback should be invoked with the statement');
+
+                callback();
+              }
+            });
+
+          // the sql text and request id should be the same as what was passed
+          // in
+          assert.strictEqual(statement.getSqlText(), sqlText);
+          assert.strictEqual(statement.getRequestId(), requestId);
+        }
+      ],
+      function () {
+        done();
+      });
+  });
+});
+
 describe('too many concurrent requests', function ()
 {
   it('too many concurrent requests per user', function (done)

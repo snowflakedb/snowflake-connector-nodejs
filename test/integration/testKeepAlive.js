@@ -7,81 +7,106 @@ const connOption = require('./connectionOptions');
 const async = require('async');
 const testUtil = require('./testUtil');
 const { performance } = require('perf_hooks');
+const assert = require("assert");
 
-describe.skip('keepAlive perf test', function ()
+describe('keepAlive test', function ()
 {
-  this.timeout(1000000);
+  let connection;
+  const loopCount = 5;
+  const rowCount = 10;
+  const tableName = 'test_keepalive000';
 
-  var connection;
-  const LOOP_COUNT = 100;
+  const createTableWithRandomStrings = `CREATE OR REPLACE TABLE ${tableName} (value string)
+    AS select randstr(200, random()) from table (generator(rowcount =>${rowCount}))`;
 
-  before(function (done)
-  {
-    console.time('execution');
-    done();
-  });
-  after(function (done)
-  {
-    testUtil.destroyConnection(connection, done);
+  after(async () => {
+    await testUtil.dropTablesIgnoringErrorsAsync(connection, [tableName]);
+    await testUtil.destroyConnectionAsync(connection);
   });
 
   it('Run query in loop', function (done)
   {
+    let sumWithKeepAlive = 0;
+    let sumWithoutKeepAlive = 0;
     async.series(
       [
-        // Create the connection
-        function (callback)
-        {
-          console.time('connecting')
-          connection = snowflake.createConnection(connOption.valid);
-          connection.connect(function (err, conn)
-          {
-            if (err)
-            {
-              console.error('Unable to connect: ' + err.message);
-            } else
-            {
-              console.timeEnd('connecting');
-              callback();
-            }
-          });
-        },
-        // Run the query LOOP_COUNT times
+        // Run the query loopCount times
         async function ()
         {
-          var sum = 0;
-          for (var count = 1; count <= LOOP_COUNT; count++)
+          connection = snowflake.createConnection(connOption.valid);
+          await testUtil.connectAsync(connection);
+          await testUtil.executeCmdAsync(connection, createTableWithRandomStrings);
+          for (let count = 1; count <= loopCount; count++)
           {
             await new Promise((resolve, reject) =>
             {
-              var start = performance.now();
-              var statement = connection.execute({
-                sqlText: "SELECT VALUE from VARIANT_TABLE2 limit 10000;",
-                complete: function (err, stmt, rows)
-                {
-                  var stream = statement.streamRows();
-                  stream.on('error', function (err)
-                  {
+              const start = performance.now();
+              connection.execute({
+                sqlText: `SELECT VALUE from ${tableName} limit ${rowCount};`,
+                streamResult: true,
+                complete: function (err, stmt) {
+                  if (err) {
                     done(err);
-                  });
-                  stream.on('data', function (row)
-                  {
-                    return;
-                  });
-                  stream.on('end', function (row)
-                  {
-                    var end = performance.now();
-                    var time = end - start;
-                    console.log("query: " + time);
-                    sum += time;
-                    resolve();
-                  });
+                  } else {
+                    stmt.streamRows()
+                      .on('error', function (err) {
+                        done(err);
+                      })
+                      .on('data', function (row) {
+                        return;
+                      })
+                      .on('end', function (row) {
+                        const end = performance.now();
+                        const time = end - start;
+                        sumWithKeepAlive += time;
+                        resolve();
+                      });
+                  }
                 }
               });
             });
           }
-          console.log("query average: " + (sum / LOOP_COUNT));
-          console.timeEnd('execution');
+        },
+        async function ()
+        {
+          snowflake.configure({keepAlive: false});
+          connection = snowflake.createConnection(connOption.valid);
+          await testUtil.connectAsync(connection);
+          await testUtil.executeCmdAsync(connection, createTableWithRandomStrings);
+          for (let count = 1; count <= loopCount; count++)
+          {
+            await new Promise((resolve, reject) =>
+            {
+              const start = performance.now();
+              connection.execute({
+                sqlText: `SELECT VALUE from ${tableName} limit ${rowCount};`,
+                streamResult: true,
+                complete: function (err, stmt) {
+                  if (err) {
+                    done(err);
+                  } else {
+                    stmt.streamRows()
+                      .on('error', function (err) {
+                        done(err);
+                      })
+                      .on('data', function (row) {
+                        return;
+                      })
+                      .on('end', function (row) {
+                        const end = performance.now();
+                        const time = end - start;
+                        sumWithoutKeepAlive += time;
+                        resolve();
+                      });
+                  }
+                }
+              });
+            });
+          }
+        },
+        async function ()
+        {
+          assert.ok(sumWithoutKeepAlive/2 > sumWithKeepAlive, 'With keep alive queries should work more thdn two times faster');
         }
       ],
       done

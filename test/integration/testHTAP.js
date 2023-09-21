@@ -6,7 +6,9 @@ const { configureLogger } = require('../configureLogger');
 const Logger = require('../../lib/logger');
 
 
+
 describe.only('Query Context Cache test', function () {
+  Logger.trace("Provider", processs.env.CLOUD_PROVIDER);
   this.timeout(1000000);
   let connection;
   before((done) => {
@@ -22,6 +24,7 @@ describe.only('Query Context Cache test', function () {
 
   after(async () => {
     configureLogger('ERROR');
+    await testUtil.dropTablesIgnoringErrorsAsync(["t1","t2","t3"]);
     await testUtil.destroyConnectionAsync(connection);
   });
   const querySet = [
@@ -29,23 +32,24 @@ describe.only('Query Context Cache test', function () {
       sqlTexts:[
         // 'create or replace database db1',
         'create or replace hybrid table t1 (a int primary key, b int)',
-        'insert into t1 values (1, 2), (2, 3), (3, 4)'
+        'insert into t1 values (1, 2), (2, 3), (3, 4)',
       ],
       QccSize:2,
     },
     {
       sqlTexts:[
         // 'create or replace database db2',
-        'create or replace hybrid table t2 (a int primary key, b int)',
-        'insert into t2 values (1, 2), (2, 3), (3, 4)'
+        'create or replace table t2 (a int primary key, b int)',
+        'insert into t2 values (1, 2), (2, 3), (3, 4)',
+
       ],
       QccSize:2,
     },
     {
       sqlTexts:[
         // 'create or replace database db3',
-        'create or replace hybrid table t3 (a int primary key, b int)',
-        'insert into t3 values (1, 2), (2, 3), (3, 4)'
+        'create or replace table t3 (a int primary key, b int)',
+        'insert into t3 values (1, 2), (2, 3), (3, 4)',
       ],
       QccSize:2,
     },

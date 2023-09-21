@@ -342,6 +342,7 @@ function buildRequestOutputMappings(clientInfo)
             {
               disableOfflineChunks: false,
               sqlText: 'select 1 as "c1";',
+              queryContextDTO: { entries: [] },
             }
         },
       output:
@@ -551,8 +552,9 @@ function buildRequestOutputMappings(clientInfo)
               bindings:
                 {
                   "1": {type: 'TEXT', value: 'false'},
-                  "2": {type: 'TEXT', value: '1967-06-23'}
+                  "2": {type: 'TEXT', value: '1967-06-23'},
                 },
+                queryContextDTO: { entries: [] },
             }
         },
       output:
@@ -668,6 +670,7 @@ function buildRequestOutputMappings(clientInfo)
             {
               disableOfflineChunks: false,
               sqlText: 'select;',
+              queryContextDTO: { entries: [] },
             }
         },
       output:
@@ -978,6 +981,7 @@ function buildRequestOutputMappings(clientInfo)
             {
               disableOfflineChunks: false,
               sqlText: 'select count(*) from table(generator(timelimit=>10));',
+              queryContextDTO: { entries: [] },
             }
         },
       output:
@@ -1053,6 +1057,7 @@ function buildRequestOutputMappings(clientInfo)
             {
               disableOfflineChunks: false,
               sqlText: 'select \'too many concurrent queries\';',
+              queryContextDTO: { entries: [] },
             }
         },
       output:
@@ -1193,6 +1198,7 @@ function buildRequestOutputMappings(clientInfo)
             {
               disableOfflineChunks: false,
               sqlText: 'select * from faketable',
+              queryContextDTO: { entries: [] },
             }
         },
       output:

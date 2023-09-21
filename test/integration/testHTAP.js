@@ -2,17 +2,22 @@ const assert = require('assert');
 const async = require('async');
 const connOption = require('./connectionOptions').valid;
 const testUtil = require('./testUtil');
+const { configureLogger } = require('../configureLogger');
+
 
 describe('Query Context Cache test', function () {
   this.timeout(1000000);
   let connection;
   before(() => {
     connection = testUtil.createConnection(connOption);
+    configureLogger('TRACE');
   });
 
   after(async () =>
   {
     testUtil.destroyConnectionAsync(connection);
+    configureLogger('ERROR');
+
   });
   const querySet = [
     {

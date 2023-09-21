@@ -488,6 +488,37 @@ describe('Util', function ()
     }
   });
 
+  it('Util.url.appendRetryParam()', function () {
+    let url;
+    const testCases =
+      [
+        {
+          option: {
+            url: 'http://www.something.snowflakecomputing.com',
+            retryCount: 3,
+            retryReason: 429,
+            includeRetryContext: true,
+          },
+          result: 'http://www.something.snowflakecomputing.com?retryCount=3&retryReason=429'
+        },
+        {
+          option: {
+            url: 'http://www.something.snowflakecomputing.com',
+            retryCount: 3,
+            retryReason: 429,
+            includeRetryContext: false,
+          },
+          result: 'http://www.something.snowflakecomputing.com?retryCount=3'
+        }
+      ];
+
+      for (let i = 0; i < testCases.length; i++) {
+        testCase = testCases[i];
+        url = Util.url.appendRetryParam(testCase.option);
+        assert.strictEqual(url, testCase.result);
+      }
+  })
+
   it('Util.apply()', function ()
   {
     assert.strictEqual(Util.apply(null, null), null);

@@ -4,9 +4,15 @@ const connOption = require('./connectionOptions').valid;
 const testUtil = require('./testUtil');
 
 describe('Query Context Cache test', function () {
+  this.timeout(1000000);
   let connection;
-  beforeEach(() => {
+  before(() => {
     connection = testUtil.createConnection(connOption);
+  });
+
+  after(async () =>
+  {
+    testUtil.destroyConnectionAsync(connection);
   });
   const querySet = [
     {

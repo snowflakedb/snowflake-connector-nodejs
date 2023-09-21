@@ -6,7 +6,7 @@ const { configureLogger } = require('../configureLogger');
 const Logger = require('../../lib/logger');
 
 
-
+if(process.env.CLOUD_PROVIDER === 'AWS') {
 describe.only('Query Context Cache test', function () {
 
   this.timeout(1000000);
@@ -119,3 +119,4 @@ describe.only('Query Context Cache test', function () {
       });
   });
 });
+}

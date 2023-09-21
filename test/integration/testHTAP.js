@@ -8,7 +8,6 @@ const Logger = require('../../lib/logger');
 
 
 describe.only('Query Context Cache test', function () {
-  Logger.trace("Provider", process.env.CLOUD_PROVIDER);
   this.timeout(1000000);
   let connection;
   before((done) => {
@@ -75,6 +74,8 @@ describe.only('Query Context Cache test', function () {
               sqlText: sqlTexts[k],
               complete: function (err) {
                 if(err){
+  Logger.trace("Provider", process.env.CLOUD_PROVIDER);
+
                   Logger.getInstance().trace("The error occurs for the testHTAP", err.message);
                 }
                 assert.ok(!err,'There should be no error!');

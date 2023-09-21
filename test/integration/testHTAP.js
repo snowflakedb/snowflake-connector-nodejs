@@ -8,7 +8,7 @@ const Logger = require('../../lib/logger');
 
 
 describe.only('Query Context Cache test', function () {
-  Logger.trace("Provider", processs.env.CLOUD_PROVIDER);
+  Logger.trace("Provider", process.env.CLOUD_PROVIDER);
   this.timeout(1000000);
   let connection;
   before((done) => {

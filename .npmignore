@@ -13,6 +13,7 @@ snowflake-sdk*.tgz
 coverage
 system_test/
 scripts/
+samples/
 ci/
 .github/
 .eslintrc.js

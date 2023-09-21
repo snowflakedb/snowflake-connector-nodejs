@@ -14,8 +14,6 @@ function QueryContextElement (id,timestamp,priority,context) {
   this.context = context;
 }
 
-
-
 function TestingQCC () {
   this.qcc = null;
  

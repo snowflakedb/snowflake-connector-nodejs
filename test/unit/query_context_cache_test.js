@@ -77,7 +77,7 @@ function TestingQCC () {
   };
 }
 
-describe('Query Context Cache Test', function () {
+describe.only('Query Context Cache Test', function () {
   const testingQcc = new TestingQCC();
 
   /** Test for empty cache */

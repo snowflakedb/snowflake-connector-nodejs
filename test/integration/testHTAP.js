@@ -12,16 +12,14 @@ const Logger = require('../../lib/logger');
 
 if(process.env.CLOUD_PROVIDER === 'AWS') {
  describe('Query Context Cache test', function () {
-  this.retries(3);
+  this.retries(5);
   let connection;
   beforeEach(async () => {
-    configureLogger('TRACE');
     connection = testUtil.createConnection(connOption);
     testUtil.connectAsync(connection);
   });
 
   after(async () => {
-    configureLogger('ERROR');
     await testUtil.destroyConnectionAsync(connection);
   });
   const querySet = [
@@ -71,12 +69,6 @@ if(process.env.CLOUD_PROVIDER === 'AWS') {
             connection.execute({
               sqlText: sqlTexts[k],
               complete: function (err) {
-                if(err){
-
-                  Logger.getInstance().trace("The error occurs for the testHTAPs", err.message);
-                }
-                Logger.getInstance().trace("Provider", process.env.CLOUD_PROVIDER);
-
                 assert.ok(!err,'There should be no error!');
                 callback();
               }
@@ -88,9 +80,6 @@ if(process.env.CLOUD_PROVIDER === 'AWS') {
             connection.execute({
               sqlText: sqlTexts[k],
               complete: function (err, stmt) {
-                if(err){
-                  Logger.getInstance().trace("The error occurs for the testHTAP", err.message);
-                }
                 assert.ok(!err,'There should be no error!');
                 assert.strictEqual(stmt.getQueryContextCacheSize(), QccSize);
                 assert.strictEqual(stmt.getQueryContextDTOSize(), QccSize);

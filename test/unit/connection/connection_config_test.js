@@ -523,7 +523,18 @@ describe('ConnectionConfig: basic', function ()
           account: 'account',
           disableQueryContextCache: 1234
         },
-        errorCode: ErrorCodes.ERR_CONN_CREATE_INVALID_DISABLED_QUERY_CONTEXT_CACHE
+        errorCode: ErrorCodes.ERR_CONN_CREATE_INVALID_DISABLED_QUERY_CONTEXT_CACHE, 
+      },
+      {
+        name: 'invalid includeRetryReason',
+        options:
+        {
+          username: 'username',
+          password: 'password',
+          account: 'account',
+          includeRetryReason: 'invalid'
+        },
+        errorCode: ErrorCodes.ERR_CONN_CREATE_INVALID_INCLUDE_RETRY_REASON,
       },
     ];
 

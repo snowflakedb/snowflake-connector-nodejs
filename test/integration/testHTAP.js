@@ -76,7 +76,7 @@ describe('Query Context Cache test', function () {
               complete: function (err) {
                 if(err){
 
-                  Logger.getInstance().trace("The error occurs for the testHTAP", err.message);
+                  Logger.getInstance().trace("The error occurs for the testHTAPs", err.message);
                 }
                 Logger.getInstance().trace("Provider", process.env.CLOUD_PROVIDER);
 

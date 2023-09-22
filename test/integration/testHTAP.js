@@ -10,11 +10,11 @@ const { configureLogger } = require('../configureLogger');
 const Logger = require('../../lib/logger');
 
 
-if(process.env.CLOUD_PROVIDER === 'AWS') {
+// if(process.env.CLOUD_PROVIDER === 'AWS') {
  describe('Query Context Cache test', function () {
-
+  this.retries(3);
   let connection;
-  before(async () => {
+  beforeEach(async () => {
     configureLogger('TRACE');
     connection = testUtil.createConnection(connOption);
     testUtil.connectAsync(connection);
@@ -49,14 +49,14 @@ if(process.env.CLOUD_PROVIDER === 'AWS') {
       ],
       QccSize: 4,
     },
-    // {
-    //   sqlTexts: [
-    //     'select * from db1.public.t1 x, db2.public.t2 y, db3.public.t3 z where x.a = y.a and y.a = z.a;',
-    //     'select * from db1.public.t1 x, db2.public.t2 y where x.a = y.a;',
-    //     'select * from db2.public.t2 y, db3.public.t3 z where y.a = z.a;'
-    //   ],
-    //   QccSize: 4,
-    // },
+    {
+      sqlTexts: [
+        'select * from db1.public.t1 x, db2.public.t2 y, db3.public.t3 z where x.a = y.a and y.a = z.a;',
+        'select * from db1.public.t1 x, db2.public.t2 y where x.a = y.a;',
+        'select * from db2.public.t2 y, db3.public.t3 z where y.a = z.a;'
+      ],
+      QccSize: 4,
+    },
   ];
 
 
@@ -110,4 +110,4 @@ if(process.env.CLOUD_PROVIDER === 'AWS') {
     async.series(queryTests,done);
   });
 });
-}
+// }

@@ -488,6 +488,40 @@ describe('Util', function ()
     }
   });
 
+  describe('Append retry parameters', function () {
+    const testCases =
+      [
+        {
+          testName: "test appending retry params with retry reason",
+          option: {
+            url: 'http://www.something.snowflakecomputing.com',
+            retryCount: 3,
+            retryReason: 429,
+            includeRetryReason: true,
+          },
+          result: 'http://www.something.snowflakecomputing.com?retryCount=3&retryReason=429'
+        },
+        {
+          testName: "test appending retry params without retry reason",
+          option: {
+            url: 'http://www.something.snowflakecomputing.com',
+            retryCount: 3,
+            retryReason: 429,
+            includeRetryReason: false,
+          },
+          result: 'http://www.something.snowflakecomputing.com?retryCount=3'
+        }
+      ];
+
+      for (let i = 0; i < testCases.length; i++) {
+        const testCase = testCases[i];
+        it(testCase.testName, function () {
+          const url = Util.url.appendRetryParam(testCase.option);
+          assert.strictEqual(url, testCase.result);
+        })
+      }
+  })
+
   it('Util.apply()', function ()
   {
     assert.strictEqual(Util.apply(null, null), null);

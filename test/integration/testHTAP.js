@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2023 Snowflake Computing Inc. All rights reserved.
+ */
+
 const assert = require('assert');
 const async = require('async');
 const connOption = require('./connectionOptions').valid;
@@ -6,16 +10,11 @@ const testUtil = require('./testUtil');
 // Only the AWS servers support the hybrid table in the GitHub action.
 if (process.env.CLOUD_PROVIDER === 'AWS') {
   describe('Query Context Cache test', function () {
-    this.timeout(1000000);
     let connection;
     
-    before((done) => {
+    before(async () => {
       connection = testUtil.createConnection(connOption);
-      async.series([
-        function (callback) {
-          testUtil.connect(connection, callback);
-        }],
-      done);
+      await testUtil.connectAsync(connection);
     });
 
     after(async () => {
@@ -93,9 +92,7 @@ if (process.env.CLOUD_PROVIDER === 'AWS') {
     }
   
     it('test Query Context Cache', function (done) {
-      async.series(createQueryTest(), function () {
-        done();
-      });
+      async.series(createQueryTest(), done);
     });
   });
 }

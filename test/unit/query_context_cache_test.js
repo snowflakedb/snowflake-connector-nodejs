@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2023 Snowflake Computing Inc. All rights reserved.
+ */
+
 const QueryContextCache = require('../../lib/queryContextCache.js');
 const assert = require('assert');
 
@@ -80,7 +84,6 @@ function TestingQCC () {
 describe('Query Context Cache Test', function () {
   const testingQcc = new TestingQCC();
 
-  /** Test for empty cache */
   it('test - the cache is empty',function () {
     testingQcc.initCache();
     assert.strictEqual(testingQcc.qcc.getSize(), 0);
@@ -105,7 +108,7 @@ describe('Query Context Cache Test', function () {
   
     // Add one more element at the end
     const i = MAX_CAPACITY;
-    const extraQCE = new QueryContextElement(BASE_ID + i, BASE_READ_TIMESTAMP + i, BASE_PRIORITY + i, CONTEXT)
+    const extraQCE = new QueryContextElement(BASE_ID + i, BASE_READ_TIMESTAMP + i, BASE_PRIORITY + i, CONTEXT);
     testingQcc.qcc.merge(extraQCE);
     testingQcc.qcc.checkCacheCapacity();
   
@@ -134,7 +137,7 @@ describe('Query Context Cache Test', function () {
     const updatedID = 3;
     const updatedPriority = BASE_PRIORITY + updatedID + 7;
     testingQcc.expectedPriority[updatedID] = updatedPriority;
-    const updatedQCE = new QueryContextElement(BASE_ID + updatedID, BASE_READ_TIMESTAMP + updatedID, testingQcc.expectedPriority[updatedID], CONTEXT)
+    const updatedQCE = new QueryContextElement(BASE_ID + updatedID, BASE_READ_TIMESTAMP + updatedID, testingQcc.expectedPriority[updatedID], CONTEXT);
     testingQcc.qcc.merge(updatedQCE);
     testingQcc.qcc.checkCacheCapacity();
   
@@ -170,7 +173,7 @@ describe('Query Context Cache Test', function () {
 
     // Add one more element with same priority
     const i = 2;
-    const samePriorityQCE = new QueryContextElement(BASE_ID + i, BASE_READ_TIMESTAMP + i - 10, BASE_PRIORITY + i, CONTEXT)
+    const samePriorityQCE = new QueryContextElement(BASE_ID + i, BASE_READ_TIMESTAMP + i - 10, BASE_PRIORITY + i, CONTEXT);
     testingQcc.qcc.merge(samePriorityQCE);
     testingQcc.qcc.checkCacheCapacity();
   

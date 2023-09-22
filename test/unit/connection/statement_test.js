@@ -281,36 +281,36 @@ describe('Statement.fetchResult()', function ()
         errorCode: ErrorCodes.ERR_CONN_FETCH_RESULT_INVALID_OPTIONS
       },
       {
-        name: 'fetchResult() missing statement id',
+        name: 'fetchResult() missing query id',
         options:
           {
             statementOptions: {}
           },
-        errorCode: ErrorCodes.ERR_CONN_FETCH_RESULT_MISSING_STATEMENT_ID
+        errorCode: ErrorCodes.ERR_CONN_FETCH_RESULT_MISSING_QUERY_ID
       },
       {
-        name: 'fetchResult() undefined statement id',
+        name: 'fetchResult() undefined query id',
         options:
           {
-            statementOptions: {statementId: undefined}
+            statementOptions: {queryId: undefined}
           },
-        errorCode: ErrorCodes.ERR_CONN_FETCH_RESULT_MISSING_STATEMENT_ID
+        errorCode: ErrorCodes.ERR_CONN_FETCH_RESULT_MISSING_QUERY_ID
       },
       {
-        name: 'fetchResult() null statement id',
+        name: 'fetchResult() null query id',
         options:
           {
-            statementOptions: {statementId: null}
+            statementOptions: {queryId: null}
           },
-        errorCode: ErrorCodes.ERR_CONN_FETCH_RESULT_MISSING_STATEMENT_ID
+        errorCode: ErrorCodes.ERR_CONN_FETCH_RESULT_MISSING_QUERY_ID
       },
       {
-        name: 'fetchResult() invalid statement id',
+        name: 'fetchResult() invalid query id',
         options:
           {
-            statementOptions: {statementId: 0}
+            statementOptions: {queryId: 0}
           },
-        errorCode: ErrorCodes.ERR_CONN_FETCH_RESULT_INVALID_STATEMENT_ID
+        errorCode: ErrorCodes.ERR_CONN_FETCH_RESULT_INVALID_QUERY_ID
       },
       {
         name: 'fetchResult() invalid complete',
@@ -318,7 +318,7 @@ describe('Statement.fetchResult()', function ()
           {
             statementOptions:
               {
-                statementId: '',
+                queryId: '',
                 complete: 'invalid'
               }
           },
@@ -330,7 +330,7 @@ describe('Statement.fetchResult()', function ()
           {
             statementOptions:
               {
-                statementId: '',
+                queryId: '',
                 streamResult: 'invalid'
               }
           },
@@ -342,7 +342,7 @@ describe('Statement.fetchResult()', function ()
           {
             statementOptions:
               {
-                statementId: '',
+                queryId: '',
                 fetchAsString: 'invalid'
               }
           },
@@ -354,7 +354,7 @@ describe('Statement.fetchResult()', function ()
           {
             statementOptions:
               {
-                statementId: '',
+                queryId: '',
                 fetchAsString: ['invalid']
               }
           },
@@ -364,7 +364,7 @@ describe('Statement.fetchResult()', function ()
         name: 'fetchResult() missing services',
         options:
           {
-            statementOptions: {statementId: 'foo'}
+            statementOptions: {queryId: 'foo'}
           },
         errorCode: ErrorCodes.ERR_INTERNAL_ASSERT_FAILED
       },
@@ -372,7 +372,7 @@ describe('Statement.fetchResult()', function ()
         name: 'fetchResult() missing connectionConfig',
         options:
           {
-            statementOptions: {statementId: 'foo'},
+            statementOptions: {queryId: 'foo'},
             services: {},
             connectionConfig: null
           },
@@ -382,7 +382,7 @@ describe('Statement.fetchResult()', function ()
         name: 'fetchResult() invali row mode',
         options:
           {
-            statementOptions: {statementId: 'foo', rowMode: 'invalid'},
+            statementOptions: {queryId: 'foo', rowMode: 'invalid'},
             services: {},
             connectionConfig: null
           },

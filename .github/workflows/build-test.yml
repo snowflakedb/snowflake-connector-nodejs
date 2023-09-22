@@ -114,7 +114,7 @@ jobs:
         strategy:
             fail-fast: false
             matrix:
-                image: [ 'nodejs-centos7-node14']
+                image: [ 'nodejs-centos7-node14', 'nodejs-centos7-fips']
                 cloud: [ 'AWS', 'AZURE', 'GCP' ]
         steps:
             - uses: actions/checkout@v1

@@ -12,9 +12,15 @@ module.exports = {
     'ecmaVersion': 'latest'
   },
   'rules': {
+    'array-bracket-spacing': ['warn'],
+    'arrow-spacing': ['warn'],
+    'block-spacing': ['warn'],
     'brace-style': ['warn', '1tbs'],
+    'comma-spacing': ['warn'],
     'curly': ['warn', 'all'],
     'indent': ['warn', 2],
+    'key-spacing': ['warn'],
+    'keyword-spacing': ['warn'],
     'linebreak-style': ['warn', 'unix'],
     'no-async-promise-executor': ['warn'],
     'no-console': ['warn', { 'allow': ['warn', 'error'] }],
@@ -31,8 +37,16 @@ module.exports = {
     'no-useless-catch': ['warn'],
     'no-useless-escape': ['warn'],
     'no-var': ['warn'],
+    'object-curly-spacing': ['warn', 'always'],
     'prefer-const': ['warn'],
     'quotes': ['warn', 'single'],
-    'semi': ['warn', 'always']
+    'semi': ['warn', 'always'],
+    'semi-spacing': ['warn'],
+    'space-before-function-paren': ['warn', {
+      'anonymous': 'always',
+      'named': 'never',
+      'asyncArrow': 'always',
+    }],
+    'space-infix-ops': ['warn'],
   }
 };

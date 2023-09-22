@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2023 Snowflake Computing Inc. All rights reserved.
+ */
+
 const assert = require('assert');
 const async = require('async');
 const connOption = require('./connectionOptions').valid;
@@ -7,7 +11,7 @@ const Logger = require('../../lib/logger');
 
 
 if(process.env.CLOUD_PROVIDER === 'AWS') {
-describe('Query Context Cache test', function () {
+ describe('Query Context Cache test', function () {
 
   this.timeout(1000000);
   let connection;

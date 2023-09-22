@@ -10,7 +10,7 @@ const { configureLogger } = require('../configureLogger');
 const Logger = require('../../lib/logger');
 
 
-// if(process.env.CLOUD_PROVIDER === 'AWS') {
+if(process.env.CLOUD_PROVIDER === 'AWS') {
  describe('Query Context Cache test', function () {
   this.retries(3);
   let connection;
@@ -27,7 +27,7 @@ const Logger = require('../../lib/logger');
   const querySet = [
     {
       sqlTexts: [
-        'create or replace database db1',
+        'create or replace database qcc_test_db1',
         'create or replace hybrid table t1 (a int primary key, b int)',
         'insert into t1 values (1, 2), (2, 3), (3, 4)'
       ],
@@ -35,7 +35,7 @@ const Logger = require('../../lib/logger');
     },
     {
       sqlTexts: [
-        'create or replace database db2',
+        'create or replace database qcc_test_db2',
         'create or replace hybrid table t2 (a int primary key, b int)',
         'insert into t2 values (1, 2), (2, 3), (3, 4)'
       ],
@@ -43,7 +43,7 @@ const Logger = require('../../lib/logger');
     },
     {
       sqlTexts: [
-        'create or replace database db3',
+        'create or replace database qcc_test_db3',
         'create or replace hybrid table t3 (a int primary key, b int)',
         'insert into t3 values (1, 2), (2, 3), (3, 4)'
       ],
@@ -110,4 +110,4 @@ const Logger = require('../../lib/logger');
     async.series(queryTests,done);
   });
 });
-// }
+}

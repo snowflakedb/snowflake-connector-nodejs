@@ -714,7 +714,8 @@ function buildRequestOutputMappings(clientInfo)
           json:
             {
               disableOfflineChunks: false,
-              sqlText: 'select 1;'
+              sqlText: 'select 1;',
+              queryContextDTO: { entries: [] }
             }
         },
       output:
@@ -748,7 +749,8 @@ function buildRequestOutputMappings(clientInfo)
           json:
             {
               disableOfflineChunks: false,
-              sqlText: 'SELECT \'Error retrieving query results for request id: SNOW-728803-requestId, please use RESULT_SCAN instead\' AS ErrorMessage;'
+              sqlText: 'SELECT \'Error retrieving query results for request id: SNOW-728803-requestId, please use RESULT_SCAN instead\' AS ErrorMessage;',
+              queryContextDTO: { entries: [] }
             }
         },
       output:
@@ -778,7 +780,8 @@ function buildRequestOutputMappings(clientInfo)
           json:
             {
               disableOfflineChunks: false,
-              sqlText: 'select 1;'
+              sqlText: 'select 1;',
+              queryContextDTO: { entries: [] }
             }
         },
       output:

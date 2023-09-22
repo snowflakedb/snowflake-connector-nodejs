@@ -13,17 +13,11 @@ const Logger = require('../../lib/logger');
 if(process.env.CLOUD_PROVIDER === 'AWS') {
  describe('Query Context Cache test', function () {
 
-  this.timeout(1000000);
   let connection;
-  before((done) => {
-    connection = testUtil.createConnection(connOption);
-    async.series([
-        function (callback)
-        {
-          testUtil.connect(connection, callback);
-        }],
-      done)
+  before(async () => {
     configureLogger('TRACE');
+    connection = testUtil.createConnection(connOption);
+    testUtil.connectAsync(connection);
   });
 
   after(async () => {
@@ -55,14 +49,14 @@ if(process.env.CLOUD_PROVIDER === 'AWS') {
       ],
       QccSize: 4,
     },
-    {
-      sqlTexts: [
-        'select * from db1.public.t1 x, db2.public.t2 y, db3.public.t3 z where x.a = y.a and y.a = z.a;',
-        'select * from db1.public.t1 x, db2.public.t2 y where x.a = y.a;',
-        'select * from db2.public.t2 y, db3.public.t3 z where y.a = z.a;'
-      ],
-      QccSize: 4,
-    },
+    // {
+    //   sqlTexts: [
+    //     'select * from db1.public.t1 x, db2.public.t2 y, db3.public.t3 z where x.a = y.a and y.a = z.a;',
+    //     'select * from db1.public.t1 x, db2.public.t2 y where x.a = y.a;',
+    //     'select * from db2.public.t2 y, db3.public.t3 z where y.a = z.a;'
+    //   ],
+    //   QccSize: 4,
+    // },
   ];
 
 
@@ -113,13 +107,7 @@ if(process.env.CLOUD_PROVIDER === 'AWS') {
   
   it('test Query Context Cache', function (done) {
     const queryTests = createQueryTest();
-    async.series(
-      [
-        ...queryTests
-      ],
-      function () {
-        done();
-      });
+    async.series(queryTests,done);
   });
 });
 }

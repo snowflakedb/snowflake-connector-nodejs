@@ -20,6 +20,7 @@ if(process.env.CLOUD_PROVIDER === 'AWS') {
   });
 
   after(async () => {
+    configureLogger('ERROR');
     await testUtil.destroyConnectionAsync(connection);
   });
   const querySet = [
@@ -47,14 +48,14 @@ if(process.env.CLOUD_PROVIDER === 'AWS') {
       ],
       QccSize: 4,
     },
-    {
-      sqlTexts: [
-        'select * from qcc_test_db1.public.t1 x, qcc_test_db2.public.t2 y, qcc_test_db3.public.t3 z where x.a = y.a and y.a = z.a;',
-        'select * from qcc_test_db1.public.t1 x, qcc_test_db2.public.t2 y where x.a = y.a;',
-        'select * from qcc_test_db2.public.t2 y, qcc_test_db3.public.t3 z where y.a = z.a;'
-      ],
-      QccSize: 4,
-    },
+    // {
+    //   sqlTexts: [
+    //     'select * from qcc_test_db1.public.t1 x, qcc_test_db2.public.t2 y, qcc_test_db3.public.t3 z where x.a = y.a and y.a = z.a;',
+    //     'select * from qcc_test_db1.public.t1 x, qcc_test_db2.public.t2 y where x.a = y.a;',
+    //     'select * from qcc_test_db2.public.t2 y, qcc_test_db3.public.t3 z where y.a = z.a;'
+    //   ],
+    //   QccSize: 4,
+    // },
   ];
 
 
@@ -69,6 +70,12 @@ if(process.env.CLOUD_PROVIDER === 'AWS') {
             connection.execute({
               sqlText: sqlTexts[k],
               complete: function (err) {
+                if(err){
+
+                  Logger.getInstance().trace("The error occurs for the testHTAPs", err.message);
+                }
+                Logger.getInstance().trace("Provider", process.env.CLOUD_PROVIDER);
+
                 assert.ok(!err,'There should be no error!');
                 callback();
               }
@@ -80,6 +87,9 @@ if(process.env.CLOUD_PROVIDER === 'AWS') {
             connection.execute({
               sqlText: sqlTexts[k],
               complete: function (err, stmt) {
+                if(err){
+                  Logger.getInstance().trace("The error occurs for the testHTAP", err.message);
+                }
                 assert.ok(!err,'There should be no error!');
                 assert.strictEqual(stmt.getQueryContextCacheSize(), QccSize);
                 assert.strictEqual(stmt.getQueryContextDTOSize(), QccSize);

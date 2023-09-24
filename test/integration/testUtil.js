@@ -101,6 +101,23 @@ module.exports.dropTablesIgnoringErrorsAsync = async (connection, tableNames) =>
   }
 };
 
+/**
+ * Drop databases one by one if exist - any connection error is ignored
+ * @param connection Connection
+ * @param dbNames string[]
+ * @return {Promise<void>}
+ */
+module.exports.dropDBsIgnoringErrorsAsync = async (connection, dbNames) => {
+  for (const dbIdx in dbNames) {
+    const dbName = dbNames[dbIdx];
+    try {
+      await executeCmdAsync(connection, `DROP DATABASE IF EXISTS ${dbName}`);
+    } catch (e) {
+      console.warn(`Cannot drop database ${dbName}: ${JSON.stringify(e)}`);
+    }
+  }
+};
+
 module.exports.checkError = function (err) {
   assert.ok(!err, JSON.stringify(err));
 };

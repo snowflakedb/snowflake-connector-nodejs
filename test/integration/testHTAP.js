@@ -17,6 +17,7 @@ function getRandomDBNames() {
   return arr;
 }
 
+// Only the AWS servers support the hybrid table in the GitHub action.
 if (process.env.CLOUD_PROVIDER === 'AWS') {
   describe('Query Context Cache test', function () {
     this.retries(3);
@@ -25,7 +26,7 @@ if (process.env.CLOUD_PROVIDER === 'AWS') {
 
     beforeEach(async () => {
       connection = testUtil.createConnection(connOption);
-      testUtil.connectAsync(connection);
+      await testUtil.connectAsync(connection);
     });
 
     after(async () => {
@@ -104,8 +105,7 @@ if (process.env.CLOUD_PROVIDER === 'AWS') {
     }
   
     it('test Query Context Cache', function (done) {
-      const queryTests = createQueryTest();
-      async.series(queryTests, done);
+      async.series(createQueryTest(), done);
     });
   });
 }

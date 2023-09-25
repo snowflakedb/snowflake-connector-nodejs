@@ -978,7 +978,7 @@ describe('connection.execute() with requestId', function () {
               complete: function (err, stmt) {
                 // if there's an error, fail the test with the error
                 if (err) {
-                  done(err);
+                  callback(err);
                 }
 
                 assert.ok(!err, 'there should be no error');
@@ -995,8 +995,8 @@ describe('connection.execute() with requestId', function () {
           assert.strictEqual(statement.getRequestId(), requestId);
         }
       ],
-      function () {
-        done();
+      function (err) {
+        done(err);
       });
   });
 });

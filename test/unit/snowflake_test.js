@@ -980,12 +980,13 @@ describe('connection.execute() with requestId', function () {
                 if (err) {
                   callback(err);
                 }
+                else {
+                  assert.ok(!err, 'there should be no error');
+                  assert.strictEqual(stmt, statement,
+                    'the execute() callback should be invoked with the statement');
 
-                assert.ok(!err, 'there should be no error');
-                assert.strictEqual(stmt, statement,
-                  'the execute() callback should be invoked with the statement');
-
-                callback();
+                  callback();
+                }
               }
             });
 

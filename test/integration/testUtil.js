@@ -108,13 +108,13 @@ module.exports.dropTablesIgnoringErrorsAsync = async (connection, tableNames) =>
  * @return {Promise<void>}
  */
 module.exports.dropDBsIgnoringErrorsAsync = async (connection, dbNames) => {
-  await Promise.all(dbNames.map(async (dbName) => {
+  for (const dbName of dbNames) {
     try {
       await executeCmdAsync(connection, `DROP DATABASE IF EXISTS ${dbName}`);
     } catch (e) {
       console.warn(`Cannot drop database ${dbName}: ${JSON.stringify(e)}`);
     }
-  }));
+  }
 };
 
 module.exports.checkError = function (err) {

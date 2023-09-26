@@ -1,6 +1,6 @@
 #!/bin/bash -e
 #
-# Test NodeJS for Mac
+# Test NodeJS for Ubuntu
 #
 set -o pipefail
 THIS_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
@@ -9,6 +9,7 @@ source $THIS_DIR/scripts/set_git_info.sh
 export WORKSPACE=$GITHUB_WORKSPACE
 export SOURCE_ROOT=$GITHUB_WORKSPACE
 export SHOULD_GENERATE_COVERAGE_REPORT=1
+export SHOULD_SKIP_PROXY_TESTS=1
 
 python3 --version
 python3 -m venv venv

@@ -8,7 +8,7 @@ const os = require('os');
 
 describe('Execute proxy test', function () {
   const platform = os.platform();
-  if (platform === 'linux') {
+  if (platform === 'linux' && !process.env.SHOULD_SKIP_PROXY_TESTS) {
     let connection;
     const createNodeTSQL = 'create or replace table NodeT(colA number, colB varchar)';
     const selectAllSQL = 'select * from NodeT';

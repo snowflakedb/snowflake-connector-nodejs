@@ -728,13 +728,13 @@ function buildRequestOutputMappings(clientInfo)
               body:
                 {
                   'data':
-                  {
-                    'parameters': [],
-                    'rowtype': [],
-                    'rowset': [['1']],
-                    'total': 1,
-                    'returned': 1
-                  },
+                    {
+                      'parameters': [],
+                      'rowtype': [],
+                      'rowset': [['1']],
+                      'total': 1,
+                      'returned': 1
+                    },
                   'message': null,
                   'code': null,
                   'success': true

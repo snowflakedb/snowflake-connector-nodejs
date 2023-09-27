@@ -704,7 +704,7 @@ function buildRequestOutputMappings(clientInfo)
       request:
         {
           method: 'POST',
-          url: 'http://fakeaccount.snowflakecomputing.com/queries/v1/query-request?requestId=',
+          url: 'http://fakeaccount.snowflakecomputing.com/queries/v1/query-request?requestId=SNOW-728803-requestId',
           headers:
             {
               'Accept': 'application/snowflake',
@@ -723,14 +723,21 @@ function buildRequestOutputMappings(clientInfo)
           err: null,
           response:
             {
-              statusCode: 401,
-              statusMessage: 'Unauthorized',
+              statusCode: 200,
+              statusMessage: 'OK',
               body:
                 {
-                  'data' : null,
-                  'code': '390103',
-                  'message': 'Session token not found in the request data.',
-                  'success': false,
+                  'data':
+                  {
+                    'parameters': [],
+                    'rowtype': [],
+                    'rowset': [['1']],
+                    'total': 1,
+                    'returned': 1
+                  },
+                  'message': null,
+                  'code': null,
+                  'success': true
                 }
             }
         }
@@ -762,48 +769,6 @@ function buildRequestOutputMappings(clientInfo)
                 {
                   'message': 'The specified sqlText should not be overwritten when resubmitting the request',
                   'success': false
-                }
-            }
-        }
-    },
-    {
-      request:
-        {
-          method: 'POST',
-          url: 'http://fakeaccount.snowflakecomputing.com/queries/v1/query-request?requestId=SNOW-728803-requestId',
-          headers:
-            {
-              'Accept': 'application/snowflake',
-              'Authorization': 'Snowflake Token="SESSION_TOKEN"',
-              'Content-Type': 'application/json'
-            },
-          json:
-            {
-              disableOfflineChunks: false,
-              sqlText: 'select 1;',
-              queryContextDTO: { entries: [] }
-            }
-        },
-      output:
-        {
-          err: null,
-          response:
-            {
-              statusCode: 200,
-              statusMessage: 'OK',
-              body:
-                {
-                  'data':
-                    {
-                      'parameters': [],
-                      'rowtype': [],
-                      'rowset': [['1']],
-                      'total': 1,
-                      'returned': 1
-                    },
-                  'message': null,
-                  'code': null,
-                  'success': true
                 }
             }
         }

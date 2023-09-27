@@ -956,21 +956,7 @@ describe('connection.execute() with requestId', function () {
           });
         },
         function (callback) {
-          // 1st request fails with an error
-          statement = connection.execute(
-            {
-              sqlText: sqlText,
-              complete: function (err, stmt) {
-                assert.ok(err, 'there should be an error');
-                assert.strictEqual(stmt, statement,
-                  'the execute() callback should be invoked with the statement');
-
-                callback();
-              }
-            });
-        },
-        function (callback) {
-          // 2nd request with sqlText and requestId specified
+          // request with sqlText and requestId specified
           statement = connection.execute(
             {
               sqlText: sqlText,

@@ -6,7 +6,7 @@
     "@aws-sdk/client-s3": "^3.388.0",
     "@azure/storage-blob": "^12.11.0",
     "@google-cloud/storage": "^6.9.3",
-    "@techteamer/ocsp": "1.0.0",
+    "@techteamer/ocsp": "1.0.1",
     "agent-base": "^6.0.2",
     "asn1.js-rfc2560": "^5.0.0",
     "asn1.js-rfc5280": "^3.0.0",
@@ -44,6 +44,9 @@
     "mock-require": "^3.0.3",
     "nyc": "^15.1.0",
     "test-console": "^2.0.0"
+  },
+  "peerDependencies": {
+    "asn1.js": "^5.4.1"
   },
   "overrides": {
     "@azure/storage-blob": {

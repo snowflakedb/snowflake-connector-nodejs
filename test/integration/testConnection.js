@@ -134,8 +134,7 @@ describe("Connection test - validate default parameters", function () {
       });
     });
     assert.deepEqual(output, [
-      '"waerhouse" is an unknown connection parameter\n',
-      'Did you mean "warehouse"\n',
+      '"waerhouse" is an unknown connection parameter. Did you mean "warehouse"?\n',
     ]);
   });
 
@@ -162,7 +161,7 @@ describe("Connection test - validate default parameters", function () {
         validateDefaultParameters: true,
       });
     });
-    assert.deepEqual(output, ['"db" is an unknown connection parameter\n']);
+    assert.deepEqual(output, ['"db" is an unknown connection parameter. Did you mean "host"?\n']);
   });
 
   it('Invalid "database" parameter', function () {
@@ -176,8 +175,7 @@ describe("Connection test - validate default parameters", function () {
       });
     });
     assert.deepEqual(output, [
-      '"datbse" is an unknown connection parameter\n',
-      'Did you mean "database"\n',
+      '"datbse" is an unknown connection parameter. Did you mean "database"?\n',
     ]);
   });
 
@@ -205,8 +203,7 @@ describe("Connection test - validate default parameters", function () {
       });
     });
     assert.deepEqual(output, [
-      '"shcema" is an unknown connection parameter\n',
-      'Did you mean "schema"\n',
+      '"shcema" is an unknown connection parameter. Did you mean "schema"?\n',
     ]);
   });
 });

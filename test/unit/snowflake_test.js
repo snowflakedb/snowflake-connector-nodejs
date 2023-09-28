@@ -941,9 +941,7 @@ describe('connection.execute() with requestId', function () {
   const sqlText = 'select 1;';
   const requestId = 'SNOW-728803-requestId';
 
-  it('keep original sqlText when resubmitting requests', function (done) {
-    let statement;
-
+  before(function (done) {
     async.series(
       [
         function (callback) {
@@ -954,7 +952,17 @@ describe('connection.execute() with requestId', function () {
 
             callback();
           });
-        },
+        }
+      ],
+      done
+    );
+  });
+
+  it('keep original sqlText when resubmitting requests', function (done) {
+    let statement;
+
+    async.series(
+      [
         function (callback) {
           // request with sqlText and requestId specified
           statement = connection.execute(
@@ -979,6 +987,36 @@ describe('connection.execute() with requestId', function () {
           // the sql text and request id should be the same as what was passed
           // in
           assert.strictEqual(statement.getSqlText(), sqlText);
+          assert.strictEqual(statement.getRequestId(), requestId);
+        }
+      ],
+      function (err) {
+        done(err);
+      });
+  });
+
+  it('sqlText is overwritten when resubmitting requests', function (done) {
+    let statement;
+
+    async.series(
+      [
+        function (callback) {
+          // request with only requestId specified
+          statement = connection.execute(
+            {
+              // intentionally leave sqlText blank to invoke the connector to overwrite the sqlText
+              sqlText: '',
+              requestId: requestId,
+              complete: function (err, stmt) {
+                assert.ok(err, 'there should be an error');
+                assert.strictEqual(stmt, statement,
+                  'the execute() callback should be invoked with the statement');
+
+                callback();
+              }
+            });
+
+          // the request id should be the same as what was passed in
           assert.strictEqual(statement.getRequestId(), requestId);
         }
       ],

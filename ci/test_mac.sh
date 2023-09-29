@@ -7,7 +7,9 @@ echo "DOWNLOADED"
 echo $(ls /Users/runner/work/snowflake-connector-nodejs/snowflake-connector-nodejs/)
 set -o pipefail
 THIS_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+source $THIS_DIR/_init.sh
 source $THIS_DIR/scripts/set_git_info.sh
+
 
 export WORKSPACE=$GITHUB_WORKSPACE
 export SOURCE_ROOT=$GITHUB_WORKSPACE

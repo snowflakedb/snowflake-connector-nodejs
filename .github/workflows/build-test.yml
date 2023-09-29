@@ -51,8 +51,8 @@ jobs:
                 cloud: [ 'AWS', 'AZURE', 'GCP' ]
                 nodeVersion: [ '14.x', '16.x', '18.x', '20.x']
         steps:
-            - uses: actions/checkout@v3
-            - uses: actions/setup-node@v3
+            - uses: actions/checkout@v1
+            - uses: actions/setup-node@v1
               with:
                 node-version: ${{ matrix.nodeVersion }}
             - uses: actions/setup-python@v1
@@ -88,8 +88,8 @@ jobs:
                 cloud: [ 'AWS', 'AZURE', 'GCP' ]
                 nodeVersion: [ '14.x', '16.x', '18.x', '20.x']
         steps:
-            - uses: actions/checkout@v3
-            - uses: actions/setup-node@v3
+            - uses: actions/checkout@v1
+            - uses: actions/setup-node@v1
               with:
                 node-version: ${{ matrix.nodeVersion }}
             - uses: actions/setup-python@v1
@@ -139,17 +139,16 @@ jobs:
           cloud: [ 'AWS', 'AZURE', 'GCP' ]
           nodeVersion: ['18.x', '20.x']
       steps:
-        - uses: actions/checkout@v1
+        - uses: actions/checkout@v4
         - name: Download Build Artifacts
-          uses: actions/download-artifact@v1
+          uses: actions/download-artifact@v3
           with:
             name: artifacts
+            path: artifacts
         - name: Use Node.js
           uses: actions/setup-node@v3
           with:
             node-version: ${{ matrix.node-version }}
-        - name: Install dependencies
-          run: npm install
         - name: Tests
           shell: bash
           env:

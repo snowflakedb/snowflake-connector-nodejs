@@ -939,33 +939,25 @@ describe('connection.execute() statement failure', function ()
 describe('connection.execute() with requestId', function () {
   const connection = snowflake.createConnection(connectionOptions);
   const sqlText = 'select 1;';
+  const blankSqlText = '';
   const requestId = 'SNOW-728803-requestId';
 
   before(function (done) {
-    async.series(
-      [
-        function (callback) {
-          connection.connect(function (err, conn) {
-            assert.ok(!err, 'there should be no error');
-            assert.strictEqual(conn, connection,
-              'the connect() callback should be invoked with the statement');
+    connection.connect(function (err, conn) {
+      assert.ok(!err, 'there should be no error');
+      assert.strictEqual(conn, connection,
+        'the connect() callback should be invoked with the statement');
 
-            callback();
-          });
-        }
-      ],
-      done
-    );
+      done();
+    });
   });
 
   it('keep original sqlText when resubmitting requests', function (done) {
-    let statement;
-
     async.series(
       [
         function (callback) {
           // request with sqlText and requestId specified
-          statement = connection.execute(
+          const statement = connection.execute(
             {
               sqlText: sqlText,
               requestId: requestId,
@@ -979,15 +971,15 @@ describe('connection.execute() with requestId', function () {
                   assert.strictEqual(stmt, statement,
                     'the execute() callback should be invoked with the statement');
 
+                  // the sql text and request id should be the same as what was passed
+                  // in
+                  assert.strictEqual(statement.getSqlText(), sqlText);
+                  assert.strictEqual(statement.getRequestId(), requestId);
+
                   callback();
                 }
               }
             });
-
-          // the sql text and request id should be the same as what was passed
-          // in
-          assert.strictEqual(statement.getSqlText(), sqlText);
-          assert.strictEqual(statement.getRequestId(), requestId);
         }
       ],
       function (err) {
@@ -996,28 +988,29 @@ describe('connection.execute() with requestId', function () {
   });
 
   it('sqlText is overwritten when resubmitting requests', function (done) {
-    let statement;
-
     async.series(
       [
         function (callback) {
           // request with only requestId specified
-          statement = connection.execute(
+          const statement = connection.execute(
             {
               // intentionally leave sqlText blank to invoke the connector to overwrite the sqlText
-              sqlText: '',
+              sqlText: blankSqlText,
               requestId: requestId,
               complete: function (err, stmt) {
                 assert.ok(err, 'there should be an error');
                 assert.strictEqual(stmt, statement,
                   'the execute() callback should be invoked with the statement');
 
+                // the sql text and request id should be the same as what was passed
+                // in
+                assert.strictEqual(stmt.getRequestId(), requestId);
+                // the sqlText on the statement is unchanged but the sqlText on the request is different
+                assert.strictEqual(stmt.getSqlText(), blankSqlText);
+
                 callback();
               }
             });
-
-          // the request id should be the same as what was passed in
-          assert.strictEqual(statement.getRequestId(), requestId);
         }
       ],
       function (err) {

@@ -1,4 +1,5 @@
 const snowflake = require('snowflake-sdk');
+
 exports.executeQuery = async function (connection, query, binds) {
   await new Promise((resolve, reject) => {
     connection.execute({
@@ -54,3 +55,14 @@ exports.connectUsingEnv = async () => {
     );
   });
 };
+
+exports.destroyAsync = connection => new Promise((resolve, reject) => {
+  connection.destroy(err => {
+      if (err) {
+        reject(err);
+      } else {
+        resolve();
+      }
+    }
+  );
+});

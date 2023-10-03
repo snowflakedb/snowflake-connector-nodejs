@@ -1,7 +1,6 @@
 /*
  * Copyright (c) 2015-2019 Snowflake Computing Inc. All rights reserved.
  */
-const async = require('async');
 const assert = require('assert');
 
 const snowflake = require('./../../lib/snowflake');
@@ -73,18 +72,15 @@ describe('Connection with OCSP test', function ()
   {
     const connection = snowflake.createConnection(getConnectionOptions());
 
-    async.series([
-        function (callback)
-        {
           connection.connect(function (err)
           {
+            try {
             assert.strictEqual(err.code, Errors.codes.ERR_SF_RESPONSE_FAILURE);
-            callback();
+              done();
+            } catch (error) {
+              done(error);
+            }
           });
-        }
-      ],
-      done
-    );
   });
 
   it('OCSP Validity Error - Fail Open', function (done)
@@ -93,21 +89,17 @@ describe('Connection with OCSP test', function ()
     // inject validity error
     process.env.SF_OCSP_TEST_INJECT_VALIDITY_ERROR = 'true';
 
-    snowflake.configure({ocspFailOpen: true});
     const connection = snowflake.createConnection(getConnectionOptions());
 
-    async.series([
-        function (callback)
-        {
           connection.connect(function (err)
           {
+            try {
             assert.strictEqual(err.code, Errors.codes.ERR_SF_RESPONSE_FAILURE);
-            callback();
+              done();
+            } catch (error) {
+              done(error);
+            }
           });
-        },
-      ],
-      done
-    );
   });
 
   it('OCSP Validity Error - Fail Closed', function (done)
@@ -119,19 +111,16 @@ describe('Connection with OCSP test', function ()
     snowflake.configure({ocspFailOpen: false});
     const connection = snowflake.createConnection(getConnectionOptions());
 
-    async.series([
-        function (callback)
-        {
           connection.connect(function (err)
           {
+            try {
             assert.strictEqual(err.code, Errors.codes.ERR_SF_NETWORK_COULD_NOT_CONNECT);
             assert.strictEqual(err.cause.code, Errors.codes.ERR_OCSP_INVALID_VALIDITY);
-            callback();
+              done();
+            } catch (error) {
+              done(error);
+            }
           });
-        },
-      ],
-      done
-    );
   });
 
   it('OCSP Unknown Cert - Fail Open', function (done)
@@ -142,18 +131,15 @@ describe('Connection with OCSP test', function ()
 
     const connection = snowflake.createConnection(getConnectionOptions());
 
-    async.series([
-        function (callback)
-        {
           connection.connect(function (err)
           {
+            try {
             assert.strictEqual(err.code, Errors.codes.ERR_SF_RESPONSE_FAILURE);
-            callback();
+              done();
+            } catch (error) {
+              done(error);
+            }
           });
-        },
-      ],
-      done
-    );
   });
 
   it('OCSP Unknown Cert - Fail Closed', function (done)
@@ -165,41 +151,35 @@ describe('Connection with OCSP test', function ()
     snowflake.configure({ocspFailOpen: false});
     const connection = snowflake.createConnection(getConnectionOptions());
 
-    async.series([
-        function (callback)
-        {
           connection.connect(function (err)
           {
+            try {
             if (err.code !== Errors.codes.ERR_SF_NETWORK_COULD_NOT_CONNECT)
             {
               console.log(err);
             }
             assert.strictEqual(err.code, Errors.codes.ERR_SF_NETWORK_COULD_NOT_CONNECT);
             assert.strictEqual(err.cause.code, Errors.codes.ERR_OCSP_UNKNOWN);
-            callback();
+              done();
+            } catch (error) {
+              done(error);
+            }
           });
-        },
-      ],
-      done
-    );
   });
   /*
   it('OCSP Revoked Cert - Fail Open', function (done)
   {
     const connection = snowflake.createConnection(testRevokedConnectionOptions);
 
-    async.series([
-        function (callback)
-        {
           connection.connect(function (err)
           {
+            try {
             assert.strictEqual(err.cause.code, Errors.codes.ERR_OCSP_REVOKED);
-            callback();
+              done();
+            } catch (error) {
+              done(error);
+            }
           });
-        }
-      ],
-      done
-    );
   });
 
   it('OCSP Revoked Cert - Fail Closed', function (done)
@@ -207,18 +187,15 @@ describe('Connection with OCSP test', function ()
     snowflake.configure({ocspFailOpen: false});
     const connection = snowflake.createConnection(testRevokedConnectionOptions);
 
-    async.series([
-        function (callback)
-        {
           connection.connect(function (err)
           {
+            try {
             assert.strictEqual(err.cause.code, Errors.codes.ERR_OCSP_REVOKED);
-            callback();
+              done();
+            } catch (error) {
+              done(error);
+            }
           });
-        },
-      ],
-      done
-    );
   });*/
 
   it('OCSP Cache Server Timeout - Fail Open', function (done)
@@ -231,20 +208,17 @@ describe('Connection with OCSP test', function ()
 
     const connection = snowflake.createConnection(getConnectionOptions());
 
-    async.series([
-        function (callback)
-        {
           connection.connect(function (err)
           {
             // read error is expected as the account name is fake.
             // This just should not be OCSP error.
+            try {
             assert.strictEqual(err.code, Errors.codes.ERR_SF_RESPONSE_FAILURE);
-            callback();
+              done();
+            } catch (error) {
+              done(error);
+            }
           });
-        },
-      ],
-      done
-    );
   });
 
   it('OCSP Cache Server Timeout - Fail Closed', function (done)
@@ -258,11 +232,9 @@ describe('Connection with OCSP test', function ()
     snowflake.configure({ocspFailOpen: false});
     const connection = snowflake.createConnection(getConnectionOptions());
 
-    async.series([
-        function (callback)
-        {
           connection.connect(function (err)
           {
+            try {
             // read error is expected as the account name is fake.
             // This just should not be OCSP error.
             if (err.code !== Errors.codes.ERR_SF_RESPONSE_FAILURE)
@@ -270,12 +242,11 @@ describe('Connection with OCSP test', function ()
               console.log(err);
             }
             assert.strictEqual(err.code, Errors.codes.ERR_SF_RESPONSE_FAILURE);
-            callback();
+              done();
+            } catch (error) {
+              done(error);
+            }
           });
-        },
-      ],
-      done
-    );
   });
 
   it('OCSP Responder Timeout - Fail Open', function (done)
@@ -288,20 +259,17 @@ describe('Connection with OCSP test', function ()
 
     const connection = snowflake.createConnection(getConnectionOptions());
 
-    async.series([
-        function (callback)
-        {
           connection.connect(function (err)
           {
-            // read error is expected as the account name is fake.
-            // This just should not be OCSP error.
-            assert.strictEqual(err.code, Errors.codes.ERR_SF_RESPONSE_FAILURE);
-            callback();
+            try {
+              // read error is expected as the account name is fake.
+              // This just should not be OCSP error.
+              assert.strictEqual(err.code, Errors.codes.ERR_SF_RESPONSE_FAILURE);
+              done();
+            } catch (error) {
+              done(error);
+            }
           });
-        },
-      ],
-      done
-    );
   });
 
   it('OCSP Responder Timeout - Fail Closed', function (done)
@@ -315,11 +283,9 @@ describe('Connection with OCSP test', function ()
     snowflake.configure({ocspFailOpen: false});
     const connection = snowflake.createConnection(getConnectionOptions());
 
-    async.series([
-        function (callback)
-        {
           connection.connect(function (err)
           {
+            try {
             // should be OCSP timeout error.
             if (err.code !== Errors.codes.ERR_SF_NETWORK_COULD_NOT_CONNECT)
             {
@@ -331,12 +297,11 @@ describe('Connection with OCSP test', function ()
               console.log("run hang_webserver.py")
             }
             assert.strictEqual(err.cause.code, Errors.codes.ERR_OCSP_RESPONDER_TIMEOUT);
-            callback();
+              done();
+            } catch (error) {
+              done(error);
+            }
           });
-        },
-      ],
-      done
-    );
   });
 
   it('OCSP Cache Server and Responder Timeout - Fail Open', function (done)
@@ -351,19 +316,16 @@ describe('Connection with OCSP test', function ()
 
     const connection = snowflake.createConnection(getConnectionOptions());
 
-    async.series([
-        function (callback)
-        {
           connection.connect(function (err)
           {
+            try {
             // should be 403
             assert.strictEqual(err.code, Errors.codes.ERR_SF_RESPONSE_FAILURE);
-            callback();
+              done();
+            } catch (error) {
+              done(error);
+            }
           });
-        },
-      ],
-      done
-    );
   });
 
   it('OCSP Responder 403 - Fail Closed', function (done)
@@ -376,11 +338,9 @@ describe('Connection with OCSP test', function ()
     snowflake.configure({ocspFailOpen: false});
     const connection = snowflake.createConnection(getConnectionOptions());
 
-    async.series([
-        function (callback)
-        {
           connection.connect(function (err)
           {
+            try {
             // should be OCSP timeout error.
             if (err.code !== Errors.codes.ERR_SF_NETWORK_COULD_NOT_CONNECT)
             {
@@ -392,12 +352,11 @@ describe('Connection with OCSP test', function ()
               console.log("run hang_webserver.py")
             }
             assert.strictEqual(err.cause.code, Errors.codes.ERR_OCSP_FAILED_OBTAIN_OCSP_RESPONSE);
-            callback();
+              done();
+            } catch (error) {
+              done(error);
+            }
           });
-        },
-      ],
-      done
-    );
   });
 
   it('OCSP Responder 403 - Fail Open', function (done)
@@ -409,19 +368,16 @@ describe('Connection with OCSP test', function ()
 
     const connection = snowflake.createConnection(getConnectionOptions());
 
-    async.series([
-        function (callback)
-        {
           connection.connect(function (err)
           {
+            try {
             // should be OCSP timeout error.
             assert.strictEqual(err.code, Errors.codes.ERR_SF_RESPONSE_FAILURE);
-            callback();
+              done();
+            } catch (error) {
+              done(error);
+            }
           });
-        },
-      ],
-      done
-    );
   });
 
   it('OCSP Responder 404 - Fail Closed', function (done)
@@ -434,11 +390,9 @@ describe('Connection with OCSP test', function ()
     snowflake.configure({ocspFailOpen: false});
     const connection = snowflake.createConnection(getConnectionOptions());
 
-    async.series([
-        function (callback)
-        {
           connection.connect(function (err)
           {
+            try {
             // should be OCSP timeout error.
             assert.strictEqual(err.code, Errors.codes.ERR_SF_NETWORK_COULD_NOT_CONNECT);
             if (err.cause.code === 'ECONNREFUSED')
@@ -446,12 +400,11 @@ describe('Connection with OCSP test', function ()
               console.log("run hang_webserver.py")
             }
             assert.strictEqual(err.cause.code, Errors.codes.ERR_OCSP_FAILED_OBTAIN_OCSP_RESPONSE);
-            callback();
+              done();
+            } catch (error) {
+              done(error);
+            }
           });
-        },
-      ],
-      done
-    );
   });
 
   const testInvalidCertConnectionOptions = [

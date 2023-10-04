@@ -22,12 +22,12 @@ const testConnectionOptions = {
   sfRetryMaxLoginRetries: 2
 };
 
-// const testRevokedConnectionOptions = {
-//   accessUrl: 'https://revoked.badssl.com',
-//   username: 'fakeuser',
-//   password: 'fakepasword',
-//   account: 'fakeaccount'
-// };
+const testRevokedConnectionOptions = {
+  accessUrl: 'https://revoked.badssl.com',
+  username: 'fakeuser',
+  password: 'fakepasword',
+  account: 'fakeaccount'
+};
 
 function getConnectionOptions() {
   // use unique hostname to avoid connection cache in tests.
@@ -149,37 +149,35 @@ describe('Connection with OCSP test', function () {
       }
     });
   });
-  /*
-  it('OCSP Revoked Cert - Fail Open', function (done)
-  {
+
+  // TODO SNOW-930797 Fix and enable Revoked Cert tests
+  it.skip('OCSP Revoked Cert - Fail Open', function (done) {
     const connection = snowflake.createConnection(testRevokedConnectionOptions);
 
-          connection.connect(function (err)
-          {
-            try {
-            assert.strictEqual(err.cause.code, Errors.codes.ERR_OCSP_REVOKED);
-              done();
-            } catch (error) {
-              done(error);
-            }
-          });
+    connection.connect(function (err) {
+      try {
+        assert.strictEqual(err.cause.code, Errors.codes.ERR_OCSP_REVOKED);
+        done();
+      } catch (error) {
+        done(error);
+      }
+    });
   });
 
-  it('OCSP Revoked Cert - Fail Closed', function (done)
-  {
-    snowflake.configure({ocspFailOpen: false});
+  // TODO SNOW-930797 Fix and enable Revoked Cert tests
+  it.skip('OCSP Revoked Cert - Fail Closed', function (done) {
+    snowflake.configure({ ocspFailOpen: false });
     const connection = snowflake.createConnection(testRevokedConnectionOptions);
 
-          connection.connect(function (err)
-          {
-            try {
-            assert.strictEqual(err.cause.code, Errors.codes.ERR_OCSP_REVOKED);
-              done();
-            } catch (error) {
-              done(error);
-            }
-          });
-  });*/
+    connection.connect(function (err) {
+      try {
+        assert.strictEqual(err.cause.code, Errors.codes.ERR_OCSP_REVOKED);
+        done();
+      } catch (error) {
+        done(error);
+      }
+    });
+  });
 
   it('OCSP Cache Server Timeout - Fail Open', function (done) {
     // cache server is used

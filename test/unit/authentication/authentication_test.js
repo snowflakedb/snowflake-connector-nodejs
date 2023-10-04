@@ -13,6 +13,7 @@ var auth_keypair = require('./../../../lib/authentication/auth_keypair');
 var auth_oauth = require('./../../../lib/authentication/auth_oauth');
 var auth_okta = require('./../../../lib/authentication/auth_okta');
 var authenticationTypes = require('./../../../lib/authentication/authentication').authenticationTypes;
+const HttpAgent = require('https').Agent;
 
 var MockTestUtil = require('./../mock/mock_test_util');
 
@@ -74,6 +75,7 @@ describe('external browser authentication', function ()
   const BROWSER_ACTION_TIMEOUT = 10000;
   const connectionConfig= {
     getBrowserActionTimeout: () => BROWSER_ACTION_TIMEOUT,
+    getProxy: () => {},
     host: 'fakehost'
   }
 
@@ -89,25 +91,35 @@ describe('external browser authentication', function ()
         return;
       }
     });
-    mock('ssoUrlProvider', {
-      getSSOURL: async function (authenticator, serviceName, account, callback_port, user, host) {
+    mock('httpclient', {
+      getAgent: function (url, body, header)
+      {
+        return new HttpAgent();
+      },
+      post: async function (url, body, header)
+      {
         const data =
           {
-            ssoUrl: mockSsoURL,
-            proofKey: mockProofKey
+            data: {
+              data:
+                {
+                  ssoUrl: mockSsoURL,
+                  proofKey: mockProofKey
+                }
+            }
           }
-        browserRedirectPort = callback_port.toString();
+        browserRedirectPort = body['data']['BROWSER_MODE_REDIRECT_PORT'];
         return data;
       }
     });
 
     webbrowser = require('webbrowser');
-    ssoUrlProvider = require('ssoUrlProvider');
+    httpclient = require('httpclient');
   });
 
   it('external browser - authenticate method is thenable', done =>
   {
-    const auth = new auth_web(connectionConfig, ssoUrlProvider, webbrowser.open);
+    const auth = new auth_web(connectionConfig, httpclient, webbrowser.open);
 
     auth.authenticate(credentials.authenticator, '', credentials.account, credentials.username, credentials.host)
       .then(done)
@@ -116,7 +128,7 @@ describe('external browser authentication', function ()
 
   it('external browser - get success', async function ()
   {
-    const auth = new auth_web(connectionConfig, ssoUrlProvider, webbrowser.open);
+    const auth = new auth_web(connectionConfig, httpclient, webbrowser.open);
     await auth.authenticate(credentials.authenticator, '', credentials.account, credentials.username, credentials.host);
 
     var body = { data: {} };
@@ -138,21 +150,32 @@ describe('external browser authentication', function ()
         return;
       }
     });
-    mock('ssoUrlProvider', {
-      getSSOURL: async function (authenticator, serviceName, account, callback_port, user, host) {
+
+    mock('httpclient', {
+      getAgent: function (url, body, header)
+      {
+        return new HttpAgent();
+      },
+      post: async function (url, body, header)
+      {
         const data =
           {
-            ssoUrl: mockSsoURL
+            data: {
+              data:
+                {
+                  ssoUrl: mockSsoURL
+                }
+            }
           }
-        browserRedirectPort = callback_port.toString();
+        browserRedirectPort = body['data']['BROWSER_MODE_REDIRECT_PORT'];
         return data;
       }
     });
 
     webbrowser = require('webbrowser');
-    ssoUrlProvider = require('ssoUrlProvider');
+    httpclient = require('httpclient');
 
-    const auth = new auth_web(connectionConfig, ssoUrlProvider, webbrowser.open);
+    const auth = new auth_web(connectionConfig, httpclient, webbrowser.open);
     await auth.authenticate(credentials.authenticator, '', credentials.account, credentials.username, credentials.host);
 
     var body = { data: {} };

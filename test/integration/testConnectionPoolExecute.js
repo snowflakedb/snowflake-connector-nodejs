@@ -4,14 +4,16 @@
 
 const async = require('async');
 const testUtil = require('./testUtil');
+const {randomizeName} = require('./testUtil');
 
 describe('Execute test with Pool', function () {
   let connectionPool = null;
-  const createNodeTSQL = 'create or replace table NodeT(colA number, colB varchar)';
-  const selectAllSQL = 'select * from NodeT';
-  const insertNodeTSQL = 'insert into NodeT values(1, \'a\')';
-  const updateNodeTSQL = 'update NodeT set COLA = 2, COLB = \'b\' where COLA = 1';
-  const dropNodeTSQL = 'drop table if exists NodeT';
+  const nodeT= randomizeName('nodeT');
+  const createNodeTSQL = `create or replace table ${nodeT}(colA number, colB varchar)`;
+  const selectAllSQL = `select * from ${nodeT}`;
+  const insertNodeTSQL = `insert into ${nodeT} values(1, \'a\')`;
+  const updateNodeTSQL = `update ${nodeT} set COLA = 2, COLB = \'b\' where COLA = 1`;
+  const dropNodeTSQL = `drop table if exists ${nodeT}`;
 
   before(function (done) {
     connectionPool = testUtil.createConnectionPool();
@@ -90,7 +92,7 @@ describe('Execute test with Pool', function () {
           testUtil.executeQueryAndVerifyUsePool(
             connectionPool,
             createNodeTSQL,
-            [{'status': 'Table NODET successfully created.'}],
+            [{'status': `Table ${nodeT.toUpperCase()} successfully created.`}],
             callback
           );
         },
@@ -109,14 +111,16 @@ describe('Execute test with Pool', function () {
 
 describe('Execute test use Pool for multiple connections', function () {
   let connectionPool = null;
-  const createNodeASQL = 'create or replace table NodeA(colA number, colB varchar);';
-  const createNodeBSQL = 'create or replace table NodeB(colA number, colB varchar);';
-  const selectAllSQLFromNodeA = 'select * from NodeA;';
-  const selectAllSQLFromNodeB = 'select * from NodeB;';
-  const insertNodeASQL = 'insert into NodeA values(1, \'a\');';
-  const insertNodeBSQL = 'insert into NodeB values(1, \'b\');';
-  const dropNodeASQL = 'drop table if exists NodeA;';
-  const dropNodeBSQL = 'drop table if exists NodeB;';
+  const nodeA = randomizeName('NodeA');
+  const nodeB = randomizeName('NodeB');
+  const createNodeASQL = `create or replace table ${nodeA} (colA number, colB varchar);`;
+  const createNodeBSQL = `create or replace table ${nodeB}(colA number, colB varchar);`;
+  const selectAllSQLFromNodeA = `select * from ${nodeA};`;
+  const selectAllSQLFromNodeB = `select * from ${nodeB};`;
+  const insertNodeASQL = `insert into ${nodeA} values(1, \'a\');`;
+  const insertNodeBSQL = `insert into ${nodeB} values(1, \'b\');`;
+  const dropNodeASQL = `drop table if exists ${nodeA};`;
+  const dropNodeBSQL = `drop table if exists ${nodeB};`;
 
   before(function (done) {
     connectionPool = testUtil.createConnectionPool();

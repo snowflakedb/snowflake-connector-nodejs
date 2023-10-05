@@ -13,7 +13,6 @@ var auth_keypair = require('./../../../lib/authentication/auth_keypair');
 var auth_oauth = require('./../../../lib/authentication/auth_oauth');
 var auth_okta = require('./../../../lib/authentication/auth_okta');
 var authenticationTypes = require('./../../../lib/authentication/authentication').authenticationTypes;
-const HttpAgent = require('https').Agent;
 
 var MockTestUtil = require('./../mock/mock_test_util');
 
@@ -92,12 +91,7 @@ describe('external browser authentication', function ()
       }
     });
     mock('httpclient', {
-      getAgent: function (url, body, header)
-      {
-        return new HttpAgent();
-      },
-      post: async function (url, body, header)
-      {
+      requestAsync: async function (options) {
         const data =
           {
             data: {
@@ -108,7 +102,7 @@ describe('external browser authentication', function ()
                 }
             }
           }
-        browserRedirectPort = body['data']['BROWSER_MODE_REDIRECT_PORT'];
+        browserRedirectPort = options.data['data']['BROWSER_MODE_REDIRECT_PORT'];
         return data;
       }
     });
@@ -152,12 +146,7 @@ describe('external browser authentication', function ()
     });
 
     mock('httpclient', {
-      getAgent: function (url, body, header)
-      {
-        return new HttpAgent();
-      },
-      post: async function (url, body, header)
-      {
+      requestAsync: async function (options) {
         const data =
           {
             data: {
@@ -167,7 +156,7 @@ describe('external browser authentication', function ()
                 }
             }
           }
-        browserRedirectPort = body['data']['BROWSER_MODE_REDIRECT_PORT'];
+        browserRedirectPort = options.data['data']['BROWSER_MODE_REDIRECT_PORT'];
         return data;
       }
     });

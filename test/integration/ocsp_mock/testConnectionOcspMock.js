@@ -9,6 +9,7 @@ const connOption = require('../connectionOptions');
 const Errors = require('../../../lib/errors');
 const ErrorCodes = Errors.codes;
 const HttpsMockAgent = require('./https_ocsp_mock_agent');
+const Logger = require("../../../lib/logger");
 
 function cloneConnOption(connOption)
 {
@@ -20,9 +21,12 @@ function cloneConnOption(connOption)
   return ret;
 }
 
-describe('Connection test with OCSP Mock', function ()
+describe.only('Connection test with OCSP Mock', function ()
 {
   const valid = cloneConnOption(connOption.valid);
+
+  console.log(connOption.valid);
+
   const isHttps = valid.accessUrl.startsWith("https");
 
   function connect(errcode, connection, callback)
@@ -32,9 +36,8 @@ describe('Connection test with OCSP Mock', function ()
       if (isHttps)
       {
         assert.equal(err.cause.code, errcode);
-      }
-      else
-      {
+      } else {
+        Logger.getInstance().info('Test can be run only for https protocol');
         assert.ok(!err, JSON.stringify(err));
       }
       callback();

@@ -953,68 +953,52 @@ describe('connection.execute() with requestId', function () {
   });
 
   it('keep original sqlText when resubmitting requests', function (done) {
-    async.series(
-      [
-        function (callback) {
-          // request with sqlText and requestId specified
-          const statement = connection.execute(
-            {
-              sqlText: sqlText,
-              requestId: requestId,
-              complete: function (err, stmt) {
-                // if there's an error, fail the test with the error
-                if (err) {
-                  callback(err);
-                }
-                else {
-                  assert.ok(!err, 'there should be no error');
-                  assert.strictEqual(stmt, statement,
-                    'the execute() callback should be invoked with the statement');
+    // request with sqlText and requestId specified
+    const statement = connection.execute(
+      {
+        sqlText: sqlText,
+        requestId: requestId,
+        complete: function (err, stmt) {
+          // if there's an error, fail the test with the error
+          if (err) {
+            done(err);
+          }
+          else {
+            assert.ok(!err, 'there should be no error');
+            assert.strictEqual(stmt, statement,
+              'the execute() callback should be invoked with the statement');
 
-                  // the sql text and request id should be the same as what was passed
-                  // in
-                  assert.strictEqual(statement.getSqlText(), sqlText);
-                  assert.strictEqual(statement.getRequestId(), requestId);
+            // the sql text and request id should be the same as what was passed
+            // in
+            assert.strictEqual(statement.getSqlText(), sqlText);
+            assert.strictEqual(statement.getRequestId(), requestId);
 
-                  callback();
-                }
-              }
-            });
+            done();
+          }
         }
-      ],
-      function (err) {
-        done(err);
       });
   });
 
   it('sqlText is overwritten when resubmitting requests', function (done) {
-    async.series(
-      [
-        function (callback) {
-          // request with only requestId specified
-          const statement = connection.execute(
-            {
-              // intentionally leave sqlText blank to invoke the connector to overwrite the sqlText
-              sqlText: blankSqlText,
-              requestId: requestId,
-              complete: function (err, stmt) {
-                assert.ok(err, 'there should be an error');
-                assert.strictEqual(stmt, statement,
-                  'the execute() callback should be invoked with the statement');
+    // request with only requestId specified
+    const statement = connection.execute(
+      {
+        // intentionally leave sqlText blank to invoke the connector to overwrite the sqlText
+        sqlText: blankSqlText,
+        requestId: requestId,
+        complete: function (err, stmt) {
+          assert.ok(err, 'there should be an error');
+          assert.strictEqual(stmt, statement,
+            'the execute() callback should be invoked with the statement');
 
-                // the sql text and request id should be the same as what was passed
-                // in
-                assert.strictEqual(stmt.getRequestId(), requestId);
-                // the sqlText on the statement is unchanged but the sqlText on the request is different
-                assert.strictEqual(stmt.getSqlText(), blankSqlText);
+          // the sql text and request id should be the same as what was passed
+          // in
+          assert.strictEqual(stmt.getRequestId(), requestId);
+          // the sqlText on the statement is unchanged but the sqlText on the request is different
+          assert.strictEqual(stmt.getSqlText(), blankSqlText);
 
-                callback();
-              }
-            });
+          done();
         }
-      ],
-      function (err) {
-        done(err);
       });
   });
 });

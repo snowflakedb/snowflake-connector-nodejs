@@ -3,7 +3,6 @@
  */
 
 const HttpsAgent = require('https').Agent;
-const Util = require('../../../lib/util');
 const SocketUtil = require('../../../lib/agent/socket_util');
 const Errors = require('../../../lib/errors');
 const ErrorCodes = Errors.codes;

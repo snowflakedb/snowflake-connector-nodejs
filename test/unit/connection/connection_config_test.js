@@ -523,7 +523,7 @@ describe('ConnectionConfig: basic', function ()
           account: 'account',
           disableQueryContextCache: 1234
         },
-        errorCode: ErrorCodes.ERR_CONN_CREATE_INVALID_DISABLED_QUERY_CONTEXT_CACHE, 
+        errorCode: ErrorCodes.ERR_CONN_CREATE_INVALID_DISABLED_QUERY_CONTEXT_CACHE,
       },
       {
         name: 'invalid includeRetryReason',
@@ -537,6 +537,7 @@ describe('ConnectionConfig: basic', function ()
         errorCode: ErrorCodes.ERR_CONN_CREATE_INVALID_INCLUDE_RETRY_REASON,
       },
       {
+
         name: 'invalid consentCacheIdToken',
         options:
         {
@@ -546,6 +547,16 @@ describe('ConnectionConfig: basic', function ()
           consentCacheIdToken: 'invalid'
         },
         errorCode: ErrorCodes.ERR_CONN_CREATE_INVALID_CONSENT_CACHE_ID_TOKEN,
+      },
+      {
+        name: 'invalid clientConfigFile',
+        options: {
+            account: 'account',
+            username: 'username',
+            password: 'password',
+            clientConfigFile: 15
+        },
+        errorCode: ErrorCodes.ERR_CONN_CREATE_INVALID_CLIENT_CONFIG_FILE
       },
     ];
 
@@ -896,6 +907,24 @@ describe('ConnectionConfig: basic', function ()
           username: 'username',
           password: 'password'
         }
+      },
+      {
+        name: 'client config file',
+        input:
+          {
+            account: 'account',
+            username: 'username',
+            password: 'password',
+            clientConfigFile: 'easy_logging_config.json'
+          },
+        options:
+          {
+            accessUrl: 'https://account.snowflakecomputing.com',
+            username: 'username',
+            password: 'password',
+            account: 'account',
+            clientConfigFile: 'easy_logging_config.json'
+          }
       },
     ];
 

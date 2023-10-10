@@ -536,6 +536,17 @@ describe('ConnectionConfig: basic', function ()
         },
         errorCode: ErrorCodes.ERR_CONN_CREATE_INVALID_INCLUDE_RETRY_REASON,
       },
+      {
+        name: 'invalid consentCacheIdToken',
+        options:
+        {
+          username: 'username',
+          password: 'password',
+          account: 'account',
+          consentCacheIdToken: 'invalid'
+        },
+        errorCode: ErrorCodes.ERR_CONN_CREATE_INVALID_CONSENT_CACHE_ID_TOKEN,
+      },
     ];
 
   var createNegativeITCallback = function (testCase)

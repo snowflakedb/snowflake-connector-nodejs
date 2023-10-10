@@ -703,6 +703,79 @@ function buildRequestOutputMappings(clientInfo)
     {
       request:
         {
+          method: 'POST',
+          url: 'http://fakeaccount.snowflakecomputing.com/queries/v1/query-request?requestId=SNOW-728803-requestId',
+          headers:
+            {
+              'Accept': 'application/snowflake',
+              'Authorization': 'Snowflake Token="SESSION_TOKEN"',
+              'Content-Type': 'application/json'
+            },
+          json:
+            {
+              disableOfflineChunks: false,
+              sqlText: 'select 1;',
+              queryContextDTO: { entries: [] }
+            }
+        },
+      output:
+        {
+          err: null,
+          response:
+            {
+              statusCode: 200,
+              statusMessage: 'OK',
+              body:
+                {
+                  'data':
+                    {
+                      'parameters': [],
+                      'rowtype': [],
+                      'rowset': [['1']],
+                      'total': 1,
+                      'returned': 1
+                    },
+                  'message': null,
+                  'code': null,
+                  'success': true
+                }
+            }
+        }
+    },
+    {
+      request:
+        {
+          method: 'POST',
+          url: 'http://fakeaccount.snowflakecomputing.com/queries/v1/query-request?requestId=SNOW-728803-requestId',
+          headers:
+            {
+              'Accept': 'application/snowflake',
+              'Authorization': 'Snowflake Token="SESSION_TOKEN"',
+              'Content-Type': 'application/json'
+            },
+          json:
+            {
+              disableOfflineChunks: false,
+              sqlText: 'SELECT \'Error retrieving query results for request id: SNOW-728803-requestId, please use RESULT_SCAN instead\' AS ErrorMessage;',
+              queryContextDTO: { entries: [] }
+            }
+        },
+      output:
+        {
+          err: null,
+          response:
+            {
+              body:
+                {
+                  'message': 'The specified sqlText should not be overwritten when resubmitting the request',
+                  'success': false
+                }
+            }
+        }
+    },
+    {
+      request:
+        {
           method: 'GET',
           url: 'http://fakeaccount.snowflakecomputing.com/queries/df2852ef-e082-4bb3-94a4-e540bf0e70c6/result?disableOfflineChunks=false',
           headers:

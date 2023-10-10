@@ -18,6 +18,7 @@ describe('Snowflake Configure Tests', function () {
       logLevel: Logger.getInstance().getLevelTag(),
       insecureConnect: GlobalConfig.isInsecureConnect(),
       ocspFailOpen: GlobalConfig.getOcspFailOpen(),
+      keepAlive: GlobalConfig.getKeepAlive(),
       jsonColumnVariantParser: GlobalConfig.jsonColumnVariantParser,
       xmlColumnVariantParser: GlobalConfig.xmlColumnVariantParser
     };
@@ -55,6 +56,11 @@ describe('Snowflake Configure Tests', function () {
           options: { xmlColumnVariantParser: 'unsupported' },
           errorCode: ErrorCodes.ERR_GLOBAL_CONFIGURE_INVALID_XML_PARSER
         },
+        {
+          name: 'invalid keep alive',
+          options: { keepAlive: 'unsupported' },
+          errorCode: ErrorCodes.ERR_GLOBAL_CONFIGURE_INVALID_KEEP_ALIVE
+        }
       ];
 
     negativeTestCases.forEach(testCase => {
@@ -140,6 +146,20 @@ describe('Snowflake Configure Tests', function () {
           }
         },
         {
+          name: 'keepAlive false',
+          options:
+          {
+            keepAlive: false
+          }
+        },
+        {
+          name: 'keepAlive true',
+          options:
+          {
+            keepAlive: true
+          }
+        },
+        {
           name: 'json parser',
           options:
           {
@@ -167,6 +187,8 @@ describe('Snowflake Configure Tests', function () {
             val = GlobalConfig.isInsecureConnect();
           } else if (key == 'ocspFailOpen') {
             val = GlobalConfig.getOcspFailOpen();
+          } else if (key == 'keepAlive') {
+            val = GlobalConfig.getKeepAlive();
           } else {
             val = GlobalConfig[key];
           }

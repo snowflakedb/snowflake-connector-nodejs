@@ -12,10 +12,10 @@ const tmp = require('tmp');
 const os = require('os');
 const path = require('path');
 const zlib = require('zlib');
+const {randomizeName} = require("./testUtil");
 
 const DATABASE_NAME = connOption.valid.database;
 const SCHEMA_NAME = connOption.valid.schema;
-const TEMP_TABLE_NAME = 'TEMP_TABLE';
 
 const SKIPPED = 'SKIPPED';
 const UPLOADED = 'UPLOADED';
@@ -75,6 +75,7 @@ describe('PUT GET test', function () {
 
   let connection;
   let tmpFile;
+  const TEMP_TABLE_NAME = randomizeName('TEMP_TABLE');
   const createTable = `create or replace table ${TEMP_TABLE_NAME} (${COL1} STRING, ${COL2} STRING, ${COL3} STRING)`;
   const truncateTable = `truncate table if exists ${TEMP_TABLE_NAME}`;
   const copyInto = `COPY INTO ${TEMP_TABLE_NAME}`;
@@ -292,6 +293,7 @@ describe('PUT GET overwrite test', function () {
   this.retries(3); // this test suit are considered as flaky test
 
   let connection;
+  const TEMP_TABLE_NAME = randomizeName('TEMP_TABLE');
   const createTable = `create or replace table ${TEMP_TABLE_NAME} (${COL1} STRING, ${COL2} STRING, ${COL3} STRING)`;
   const removeFile = `REMOVE @${DATABASE_NAME}.${SCHEMA_NAME}.%${TEMP_TABLE_NAME}`;
   const dropTable = `DROP TABLE IF EXISTS ${TEMP_TABLE_NAME}`;
@@ -477,8 +479,8 @@ describe('PUT GET test with GCS_USE_DOWNSCOPED_CREDENTIAL', function () {
   this.retries(3); // this test suit are considered as flaky test
 
   let connection;
-
   let tmpFile;
+  const TEMP_TABLE_NAME = randomizeName('TEMP_TABLE');
   const createTable = `create or replace table ${TEMP_TABLE_NAME} (${COL1} STRING, ${COL2} STRING, ${COL3} STRING)`;
   const copyInto = `COPY INTO ${TEMP_TABLE_NAME}`;
   const removeFile = `REMOVE @${DATABASE_NAME}.${SCHEMA_NAME}.%${TEMP_TABLE_NAME}`;
@@ -649,6 +651,7 @@ describe('PUT GET test with GCS_USE_DOWNSCOPED_CREDENTIAL', function () {
 describe('PUT GET test with multiple files', function () {
   let connection;
   let tmpDir;
+  const TEMP_TABLE_NAME = randomizeName('TEMP_TABLE');
   const stage = `@${DATABASE_NAME}.${SCHEMA_NAME}.%${TEMP_TABLE_NAME}`;
   const removeFile = `REMOVE ${stage}`;
   let tmpFiles; // FileSyncObject[]
@@ -862,6 +865,7 @@ describe('PUT GET test with multiple files', function () {
 
 describe('PUT GET test without compress', function () {
   let connection;
+  const TEMP_TABLE_NAME = randomizeName('TEMP_TABLE');
   const stage = `@${DATABASE_NAME}.${SCHEMA_NAME}.%${TEMP_TABLE_NAME}`;
   const createTable = `create or replace table ${TEMP_TABLE_NAME} (${COL1} STRING, ${COL2} STRING, ${COL3} STRING)`;
   const removeFile = `REMOVE ${stage}`;
@@ -959,6 +963,7 @@ describe('PUT GET test without compress', function () {
 
 describe('PUT GET test with different size', function () {
   let connection;
+  const TEMP_TABLE_NAME = randomizeName('TEMP_TABLE');
   const stage = `@${DATABASE_NAME}.${SCHEMA_NAME}.%${TEMP_TABLE_NAME}`;
   const createTable = `create or replace table ${TEMP_TABLE_NAME} (${COL1} STRING, ${COL2} STRING, ${COL3} STRING)`;
   const removeFile = `REMOVE ${stage}`;
@@ -1092,6 +1097,7 @@ describe('PUT GET test with different size', function () {
 
 describe('PUT GET test with error', function () {
   let connection;
+  const TEMP_TABLE_NAME = randomizeName('TEMP_TABLE');
   const stage = `@${DATABASE_NAME}.${SCHEMA_NAME}.%${TEMP_TABLE_NAME}`;
   const stage_not_exist = `@${DATABASE_NAME}.${SCHEMA_NAME}.%NONEXISTTABLE`;
   const createTable = `create or replace table ${TEMP_TABLE_NAME} (${COL1} STRING, ${COL2} STRING, ${COL3} STRING)`;

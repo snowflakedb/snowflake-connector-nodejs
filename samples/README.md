@@ -52,3 +52,9 @@ npm run jsonParserComparison 300000 300000 Function
  ```
 npm run jsonParserComparison 300000 300000 JSON
 ```
+
+Run query reading all rows vs streaming the rows
+----------------------------------------------------------------------
+
+1. Set your query in [`rowsVsStreamingQuery.js`](./rowsVsStreamingQuery.js)`
+2. Run `npm run rowsVsStreamingQuery`

@@ -5,6 +5,7 @@ const assert = require('assert');
 const async = require('async');
 const testUtil = require('./testUtil');
 const { configureLogger } = require('../configureLogger');
+const {randomizeName} = require('./testUtil');
 
 describe('Large result Set Tests', function ()
 {
@@ -110,10 +111,12 @@ describe('Large result Set Tests', function ()
 
   describe('Large Result Set Tests For Variant Column Type', function ()
   {
-    const createTempTable = 'create or replace table testVariantTemp(value string)';
-    const createTableWithVariant = 'create or replace table testVariantTable(colA variant)';
-    const dropTableWithVariant = 'drop table if exists testVariantTable';
-    const dropTempTable = 'drop table if exists testVariantTemp';
+    const testVariantTemp = randomizeName('testVariantTemp');
+    const testVariantTable = randomizeName('testVariantTable');
+    const createTempTable = `create or replace table  ${testVariantTemp} (value string)`;
+    const createTableWithVariant = `create or replace table ${testVariantTable} (colA variant)`;
+    const dropTableWithVariant = `drop table if exists ${testVariantTable}`;
+    const dropTempTable = `drop table if exists ${testVariantTemp} `;
 
     before(async () =>
     {
@@ -129,9 +132,9 @@ describe('Large result Set Tests', function ()
 
     it('testSelectOnVariantColumnForLargeResultSets', function (done)
     {
-      const insertTemp = 'insert into testVariantTemp values (?)';
-      const insertVariant = 'insert into testVariantTable select parse_json(value) from testVariantTemp';
-      const selectVariant = 'select * from testVariantTable';
+      const insertTemp = `insert into ${testVariantTemp} values (?)`;
+      const insertVariant = `insert into ${testVariantTable} select parse_json(value) from ${testVariantTemp}`;
+      const selectVariant = `select * from ${testVariantTable}`;
 
       const arrJSON = [];
       for (let i = 0; i < sourceRowCount; i++)
@@ -252,9 +255,9 @@ describe('Large result Set Tests', function ()
   });
 });
 
-describe('SNOW-743920: Large result set with ~35 chunks', function () {
+describe('SNOW-743920:Large result set with ~35 chunks', function () {
   let connection;
-  const tableName = 'test_table';
+  const tableName = randomizeName('test_table');
   const sourceRowCount = 251002;
   const generatedRowSize = 350;
   const createTable = `create or replace table ${tableName} (data string)`;
@@ -269,11 +272,9 @@ describe('SNOW-743920: Large result set with ~35 chunks', function () {
     await testUtil.executeCmdAsync(connection, 'alter session set USE_CACHED_RESULT = false;');
     await testUtil.executeCmdAsync(connection, createTable);
     await testUtil.executeCmdAsync(connection, populateData);
-    configureLogger('TRACE');
   });
 
   after(async () => {
-    configureLogger('ERROR');
     await testUtil.dropTablesIgnoringErrorsAsync(connection, [tableName]);
     await testUtil.destroyConnectionAsync(connection);
   });

@@ -5,6 +5,7 @@ const snowflake = require('./../../lib/snowflake');
 const connOptions = require('./connectionOptions');
 const assert = require('assert');
 const fs = require('fs');
+const crypto = require('crypto');
 
 module.exports.createConnection = function (validConnectionOptionsOverride = {}) {
   return snowflake.createConnection({
@@ -243,4 +244,15 @@ module.exports.deleteFolderSyncIgnoringErrors = function (directory) {
   } catch (e) {
     console.warn(`Cannot delete folder ${directory}: ${JSON.stringify(e)}`);
   }
+};
+
+/**
+ * @param name string
+ */
+module.exports.randomizeName = function (name) {
+  if (name === null || name.trim() === '') {
+    throw new Error('Name must be non empty string');
+  }
+  const randomString = crypto.randomBytes(4).toString('hex');
+  return name.concat(randomString);
 };

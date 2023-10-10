@@ -8,10 +8,12 @@ var os = require('os');
 var path = require('path');
 var testUtil = require('./testUtil');
 const connOption = require('./connectionOptions');
+const {randomizeName} = require('./testUtil');
 
 const DATABASE_NAME = connOption.valid.database;
 const SCHEMA_NAME = connOption.valid.schema;
 const WAREHOUSE_NAME = connOption.valid.warehouse;
+const TABLE = randomizeName('TESTTBL');
 
 var connection;
 var files = new Array();
@@ -20,7 +22,7 @@ function uploadFiles(callback, index = 0)
 {
   if(index < files.length)
   {
-    var putQuery = `PUT file://${files[index]} @${DATABASE_NAME}.${SCHEMA_NAME}.%TESTTBL`;
+    var putQuery = `PUT file://${files[index]} @${DATABASE_NAME}.${SCHEMA_NAME}.%${TABLE}`;
     var insertStmt = connection.execute({
       sqlText: putQuery,
       complete: function (err, stmt) {
@@ -46,10 +48,10 @@ describe('Test Put Small Files', function ()
 {
   this.timeout(100000);
   var useWH = `use warehouse ${WAREHOUSE_NAME}`;
-  var createTable = `create or replace table ${DATABASE_NAME}.${SCHEMA_NAME}.TESTTBL(colA string, colB number, colC date, colD time, colE TIMESTAMP_NTZ, colF TIMESTAMP_TZ)`;
-  var copytInto = `copy into ${DATABASE_NAME}.${SCHEMA_NAME}.TESTTBL`;
-  var select1row = `select * from ${DATABASE_NAME}.${SCHEMA_NAME}.TESTTBL where colB = 3`;
-  var selectAll = `select count(*) AS NUM from ${DATABASE_NAME}.${SCHEMA_NAME}.TESTTBL`;
+  var createTable = `create or replace table ${DATABASE_NAME}.${SCHEMA_NAME}.${TABLE}(colA string, colB number, colC date, colD time, colE TIMESTAMP_NTZ, colF TIMESTAMP_TZ)`;
+  var copytInto = `copy into ${DATABASE_NAME}.${SCHEMA_NAME}.${TABLE}`;
+  var select1row = `select * from ${DATABASE_NAME}.${SCHEMA_NAME}.${TABLE} where colB = 3`;
+  var selectAll = `select count(*) AS NUM from ${DATABASE_NAME}.${SCHEMA_NAME}.${TABLE}`;
   var count = 5000;
 
   before(function (done)

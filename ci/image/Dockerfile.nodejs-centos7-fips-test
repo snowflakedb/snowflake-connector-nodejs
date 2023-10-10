@@ -31,6 +31,7 @@ RUN chmod +x /usr/local/bin/gosu
 RUN yum -y groupinstall 'Development Tools'
 RUN yum -y install centos-release-scl
 RUN yum -y install devtoolset-8-gcc*
+RUN yum -y install libsecret-devel
 SHELL [ "/usr/bin/scl", "enable", "devtoolset-8"]
 
 # node-fips environment variables

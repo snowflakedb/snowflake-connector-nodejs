@@ -40,6 +40,7 @@ RUN chmod a+x /usr/local/bin/aws
 
 # Development tools + git + zstd + jq + gosu
 RUN yum -y groupinstall "Development Tools" && \
+    yum -y install libsecret-devel && \
     yum -y install zlib-devel && \
     curl -o - https://mirrors.edge.kernel.org/pub/software/scm/git/git-2.26.0.tar.gz | tar xfz - && \
     cd git-2.26.0 && \

@@ -83,6 +83,13 @@ describe('Snowflake Configure Tests', function () {
     const testCases =
       [
         {
+          name: 'logLevel off',
+          options:
+            {
+              logLevel: LOG_LEVEL_TAGS.OFF
+            }
+        },
+        {
           name: 'logLevel error',
           options:
           {

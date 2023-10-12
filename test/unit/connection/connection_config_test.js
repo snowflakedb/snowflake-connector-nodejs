@@ -538,7 +538,7 @@ describe('ConnectionConfig: basic', function ()
       },
       {
 
-        name: 'invalid consentCacheIdToken',
+        name: 'invalid clientStoreTemporaryCredential',
         options:
         {
           username: 'username',
@@ -546,7 +546,7 @@ describe('ConnectionConfig: basic', function ()
           account: 'account',
           consentCacheIdToken: 'invalid'
         },
-        errorCode: ErrorCodes.ERR_CONN_CREATE_INVALID_CONSENT_CACHE_ID_TOKEN,
+        errorCode: ErrorCodes.ERR_CONN_CREATE_INVALID_CLIENT_STORE_TEMPORARY_CREDENTIAL,
       },
       {
         name: 'invalid clientConfigFile',

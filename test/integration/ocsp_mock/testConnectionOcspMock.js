@@ -21,7 +21,7 @@ function cloneConnOption(connOption)
   return ret;
 }
 
-describe.only('Connection test with OCSP Mock', function ()
+describe('Connection test with OCSP Mock', function ()
 {
   const valid = cloneConnOption(connOption.valid);
 

@@ -8,7 +8,7 @@ describe('Secure Storage Test', function () {
   const user = 'mock_user';
   const credType = 'MOCK_CREDTYPE';
   const randomPassword = randomUUID();
-  const userNameForStorage = SecureStorage.buildTemporaryCredentialName(host, user, credType);
+  const userNameForStorage = SecureStorage.buildTemporaryCredentialName(host, user, credType,0);
 
   async function findCredentialFromStorage (userName, password){
     const credentialList = await keytar.findCredentials(host);
@@ -18,20 +18,21 @@ describe('Secure Storage Test', function () {
     return result;
   }
 
-  it('test build user name', function (){
+  it('test build user name', function (done){
     assert.strictEqual(userNameForStorage,
-      '{MOCK_TEST}:{MOCK_USER}:{SF_NODE_JS_DRIVER}:{MOCK_CREDTYPE}'
+      '{MOCK_TEST}:{MOCK_USER}:{SF_NODE_JS_DRIVER}:{MOCK_CREDTYPE}:{0}'
     ); 
+    done();
   });
 
   it('test - write the mock credential in Local Storage', async function () {
     await SecureStorage.writeCredential(host, user, credType, randomPassword);
-    const result = await findCredentialFromStorage(userNameForStorage, randomPassword);
-    assert.strictEqual(result, true);
+    const result = await SecureStorage.readCredential(host, user, credType);
+    assert.strictEqual(randomPassword.toString(), result);
   });
 
   it('test - read the mock credential in Local Stoage', async function () {
-    const savedPassword = await SecureStorage.readCredential(host, user, credType);
+    const savedPassword = await SecureStorage.readCredential(host, user, credType, 0);
     assert.strictEqual(savedPassword, randomPassword);
   });
 

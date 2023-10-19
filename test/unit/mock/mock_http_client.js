@@ -174,7 +174,9 @@ function buildRequestOutputMappings(clientInfo)
           headers:
             {
               'Accept': 'application/json',
-              'Content-Type': 'application/json'
+              'Content-Type': 'application/json',
+              "CLIENT_APP_VERSION": clientInfo.version,
+              "CLIENT_APP_ID": "JavaScript",
             },
           json:
             {
@@ -1158,7 +1160,9 @@ function buildRequestOutputMappings(clientInfo)
           headers:
             {
               'Accept': 'application/json',
-              'Content-Type': 'application/json'
+              'Content-Type': 'application/json',
+              "CLIENT_APP_VERSION": clientInfo.version,
+              "CLIENT_APP_ID": "JavaScript"
             },
           json:
             {
@@ -1373,7 +1377,9 @@ function buildRequestOutputMappings(clientInfo)
           headers:
             {
               'Accept': 'application/json',
-              'Content-Type': 'application/json'
+              'Content-Type': 'application/json',
+              "CLIENT_APP_VERSION": clientInfo.version,
+              "CLIENT_APP_ID": "JavaScript"
             },
           json:
             {
@@ -1478,7 +1484,9 @@ function buildRequestOutputMappings(clientInfo)
           headers:
             {
               'Accept': 'application/json',
-              'Content-Type': 'application/json'
+              'Content-Type': 'application/json',
+              "CLIENT_APP_VERSION": clientInfo.version,
+              "CLIENT_APP_ID": "JavaScript"
             },
           json:
             {
@@ -1583,7 +1591,9 @@ function buildRequestOutputMappings(clientInfo)
           headers:
             {
               'Accept': 'application/json',
-              'Content-Type': 'application/json'
+              'Content-Type': 'application/json',
+              "CLIENT_APP_VERSION": clientInfo.version,
+              "CLIENT_APP_ID": "JavaScript"
             },
           json:
             {
@@ -1670,7 +1680,9 @@ function buildRequestOutputMappings(clientInfo)
           headers:
             {
               'Accept': 'application/json',
-              'Content-Type': 'application/json'
+              'Content-Type': 'application/json',
+              "CLIENT_APP_VERSION": clientInfo.version,
+              "CLIENT_APP_ID": "JavaScript"
             },
           json:
             {
@@ -1706,7 +1718,10 @@ function buildRequestOutputMappings(clientInfo)
           headers:
             {
               'Accept': 'application/json',
-              'Content-Type': 'application/json'
+              'Content-Type': 'application/json',
+              "CLIENT_APP_VERSION": clientInfo.version,
+              "CLIENT_APP_ID": "JavaScript"
+              
             },
           json:
             {
@@ -1742,7 +1757,9 @@ function buildRequestOutputMappings(clientInfo)
           headers:
             {
               'Accept': 'application/json',
-              'Content-Type': 'application/json'
+              'Content-Type': 'application/json',
+              "CLIENT_APP_VERSION": clientInfo.version,
+              "CLIENT_APP_ID": "JavaScript"
             },
           json:
             {

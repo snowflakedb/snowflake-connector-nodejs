@@ -522,6 +522,42 @@ describe('Util', function ()
       }
   })
 
+  it("Util.isLoginRequest Test", function () {
+    const baseUrl = 'wwww.test.com';
+    const testCases = 
+    [
+      {
+        endPoint: '/v1/login-request',
+        result: true, 
+      },
+      {
+        endPoint: '/login-request',
+        result: false, 
+      },
+      {
+        endPoint: '/authenticator-request',
+        result:true,
+      },
+      {
+        endPoint: '/authenticator-requ',
+        result:false,
+      },
+      {
+        endPoint: '/token-request',
+        result:true,
+      },
+      {
+        endPoint: '/tokenRequest',
+        result:false,
+      }
+    ];
+    for (const {endPoint,result} of testCases)
+    {
+      const isLoginRequest = Util.isLoginRequest(baseUrl+endPoint);
+      assert.strictEqual(isLoginRequest,result);
+    }
+  })
+
   it('Util.apply()', function ()
   {
     assert.strictEqual(Util.apply(null, null), null);

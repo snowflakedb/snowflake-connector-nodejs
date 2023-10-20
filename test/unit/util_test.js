@@ -522,40 +522,48 @@ describe('Util', function ()
       }
   });
 
-  it("Util.isLoginRequest Test", function () {
+  describe("Util.isLoginRequest Test", function () {
     const baseUrl = 'wwww.test.com';
     const testCases = 
     [
       {
+        testName: 'test URL with a right login end point',
         endPoint: '/v1/login-request',
         result: true, 
       },
       {
+        testName: 'test URL with a wrong login end point',
         endPoint: '/login-request',
         result: false, 
       },
       {
+        testName: 'test URL with a right authenticator-request point',
         endPoint: '/authenticator-request',
         result:true,
       },
       {
+        testName: 'test URL with a wrong authenticator-request point',
         endPoint: '/authenticator-requ',
         result:false,
       },
       {
+        testName: 'test URL with a right token point',
         endPoint: '/token-request',
         result:true,
       },
       {
+        testName: 'test URL with a wrong token point',
         endPoint: '/tokenRequest',
         result:false,
       },
     ];
 
-    for (const {endPoint,result} of testCases)
+    for (const {testName, endPoint,result} of testCases)
     {
-      const isLoginRequest = Util.isLoginRequest(baseUrl + endPoint);
-      assert.strictEqual(isLoginRequest, result);
+      it(testName, function () {
+        const isLoginRequest = Util.isLoginRequest(baseUrl + endPoint);
+        assert.strictEqual(isLoginRequest, result);
+      })
     }
   });
 

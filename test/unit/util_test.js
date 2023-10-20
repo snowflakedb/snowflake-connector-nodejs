@@ -558,6 +558,17 @@ describe('Util', function ()
     }
   })
 
+  it("Util.jitterSleepTime Test", function () {
+    const maxSleepTime = 16;
+    const currentSleepTime = Math.min(maxSleepTime, (Math.random()*15) + 1);
+    const numRetries = Math.min(4, (Math.random() * 3) + 1);
+    const result = Util.jitteredSleepTime(numRetries, currentSleepTime, maxSleepTime);
+    const jitter = currentSleepTime / 2
+    const nextSleep = 2 ** numRetries;
+
+    assert.ok(result === nextSleep + jitter || result === nextSleep - jitter)
+  })
+
   it('Util.apply()', function ()
   {
     assert.strictEqual(Util.apply(null, null), null);

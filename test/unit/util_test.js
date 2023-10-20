@@ -520,7 +520,7 @@ describe('Util', function ()
           assert.strictEqual(url, testCase.result);
         })
       }
-  })
+  });
 
   it("Util.isLoginRequest Test", function () {
     const baseUrl = 'wwww.test.com';
@@ -549,14 +549,15 @@ describe('Util', function ()
       {
         endPoint: '/tokenRequest',
         result:false,
-      }
+      },
     ];
+
     for (const {endPoint,result} of testCases)
     {
-      const isLoginRequest = Util.isLoginRequest(baseUrl+endPoint);
-      assert.strictEqual(isLoginRequest,result);
+      const isLoginRequest = Util.isLoginRequest(baseUrl + endPoint);
+      assert.strictEqual(isLoginRequest, result);
     }
-  })
+  });
 
   it("Util.jitterSleepTime Test", function () {
     const maxSleepTime = 16;
@@ -567,7 +568,7 @@ describe('Util', function ()
     const nextSleep = 2 ** numRetries;
 
     assert.ok(result === nextSleep + jitter || result === nextSleep - jitter)
-  })
+  });
 
   it('Util.apply()', function ()
   {

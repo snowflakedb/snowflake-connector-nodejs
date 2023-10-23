@@ -546,6 +546,16 @@ describe('ConnectionConfig: basic', function ()
         },
         errorCode: ErrorCodes.ERR_CONN_CREATE_INVALID_CLIENT_CONFIG_FILE
       },
+      {
+        name: 'invalid maxLoginTimeout',
+        options: {
+            account: 'account',
+            username: 'username',
+            password: 'password',
+            maxLoginTimeout: 'invalud'
+        },
+        errorCode: ErrorCodes.ERR_CONN_CREATE_INVALID_MAX_LOGIN_TIMEOUT
+      },
     ];
 
   var createNegativeITCallback = function (testCase)
@@ -887,13 +897,13 @@ describe('ConnectionConfig: basic', function ()
           username: 'username',
           password: 'password',
           account: 'account',
-          disableQueryContextCache: true
+          disableQueryContextCache: true,
         },
         options:
         {
           accessUrl: 'https://account.snowflakecomputing.com',
           username: 'username',
-          password: 'password'
+          password: 'password',
         }
       },
       {
@@ -912,6 +922,23 @@ describe('ConnectionConfig: basic', function ()
             password: 'password',
             account: 'account',
             clientConfigFile: 'easy_logging_config.json'
+          }
+      },
+      {
+        name: 'max login time out',
+        input:
+          {
+            account: 'account',
+            username: 'username',
+            password: 'password',
+            maxLoginTimeout: 100,
+          },
+        options:
+          {
+            accessUrl: 'https://account.snowflakecomputing.com',
+            username: 'username',
+            password: 'password',
+            account: 'account',
           }
       },
     ];

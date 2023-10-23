@@ -568,15 +568,75 @@ describe('Util', function ()
   });
 
   it("Util.jitterSleepTime Test", function () {
+    const errorCodes =
+      [
+        {
+          statusCode: 403,
+          retry403: true,
+          isRetryable: true,
+        },
+        {
+          statusCode: 408,
+          retry403: false,
+          isRetryable: true,
+        },
+        {
+          statusCode: 429,
+          retry403: false,
+          isRetryable: true,
+        },
+        {
+          statusCode: 500,
+          retry403: false,
+          isRetryable: true,
+        },
+        {
+          statusCode: 503,
+          retry403: false,
+          isRetryable: true,
+        },
+        {
+          statusCode: 538,
+          retry403: false,
+          isRetryable: true,
+        },
+        {
+          statusCode: 525,
+          retry403: false,
+          isRetryable: true,
+        },
+      ];
+      
     const maxSleepTime = 16;
-    const currentSleepTime = Math.min(maxSleepTime, (Math.random()*15) + 1);
-    const numRetries = Math.min(4, (Math.random() * 3) + 1);
-    const result = Util.jitteredSleepTime(numRetries, currentSleepTime, maxSleepTime);
-    const jitter = currentSleepTime / 2
-    const nextSleep = 2 ** numRetries;
+    const maxLoginTimeout = 300;
+    let currentSleepTime = 1;
+    let retryCount = 1;
+    let totalTimeout = 1;
+    for (const response of errorCodes) {
+       assert.strictEqual(Util.isRetryableHttpError(response,true), true);
 
-    assert.ok(result === nextSleep + jitter || result === nextSleep - jitter)
+       const result = Util.jitteredSleepTime(retryCount, currentSleepTime, maxSleepTime, totalTimeout, maxLoginTimeout);
+       const jitter = currentSleepTime / 2
+       const nextSleep = 2 ** retryCount;
+       currentSleepTime = result.sleep;
+       totalTimeout = result.totalTimeout;
+
+       assert.ok(currentSleepTime <= nextSleep + jitter || currentSleepTime >= nextSleep - jitter)
+       retryCount++;
+    }
+    assert.strictEqual(retryCount, 8);
+    assert.ok(totalTimeout <= maxLoginTimeout);
   });
+
+  it("Util.chooseRandom Test", function () {
+    const positiveInteger = Util.chooseRandom(1, 5);
+    const negativeInteger = Util.chooseRandom(-1, -5);
+    assert.ok(1 <= positiveInteger && positiveInteger <= 5);
+    assert.ok(-5 <= negativeInteger && negativeInteger <= -1);
+
+    const randomNumber = Util.chooseRandom(positiveInteger, negativeInteger);
+    assert.ok(negativeInteger <= randomNumber && randomNumber <= positiveInteger)
+  })
 
   it('Util.apply()', function ()
   {

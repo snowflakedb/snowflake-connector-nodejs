@@ -1033,8 +1033,6 @@ function buildRequestOutputMappings(clientInfo)
           'Accept': 'application/json',
           'Authorization': 'Snowflake Token="SESSION_TOKEN"',
           'Content-Type': 'application/json'
-          //"CLIENT_APP_VERSION": clientInfo.version,
-          //"CLIENT_APP_ID": "JavaScript"
         }
       },
       output:

@@ -552,7 +552,7 @@ describe('ConnectionConfig: basic', function ()
             account: 'account',
             username: 'username',
             password: 'password',
-            maxLoginTimeout: 'invalud'
+            loginTimeout: 'invalud'
         },
         errorCode: ErrorCodes.ERR_CONN_CREATE_INVALID_MAX_LOGIN_TIMEOUT
       },
@@ -925,13 +925,13 @@ describe('ConnectionConfig: basic', function ()
           }
       },
       {
-        name: 'max login time out',
+        name: 'login time out',
         input:
           {
             account: 'account',
             username: 'username',
             password: 'password',
-            maxLoginTimeout: 100,
+            loginTimeout: 1234,
           },
         options:
           {

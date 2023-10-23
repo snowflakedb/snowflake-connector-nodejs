@@ -60,7 +60,8 @@
   },
   "scripts": {
     "lint:check": "eslint",
-    "lint:check:all": "eslint lib system_test test",
+    "lint:check:all": "eslint lib samples system_test test",
+    "lint:check:all:errorsOnly": "npm run lint:check:all -- --quiet",
     "lint:fix": "eslint --fix",
     "test": "mocha -timeout 180000 --recursive --full-trace test/unit/**/*.js test/unit/*.js",
     "test:integration": "mocha -timeout 180000 --recursive --full-trace test/integration/**/*.js test/integration/*.js",

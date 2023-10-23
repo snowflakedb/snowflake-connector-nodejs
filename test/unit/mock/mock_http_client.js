@@ -1042,7 +1042,7 @@ function buildRequestOutputMappings(clientInfo)
         {
           statusCode: 200,
           statusMessage: "OK",
-          body:
+          data:
           {
             code: null,
             data: {

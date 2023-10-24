@@ -607,15 +607,14 @@ describe('Util', function ()
         },
       ];
       
-    const maxSleepTime = 16;
     const maxLoginTimeout = 300;
-    let currentSleepTime = 1;
+    let currentSleepTime = 4;
     let retryCount = 1;
     let totalTimeout = 1;
     for (const response of errorCodes) {
        assert.strictEqual(Util.isRetryableHttpError(response,true), true);
 
-       const result = Util.jitteredSleepTime(retryCount, currentSleepTime, maxSleepTime, totalTimeout, maxLoginTimeout);
+       const result = Util.jitteredSleepTime(retryCount, currentSleepTime, totalTimeout, maxLoginTimeout);
        const jitter = currentSleepTime / 2
        const nextSleep = 2 ** retryCount;
        currentSleepTime = result.sleep;
@@ -624,6 +623,7 @@ describe('Util', function ()
        assert.ok(currentSleepTime <= nextSleep + jitter || currentSleepTime >= nextSleep - jitter)
        retryCount++;
     }
+    
     assert.strictEqual(retryCount, 8);
     assert.ok(totalTimeout <= maxLoginTimeout);
   });

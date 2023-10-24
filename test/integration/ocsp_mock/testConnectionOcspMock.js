@@ -27,8 +27,6 @@ describe('Connection test with OCSP Mock', function ()
 
   const valid = cloneConnOption(connOption.valid);
 
-  console.log(connOption.valid);
-
   const isHttps = valid.accessUrl.startsWith("https");
 
   function connect(errcode, connection, callback)

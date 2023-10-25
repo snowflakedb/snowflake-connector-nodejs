@@ -25,7 +25,7 @@ else
     export PATH=$WORKSPACE/node_modules/mocha/bin:$PATH
 fi
 cp $SOURCE_ROOT/ci/container/package.json .
-npm install
+npm install -g
 
 PACKAGE_NAME=$(cd $WORKSPACE && ls snowflake-sdk*.tgz)
 npm install $WORKSPACE/${PACKAGE_NAME}

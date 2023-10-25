@@ -74,7 +74,7 @@ if [[ "$SHOULD_GENERATE_COVERAGE_REPORT" == "1" ]];
     )
   else
     MOCHA_CMD=(
-        "node" "$WORKSPACE/node_modules/mocha/bin/mocha.js" "--timeout" "$TIMEOUT" "--recursive" "--full-trace"
+        "node" "mocha.js" "--timeout" "$TIMEOUT" "--recursive" "--full-trace"
     )
 fi
 

@@ -26,6 +26,8 @@ else
 fi
 cp $SOURCE_ROOT/ci/container/package.json .
 npm install
+echo "[DEBUG] List of the npm packages: "
+npm list
 
 PACKAGE_NAME=$(cd $WORKSPACE && ls snowflake-sdk*.tgz)
 npm install $WORKSPACE/${PACKAGE_NAME}
@@ -93,6 +95,7 @@ fi
 
 if [[ -z "$GITHUB_ACTIONS" ]]; then
     echo "[INFO] Running Internal Tests. Test result: $WORKSPACE/junit-system-test.xml"
+    echo "[DEBUG]" "${MOCHA_CMD[@]}"
     if ! ${MOCHA_CMD[@]} "$SOURCE_ROOT/system_test/**/*.js"; then
         echo "[ERROR] Test failed"
         [[ -f "$WORKSPACE/junit.xml" ]] && cat $WORKSPACE/junit.xml
@@ -103,6 +106,7 @@ if [[ -z "$GITHUB_ACTIONS" ]]; then
 fi
 
 echo "[INFO] Running Tests: Test result: $WORKSPACE/junit.xml"
+echo "[DEBUG]" "${MOCHA_CMD[@]}"
 if ! ${MOCHA_CMD[@]} "$SOURCE_ROOT/test/**/*.js"; then
     echo "[ERROR] Test failed"
     [[ -f "$WORKSPACE/junit.xml" ]] && cat $WORKSPACE/junit.xml

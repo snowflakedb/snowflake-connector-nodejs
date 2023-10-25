@@ -28,6 +28,8 @@ cp $SOURCE_ROOT/ci/container/package.json .
 npm install
 echo "[DEBUG] List of the npm packages: "
 npm list
+echo `ls $WORKSPACE`
+echo `ls $WORKSPACE/node_modules`
 
 PACKAGE_NAME=$(cd $WORKSPACE && ls snowflake-sdk*.tgz)
 npm install $WORKSPACE/${PACKAGE_NAME}

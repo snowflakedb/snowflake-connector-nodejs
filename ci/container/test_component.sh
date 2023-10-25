@@ -25,7 +25,7 @@ else
     export PATH=$WORKSPACE/node_modules/mocha/bin:$PATH
 fi
 cp $SOURCE_ROOT/ci/container/package.json .
-npm install -g
+npm install
 
 PACKAGE_NAME=$(cd $WORKSPACE && ls snowflake-sdk*.tgz)
 npm install $WORKSPACE/${PACKAGE_NAME}
@@ -74,7 +74,7 @@ if [[ "$SHOULD_GENERATE_COVERAGE_REPORT" == "1" ]];
     )
   else
     MOCHA_CMD=(
-        "node" "mocha" "--timeout" "$TIMEOUT" "--recursive" "--full-trace"
+        "node" "$WORKSPACE/node_modules/mocha/bin/mocha.js" "--timeout" "$TIMEOUT" "--recursive" "--full-trace"
     )
 fi
 

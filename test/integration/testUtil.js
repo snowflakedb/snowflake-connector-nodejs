@@ -257,3 +257,13 @@ module.exports.randomizeName = function (name) {
   const randomString = crypto.randomBytes(4).toString('hex');
   return name.concat(randomString);
 };
+
+/**
+ * @param expectedLevel string
+ * @param expectedMessage string
+ * @param actualMessage string
+ */
+module.exports.assertLogMessage = function (expectedLevel, expectedMessage, actualMessage) {
+  const regexPattern = `^{"level":"${expectedLevel}","message":"\\[.*\\]: ${expectedMessage}`;
+  return assert.match(actualMessage, new RegExp(regexPattern));
+};

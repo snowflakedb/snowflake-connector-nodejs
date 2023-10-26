@@ -50,5 +50,6 @@ module.exports = {
       'asyncArrow': 'always',
     }],
     'space-infix-ops': ['warn'],
-  }
+  },
+  ignorePatterns: ['samples/*.js']
 };

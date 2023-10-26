@@ -6,6 +6,7 @@ const connOptions = require('./connectionOptions');
 const assert = require('assert');
 const fs = require('fs');
 const crypto = require('crypto');
+const Logger = require('../../lib/logger');
 
 module.exports.createConnection = function (validConnectionOptionsOverride = {}) {
   return snowflake.createConnection({
@@ -97,7 +98,7 @@ module.exports.dropTablesIgnoringErrorsAsync = async (connection, tableNames) =>
     try {
       await executeCmdAsync(connection, `DROP TABLE IF EXISTS ${tableName}`);
     } catch (e) {
-      console.warn(`Cannot drop table ${tableName}: ${JSON.stringify(e)}`);
+      Logger.getInstance().warn(`Cannot drop table ${tableName}: ${JSON.stringify(e)}`);
     }
   }
 };
@@ -113,7 +114,7 @@ module.exports.dropDBsIgnoringErrorsAsync = async (connection, dbNames) => {
     try {
       await executeCmdAsync(connection, `DROP DATABASE IF EXISTS ${dbName}`);
     } catch (e) {
-      console.warn(`Cannot drop database ${dbName}: ${JSON.stringify(e)}`);
+      Logger.getInstance().warn(`Cannot drop database ${dbName}: ${JSON.stringify(e)}`);
     }
   }
 };
@@ -226,7 +227,7 @@ module.exports.deleteFileSyncIgnoringErrors = function (file) {
       fs.closeSync(file.fd);
       fs.unlinkSync(file.name);
     } catch (e) {
-      console.warn(`Cannot remove file ${file.name}: ${JSON.stringify(e)}`);
+      Logger.getInstance().warn(`Cannot remove file ${file.name}: ${JSON.stringify(e)}`);
     }
   }
 };
@@ -242,7 +243,7 @@ module.exports.deleteFolderSyncIgnoringErrors = function (directory) {
       fs.rmdirSync(directory, { recursive: true });
     }
   } catch (e) {
-    console.warn(`Cannot delete folder ${directory}: ${JSON.stringify(e)}`);
+    Logger.getInstance().warn(`Cannot delete folder ${directory}: ${JSON.stringify(e)}`);
   }
 };
 

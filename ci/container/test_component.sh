@@ -20,19 +20,12 @@ cd $WORKSPACE
 
 if [[ "$LOCAL_USER_NAME" == "jenkins" ]]; then
     cd target_client
-    export PATH=$WORKSPACE/target_client/node_modules/mocha/bin:$PATH
+    export PATH=$WORKSPACE/target_client/node_modules/.bin:$PATH
 else
-    export PATH=$WORKSPACE/node_modules/mocha/bin:$PATH
+    export PATH=$WORKSPACE/node_modules/.bin:$PATH
 fi
 cp $SOURCE_ROOT/ci/container/package.json .
 npm install
-
-echo "[DEBUG] List of workspace"
-ls "$WORKSPACE"
-echo "[DEBUG] List of node_modules"
-ls "$WORKSPACE/node_modules"
-echo "[DEBUG] List of mocha bin"
-ls "$WORKSPACE/node_modules/mocha/bin"
 
 PACKAGE_NAME=$(cd $WORKSPACE && ls snowflake-sdk*.tgz)
 npm install $WORKSPACE/${PACKAGE_NAME}
@@ -81,7 +74,7 @@ if [[ "$SHOULD_GENERATE_COVERAGE_REPORT" == "1" ]];
     )
   else
     MOCHA_CMD=(
-        "node" "mocha" "--timeout" "$TIMEOUT" "--recursive" "--full-trace"
+       "mocha" "--timeout" "$TIMEOUT" "--recursive" "--full-trace"
     )
 fi
 

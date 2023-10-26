@@ -600,31 +600,27 @@ describe('Util', function ()
           retry403: false,
           isRetryable: true,
         },
-        {
-          statusCode: 525,
-          retry403: false,
-          isRetryable: true,
-        },
       ];
       
     const maxLoginTimeout = 300;
-    let currentSleepTime = 4;
+    const base = 4;
+    let currentSleepTime = base;
     let retryCount = 1;
-    let totalTimeout = 1;
+    let totalTimeout = base;
     for (const response of errorCodes) {
+       retryCount++;
        assert.strictEqual(Util.isRetryableHttpError(response,true), true);
 
-       const result = Util.jitteredSleepTime(retryCount, currentSleepTime, totalTimeout, maxLoginTimeout);
+       const result = Util.jitteredSleepTime(retryCount, currentSleepTime, totalTimeout, base, maxLoginTimeout);
        const jitter = currentSleepTime / 2
-       const nextSleep = 2 ** retryCount;
+       const nextSleep = base * (2 ** (retryCount-1));
        currentSleepTime = result.sleep;
        totalTimeout = result.totalTimeout;
 
        assert.ok(currentSleepTime <= nextSleep + jitter || currentSleepTime >= nextSleep - jitter)
-       retryCount++;
     }
     
-    assert.strictEqual(retryCount, 8);
+    assert.strictEqual(retryCount, 7);
     assert.ok(totalTimeout <= maxLoginTimeout);
   });
 

@@ -20,9 +20,9 @@ cd $WORKSPACE
 
 if [[ "$LOCAL_USER_NAME" == "jenkins" ]]; then
     cd target_client
-    export PATH=$WORKSPACE/target_client/node_modules/mocha/bin:$PATH
+    export PATH=$WORKSPACE/target_client/node_modules/.bin:$PATH
 else
-    export PATH=$WORKSPACE/node_modules/mocha/bin:$PATH
+    export PATH=$WORKSPACE/node_modules/.bin:$PATH
 fi
 cp $SOURCE_ROOT/ci/container/package.json .
 npm install

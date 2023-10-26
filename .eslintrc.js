@@ -7,7 +7,14 @@ module.exports = {
     'node': true
   },
   'extends': 'eslint:recommended',
-  'overrides': [],
+  'overrides': [
+    {
+      'files': ['samples/*.js'],
+      'rules': {
+        'no-console': ['warn'],
+      }
+    }
+  ],
   'parserOptions': {
     'ecmaVersion': 'latest'
   },
@@ -48,14 +55,6 @@ module.exports = {
       'named': 'never',
       'asyncArrow': 'always',
     }],
-    'overrides': [
-      {
-        'files': ['samples/*.js'],
-        'rules': {
-          'no-console': ['warn', { 'allow': ['warn', 'error'] }],
-        }
-      }
-    ],
     'space-infix-ops': ['warn'],
   }
 };

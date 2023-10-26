@@ -32,6 +32,7 @@ module.exports = {
     'keyword-spacing': ['warn'],
     'linebreak-style': ['warn', 'unix'],
     'no-async-promise-executor': ['warn'],
+    'no-console': ['error', { 'allow': ['warn', 'error'] }],
     'no-empty': ['warn'],
     'no-ex-assign': ['warn'],
     'no-extra-semi': ['warn'],

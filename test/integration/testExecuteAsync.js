@@ -11,13 +11,13 @@ const QueryStatus = require('../../lib/constants/query_status').code;
 describe('ExecuteAsync test', function () {
   let connection;
 
-  before(function (done) {
+  before(async () => {
     connection = testUtil.createConnection();
-    testUtil.connect(connection, done);
+    await testUtil.connectAsync(connection);
   });
 
-  after(function (done) {
-    testUtil.destroyConnection(connection, done);
+  after(async () => {
+    await testUtil.destroyConnectionAsync(connection);
   });
 
   it('testAsyncQueryWithPromise', function (done) {

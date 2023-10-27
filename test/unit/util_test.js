@@ -623,6 +623,20 @@ describe('Util', function ()
     assert.ok(totalTimeout <= maxLoginTimeout);
   });
 
+  it(" test Exonential Jitter Back Off", function () {
+    const numofRetries = 10;
+    let sleep = 1;
+    let retries = [];
+    for(let i = 0; i < numofRetries; i++) {
+      retries.push(Util.getNextSleepTime(i + 1, sleep));
+      sleep = retries[i];
+    }
+
+    for(let i = 0; i< numofRetries -1; i++) {
+      assert.ok(retries[i] < retries[i + 1]);
+    }
+  })
+
   it("Util.chooseRandom Test", function () {
     const positiveInteger = Util.chooseRandom(1, 5);
     const negativeInteger = Util.chooseRandom(-1, -5);

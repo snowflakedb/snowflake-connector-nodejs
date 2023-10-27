@@ -603,17 +603,16 @@ describe('Util', function ()
       ];
       
     const maxLoginTimeout = 300;
-    const base = 4;
-    let currentSleepTime = base;
+    let currentSleepTime = 4;
     let retryCount = 1;
-    let totalTimeout = base;
+    let totalTimeout = currentSleepTime;
     for (const response of errorCodes) {
        retryCount++;
        assert.strictEqual(Util.isRetryableHttpError(response,true), true);
 
-       const result = Util.jitteredSleepTime(retryCount, currentSleepTime, totalTimeout, base, maxLoginTimeout);
+       const result = Util.jitteredSleepTime(retryCount, currentSleepTime, totalTimeout, maxLoginTimeout);
        const jitter = currentSleepTime / 2
-       const nextSleep = base * (2 ** (retryCount-1));
+       const nextSleep = 2 ** retryCount;
        currentSleepTime = result.sleep;
        totalTimeout = result.totalTimeout;
 

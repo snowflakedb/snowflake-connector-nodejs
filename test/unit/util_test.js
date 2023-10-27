@@ -623,7 +623,7 @@ describe('Util', function ()
     assert.ok(totalTimeout <= maxLoginTimeout);
   });
 
-  it(" test Exonential Jitter Back Off", function () {
+  it("test exponential jitter back off", function () {
     const numofRetries = 10;
     let sleep = 1;
     let retries = [];

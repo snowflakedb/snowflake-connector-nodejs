@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 2015-2019 Snowflake Computing Inc. All rights reserved.
  */
-var externalAccount =
+const externalAccount =
   {
     accessUrl: 'http://externalaccount.reg.local.snowflakecomputing.com:8082',
     username: 'snowman',
@@ -25,28 +25,23 @@ const snowflakeTestSchema = process.env.SNOWFLAKE_TEST_SCHEMA;
 const snowflakeTestRole = process.env.SNOWFLAKE_TEST_ROLE;
 const snowflakeTestPassword = process.env.SNOWFLAKE_TEST_PASSWORD;
 
-if (snowflakeTestProtocol === undefined)
-{
+if (snowflakeTestProtocol === undefined) {
   snowflakeTestProtocol = 'https';
 }
 
-if (snowflakeTestHost === undefined)
-{
+if (snowflakeTestHost === undefined) {
   snowflakeTestHost = snowflakeTestAccount + '.snowflakecomputing.com';
 }
 
-if (snowflakeTestPort === undefined)
-{
+if (snowflakeTestPort === undefined) {
   snowflakeTestPort = '443';
 }
 
-if (snowflakeTestProxyHost === undefined)
-{
+if (snowflakeTestProxyHost === undefined) {
   snowflakeTestProxyHost = 'localhost';
 }
 
-if (snowflakeTestProxyPort === undefined)
-{
+if (snowflakeTestProxyPort === undefined) {
   snowflakeTestProxyPort = '3128';
 }
 

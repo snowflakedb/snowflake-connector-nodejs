@@ -183,7 +183,7 @@ describe('ExecuteAsync test', function () {
         function (callback) {
           connection.getResultsFromQueryId({
             queryId: queryId,
-            complete: async function (err, stmt, rows) {
+            complete: async function (_err, _stmt, rows) {
               const status = await connection.getQueryStatus(queryId);
               assert.strictEqual(QueryStatus[status], QueryStatus.SUCCESS);
               assert.strictEqual(rows[0]['SYSTEM$WAIT'], `waited ${expectedSeconds} seconds`);

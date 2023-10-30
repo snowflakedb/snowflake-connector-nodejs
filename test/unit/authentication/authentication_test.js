@@ -399,6 +399,7 @@ describe('okta authentication', function ()
           json =
           {
             data: {
+              success: true,
               data:
               {
                 ssoUrl: mockssoUrl,
@@ -472,6 +473,7 @@ describe('okta authentication', function ()
           json =
           {
             data: {
+              success: true,
               data:
               {
                 ssoUrl: mockssoUrl,
@@ -514,6 +516,7 @@ describe('okta authentication', function ()
           json =
           {
             data: {
+              success: true,
               data:
               {
                 ssoUrl: mockssoUrl,

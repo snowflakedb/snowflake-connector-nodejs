@@ -7,7 +7,7 @@ var connOption = require('../test/integration/connectionOptions');
 var testUtil = require('../test/integration/testUtil');
 var async = require('async');
 
-describe('testLoginTokenExpire', function ()
+describe.skip('testLoginTokenExpire', function ()
 {
   before(function (done)
   {

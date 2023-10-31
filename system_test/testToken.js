@@ -6,11 +6,13 @@ var assert = require('assert');
 var connOption = require('../test/integration/connectionOptions');
 var testUtil = require('../test/integration/testUtil');
 var async = require('async');
+const { configureLogger } = require('../test/configureLogger');
 
 describe('testLoginTokenExpire', function ()
 {
   before(function (done)
   {
+    configureLogger('TRACE');
     var connectionToSnowflake = snowflake.createConnection(connOption.snowflakeAccount);
     async.series(
       [

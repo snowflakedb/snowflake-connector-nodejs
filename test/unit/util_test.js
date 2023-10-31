@@ -522,159 +522,159 @@ describe('Util', function ()
       }
   });
 
-  // describe("Util.isLoginRequest Test", function () {
-  //   const baseUrl = 'wwww.test.com';
-  //   const testCases = 
-  //   [
-  //     {
-  //       testName: 'test URL with a right login end point',
-  //       endPoint: '/v1/login-request',
-  //       result: true, 
-  //     },
-  //     {
-  //       testName: 'test URL with a wrong login end point',
-  //       endPoint: '/login-request',
-  //       result: false, 
-  //     },
-  //     {
-  //       testName: 'test URL with a right authenticator-request point',
-  //       endPoint: '/authenticator-request',
-  //       result:true,
-  //     },
-  //     {
-  //       testName: 'test URL with a wrong authenticator-request point',
-  //       endPoint: '/authenticator-requ',
-  //       result:false,
-  //     },
-  //     {
-  //       testName: 'test URL with a right token point',
-  //       endPoint: '/token-request',
-  //       result:true,
-  //     },
-  //     {
-  //       testName: 'test URL with a wrong token point',
-  //       endPoint: '/tokenRequest',
-  //       result:false,
-  //     },
-  //   ];
+  describe("Util.isLoginRequest Test", function () {
+    const baseUrl = 'wwww.test.com';
+    const testCases = 
+    [
+      {
+        testName: 'test URL with a right login end point',
+        endPoint: '/v1/login-request',
+        result: true, 
+      },
+      {
+        testName: 'test URL with a wrong login end point',
+        endPoint: '/login-request',
+        result: false, 
+      },
+      {
+        testName: 'test URL with a right authenticator-request point',
+        endPoint: '/authenticator-request',
+        result:true,
+      },
+      {
+        testName: 'test URL with a wrong authenticator-request point',
+        endPoint: '/authenticator-requ',
+        result:false,
+      },
+      {
+        testName: 'test URL with a right token point',
+        endPoint: '/token-request',
+        result:true,
+      },
+      {
+        testName: 'test URL with a wrong token point',
+        endPoint: '/tokenRequest',
+        result:false,
+      },
+    ];
 
-  //   for (const {testName, endPoint,result} of testCases)
-  //   {
-  //     it(testName, function () {
-  //       const isLoginRequest = Util.isLoginRequest(baseUrl + endPoint);
-  //       assert.strictEqual(isLoginRequest, result);
-  //     })
-  //   }
-  // });
+    for (const {testName, endPoint,result} of testCases)
+    {
+      it(testName, function () {
+        const isLoginRequest = Util.isLoginRequest(baseUrl + endPoint);
+        assert.strictEqual(isLoginRequest, result);
+      })
+    }
+  });
 
-  // it("Util.jitterSleepTime Test", function () {
-  //   const errorCodes =
-  //     [
-  //       {
-  //         statusCode: 403,
-  //         retry403: true,
-  //         isRetryable: true,
-  //       },
-  //       {
-  //         statusCode: 408,
-  //         retry403: false,
-  //         isRetryable: true,
-  //       },
-  //       {
-  //         statusCode: 429,
-  //         retry403: false,
-  //         isRetryable: true,
-  //       },
-  //       {
-  //         statusCode: 500,
-  //         retry403: false,
-  //         isRetryable: true,
-  //       },
-  //       {
-  //         statusCode: 503,
-  //         retry403: false,
-  //         isRetryable: true,
-  //       },
-  //       {
-  //         statusCode: 538,
-  //         retry403: false,
-  //         isRetryable: true,
-  //       },
-  //     ];
+  it("Util.jitterSleepTime Test", function () {
+    const errorCodes =
+      [
+        {
+          statusCode: 403,
+          retry403: true,
+          isRetryable: true,
+        },
+        {
+          statusCode: 408,
+          retry403: false,
+          isRetryable: true,
+        },
+        {
+          statusCode: 429,
+          retry403: false,
+          isRetryable: true,
+        },
+        {
+          statusCode: 500,
+          retry403: false,
+          isRetryable: true,
+        },
+        {
+          statusCode: 503,
+          retry403: false,
+          isRetryable: true,
+        },
+        {
+          statusCode: 538,
+          retry403: false,
+          isRetryable: true,
+        },
+      ];
       
-  //   const maxLoginTimeout = 300;
-  //   let currentSleepTime = 4;
-  //   let retryCount = 1;
-  //   let totalTimeout = currentSleepTime;
-  //   for (const response of errorCodes) {
-  //      retryCount++;
-  //      assert.strictEqual(Util.isRetryableHttpError(response,true), true);
+    const maxLoginTimeout = 300;
+    let currentSleepTime = 4;
+    let retryCount = 1;
+    let totalTimeout = currentSleepTime;
+    for (const response of errorCodes) {
+       retryCount++;
+       assert.strictEqual(Util.isRetryableHttpError(response,true), true);
 
-  //      const result = Util.jitteredSleepTime(retryCount, currentSleepTime, totalTimeout, maxLoginTimeout);
-  //      const jitter = currentSleepTime / 2
-  //      const nextSleep = 2 ** retryCount;
-  //      currentSleepTime = result.sleep;
-  //      totalTimeout = result.totalTimeout;
+       const result = Util.jitteredSleepTime(retryCount, currentSleepTime, totalTimeout, maxLoginTimeout);
+       const jitter = currentSleepTime / 2
+       const nextSleep = 2 ** retryCount;
+       currentSleepTime = result.sleep;
+       totalTimeout = result.totalTimeout;
 
-  //      assert.ok(currentSleepTime <= nextSleep + jitter || currentSleepTime >= nextSleep - jitter)
-  //   }
+       assert.ok(currentSleepTime <= nextSleep + jitter || currentSleepTime >= nextSleep - jitter)
+    }
     
-  //   assert.strictEqual(retryCount, 7);
-  //   assert.ok(totalTimeout <= maxLoginTimeout);
-  // });
+    assert.strictEqual(retryCount, 7);
+    assert.ok(totalTimeout <= maxLoginTimeout);
+  });
 
-  // it("test exponential jitter back off", function () {
-  //   const numofRetries = 10;
-  //   let sleep = 1;
-  //   let retries = [];
-  //   for(let i = 0; i < numofRetries; i++) {
-  //     retries.push(Util.getNextSleepTime(i + 1, sleep));
-  //     sleep = retries[i];
-  //   }
+  it("test exponential jitter back off", function () {
+    const numofRetries = 10;
+    let sleep = 1;
+    let retries = [];
+    for(let i = 0; i < numofRetries; i++) {
+      retries.push(Util.getNextSleepTime(i + 1, sleep));
+      sleep = retries[i];
+    }
 
-  //   for(let i = 0; i< numofRetries -1; i++) {
-  //     assert.ok(retries[i] < retries[i + 1]);
-  //   }
-  // })
+    for(let i = 0; i< numofRetries -1; i++) {
+      assert.ok(retries[i] < retries[i + 1]);
+    }
+  })
 
-  // it("Util.chooseRandom Test", function () {
-  //   const positiveInteger = Util.chooseRandom(1, 5);
-  //   const negativeInteger = Util.chooseRandom(-1, -5);
-  //   assert.ok(1 <= positiveInteger && positiveInteger <= 5);
-  //   assert.ok(-5 <= negativeInteger && negativeInteger <= -1);
+  it("Util.chooseRandom Test", function () {
+    const positiveInteger = Util.chooseRandom(1, 5);
+    const negativeInteger = Util.chooseRandom(-1, -5);
+    assert.ok(1 <= positiveInteger && positiveInteger <= 5);
+    assert.ok(-5 <= negativeInteger && negativeInteger <= -1);
 
-  //   const randomNumber = Util.chooseRandom(positiveInteger, negativeInteger);
-  //   assert.ok(negativeInteger <= randomNumber && randomNumber <= positiveInteger)
-  // })
+    const randomNumber = Util.chooseRandom(positiveInteger, negativeInteger);
+    assert.ok(negativeInteger <= randomNumber && randomNumber <= positiveInteger)
+  })
 
-  // it('Util.apply()', function ()
-  // {
-  //   assert.strictEqual(Util.apply(null, null), null);
-  //   assert.strictEqual(Util.apply(null, undefined), null);
-  //   assert.strictEqual(Util.apply(null, {}), null);
-  //   assert.strictEqual(Util.apply(undefined, null), undefined);
-  //   assert.strictEqual(Util.apply(undefined, undefined), undefined);
-  //   assert.strictEqual(Util.apply(undefined, {}), undefined);
+  it('Util.apply()', function ()
+  {
+    assert.strictEqual(Util.apply(null, null), null);
+    assert.strictEqual(Util.apply(null, undefined), null);
+    assert.strictEqual(Util.apply(null, {}), null);
+    assert.strictEqual(Util.apply(undefined, null), undefined);
+    assert.strictEqual(Util.apply(undefined, undefined), undefined);
+    assert.strictEqual(Util.apply(undefined, {}), undefined);
 
-  //   var dst, src;
+    var dst, src;
 
-  //   dst = {};
-  //   src = null;
-  //   assert.strictEqual(Util.apply(dst, src), dst);
+    dst = {};
+    src = null;
+    assert.strictEqual(Util.apply(dst, src), dst);
 
-  //   dst = {a: 1};
-  //   src = {b: 2};
-  //   assert.strictEqual(Util.apply(dst, src), dst);
-  //   assert.strictEqual(Object.keys(dst).length, 2);
-  //   assert.ok(dst.hasOwnProperty('a') && (dst.a === 1));
-  //   assert.ok(dst.hasOwnProperty('b') && (dst.b === 2));
+    dst = {a: 1};
+    src = {b: 2};
+    assert.strictEqual(Util.apply(dst, src), dst);
+    assert.strictEqual(Object.keys(dst).length, 2);
+    assert.ok(dst.hasOwnProperty('a') && (dst.a === 1));
+    assert.ok(dst.hasOwnProperty('b') && (dst.b === 2));
 
-  //   dst = {a: 1};
-  //   src = {a: 2};
-  //   assert.strictEqual(Util.apply(dst, src), dst);
-  //   assert.strictEqual(Object.keys(dst).length, 1);
-  //   assert.ok(dst.hasOwnProperty('a') && (dst.a === 2));
-  // });
+    dst = {a: 1};
+    src = {a: 2};
+    assert.strictEqual(Util.apply(dst, src), dst);
+    assert.strictEqual(Object.keys(dst).length, 1);
+    assert.ok(dst.hasOwnProperty('a') && (dst.a === 2));
+  });
 
   it('Util.isRetryableHttpError()', function ()
   {

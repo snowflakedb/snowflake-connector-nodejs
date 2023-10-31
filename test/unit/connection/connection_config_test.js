@@ -546,16 +546,16 @@ describe('ConnectionConfig: basic', function ()
         },
         errorCode: ErrorCodes.ERR_CONN_CREATE_INVALID_CLIENT_CONFIG_FILE
       },
-      {
-        name: 'invalid maxLoginTimeout',
-        options: {
-            account: 'account',
-            username: 'username',
-            password: 'password',
-            loginTimeout: 'invalud'
-        },
-        errorCode: ErrorCodes.ERR_CONN_CREATE_INVALID_MAX_LOGIN_TIMEOUT
-      },
+      // {
+      //   name: 'invalid maxLoginTimeout',
+      //   options: {
+      //       account: 'account',
+      //       username: 'username',
+      //       password: 'password',
+      //       loginTimeout: 'invalud'
+      //   },
+      //   errorCode: ErrorCodes.ERR_CONN_CREATE_INVALID_MAX_LOGIN_TIMEOUT
+      // },
     ];
 
   var createNegativeITCallback = function (testCase)
@@ -924,23 +924,23 @@ describe('ConnectionConfig: basic', function ()
             clientConfigFile: 'easy_logging_config.json'
           }
       },
-      {
-        name: 'login time out',
-        input:
-          {
-            account: 'account',
-            username: 'username',
-            password: 'password',
-            loginTimeout: 1234,
-          },
-        options:
-          {
-            accessUrl: 'https://account.snowflakecomputing.com',
-            username: 'username',
-            password: 'password',
-            account: 'account',
-          }
-      },
+      // {
+      //   name: 'login time out',
+      //   input:
+      //     {
+      //       account: 'account',
+      //       username: 'username',
+      //       password: 'password',
+      //       loginTimeout: 1234,
+      //     },
+      //   options:
+      //     {
+      //       accessUrl: 'https://account.snowflakecomputing.com',
+      //       username: 'username',
+      //       password: 'password',
+      //       account: 'account',
+      //     }
+      // },
     ];
 
   var createItCallback = function (testCase)

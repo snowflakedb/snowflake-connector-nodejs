@@ -175,8 +175,8 @@ function buildRequestOutputMappings(clientInfo)
             {
               'Accept': 'application/json',
               'Content-Type': 'application/json',
-              //"CLIENT_APP_VERSION": clientInfo.version,
-              //"CLIENT_APP_ID": "JavaScript",
+              "CLIENT_APP_VERSION": clientInfo.version,
+              "CLIENT_APP_ID": "JavaScript",
             },
           json:
             {

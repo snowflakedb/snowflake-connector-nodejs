@@ -23,7 +23,7 @@ function cloneConnOption(connOption)
 
 describe('Connection test with OCSP Mock', function ()
 {
-  // this.timeout(300000);
+  this.timeout(300000);
 
   const valid = cloneConnOption(connOption.valid);
 

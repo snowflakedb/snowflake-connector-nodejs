@@ -8,7 +8,8 @@ const connOption = require("./connectionOptions");
 const testUtil = require("./testUtil");
 const Util = require("./../../lib/util");
 const Core = require("./../../lib/core");
-const stderr = require("test-console").stderr;
+const { stdout } = require('test-console');
+const { assertLogMessage } = require('./testUtil');
 
 describe("Connection test", function () {
   it("return tokens in qaMode", function () {
@@ -111,7 +112,7 @@ describe("Connection test", function () {
 
 describe("Connection test - validate default parameters", function () {
   it('Valid "warehouse" parameter', function () {
-    const output = stderr.inspectSync(() => {
+    const output = stdout.inspectSync(() => {
       snowflake.createConnection({
         account: connOption.valid.account,
         username: connOption.valid.username,
@@ -124,7 +125,7 @@ describe("Connection test - validate default parameters", function () {
   });
 
   it('Invalid "warehouse" parameter', function () {
-    const output = stderr.inspectSync(() => {
+    const output = stdout.inspectSync(() => {
       snowflake.createConnection({
         account: connOption.valid.account,
         username: connOption.valid.username,
@@ -133,13 +134,11 @@ describe("Connection test - validate default parameters", function () {
         validateDefaultParameters: true,
       });
     });
-    assert.deepEqual(output, [
-      '"waerhouse" is an unknown connection parameter. Did you mean "warehouse"?\n',
-    ]);
+    assertLogMessage('ERROR', '\'waerhouse\' is an unknown connection parameter. Did you mean \'warehouse\'?', output[0]);
   });
 
   it('Valid "database" parameter', function () {
-    const output = stderr.inspectSync(() => {
+    const output = stdout.inspectSync(() => {
       snowflake.createConnection({
         account: connOption.valid.account,
         username: connOption.valid.username,
@@ -152,7 +151,7 @@ describe("Connection test - validate default parameters", function () {
   });
 
   it('Invalid "db" parameter', function () {
-    const output = stderr.inspectSync(() => {
+    const output = stdout.inspectSync(() => {
       snowflake.createConnection({
         account: connOption.valid.account,
         username: connOption.valid.username,
@@ -161,11 +160,11 @@ describe("Connection test - validate default parameters", function () {
         validateDefaultParameters: true,
       });
     });
-    assert.deepEqual(output, ['"db" is an unknown connection parameter. Did you mean "host"?\n']);
+    assertLogMessage('ERROR', '\'db\' is an unknown connection parameter. Did you mean \'host\'?', output[0]);
   });
 
   it('Invalid "database" parameter', function () {
-    const output = stderr.inspectSync(() => {
+    const output = stdout.inspectSync(() => {
       snowflake.createConnection({
         account: connOption.valid.account,
         username: connOption.valid.username,
@@ -174,13 +173,11 @@ describe("Connection test - validate default parameters", function () {
         validateDefaultParameters: true,
       });
     });
-    assert.deepEqual(output, [
-      '"datbse" is an unknown connection parameter. Did you mean "database"?\n',
-    ]);
+    assertLogMessage('ERROR', '\'datbse\' is an unknown connection parameter. Did you mean \'database\'?', output[0]);
   });
 
   it('Valid "schema" parameter', function () {
-    const output = stderr.inspectSync(() => {
+    const output = stdout.inspectSync(() => {
       snowflake.createConnection({
         account: connOption.valid.account,
         username: connOption.valid.username,
@@ -193,7 +190,7 @@ describe("Connection test - validate default parameters", function () {
   });
 
   it('Invalid "schema" parameter', function () {
-    const output = stderr.inspectSync(() => {
+    const output = stdout.inspectSync(() => {
       snowflake.createConnection({
         account: connOption.valid.account,
         username: connOption.valid.username,
@@ -202,9 +199,7 @@ describe("Connection test - validate default parameters", function () {
         validateDefaultParameters: true,
       });
     });
-    assert.deepEqual(output, [
-      '"shcema" is an unknown connection parameter. Did you mean "schema"?\n',
-    ]);
+    assertLogMessage('ERROR', '\'shcema\' is an unknown connection parameter. Did you mean \'schema\'?', output[0]);
   });
 });
 

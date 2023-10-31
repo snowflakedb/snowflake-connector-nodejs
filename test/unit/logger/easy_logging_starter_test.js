@@ -8,9 +8,9 @@ const fsPromises = require('fs/promises');
 const path = require('path');
 const os = require('os');
 const Logger = require('../../../lib/logger');
+const {configureLogger} = require("../../configureLogger")
 require('../../../lib/snowflake'); // import of it sets up node logger
 const defaultConfigName = 'sf_client_config.json';
-const logLevelBefore = Logger.getInstance().getLevel();
 let tempDir = null;
 
 before(async function () {
@@ -18,10 +18,7 @@ before(async function () {
 });
 
 after(async function () {
-  Logger.getInstance().configure({
-    level: logLevelBefore,
-    filePath: 'snowflake.log'
-  });
+  configureLogger();
   await fsPromises.rm(tempDir, { recursive: true, force: true });
 });
 

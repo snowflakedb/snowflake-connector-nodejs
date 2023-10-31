@@ -5,7 +5,7 @@ var async = require('async');
 var assert = require('assert');
 var testUtil = require('./testUtil');
 var Util = require('./../../lib/util');
-
+const Logger = require('../../lib/logger');
 
 describe('Test multi statement', function ()
 {
@@ -41,9 +41,9 @@ describe('Test multi statement', function ()
                     connection.execute({
                         sqlText: 'select current_version()',
                         complete: function (err, stmt, rows) {
-                            console.log('=== driver version = ' + Util.driverVersion);
-                            console.log('=== server version =');
-                            console.log(rows);
+                            Logger.getInstance().info('=== driver version = ' + Util.driverVersion);
+                            Logger.getInstance().info('=== server version =');
+                            Logger.getInstance().info(rows);
                             callback();
                         }
                     });
@@ -61,14 +61,14 @@ describe('Test multi statement', function ()
                                 testUtil.checkError(err);
                             });
                             stream.on('data', function (row) {
-                                console.log(row);
+                                Logger.getInstance().info(row);
                                 count += Object.values(row).length;
                                 if (stmt.hasNext()) {
-                                    console.log('==== hasNext');
+                                    Logger.getInstance().info('==== hasNext');
                                     stmt.NextResult();
                                 }
                                 else {
-                                    console.log('==== close connection');
+                                    Logger.getInstance().info('==== close connection');
                                     assert.strictEqual(6, count);
                                     done();
                                 }

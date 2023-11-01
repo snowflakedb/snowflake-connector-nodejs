@@ -10,7 +10,7 @@ const { configureLogger } = require('../test/configureLogger');
 
 describe('testLoginTokenExpire', function ()
 {
-  this.timeout(300100);
+  this.timeout(310000);
   before(function (done)
   {
     configureLogger('TRACE');

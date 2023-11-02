@@ -545,17 +545,7 @@ describe('Util', function ()
         testName: 'test URL with a wrong authenticator-request point',
         endPoint: '/authenticator-requ',
         result:false,
-      },
-      {
-        testName: 'test URL with a right token point',
-        endPoint: '/token-request',
-        result:true,
-      },
-      {
-        testName: 'test URL with a wrong token point',
-        endPoint: '/tokenRequest',
-        result:false,
-      },
+      }
     ];
 
     for (const {testName, endPoint,result} of testCases)

@@ -398,21 +398,20 @@ describe('okta authentication', function ()
         {
           json =
           {
-            data: {
+            data: JSON.stringify( {
               success: true,
-              data:
-              {
+              data: {
                 ssoUrl: mockssoUrl,
                 tokenUrl: mockTokenUrl
               }
-            }
+            })
           }
         }
         if (url === mockTokenUrl)
         {
           json =
           {
-            data: mockCookieToken
+            data: JSON.stringify(mockCookieToken)
           }
         }
         return json;
@@ -472,14 +471,14 @@ describe('okta authentication', function ()
         {
           json =
           {
-            data: {
+            data: JSON.stringify({
               success: true,
               data:
               {
                 ssoUrl: mockssoUrl,
                 tokenUrl: 'abcd'
               }
-            }
+            })
           }
         }
         return json;
@@ -515,21 +514,21 @@ describe('okta authentication', function ()
         {
           json =
           {
-            data: {
+            data: JSON.stringify({
               success: true,
               data:
               {
                 ssoUrl: mockssoUrl,
                 tokenUrl: mockTokenUrl
               }
-            }
+            })
           }
         }
         if (url === mockTokenUrl)
         {
           json =
           {
-            data: mockCookieToken
+            data: JSON.stringify(mockCookieToken)
           }
         }
         return json;
@@ -565,7 +564,7 @@ describe('okta authentication', function ()
     }
   });
 
-  it('okta - check authenticator', function ()
+  it('okta - no authenticator should be added to the request body', function ()
   {
     var body = authenticator.formAuthJSON(connectionOptionsOkta.authenticator,
       connectionOptionsOkta.account,
@@ -573,6 +572,6 @@ describe('okta authentication', function ()
       {}, {}, {});
 
     assert.strictEqual(
-      body['data']['AUTHENTICATOR'], 'https://dev-12345678.okta.com/' , 'Authenticator should be OAUTH');
+      body['data']['AUTHENTICATOR'], undefined, 'No authenticator should be present');
   });
 });

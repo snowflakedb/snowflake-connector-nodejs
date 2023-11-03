@@ -637,11 +637,20 @@ describe('Util', function ()
   it("Util.chooseRandom Test", function () {
     const positiveInteger = Util.chooseRandom(1, 5);
     const negativeInteger = Util.chooseRandom(-1, -5);
+    const randomNumber = Util.chooseRandom(positiveInteger, negativeInteger);
+    let randomNumbers = [];
+
     assert.ok(1 <= positiveInteger && positiveInteger <= 5);
     assert.ok(-5 <= negativeInteger && negativeInteger <= -1);
+    assert.ok(negativeInteger <= randomNumber && randomNumber <= positiveInteger);
 
-    const randomNumber = Util.chooseRandom(positiveInteger, negativeInteger);
-    assert.ok(negativeInteger <= randomNumber && randomNumber <= positiveInteger)
+    for (let i = 0; i < 10; i++) {
+      randomNumbers.push(Util.chooseRandom(positiveInteger, negativeInteger));
+    }
+
+    for (let i = 0; i < 9; i++) {
+      assert.ok(randomNumbers[i] !== randomNumbers[i+1]);
+    }
   })
 
   it("Util.getJitter Test", function () {

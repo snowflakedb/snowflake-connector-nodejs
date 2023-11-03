@@ -3,6 +3,7 @@ const async = require("async");
 const assert = require("assert");
 const connOption = require("./connectionOptions");
 const testUtil = require("./testUtil");
+const Logger = require('../../lib/logger');
 
 if (process.env.RUN_MANUAL_TESTS_ONLY == "true") {
   describe.only("Run manual tests", function () {
@@ -321,7 +322,7 @@ if (process.env.RUN_MANUAL_TESTS_ONLY == "true") {
         let time = await executeSingleQuery();
         sumWithoutKeepAlive += time;
       }
-      console.log(`Sum of time without keep alive: ${sumWithoutKeepAlive}. Sum of time with keep alive:: ${sumWithKeepAlive}`);
+      Logger.getInstance().info(`Sum of time without keep alive: ${sumWithoutKeepAlive}. Sum of time with keep alive:: ${sumWithKeepAlive}`);
       assert.ok(sumWithoutKeepAlive * 0.66 > sumWithKeepAlive, 'With keep alive the queries should work faster');
     });
   });

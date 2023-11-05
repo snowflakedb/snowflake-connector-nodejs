@@ -599,14 +599,13 @@ describe('Util', function ()
     let totalTimeout = currentSleepTime;
     for (const response of errorCodes) {
        retryCount++;
-       assert.strictEqual(Util.isRetryableHttpError(response,true), true);
-
        const result = Util.getJitteredSleepTime(retryCount, currentSleepTime, totalTimeout, maxRetryTimeout);
        const jitter = currentSleepTime / 2
        const nextSleep = 2 ** retryCount;
        currentSleepTime = result.sleep;
        totalTimeout = result.totalTimeout;
-
+       
+       assert.strictEqual(Util.isRetryableHttpError(response,true), true);
        assert.ok(currentSleepTime <= nextSleep + jitter || currentSleepTime >= nextSleep - jitter)
     }
     
@@ -620,7 +619,7 @@ describe('Util', function ()
     let maxRetryCount = 20;
     let totalTimeout = currentSleepTime;
     let retryCount = 1;
-    for ( ; retryCount <maxRetryCount; retryCount++) {
+    for ( ; retryCount < maxRetryCount; retryCount++) {
        const result = Util.getJitteredSleepTime(retryCount, currentSleepTime, totalTimeout, maxRetryTimeout);
        const jitter = currentSleepTime / 2
        const nextSleep = 2 ** retryCount;
@@ -629,8 +628,8 @@ describe('Util', function ()
 
        assert.ok(currentSleepTime <= nextSleep + jitter || currentSleepTime >= nextSleep - jitter)
     }
-    assert.strictEqual(retryCount, 20);
 
+    assert.strictEqual(retryCount, 20);
     })
   });
 

@@ -39,7 +39,6 @@ function getConnectionOptions() {
 }
 
 describe('Connection with OCSP test', function () {
-  this.timeout(180000);
   function cleanupOcspState() {
     OcspResponseCache.deleteCache();
     snowflake.configure({ ocspFailOpen: true });

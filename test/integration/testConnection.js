@@ -779,3 +779,21 @@ describe("Connection Test - isValid", () => {
 
   // there is no way to test heartbeat fail to running instance of snowflake
 });
+
+describe("Connection Test - handling circular reference in isValidAsync exception handling", () => {
+  let shouldMatchNonCircular = '{"one":1}';
+  let shouldMatchCircular = '{"one":1,"myself":"[Circular]"}';
+
+  it("non-circular reference is handled correctly by JSON.stringify replacer", () => {
+    const a = {"one": 1};
+    const replacedA = JSON.stringify(a, Util.getCircularReplacer());
+    assert.deepEqual(replacedA, shouldMatchNonCircular);
+  });
+
+  it("circular reference is handled correctly by JSON.stringify replacer", () => {
+    const b = {"one": 1};
+    b.myself = b;
+    const replacedB = JSON.stringify(b, Util.getCircularReplacer());
+    assert.deepEqual(replacedB, shouldMatchCircular);
+  });
+});

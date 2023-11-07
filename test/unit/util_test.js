@@ -557,8 +557,9 @@ describe('Util', function ()
     }
   });
 
-  it("Util.jitterSleepTime Test", function () {
-    const errorCodes =
+  describe("Util.getJitterSleepTime Test", function () {
+    it('test - retryTimeout is over 300', function () {
+      const errorCodes =
       [
         {
           statusCode: 403,
@@ -592,15 +593,34 @@ describe('Util', function ()
         },
       ];
       
-    const maxLoginTimeout = 300;
-    let currentSleepTime = 4;
+    const maxRetryTimeout = 300;
+    let currentSleepTime = 1;
     let retryCount = 1;
     let totalTimeout = currentSleepTime;
     for (const response of errorCodes) {
        retryCount++;
+       const result = Util.getJitteredSleepTime(retryCount, currentSleepTime, totalTimeout, maxRetryTimeout);
+       const jitter = currentSleepTime / 2
+       const nextSleep = 2 ** retryCount;
+       currentSleepTime = result.sleep;
+       totalTimeout = result.totalTimeout;
+       
        assert.strictEqual(Util.isRetryableHttpError(response,true), true);
+       assert.ok(currentSleepTime <= nextSleep + jitter || currentSleepTime >= nextSleep - jitter)
+    }
+    
+    assert.strictEqual(retryCount, 7);
+    assert.ok(totalTimeout <= maxRetryTimeout);
+    }) 
 
-       const result = Util.jitteredSleepTime(retryCount, currentSleepTime, totalTimeout, maxLoginTimeout);
+    it('test - retryTimeout is 0', function () {
+    const maxRetryTimeout = 0;
+    let currentSleepTime = 1;
+    let maxRetryCount = 20;
+    let totalTimeout = currentSleepTime;
+    let retryCount = 1;
+    for ( ; retryCount < maxRetryCount; retryCount++) {
+       const result = Util.getJitteredSleepTime(retryCount, currentSleepTime, totalTimeout, maxRetryTimeout);
        const jitter = currentSleepTime / 2
        const nextSleep = 2 ** retryCount;
        currentSleepTime = result.sleep;
@@ -608,33 +628,35 @@ describe('Util', function ()
 
        assert.ok(currentSleepTime <= nextSleep + jitter || currentSleepTime >= nextSleep - jitter)
     }
-    
-    assert.strictEqual(retryCount, 7);
-    assert.ok(totalTimeout <= maxLoginTimeout);
+
+    assert.strictEqual(retryCount, 20);
+    })
   });
-
-  it("test exponential jitter back off", function () {
-    const numofRetries = 10;
-    let sleep = 1;
-    let retries = [];
-    for(let i = 0; i < numofRetries; i++) {
-      retries.push(Util.getNextSleepTime(i + 1, sleep));
-      sleep = retries[i];
-    }
-
-    for(let i = 0; i< numofRetries -1; i++) {
-      assert.ok(retries[i] < retries[i + 1]);
-    }
-  })
 
   it("Util.chooseRandom Test", function () {
     const positiveInteger = Util.chooseRandom(1, 5);
     const negativeInteger = Util.chooseRandom(-1, -5);
+    const randomNumber = Util.chooseRandom(positiveInteger, negativeInteger);
+    let randomNumbers = [];
+
     assert.ok(1 <= positiveInteger && positiveInteger <= 5);
     assert.ok(-5 <= negativeInteger && negativeInteger <= -1);
+    assert.ok(negativeInteger <= randomNumber && randomNumber <= positiveInteger);
 
-    const randomNumber = Util.chooseRandom(positiveInteger, negativeInteger);
-    assert.ok(negativeInteger <= randomNumber && randomNumber <= positiveInteger)
+    for (let i = 0; i < 10; i++) {
+      randomNumbers.push(Util.chooseRandom(positiveInteger, negativeInteger));
+    }
+
+    for (let i = 0; i < 9; i++) {
+      assert.ok(randomNumbers[i] !== randomNumbers[i+1]);
+    }
+  })
+
+  it("Util.getJitter Test", function () {
+    const randomNumber = Util.chooseRandom(10,100);
+    const jitter = Util.getJitter(randomNumber);
+
+    assert.ok(randomNumber / -2 <= jitter && jitter <= randomNumber / 2  )
   })
 
   it('Util.apply()', function ()

@@ -547,12 +547,12 @@ describe('ConnectionConfig: basic', function ()
         errorCode: ErrorCodes.ERR_CONN_CREATE_INVALID_CLIENT_CONFIG_FILE
       },
       {
-        name: 'invalid maxLoginTimeout',
+        name: 'invalid retryTimeout',
         options: {
             account: 'account',
             username: 'username',
             password: 'password',
-            loginTimeout: 'invalud'
+            retryTimeout: 'invalud'
         },
         errorCode: ErrorCodes.ERR_CONN_CREATE_INVALID_MAX_LOGIN_TIMEOUT
       },
@@ -925,13 +925,13 @@ describe('ConnectionConfig: basic', function ()
           }
       },
       {
-        name: 'login time out',
+        name: 'retry time out',
         input:
           {
             account: 'account',
             username: 'username',
             password: 'password',
-            loginTimeout: 1234,
+            retryTimeout: 1234,
           },
         options:
           {

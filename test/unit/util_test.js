@@ -782,4 +782,22 @@ describe('Util', function ()
       });
     });
   });
+
+  describe("Util Test - handling circular reference in isValidAsync exception handling", () => {
+    let shouldMatchNonCircular = '{"one":1,"two":2}';
+    let shouldMatchCircular = '{"one":1,"two":2,"myself":"[Circular]"}';
+  
+    it("non-circular reference is handled correctly by JSON.stringify replacer", () => {
+      const a = {"one": 1, "two": 2};
+      const replacedA = JSON.stringify(a, Util.getCircularReplacer());
+      assert.deepEqual(replacedA, shouldMatchNonCircular);
+    });
+  
+    it("circular reference is handled correctly by JSON.stringify replacer", () => {
+      const b = {"one": 1, "two": 2};
+      b.myself = b;
+      const replacedB = JSON.stringify(b, Util.getCircularReplacer());
+      assert.deepEqual(replacedB, shouldMatchCircular);
+    });
+  });
 });

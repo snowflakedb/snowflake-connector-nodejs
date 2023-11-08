@@ -232,6 +232,56 @@ describe('ConnectionConfig: basic', function ()
         errorCode: ErrorCodes.ERR_CONN_CREATE_INVALID_ACCOUNT
       },
       {
+        name: 'account with invalid character',
+        options:
+          {
+            username: 'username',
+            password: 'password',
+            account: 'account?'
+          },
+        errorCode: ErrorCodes.ERR_CONN_CREATE_INVALID_ACCOUNT_REGEX
+      },
+      {
+        name: 'account starting with -',
+        options:
+          {
+            username: 'username',
+            password: 'password',
+            account: '-account'
+          },
+        errorCode: ErrorCodes.ERR_CONN_CREATE_INVALID_ACCOUNT_REGEX
+      },
+      {
+        name: 'account ending with -',
+        options:
+          {
+            username: 'username',
+            password: 'password',
+            account: 'account-'
+          },
+        errorCode: ErrorCodes.ERR_CONN_CREATE_INVALID_ACCOUNT_REGEX
+      },
+      {
+        name: 'account starting and ending with -',
+        options:
+          {
+            username: 'username',
+            password: 'password',
+            account: '-account-'
+          },
+        errorCode: ErrorCodes.ERR_CONN_CREATE_INVALID_ACCOUNT_REGEX
+      },
+      {
+        name: 'account with invalid character in the middle',
+        options:
+          {
+            username: 'username',
+            password: 'password',
+            account: 'acco?unt'
+          },
+        errorCode: ErrorCodes.ERR_CONN_CREATE_INVALID_ACCOUNT_REGEX
+      },
+      {
         name: 'invalid warehouse',
         options:
           {

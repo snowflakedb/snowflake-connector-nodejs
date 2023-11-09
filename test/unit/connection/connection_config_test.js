@@ -1053,6 +1053,7 @@ describe('ConnectionConfig: basic', function ()
             username: 'username',
             password: 'password',
             account: 'account',
+            region: 'subdomain',
           }
       },
       {
@@ -1070,6 +1071,7 @@ describe('ConnectionConfig: basic', function ()
             username: 'username',
             password: 'password',
             account: 'acc_ount',
+            region: 'sub-domain',
           }
       },
     ];

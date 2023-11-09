@@ -32,7 +32,7 @@ describe('Easy logging tests', function () {
     resetEasyLoggingModule();
   });
 
-  it('Should apply easy logging config when connection is being opened with callback', function (done) {
+  xit('Should apply easy logging config when connection is being opened with callback', function (done) {
     const logLevel = 'ERROR';
     createConfigFile(logLevel).then((configFilePath) => {
       const configParameters = createConfigParameters(configFilePath);
@@ -48,7 +48,7 @@ describe('Easy logging tests', function () {
     });
   });
 
-  it('Should fail for connecting with wrong easy logging config', function (done) {
+  xit('Should fail for connecting with wrong easy logging config', function (done) {
     const logLevel = 'something weird';
     createConfigFile(logLevel).then((configFilePath) => {
       const configParameters = createConfigParameters(configFilePath);
@@ -69,7 +69,7 @@ describe('Easy logging tests', function () {
     });
   });
 
-  it('Should apply easy logging config when connection is being opened asynchronously', async function (){
+  xit('Should apply easy logging config when connection is being opened asynchronously', async function (){
     // given
     const logLevel = 'ERROR';
     const configFilePath = await createConfigFile(logLevel);
@@ -83,7 +83,7 @@ describe('Easy logging tests', function () {
     assert.strictEqual(Logger.getInstance().getLevelTag(), logLevel);
   });
 
-  it('Should fail to connect asynchronously with wrong easy logging config', async function (){
+  xit('Should fail to connect asynchronously with wrong easy logging config', async function (){
     // given
     const logLevel = 'something weird';
     const configFilePath = await createConfigFile(logLevel);

@@ -14,7 +14,7 @@ const {codes} = require('./../../lib/errors');
 const errorMessages = require('./../../lib/constants/error_messages');
 let tempDir = null;
 
-describe('Easy logging tests', function () {
+describe.skip('Easy logging tests', function () {
 
   before(async function () {
     tempDir = await fsPromises.mkdtemp(path.join(os.tmpdir(), 'easy_logging_connect_tests_'));
@@ -32,7 +32,7 @@ describe('Easy logging tests', function () {
     resetEasyLoggingModule();
   });
 
-  xit('Should apply easy logging config when connection is being opened with callback', function (done) {
+  it('Should apply easy logging config when connection is being opened with callback', function (done) {
     const logLevel = 'ERROR';
     createConfigFile(logLevel).then((configFilePath) => {
       const configParameters = createConfigParameters(configFilePath);
@@ -48,7 +48,7 @@ describe('Easy logging tests', function () {
     });
   });
 
-  xit('Should fail for connecting with wrong easy logging config', function (done) {
+  it('Should fail for connecting with wrong easy logging config', function (done) {
     const logLevel = 'something weird';
     createConfigFile(logLevel).then((configFilePath) => {
       const configParameters = createConfigParameters(configFilePath);
@@ -69,7 +69,7 @@ describe('Easy logging tests', function () {
     });
   });
 
-  xit('Should apply easy logging config when connection is being opened asynchronously', async function (){
+  it('Should apply easy logging config when connection is being opened asynchronously', async function (){
     // given
     const logLevel = 'ERROR';
     const configFilePath = await createConfigFile(logLevel);
@@ -83,7 +83,7 @@ describe('Easy logging tests', function () {
     assert.strictEqual(Logger.getInstance().getLevelTag(), logLevel);
   });
 
-  xit('Should fail to connect asynchronously with wrong easy logging config', async function (){
+  it('Should fail to connect asynchronously with wrong easy logging config', async function (){
     // given
     const logLevel = 'something weird';
     const configFilePath = await createConfigFile(logLevel);

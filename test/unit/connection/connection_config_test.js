@@ -242,6 +242,16 @@ describe('ConnectionConfig: basic', function ()
         errorCode: ErrorCodes.ERR_CONN_CREATE_INVALID_ACCOUNT_REGEX
       },
       {
+        name: 'account starting with invalid character',
+        options:
+          {
+            username: 'username',
+            password: 'password',
+            account: '?account'
+          },
+        errorCode: ErrorCodes.ERR_CONN_CREATE_INVALID_ACCOUNT_REGEX
+      },
+      {
         name: 'account starting with -',
         options:
           {
@@ -989,6 +999,57 @@ describe('ConnectionConfig: basic', function ()
             username: 'username',
             password: 'password',
             account: 'account',
+          }
+      },
+      {
+        name: 'account with the _',
+        input:
+          {
+            account: 'acc_ount',
+            username: 'username',
+            password: 'password',
+            retryTimeout: 1234,
+          },
+        options:
+          {
+            accessUrl: 'https://acc_ount.snowflakecomputing.com',
+            username: 'username',
+            password: 'password',
+            account: 'acc_ount',
+          }
+      },
+      {
+        name: 'account with subdomain',
+        input:
+          {
+            account: 'account.subdomain',
+            username: 'username',
+            password: 'password',
+            retryTimeout: 1234,
+          },
+        options:
+          {
+            accessUrl: 'https://account.subdomain.snowflakecomputing.com',
+            username: 'username',
+            password: 'password',
+            account: 'account',
+          }
+      },
+      {
+        name: 'account with subdomain with _ and -',
+        input:
+          {
+            account: 'acc_ount.sub-domain',
+            username: 'username',
+            password: 'password',
+            retryTimeout: 1234,
+          },
+        options:
+          {
+            accessUrl: 'https://acc_ount.sub-domain.snowflakecomputing.com',
+            username: 'username',
+            password: 'password',
+            account: 'acc_ount',
           }
       },
     ];

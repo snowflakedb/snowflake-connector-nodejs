@@ -398,20 +398,20 @@ describe('okta authentication', function ()
         {
           json =
           {
-            data: JSON.stringify( {
+            data: {
               success: true,
               data: {
                 ssoUrl: mockssoUrl,
                 tokenUrl: mockTokenUrl
               }
-            })
+            }
           }
         }
         if (url === mockTokenUrl)
         {
           json =
           {
-            data: JSON.stringify(mockCookieToken)
+            data: mockCookieToken
           }
         }
         return json;
@@ -471,14 +471,14 @@ describe('okta authentication', function ()
         {
           json =
           {
-            data: JSON.stringify({
+            data: {
               success: true,
               data:
               {
                 ssoUrl: mockssoUrl,
                 tokenUrl: 'abcd'
               }
-            })
+            }
           }
         }
         return json;
@@ -514,21 +514,21 @@ describe('okta authentication', function ()
         {
           json =
           {
-            data: JSON.stringify({
+            data: {
               success: true,
               data:
               {
                 ssoUrl: mockssoUrl,
                 tokenUrl: mockTokenUrl
               }
-            })
+            }
           }
         }
         if (url === mockTokenUrl)
         {
           json =
           {
-            data: JSON.stringify(mockCookieToken)
+            data: mockCookieToken
           }
         }
         return json;

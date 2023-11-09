@@ -292,6 +292,26 @@ describe('ConnectionConfig: basic', function ()
         errorCode: ErrorCodes.ERR_CONN_CREATE_INVALID_ACCOUNT_REGEX
       },
       {
+        name: 'account with subdomain with invalid character',
+        options:
+          {
+            username: 'username',
+            password: 'password',
+            account: 'account.subdomain?'
+          },
+        errorCode: ErrorCodes.ERR_CONN_CREATE_INVALID_ACCOUNT_REGEX
+      },
+      {
+        name: 'account with subdomain with invalid character in the middle',
+        options:
+          {
+            username: 'username',
+            password: 'password',
+            account: 'account.sub?domain'
+          },
+        errorCode: ErrorCodes.ERR_CONN_CREATE_INVALID_ACCOUNT_REGEX
+      },
+      {
         name: 'invalid warehouse',
         options:
           {

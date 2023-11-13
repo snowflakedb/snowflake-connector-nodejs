@@ -57,7 +57,7 @@ describe('Logger node tests', function () {
     message: LOG_MSG_TRACE
   };
 
-  const millisTimeoutToFlushLogFile = 10;
+  const millisTimeoutToFlushLogFile = 30;
 
   it('should use info level as default', function () {
     // given

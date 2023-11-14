@@ -78,6 +78,36 @@ MockHttpClient.prototype.request = function (request)
 };
 
 /**
+ * Issues an async request.
+ *
+ * @param {Object} request the request options.
+ */
+MockHttpClient.prototype.requestAsync = function (request) {
+  // build the request-to-output map if this is the first request
+  if (!this._mapRequestToOutput) {
+    this._mapRequestToOutput =
+      buildRequestToOutputMap(buildRequestOutputMappings(this._clientInfo));
+  }
+
+  // Closing a connection includes a requestID as a query parameter in the url
+  // Example: http://fake504.snowflakecomputing.com/session?delete=true&requestId=a40454c6-c3bb-4824-b0f3-bae041d9d6a2
+  if (request.url.includes('session?delete=true')) {
+    // Remove the requestID query parameter for the mock HTTP client
+    request.url = request.url.substring(0, request.url.indexOf('&requestId='));
+  }
+
+  // get the output of the specified request from the map
+  const requestOutput = this._mapRequestToOutput[serializeRequest(request)];
+
+  Errors.assertInternal(Util.isObject(requestOutput),
+    'no response available for: ' + serializeRequest(request));
+
+  const response = JSON.parse(JSON.stringify(requestOutput.response));
+
+  return response;
+};
+
+/**
  * Builds a map in which the keys are requests (or rather, serialized versions
  * of the requests) and the values are the outputs of the corresponding request
  * objects.
@@ -174,7 +204,9 @@ function buildRequestOutputMappings(clientInfo)
           headers:
             {
               'Accept': 'application/json',
-              'Content-Type': 'application/json'
+              'Content-Type': 'application/json',
+              "CLIENT_APP_VERSION": clientInfo.version,
+              "CLIENT_APP_ID": "JavaScript",
             },
           json:
             {
@@ -998,6 +1030,37 @@ function buildRequestOutputMappings(clientInfo)
     },
     {
       request:
+      {
+        method: 'GET',
+        url: 'http://fakeaccount.snowflakecomputing.com/monitoring/queries/00000000-0000-0000-0000-000000000000',
+        headers:
+        {
+          'Accept': 'application/json',
+          'Authorization': 'Snowflake Token="SESSION_TOKEN"',
+          'Content-Type': 'application/json'
+        }
+      },
+      output:
+      {
+        err: null,
+        response:
+        {
+          statusCode: 200,
+          statusMessage: "OK",
+          data:
+          {
+            code: null,
+            data: {
+              queries: [{ status: 'RESTARTED' }]
+            },
+            message: null,
+            success: true
+          }
+        }
+      }
+    },
+    {
+      request:
         {
           method: 'GET',
           url: 'http://fakeaccount.snowflakecomputing.com/queries/foobar/result?disableOfflineChunks=false',
@@ -1161,7 +1224,9 @@ function buildRequestOutputMappings(clientInfo)
           headers:
             {
               'Accept': 'application/json',
-              'Content-Type': 'application/json'
+              'Content-Type': 'application/json',
+              "CLIENT_APP_VERSION": clientInfo.version,
+              "CLIENT_APP_ID": "JavaScript"
             },
           json:
             {
@@ -1379,7 +1444,9 @@ function buildRequestOutputMappings(clientInfo)
           headers:
             {
               'Accept': 'application/json',
-              'Content-Type': 'application/json'
+              'Content-Type': 'application/json',
+              "CLIENT_APP_VERSION": clientInfo.version,
+              "CLIENT_APP_ID": "JavaScript"
             },
           json:
             {
@@ -1486,7 +1553,9 @@ function buildRequestOutputMappings(clientInfo)
           headers:
             {
               'Accept': 'application/json',
-              'Content-Type': 'application/json'
+              'Content-Type': 'application/json',
+              "CLIENT_APP_VERSION": clientInfo.version,
+              "CLIENT_APP_ID": "JavaScript"
             },
           json:
             {
@@ -1593,7 +1662,9 @@ function buildRequestOutputMappings(clientInfo)
           headers:
             {
               'Accept': 'application/json',
-              'Content-Type': 'application/json'
+              'Content-Type': 'application/json',
+              "CLIENT_APP_VERSION": clientInfo.version,
+              "CLIENT_APP_ID": "JavaScript"
             },
           json:
             {
@@ -1683,7 +1754,9 @@ function buildRequestOutputMappings(clientInfo)
           headers:
             {
               'Accept': 'application/json',
-              'Content-Type': 'application/json'
+              'Content-Type': 'application/json',
+              "CLIENT_APP_VERSION": clientInfo.version,
+              "CLIENT_APP_ID": "JavaScript"
             },
           json:
             {
@@ -1722,7 +1795,10 @@ function buildRequestOutputMappings(clientInfo)
           headers:
             {
               'Accept': 'application/json',
-              'Content-Type': 'application/json'
+              'Content-Type': 'application/json',
+              "CLIENT_APP_VERSION": clientInfo.version,
+              "CLIENT_APP_ID": "JavaScript"
+              
             },
           json:
             {
@@ -1761,7 +1837,9 @@ function buildRequestOutputMappings(clientInfo)
           headers:
             {
               'Accept': 'application/json',
-              'Content-Type': 'application/json'
+              'Content-Type': 'application/json',
+              "CLIENT_APP_VERSION": clientInfo.version,
+              "CLIENT_APP_ID": "JavaScript"
             },
           json:
             {

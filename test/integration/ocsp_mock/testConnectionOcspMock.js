@@ -23,9 +23,9 @@ function cloneConnOption(connOption)
 
 describe('Connection test with OCSP Mock', function ()
 {
-  const valid = cloneConnOption(connOption.valid);
+  this.timeout(300000);
 
-  console.log(connOption.valid);
+  const valid = cloneConnOption(connOption.valid);
 
   const isHttps = valid.accessUrl.startsWith("https");
 

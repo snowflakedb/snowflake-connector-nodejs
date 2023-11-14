@@ -5,6 +5,7 @@
 var Util = require('./../../lib/util');
 var ErrorCodes = require('./../../lib/errors').codes;
 var MockTestUtil = require('./mock/mock_test_util');
+const QueryStatus = require('./../../lib/constants/query_status').code;
 var assert = require('assert');
 var async = require('async');
 const { configureLogger } = require('../configureLogger');
@@ -1480,6 +1481,316 @@ describe('statement.cancel()', function ()
       assert.strictEqual(stmt, statement,
         'the cancel() callback should be invoked with the statement');
       done();
+    });
+  });
+});
+
+describe('connection.getResultsFromQueryId() asynchronous errors', function () {
+  const queryId = '00000000-0000-0000-0000-000000000000';
+
+  it('not success status', function (done) {
+    const connection = snowflake.createConnection(connectionOptions);
+    async.series(
+      [
+        function (callback) {
+          connection.connect(function (err) {
+            assert.ok(!err, JSON.stringify(err));
+            callback();
+          });
+        },
+        async function () {
+          try {
+            await connection.getResultsFromQueryId({ queryId: queryId });
+            assert.fail();
+          } catch (err) {
+            assert.strictEqual(err.code, ErrorCodes.ERR_GET_RESULTS_QUERY_ID_NOT_SUCCESS_STATUS);
+          }
+        },
+        function (callback) {
+          connection.destroy(function (err) {
+            assert.ok(!err, JSON.stringify(err));
+            callback();
+          });
+        }
+      ],
+      done
+    );
+  });
+});
+
+describe('connection.getResultsFromQueryId() synchronous errors', function () {
+  const connection = snowflake.createConnection(connectionOptions);
+
+  const testCases =
+    [
+      {
+        name: 'missing queryId',
+        options: {},
+        errorCode: ErrorCodes.ERR_CONN_FETCH_RESULT_MISSING_QUERY_ID
+      },
+      {
+        name: 'undefined queryId',
+        options: { queryId: undefined },
+        errorCode: ErrorCodes.ERR_CONN_FETCH_RESULT_MISSING_QUERY_ID
+      },
+      {
+        name: 'null queryId',
+        options: { queryId: null },
+        errorCode: ErrorCodes.ERR_CONN_FETCH_RESULT_MISSING_QUERY_ID
+      },
+      {
+        name: 'non-string queryId',
+        options: { queryId: 123 },
+        errorCode: ErrorCodes.ERR_GET_RESPONSE_QUERY_INVALID_UUID
+      },
+      {
+        name: 'invalid queryId',
+        options: { queryId: 'invalidQueryId' },
+        errorCode: ErrorCodes.ERR_GET_RESPONSE_QUERY_INVALID_UUID
+      }
+    ];
+
+  testCases.forEach(testCase => {
+    it(testCase.name, async function () {
+      try {
+        await connection.getResultsFromQueryId(testCase.options);
+      } catch (err) {
+        assert.strictEqual(err.code, testCase.errorCode);
+      }
+    });
+  });
+});
+
+describe('connection.getQueryStatus() synchronous errors', function () {
+  const connection = snowflake.createConnection(connectionOptions);
+
+  const testCases =
+    [
+      {
+        name: 'undefined queryId',
+        queryId: undefined,
+        errorCode: ErrorCodes.ERR_CONN_FETCH_RESULT_MISSING_QUERY_ID
+      },
+      {
+        name: 'null queryId',
+        queryId: null,
+        errorCode: ErrorCodes.ERR_CONN_FETCH_RESULT_MISSING_QUERY_ID
+      },
+      {
+        name: 'non-string queryId',
+        queryId: 123,
+        errorCode: ErrorCodes.ERR_GET_RESPONSE_QUERY_INVALID_UUID
+      },
+      {
+        name: 'invalid queryId',
+        queryId: 'invalidQueryId',
+        errorCode: ErrorCodes.ERR_GET_RESPONSE_QUERY_INVALID_UUID
+      }
+    ];
+
+  testCases.forEach(testCase => {
+    it(testCase.name, async function () {
+      try {
+        await connection.getQueryStatus(testCase.queryId);
+      } catch (err) {
+        assert.strictEqual(err.code, testCase.errorCode);
+      }
+    });
+  });
+});
+
+describe('connection.getQueryStatusThrowIfError() synchronous errors', function () {
+  const connection = snowflake.createConnection(connectionOptions);
+
+  const testCases =
+    [
+      {
+        name: 'undefined queryId',
+        queryId: undefined,
+        errorCode: ErrorCodes.ERR_CONN_FETCH_RESULT_MISSING_QUERY_ID
+      },
+      {
+        name: 'null queryId',
+        queryId: null,
+        errorCode: ErrorCodes.ERR_CONN_FETCH_RESULT_MISSING_QUERY_ID
+      },
+      {
+        name: 'non-string queryId',
+        queryId: 123,
+        errorCode: ErrorCodes.ERR_GET_RESPONSE_QUERY_INVALID_UUID
+      },
+      {
+        name: 'invalid queryId',
+        queryId: 'invalidQueryId',
+        errorCode: ErrorCodes.ERR_GET_RESPONSE_QUERY_INVALID_UUID
+      }
+    ];
+
+  testCases.forEach(testCase => {
+    it(testCase.name, async function () {
+      try {
+        await connection.getQueryStatusThrowIfError(testCase.queryId);
+      } catch (err) {
+        assert.strictEqual(err.code, testCase.errorCode);
+      }
+    });
+  });
+});
+
+describe('snowflake.isStillRunning()', function () {
+  const connection = snowflake.createConnection(connectionOptions);
+
+  const testCases =
+    [
+      {
+        name: 'Running',
+        status: QueryStatus.RUNNING,
+        expectedValue: true
+      },
+      {
+        name: 'Aborting',
+        status: QueryStatus.ABORTING,
+        expectedValue: false
+      },
+      {
+        name: 'Success',
+        status: QueryStatus.SUCCESS,
+        expectedValue: false
+      },
+      {
+        name: 'Failed with error',
+        status: QueryStatus.FAILED_WITH_ERROR,
+        expectedValue: false
+      },
+      {
+        name: 'Aborted',
+        status: QueryStatus.ABORTED,
+        expectedValue: false
+      },
+      {
+        name: 'Queued',
+        status: QueryStatus.QUEUED,
+        expectedValue: true
+      },
+      {
+        name: 'Failed with incident',
+        status: QueryStatus.FAILED_WITH_INCIDENT,
+        expectedValue: false
+      },
+      {
+        name: 'Disconnected',
+        status: QueryStatus.DISCONNECTED,
+        expectedValue: false
+      },
+      {
+        name: 'Resuming warehouse',
+        status: QueryStatus.RESUMING_WAREHOUSE,
+        expectedValue: true
+      },
+      {
+        name: 'Queued repairing warehouse',
+        status: QueryStatus.QUEUED_REPARING_WAREHOUSE,
+        expectedValue: true
+      },
+      {
+        name: 'Restarted',
+        status: QueryStatus.RESTARTED,
+        expectedValue: false
+      },
+      {
+        name: 'Blocked',
+        status: QueryStatus.BLOCKED,
+        expectedValue: false
+      },
+      {
+        name: 'No data',
+        status: QueryStatus.NO_DATA,
+        expectedValue: true
+      },
+    ];
+
+  testCases.forEach(testCase => {
+    it(testCase.name, function () {
+      assert.strictEqual(testCase.expectedValue, connection.isStillRunning(testCase.status));
+    });
+  });
+});
+
+describe('snowflake.isAnError()', function () {
+  const connection = snowflake.createConnection(connectionOptions);
+
+  const testCases =
+    [
+      {
+        name: 'Running',
+        status: QueryStatus.RUNNING,
+        expectedValue: false
+      },
+      {
+        name: 'Aborting',
+        status: QueryStatus.ABORTING,
+        expectedValue: true
+      },
+      {
+        name: 'Success',
+        status: QueryStatus.SUCCESS,
+        expectedValue: false
+      },
+      {
+        name: 'Failed with error',
+        status: QueryStatus.FAILED_WITH_ERROR,
+        expectedValue: true
+      },
+      {
+        name: 'Aborted',
+        status: QueryStatus.ABORTED,
+        expectedValue: true
+      },
+      {
+        name: 'Queued',
+        status: QueryStatus.QUEUED,
+        expectedValue: false
+      },
+      {
+        name: 'Failed with incident',
+        status: QueryStatus.FAILED_WITH_INCIDENT,
+        expectedValue: true
+      },
+      {
+        name: 'Disconnected',
+        status: QueryStatus.DISCONNECTED,
+        expectedValue: true
+      },
+      {
+        name: 'Resuming warehouse',
+        status: QueryStatus.RESUMING_WAREHOUSE,
+        expectedValue: false
+      },
+      {
+        name: 'Queued repairing warehouse',
+        status: QueryStatus.QUEUED_REPARING_WAREHOUSE,
+        expectedValue: false
+      },
+      {
+        name: 'Restarted',
+        status: QueryStatus.RESTARTED,
+        expectedValue: false
+      },
+      {
+        name: 'Blocked',
+        status: QueryStatus.BLOCKED,
+        expectedValue: true
+      },
+      {
+        name: 'No data',
+        status: QueryStatus.NO_DATA,
+        expectedValue: false
+      },
+    ];
+
+  testCases.forEach(testCase => {
+    it(testCase.name, function () {
+      assert.strictEqual(testCase.expectedValue, connection.isAnError(testCase.status));
     });
   });
 });

@@ -520,6 +520,143 @@ describe('Util', function ()
           assert.strictEqual(url, testCase.result);
         })
       }
+  });
+
+  describe("Util.isLoginRequest Test", function () {
+    const baseUrl = 'wwww.test.com';
+    const testCases = 
+    [
+      {
+        testName: 'test URL with a right login end point',
+        endPoint: '/v1/login-request',
+        result: true, 
+      },
+      {
+        testName: 'test URL with a wrong login end point',
+        endPoint: '/login-request',
+        result: false, 
+      },
+      {
+        testName: 'test URL with a right authenticator-request point',
+        endPoint: '/authenticator-request',
+        result:true,
+      },
+      {
+        testName: 'test URL with a wrong authenticator-request point',
+        endPoint: '/authenticator-requ',
+        result:false,
+      }
+    ];
+
+    for (const {testName, endPoint,result} of testCases)
+    {
+      it(testName, function () {
+        const isLoginRequest = Util.isLoginRequest(baseUrl + endPoint);
+        assert.strictEqual(isLoginRequest, result);
+      })
+    }
+  });
+
+  describe("Util.getJitterSleepTime Test", function () {
+    it('test - retryTimeout is over 300', function () {
+      const errorCodes =
+      [
+        {
+          statusCode: 403,
+          retry403: true,
+          isRetryable: true,
+        },
+        {
+          statusCode: 408,
+          retry403: false,
+          isRetryable: true,
+        },
+        {
+          statusCode: 429,
+          retry403: false,
+          isRetryable: true,
+        },
+        {
+          statusCode: 500,
+          retry403: false,
+          isRetryable: true,
+        },
+        {
+          statusCode: 503,
+          retry403: false,
+          isRetryable: true,
+        },
+        {
+          statusCode: 538,
+          retry403: false,
+          isRetryable: true,
+        },
+      ];
+      
+    const maxRetryTimeout = 300;
+    let currentSleepTime = 1;
+    let retryCount = 1;
+    let totalTimeout = currentSleepTime;
+    for (const response of errorCodes) {
+       retryCount++;
+       const result = Util.getJitteredSleepTime(retryCount, currentSleepTime, totalTimeout, maxRetryTimeout);
+       const jitter = currentSleepTime / 2
+       const nextSleep = 2 ** retryCount;
+       currentSleepTime = result.sleep;
+       totalTimeout = result.totalTimeout;
+       
+       assert.strictEqual(Util.isRetryableHttpError(response,true), true);
+       assert.ok(currentSleepTime <= nextSleep + jitter || currentSleepTime >= nextSleep - jitter)
+    }
+    
+    assert.strictEqual(retryCount, 7);
+    assert.ok(totalTimeout <= maxRetryTimeout);
+    }) 
+
+    it('test - retryTimeout is 0', function () {
+    const maxRetryTimeout = 0;
+    let currentSleepTime = 1;
+    let maxRetryCount = 20;
+    let totalTimeout = currentSleepTime;
+    let retryCount = 1;
+    for ( ; retryCount < maxRetryCount; retryCount++) {
+       const result = Util.getJitteredSleepTime(retryCount, currentSleepTime, totalTimeout, maxRetryTimeout);
+       const jitter = currentSleepTime / 2
+       const nextSleep = 2 ** retryCount;
+       currentSleepTime = result.sleep;
+       totalTimeout = result.totalTimeout;
+
+       assert.ok(currentSleepTime <= nextSleep + jitter || currentSleepTime >= nextSleep - jitter)
+    }
+
+    assert.strictEqual(retryCount, 20);
+    })
+  });
+
+  it("Util.chooseRandom Test", function () {
+    const positiveInteger = Util.chooseRandom(1, 5);
+    const negativeInteger = Util.chooseRandom(-1, -5);
+    const randomNumber = Util.chooseRandom(positiveInteger, negativeInteger);
+    let randomNumbers = [];
+
+    assert.ok(1 <= positiveInteger && positiveInteger <= 5);
+    assert.ok(-5 <= negativeInteger && negativeInteger <= -1);
+    assert.ok(negativeInteger <= randomNumber && randomNumber <= positiveInteger);
+
+    for (let i = 0; i < 10; i++) {
+      randomNumbers.push(Util.chooseRandom(positiveInteger, negativeInteger));
+    }
+
+    for (let i = 0; i < 9; i++) {
+      assert.ok(randomNumbers[i] !== randomNumbers[i+1]);
+    }
+  })
+
+  it("Util.getJitter Test", function () {
+    const randomNumber = Util.chooseRandom(10,100);
+    const jitter = Util.getJitter(randomNumber);
+
+    assert.ok(randomNumber / -2 <= jitter && jitter <= randomNumber / 2  )
   })
 
   it('Util.apply()', function ()
@@ -665,6 +802,24 @@ describe('Util', function ()
       it(`${name} is invalid`, () => {
         assert.ok(!Util.isPrivateKey(key));
       });
+    });
+  });
+
+  describe("Util Test - handling circular reference in isValidAsync exception handling", () => {
+    let shouldMatchNonCircular = '{"one":1,"two":2}';
+    let shouldMatchCircular = '{"one":1,"two":2,"myself":"[Circular]"}';
+  
+    it("non-circular reference is handled correctly by JSON.stringify replacer", () => {
+      const a = {"one": 1, "two": 2};
+      const replacedA = JSON.stringify(a, Util.getCircularReplacer());
+      assert.deepEqual(replacedA, shouldMatchNonCircular);
+    });
+  
+    it("circular reference is handled correctly by JSON.stringify replacer", () => {
+      const b = {"one": 1, "two": 2};
+      b.myself = b;
+      const replacedB = JSON.stringify(b, Util.getCircularReplacer());
+      assert.deepEqual(replacedB, shouldMatchCircular);
     });
   });
 });

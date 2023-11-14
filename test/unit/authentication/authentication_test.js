@@ -399,8 +399,8 @@ describe('okta authentication', function ()
           json =
           {
             data: {
-              data:
-              {
+              success: true,
+              data: {
                 ssoUrl: mockssoUrl,
                 tokenUrl: mockTokenUrl
               }
@@ -472,6 +472,7 @@ describe('okta authentication', function ()
           json =
           {
             data: {
+              success: true,
               data:
               {
                 ssoUrl: mockssoUrl,
@@ -514,6 +515,7 @@ describe('okta authentication', function ()
           json =
           {
             data: {
+              success: true,
               data:
               {
                 ssoUrl: mockssoUrl,
@@ -562,7 +564,7 @@ describe('okta authentication', function ()
     }
   });
 
-  it('okta - check authenticator', function ()
+  it('okta - no authenticator should be added to the request body', function ()
   {
     var body = authenticator.formAuthJSON(connectionOptionsOkta.authenticator,
       connectionOptionsOkta.account,
@@ -570,6 +572,6 @@ describe('okta authentication', function ()
       {}, {}, {});
 
     assert.strictEqual(
-      body['data']['AUTHENTICATOR'], 'https://dev-12345678.okta.com/' , 'Authenticator should be OAUTH');
+      body['data']['AUTHENTICATOR'], undefined, 'No authenticator should be present');
   });
 });

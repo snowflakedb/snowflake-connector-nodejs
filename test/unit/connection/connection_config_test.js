@@ -232,6 +232,141 @@ describe('ConnectionConfig: basic', function ()
         errorCode: ErrorCodes.ERR_CONN_CREATE_INVALID_ACCOUNT
       },
       {
+        name: 'account with invalid character',
+        options:
+          {
+            username: 'username',
+            password: 'password',
+            account: 'account?'
+          },
+        errorCode: ErrorCodes.ERR_CONN_CREATE_INVALID_ACCOUNT_REGEX
+      },
+      {
+        name: 'account starting with invalid character',
+        options:
+          {
+            username: 'username',
+            password: 'password',
+            account: '?account'
+          },
+        errorCode: ErrorCodes.ERR_CONN_CREATE_INVALID_ACCOUNT_REGEX
+      },
+      {
+        name: 'account starting with -',
+        options:
+          {
+            username: 'username',
+            password: 'password',
+            account: '-account'
+          },
+        errorCode: ErrorCodes.ERR_CONN_CREATE_INVALID_ACCOUNT_REGEX
+      },
+      {
+        name: 'account ending with -',
+        options:
+          {
+            username: 'username',
+            password: 'password',
+            account: 'account-'
+          },
+        errorCode: ErrorCodes.ERR_CONN_CREATE_INVALID_ACCOUNT_REGEX
+      },
+      {
+        name: 'account starting and ending with -',
+        options:
+          {
+            username: 'username',
+            password: 'password',
+            account: '-account-'
+          },
+        errorCode: ErrorCodes.ERR_CONN_CREATE_INVALID_ACCOUNT_REGEX
+      },
+      {
+        name: 'account with invalid character in the middle',
+        options:
+          {
+            username: 'username',
+            password: 'password',
+            account: 'acco?unt'
+          },
+        errorCode: ErrorCodes.ERR_CONN_CREATE_INVALID_ACCOUNT_REGEX
+      },
+      {
+        name: 'account with subdomain with invalid character',
+        options:
+          {
+            username: 'username',
+            password: 'password',
+            account: 'account.subdomain?'
+          },
+        errorCode: ErrorCodes.ERR_CONN_CREATE_INVALID_ACCOUNT_REGEX
+      },
+      {
+        name: 'account with subdomain with invalid character in the middle',
+        options:
+          {
+            username: 'username',
+            password: 'password',
+            account: 'account.sub?domain'
+          },
+        errorCode: ErrorCodes.ERR_CONN_CREATE_INVALID_ACCOUNT_REGEX
+      },
+      {
+        name: 'region starting with -',
+        options:
+          {
+            username: 'username',
+            password: 'password',
+            account: 'account',
+            region: '-region'
+          },
+        errorCode: ErrorCodes.ERR_CONN_CREATE_INVALID_REGION_REGEX
+      },
+      {
+        name: 'region ending with -',
+        options:
+          {
+            username: 'username',
+            password: 'password',
+            account: 'account',
+            region: 'region-'
+          },
+        errorCode: ErrorCodes.ERR_CONN_CREATE_INVALID_REGION_REGEX
+      },
+      {
+        name: 'region starting with invalid character',
+        options:
+          {
+            username: 'username',
+            password: 'password',
+            account: 'account',
+            region: '?region'
+          },
+        errorCode: ErrorCodes.ERR_CONN_CREATE_INVALID_REGION_REGEX
+      },
+      {
+        name: 'region with invalid character',
+        options:
+          {
+            username: 'username',
+            password: 'password',
+            account: 'account',
+            region: 'region?'
+          },
+        errorCode: ErrorCodes.ERR_CONN_CREATE_INVALID_REGION_REGEX
+      },
+      {
+        name: 'region with invalid character in the middle',
+        options:
+          {
+            username: 'username',
+            password: 'password',
+            account: 'account',
+            region: 'reg?ion'
+          },
+        errorCode: ErrorCodes.ERR_CONN_CREATE_INVALID_REGION_REGEX
+      },
+      {
         name: 'invalid warehouse',
         options:
           {
@@ -570,6 +705,16 @@ describe('ConnectionConfig: basic', function ()
         },
         errorCode: ErrorCodes.ERR_CONN_CREATE_INVALID_CLIENT_CONFIG_FILE
       },
+      {
+        name: 'invalid retryTimeout',
+        options: {
+            account: 'account',
+            username: 'username',
+            password: 'password',
+            retryTimeout: 'invalud'
+        },
+        errorCode: ErrorCodes.ERR_CONN_CREATE_INVALID_MAX_LOGIN_TIMEOUT
+      },
     ];
 
   var createNegativeITCallback = function (testCase)
@@ -653,7 +798,26 @@ describe('ConnectionConfig: basic', function ()
             accessUrl: 'https://account.testregion.azure.snowflakecomputing.com',
             username: 'username',
             password: 'password',
-            account: 'account'
+            account: 'account',
+            region: 'testregion.azure'
+          }
+      },
+      {
+        name: 'override region from account',
+        input:
+          {
+            username: 'username',
+            password: 'password',
+            account: 'account.region.from.account',
+            region: 'region'
+          },
+        options:
+          {
+            accessUrl: 'https://account.region.from.account.snowflakecomputing.com',
+            username: 'username',
+            password: 'password',
+            account: 'account',
+            region: 'region.from.account',
           }
       },
       {
@@ -911,13 +1075,13 @@ describe('ConnectionConfig: basic', function ()
           username: 'username',
           password: 'password',
           account: 'account',
-          disableQueryContextCache: true
+          disableQueryContextCache: true,
         },
         options:
         {
           accessUrl: 'https://account.snowflakecomputing.com',
           username: 'username',
-          password: 'password'
+          password: 'password',
         }
       },
       {
@@ -936,6 +1100,133 @@ describe('ConnectionConfig: basic', function ()
             password: 'password',
             account: 'account',
             clientConfigFile: 'easy_logging_config.json'
+          }
+      },
+      {
+        name: 'retry time out',
+        input:
+          {
+            account: 'account',
+            username: 'username',
+            password: 'password',
+            retryTimeout: 1234,
+          },
+        options:
+          {
+            accessUrl: 'https://account.snowflakecomputing.com',
+            username: 'username',
+            password: 'password',
+            account: 'account',
+          }
+      },
+      {
+        name: 'account with the _',
+        input:
+          {
+            account: 'acc_ount',
+            username: 'username',
+            password: 'password',
+            retryTimeout: 1234,
+          },
+        options:
+          {
+            accessUrl: 'https://acc_ount.snowflakecomputing.com',
+            username: 'username',
+            password: 'password',
+            account: 'acc_ount',
+          }
+      },
+      {
+        name: 'account with subdomain',
+        input:
+          {
+            account: 'account.subdomain',
+            username: 'username',
+            password: 'password',
+            retryTimeout: 1234,
+          },
+        options:
+          {
+            accessUrl: 'https://account.subdomain.snowflakecomputing.com',
+            username: 'username',
+            password: 'password',
+            account: 'account',
+            region: 'subdomain',
+          }
+      },
+      {
+        name: 'account with subdomain with _ and -',
+        input:
+          {
+            account: 'acc_ount.sub-domain',
+            username: 'username',
+            password: 'password',
+            retryTimeout: 1234,
+          },
+        options:
+          {
+            accessUrl: 'https://acc_ount.sub-domain.snowflakecomputing.com',
+            username: 'username',
+            password: 'password',
+            account: 'acc_ount',
+            region: 'sub-domain',
+          }
+      },
+      {
+        name: 'region with _',
+        input:
+          {
+            account: 'account',
+            region: 'reg_ion',
+            username: 'username',
+            password: 'password',
+            retryTimeout: 1234,
+          },
+        options:
+          {
+            accessUrl: 'https://account.reg_ion.snowflakecomputing.com',
+            username: 'username',
+            password: 'password',
+            account: 'account',
+            region: 'reg_ion',
+          }
+      },
+      {
+        name: 'region with -',
+        input:
+          {
+            account: 'account',
+            region: 'reg-ion',
+            username: 'username',
+            password: 'password',
+            retryTimeout: 1234,
+          },
+        options:
+          {
+            accessUrl: 'https://account.reg-ion.snowflakecomputing.com',
+            username: 'username',
+            password: 'password',
+            account: 'account',
+            region: 'reg-ion',
+          }
+      },
+      {
+        name: 'long region',
+        input:
+          {
+            account: 'account',
+            region: 'region.region2.region3',
+            username: 'username',
+            password: 'password',
+            retryTimeout: 1234,
+          },
+        options:
+          {
+            accessUrl: 'https://account.region.region2.region3.snowflakecomputing.com',
+            username: 'username',
+            password: 'password',
+            account: 'account',
+            region: 'region.region2.region3',
           }
       },
     ];

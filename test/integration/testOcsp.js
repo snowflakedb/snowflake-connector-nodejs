@@ -169,7 +169,7 @@ describe('OCSP validation', function ()
       {
         if (!err.hasOwnProperty('code'))
         {
-          console.log(err);
+          Logger.getInstance().error(err);
         }
         assert.equal(err['code'], '390100');
       }

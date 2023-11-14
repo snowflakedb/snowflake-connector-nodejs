@@ -544,7 +544,19 @@ describe('ConnectionConfig: basic', function ()
           username: 'username',
           password: 'password',
           account: 'account',
-          consentCacheIdToken: 'invalid'
+          clientStoreTemporaryCredential: 'invalid'
+        },
+        errorCode: ErrorCodes.ERR_CONN_CREATE_INVALID_CLIENT_STORE_TEMPORARY_CREDENTIAL,
+      },
+      {
+
+        name: 'invalid clientRequestMFAToken',
+        options:
+        {
+          username: 'username',
+          password: 'password',
+          account: 'account',
+          clientRequestMFAToken: 'invalid'
         },
         errorCode: ErrorCodes.ERR_CONN_CREATE_INVALID_CLIENT_STORE_TEMPORARY_CREDENTIAL,
       },

@@ -20,7 +20,7 @@ describe('Secure Storage Test', function () {
 
   it('test build user name', function (done){
     assert.strictEqual(userNameForStorage,
-      '{MOCK_TEST}:{MOCK_USER}:{SF_NODE_JS_DRIVER}:{MOCK_CREDTYPE}:{0}'
+      '{MOCK_TEST}:{MOCK_USER}:{SF_NODE_JS_DRIVER}:{MOCK_CREDTYPE}'
     ); 
     done();
   });
@@ -36,7 +36,7 @@ describe('Secure Storage Test', function () {
     assert.strictEqual(savedPassword, randomPassword);
   });
 
-  it('test - delet the mock credential in Local Storage', async function () {
+  it('test - delete the mock credential in Local Storage', async function () {
     await SecureStorage.deleteCredential(host, user, credType);
     const result = await findCredentialFromStorage(userNameForStorage, randomPassword);
     assert.strictEqual(result, false);

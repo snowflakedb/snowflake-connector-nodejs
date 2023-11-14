@@ -822,4 +822,60 @@ describe('Util', function ()
       assert.deepEqual(replacedB, shouldMatchCircular);
     });
   });
+
+  describe("Util Test - removing http or https from string", () => {
+    const hostAndPortDone = 'my.pro.xy:8080';
+    const ipAndPortDone = '10.20.30.40:8080';
+    const somethingEntirelyDifferentDone = 'something ENTIRELY different';
+
+    [
+      { name: "remove http from url", text: "http://my.pro.xy:8080", shouldMatch: hostAndPortDone },
+      { name: "remove https from url", text: "https://my.pro.xy:8080", shouldMatch: hostAndPortDone },
+      { name: "remove http from ip and port", text: "http://10.20.30.40:8080", shouldMatch: ipAndPortDone },
+      { name: "remove https from ip and port", text: "https://10.20.30.40:8080", shouldMatch: ipAndPortDone },
+      { name: "dont remove http(s) from hostname and port", text: "my.pro.xy:8080", shouldMatch: hostAndPortDone },
+      { name: "dont remove http(s) from ip and port", text: "10.20.30.40:8080", shouldMatch: ipAndPortDone },
+      { name: "dont remove http(s) from simple string", text: somethingEntirelyDifferentDone, shouldMatch: somethingEntirelyDifferentDone}
+    ].forEach(({ name, text, shouldMatch }) => {
+      it(`${name}`, () => {
+        assert.deepEqual(Util.removeScheme(text), shouldMatch);
+      });
+    });
+  });
+
+  describe("Util Test - detecting PROXY envvars", () => {
+    // if for some reason there's already a PROXY envvar, try to preserve it
+    const httpProxyBeforeTest = process.env.HTTP_PROXY ? process.env.HTTP_PROXY : null;
+    const httpsProxyBeforeTest = process.env.HTTPS_PROXY ? process.env.HTTPS_PROXY : null;
+
+    before( (done) => {
+    // before overwriting it for the test
+      process.env.HTTP_PROXY = '';
+      process.env.http_proxy = '10.20.30.40:8080';
+      process.env.HTTPS_PROXY = 'http://169.254.169.254:3128';
+      done();
+    });
+
+    // try to restore the original PROXY envvars after the test, if there was any
+    after( (done) => {
+      if (httpProxyBeforeTest) {
+        process.env.HTTP_PROXY = httpProxyBeforeTest
+      }
+      if (httpsProxyBeforeTest) {
+        process.env.HTTPS_PROXY = httpsProxyBeforeTest
+      }
+      done();
+    });
+
+    it("retrieve the PROXY envvars", () => {
+      const envProxy = Util.getEnvProxy();
+      const shouldHttpProxy = '10.20.30.40:8080';
+      const shouldHttpsProxy = 'http://169.254.169.254:3128';
+      const shouldLogNoProxy = 'NO_PROXY: <unset>';
+
+      assert.deepEqual(envProxy.httpProxy, shouldHttpProxy, "http_proxy not detected correctly!");
+      assert.deepEqual(envProxy.httpsProxy, shouldHttpsProxy, "HTTPS_PROXY not detected correctly!");
+      assert.deepEqual(envProxy.logNoProxy, shouldLogNoProxy, "unset NO_PROXY not detected correctly!");
+    });
+  });
 });

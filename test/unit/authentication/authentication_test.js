@@ -193,7 +193,7 @@ describe('external browser authentication', function ()
     let body = { data: {} };
     auth.updateBody(body);
 
-    assert.strictEqual(body['data']['TOKEN'], connectionConfig.idToken);
+    assert.strictEqual(body['data']['TOKEN'], connectionOptionsidToken.idToken);
     assert.strictEqual(body['data']['AUTHENTICATOR'], authenticationTypes.ID_TOKEN_AUTHENTICATOR);
   })
 });

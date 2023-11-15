@@ -20,7 +20,7 @@ describe('Secure Storage Test', function () {
 
   it('test build user name', function (done){
     assert.strictEqual(userNameForStorage,
-      '{MOCK_TEST}:{MOCK_USER}:{SF_NODE_JS_DRIVER}:{MOCK_CREDTYPE}'
+      '{MOCK_TEST}:{MOCK_USER}:{SF_NODE_JS_DRIVER}:{MOCK_CREDTYPE}}'
     ); 
     done();
   });

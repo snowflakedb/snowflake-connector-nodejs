@@ -693,7 +693,7 @@ describe('ConnectionConfig: basic', function ()
           account: 'account',
           clientRequestMFAToken: 'invalid'
         },
-        errorCode: ErrorCodes.ERR_CONN_CREATE_INVALID_CLIENT_STORE_TEMPORARY_CREDENTIAL,
+        errorCode: ErrorCodes.ERR_CONN_CREATE_INVALID_CLIENT_REQUEST_MFA_TOKEN,
       },
       {
         name: 'invalid clientConfigFile',

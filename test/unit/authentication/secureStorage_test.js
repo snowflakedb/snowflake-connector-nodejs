@@ -2,15 +2,15 @@ const assert = require('assert');
 const keytar = require('keytar');
 const SecureStorage = require('../../../lib/authentication/secureStorage');
 const { randomUUID } = require('crypto');
-const configureLogger = require('../../configureLogger');
+const {configureLogger} = require('../../configureLogger');
 
 describe('Secure Storage Test', function () {
 
-  before(()=>{
+  before(function(){
     configureLogger('TRACE');
   });
 
-  after(()=> {
+  after(function() {
     configureLogger('WARN');
   });
   const host = 'mock_test';

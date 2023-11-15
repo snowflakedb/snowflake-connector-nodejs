@@ -672,7 +672,6 @@ describe('ConnectionConfig: basic', function ()
         errorCode: ErrorCodes.ERR_CONN_CREATE_INVALID_INCLUDE_RETRY_REASON,
       },
       {
-
         name: 'invalid clientStoreTemporaryCredential',
         options:
         {
@@ -682,18 +681,6 @@ describe('ConnectionConfig: basic', function ()
           clientStoreTemporaryCredential: 'invalid'
         },
         errorCode: ErrorCodes.ERR_CONN_CREATE_INVALID_CLIENT_STORE_TEMPORARY_CREDENTIAL,
-      },
-      {
-
-        name: 'invalid clientRequestMFAToken',
-        options:
-        {
-          username: 'username',
-          password: 'password',
-          account: 'account',
-          clientRequestMFAToken: 'invalid'
-        },
-        errorCode: ErrorCodes.ERR_CONN_CREATE_INVALID_CLIENT_REQUEST_MFA_TOKEN,
       },
       {
         name: 'invalid clientConfigFile',

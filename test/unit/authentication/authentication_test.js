@@ -12,8 +12,8 @@ var auth_web = require('./../../../lib/authentication/auth_web');
 var auth_keypair = require('./../../../lib/authentication/auth_keypair');
 var auth_oauth = require('./../../../lib/authentication/auth_oauth');
 var auth_okta = require('./../../../lib/authentication/auth_okta');
+const auth_idtoken = require('./../../../lib/authentication/auth_idtoken');
 var authenticationTypes = require('./../../../lib/authentication/authentication').authenticationTypes;
-
 var MockTestUtil = require('./../mock/mock_test_util');
 
 // get connection options to connect to this mock snowflake instance
@@ -25,6 +25,7 @@ var connectionOptionsKeyPair = mockConnectionOptions.authKeyPair;
 var connectionOptionsKeyPairPath = mockConnectionOptions.authKeyPairPath;
 var connectionOptionsOauth = mockConnectionOptions.authOauth;
 var connectionOptionsOkta = mockConnectionOptions.authOkta;
+const connectionOptionsidToken = mockConnectionOptions.authIdToken;
 
 describe('default authentication', function ()
 {
@@ -184,7 +185,19 @@ describe('external browser authentication', function ()
     assert.strictEqual(
       body['data']['AUTHENTICATOR'], authenticationTypes.EXTERNAL_BROWSER_AUTHENTICATOR, 'Authenticator should be EXTERNALBROWSER');
   });
+
+  it('external browser - id token', async function () {
+    const auth = new auth_idtoken(connectionOptionsidToken, httpclient);
+    await auth.authenticate(credentials.authenticator, '', credentials.account, credentials.username, credentials.host);
+
+    let body = { data: {} };
+    auth.updateBody(body);
+
+    assert.strictEqual(body['data']['TOKEN'], connectionConfig.idToken);
+    assert.strictEqual(body['data']['AUTHENTICATOR'], authenticationTypes.ID_TOKEN_AUTHENTICATOR);
+  })
 });
+
 
 describe('key-pair authentication', function ()
 {

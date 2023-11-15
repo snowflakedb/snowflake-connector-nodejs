@@ -2,8 +2,17 @@ const assert = require('assert');
 const keytar = require('keytar');
 const SecureStorage = require('../../../lib/authentication/secureStorage');
 const { randomUUID } = require('crypto');
+const configureLogger = require('../../configureLogger');
 
 describe('Secure Storage Test', function () {
+
+  before(()=>{
+    configureLogger('TRACE');
+  });
+
+  after(()=> {
+    configureLogger('WARN');
+  });
   const host = 'mock_test';
   const user = 'mock_user';
   const credType = 'MOCK_CREDTYPE';

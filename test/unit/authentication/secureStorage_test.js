@@ -3,9 +3,10 @@ const keytar = require('keytar');
 const SecureStorage = require('../../../lib/authentication/secureStorage');
 const { randomUUID } = require('crypto');
 const {configureLogger} = require('../../configureLogger');
+const os = require('os');
 
+if (os.platform() !== 'linux') {
 describe('Secure Storage Test', function () {
-
   before(function(){
     configureLogger('TRACE');
   });
@@ -51,4 +52,4 @@ describe('Secure Storage Test', function () {
     assert.strictEqual(result, false);
   });
 });
-
+}

@@ -2,8 +2,6 @@ const assert = require('assert');
 const keytar = require('keytar');
 const SecureStorage = require('../../../lib/authentication/secureStorage');
 const { randomUUID } = require('crypto');
-const {configureLogger} = require('../../configureLogger');
-const os = require('os');
 
 describe('Secure Storage Test', function () {
 
@@ -11,9 +9,9 @@ describe('Secure Storage Test', function () {
   const user = 'mock_user';
   const credType = 'MOCK_CREDTYPE';
   const randomPassword = randomUUID();
-  const userNameForStorage = SecureStorage.buildTemporaryCredentialName(host, user, credType,0);
+  const userNameForStorage = SecureStorage.buildTemporaryCredentialName(host, user, credType, 0);
 
-  async function findCredentialFromStorage (userName, password){
+  async function findCredentialFromStorage(userName, password){
     const credentialList = await keytar.findCredentials(host);
     const result =  credentialList.some((element) => {
       return element.account === userName && element.password === password;

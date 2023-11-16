@@ -5,15 +5,8 @@ const { randomUUID } = require('crypto');
 const {configureLogger} = require('../../configureLogger');
 const os = require('os');
 
-if (os.platform() !== 'linux') {
 describe('Secure Storage Test', function () {
-  before(function(){
-    configureLogger('TRACE');
-  });
 
-  after(function() {
-    configureLogger('WARN');
-  });
   const host = 'mock_test';
   const user = 'mock_user';
   const credType = 'MOCK_CREDTYPE';
@@ -52,4 +45,3 @@ describe('Secure Storage Test', function () {
     assert.strictEqual(result, false);
   });
 });
-}

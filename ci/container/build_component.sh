@@ -8,7 +8,7 @@ THIS_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 [[ -z "$GIT_BRANCH" ]] && echo "Set GIT_BRANCH to build" && exit 1
 [[ -z "$GIT_URL" ]] && echo "Set GIT_URL to build" && exit 1
 
-yum -y install libsecret-devel
+sudo yum -y install libsecret-devel
 
 cd /mnt/host
 echo "[INFO] Building"

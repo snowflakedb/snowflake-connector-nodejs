@@ -83,6 +83,7 @@ for name in "${!TARGET_TEST_IMAGES[@]}"; do
         -e GITHUB_EVENT_NAME \
         -e RUNNER_TRACKING_ID \
         "${TARGET_TEST_IMAGES[$name]}" \
+        " yum -y install libsecret-devel" \
         "/mnt/host/ci/container/test_component.sh"
     echo "[INFO] Test Results: $WORKSPACE/junit*,xml"
 done

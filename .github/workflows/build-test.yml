@@ -131,7 +131,7 @@ jobs:
                 PARAMETERS_SECRET: ${{ secrets.PARAMETERS_SECRET }}
                 CLOUD_PROVIDER: ${{ matrix.cloud }}
                 TARGET_DOCKER_TEST_IMAGE: ${{ matrix.image }}
-              run: yum -y install libsecret-devel | ./ci/test.sh
+              run: ./ci/test.sh
 
     test-ubuntu:
       needs: build

@@ -5,7 +5,7 @@ FROM centos:7
 RUN yum -y update && \
     yum -y install epel-release && \
     yum -y install centos-release-scl \
-    yum -y install libsecret-devel
+    yum -y install libsecret-1-dev
 
 # nvm environment variables
 ENV NVM_DIR /usr/local/nvm

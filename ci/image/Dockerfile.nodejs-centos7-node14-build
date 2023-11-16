@@ -1,6 +1,8 @@
 FROM centos:7
 # Dockerfile.nodejs-centos7-node14-build is equal to Dockerfile.nodejs-centos7-node14-test
 
+RUN yum -y install libsecret-devel
+
 # update OS
 RUN yum -y update && \
     yum -y install epel-release && \

@@ -822,4 +822,110 @@ describe('Util', function ()
       assert.deepEqual(replacedB, shouldMatchCircular);
     });
   });
+
+  describe("Util Test - removing http or https from string", () => {
+    const hostAndPortDone = 'my.pro.xy:8080';
+    const ipAndPortDone = '10.20.30.40:8080';
+    const somethingEntirelyDifferentDone = 'something ENTIRELY different';
+
+    [
+      { name: "remove http from url", text: "http://my.pro.xy:8080", shouldMatch: hostAndPortDone },
+      { name: "remove https from url", text: "https://my.pro.xy:8080", shouldMatch: hostAndPortDone },
+      { name: "remove http from ip and port", text: "http://10.20.30.40:8080", shouldMatch: ipAndPortDone },
+      { name: "remove https from ip and port", text: "https://10.20.30.40:8080", shouldMatch: ipAndPortDone },
+      { name: "dont remove http(s) from hostname and port", text: "my.pro.xy:8080", shouldMatch: hostAndPortDone },
+      { name: "dont remove http(s) from ip and port", text: "10.20.30.40:8080", shouldMatch: ipAndPortDone },
+      { name: "dont remove http(s) from simple string", text: somethingEntirelyDifferentDone, shouldMatch: somethingEntirelyDifferentDone}
+    ].forEach(({ name, text, shouldMatch }) => {
+      it(`${name}`, () => {
+        assert.deepEqual(Util.removeScheme(text), shouldMatch);
+      });
+    });
+  });
+
+  describe("Util Test - detecting PROXY envvars and compare with the agent proxy settings", () => {
+    // if for some reason there's already a PROXY envvar, try to preserve it
+    const httpProxyBeforeTest = process.env.HTTP_PROXY ? process.env.HTTP_PROXY : null;
+    const httpsProxyBeforeTest = process.env.HTTPS_PROXY ? process.env.HTTPS_PROXY : null;
+
+    [
+      {
+        name: "detect http_proxy envvar, no agent proxy",
+        isWarn: false,
+        httpproxy: "10.20.30.40:8080",
+        HTTPSPROXY: '',
+        agentOptions: {"keepalive": true},
+        shouldLog: " // PROXY environment variables: HTTP_PROXY: 10.20.30.40:8080 HTTPS_PROXY: <unset> NO_PROXY: <unset>."
+      }, {
+        name: "detect HTTPS_PROXY envvar, no agent proxy",
+        isWarn: false,
+        httpproxy: '',
+        HTTPSPROXY: "http://pro.xy:3128",
+        agentOptions: {"keepalive": true},
+        shouldLog: " // PROXY environment variables: HTTP_PROXY: <unset> HTTPS_PROXY: http://pro.xy:3128 NO_PROXY: <unset>."
+      }, {
+        name: "detect both http_proxy and HTTPS_PROXY envvar, no agent proxy",
+        isWarn: false,
+        httpproxy: "10.20.30.40:8080",
+        HTTPSPROXY: "http://pro.xy:3128",
+        agentOptions: {"keepalive": true},
+        shouldLog: " // PROXY environment variables: HTTP_PROXY: 10.20.30.40:8080 HTTPS_PROXY: http://pro.xy:3128 NO_PROXY: <unset>."
+      }, {
+        name: "detect http_proxy envvar, agent proxy set to an unauthenticated proxy, same as the envvar",
+        isWarn: false,
+        httpproxy: "10.20.30.40:8080",
+        HTTPSPROXY: '',
+        agentOptions: {"keepalive": true, "host": "10.20.30.40", "port": 8080},
+        shouldLog: " // PROXY environment variables: HTTP_PROXY: 10.20.30.40:8080 HTTPS_PROXY: <unset> NO_PROXY: <unset>. // Proxy configured in Connection: proxy=10.20.30.40:8080"
+      }, {
+        name: "detect both http_proxy and HTTPS_PROXY envvar, agent proxy set to an unauthenticated proxy, same as the envvar",
+        isWarn: false,
+        httpproxy: "10.20.30.40:8080",
+        HTTPSPROXY: "http://10.20.30.40:8080",
+        agentOptions: {"keepalive": true, "host": "10.20.30.40", "port": 8080},
+        shouldLog: " // PROXY environment variables: HTTP_PROXY: 10.20.30.40:8080 HTTPS_PROXY: http://10.20.30.40:8080 NO_PROXY: <unset>. // Proxy configured in Connection: proxy=10.20.30.40:8080"
+      }, {
+        name: "detect both http_proxy and HTTPS_PROXY envvar, agent proxy set to an authenticated proxy, same as the envvar",
+        isWarn: false,
+        httpproxy: "10.20.30.40:8080",
+        HTTPSPROXY: "http://10.20.30.40:8080",
+        agentOptions: {"keepalive": true, "host": "10.20.30.40", "port": 8080, "user": "PRX", "password": "proxypass"},
+        shouldLog: " // PROXY environment variables: HTTP_PROXY: 10.20.30.40:8080 HTTPS_PROXY: http://10.20.30.40:8080 NO_PROXY: <unset>. // Proxy configured in Connection: proxy=10.20.30.40:8080 user=PRX"
+      }, {
+        name: "detect both http_proxy and HTTPS_PROXY envvar, agent proxy set to an authenticated proxy, same as the envvar, with the protocol set",
+        isWarn: false,
+        httpproxy: "10.20.30.40:8080",
+        HTTPSPROXY: "http://10.20.30.40:8080",
+        agentOptions: {"keepalive": true, "host": "10.20.30.40", "port": 8080, "user": "PRX", "password": "proxypass", "protocol": "http"},
+        shouldLog: " // PROXY environment variables: HTTP_PROXY: 10.20.30.40:8080 HTTPS_PROXY: http://10.20.30.40:8080 NO_PROXY: <unset>. // Proxy configured in Connection: protocol=http proxy=10.20.30.40:8080 user=PRX"
+      }, {
+      // now some WARN level messages
+        name: "detect HTTPS_PROXY envvar, agent proxy set to an unauthenticated proxy, different from the envvar",
+        isWarn: true,
+        httpproxy: '',
+        HTTPSPROXY: "http://pro.xy:3128",
+        agentOptions: {"keepalive": true, "host": "10.20.30.40", "port": 8080},
+        shouldLog: " Using both the HTTPS_PROXY (http://pro.xy:3128) and the proxyHost:proxyPort (10.20.30.40:8080) settings to connect, but with different values. If you experience connectivity issues, try unsetting one of them."
+      }, {
+        name: "detect both http_proxy and HTTPS_PROXY envvar, different from each other, agent proxy set to an unauthenticated proxy, different from the envvars",
+        isWarn: true,
+        httpproxy: '169.254.169.254:8080',
+        HTTPSPROXY: "http://pro.xy:3128",
+        agentOptions: {"keepalive": true, "host": "10.20.30.40", "port": 8080},
+        shouldLog: " Using both the HTTP_PROXY (169.254.169.254:8080) and the proxyHost:proxyPort (10.20.30.40:8080) settings to connect, but with different values. If you experience connectivity issues, try unsetting one of them. Using both the HTTPS_PROXY (http://pro.xy:3128) and the proxyHost:proxyPort (10.20.30.40:8080) settings to connect, but with different values. If you experience connectivity issues, try unsetting one of them."
+      }
+    ].forEach(({ name, isWarn, httpproxy, HTTPSPROXY, agentOptions, shouldLog }) => {
+      it(`${name}`, () => {
+        process.env.http_proxy = httpproxy;
+        process.env.HTTPS_PROXY = HTTPSPROXY;
+
+        const compareAndLogEnvAndAgentProxies = Util.getCompareAndLogEnvAndAgentProxies(agentOptions);
+        if (!isWarn) {
+          assert.deepEqual(compareAndLogEnvAndAgentProxies.messages, shouldLog, 'expected log message does not match!');
+        } else {
+          assert.deepEqual(compareAndLogEnvAndAgentProxies.warnings, shouldLog, 'expected warning message does not match!');
+        }
+      });
+      });
+    });
 });

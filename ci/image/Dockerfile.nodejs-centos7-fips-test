@@ -6,6 +6,7 @@ RUN yum -y install epel-release
 RUN yum -y install centos-release-scl
 RUN yum -y install git
 RUN yum -y install which
+RUN yum -y install libsecret-devel
 
 # python
 RUN yum -y install python36
@@ -22,6 +23,7 @@ RUN yum -y install zstd
 
 # jq
 RUN yum -y install jq
+
 
 # gosu
 RUN curl -o /usr/local/bin/gosu -SL "https://github.com/tianon/gosu/releases/download/1.11/gosu-amd64"

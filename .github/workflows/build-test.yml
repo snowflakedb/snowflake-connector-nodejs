@@ -125,10 +125,6 @@ jobs:
               with:
                 name: artifacts
                 path: artifacts
-
-            - name: Install Libsecret
-              shell: bash
-              run: yum -y install libsecret-devel
             - name: Tests
               shell: bash
               env:

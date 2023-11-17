@@ -35,13 +35,6 @@
     "tmp": "^0.2.1",
     "uuid": "^8.3.2",
     "winston": "^3.1.0",
-    "keytar": {
-      "version": "^7.9.0",
-      "os": [
-        "win32",
-        "darwin"
-      ]
-    }
   },
   "devDependencies": {
     "@aws-sdk/types": "^3.387.0",
@@ -54,6 +47,15 @@
   },
   "peerDependencies": {
     "asn1.js": "^5.4.1"
+  },
+  "optionalDependencies": {
+    "keytar": {
+      "version": "^7.9.0",
+      "os": [
+        "win32",
+        "darwin"
+      ]
+    }
   },
   "overrides": {
     "@azure/storage-blob": {

@@ -25,7 +25,6 @@
     "glob": "^7.1.6",
     "https-proxy-agent": "^5.0.1",
     "jsonwebtoken": "^9.0.0",
-    "keytar": "^7.9.0",
     "mime-types": "^2.1.29",
     "mkdirp": "^1.0.3",
     "moment": "^2.29.4",
@@ -35,7 +34,14 @@
     "simple-lru-cache": "^0.0.2",
     "tmp": "^0.2.1",
     "uuid": "^8.3.2",
-    "winston": "^3.1.0"
+    "winston": "^3.1.0",
+    "keytar": {
+      "version": "^7.9.0",
+      "os": [
+        "win32",
+        "darwin"
+      ]
+    }
   },
   "devDependencies": {
     "@aws-sdk/types": "^3.387.0",

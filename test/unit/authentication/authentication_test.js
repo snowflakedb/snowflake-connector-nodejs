@@ -444,12 +444,7 @@ describe('okta authentication', function ()
 
   it('okta - authenticate method is thenable', done =>
   {
-    const auth = new auth_okta(connectionOptionsOkta.password,
-      connectionOptionsOkta.region,
-      connectionOptionsOkta.account,
-      connectionOptionsOkta.clientAppid,
-      connectionOptionsOkta.clientAppVersion,
-      httpclient);
+    const auth = new auth_okta(connectionOptionsOkta, httpclient);
 
     auth.authenticate(connectionOptionsOkta.authenticator, '', connectionOptionsOkta.account, connectionOptionsOkta.username)
       .then(done)
@@ -458,12 +453,7 @@ describe('okta authentication', function ()
 
   it('okta - SAML response success', async function ()
   {
-    var auth = new auth_okta(connectionOptionsOkta.password,
-      connectionOptionsOkta.region,
-      connectionOptionsOkta.account,
-      connectionOptionsOkta.clientAppid,
-      connectionOptionsOkta.clientAppVersion,
-      httpclient);
+    var auth = new auth_okta(connectionOptionsOkta, httpclient);
 
     await auth.authenticate(connectionOptionsOkta.authenticator, '', connectionOptionsOkta.account, connectionOptionsOkta.username);
 
@@ -500,12 +490,7 @@ describe('okta authentication', function ()
 
     httpclient = require('httpclient');
 
-    var auth = new auth_okta(connectionOptionsOkta.password,
-      connectionOptionsOkta.region,
-      connectionOptionsOkta.account,
-      connectionOptionsOkta.clientAppid,
-      connectionOptionsOkta.clientAppVersion,
-      httpclient);
+    var auth = new auth_okta(connectionOptionsOkta, httpclient);
 
     try
     {
@@ -558,11 +543,7 @@ describe('okta authentication', function ()
 
     httpclient = require('httpclient');
 
-    var auth = new auth_okta(connectionOptionsOkta.password,
-      connectionOptionsOkta.region,
-      connectionOptionsOkta.account,
-      connectionOptionsOkta.clientAppid,
-      connectionOptionsOkta.clientAppVersion,
+    var auth = new auth_okta(connectionOptionsOkta,
       httpclient);
 
     try

@@ -95,7 +95,7 @@ if (process.env.RUN_MANUAL_TESTS_ONLY == "true") {
         });
         await testUtil.destroyConnectionAsync(idTokenConnection);
 
-        //Testing  with the id token.
+        //Testing reauthentication.
         await SecureStorage.writeCredential(connectionOption.host, connectionOption.username, "ID_TOKEN", "WRONG Token");
         const wrongTokneConnection = testUtil.connectAsync(connOption);
         await wrongTokneConnection.connectAsync(function (err) {

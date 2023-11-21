@@ -8,7 +8,7 @@ var MockTestUtil = require('./mock/mock_test_util');
 const QueryStatus = require('./../../lib/constants/query_status').code;
 var assert = require('assert');
 var async = require('async');
-const { configureLogger } = require('../configureLogger');
+
 // get a mock snowflake instance
 var snowflake = MockTestUtil.snowflake;
 
@@ -26,9 +26,6 @@ const connectionOptionsTreatIntegerAsBigInt = mockConnectionOptions.treatIntAsBi
 
 describe('snowflake.createConnection() synchronous errors', function ()
 {
-
-  configureLogger('TRACE');
-
   var testCases =
     [
       {

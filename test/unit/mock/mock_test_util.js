@@ -141,12 +141,8 @@ var connectionOptionsOkta =
   token: 'faketoken',
   rawSamlResponse: '<form action="https://fakeaccount.snowflakecomputing.com/fed/login">',
   authenticator: 'https://dev-12345678.okta.com/',
-  getClientType: function () {
-    return 'JavaScript';
-  },
-  getClientVersion: function () {
-    return '1.9.1'
-  }
+  clientAppid: 'JavaScript',
+  clientVersion: '1.9.1',
 };
 
 exports.connectionOptions =

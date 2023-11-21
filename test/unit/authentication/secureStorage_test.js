@@ -1,5 +1,5 @@
 const assert = require('assert');
-const keytar = require('keytar');
+const keytar = require('../../../lib/authentication/keytar/lib/keytar.js');
 const SecureStorage = require('../../../lib/authentication/secureStorage');
 const { randomUUID } = require('crypto');
 const {configureLogger} = require('../../configureLogger');

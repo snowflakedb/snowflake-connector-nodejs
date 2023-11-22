@@ -4,6 +4,7 @@
   "name": "keytar",
   "description": "Bindings to native Mac/Linux/Windows password APIs",
   "version": "7.9.0",
+  "gypfile": true,
   "license": "MIT",
   "repository": {
     "type": "git",

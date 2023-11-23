@@ -10,14 +10,6 @@ describe('Secure Storage Test', function () {
   const randomPassword = randomUUID();
   const userNameForStorage = SecureStorage.buildTemporaryCredentialName(host, user, credType);
 
-  // async function findCredentialFromStorage(userName, password){
-  //   const credentialList = await keytar.findCredentials(host);
-  //   const result =  credentialList.some((element) => {
-  //     return element.account === userName && element.password === password;
-  //   });
-  //   return result;
-  // }
-
   it('test build user name', function (done){
     assert.strictEqual(userNameForStorage,
       '{MOCK_TEST}:{MOCK_USER}:{SF_NODE_JS_DRIVER}:{MOCK_CREDTYPE}}'
@@ -36,9 +28,9 @@ describe('Secure Storage Test', function () {
     assert.strictEqual(savedPassword, randomPassword);
   });
 
-//   it('test - delete the mock credential in Local Storage', async function () {
-//     await SecureStorage.deleteCredential(host, user, credType);
-//     const result = await findCredentialFromStorage(userNameForStorage, randomPassword);
-//     assert.strictEqual(result, false);
-//   });
+  it('test - delete the mock credential in Local Storage', async function () {
+    await SecureStorage.deleteCredential(host, user, credType);
+    const result = await SecureStorage.readCredential(host, user, credType);
+    assert.strictEqual(result, null);
+  });
 });

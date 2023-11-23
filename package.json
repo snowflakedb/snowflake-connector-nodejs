@@ -45,6 +45,9 @@
     "nyc": "^15.1.0",
     "test-console": "^2.0.0"
   },
+  "optionalDependencies": {
+    "keytar": "^7.9.0"
+  },
   "peerDependencies": {
     "asn1.js": "^5.4.1"
   },

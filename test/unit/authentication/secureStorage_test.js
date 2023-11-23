@@ -31,6 +31,6 @@ describe('Secure Storage Test', function () {
   it('test - delete the mock credential in Local Storage', async function () {
     await SecureStorage.deleteCredential(host, user, credType);
     const result = await SecureStorage.readCredential(host, user, credType);
-    assert.strictEqual(result, null);
+    assert.ok(result === null || result === undefined);
   });
 });

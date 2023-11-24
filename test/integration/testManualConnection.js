@@ -4,7 +4,7 @@ const assert = require("assert");
 const connOption = require("./connectionOptions");
 const testUtil = require("./testUtil");
 const Logger = require('../../lib/logger');
-const SecureStorage = require('../../lib/authentication/secureStorage');
+const CredentialManager = require('../../lib/authentication/SecureStorage/credentialManager');
 
 if (process.env.RUN_MANUAL_TESTS_ONLY == "true") {
   describe.only("Run manual tests", function () {
@@ -75,7 +75,7 @@ if (process.env.RUN_MANUAL_TESTS_ONLY == "true") {
       it("Connection - ID Token authenticator", async function (done) {
         
         //Testing to obtain the id token.
-        await SecureStorage.deleteCredential(connectionOption.host, connectionOption.username, "ID_TOKEN");
+        await CredentialManager.deleteCredential(connectionOption.host, connectionOption.username, "ID_TOKEN");
 
         const connectionOption = connOption.externalBrowser
         const connection = snowflake.createConnection(
@@ -83,7 +83,7 @@ if (process.env.RUN_MANUAL_TESTS_ONLY == "true") {
         );
         await connection.connectAsync(function (err) {
           assert.ok(!err);
-          const idToken = SecureStorage.readCredential(connectionOption.host, connectionOption.username, "ID_TOKEN");
+          const idToken = CredentialManager.readCredential(connectionOption.host, connectionOption.username, "ID_TOKEN");
           assert.ok( idToken !== null);
         });
         await testUtil.destroyConnectionAsync(connection);
@@ -96,7 +96,7 @@ if (process.env.RUN_MANUAL_TESTS_ONLY == "true") {
         await testUtil.destroyConnectionAsync(idTokenConnection);
 
         //Testing reauthentication.
-        await SecureStorage.writeCredential(connectionOption.host, connectionOption.username, "ID_TOKEN", "WRONG Token");
+        await CredentialManager.writeCredential(connectionOption.host, connectionOption.username, "ID_TOKEN", "WRONG Token");
         const wrongTokneConnection = testUtil.connectAsync(connOption);
         await wrongTokneConnection.connectAsync(function (err) {
           assert.ok(!err);

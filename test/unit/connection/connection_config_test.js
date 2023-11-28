@@ -691,6 +691,16 @@ describe('ConnectionConfig: basic', function ()
         },
         errorCode: ErrorCodes.ERR_CONN_CREATE_INVALID_MAX_LOGIN_TIMEOUT
       },
+      {
+        name: 'invalid clientRequestMFAToken',
+        options: {
+          username: 'username',
+          password: 'password',
+          account: 'account',
+          clientRequestMFAToken: 'invalid'
+        },
+        errorCode: ErrorCodes.ERR_CONN_CREATE_INVALID_CLIENT_REQUEST_MFA_TOKEN,
+      },
     ];
 
   var createNegativeITCallback = function (testCase)

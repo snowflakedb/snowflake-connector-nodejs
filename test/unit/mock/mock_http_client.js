@@ -219,7 +219,10 @@ function buildRequestOutputMappings(clientInfo)
                   CLIENT_APP_ID: 'JavaScript',
                   CLIENT_APP_VERSION: clientInfo.version,
                   CLIENT_ENVIRONMENT: clientInfo.environment,
-                  SESSION_PARAMETERS: {}
+                  SESSION_PARAMETERS: {
+
+                    CLIENT_REQUEST_MFA_TOKEN: true,
+                  },
                 }
             }
         },
@@ -1236,7 +1239,10 @@ function buildRequestOutputMappings(clientInfo)
                   CLIENT_APP_ID: 'JavaScript',
                   CLIENT_APP_VERSION: clientInfo.version,
                   CLIENT_ENVIRONMENT: clientInfo.environment,
-                  SESSION_PARAMETERS: {}
+                  SESSION_PARAMETERS: {
+
+                    CLIENT_REQUEST_MFA_TOKEN: true,
+                  },
                 }
             }
         },
@@ -1455,7 +1461,9 @@ function buildRequestOutputMappings(clientInfo)
                   CLIENT_ENVIRONMENT: clientInfo.environment,
                   SESSION_PARAMETERS: {
                     CLIENT_SESSION_KEEP_ALIVE: true,
-                    CLIENT_SESSION_KEEP_ALIVE_HEARTBEAT_FREQUENCY: 1800
+                    CLIENT_SESSION_KEEP_ALIVE_HEARTBEAT_FREQUENCY: 1800,
+
+                    CLIENT_REQUEST_MFA_TOKEN: true,
                   }
                 }
             }
@@ -1562,6 +1570,8 @@ function buildRequestOutputMappings(clientInfo)
                   CLIENT_ENVIRONMENT: clientInfo.environment,
                   SESSION_PARAMETERS: {
                     JS_TREAT_INTEGER_AS_BIGINT: true,
+
+                    CLIENT_REQUEST_MFA_TOKEN: true,
                   }
                 }
             }
@@ -1667,7 +1677,10 @@ function buildRequestOutputMappings(clientInfo)
                   CLIENT_APP_ID: 'JavaScript',
                   CLIENT_APP_VERSION: clientInfo.version,
                   CLIENT_ENVIRONMENT: clientInfo.environment,
-                  SESSION_PARAMETERS: {}
+                  SESSION_PARAMETERS: {
+
+                    CLIENT_REQUEST_MFA_TOKEN: true,
+                  }
                 }
             }
         },
@@ -1756,7 +1769,10 @@ function buildRequestOutputMappings(clientInfo)
                   CLIENT_APP_ID: 'JavaScript',
                   CLIENT_APP_VERSION: clientInfo.version,
                   CLIENT_ENVIRONMENT: clientInfo.environment,
-                  SESSION_PARAMETERS: {}
+                  SESSION_PARAMETERS: {
+
+                    CLIENT_REQUEST_MFA_TOKEN: true,
+                  }
                 }
             }
         },
@@ -1795,7 +1811,10 @@ function buildRequestOutputMappings(clientInfo)
                   CLIENT_APP_ID: 'JavaScript',
                   CLIENT_APP_VERSION: clientInfo.version,
                   CLIENT_ENVIRONMENT: clientInfo.environment,
-                  SESSION_PARAMETERS: {}
+                  SESSION_PARAMETERS: {
+
+                    CLIENT_REQUEST_MFA_TOKEN: true,
+                  }
                 }
             }
         },
@@ -1833,7 +1852,10 @@ function buildRequestOutputMappings(clientInfo)
                   CLIENT_APP_ID: 'JavaScript',
                   CLIENT_APP_VERSION: clientInfo.version,
                   CLIENT_ENVIRONMENT: clientInfo.environment,
-                  SESSION_PARAMETERS: {}
+                  SESSION_PARAMETERS: {
+
+                    CLIENT_REQUEST_MFA_TOKEN: true,
+                  }
                 }
             }
         },

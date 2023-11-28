@@ -12,6 +12,7 @@ var auth_web = require('./../../../lib/authentication/auth_web');
 var auth_keypair = require('./../../../lib/authentication/auth_keypair');
 var auth_oauth = require('./../../../lib/authentication/auth_oauth');
 var auth_okta = require('./../../../lib/authentication/auth_okta');
+const auth_mfatoken = require('../../../lib/authentication/auth_mfatoken');
 var authenticationTypes = require('./../../../lib/authentication/authentication').authenticationTypes;
 
 var MockTestUtil = require('./../mock/mock_test_util');
@@ -575,3 +576,37 @@ describe('okta authentication', function ()
       body['data']['AUTHENTICATOR'], undefined, 'No authenticator should be present');
   });
 });
+
+describe('MFA authentication', async function (done) {
+  const mfaTokenOption = {...connectionOptionsDefault, authenticator: authenticationTypes.MFA_TOKEN_AUTHENTICATOR}
+
+  it("test - no mfa token is saved on the secure storage", function () {
+    const auth = new auth_mfatoken(mfaTokenOption);
+    const body = authenticator.formAuthJSON(mfaTokenOption.authenticator,
+      mfaTokenOption.account,
+      mfaTokenOption.username,
+      {}, {}, {});
+
+    auth.updateBody(body);
+
+    assert.strictEqual(body['data']['AUTHENTICATOR'], 'USERNAME_PASSWORD_MFA');
+    assert.strictEqual(body['data']['PASSWORD'], mfaTokenOption.password);
+    assert.strictEqual(body['data']['TOKEN'], undefined);
+  });
+
+  it("test - mfa token is saved on the secure storage", function () {
+    mfaTokenOption.mfaToken =  'mock_token';
+    const auth = new auth_mfatoken(mfaTokenOption);
+    const body = authenticator.formAuthJSON(mfaTokenOption.authenticator,
+      mfaTokenOption.account,
+      mfaTokenOption.username,
+      {}, {}, {});
+
+    auth.updateBody(body);
+
+    assert.strictEqual(body['data']['AUTHENTICATOR'], 'USERNAME_PASSWORD_MFA');
+    assert.strictEqual(body['data']['PASSWORD'], mfaTokenOption.password);
+    assert.strictEqual(body['data']['TOKEN'], mfaTokenOption.mfaToken);
+  });
+
+})

@@ -48,7 +48,7 @@ jobs:
         strategy:
             fail-fast: false
             matrix:
-                cloud: [ 'AWS', 'AZURE', 'GCP' ]
+                cloud: [ 'AZURE', 'GCP' ]
                 nodeVersion: [ '14.x', '16.x', '18.x', '20.x']
         steps:
             - uses: actions/checkout@v4
@@ -86,7 +86,7 @@ jobs:
         strategy:
             fail-fast: false
             matrix:
-                cloud: [ 'AWS', 'AZURE', 'GCP' ]
+                cloud: [ 'AZURE', 'GCP' ]
                 nodeVersion: [ '14.x', '16.x', '18.x', '20.x']
         steps:
             - uses: actions/checkout@v4
@@ -117,7 +117,7 @@ jobs:
             fail-fast: false
             matrix:
                 image: [ 'nodejs-centos7-node14', 'nodejs-centos7-fips']
-                cloud: [ 'AWS', 'AZURE', 'GCP' ]
+                cloud: [ 'AZURE', 'GCP' ]
         steps:
             - uses: actions/checkout@v4
             - name: Download Build Artifacts
@@ -140,7 +140,7 @@ jobs:
       strategy:
         fail-fast: false
         matrix:
-          cloud: [ 'AWS', 'AZURE', 'GCP' ]
+          cloud: [ 'AZURE', 'GCP' ]
           nodeVersion: ['18.x', '20.x']
       steps:
         - uses: actions/checkout@v4

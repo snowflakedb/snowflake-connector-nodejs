@@ -140,6 +140,16 @@ describe('ExecuteAsync test', function () {
             assert.ok(err);
           }
 
+          // Check getting the query status with error throw throws the expected error
+          try {
+            await connection.getQueryStatusThrowIfError(queryId);
+            assert.fail();
+          } catch (err) {
+            assert.deepEqual(err.data.data.sqlText, sqlText, 'sqlText from error does not match original sqlText!');
+            assert.deepEqual(err.data.data.id, queryId, 'queryId from error does not match original queryId!');
+            assert.ok(typeof err.data.data.sessionIdAsString, 'undefined', 'there should not be a stringified sessionid in the error!');
+          }
+
           // Check getting the results throws an error
           try {
             await connection.getResultsFromQueryId({ queryId: queryId });
@@ -189,6 +199,21 @@ describe('ExecuteAsync test', function () {
               assert.strictEqual(rows[0]['SYSTEM$WAIT'], `waited ${expectedSeconds} seconds`);
               callback();
             }
+          });
+        },
+        // Get results using query id with getQueryStatusThrowIfError, which should not throw, as query is successful
+        async function () {
+          const statement = await connection.getResultsFromQueryId({ queryId: queryId });
+
+          await new Promise((resolve, reject) => {
+            statement.streamRows()
+              .on('error', (err) => reject(err))
+              .on('data', (row) => assert.strictEqual(row['SYSTEM$WAIT'], `waited ${expectedSeconds} seconds`))
+              .on('end', async () => {
+                const status = await connection.getQueryStatusThrowIfError(queryId);
+                assert.strictEqual(QueryStatus[status], QueryStatus.SUCCESS, 'getting successful query status with getQueryStatusThrowIfError was unsuccessful!');
+                resolve();
+              });
           });
         }
       ],

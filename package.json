@@ -36,9 +36,6 @@
     "uuid": "^8.3.2",
     "winston": "^3.1.0"
   },
-  "optionalDependencies": {
-    "keytar": "^7.9.0"
-  },
   "devDependencies": {
     "@aws-sdk/types": "^3.387.0",
     "async": "^3.2.3",

@@ -5,7 +5,6 @@
 const assert = require('assert');
 const CredentialManager = require('../../../lib/authentication/SecureStorage/credentialManager');
 const localStorage = require('../../../lib/authentication/SecureStorage/localStorage');
-const SecureStorage = require('../../../lib/authentication/SecureStorage/secureStorage');
 const { randomUUID } = require('crypto');
 const host = 'mock_host';
 const user = 'mock_user';
@@ -41,20 +40,20 @@ describe('Credential Manager Test', function () {
     }
   });
 
-  it('test - write the mock credential with the credential manager', async function () {
-    await CredentialManager.writeCredential(host, user, credType, randomPassword);
-    const result = await CredentialManager.readCredential(host, user, credType);
+  it('test - write the mock credential with the credential manager', function () {
+    CredentialManager.writeCredential(host, user, credType, randomPassword);
+    const result = CredentialManager.readCredential(host, user, credType);
     assert.strictEqual(randomPassword.toString(), result);
   });
 
-  it('test - read the mock credential with the credential manager', async function () {
-    const savedPassword = await CredentialManager.readCredential(host, user, credType);
+  it('test - read the mock credential with the credential manager', function () {
+    const savedPassword = CredentialManager.readCredential(host, user, credType);
     assert.strictEqual(savedPassword, randomPassword);
   });
 
-  it('test - delete the mock credential with the credential manager', async function () {
-    await CredentialManager.deleteCredential(host, user, credType);
-    const result = await CredentialManager.readCredential(host, user, credType);
+  it('test - delete the mock credential with the credential manager', function () {
+     CredentialManager.deleteCredential(host, user, credType);
+    const result = CredentialManager.readCredential(host, user, credType);
     assert.ok(result === null);
   });
 });
@@ -178,10 +177,5 @@ describe('SecureStorage Util functions testing', function () {
     }
   });
 
-  it('test build user name for the secure storage', function (){
-    const userNameForStorage = SecureStorage.buildTemporaryCredentialName(host, user, credType);
-    assert.strictEqual(userNameForStorage,
-      '{MOCK_HOST}:{MOCK_USER}:{SF_NODE_JS_DRIVER}:{MOCK_CRED}}'
-    ); 
-  });
+
 });

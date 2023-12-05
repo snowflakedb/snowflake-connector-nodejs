@@ -23,7 +23,7 @@
     "fastest-levenshtein": "^1.0.16",
     "generic-pool": "^3.8.2",
     "glob": "^9.0.0",
-    "https-proxy-agent": "^5.0.1",
+    "https-proxy-agent": "^7.0.2",
     "jsonwebtoken": "^9.0.0",
     "mime-types": "^2.1.29",
     "mkdirp": "^1.0.3",

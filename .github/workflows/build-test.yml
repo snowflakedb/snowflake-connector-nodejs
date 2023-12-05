@@ -51,6 +51,8 @@ jobs:
                 cloud: [ 'AWS', 'AZURE', 'GCP' ]
                 nodeVersion: [ '14.x', '16.x', '18.x', '20.x']
         steps:
+            - name: Sync clock
+              run: sudo sntp -sS time.windows.com
             - uses: actions/checkout@v4
             - uses: actions/setup-node@v3
               with:

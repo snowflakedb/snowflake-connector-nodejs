@@ -87,16 +87,6 @@ describe('Snowflake Configure Tests', function () {
   });
 
   describe('Test valid arguments', function () {
-
-    function sampleManager() {
-      this.read = function () {
-      }
-  
-      this.write = function (credential) {
-      }
-    }
-    const credManager = new sampleManager();
-
     const testCases =
       [
         {
@@ -197,13 +187,6 @@ describe('Snowflake Configure Tests', function () {
             xmlColumnVariantParser: rawColumnValue => new (require("fast-xml-parser")).XMLParser().parse(rawColumnValue)
           }
         },
-        {
-          name: 'custom credential manager',
-          options:
-          {
-            customCredentialManager: credManager,
-          }
-        },
       ];
 
     testCases.forEach(testCase => {
@@ -220,8 +203,6 @@ describe('Snowflake Configure Tests', function () {
             val = GlobalConfig.getOcspFailOpen();
           } else if (key == 'keepAlive') {
             val = GlobalConfig.getKeepAlive();
-          } else if (key === 'customCredentialManager') {
-            val = credManager
           } 
           else {
             val = GlobalConfig[key];

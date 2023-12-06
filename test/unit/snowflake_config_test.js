@@ -221,7 +221,7 @@ describe('Snowflake Configure Tests', function () {
           } else if (key == 'keepAlive') {
             val = GlobalConfig.getKeepAlive();
           } else if (key === 'customCredentialManager') {
-            val = new CustomCredentialManager(credManager);
+            val = credManager
           } 
           else {
             val = GlobalConfig[key];

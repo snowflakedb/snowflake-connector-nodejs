@@ -7,6 +7,7 @@ const snowflake = require('./../../lib/snowflake');
 const ErrorCodes = require('./../../lib/errors').codes;
 const Logger = require('./../../lib/logger');
 const GlobalConfig = require('./../../lib/global_config');
+const {CustomCredentialManager} = require('./../../lib/global_config');
 
 const LOG_LEVEL_TAGS = require('./../../lib/logger/core').LOG_LEVEL_TAGS;
 
@@ -20,7 +21,8 @@ describe('Snowflake Configure Tests', function () {
       ocspFailOpen: GlobalConfig.getOcspFailOpen(),
       keepAlive: GlobalConfig.getKeepAlive(),
       jsonColumnVariantParser: GlobalConfig.jsonColumnVariantParser,
-      xmlColumnVariantParser: GlobalConfig.xmlColumnVariantParser
+      xmlColumnVariantParser: GlobalConfig.xmlColumnVariantParser,
+      customCredentialManager: GlobalConfig.CredentialManager,
     };
   });
 
@@ -60,7 +62,12 @@ describe('Snowflake Configure Tests', function () {
           name: 'invalid keep alive',
           options: { keepAlive: 'unsupported' },
           errorCode: ErrorCodes.ERR_GLOBAL_CONFIGURE_INVALID_KEEP_ALIVE
-        }
+        },
+        {
+          name: 'invalid customCredentialManager',
+          options: { customCredentialManager: 'unsupported' },
+          errorCode: ErrorCodes.ERR_GLOBAL_CONFIGURE_INVALID_CUSTOM_CREDENTIAL_MANAGER
+        },
       ];
 
     negativeTestCases.forEach(testCase => {
@@ -80,6 +87,16 @@ describe('Snowflake Configure Tests', function () {
   });
 
   describe('Test valid arguments', function () {
+
+    function sampleManager() {
+      this.read = function () {
+      }
+  
+      this.write = function (credential) {
+      }
+    }
+    const credManager = new sampleManager();
+
     const testCases =
       [
         {
@@ -180,6 +197,13 @@ describe('Snowflake Configure Tests', function () {
             xmlColumnVariantParser: rawColumnValue => new (require("fast-xml-parser")).XMLParser().parse(rawColumnValue)
           }
         },
+        {
+          name: 'custom credential manager',
+          options:
+          {
+            customCredentialManager: credManager,
+          }
+        },
       ];
 
     testCases.forEach(testCase => {
@@ -196,7 +220,10 @@ describe('Snowflake Configure Tests', function () {
             val = GlobalConfig.getOcspFailOpen();
           } else if (key == 'keepAlive') {
             val = GlobalConfig.getKeepAlive();
-          } else {
+          } else if (key === 'customCredentialManager') {
+            val = new CustomCredentialManager(credManager);
+          } 
+          else {
             val = GlobalConfig[key];
           }
           assert.strictEqual(val, ref);

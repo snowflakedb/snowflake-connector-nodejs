@@ -41,19 +41,19 @@ describe('Credential Manager Test', function () {
   });
 
   it('test - write the mock credential with the credential manager', function () {
-    CredentialManager.writeCredential(host, user, credType, randomPassword);
-    const result = CredentialManager.readCredential(host, user, credType);
+    CredentialManager.write(host, user, credType, randomPassword);
+    const result = CredentialManager.read(host, user, credType);
     assert.strictEqual(randomPassword.toString(), result);
   });
 
   it('test - read the mock credential with the credential manager', function () {
-    const savedPassword = CredentialManager.readCredential(host, user, credType);
+    const savedPassword = CredentialManager.read(host, user, credType);
     assert.strictEqual(savedPassword, randomPassword);
   });
 
   it('test - delete the mock credential with the credential manager', function () {
-     CredentialManager.deleteCredential(host, user, credType);
-    const result = CredentialManager.readCredential(host, user, credType);
+     CredentialManager.remove(host, user, credType);
+    const result = CredentialManager.read(host, user, credType);
     assert.ok(result === null);
   });
 });

@@ -47,7 +47,7 @@ module.exports = {
     'no-useless-escape': ['warn'],
     'no-var': ['warn'],
     'object-curly-spacing': ['error', 'always'],
-    'prefer-const': ['warn'],
+    'prefer-const': ['error'],
     'quotes': ['error', 'single'],
     'semi': ['error', 'always'],
     'semi-spacing': ['error'],

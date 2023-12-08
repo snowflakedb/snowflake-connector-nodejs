@@ -72,8 +72,8 @@ async function run() {
                          from ${testVariantTempName}`;
   const selectCountVariant = (tableName) => `select count(colA) from ${(tableName)}`;
 
-  let avgBlock = 0, minBlock = 999999999999999, maxBlock = 0;
-  let blockCount = 0;
+  const avgBlock = 0, minBlock = 999999999999999, maxBlock = 0;
+  const blockCount = 0;
 
   const testCases = [];
   if (!choosenParser || choosenParser.toString().includes('Function')) {
@@ -96,7 +96,7 @@ async function run() {
   const execute = async ({ parser, jsonColumnVariantParser }, extractFunction) => {
     console.log(`\nTest for parser: [${parser}] extracting by ${extractFunction.name}`);
     const testVariantTableName = `testVariantTable000${parser}`;
-    let connection = await helpers.connectUsingEnv();
+    const connection = await helpers.connectUsingEnv();
     return new Promise(async (resolve, reject) => {
       snowflake.configure({
         jsonColumnVariantParser: jsonColumnVariantParser

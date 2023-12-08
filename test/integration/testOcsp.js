@@ -272,7 +272,7 @@ describe('OCSP validation', function () {
 
     for (let i = 0; i < globalOptions.length; i++) {
       snowflake.configure(globalOptions[i]);
-      let connection = snowflake.createConnection(connOption.valid);
+      const connection = snowflake.createConnection(connOption.valid);
       connection.connect(function (err) {
         assert.ok(!err, JSON.stringify(err));
       });

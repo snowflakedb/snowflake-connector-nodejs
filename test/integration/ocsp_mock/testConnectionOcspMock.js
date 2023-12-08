@@ -12,8 +12,8 @@ const HttpsMockAgent = require('./https_ocsp_mock_agent');
 const Logger = require('../../../lib/logger');
 
 function cloneConnOption(connOption) {
-  let ret = {};
-  for (let k in connOption) {
+  const ret = {};
+  for (const k in connOption) {
     ret[k] = connOption[k];
   }
   return ret;

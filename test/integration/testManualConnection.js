@@ -314,12 +314,12 @@ if (process.env.RUN_MANUAL_TESTS_ONLY == 'true') {
       let sumWithKeepAlive = 0;
       let sumWithoutKeepAlive = 0;
       for (let count = 1; count <= loopCount; count++) {
-        let time = await executeSingleQuery();
+        const time = await executeSingleQuery();
         sumWithKeepAlive += time;
       }
       snowflake.configure({ keepAlive: false });
       for (let count = 1; count <= loopCount; count++) {
-        let time = await executeSingleQuery();
+        const time = await executeSingleQuery();
         sumWithoutKeepAlive += time;
       }
       Logger.getInstance().info(`Sum of time without keep alive: ${sumWithoutKeepAlive}. Sum of time with keep alive:: ${sumWithKeepAlive}`);

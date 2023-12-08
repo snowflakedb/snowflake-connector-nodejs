@@ -582,7 +582,7 @@ describe('Util', function () {
     it('test - retryTimeout is 0', function () {
       const maxRetryTimeout = 0;
       let currentSleepTime = 1;
-      let maxRetryCount = 20;
+      const maxRetryCount = 20;
       let totalTimeout = currentSleepTime;
       let retryCount = 1;
       for ( ; retryCount < maxRetryCount; retryCount++) {
@@ -603,7 +603,7 @@ describe('Util', function () {
     const positiveInteger = Util.chooseRandom(1, 5);
     const negativeInteger = Util.chooseRandom(-1, -5);
     const randomNumber = Util.chooseRandom(positiveInteger, negativeInteger);
-    let randomNumbers = [];
+    const randomNumbers = [];
 
     assert.ok(1 <= positiveInteger && positiveInteger <= 5);
     assert.ok(-5 <= negativeInteger && negativeInteger <= -1);
@@ -769,8 +769,8 @@ describe('Util', function () {
   });
 
   describe('Util Test - handling circular reference in isValidAsync exception handling', () => {
-    let shouldMatchNonCircular = '{"one":1,"two":2}';
-    let shouldMatchCircular = '{"one":1,"two":2,"myself":"[Circular]"}';
+    const shouldMatchNonCircular = '{"one":1,"two":2}';
+    const shouldMatchCircular = '{"one":1,"two":2,"myself":"[Circular]"}';
   
     it('non-circular reference is handled correctly by JSON.stringify replacer', () => {
       const a = { 'one': 1, 'two': 2 };

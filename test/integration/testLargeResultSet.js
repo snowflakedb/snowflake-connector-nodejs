@@ -104,7 +104,7 @@ describe('Large result Set Tests', function ()
         {
           assert.strictEqual(rowCount, sourceRowCount - offset);
           done();
-        })
+        });
       }
     });
   });
@@ -208,7 +208,7 @@ describe('Large result Set Tests', function ()
           connection.execute({
             sqlText: insertVariant,
             complete: (err) => callback(err)
-          })
+          });
         },
         function (callback)
         {
@@ -249,7 +249,7 @@ describe('Large result Set Tests', function ()
             }
           });
         }],
-        done
+      done
       );
     });
   });

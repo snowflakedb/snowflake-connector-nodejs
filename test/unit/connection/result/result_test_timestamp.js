@@ -11,9 +11,9 @@ describe('Result: test timestamp', function ()
   it("select to_timestamp_ltz('Thu, 21 Jan 2016 06:32:44 -0800') as C1, " +
     "to_timestamp_tz('Thu, 21 Jan 2016 06:32:44 -0800') as C2, " +
     "to_timestamp_ntz('Thu, 21 Jan 2016 06:32:44 -0800') as C3;",
-    function (done)
-    {
-      var response =
+  function (done)
+  {
+    var response =
         {
           "data": {
             "parameters": [{"name": "TIMEZONE", "value": "America/Los_Angeles"}, {
@@ -55,34 +55,34 @@ describe('Result: test timestamp', function ()
           "success": true
         };
 
-      ResultTestCommon.testResult(
-        ResultTestCommon.createResultOptions(response),
-        function (row)
-        {
-          // timestamp_ltz
-          assert.ok(Util.isDate(row.getColumnValue('C1')));
-          assert.strictEqual(
-            row.getColumnValueAsString('C1'),
-            'Thu, 21 Jan 2016 06:32:44 -0800');
+    ResultTestCommon.testResult(
+      ResultTestCommon.createResultOptions(response),
+      function (row)
+      {
+        // timestamp_ltz
+        assert.ok(Util.isDate(row.getColumnValue('C1')));
+        assert.strictEqual(
+          row.getColumnValueAsString('C1'),
+          'Thu, 21 Jan 2016 06:32:44 -0800');
 
-          // timestamp_tz
-          assert.ok(Util.isDate(row.getColumnValue('C2')));
-          assert.strictEqual(
-            row.getColumnValueAsString('C2'),
-            'Thu, 21 Jan 2016 06:32:44 -0800');
+        // timestamp_tz
+        assert.ok(Util.isDate(row.getColumnValue('C2')));
+        assert.strictEqual(
+          row.getColumnValueAsString('C2'),
+          'Thu, 21 Jan 2016 06:32:44 -0800');
 
-          row.getColumnValueAsString('C3');
+        row.getColumnValueAsString('C3');
 
-          // timestamp_ntz
-          assert.ok(Util.isDate(row.getColumnValue('C3')));
-          assert.strictEqual(
-            row.getColumnValueAsString('C3'),
-            'Thu, 21 Jan 2016 06:32:44 +0000');
-        },
-        function (result)
-        {
-          done();
-        }
-      );
-    });
+        // timestamp_ntz
+        assert.ok(Util.isDate(row.getColumnValue('C3')));
+        assert.strictEqual(
+          row.getColumnValueAsString('C3'),
+          'Thu, 21 Jan 2016 06:32:44 +0000');
+      },
+      function (result)
+      {
+        done();
+      }
+    );
+  });
 });

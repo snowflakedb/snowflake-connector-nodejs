@@ -146,7 +146,7 @@ describe('Test Concurrent Execution', function ()
               stream.on('error', function (err)
               {
                 testUtil.checkError(err);
-              })
+              });
               stream.on('end', function ()
               {
                 assert.strictEqual(rowCount, sourceRowCount);

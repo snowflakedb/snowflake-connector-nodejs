@@ -76,9 +76,9 @@ describe('Result: test binary', function ()
 
   it("alter session set BINARY_OUTPUT_FORMAT='BASE64';" +
     "select X'0123456789ABCDEF' as C1;",
-    function (done)
-    {
-      var response =
+  function (done)
+  {
+    var response =
         {
           "data": {
             "parameters": [{"name": "TIMEZONE", "value": "America/Los_Angeles"}, {
@@ -126,18 +126,18 @@ describe('Result: test binary', function ()
           "success": true
         };
 
-      ResultTestCommon.testResult(
-        ResultTestCommon.createResultOptions(response),
-        function (row)
-        {
-          var buffer = Buffer.from('0123456789ABCDEF', 'hex');
-          assert.ok(row.getColumnValue('C1').equals(buffer));
-          assert.strictEqual(row.getColumnValueAsString('C1'), 'ASNFZ4mrze8=');
-        },
-        function (result)
-        {
-          done();
-        }
-      );
-    });
+    ResultTestCommon.testResult(
+      ResultTestCommon.createResultOptions(response),
+      function (row)
+      {
+        var buffer = Buffer.from('0123456789ABCDEF', 'hex');
+        assert.ok(row.getColumnValue('C1').equals(buffer));
+        assert.strictEqual(row.getColumnValueAsString('C1'), 'ASNFZ4mrze8=');
+      },
+      function (result)
+      {
+        done();
+      }
+    );
+  });
 });

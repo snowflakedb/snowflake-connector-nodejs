@@ -847,7 +847,7 @@ describe('PUT GET test with multiple files', function () {
   function expectArrayToBeFinallyFilledWithTrue(expectedResultSize, testResult, callback){
     const expectedResult = new Array(expectedResultSize).fill(true);
     function checkResult() {
-      if(testResult.length >= expectedResultSize) {
+      if (testResult.length >= expectedResultSize) {
         try {
           assert.deepEqual(testResult, expectedResult);
           callback();

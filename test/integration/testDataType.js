@@ -30,7 +30,7 @@ describe('Test DataType', function ()
   var dropTableWithTime = 'drop table if exists testTime';
   var dropTableWithTimestamp = 'drop table if exists testTimestamp';
   var dropTableWithBoolean = 'drop table if exists testBoolean';
-  const truncateTableWithVariant = 'truncate table if exists testVariant;'
+  const truncateTableWithVariant = 'truncate table if exists testVariant;';
   var insertDouble = 'insert into testDouble values(123.456)';
   var insertLargeNumber = 'insert into testNumber values (12345678901234567890123456789012345678)';
   var insertRegularSizedNumber = 'insert into testNumber values (100000001)';
@@ -59,58 +59,58 @@ describe('Test DataType', function ()
   {
     connection = testUtil.createConnection();
     async.series([
-        function (callback)
-        {
-          testUtil.connect(connection, callback);
-        }],
-      done
+      function (callback)
+      {
+        testUtil.connect(connection, callback);
+      }],
+    done
     );
   });
 
   after(function (done)
   {
     async.series([
-        function (callback)
-        {
-          testUtil.executeCmd(connection, dropTableWithString, callback);
-        },
-        function (callback)
-        {
-          testUtil.executeCmd(connection, dropTableWithVariant, callback);
-        },
-        function (callback)
-        {
-          testUtil.executeCmd(connection, dropTableWithArray, callback);
-        },
-        function (callback)
-        {
-          testUtil.executeCmd(connection, dropTableWithNumber, callback);
-        },
-        function (callback)
-        {
-          testUtil.executeCmd(connection, dropTableWithDouble, callback);
-        },
-        function (callback)
-        {
-          testUtil.executeCmd(connection, dropTableWithDate, callback);
-        },
-        function (callback)
-        {
-          testUtil.executeCmd(connection, dropTableWithTime, callback);
-        },
-        function (callback)
-        {
-          testUtil.executeCmd(connection, dropTableWithTimestamp, callback);
-        },
-        function (callback)
-        {
-          testUtil.executeCmd(connection, dropTableWithBoolean, callback);
-        },
-        function (callback)
-        {
-          testUtil.destroyConnection(connection, callback);
-        }],
-      done
+      function (callback)
+      {
+        testUtil.executeCmd(connection, dropTableWithString, callback);
+      },
+      function (callback)
+      {
+        testUtil.executeCmd(connection, dropTableWithVariant, callback);
+      },
+      function (callback)
+      {
+        testUtil.executeCmd(connection, dropTableWithArray, callback);
+      },
+      function (callback)
+      {
+        testUtil.executeCmd(connection, dropTableWithNumber, callback);
+      },
+      function (callback)
+      {
+        testUtil.executeCmd(connection, dropTableWithDouble, callback);
+      },
+      function (callback)
+      {
+        testUtil.executeCmd(connection, dropTableWithDate, callback);
+      },
+      function (callback)
+      {
+        testUtil.executeCmd(connection, dropTableWithTime, callback);
+      },
+      function (callback)
+      {
+        testUtil.executeCmd(connection, dropTableWithTimestamp, callback);
+      },
+      function (callback)
+      {
+        testUtil.executeCmd(connection, dropTableWithBoolean, callback);
+      },
+      function (callback)
+      {
+        testUtil.destroyConnection(connection, callback);
+      }],
+    done
     );
   });
 
@@ -119,102 +119,102 @@ describe('Test DataType', function ()
     it('testDouble', function (done)
     {
       async.series([
-          function (callback)
-          {
-            testUtil.executeCmd(connection, createTableWithDouble, callback);
-          },
-          function (callback)
-          {
-            testUtil.executeCmd(connection, insertDouble, callback);
-          },
-          function (callback)
-          {
-            testUtil.executeQueryAndVerify(
-              connection,
-              selectDouble,
-              [{'COLA': 123.456}],
-              callback
-            );
-          }],
-        done
+        function (callback)
+        {
+          testUtil.executeCmd(connection, createTableWithDouble, callback);
+        },
+        function (callback)
+        {
+          testUtil.executeCmd(connection, insertDouble, callback);
+        },
+        function (callback)
+        {
+          testUtil.executeQueryAndVerify(
+            connection,
+            selectDouble,
+            [{'COLA': 123.456}],
+            callback
+          );
+        }],
+      done
       );
     });
 
     it('testLargeNumber', function (done)
     {
       async.series([
-          function (callback)
-          {
-            testUtil.executeCmd(connection, createTableWithNumber, callback);
-          },
-          function (callback)
-          {
-            testUtil.executeCmd(connection, insertLargeNumber, callback);
-          },
-          function (callback)
-          {
-            testUtil.executeQueryAndVerify(
-              connection,
-              selectNumber,
-              [{'COLA': 12345678901234567890123456789012345678}],
-              callback
-            );
-          }],
-        done
+        function (callback)
+        {
+          testUtil.executeCmd(connection, createTableWithNumber, callback);
+        },
+        function (callback)
+        {
+          testUtil.executeCmd(connection, insertLargeNumber, callback);
+        },
+        function (callback)
+        {
+          testUtil.executeQueryAndVerify(
+            connection,
+            selectNumber,
+            [{'COLA': 12345678901234567890123456789012345678}],
+            callback
+          );
+        }],
+      done
       );
     });
 
     it('testLargeNumberBigInt', function (done)
     {
       async.series([
-          function (callback)
-          {
-            testUtil.executeCmd(connection, createTableWithNumber, callback);
-          },
-          function (callback)
-          {
-            testUtil.executeCmd(connection, insertLargeNumber, callback);
-          },
-          function (callback)
-          {
-            testUtil.executeCmd(connection, "alter session set JS_TREAT_INTEGER_AS_BIGINT=true", callback)
-          },
-          function (callback)
-          {
-            testUtil.executeQueryAndVerify(
-              connection,
-              selectNumber,
-              [{'COLA': bigInt("12345678901234567890123456789012345678")}],
-              callback,
-              null,
-              false
-            );
-          }],
-        done
+        function (callback)
+        {
+          testUtil.executeCmd(connection, createTableWithNumber, callback);
+        },
+        function (callback)
+        {
+          testUtil.executeCmd(connection, insertLargeNumber, callback);
+        },
+        function (callback)
+        {
+          testUtil.executeCmd(connection, "alter session set JS_TREAT_INTEGER_AS_BIGINT=true", callback);
+        },
+        function (callback)
+        {
+          testUtil.executeQueryAndVerify(
+            connection,
+            selectNumber,
+            [{'COLA': bigInt("12345678901234567890123456789012345678")}], // pragma: allowlist secret
+            callback,
+            null,
+            false
+          );
+        }],
+      done
       );
     });
 
     it('testRegularSizedInteger', function (done)
     {
       async.series([
-          function (callback)
-          {
-            testUtil.executeCmd(connection, createTableWithNumber, callback);
-          },
-          function (callback)
-          {
-            testUtil.executeCmd(connection, insertRegularSizedNumber, callback);
-          },
-          function (callback)
-          {
-            testUtil.executeQueryAndVerify(
-              connection,
-              selectNumber,
-              [{'COLA': 100000001}],
-              callback
-            );
-          }],
-        done
+        function (callback)
+        {
+          testUtil.executeCmd(connection, createTableWithNumber, callback);
+        },
+        function (callback)
+        {
+          testUtil.executeCmd(connection, insertRegularSizedNumber, callback);
+        },
+        function (callback)
+        {
+          testUtil.executeQueryAndVerify(
+            connection,
+            selectNumber,
+            [{'COLA': 100000001}],
+            callback
+          );
+        }],
+      done
       );
     });
   });
@@ -295,7 +295,7 @@ describe('Test DataType', function ()
           originalParserConfig = {
             jsonColumnVariantParser: GlobalConfig.jsonColumnVariantParser,
             xmlColumnVariantParser: GlobalConfig.xmlColumnVariantParser
-          }
+          };
         });
 
         after(() =>
@@ -311,7 +311,7 @@ describe('Test DataType', function ()
               {
                 snowflake.configure({
                   jsonColumnVariantParser: rawColumnValue => JSON.parse(rawColumnValue)
-                })
+                });
                 testUtil.executeCmd(connection, insertVariantJSONForCustomParser, callback);
               },
               function (callback)

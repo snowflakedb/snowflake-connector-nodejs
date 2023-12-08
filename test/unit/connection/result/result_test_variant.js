@@ -10,9 +10,9 @@ describe('Result: test variant', function ()
   it("select to_variant((parse_json('{ a : 1 }'))) as C1, " +
     "to_object(parse_json('{ a : 1 }')) as C2, " +
     "to_array(parse_json('[1, 2]')) as C3;",
-    function (done)
-    {
-      var response =
+  function (done)
+  {
+    var response =
         {
           "data": {
             "parameters": [{"name": "TIMEZONE", "value": "America/Los_Angeles"}, {
@@ -54,29 +54,29 @@ describe('Result: test variant', function ()
           "success": true
         };
 
-      ResultTestCommon.testResult(
-        ResultTestCommon.createResultOptions(response),
-        function (row)
-        {
-          // variant
-          assert.deepEqual(row.getColumnValue('C1'), {a: 1});
-          assert.equal(
-            row.getColumnValueAsString('C1'), JSON.stringify({a: 1}));
+    ResultTestCommon.testResult(
+      ResultTestCommon.createResultOptions(response),
+      function (row)
+      {
+        // variant
+        assert.deepEqual(row.getColumnValue('C1'), {a: 1});
+        assert.equal(
+          row.getColumnValueAsString('C1'), JSON.stringify({a: 1}));
 
-          // object
-          assert.deepEqual(row.getColumnValue('C2'), {a: 1});
-          assert.equal(
-            row.getColumnValueAsString('C2'), JSON.stringify({a: 1}));
+        // object
+        assert.deepEqual(row.getColumnValue('C2'), {a: 1});
+        assert.equal(
+          row.getColumnValueAsString('C2'), JSON.stringify({a: 1}));
 
-          // array
-          assert.deepEqual(row.getColumnValue('C3'), [1, 2]);
-          assert.equal(
-            row.getColumnValueAsString('C3'), JSON.stringify([1, 2]));
-        },
-        function (result)
-        {
-          done();
-        }
-      );
-    });
+        // array
+        assert.deepEqual(row.getColumnValue('C3'), [1, 2]);
+        assert.equal(
+          row.getColumnValueAsString('C3'), JSON.stringify([1, 2]));
+      },
+      function (result)
+      {
+        done();
+      }
+    );
+  });
 });

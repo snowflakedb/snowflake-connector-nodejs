@@ -91,58 +91,58 @@ describe('exclude support warehouses', function ()
   before(function (done)
   {
     async.series([
-        function (callback)
-        {
-          // set up the connection to the snowflake account
-          testUtil.connect(connSnowflake, callback);
-        },
-        function (callback)
-        {
-          // enable support to get warehouse metrics from externalaccount
-          testUtil.executeCmd(connSnowflake, enableJobScanFns, callback);
-        },
-        function (callback)
-        {
-          // get the original server_type for externalaccount
-          connSnowflake.execute(
+      function (callback)
+      {
+        // set up the connection to the snowflake account
+        testUtil.connect(connSnowflake, callback);
+      },
+      function (callback)
+      {
+        // enable support to get warehouse metrics from externalaccount
+        testUtil.executeCmd(connSnowflake, enableJobScanFns, callback);
+      },
+      function (callback)
+      {
+        // get the original server_type for externalaccount
+        connSnowflake.execute(
+          {
+            sqlText: "show accounts like 'externalaccount'",
+            complete: function (err, statement, rows)
             {
-              sqlText: "show accounts like 'externalaccount'",
-              complete: function (err, statement, rows)
-              {
-                assert.ok(!err);
-                assert.ok(util.isArray(rows) && (rows.length === 1));
+              assert.ok(!err);
+              assert.ok(util.isArray(rows) && (rows.length === 1));
 
-                // extract the server type and save it for later use
-                externalAccServerTypeOrig = rows[0]['server type'];
+              // extract the server type and save it for later use
+              externalAccServerTypeOrig = rows[0]['server type'];
 
-                // we're done; invoke the callback
-                callback();
-              }
-            });
-        },
-        function (callback)
-        {
-          // change the server type in externalaccount to standard
-          testUtil.executeCmd(connSnowflake, setServerTypeStandard, callback);
-        },
-        function (callback)
-        {
-          // set up the connection to externalaccount
-          testUtil.connect(connExternal, callback);
-        },
-        function (callback)
-        {
-          // create a database in externalaccount so we can use information
-          // schema
-          testUtil.executeCmd(connExternal, createTestDb, callback);
-        },
-        function (callback)
-        {
-          // create a support warehouse in externalaccount to test warehouse
-          // metrics
-          testUtil.executeCmd(connExternal, createSupportWh, callback);
-        }],
-      done
+              // we're done; invoke the callback
+              callback();
+            }
+          });
+      },
+      function (callback)
+      {
+        // change the server type in externalaccount to standard
+        testUtil.executeCmd(connSnowflake, setServerTypeStandard, callback);
+      },
+      function (callback)
+      {
+        // set up the connection to externalaccount
+        testUtil.connect(connExternal, callback);
+      },
+      function (callback)
+      {
+        // create a database in externalaccount so we can use information
+        // schema
+        testUtil.executeCmd(connExternal, createTestDb, callback);
+      },
+      function (callback)
+      {
+        // create a support warehouse in externalaccount to test warehouse
+        // metrics
+        testUtil.executeCmd(connExternal, createSupportWh, callback);
+      }],
+    done
     );
   });
 
@@ -150,41 +150,41 @@ describe('exclude support warehouses', function ()
   after(function (done)
   {
     async.series([
-        function (callback)
-        {
-          // unset feature flag to get warehouse metrics from externalaccount
-          testUtil.executeCmd(connSnowflake, unsetJobScanFns, callback);
-        },
-        function (callback)
-        {
-          // change the server_type in externalaccount back to its original value
-          var sqlText = util.format(
-            "alter account externalaccount set server_type = '%s'",
-            externalAccServerTypeOrig);
-          testUtil.executeCmd(connSnowflake, sqlText, callback);
-        },
-        function (callback)
-        {
-          // destroy the connection to the snowflake account
-          testUtil.destroyConnection(connSnowflake, callback);
-        },
-        function (callback)
-        {
-          // drop the support warehouse we created in externalaccount
-          testUtil.executeCmd(connExternal, dropSupportWh, callback);
-        },
-        function (callback)
-        {
-          // drop the database we created in externalaccount to get information
-          // schema
-          testUtil.executeCmd(connExternal, dropTestDb, callback);
-        },
-        function (callback)
-        {
-          // destroy the connection to externalaccount
-          testUtil.destroyConnection(connExternal, callback);
-        }],
-      done
+      function (callback)
+      {
+        // unset feature flag to get warehouse metrics from externalaccount
+        testUtil.executeCmd(connSnowflake, unsetJobScanFns, callback);
+      },
+      function (callback)
+      {
+        // change the server_type in externalaccount back to its original value
+        var sqlText = util.format(
+          "alter account externalaccount set server_type = '%s'",
+          externalAccServerTypeOrig);
+        testUtil.executeCmd(connSnowflake, sqlText, callback);
+      },
+      function (callback)
+      {
+        // destroy the connection to the snowflake account
+        testUtil.destroyConnection(connSnowflake, callback);
+      },
+      function (callback)
+      {
+        // drop the support warehouse we created in externalaccount
+        testUtil.executeCmd(connExternal, dropSupportWh, callback);
+      },
+      function (callback)
+      {
+        // drop the database we created in externalaccount to get information
+        // schema
+        testUtil.executeCmd(connExternal, dropTestDb, callback);
+      },
+      function (callback)
+      {
+        // destroy the connection to externalaccount
+        testUtil.destroyConnection(connExternal, callback);
+      }],
+    done
     );
   });
 
@@ -394,7 +394,7 @@ describe('exclude support warehouses', function ()
         "from table(information_schema.warehouse_metering_history(" +
         "%s::timestamp, %s::timestamp, '%s')) " +
         'group by warehouse_name',
-        columnName, startTime, endTime, supportWhName);
+      columnName, startTime, endTime, supportWhName);
 
     conn.execute(
       {
@@ -430,8 +430,8 @@ describe('exclude support warehouses', function ()
     var sqlText = util.format("select system$get_metrics(" +
       "'%s', '%s', '%s', '%s'::timestamp, '%s'::timestamp, " +
       "null, null, '%s', %s) as %s;",
-      'ACCOUNT', 'EXTERNALACCOUNT', 'METERING',
-      startTime, endTime, 'UTC', exclude, columnName);
+    'ACCOUNT', 'EXTERNALACCOUNT', 'METERING',
+    startTime, endTime, 'UTC', exclude, columnName);
 
     conn.execute(
       {

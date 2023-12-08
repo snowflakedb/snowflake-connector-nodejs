@@ -44,7 +44,7 @@ describe('Encryption util', function ()
               return Buffer.from(mockData.substring(0, 4));
             }
             return new update(data);
-          }
+          };
           this.final = function ()
           {
             function final()
@@ -52,7 +52,7 @@ describe('Encryption util', function ()
               return Buffer.from(mockData.substring(4));
             }
             return new final;
-          }
+          };
         }
         return new createCipheriv;
       }
@@ -66,7 +66,7 @@ describe('Encryption util', function ()
           {
             callback();
             return;
-          }
+          };
         }
         return new createReadStream;
       },
@@ -77,12 +77,12 @@ describe('Encryption util', function ()
           this.write = function (data)
           {
             return;
-          }
+          };
           this.close = function (resolve)
           {
             resolve();
             return;
-          }
+          };
         }
         return new createWriteStream;
       },
@@ -97,7 +97,7 @@ describe('Encryption util', function ()
         return {
           name: mockTmpName,
           fd: 0
-        }
+        };
       },
       openSync: function (options)
       {
@@ -123,7 +123,7 @@ describe('Encryption util', function ()
       "smkId": encryptionMaterial.smkId,
       "queryId": encryptionMaterial.queryId,
       "keySize": keySize * 8
-    }
+    };
     matDesc['smkId'] = matDesc['smkId'].toString();
     matDesc['keySize'] = matDesc['keySize'].toString();
     matDesc = JSON.stringify(matDesc);

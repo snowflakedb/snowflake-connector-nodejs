@@ -76,7 +76,7 @@ describe('external browser authentication', function ()
     getBrowserActionTimeout: () => BROWSER_ACTION_TIMEOUT,
     getProxy: () => {},
     host: 'fakehost'
-  }
+  };
 
   before(function ()
   {
@@ -101,7 +101,7 @@ describe('external browser authentication', function ()
                   proofKey: mockProofKey
                 }
             }
-          }
+          };
         browserRedirectPort = options.data['data']['BROWSER_MODE_REDIRECT_PORT'];
         return data;
       }
@@ -155,7 +155,7 @@ describe('external browser authentication', function ()
                   ssoUrl: mockSsoURL
                 }
             }
-          }
+          };
         browserRedirectPort = options.data['data']['BROWSER_MODE_REDIRECT_PORT'];
         return data;
       }
@@ -213,7 +213,7 @@ describe('key-pair authentication', function ()
           this.export = function ()
           {
             return connectionOptionsKeyPair.privateKey;
-          }
+          };
         }
 
         return new privKeyObject;
@@ -227,7 +227,7 @@ describe('key-pair authentication', function ()
           this.export = function ()
           {
             return mockPublicKeyObj;
-          }
+          };
         }
 
         return new pubKeyObject;
@@ -241,10 +241,10 @@ describe('key-pair authentication', function ()
             function update()
             {
               assert.strictEqual(publicKeyObj, mockPublicKeyObj);
-              this.digest = function () {}
+              this.digest = function () {};
             }
             return new update;
-          }
+          };
         }
         return new createHash;
       }
@@ -405,14 +405,14 @@ describe('okta authentication', function ()
                 tokenUrl: mockTokenUrl
               }
             }
-          }
+          };
         }
         if (url === mockTokenUrl)
         {
           json =
           {
             data: mockCookieToken
-          }
+          };
         }
         return json;
       },
@@ -421,7 +421,7 @@ describe('okta authentication', function ()
         var json =
         {
           data: mockSamlResponse
-        }
+        };
         return json;
       }
     });
@@ -441,7 +441,7 @@ describe('okta authentication', function ()
     auth.authenticate(connectionOptionsOkta.authenticator, '', connectionOptionsOkta.account, connectionOptionsOkta.username)
       .then(done)
       .catch(done);
-  })
+  });
 
   it('okta - SAML response success', async function ()
   {
@@ -479,7 +479,7 @@ describe('okta authentication', function ()
                 tokenUrl: 'abcd'
               }
             }
-          }
+          };
         }
         return json;
       }
@@ -522,14 +522,14 @@ describe('okta authentication', function ()
                 tokenUrl: mockTokenUrl
               }
             }
-          }
+          };
         }
         if (url === mockTokenUrl)
         {
           json =
           {
             data: mockCookieToken
-          }
+          };
         }
         return json;
       },
@@ -538,7 +538,7 @@ describe('okta authentication', function ()
         var json =
         {
           data: mockUrl
-        }
+        };
         return json;
       }
     });

@@ -95,8 +95,8 @@ describe('Statement.execute()', function ()
               {
                 sqlText: '',
                 binds: [function ()
-                        {
-                        }]
+                {
+                }]
               }
           },
         errorCode: ErrorCodes.ERR_CONN_EXEC_STMT_INVALID_BIND_VALUES

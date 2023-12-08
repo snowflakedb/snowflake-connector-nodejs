@@ -9,11 +9,11 @@ describe('Result: test number', function ()
 {
   it("select to_number('123.456') as C1, " +
     "to_double('123.456') as C2, " +
-    "to_number('12345678901234567890123456789012345678') as C3, " +
-    "to_double('12345678901234567890123456789012345678') as C4;",
-    function (done)
-    {
-      var response =
+    "to_number('12345678901234567890123456789012345678') as C3, " + // pragma: allowlist secret
+    "to_double('12345678901234567890123456789012345678') as C4;", // pragma: allowlist secret
+  function (done)
+  {
+    var response =
         {
           "data": {
             "parameters": [{"name": "TIMEZONE", "value": "America/Los_Angeles"}, {
@@ -40,7 +40,7 @@ describe('Result: test number', function ()
               "name": "C4", "byteLength": null, "nullable": false, "precision": null, "scale": null, "length": null,
               "type": "real"
             }],
-            "rowset": [["123", "123.456", "12345678901234567890123456789012345678", "1.23456789012346e+37"]],
+            "rowset": [["123", "123.456", "12345678901234567890123456789012345678", "1.23456789012346e+37"]], // pragma: allowlist secret
             "total": 1,
             "returned": 1,
             "queryId": "d1d201b7-66e5-4692-b062-eaec596771fe",
@@ -58,33 +58,33 @@ describe('Result: test number', function ()
           "success": true
         };
 
-      ResultTestCommon.testResult(
-        ResultTestCommon.createResultOptions(response),
-        function (row)
-        {
-          // fixed small
-          assert.strictEqual(row.getColumnValue('C1'), 123);
-          assert.strictEqual(row.getColumnValueAsString('C1'), '123');
+    ResultTestCommon.testResult(
+      ResultTestCommon.createResultOptions(response),
+      function (row)
+      {
+        // fixed small
+        assert.strictEqual(row.getColumnValue('C1'), 123);
+        assert.strictEqual(row.getColumnValueAsString('C1'), '123');
 
-          // real small
-          assert.strictEqual(row.getColumnValue('C2'), 123.456);
-          assert.strictEqual(row.getColumnValueAsString('C2'), '123.456');
+        // real small
+        assert.strictEqual(row.getColumnValue('C2'), 123.456);
+        assert.strictEqual(row.getColumnValueAsString('C2'), '123.456');
 
-          // fixed big
-          assert.strictEqual(row.getColumnValue('C3'), 1.2345678901234568e+37);
-          assert.strictEqual(
-            row.getColumnValueAsString('C3'),
-            '12345678901234567890123456789012345678');
+        // fixed big
+        assert.strictEqual(row.getColumnValue('C3'), 1.2345678901234568e+37);
+        assert.strictEqual(
+          row.getColumnValueAsString('C3'),
+          '12345678901234567890123456789012345678'); // pragma: allowlist secret
 
-          // real big
-          assert.strictEqual(row.getColumnValue('C4'), 1.23456789012346e+37);
-          assert.strictEqual(
-            row.getColumnValueAsString('C4'), '1.23456789012346e+37');
-        },
-        function (result)
-        {
-          done();
-        }
-      );
-    });
+        // real big
+        assert.strictEqual(row.getColumnValue('C4'), 1.23456789012346e+37);
+        assert.strictEqual(
+          row.getColumnValueAsString('C4'), '1.23456789012346e+37');
+      },
+      function (result)
+      {
+        done();
+      }
+    );
+  });
 });

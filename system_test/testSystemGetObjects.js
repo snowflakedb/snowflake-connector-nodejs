@@ -51,71 +51,71 @@ describe('system$get_objects()', function ()
     // and verify that executing system$get_objects('execute [query_id];') from
     // the snowflake account produces the desired output
     async.series([
-        function (callback)
-        {
-          testUtil.connect(connTestaccount, callback);
-        },
-        function (callback)
-        {
-          testUtil.executeCmd(connTestaccount, createDatabase, callback);
-        },
-        function (callback)
-        {
-          testUtil.executeCmd(connTestaccount, createSchema, callback);
-        },
-        function (callback)
-        {
-          testUtil.executeCmd(connTestaccount, createTableT1, callback);
-        },
-        function (callback)
-        {
-          testUtil.executeCmd(connTestaccount, createTableT2, callback);
-        },
-        function (callback)
-        {
-          testUtil.executeCmd(connTestaccount, createViewV1, callback);
-        },
-        function (callback)
-        {
-          testUtil.executeCmd(connTestaccount, createViewV2, callback);
-        },
-        function (callback)
-        {
-          testUtil.executeCmd(connTestaccount, createViewV3, callback);
-        },
-        function (callback)
-        {
-          testUtil.executeCmd(connTestaccount, createViewV4, callback);
-        },
-        function (callback)
-        {
-          testUtil.executeCmd(connTestaccount, createStage, callback);
-        },
-        function (callback)
-        {
-          testUtil.executeCmd(connTestaccount, createFileFormat, callback);
-        },
-        function (callback)
-        {
-          testUtil.executeCmd(connTestaccount, createSequence, callback);
-        },
-        function (callback)
-        {
-          testUtil.executeCmd(connTestaccount, createSqlUdfAdd1Number, callback);
-        },
-        function (callback)
-        {
-          testUtil.executeCmd(connTestaccount, createSqlUdfAdd1String, callback);
-        },
-        function (callback)
-        {
-          testUtil.executeCmd(connTestaccount, createJsUdfAdd1Double, callback);
-        },
-        function (callback)
-        {
-          testUtil.connect(connSnowflake, callback);
-        }],
-      done
+      function (callback)
+      {
+        testUtil.connect(connTestaccount, callback);
+      },
+      function (callback)
+      {
+        testUtil.executeCmd(connTestaccount, createDatabase, callback);
+      },
+      function (callback)
+      {
+        testUtil.executeCmd(connTestaccount, createSchema, callback);
+      },
+      function (callback)
+      {
+        testUtil.executeCmd(connTestaccount, createTableT1, callback);
+      },
+      function (callback)
+      {
+        testUtil.executeCmd(connTestaccount, createTableT2, callback);
+      },
+      function (callback)
+      {
+        testUtil.executeCmd(connTestaccount, createViewV1, callback);
+      },
+      function (callback)
+      {
+        testUtil.executeCmd(connTestaccount, createViewV2, callback);
+      },
+      function (callback)
+      {
+        testUtil.executeCmd(connTestaccount, createViewV3, callback);
+      },
+      function (callback)
+      {
+        testUtil.executeCmd(connTestaccount, createViewV4, callback);
+      },
+      function (callback)
+      {
+        testUtil.executeCmd(connTestaccount, createStage, callback);
+      },
+      function (callback)
+      {
+        testUtil.executeCmd(connTestaccount, createFileFormat, callback);
+      },
+      function (callback)
+      {
+        testUtil.executeCmd(connTestaccount, createSequence, callback);
+      },
+      function (callback)
+      {
+        testUtil.executeCmd(connTestaccount, createSqlUdfAdd1Number, callback);
+      },
+      function (callback)
+      {
+        testUtil.executeCmd(connTestaccount, createSqlUdfAdd1String, callback);
+      },
+      function (callback)
+      {
+        testUtil.executeCmd(connTestaccount, createJsUdfAdd1Double, callback);
+      },
+      function (callback)
+      {
+        testUtil.connect(connSnowflake, callback);
+      }],
+    done
     );
   });
 
@@ -123,19 +123,19 @@ describe('system$get_objects()', function ()
   after(function (done)
   {
     async.series([
-        function (callback)
-        {
-          testUtil.executeCmd(connTestaccount, dropDatabase, callback);
-        },
-        function (callback)
-        {
-          testUtil.destroyConnection(connTestaccount, callback);
-        },
-        function (callback)
-        {
-          testUtil.destroyConnection(connSnowflake, callback);
-        }],
-      done
+      function (callback)
+      {
+        testUtil.executeCmd(connTestaccount, dropDatabase, callback);
+      },
+      function (callback)
+      {
+        testUtil.destroyConnection(connTestaccount, callback);
+      },
+      function (callback)
+      {
+        testUtil.destroyConnection(connSnowflake, callback);
+      }],
+    done
     );
   });
 
@@ -447,39 +447,39 @@ function testGetObjectsOnStmt(options)
   }
 
   async.series([
-      function (callback)
-      {
-        // execute a statement and get its query id
-        connTestaccount.execute(
+    function (callback)
+    {
+      // execute a statement and get its query id
+      connTestaccount.execute(
+        {
+          sqlText: sql,
+          complete: function (err, statement, rows)
           {
-            sqlText: sql,
-            complete: function (err, statement, rows)
-            {
-              assert.ok(!err);
-              queryId = statement.getQueryId();
-              callback();
-            }
-          });
-      },
-      function (callback)
-      {
-        // run system$get_objects('execute [query_id];') from the snowflake
-        // account and verify that we get the desired output
-        var columnName = "map";
-        var sqlText = util.format('%s as "%s";',
-          buildSqlSystem$GetObjects(queryId), columnName);
-        connSnowflake.execute(
+            assert.ok(!err);
+            queryId = statement.getQueryId();
+            callback();
+          }
+        });
+    },
+    function (callback)
+    {
+      // run system$get_objects('execute [query_id];') from the snowflake
+      // account and verify that we get the desired output
+      var columnName = "map";
+      var sqlText = util.format('%s as "%s";',
+        buildSqlSystem$GetObjects(queryId), columnName);
+      connSnowflake.execute(
+        {
+          sqlText: sqlText,
+          complete: function (err, statement, rows)
           {
-            sqlText: sqlText,
-            complete: function (err, statement, rows)
-            {
-              assert.ok(!err);
-              assert.ok(rows && (rows.length === 1));
-              assert.deepStrictEqual(JSON.parse(rows[0][columnName]), output);
-              callback();
-            }
-          });
-      }
-    ],
-    options.callback);
+            assert.ok(!err);
+            assert.ok(rows && (rows.length === 1));
+            assert.deepStrictEqual(JSON.parse(rows[0][columnName]), output);
+            callback();
+          }
+        });
+    }
+  ],
+  options.callback);
 }

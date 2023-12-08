@@ -67,7 +67,7 @@ describe('Test Stream Rows API', function ()
           testUtil.checkError(err);
         });
       }
-    })
+    });
   });
 
   it('testStartEndIndexForNonFlowingMode', function (done)
@@ -97,7 +97,7 @@ describe('Test Stream Rows API', function ()
           testUtil.checkError(err);
         });
       }
-    })
+    });
   });
 
   it('testEmptyResultSet', function (done)
@@ -139,7 +139,7 @@ describe('Test Stream Rows API', function ()
         });
 
       }
-    })
+    });
   });
 
   it('testSmallResultSet', function (done)
@@ -237,7 +237,7 @@ describe('Test Stream Rows API', function ()
           }
         });
       }
-    })
+    });
   });
 
   it('testMultipleStream', function (done)
@@ -279,7 +279,7 @@ describe('Test Stream Rows API', function ()
           flowingStreamRegister(streamQueue[i]);
         }
       }
-    })
+    });
   });
 
   it('testPauseAndResumeFlowingStream', function (done)
@@ -329,7 +329,7 @@ describe('Test Stream Rows API', function ()
         var rowCount = 0;
         var stream = stmt.streamRows();
         stream.on('data', function () {
-            rowCount++;
+          rowCount++;
         }).on('end', function () {
           assert.strictEqual(rowCount, expectedRowCount);
           done();
@@ -337,7 +337,7 @@ describe('Test Stream Rows API', function ()
           testUtil.checkError(err);
         });
       }
-    })
+    });
   });
 
   /*it('testPipeIntoFile', function(done)

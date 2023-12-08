@@ -575,8 +575,8 @@ describe('connection.execute() synchronous errors', function ()
           {
             sqlText: '',
             binds: [function ()
-                    {
-                    }]
+            {
+            }]
           },
         errorCode: ErrorCodes.ERR_CONN_EXEC_STMT_INVALID_BIND_VALUES
       },
@@ -1840,7 +1840,7 @@ describe('connection.destroy()', function ()
           done();
         }
       })
-      , 10 // if destroy executes when connect is still in pristine state the error occurs. Destroy has to be slowed down a bit.
+    , 10 // if destroy executes when connect is still in pristine state the error occurs. Destroy has to be slowed down a bit.
     );
   });
 
@@ -2072,43 +2072,43 @@ describe('snowflake.createConnection() SERVICE_NAME', function ()
   {
     var connection = snowflake.createConnection(connectionOptionsServiceName);
     async.series([
-        function (callback)
+      function (callback)
+      {
+        connection.connect(function (err)
         {
-          connection.connect(function (err)
+          assert.ok(!err, JSON.stringify(err));
+          callback();
+        });
+      },
+      function (callback)
+      {
+        // SERVICE_NAME is returned.
+        assert.equal('fakeservicename', connection.getServiceName());
+        callback();
+      },
+      function (callback)
+      {
+        // submitting a query with SERVICE_NAME
+        connection.execute(
           {
-            assert.ok(!err, JSON.stringify(err));
-            callback();
-          });
-        },
-        function (callback)
-        {
-          // SERVICE_NAME is returned.
-          assert.equal('fakeservicename', connection.getServiceName());
-          callback();
-        },
-        function (callback)
-        {
-          // submitting a query with SERVICE_NAME
-          connection.execute(
+            sqlText: "select * from faketable",
+            requestId: 'foobar',
+            complete: function (err, stmt)
             {
-              sqlText: "select * from faketable",
-              requestId: 'foobar',
-              complete: function (err, stmt)
-              {
-                assert.ok(!err, JSON.stringify(err));
-                callback();
-              }
+              assert.ok(!err, JSON.stringify(err));
+              callback();
             }
-          );
-        },
-        function (callback)
-        {
-          // SERVICE_NAME is updated.
-          assert.equal('fakeservicename2', connection.getServiceName());
-          callback();
-        }
-      ],
-      done)
+          }
+        );
+      },
+      function (callback)
+      {
+        // SERVICE_NAME is updated.
+        assert.equal('fakeservicename2', connection.getServiceName());
+        callback();
+      }
+    ],
+    done);
   });
 });
 
@@ -2118,31 +2118,31 @@ describe('snowflake.createConnection() CLIENT_SESSION_KEEP_ALIVE', function ()
   {
     var connection = snowflake.createConnection(connectionOptionsClientSessionKeepAlive);
     async.series([
-        function (callback)
+      function (callback)
+      {
+        connection.connect(function (err)
         {
-          connection.connect(function (err)
-          {
-            assert.ok(!err, JSON.stringify(err));
-            callback();
-          });
-        },
-        function (callback)
-        {
-          // CLIENT_SESSION_KEEP_ALIVE is returned.
-          assert.equal(true, connection.getClientSessionKeepAlive());
-          assert.equal(1800, connection.getClientSessionKeepAliveHeartbeatFrequency());
+          assert.ok(!err, JSON.stringify(err));
           callback();
-        },
-        function (callback)
+        });
+      },
+      function (callback)
+      {
+        // CLIENT_SESSION_KEEP_ALIVE is returned.
+        assert.equal(true, connection.getClientSessionKeepAlive());
+        assert.equal(1800, connection.getClientSessionKeepAliveHeartbeatFrequency());
+        callback();
+      },
+      function (callback)
+      {
+        connection.destroy(function (err)
         {
-          connection.destroy(function (err)
-          {
-            assert.ok(!err, JSON.stringify(err));
-            callback();
-          })
-        }
-      ],
-      done)
+          assert.ok(!err, JSON.stringify(err));
+          callback();
+        });
+      }
+    ],
+    done);
   });
 });
 
@@ -2152,30 +2152,30 @@ describe('snowflake.createConnection() JS_TREAT_INTEGER_AS_BIGINT', function ()
   {
     var connection = snowflake.createConnection(connectionOptionsTreatIntegerAsBigInt);
     async.series([
-        function (callback)
+      function (callback)
+      {
+        connection.connect(function (err)
         {
-          connection.connect(function (err)
-          {
-            assert.ok(!err, JSON.stringify(err));
-            callback();
-          });
-        },
-        function (callback)
-        {
-          // JS_TREAT_INTEGER_AS_BIGINT is returned.
-          assert.equal(true, connection.getJsTreatIntegerAsBigInt());
+          assert.ok(!err, JSON.stringify(err));
           callback();
-        },
-        function (callback)
+        });
+      },
+      function (callback)
+      {
+        // JS_TREAT_INTEGER_AS_BIGINT is returned.
+        assert.equal(true, connection.getJsTreatIntegerAsBigInt());
+        callback();
+      },
+      function (callback)
+      {
+        connection.destroy(function (err)
         {
-          connection.destroy(function (err)
-          {
-            assert.ok(!err, JSON.stringify(err));
-            callback();
-          })
-        }
-      ],
-      done)
+          assert.ok(!err, JSON.stringify(err));
+          callback();
+        });
+      }
+    ],
+    done);
   });
 });
 
@@ -2185,25 +2185,25 @@ describe('snowflake.destroyConnection()', function ()
   {
     var connection = snowflake.createConnection(connectionOptionsForSessionGone);
     async.series([
-        function (callback)
+      function (callback)
+      {
+        connection.connect(function (err)
         {
-          connection.connect(function (err)
-          {
-            assert.ok(!err, JSON.stringify(err));
-            callback();
-          });
-        },
-        function (callback)
+          assert.ok(!err, JSON.stringify(err));
+          callback();
+        });
+      },
+      function (callback)
+      {
+        connection.destroy(function (err, con)
         {
-          connection.destroy(function (err, con)
-          {
-            // SESSION_GONE error should be ignored.
-            assert.ok(!err, JSON.stringify(err));
-            callback();
-          });
-        }
-      ],
-      done)
+          // SESSION_GONE error should be ignored.
+          assert.ok(!err, JSON.stringify(err));
+          callback();
+        });
+      }
+    ],
+    done);
   });
 });
 
@@ -2216,24 +2216,24 @@ describe('snowflake.connect() with 504', function ()
   {
     var connection = snowflake.createConnection(connectionOptionsFor504);
     async.series([
-        function (callback)
+      function (callback)
+      {
+        connection.connect(function (err)
         {
-          connection.connect(function (err)
-          {
-            assert.ok(!err, JSON.stringify(err));
-            callback();
-          });
-        },
-        function (callback)
+          assert.ok(!err, JSON.stringify(err));
+          callback();
+        });
+      },
+      function (callback)
+      {
+        connection.destroy(function (err, con)
         {
-          connection.destroy(function (err, con)
-          {
-            assert.ok(!err, JSON.stringify(err));
-            callback();
-          });
-        }
-      ],
-      done)
+          assert.ok(!err, JSON.stringify(err));
+          callback();
+        });
+      }
+    ],
+    done);
   });
 });
 

@@ -35,7 +35,7 @@ describe('Test Array Bind', function ()
     });
     testUtil.connect(connection, err =>
     {
-        done(err)
+      done(err);
     });
   });
 
@@ -68,7 +68,7 @@ describe('Test Array Bind', function ()
         {
           var arrBind = [];
           var count = 100;
-          for(var i = 0; i<count; i++)
+          for (var i = 0; i<count; i++)
           {
             arrBind.push(['string'+i, i, "2020-05-11", "12:35:41.3333333", "2022-04-01 23:59:59", "2022-07-08 12:05:30.9999999"]);
           }
@@ -99,7 +99,7 @@ describe('Test Array Bind', function ()
         {
           var arrBind = [];
           var count = 2;
-          for(var i = 0; i<count; i++)
+          for (var i = 0; i<count; i++)
           {
             arrBind.push(['string'+i, i, "2020-05-11", "12:35:41.3333333", "2022-04-01 23:59:59", "2022-07-08 12:05:30.9999999"]);
           }
@@ -174,7 +174,7 @@ describe('Test Array Bind', function ()
         {
           var arrBind = [];
           var count = 100;
-          for(var i = 0; i<count; i++)
+          for (var i = 0; i<count; i++)
           {
             arrBind.push([null, i, "2020-05-11", "12:35:41.3333333", "2022-04-01 23:59:59", "2022-07-08 12:05:30.9999999"]);
           }
@@ -189,7 +189,7 @@ describe('Test Array Bind', function ()
               }
               else if (stmt.getNumUpdatedRows() !== count)
               {
-                callback(new Error(`Expected number of inserted rows to be ${count} but was ${stmt.getNumUpdatedRows()}`))
+                callback(new Error(`Expected number of inserted rows to be ${count} but was ${stmt.getNumUpdatedRows()}`));
               }
               else
               {
@@ -211,7 +211,7 @@ describe('Test Array Bind', function ()
         {
           var arrBind = [];
           var count = 2;
-          for(let i = 0; i<count; i++)
+          for (let i = 0; i<count; i++)
           {
             arrBind.push(['string'+i, i, "2020-05-11", "12:35:41.3333333", "2022-04-01 23:59:59", "2022-07-08 12:05:30.9999999"]);
           }
@@ -225,7 +225,7 @@ describe('Test Array Bind', function ()
               }
               else if (stmt.getNumUpdatedRows() !== count)
               {
-                callback(new Error(`Expected number of inserted rows to be ${count} but was ${stmt.getNumUpdatedRows()}`))
+                callback(new Error(`Expected number of inserted rows to be ${count} but was ${stmt.getNumUpdatedRows()}`));
               }
               else
               {
@@ -310,7 +310,7 @@ describe('Test Array Bind', function ()
         {
           var arrBind = [];
           var count = 100;
-          for(var i = 0; i<count; i++)
+          for (var i = 0; i<count; i++)
           {
             arrBind.push(["some-data-for-stuff1","some-data-for-stuff2"]);
           }
@@ -346,7 +346,7 @@ describe('Test Array Bind', function ()
         {
           var arrBind = [];
           var count = 100;
-          for(var i = 0; i<count; i++)
+          for (var i = 0; i<count; i++)
           {
             arrBind.push(["some-data-for-stuff1"]);
           }
@@ -426,7 +426,7 @@ describe('Test Array Bind', function ()
           ];
           
           var flatValue = [];
-          dataset.forEach(element =>{element.forEach(value => {flatValue.push(value)})});
+          dataset.forEach(element =>{element.forEach(value => {flatValue.push(value);});});
           var insertTable101 = 'insert into test101 (id,type,data,createdDateTime,action) select COLUMN1,COLUMN2,TRY_PARSE_JSON(COLUMN3),COLUMN4,COLUMN5 from values  (?,?,?,?,?),(?,?,?,?,?),(?,?,?,?,?),(?,?,?,?,?),(?,?,?,?,?),(?,?,?,?,?)';
           var insertStatement = connection.execute({
             sqlText: insertTable101,
@@ -487,7 +487,7 @@ describe('Test Array Bind - full path', function ()
     {
       if (err)
       {
-        done(err)
+        done(err);
       }
       else
       {
@@ -506,7 +506,7 @@ describe('Test Array Bind - full path', function ()
   {
     var arrBind = [];
     var count = 100;
-    for(var i = 0; i<count; i++)
+    for (var i = 0; i<count; i++)
     {
       arrBind.push([null, i, "2020-05-11", "12:35:41.3333333", "2022-04-01 23:59:59", "2022-07-08 12:05:30.9999999"]);
     }

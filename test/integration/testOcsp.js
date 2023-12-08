@@ -124,7 +124,7 @@ describe('OCSP validation', function ()
                 });
               // cache expire in 5 seconds while 3 seconds per query, so it
               // would cover both case of expired and not expired
-              }, 3000);
+            }, 3000);
           }
         }
       ], done);
@@ -191,7 +191,7 @@ describe('OCSP validation', function ()
     const testOptions = function (i)
     {
       const connection = snowflake.createConnection(httpsEndpoints[i]);
-      connectToHttpsEndpoint(testOptions, i, connection, done)
+      connectToHttpsEndpoint(testOptions, i, connection, done);
     };
     testOptions(0);
   });
@@ -209,7 +209,7 @@ describe('OCSP validation', function ()
     const testOptions = function (i)
     {
       const connection = snowflake.createConnection(httpsEndpoints[i]);
-      connectToHttpsEndpoint(testOptions, i, connection, cleanup)
+      connectToHttpsEndpoint(testOptions, i, connection, cleanup);
     };
     testOptions(0);
   });
@@ -323,7 +323,7 @@ describe('OCSP validation', function ()
       connection.connect(function (err)
       {
         assert.ok(!err, JSON.stringify(err));
-      })
+      });
     }
     snowflake.configure({ocspFailOpen: true});
 
@@ -415,16 +415,16 @@ describe.skip('Test Ocsp with network delay', function ()
       connection = snowflake.createConnection(connOption.valid);
 
       async.series([
-          function (callback)
+        function (callback)
+        {
+          connection.connect(function (err, conn)
           {
-            connection.connect(function (err, conn)
-            {
-              assert.ok(!err, JSON.stringify(err));
-              callback();
-            });
-          }
-        ],
-        done
+            assert.ok(!err, JSON.stringify(err));
+            callback();
+          });
+        }
+      ],
+      done
       );
     }
     else

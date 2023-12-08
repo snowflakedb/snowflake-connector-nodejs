@@ -35,22 +35,22 @@ describe('exclude support warehouses', function ()
   before(function (done)
   {
     async.series([
-        function (callback)
-        {
-          // set up the connection to the snowflake account
-          testUtil.connect(connSnowflake, callback);
-        },
-        function (callback)
-        {
-          // create a warehouse to run json queries in the snowflake account
-          testUtil.executeCmd(connSnowflake, createSysWh, callback);
-        },
-        function (callback)
-        {
-          // set up the connection to externalaccount
-          testUtil.connect(connExternal, callback);
-        }],
-      done
+      function (callback)
+      {
+        // set up the connection to the snowflake account
+        testUtil.connect(connSnowflake, callback);
+      },
+      function (callback)
+      {
+        // create a warehouse to run json queries in the snowflake account
+        testUtil.executeCmd(connSnowflake, createSysWh, callback);
+      },
+      function (callback)
+      {
+        // set up the connection to externalaccount
+        testUtil.connect(connExternal, callback);
+      }],
+    done
     );
   });
 
@@ -58,22 +58,22 @@ describe('exclude support warehouses', function ()
   after(function (done)
   {
     async.series([
-        function (callback)
-        {
-          // drop the warehouse we created in the snowflake account
-          testUtil.executeCmd(connSnowflake, dropSysWh, callback);
-        },
-        function (callback)
-        {
-          // destroy the connection to the snowflake account
-          testUtil.destroyConnection(connSnowflake, callback);
-        },
-        function (callback)
-        {
-          // destroy the connection to externalaccount
-          testUtil.destroyConnection(connExternal, callback);
-        }],
-      done
+      function (callback)
+      {
+        // drop the warehouse we created in the snowflake account
+        testUtil.executeCmd(connSnowflake, dropSysWh, callback);
+      },
+      function (callback)
+      {
+        // destroy the connection to the snowflake account
+        testUtil.destroyConnection(connSnowflake, callback);
+      },
+      function (callback)
+      {
+        // destroy the connection to externalaccount
+        testUtil.destroyConnection(connExternal, callback);
+      }],
+    done
     );
   });
 
@@ -86,67 +86,67 @@ describe('exclude support warehouses', function ()
     var testWhId;
 
     async.series([
-        function (cb)
-        {
-          // create a test warehouse in externalaccount
-          testUtil.executeCmd(connExternal, createTestWh, cb);
-        },
-        function (cb)
-        {
-          // get the warehouse id of the test warehouse
-          getWarehouseId(connSnowflake, 'EXTERNALACCOUNT', testWhName,
-            function (warehouseId)
-            {
-              testWhId = warehouseId;
-              cb();
-            });
-        },
-        function (cb)
-        {
-          // enable the snowflake_support flag for the test warehouse
-          setWhSnowflakeSupportFlag(connSnowflake, testWhId, true, cb);
-        },
-        function (cb)
-        {
-          // verify that the snowflake_support flag is true
-          assertSnowflakeSupportFlag(connSnowflake, testWhId, true, cb);
-        },
-        function (cb)
-        {
-          // disable the snowflake_support flag for the test warehouse
-          setWhSnowflakeSupportFlag(connSnowflake, testWhId, false, cb);
-        },
-        function (cb)
-        {
-          // verify that the snowflake_support flag is false
-          assertSnowflakeSupportFlag(connSnowflake, testWhId, false, cb);
-        },
-        function (cb)
-        {
-          // drop the test warehouse from externalaccount
-          testUtil.executeCmd(connExternal, dropTestWh, cb);
-        },
-        function (cb)
-        {
-          // enable the snowflake_support flag for the test warehouse
-          setWhSnowflakeSupportFlag(connSnowflake, testWhId, true, cb);
-        },
-        function (cb)
-        {
-          // verify that the snowflake_support flag is true
-          assertSnowflakeSupportFlag(connSnowflake, testWhId, true, cb);
-        },
-        function (cb)
-        {
-          // disable the snowflake_support flag for the test warehouse
-          setWhSnowflakeSupportFlag(connSnowflake, testWhId, false, cb);
-        },
-        function (cb)
-        {
-          // verify that the snowflake_support flag is false
-          assertSnowflakeSupportFlag(connSnowflake, testWhId, false, cb);
-        }],
-      done
+      function (cb)
+      {
+        // create a test warehouse in externalaccount
+        testUtil.executeCmd(connExternal, createTestWh, cb);
+      },
+      function (cb)
+      {
+        // get the warehouse id of the test warehouse
+        getWarehouseId(connSnowflake, 'EXTERNALACCOUNT', testWhName,
+          function (warehouseId)
+          {
+            testWhId = warehouseId;
+            cb();
+          });
+      },
+      function (cb)
+      {
+        // enable the snowflake_support flag for the test warehouse
+        setWhSnowflakeSupportFlag(connSnowflake, testWhId, true, cb);
+      },
+      function (cb)
+      {
+        // verify that the snowflake_support flag is true
+        assertSnowflakeSupportFlag(connSnowflake, testWhId, true, cb);
+      },
+      function (cb)
+      {
+        // disable the snowflake_support flag for the test warehouse
+        setWhSnowflakeSupportFlag(connSnowflake, testWhId, false, cb);
+      },
+      function (cb)
+      {
+        // verify that the snowflake_support flag is false
+        assertSnowflakeSupportFlag(connSnowflake, testWhId, false, cb);
+      },
+      function (cb)
+      {
+        // drop the test warehouse from externalaccount
+        testUtil.executeCmd(connExternal, dropTestWh, cb);
+      },
+      function (cb)
+      {
+        // enable the snowflake_support flag for the test warehouse
+        setWhSnowflakeSupportFlag(connSnowflake, testWhId, true, cb);
+      },
+      function (cb)
+      {
+        // verify that the snowflake_support flag is true
+        assertSnowflakeSupportFlag(connSnowflake, testWhId, true, cb);
+      },
+      function (cb)
+      {
+        // disable the snowflake_support flag for the test warehouse
+        setWhSnowflakeSupportFlag(connSnowflake, testWhId, false, cb);
+      },
+      function (cb)
+      {
+        // verify that the snowflake_support flag is false
+        assertSnowflakeSupportFlag(connSnowflake, testWhId, false, cb);
+      }],
+    done
     );
   });
 

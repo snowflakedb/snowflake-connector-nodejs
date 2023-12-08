@@ -66,9 +66,9 @@ describe('Result: test time', function ()
 
   it("alter session set TIME_OUTPUT_FORMAT='HH24:MI:SS.FF';" +
     " select to_time('12:34:56.789789789') as C1;",
-    function (done)
-    {
-      var response =
+  function (done)
+  {
+    var response =
         {
           "data": {
             "parameters": [{"name": "TIMEZONE", "value": "America/Los_Angeles"}, {
@@ -108,16 +108,16 @@ describe('Result: test time', function ()
           "success": true
         };
 
-      ResultTestCommon.testResult(
-        ResultTestCommon.createResultOptions(response),
-        function (row)
-        {
-          assert.strictEqual(row.getColumnValue('C1'), '12:34:56.789789789');
-        },
-        function (result)
-        {
-          done();
-        }
-      );
-    });
+    ResultTestCommon.testResult(
+      ResultTestCommon.createResultOptions(response),
+      function (row)
+      {
+        assert.strictEqual(row.getColumnValue('C1'), '12:34:56.789789789');
+      },
+      function (result)
+      {
+        done();
+      }
+    );
+  });
 });

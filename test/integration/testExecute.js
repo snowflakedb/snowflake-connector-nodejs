@@ -205,7 +205,7 @@ describe('Execute test - variant', function () {
                 done(e);
               }
             }
-          })
+          });
         })
         .catch((err) => done(err));
     };

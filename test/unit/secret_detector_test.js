@@ -17,7 +17,7 @@ describe('Secret Detector', function ()
     {
       throw errstr;
     }
-  }
+  };
 
   this.beforeEach(function ()
   {
@@ -78,25 +78,25 @@ describe('Secret Detector', function ()
     assert.strictEqual(result.maskedtxt, 'Token =****');
     assert.strictEqual(result.errstr, null);
 
-    var idTokenWithPrefix = 'idToken : ' + longToken
+    var idTokenWithPrefix = 'idToken : ' + longToken;
     result = SecretDetector.maskSecrets(idTokenWithPrefix);
     assert.strictEqual(result.masked, true);
     assert.strictEqual(result.maskedtxt, 'idToken : ****');
     assert.strictEqual(result.errstr, null);
 
-    var sessionTokenWithPrefix = 'sessionToken : ' + longToken
+    var sessionTokenWithPrefix = 'sessionToken : ' + longToken;
     result = SecretDetector.maskSecrets(sessionTokenWithPrefix);
     assert.strictEqual(result.masked, true);
     assert.strictEqual(result.maskedtxt, 'sessionToken : ****');
     assert.strictEqual(result.errstr, null);
 
-    var masterTokenWithPrefix = 'masterToken : ' + longToken
+    var masterTokenWithPrefix = 'masterToken : ' + longToken;
     result = SecretDetector.maskSecrets(masterTokenWithPrefix);
     assert.strictEqual(result.masked, true);
     assert.strictEqual(result.maskedtxt, 'masterToken : ****');
     assert.strictEqual(result.errstr, null);
 
-    var assertionWithPrefix = 'assertion content : ' + longToken
+    var assertionWithPrefix = 'assertion content : ' + longToken;
     result = SecretDetector.maskSecrets(assertionWithPrefix);
     assert.strictEqual(result.masked, true);
     assert.strictEqual(result.maskedtxt, 'assertion content : ****');
@@ -241,7 +241,7 @@ describe('Secret Detector', function ()
         'maskCustomPattern1',
         'maskCustomPattern2'
       ]
-    }
+    };
 
     SecretDetector = new SnowflakeSecretDetector(customPatterns);
 
@@ -280,7 +280,7 @@ describe('Secret Detector', function ()
   {
     var customPatterns = {
       mask: ['maskCustomPattern1', 'maskCustomPattern2']
-    }
+    };
     try
     {
       SecretDetector = new SnowflakeSecretDetector(customPatterns);
@@ -295,7 +295,7 @@ describe('Secret Detector', function ()
   {
     var customPatterns = {
       regex: ['regexCustomPattern1', 'regexCustomPattern2']
-    }
+    };
     try
     {
       SecretDetector = new SnowflakeSecretDetector(customPatterns);
@@ -311,7 +311,7 @@ describe('Secret Detector', function ()
     var customPatterns = {
       regex: ['regexCustomPattern1', 'regexCustomPattern2'],
       mask: ['maskCustomPattern1']
-    }
+    };
     try
     {
       SecretDetector = new SnowflakeSecretDetector(customPatterns);

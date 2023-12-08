@@ -41,7 +41,7 @@ describe('Connection test with OCSP Mock', function ()
         assert.ok(!err, JSON.stringify(err));
       }
       callback();
-    })
+    });
   }
 
   function destroy(connection, callback)
@@ -66,16 +66,16 @@ describe('Connection test with OCSP Mock', function ()
     const connection = snowflake.createConnection(valid);
 
     async.series([
-        function (callback)
-        {
-          connect(ErrorCodes.ERR_OCSP_REVOKED, connection, callback);
-        },
-        function (callback)
-        {
-          destroy(connection, callback);
-        }
-      ],
-      done
+      function (callback)
+      {
+        connect(ErrorCodes.ERR_OCSP_REVOKED, connection, callback);
+      },
+      function (callback)
+      {
+        destroy(connection, callback);
+      }
+    ],
+    done
     );
   });
 
@@ -85,16 +85,16 @@ describe('Connection test with OCSP Mock', function ()
     const connection = snowflake.createConnection(valid);
 
     async.series([
-        function (callback)
-        {
-          connect(ErrorCodes.ERR_OCSP_UNKNOWN, connection, callback);
-        },
-        function (callback)
-        {
-          destroy(connection, callback);
-        }
-      ],
-      done
+      function (callback)
+      {
+        connect(ErrorCodes.ERR_OCSP_UNKNOWN, connection, callback);
+      },
+      function (callback)
+      {
+        destroy(connection, callback);
+      }
+    ],
+    done
     );
   });
 
@@ -104,16 +104,16 @@ describe('Connection test with OCSP Mock', function ()
     const connection = snowflake.createConnection(valid);
 
     async.series([
-        function (callback)
-        {
-          connect(ErrorCodes.ERR_OCSP_INVALID_VALIDITY, connection, callback);
-        },
-        function (callback)
-        {
-          destroy(connection, callback);
-        }
-      ],
-      done
+      function (callback)
+      {
+        connect(ErrorCodes.ERR_OCSP_INVALID_VALIDITY, connection, callback);
+      },
+      function (callback)
+      {
+        destroy(connection, callback);
+      }
+    ],
+    done
     );
   });
 });

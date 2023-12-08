@@ -22,18 +22,18 @@ describe('Test row mode', function () {
     {
       connectionRowMode: RowMode.OBJECT,
       statementRowModes: [
-      {
-        rowMode: RowMode.ARRAY,
-        expected: expectedArray
-      },
-      {
-        rowMode: RowMode.OBJECT_WITH_RENAMED_DUPLICATED_COLUMNS,
-        expected: expectedObjectWithRenamedDuplicatedColumns
-      },
-      {
-        rowMode: undefined,
-        expected: expectedObject
-      }
+        {
+          rowMode: RowMode.ARRAY,
+          expected: expectedArray
+        },
+        {
+          rowMode: RowMode.OBJECT_WITH_RENAMED_DUPLICATED_COLUMNS,
+          expected: expectedObjectWithRenamedDuplicatedColumns
+        },
+        {
+          rowMode: undefined,
+          expected: expectedObject
+        }
       ]
     },
     {
@@ -179,7 +179,7 @@ describe('Test row mode', function () {
         "FOO_4": 4,
         "KEY_4": "a4",
         "FOO_5": 5
-      }
+      };
       connection.execute({
         rowMode: RowMode.OBJECT_WITH_RENAMED_DUPLICATED_COLUMNS,
         sqlText: `select *

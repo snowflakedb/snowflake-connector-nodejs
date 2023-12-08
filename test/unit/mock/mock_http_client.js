@@ -586,7 +586,7 @@ function buildRequestOutputMappings(clientInfo)
                   "1": {type: 'TEXT', value: 'false'},
                   "2": {type: 'TEXT', value: '1967-06-23'},
                 },
-                queryContextDTO: { entries: [] },
+              queryContextDTO: { entries: [] },
             }
         },
       output:

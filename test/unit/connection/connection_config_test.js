@@ -509,9 +509,9 @@ describe('ConnectionConfig: basic', function ()
         },
         errorCode: ErrorCodes.ERR_CONN_CREATE_INVALID_PROXY_PASS
       },
-    {
-      name: 'invalid noProxy',
-      options:
+      {
+        name: 'invalid noProxy',
+        options:
       {
         username: 'username',
         password: 'password',
@@ -522,8 +522,8 @@ describe('ConnectionConfig: basic', function ()
         proxyPassword: 'proxyPassword',
         noProxy: 0
       },
-      errorCode: ErrorCodes.ERR_CONN_CREATE_INVALID_NO_PROXY
-    },
+        errorCode: ErrorCodes.ERR_CONN_CREATE_INVALID_NO_PROXY
+      },
       {
         name: 'invalid streamResult',
         options:
@@ -674,20 +674,20 @@ describe('ConnectionConfig: basic', function ()
       {
         name: 'invalid clientConfigFile',
         options: {
-            account: 'account',
-            username: 'username',
-            password: 'password',
-            clientConfigFile: 15
+          account: 'account',
+          username: 'username',
+          password: 'password',
+          clientConfigFile: 15
         },
         errorCode: ErrorCodes.ERR_CONN_CREATE_INVALID_CLIENT_CONFIG_FILE
       },
       {
         name: 'invalid retryTimeout',
         options: {
-            account: 'account',
-            username: 'username',
-            password: 'password',
-            retryTimeout: 'invalud'
+          account: 'account',
+          username: 'username',
+          password: 'password',
+          retryTimeout: 'invalud'
         },
         errorCode: ErrorCodes.ERR_CONN_CREATE_INVALID_MAX_LOGIN_TIMEOUT
       },
@@ -992,7 +992,7 @@ describe('ConnectionConfig: basic', function ()
           proxyPort: 1234,
           proxyUser: 'proxyUser',
           proxyPassword: 'proxyPassword',
-          noProxy:  '*.snowflakecomputing.com'
+          noProxy: '*.snowflakecomputing.com'
         },
         options:
         {
@@ -1217,7 +1217,7 @@ describe('ConnectionConfig: basic', function ()
         var ref = testCase.options[key];
         var val = result_options[key];
         assert.strictEqual(val, ref);
-      })
+      });
     };
   };
 

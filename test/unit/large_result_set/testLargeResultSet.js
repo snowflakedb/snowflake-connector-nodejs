@@ -30,7 +30,7 @@ describe('LargeResultSetService', () =>
     httpConnectionOptions.getRetryLargeResultSetMaxNumRetries = () => 2;
     httpConnectionOptions.getRetryLargeResultSetMaxSleepTime = () => 0;
 
-    httpClientInstance = new httpClient(httpConnectionOptions)
+    httpClientInstance = new httpClient(httpConnectionOptions);
     largeResultSetService = new LargeResultSetService(httpConnectionOptions, httpClientInstance);
   });
 
@@ -51,16 +51,16 @@ describe('LargeResultSetService', () =>
             {
               if (err && err.name === expectedErrorName)
               {
-                done()
+                done();
               }
               else
               {
-                done(`Expected ${expectedErrorName} but received ${JSON.stringify(err)}`)
+                done(`Expected ${expectedErrorName} but received ${JSON.stringify(err)}`);
               }
             }
             else
             {
-              done('expected error')
+              done('expected error');
             }
           }
         });
@@ -102,7 +102,7 @@ describe('LargeResultSetService', () =>
       url: baseUrl + '/xml',
       callback: (err, body) =>
       {
-        err && err.name === 'LargeResultSetError' ? done() : done(`Error expected but received body ${body}`)
+        err && err.name === 'LargeResultSetError' ? done() : done(`Error expected but received body ${body}`);
       }
     });
   });

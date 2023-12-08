@@ -109,7 +109,7 @@ describe('Result', function ()
 
         var rowIndex, rowsLength, row;
         for (rowIndex = 0, rowsLength = rows.length; rowIndex < rowsLength;
-             rowIndex++)
+          rowIndex++)
         {
           row = rows[rowIndex];
 
@@ -118,7 +118,7 @@ describe('Result', function ()
 
           var columnIndex, columnsLength, column;
           for (columnIndex = 0, columnsLength = columns.length;
-               columnIndex < columnsLength; columnIndex++)
+            columnIndex < columnsLength; columnIndex++)
           {
             column = columns[columnIndex];
 

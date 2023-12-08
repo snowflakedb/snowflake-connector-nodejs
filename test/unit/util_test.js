@@ -513,13 +513,13 @@ describe('Util', function ()
         }
       ];
 
-      for (let i = 0; i < testCases.length; i++) {
-        const testCase = testCases[i];
-        it(testCase.testName, function () {
-          const url = Util.url.appendRetryParam(testCase.option);
-          assert.strictEqual(url, testCase.result);
-        })
-      }
+    for (let i = 0; i < testCases.length; i++) {
+      const testCase = testCases[i];
+      it(testCase.testName, function () {
+        const url = Util.url.appendRetryParam(testCase.option);
+        assert.strictEqual(url, testCase.result);
+      });
+    }
   });
 
   describe("Util.isLoginRequest Test", function () {
@@ -539,12 +539,12 @@ describe('Util', function ()
       {
         testName: 'test URL with a right authenticator-request point',
         endPoint: '/authenticator-request',
-        result:true,
+        result: true,
       },
       {
         testName: 'test URL with a wrong authenticator-request point',
         endPoint: '/authenticator-requ',
-        result:false,
+        result: false,
       }
     ];
 
@@ -553,7 +553,7 @@ describe('Util', function ()
       it(testName, function () {
         const isLoginRequest = Util.isLoginRequest(baseUrl + endPoint);
         assert.strictEqual(isLoginRequest, result);
-      })
+      });
     }
   });
 
@@ -593,44 +593,44 @@ describe('Util', function ()
         },
       ];
       
-    const maxRetryTimeout = 300;
-    let currentSleepTime = 1;
-    let retryCount = 1;
-    let totalTimeout = currentSleepTime;
-    for (const response of errorCodes) {
-       retryCount++;
-       const result = Util.getJitteredSleepTime(retryCount, currentSleepTime, totalTimeout, maxRetryTimeout);
-       const jitter = currentSleepTime / 2
-       const nextSleep = 2 ** retryCount;
-       currentSleepTime = result.sleep;
-       totalTimeout = result.totalTimeout;
+      const maxRetryTimeout = 300;
+      let currentSleepTime = 1;
+      let retryCount = 1;
+      let totalTimeout = currentSleepTime;
+      for (const response of errorCodes) {
+        retryCount++;
+        const result = Util.getJitteredSleepTime(retryCount, currentSleepTime, totalTimeout, maxRetryTimeout);
+        const jitter = currentSleepTime / 2;
+        const nextSleep = 2 ** retryCount;
+        currentSleepTime = result.sleep;
+        totalTimeout = result.totalTimeout;
        
-       assert.strictEqual(Util.isRetryableHttpError(response,true), true);
-       assert.ok(currentSleepTime <= nextSleep + jitter || currentSleepTime >= nextSleep - jitter)
-    }
+        assert.strictEqual(Util.isRetryableHttpError(response,true), true);
+        assert.ok(currentSleepTime <= nextSleep + jitter || currentSleepTime >= nextSleep - jitter);
+      }
     
-    assert.strictEqual(retryCount, 7);
-    assert.ok(totalTimeout <= maxRetryTimeout);
-    }) 
+      assert.strictEqual(retryCount, 7);
+      assert.ok(totalTimeout <= maxRetryTimeout);
+    }); 
 
     it('test - retryTimeout is 0', function () {
-    const maxRetryTimeout = 0;
-    let currentSleepTime = 1;
-    let maxRetryCount = 20;
-    let totalTimeout = currentSleepTime;
-    let retryCount = 1;
-    for ( ; retryCount < maxRetryCount; retryCount++) {
-       const result = Util.getJitteredSleepTime(retryCount, currentSleepTime, totalTimeout, maxRetryTimeout);
-       const jitter = currentSleepTime / 2
-       const nextSleep = 2 ** retryCount;
-       currentSleepTime = result.sleep;
-       totalTimeout = result.totalTimeout;
+      const maxRetryTimeout = 0;
+      let currentSleepTime = 1;
+      let maxRetryCount = 20;
+      let totalTimeout = currentSleepTime;
+      let retryCount = 1;
+      for ( ; retryCount < maxRetryCount; retryCount++) {
+        const result = Util.getJitteredSleepTime(retryCount, currentSleepTime, totalTimeout, maxRetryTimeout);
+        const jitter = currentSleepTime / 2;
+        const nextSleep = 2 ** retryCount;
+        currentSleepTime = result.sleep;
+        totalTimeout = result.totalTimeout;
 
-       assert.ok(currentSleepTime <= nextSleep + jitter || currentSleepTime >= nextSleep - jitter)
-    }
+        assert.ok(currentSleepTime <= nextSleep + jitter || currentSleepTime >= nextSleep - jitter);
+      }
 
-    assert.strictEqual(retryCount, 20);
-    })
+      assert.strictEqual(retryCount, 20);
+    });
   });
 
   it("Util.chooseRandom Test", function () {
@@ -650,14 +650,14 @@ describe('Util', function ()
     for (let i = 0; i < 9; i++) {
       assert.ok(randomNumbers[i] !== randomNumbers[i+1]);
     }
-  })
+  });
 
   it("Util.getJitter Test", function () {
     const randomNumber = Util.chooseRandom(10,100);
     const jitter = Util.getJitter(randomNumber);
 
-    assert.ok(randomNumber / -2 <= jitter && jitter <= randomNumber / 2  )
-  })
+    assert.ok(randomNumber / -2 <= jitter && jitter <= randomNumber / 2  );
+  });
 
   it('Util.apply()', function ()
   {
@@ -757,7 +757,7 @@ describe('Util', function ()
         response: { statusCode: testCase.statusCode }
       };
       assert.strictEqual(Util.isRetryableHttpError(
-        err.response, testCase.retry403), testCase.isRetryable)
+        err.response, testCase.retry403), testCase.isRetryable);
     }
   });
 
@@ -926,6 +926,6 @@ describe('Util', function ()
           assert.deepEqual(compareAndLogEnvAndAgentProxies.warnings, shouldLog, 'expected warning message does not match!');
         }
       });
-      });
     });
+  });
 });

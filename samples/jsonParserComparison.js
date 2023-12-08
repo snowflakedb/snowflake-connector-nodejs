@@ -105,7 +105,7 @@ async function run() {
       await helpers.executeQuery(connection, createTempTableWithJsonData);
       await helpers.executeQuery(connection, createTableWithVariant(testVariantTableName));
       await helpers.executeQuery(connection, insertVariant(testVariantTableName));
-      await helpers.executeQuery(connection, selectCountVariant(testVariantTableName));;
+      await helpers.executeQuery(connection, selectCountVariant(testVariantTableName)); ;
 
       const queryTimeLabel = parser + 'SelectTime';
       let avgBlock = 0, minBlock = 999999999999999, maxBlock = 0;

@@ -14,7 +14,7 @@ const ErrorCodes = Errors.codes;
  */
 function HttpsMockAgentOcspRevoked(options)
 {
-  var agent = HttpsAgent.apply(this, arguments)
+  var agent = HttpsAgent.apply(this, arguments);
   agent.createConnection = function (options)
   {
     const socket = HttpsAgent.prototype.createConnection.apply(this, arguments);
@@ -35,7 +35,7 @@ function HttpsMockAgentOcspRevoked(options)
  */
 function HttpsMockAgentOcspUnkwown(options)
 {
-  var agent = HttpsAgent.apply(this, arguments)
+  var agent = HttpsAgent.apply(this, arguments);
   agent.createConnection = function (options)
   {
     const socket = HttpsAgent.prototype.createConnection.apply(this, arguments);
@@ -56,7 +56,7 @@ function HttpsMockAgentOcspUnkwown(options)
  */
 function HttpsMockAgentOcspInvalid(options)
 {
-  var agent = HttpsAgent.apply(this, arguments)
+  var agent = HttpsAgent.apply(this, arguments);
   agent.createConnection = function (options)
   {
     const socket = HttpsAgent.prototype.createConnection.apply(this, arguments);

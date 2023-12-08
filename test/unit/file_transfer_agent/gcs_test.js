@@ -294,10 +294,10 @@ describe('GCS client', function ()
                 let err = new Error();
                 err.code = 401;
                 throw err;
-              }
+              };
             }
             return new file;
-          }
+          };
         }
         return new bucket;
       }

@@ -10,8 +10,7 @@ var assert = require('assert');
 
 var ResultTestCommon = require('./result_test_common');
 
-describe('Result', function ()
-{
+describe('Result', function () {
   var response =
     {
       "data": {
@@ -58,18 +57,15 @@ describe('Result', function ()
       "success": true
     };
 
-  it('small result', function (done)
-  {
+  it('small result', function (done) {
     var rows = [];
 
     ResultTestCommon.testResult(
       ResultTestCommon.createResultOptions(response),
-      function (row)
-      {
+      function (row) {
         rows.push(row);
       },
-      function (result)
-      {
+      function (result) {
         var responseData = response.data;
 
         assert.strictEqual(result.getTotalRows(), responseData.total);
@@ -109,8 +105,7 @@ describe('Result', function ()
 
         var rowIndex, rowsLength, row;
         for (rowIndex = 0, rowsLength = rows.length; rowIndex < rowsLength;
-          rowIndex++)
-        {
+          rowIndex++) {
           row = rows[rowIndex];
 
           assert.ok(Util.isObject(row));
@@ -118,8 +113,7 @@ describe('Result', function ()
 
           var columnIndex, columnsLength, column;
           for (columnIndex = 0, columnsLength = columns.length;
-            columnIndex < columnsLength; columnIndex++)
-          {
+            columnIndex < columnsLength; columnIndex++) {
             column = columns[columnIndex];
 
             assert.strictEqual(

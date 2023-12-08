@@ -6,11 +6,9 @@ var Util = require('./../../../../lib/util');
 var assert = require('assert');
 var ResultTestCommon = require('./result_test_common');
 
-describe('Result: test time', function ()
-{
+describe('Result: test time', function () {
   it("select to_time('12:34:56.789789789') as C1;",
-    function (done)
-    {
+    function (done) {
       var response =
         {
           "data": {
@@ -53,12 +51,10 @@ describe('Result: test time', function ()
 
       ResultTestCommon.testResult(
         ResultTestCommon.createResultOptions(response),
-        function (row)
-        {
+        function (row) {
           assert.strictEqual(row.getColumnValue('C1'), '12:34:56');
         },
-        function (result)
-        {
+        function (result) {
           done();
         }
       );
@@ -66,8 +62,7 @@ describe('Result: test time', function ()
 
   it("alter session set TIME_OUTPUT_FORMAT='HH24:MI:SS.FF';" +
     " select to_time('12:34:56.789789789') as C1;",
-  function (done)
-  {
+  function (done) {
     var response =
         {
           "data": {
@@ -110,12 +105,10 @@ describe('Result: test time', function ()
 
     ResultTestCommon.testResult(
       ResultTestCommon.createResultOptions(response),
-      function (row)
-      {
+      function (row) {
         assert.strictEqual(row.getColumnValue('C1'), '12:34:56.789789789');
       },
-      function (result)
-      {
+      function (result) {
         done();
       }
     );

@@ -7,43 +7,35 @@ const testUtil = require('./testUtil');
 const { configureLogger } = require('../configureLogger');
 const {randomizeName} = require('./testUtil');
 
-describe('Large result Set Tests', function ()
-{
+describe('Large result Set Tests', function () {
   const sourceRowCount = 10000;
 
   let connection;
   const selectAllFromOrders = `select randstr(1000,random()) from table(generator(rowcount=>${sourceRowCount}))`;
 
-  before(async () =>
-  {
+  before(async () => {
     connection = testUtil.createConnection();
     await testUtil.connectAsync(connection);
   });
 
-  after(async () =>
-  {
+  after(async () => {
     await testUtil.destroyConnectionAsync(connection);
   });
 
-  it('testSimpleLarge', function (done)
-  {
+  it('testSimpleLarge', function (done) {
     connection.execute({
       sqlText: selectAllFromOrders,
-      complete: function (err, stmt)
-      {
+      complete: function (err, stmt) {
         testUtil.checkError(err);
         var stream = stmt.streamRows();
         var rowCount = 0;
-        stream.on('data', function ()
-        {
+        stream.on('data', function () {
           rowCount++;
         });
-        stream.on('error', function (err)
-        {
+        stream.on('error', function (err) {
           testUtil.checkError(err);
         });
-        stream.on('end', function ()
-        {
+        stream.on('end', function () {
           assert.strictEqual(rowCount, sourceRowCount);
           done();
         });
@@ -51,28 +43,23 @@ describe('Large result Set Tests', function ()
     });
   });
 
-  it('testStartIndexInFirstChunk', function (done)
-  {
+  it('testStartIndexInFirstChunk', function (done) {
     const offset = 10;
     connection.execute({
       sqlText: selectAllFromOrders,
-      complete: function (err, stmt)
-      {
+      complete: function (err, stmt) {
         testUtil.checkError(err);
         var rowCount = 0;
         var stream = stmt.streamRows({
           start: offset
         });
-        stream.on('data', function ()
-        {
+        stream.on('data', function () {
           rowCount++;
         });
-        stream.on('error', function (err)
-        {
+        stream.on('error', function (err) {
           testUtil.checkError(err);
         });
-        stream.on('end', function ()
-        {
+        stream.on('end', function () {
           assert.strictEqual(rowCount, sourceRowCount - offset);
           done();
         });
@@ -80,28 +67,23 @@ describe('Large result Set Tests', function ()
     });
   });
 
-  it('testStartIndexNotInFirstChunk', function (done)
-  {
+  it('testStartIndexNotInFirstChunk', function (done) {
     const offset = 5000;
     connection.execute({
       sqlText: selectAllFromOrders,
-      complete: function (err, stmt)
-      {
+      complete: function (err, stmt) {
         testUtil.checkError(err);
         var rowCount = 0;
         var stream = stmt.streamRows({
           start: offset
         });
-        stream.on('data', function ()
-        {
+        stream.on('data', function () {
           rowCount++;
         });
-        stream.on('error', function (err)
-        {
+        stream.on('error', function (err) {
           testUtil.checkError(err);
         });
-        stream.on('end', function ()
-        {
+        stream.on('end', function () {
           assert.strictEqual(rowCount, sourceRowCount - offset);
           done();
         });
@@ -109,8 +91,7 @@ describe('Large result Set Tests', function ()
     });
   });
 
-  describe('Large Result Set Tests For Variant Column Type', function ()
-  {
+  describe('Large Result Set Tests For Variant Column Type', function () {
     const testVariantTemp = randomizeName('testVariantTemp');
     const testVariantTable = randomizeName('testVariantTable');
     const createTempTable = `create or replace table  ${testVariantTemp} (value string)`;
@@ -118,27 +99,23 @@ describe('Large result Set Tests', function ()
     const dropTableWithVariant = `drop table if exists ${testVariantTable}`;
     const dropTempTable = `drop table if exists ${testVariantTemp} `;
 
-    before(async () =>
-    {
+    before(async () => {
       await testUtil.executeCmdAsync(connection, createTableWithVariant);
       await testUtil.executeCmdAsync(connection, createTempTable);
     });
 
-    after(async () =>
-    {
+    after(async () => {
       await testUtil.executeCmdAsync(connection, dropTableWithVariant);
       await testUtil.executeCmdAsync(connection, dropTempTable);
     });
 
-    it('testSelectOnVariantColumnForLargeResultSets', function (done)
-    {
+    it('testSelectOnVariantColumnForLargeResultSets', function (done) {
       const insertTemp = `insert into ${testVariantTemp} values (?)`;
       const insertVariant = `insert into ${testVariantTable} select parse_json(value) from ${testVariantTemp}`;
       const selectVariant = `select * from ${testVariantTable}`;
 
       const arrJSON = [];
-      for (let i = 0; i < sourceRowCount; i++)
-      {
+      for (let i = 0; i < sourceRowCount; i++) {
         const sampleJSON = {
           "root":
           {
@@ -177,71 +154,51 @@ describe('Large result Set Tests', function ()
       }
 
       async.series([
-        function (callback)
-        {
+        function (callback) {
           connection.execute({
             sqlText: insertTemp,
             binds: arrJSON,
-            complete: function (err, stmt)
-            {
-              if (err)
-              {
+            complete: function (err, stmt) {
+              if (err) {
                 callback(err);
-              }
-              else
-              {
-                try
-                {
+              } else {
+                try {
                   assert.strictEqual(stmt.getNumUpdatedRows(), sourceRowCount);
                   callback();
-                }
-                catch (err)
-                {
+                } catch (err) {
                   callback(err);
                 }
               }
             }
           });
         },
-        function (callback)
-        {
+        function (callback) {
           connection.execute({
             sqlText: insertVariant,
             complete: (err) => callback(err)
           });
         },
-        function (callback)
-        {
+        function (callback) {
           connection.execute({
             sqlText: selectVariant,
             streamResult: true,
-            complete: function (err, stmt)
-            {
-              if (err)
-              {
+            complete: function (err, stmt) {
+              if (err) {
                 callback(err);
-              }
-              else
-              {
+              } else {
                 var stream = stmt.streamRows();
                 var rowCount = 0;
-                stream.on('data', function ()
-                {
+                stream.on('data', function () {
                   rowCount++;
                 });
-                stream.on('error', function (err)
-                {
+                stream.on('error', function (err) {
                   callback(err);
                 });
-                stream.on('end', function ()
-                {
-                  try
-                  {
+                stream.on('end', function () {
+                  try {
                     assert.strictEqual(rowCount, sourceRowCount);
                     callback();
-                  }
-                  catch (err)
-                  {
+                  } catch (err) {
                     callback(err);
                   }
                 });

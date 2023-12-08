@@ -11,18 +11,15 @@ const ErrorCodes = Errors.codes;
 var Util = require('./../../lib/util');
 var testUtil = require('./testUtil');
 
-describe('Statement Tests', function ()
-{
+describe('Statement Tests', function () {
   let connection;
   const sqlText = 'select 1 as "c1";';
 
-  beforeEach(() =>
-  {
+  beforeEach(() => {
     connection = snowflake.createConnection(connectionOptions.valid);
   });
 
-  it('with a valid token', function (done)
-  {
+  it('with a valid token', function (done) {
 
     const coreInst = Core({
       qaMode: true,
@@ -39,10 +36,8 @@ describe('Statement Tests', function ()
     let goodConnection;
     async.series(
       [
-        function (callback)
-        {
-          tokenConn.connect(function (err, conn)
-          {
+        function (callback) {
+          tokenConn.connect(function (err, conn) {
             assert.ok(!err, 'there should be no error');
             const sessionToken = tokenConn.getTokens().sessionToken;
             assert.ok(sessionToken);
@@ -54,13 +49,11 @@ describe('Statement Tests', function ()
           });
         }
         ,
-        function (callback)
-        {
+        function (callback) {
           statement = goodConnection.execute(
             {
               sqlText: sqlText,
-              complete: function (err, stmt)
-              {
+              complete: function (err, stmt) {
                 assert.ok(!err, 'there should be no error');
                 assert.strictEqual(stmt, statement,
                   'the execute() callback should be invoked with the statement');
@@ -93,22 +86,18 @@ describe('Statement Tests', function ()
           assert.strictEqual(statement.getQueryId(), undefined);
             
         },
-        function (callback)
-        {
+        function (callback) {
           assert.ok(goodConnection.isUp(), "not active");
           callback();
         },
-        function (callback)
-        {
+        function (callback) {
           var rows = [];
           statement.fetchRows(
             {
-              each: function (row)
-              {
+              each: function (row) {
                 rows.push(row);
               },
-              end: function (err, stmt)
-              {
+              end: function (err, stmt) {
                 assert.ok(!err, 'there should be no error');
                 assert.strictEqual(stmt, statement,
                   'the end() callback should be invoked with the statement');
@@ -122,27 +111,23 @@ describe('Statement Tests', function ()
             });
         }
       ],
-      function ()
-      {
+      function () {
         done();
       });
   }
   );
 
-  it('with an invalid token', function (done)
-  {
+  it('with an invalid token', function (done) {
     const badConnection = snowflake.createConnection(Object.assign({}, connectionOptions.valid, {
       username: undefined, password: undefined, sessionToken: 'invalid token'
     }));
     async.series(
       [
-        function (callback)
-        {
+        function (callback) {
           statement = badConnection.execute(
             {
               sqlText: sqlText,
-              complete: function (err, stmt)
-              {
+              complete: function (err, stmt) {
                 assert.ok(err != undefined, 'expect an error');
                 assert.ok(err.code === ErrorCodes.ERR_SF_RESPONSE_INVALID_TOKEN, 'Should throw invalid token error');
                 callback();
@@ -160,28 +145,23 @@ describe('Statement Tests', function ()
           assert.strictEqual(statement.getStatementId(), undefined);
           assert.strictEqual(statement.getQueryId(), undefined);
         },
-        function (callback)
-        {
+        function (callback) {
           assert.ok(badConnection.isUp(), "not active");
           callback();
         },
       ],
-      function ()
-      {
+      function () {
         done();
       });
   });
 
-  it('statement api', function (done)
-  {
+  it('statement api', function (done) {
     var statement;
 
     async.series(
       [
-        function (callback)
-        {
-          connection.connect(function (err, conn)
-          {
+        function (callback) {
+          connection.connect(function (err, conn) {
             assert.ok(!err, 'there should be no error');
             assert.strictEqual(conn, connection,
               'the connect() callback should be invoked with the statement');
@@ -189,13 +169,11 @@ describe('Statement Tests', function ()
             callback();
           });
         },
-        function (callback)
-        {
+        function (callback) {
           statement = connection.execute(
             {
               sqlText: sqlText,
-              complete: function (err, stmt)
-              {
+              complete: function (err, stmt) {
                 assert.ok(!err, 'there should be no error');
                 assert.strictEqual(stmt, statement,
                   'the execute() callback should be invoked with the statement');
@@ -227,22 +205,18 @@ describe('Statement Tests', function ()
           assert.strictEqual(statement.getStatementId(), undefined);
           assert.strictEqual(statement.getQueryId(), undefined);
         },
-        function (callback)
-        {
+        function (callback) {
           assert.ok(connection.isUp(), "not active");
           callback();
         },
-        function (callback)
-        {
+        function (callback) {
           var rows = [];
           statement.fetchRows(
             {
-              each: function (row)
-              {
+              each: function (row) {
                 rows.push(row);
               },
-              end: function (err, stmt)
-              {
+              end: function (err, stmt) {
                 assert.ok(!err, 'there should be no error');
                 assert.strictEqual(stmt, statement,
                   'the end() callback should be invoked with the statement');
@@ -256,50 +230,41 @@ describe('Statement Tests', function ()
             });
         }
       ],
-      function ()
-      {
+      function () {
         done();
       });
   });
 });
 
-describe('Call Statement', function ()
-{
+describe('Call Statement', function () {
   let connection;
 
-  beforeEach(async () =>
-  {
+  beforeEach(async () => {
     connection = snowflake.createConnection(connectionOptions.valid);
     await testUtil.connectAsync(connection);
   });
 
-  it('call statement', function (done)
-  {
+  it('call statement', function (done) {
     async.series(
       [
-        function (callback)
-        {
+        function (callback) {
           var statement = connection.execute({
             sqlText: "ALTER SESSION SET USE_STATEMENT_TYPE_CALL_FOR_STORED_PROC_CALLS=true;",
-            complete: function (err, stmt, rows)
-            {
+            complete: function (err, stmt, rows) {
               var stream = statement.streamRows();
-              stream.on('error', function (err)
-              {
+              stream.on('error', function (err) {
                 // Expected error - SqlState: 22023, VendorCode: 1006
                 assert.strictEqual('22023', err.sqlState);
                 callback();
               });
-              stream.on('data', function (row)
-              {
+              stream.on('data', function (row) {
                 assert.strictEqual(true, row.status.includes("success"));
                 callback();
               });
             }
           });
         },
-        function (callback)
-        {
+        function (callback) {
           var statement = connection.execute({
             sqlText: "create or replace procedure\n"
               + "TEST_SP_CALL_STMT_ENABLED(in1 float, in2 variant)\n"
@@ -308,73 +273,58 @@ describe('Call Statement', function ()
               + "res.next();\n"
               + "return res.getColumnValueAsString(1) + ' ' + res.getColumnValueAsString(2) + ' ' + IN2;\n"
               + "$$;",
-            complete: function (err, stmt, rows)
-            {
+            complete: function (err, stmt, rows) {
               var stream = statement.streamRows();
-              stream.on('error', function (err)
-              {
+              stream.on('error', function (err) {
                 done(err);
               });
-              stream.on('data', function (row)
-              {
+              stream.on('data', function (row) {
                 assert.strictEqual(true, row.status.includes("success"));
               });
-              stream.on('end', function (row)
-              {
+              stream.on('end', function (row) {
                 callback();
               });
             }
           });
         },
-        function (callback)
-        {
+        function (callback) {
           var statement = connection.execute({
             sqlText: "call TEST_SP_CALL_STMT_ENABLED(?, to_variant(?))",
             binds: [1, "[2,3]"],
-            complete: function (err, stmt, rows)
-            {
+            complete: function (err, stmt, rows) {
               var stream = statement.streamRows();
-              stream.on('error', function (err)
-              {
+              stream.on('error', function (err) {
                 done(err);
               });
-              stream.on('data', function (row)
-              {
+              stream.on('data', function (row) {
                 var result = "1 \"[2,3]\" [2,3]";
                 assert.strictEqual(result, row.TEST_SP_CALL_STMT_ENABLED);
               });
-              stream.on('end', function (row)
-              {
+              stream.on('end', function (row) {
                 callback();
               });
             }
           });
         },
-        function (callback)
-        {
+        function (callback) {
           var statement = connection.execute({
             sqlText: "drop procedure if exists TEST_SP_CALL_STMT_ENABLED(float, variant)",
-            complete: function (err, stmt, rows)
-            {
+            complete: function (err, stmt, rows) {
               var stream = statement.streamRows();
-              stream.on('error', function (err)
-              {
+              stream.on('error', function (err) {
                 done(err);
               });
-              stream.on('data', function (row)
-              {
+              stream.on('data', function (row) {
                 assert.strictEqual(true, row.status.includes("success"));
               });
-              stream.on('end', function (row)
-              {
+              stream.on('end', function (row) {
                 callback();
               });
             }
           });
         }
       ],
-      function ()
-      {
+      function () {
         done();
       });
   });

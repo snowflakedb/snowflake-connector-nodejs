@@ -5,13 +5,10 @@
 var Util = require('./../../lib/util');
 var assert = require('assert');
 
-describe('Util', function ()
-{
-  it('Util.isFunction()', function ()
-  {
+describe('Util', function () {
+  it('Util.isFunction()', function () {
     // positive tests
-    assert.ok(Util.isFunction(function ()
-    {
+    assert.ok(Util.isFunction(function () {
     }));
     assert.ok(Util.isFunction(new Function()));
 
@@ -27,8 +24,7 @@ describe('Util', function ()
     assert.ok(!Util.isFunction(new Object()));
   });
 
-  it('Util.isObject()', function ()
-  {
+  it('Util.isObject()', function () {
     // positive tests
     assert.ok(Util.isObject({}));
     assert.ok(Util.isObject(new Object()));
@@ -41,14 +37,12 @@ describe('Util', function ()
     assert.ok(!Util.isObject(''));
     assert.ok(!Util.isObject('foo'));
     assert.ok(!Util.isObject(new Date()));
-    assert.ok(!Util.isObject(function ()
-    {
+    assert.ok(!Util.isObject(function () {
     }));
     assert.ok(!Util.isObject(new Function()));
   });
 
-  it('Util.isDate()', function ()
-  {
+  it('Util.isDate()', function () {
     // positive tests
     assert.ok(Util.isDate(new Date()));
 
@@ -61,14 +55,12 @@ describe('Util', function ()
     assert.ok(!Util.isDate(1));
     assert.ok(!Util.isDate(''));
     assert.ok(!Util.isDate('foo'));
-    assert.ok(!Util.isDate(function ()
-    {
+    assert.ok(!Util.isDate(function () {
     }));
     assert.ok(!Util.isDate(new Function()));
   });
 
-  it('isArray()', function ()
-  {
+  it('isArray()', function () {
     // positive tests
     assert.ok(Util.isArray([]));
     assert.ok(Util.isArray([1]));
@@ -84,14 +76,12 @@ describe('Util', function ()
     assert.ok(!Util.isArray(new Date()));
     assert.ok(!Util.isArray({}));
     assert.ok(!Util.isArray(new Object()));
-    assert.ok(!Util.isArray(function ()
-    {
+    assert.ok(!Util.isArray(function () {
     }));
     assert.ok(!Util.isArray(new Function()));
   });
 
-  it('Util.isString()', function ()
-  {
+  it('Util.isString()', function () {
     // positive tests
     assert.ok(Util.isString(''));
     assert.ok(Util.isString('foo'));
@@ -105,14 +95,12 @@ describe('Util', function ()
     assert.ok(!Util.isString(new Date()));
     assert.ok(!Util.isString({}));
     assert.ok(!Util.isString(new Object()));
-    assert.ok(!Util.isString(function ()
-    {
+    assert.ok(!Util.isString(function () {
     }));
     assert.ok(!Util.isString(new Function()));
   });
 
-  it('Util.isBoolean()', function ()
-  {
+  it('Util.isBoolean()', function () {
     // positive tests
     assert.ok(Util.isBoolean(true));
     assert.ok(Util.isBoolean(false));
@@ -127,14 +115,12 @@ describe('Util', function ()
     assert.ok(!Util.isBoolean(new Date()));
     assert.ok(!Util.isBoolean({}));
     assert.ok(!Util.isBoolean(new Object()));
-    assert.ok(!Util.isBoolean(function ()
-    {
+    assert.ok(!Util.isBoolean(function () {
     }));
     assert.ok(!Util.isBoolean(new Function()));
   });
 
-  it('Util.isNumber()', function ()
-  {
+  it('Util.isNumber()', function () {
     // positive tests
     assert.ok(Util.isNumber(Number()));
     assert.ok(Util.isNumber(0));
@@ -153,14 +139,12 @@ describe('Util', function ()
     assert.ok(!Util.isNumber(new Date()));
     assert.ok(!Util.isNumber({}));
     assert.ok(!Util.isNumber(new Object()));
-    assert.ok(!Util.isNumber(function ()
-    {
+    assert.ok(!Util.isNumber(function () {
     }));
     assert.ok(!Util.isNumber(new Function()));
   });
 
-  it('Util.exists()', function ()
-  {
+  it('Util.exists()', function () {
     // positive tests
     assert.ok(Util.exists(0));
     assert.ok(Util.exists(''));
@@ -168,8 +152,7 @@ describe('Util', function ()
     assert.ok(Util.exists(new Date()));
     assert.ok(Util.exists({}));
     assert.ok(Util.exists(new Object()));
-    assert.ok(Util.exists(function ()
-    {
+    assert.ok(Util.exists(function () {
     }));
     assert.ok(Util.exists(new Function()));
 
@@ -178,8 +161,7 @@ describe('Util', function ()
     assert.ok(!Util.exists(undefined));
   });
 
-  it('Util.string.isNotNullOrEmpty()', function ()
-  {
+  it('Util.string.isNotNullOrEmpty()', function () {
     // positive tests
     assert.ok(Util.string.isNotNullOrEmpty('foo'));
 
@@ -194,8 +176,7 @@ describe('Util', function ()
     assert.ok(!Util.string.isNotNullOrEmpty(new Object()));
   });
 
-  it('Util.string.compareVersions()', function ()
-  {
+  it('Util.string.compareVersions()', function () {
     var testCases = [];
 
     // '' and '0' are the same
@@ -297,8 +278,7 @@ describe('Util', function ()
       });
 
     var testCase, actual, expected;
-    for (var index = 0, length = testCases.length; index < length; index++)
-    {
+    for (var index = 0, length = testCases.length; index < length; index++) {
       testCase = testCases[index];
       actual =
         Util.string.compareVersions(testCase.version1, testCase.version2);
@@ -311,8 +291,7 @@ describe('Util', function ()
     }
   });
 
-  it('Util.number.isPositive()', function ()
-  {
+  it('Util.number.isPositive()', function () {
     // positive tests
     assert.ok(Util.number.isPositive(1));
     assert.ok(Util.number.isPositive(1.1));
@@ -330,8 +309,7 @@ describe('Util', function ()
     assert.ok(!Util.number.isPositive(Number.NEGATIVE_INFINITY));
   });
 
-  it('Util.number.isNonNegative()', function ()
-  {
+  it('Util.number.isNonNegative()', function () {
     // positive tests
     assert.ok(Util.number.isNonNegative(0));
     assert.ok(Util.number.isNonNegative(1));
@@ -349,8 +327,7 @@ describe('Util', function ()
     assert.ok(!Util.number.isNonNegative(Number.NEGATIVE_INFINITY));
   });
 
-  it('Util.number.isInteger()', function ()
-  {
+  it('Util.number.isInteger()', function () {
     // positive tests
     assert.ok(Util.number.isInteger(0));
     assert.ok(Util.number.isInteger(1));
@@ -370,8 +347,7 @@ describe('Util', function ()
     assert.ok(!Util.number.isInteger(Number.NaN));
   });
 
-  it('Util.number.isPositiveInteger()', function ()
-  {
+  it('Util.number.isPositiveInteger()', function () {
     // positive tests
     assert.ok(Util.number.isPositiveInteger(1));
     assert.ok(Util.number.isPositiveInteger(100));
@@ -388,8 +364,7 @@ describe('Util', function ()
     assert.ok(!Util.number.isPositiveInteger(Number.NEGATIVE_INFINITY));
   });
 
-  it('Util.number.isNonNegativeInteger()', function ()
-  {
+  it('Util.number.isNonNegativeInteger()', function () {
     // positive tests
     assert.ok(Util.number.isNonNegativeInteger(0));
     assert.ok(Util.number.isNonNegativeInteger(1));
@@ -406,8 +381,7 @@ describe('Util', function ()
     assert.ok(!Util.number.isNonNegativeInteger(Number.NEGATIVE_INFINITY));
   });
 
-  it('Util.url.appendParam()', function ()
-  {
+  it('Util.url.appendParam()', function () {
     /////////////////////////////////////////////////////////////////////////
     ////                 Positive Test Cases                             ////
     /////////////////////////////////////////////////////////////////////////
@@ -435,8 +409,7 @@ describe('Util', function ()
       ];
 
     var testCase;
-    for (var index = 0, length = testCasesPos.length; index < length; index++)
-    {
+    for (var index = 0, length = testCasesPos.length; index < length; index++) {
       testCase = testCasesPos[index];
       assert.strictEqual(
         Util.url.appendParam(
@@ -467,22 +440,16 @@ describe('Util', function ()
       ];
 
     var error;
-    for (index = 0, length = testCasesPos.length; index < length; index++)
-    {
+    for (index = 0, length = testCasesPos.length; index < length; index++) {
       error = null;
 
       testCase = testCasesNeg[index];
-      try
-      {
+      try {
         Util.url.appendParam(
           testCase.url, testCase.paramName, testCase.paramValue);
-      }
-      catch (err)
-      {
+      } catch (err) {
         error = err;
-      }
-      finally
-      {
+      } finally {
         assert.ok(error);
       }
     }
@@ -548,8 +515,7 @@ describe('Util', function ()
       }
     ];
 
-    for (const {testName, endPoint,result} of testCases)
-    {
+    for (const {testName, endPoint, result} of testCases) {
       it(testName, function () {
         const isLoginRequest = Util.isLoginRequest(baseUrl + endPoint);
         assert.strictEqual(isLoginRequest, result);
@@ -605,7 +571,7 @@ describe('Util', function ()
         currentSleepTime = result.sleep;
         totalTimeout = result.totalTimeout;
        
-        assert.strictEqual(Util.isRetryableHttpError(response,true), true);
+        assert.strictEqual(Util.isRetryableHttpError(response, true), true);
         assert.ok(currentSleepTime <= nextSleep + jitter || currentSleepTime >= nextSleep - jitter);
       }
     
@@ -653,14 +619,13 @@ describe('Util', function ()
   });
 
   it("Util.getJitter Test", function () {
-    const randomNumber = Util.chooseRandom(10,100);
+    const randomNumber = Util.chooseRandom(10, 100);
     const jitter = Util.getJitter(randomNumber);
 
     assert.ok(randomNumber / -2 <= jitter && jitter <= randomNumber / 2  );
   });
 
-  it('Util.apply()', function ()
-  {
+  it('Util.apply()', function () {
     assert.strictEqual(Util.apply(null, null), null);
     assert.strictEqual(Util.apply(null, undefined), null);
     assert.strictEqual(Util.apply(null, {}), null);
@@ -688,8 +653,7 @@ describe('Util', function ()
     assert.ok(dst.hasOwnProperty('a') && (dst.a === 2));
   });
 
-  it('Util.isRetryableHttpError()', function ()
-  {
+  it('Util.isRetryableHttpError()', function () {
     var testCasesPos =
       [
         {
@@ -750,8 +714,7 @@ describe('Util', function ()
 
     var testCase;
     var err;
-    for (var index = 0, length = testCasesPos.length; index < length; index++)
-    {
+    for (var index = 0, length = testCasesPos.length; index < length; index++) {
       testCase = testCasesPos[index];
       err = {
         response: { statusCode: testCase.statusCode }

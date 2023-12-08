@@ -7,8 +7,7 @@ var mock = require('mock-require');
 var SnowflakeGCSUtil = require('./../../../lib/file_transfer_agent/gcs_util');
 var resultStatus = require('./../../../lib/file_transfer_agent/file_util').resultStatus;
 
-describe('GCS client', function ()
-{
+describe('GCS client', function () {
   var mockDataFile = 'mockDataFile';
   var mockLocation = 'mockLocation';
   var mockTable = 'mockTable';
@@ -31,8 +30,7 @@ describe('GCS client', function ()
     matDesc: mockMatDesc
   };
 
-  this.beforeEach(function ()
-  {
+  this.beforeEach(function () {
     meta = {
       stageInfo: {
         location: mockLocation,
@@ -44,24 +42,20 @@ describe('GCS client', function ()
     };
 
     mock('httpclient', {
-      put: async function (url, body, header)
-      {
+      put: async function (url, body, header) {
         return;
       },
-      get: async function (url)
-      {
+      get: async function (url) {
         return;
       },
-      head: async function (url, header)
-      {
+      head: async function (url, header) {
         return {
           headers: ''
         };
       }
     });
     mock('filestream', {
-      readFileSync: async function (data)
-      {
+      readFileSync: async function (data) {
         return data;
       }
     });
@@ -70,8 +64,7 @@ describe('GCS client', function ()
     GCS = new SnowflakeGCSUtil(httpclient, filestream);
   });
 
-  it('extract bucket name and path', async function ()
-  {
+  it('extract bucket name and path', async function () {
     var GCS = new SnowflakeGCSUtil();
 
     var result = GCS.extractBucketNameAndPath('sfc-eng-regression/test_sub_dir/');
@@ -95,23 +88,19 @@ describe('GCS client', function ()
     assert.strictEqual(result.path, '//');
   });
 
-  it('get file header - success', async function ()
-  {
+  it('get file header - success', async function () {
     meta.presignedUrl = '';
 
     await GCS.getFileHeader(meta, dataFile);
     assert.strictEqual(meta['resultStatus'], resultStatus.UPLOADED);
   });
 
-  it('get file header - fail not found file with presigned url', async function ()
-  {
+  it('get file header - fail not found file with presigned url', async function () {
     mock('httpclient', {
-      put: async function (url, body, header)
-      {
+      put: async function (url, body, header) {
         return;
       },
-      get: async function (url)
-      {
+      get: async function (url) {
         let err = new Error();
         err.response = { status: 401 };
         throw err;
@@ -124,11 +113,9 @@ describe('GCS client', function ()
     assert.strictEqual(meta['resultStatus'], resultStatus.NOT_FOUND_FILE);
   });
 
-  it('get file header - fail need retry', async function ()
-  {
+  it('get file header - fail need retry', async function () {
     mock('httpclient', {
-      head: async function (url)
-      {
+      head: async function (url) {
         let err = new Error();
         err.response = { status: 403 };
         throw err;
@@ -143,11 +130,9 @@ describe('GCS client', function ()
     assert.strictEqual(meta['resultStatus'], resultStatus.NEED_RETRY);
   });
 
-  it('get file header - fail not found file without presigned url', async function ()
-  {
+  it('get file header - fail not found file without presigned url', async function () {
     mock('httpclient', {
-      head: async function (url)
-      {
+      head: async function (url) {
         let err = new Error();
         err.response = { status: 404 };
         throw err;
@@ -162,11 +147,9 @@ describe('GCS client', function ()
     assert.strictEqual(meta['resultStatus'], resultStatus.NOT_FOUND_FILE);
   });
 
-  it('get file header - fail expired token', async function ()
-  {
+  it('get file header - fail expired token', async function () {
     mock('httpclient', {
-      head: async function (url, header)
-      {
+      head: async function (url, header) {
         let err = new Error();
         err.response = { status: 401 };
         throw err;
@@ -181,12 +164,10 @@ describe('GCS client', function ()
     assert.strictEqual(meta['resultStatus'], resultStatus.RENEW_TOKEN);
   });
 
-  it('get file header - fail unknown status', async function ()
-  {
+  it('get file header - fail unknown status', async function () {
     var err;
     mock('httpclient', {
-      head: async function (url, header)
-      {
+      head: async function (url, header) {
         err = new Error();
         err.response = { status: 0 };
         throw err;
@@ -197,35 +178,28 @@ describe('GCS client', function ()
 
     meta.presignedUrl = '';
 
-    try
-    {
+    try {
       await GCS.getFileHeader(meta, dataFile);
-    }
-    catch (e)
-    {
+    } catch (e) {
       assert.strictEqual(e, err);
     }
   });
 
-  it('upload - success', async function ()
-  {
+  it('upload - success', async function () {
     await GCS.uploadFile(dataFile, meta, encryptionMetadata);
     assert.strictEqual(meta['resultStatus'], resultStatus.UPLOADED);
   });
 
-  it('upload - fail need retry', async function ()
-  {
+  it('upload - fail need retry', async function () {
     mock('httpclient', {
-      put: async function (url, body, header)
-      {
+      put: async function (url, body, header) {
         let err = new Error();
         err.code = 403;
         throw err;
       }
     });
     mock('filestream', {
-      readFileSync: async function (data)
-      {
+      readFileSync: async function (data) {
         return data;
       }
     });
@@ -237,19 +211,16 @@ describe('GCS client', function ()
     assert.strictEqual(meta['resultStatus'], resultStatus.NEED_RETRY);
   });
 
-  it('upload - fail renew presigned url', async function ()
-  {
+  it('upload - fail renew presigned url', async function () {
     mock('httpclient', {
-      put: async function (url, body, header)
-      {
+      put: async function (url, body, header) {
         let err = new Error();
         err.code = 400;
         throw err;
       }
     });
     mock('filestream', {
-      readFileSync: async function (data)
-      {
+      readFileSync: async function (data) {
         return data;
       }
     });
@@ -264,33 +235,25 @@ describe('GCS client', function ()
     assert.strictEqual(meta['resultStatus'], resultStatus.RENEW_PRESIGNED_URL);
   });
 
-  it('upload - fail expired token', async function ()
-  {
+  it('upload - fail expired token', async function () {
     mock('httpclient', {
-      put: async function (url, body, header)
-      {
+      put: async function (url, body, header) {
         let err = new Error();
         err.code = 401;
         throw err;
       }
     });
     mock('filestream', {
-      readFileSync: async function (data)
-      {
+      readFileSync: async function (data) {
         return data;
       }
     });
     mock('gcsClient', {
-      bucket: function (bucketName)
-      {
-        function bucket()
-        {
-          this.file = function (bucketPath)
-          {
-            function file()
-            {
-              this.save = function (fileStream, options)
-              {
+      bucket: function (bucketName) {
+        function bucket() {
+          this.file = function (bucketPath) {
+            function file() {
+              this.save = function (fileStream, options) {
                 let err = new Error();
                 err.code = 401;
                 throw err;

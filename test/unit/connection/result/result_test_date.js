@@ -6,11 +6,9 @@ var Util = require('./../../../../lib/util');
 var assert = require('assert');
 var ResultTestCommon = require('./result_test_common');
 
-describe('Result: test date', function ()
-{
+describe('Result: test date', function () {
   it("select to_date('2016-01-21') as C1;",
-    function (done)
-    {
+    function (done) {
       var response =
         {
           "data": {
@@ -49,13 +47,11 @@ describe('Result: test date', function ()
 
       ResultTestCommon.testResult(
         ResultTestCommon.createResultOptions(response),
-        function (row)
-        {
+        function (row) {
           assert.ok(Util.isDate(row.getColumnValue('C1')));
           assert.strictEqual(row.getColumnValueAsString('C1'), '2016-01-21');
         },
-        function (result)
-        {
+        function (result) {
           done();
         }
       );

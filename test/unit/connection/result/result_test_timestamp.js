@@ -6,13 +6,11 @@ var Util = require('./../../../../lib/util');
 var assert = require('assert');
 var ResultTestCommon = require('./result_test_common');
 
-describe('Result: test timestamp', function ()
-{
+describe('Result: test timestamp', function () {
   it("select to_timestamp_ltz('Thu, 21 Jan 2016 06:32:44 -0800') as C1, " +
     "to_timestamp_tz('Thu, 21 Jan 2016 06:32:44 -0800') as C2, " +
     "to_timestamp_ntz('Thu, 21 Jan 2016 06:32:44 -0800') as C3;",
-  function (done)
-  {
+  function (done) {
     var response =
         {
           "data": {
@@ -57,8 +55,7 @@ describe('Result: test timestamp', function ()
 
     ResultTestCommon.testResult(
       ResultTestCommon.createResultOptions(response),
-      function (row)
-      {
+      function (row) {
         // timestamp_ltz
         assert.ok(Util.isDate(row.getColumnValue('C1')));
         assert.strictEqual(
@@ -79,8 +76,7 @@ describe('Result: test timestamp', function ()
           row.getColumnValueAsString('C3'),
           'Thu, 21 Jan 2016 06:32:44 +0000');
       },
-      function (result)
-      {
+      function (result) {
         done();
       }
     );

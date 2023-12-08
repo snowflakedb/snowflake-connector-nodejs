@@ -15,8 +15,7 @@ var connOptsStreamResultNone = Util.apply({}, connOpts);
 var connOptsStreamResultFalse = Util.apply({streamResult: false}, connOpts);
 var connOptsStreamResultTrue = Util.apply({streamResult: true}, connOpts);
 
-describe('Statement - stream result', function ()
-{
+describe('Statement - stream result', function () {
   var testCases =
     [
       {
@@ -75,59 +74,49 @@ describe('Statement - stream result', function ()
       }
     ];
 
-  for (var index = 0, length = testCases.length; index < length; index++)
-  {
+  for (var index = 0, length = testCases.length; index < length; index++) {
     var testCase = testCases[index];
     it(testCase.name, createItCallback(
       testCase.connOpts, testCase.streamResult, testCase.verifyFn));
   }
 });
 
-function createItCallback(connectionOptions, streamResult, verifyFn)
-{
-  return function (done)
-  {
+function createItCallback(connectionOptions, streamResult, verifyFn) {
+  return function (done) {
     var connection;
     async.series(
       [
-        function (callback)
-        {
+        function (callback) {
           connection = snowflake.createConnection(connectionOptions);
-          connection.connect(function (err)
-          {
+          connection.connect(function (err) {
             callback();
           });
         },
-        function (callback)
-        {
+        function (callback) {
           connection.execute(
             {
               sqlText: 'select 1 as "c1";',
               requestId: 'foobar',
               streamResult: streamResult,
-              complete: function (err, statement, rows)
-              {
+              complete: function (err, statement, rows) {
                 verifyFn(rows);
                 callback();
               }
             });
         }
       ],
-      function ()
-      {
+      function () {
         done();
       });
   };
 }
 
-function verifyRowsReturnedInline(rows)
-{
+function verifyRowsReturnedInline(rows) {
   assert.ok(Util.isArray(rows));
   assert.strictEqual(rows.length, 1);
   assert.strictEqual(rows[0].c1, 1);
 }
 
-function verifyNoRowsReturnedInline(rows)
-{
+function verifyNoRowsReturnedInline(rows) {
   assert.ok(!Util.exists(rows));
 }

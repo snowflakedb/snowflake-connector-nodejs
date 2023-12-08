@@ -6,8 +6,7 @@ var assert = require('assert');
 var async = require('async');
 var testUtil = require('./testUtil');
 
-describe('Test updated rows', function ()
-{
+describe('Test updated rows', function () {
   var connection;
   const dropTableFoo = 'drop table if exists foo';
   const dropTableBar = 'drop table if exists bar';
@@ -15,72 +14,58 @@ describe('Test updated rows', function ()
   const dropTableFooMaster = 'drop table if exists foomaster';
   const dropTableSource = 'drop table if exists source';
 
-  before(function (done)
-  {
+  before(function (done) {
     connection = testUtil.createConnection();
     async.series([
-      function (callback)
-      {
+      function (callback) {
         testUtil.connect(connection, callback);
       }],
     done
     );
   });
 
-  after(function (done)
-  {
+  after(function (done) {
     async.series([
-      function (callback)
-      {
+      function (callback) {
         testUtil.executeCmd(connection, dropTableFoo, callback);
       },
-      function (callback)
-      {
+      function (callback) {
         testUtil.executeCmd(connection, dropTableFoo2, callback);
       },
-      function (callback)
-      {
+      function (callback) {
         testUtil.executeCmd(connection, dropTableBar, callback);
       },
-      function (callback)
-      {
+      function (callback) {
         testUtil.executeCmd(connection, dropTableFooMaster, callback);
       },
-      function (callback)
-      {
+      function (callback) {
         testUtil.executeCmd(connection, dropTableSource, callback);
       },
-      function (callback)
-      {
+      function (callback) {
         testUtil.destroyConnection(connection, callback);
       }],
     done
     );
   });
 
-  describe('testUpdatedRows', function ()
-  {
+  describe('testUpdatedRows', function () {
     this.timeout(90000);
 
-    it('insert, update, delete', function (done)
-    {
+    it('insert, update, delete', function (done) {
       async.series([
-        function (callback)
-        {
+        function (callback) {
           var sqlText = 'create or replace table foo (c1 number, c2 number);';
           connection.execute(
             {
               sqlText: sqlText,
-              complete: function (err, statement, rows)
-              {
+              complete: function (err, statement, rows) {
                 assert.ok(!err);
                 assert.strictEqual(statement.getNumUpdatedRows(), -1);
                 callback();
               }
             });
         },
-        function (callback)
-        {
+        function (callback) {
           var sqlText = 'insert into foo values' +
               ' (1,10)' +
               ',(2,10)' +
@@ -93,8 +78,7 @@ describe('Test updated rows', function ()
           connection.execute(
             {
               sqlText: sqlText,
-              complete: function (err, statement, rows)
-              {
+              complete: function (err, statement, rows) {
                 // 'number of rows inserted': 8
                 assert.ok(!err);
                 assert.strictEqual(statement.getNumUpdatedRows(), 8);
@@ -102,22 +86,19 @@ describe('Test updated rows', function ()
               }
             });
         },
-        function (callback)
-        {
+        function (callback) {
           var sqlText = 'create or replace table foo2 (c3 number, c4 number);';
           connection.execute(
             {
               sqlText: sqlText,
-              complete: function (err, statement, rows)
-              {
+              complete: function (err, statement, rows) {
                 assert.ok(!err);
                 assert.strictEqual(statement.getNumUpdatedRows(), -1);
                 callback();
               }
             });
         },
-        function (callback)
-        {
+        function (callback) {
           var sqlText = 'insert into foo2 values' +
               ' (1,5)' +
               ',(2,5)' +
@@ -126,8 +107,7 @@ describe('Test updated rows', function ()
           connection.execute(
             {
               sqlText: sqlText,
-              complete: function (err, statement, rows)
-              {
+              complete: function (err, statement, rows) {
                 // 'number of rows inserted': 4
                 assert.ok(!err);
                 assert.strictEqual(statement.getNumUpdatedRows(), 4);
@@ -135,15 +115,13 @@ describe('Test updated rows', function ()
               }
             });
         },
-        function (callback)
-        {
+        function (callback) {
           var sqlText =
               'update foo set c2 = c4 from foo2 where foo.c1 = foo2.c3;';
           connection.execute(
             {
               sqlText: sqlText,
-              complete: function (err, statement, rows)
-              {
+              complete: function (err, statement, rows) {
                 // 'number of rows updated': 3
                 // 'number of multi-joined rows updated': 1
                 assert.ok(!err);
@@ -152,14 +130,12 @@ describe('Test updated rows', function ()
               }
             });
         },
-        function (callback)
-        {
+        function (callback) {
           var sqlText = 'delete from foo;';
           connection.execute(
             {
               sqlText: sqlText,
-              complete: function (err, statement, rows)
-              {
+              complete: function (err, statement, rows) {
                 // 'number of rows deleted': 8
                 assert.ok(!err);
                 assert.strictEqual(statement.getNumUpdatedRows(), 8);
@@ -170,31 +146,26 @@ describe('Test updated rows', function ()
       done);
     });
 
-    it('merge', function (done)
-    {
+    it('merge', function (done) {
       async.series([
-        function (callback)
-        {
+        function (callback) {
           var sqlText = 'create or replace table fooMaster (k number, v number);';
           connection.execute(
             {
               sqlText: sqlText,
-              complete: function (err, statement, rows)
-              {
+              complete: function (err, statement, rows) {
                 assert.ok(!err);
                 assert.strictEqual(statement.getNumUpdatedRows(), -1);
                 callback();
               }
             });
         },
-        function (callback)
-        {
+        function (callback) {
           var sqlText = 'insert into fooMaster values (0, 10), (1, 11), (5, 15), (6, 16);';
           connection.execute(
             {
               sqlText: sqlText,
-              complete: function (err, statement, rows)
-              {
+              complete: function (err, statement, rows) {
                 // 'number of rows inserted': 4
                 assert.ok(!err);
                 assert.strictEqual(statement.getNumUpdatedRows(), 4);
@@ -202,42 +173,36 @@ describe('Test updated rows', function ()
               }
             });
         },
-        function (callback)
-        {
+        function (callback) {
           var sqlText = 'create or replace table foo clone fooMaster;';
           connection.execute(
             {
               sqlText: sqlText,
-              complete: function (err, statement, rows)
-              {
+              complete: function (err, statement, rows) {
                 assert.ok(!err);
                 assert.strictEqual(statement.getNumUpdatedRows(), -1);
                 callback();
               }
             });
         },
-        function (callback)
-        {
+        function (callback) {
           var sqlText = 'create or replace table bar (k number, v number);';
           connection.execute(
             {
               sqlText: sqlText,
-              complete: function (err, statement, rows)
-              {
+              complete: function (err, statement, rows) {
                 assert.ok(!err);
                 assert.strictEqual(statement.getNumUpdatedRows(), -1);
                 callback();
               }
             });
         },
-        function (callback)
-        {
+        function (callback) {
           var sqlText = 'insert into bar values (0, 20), (1, 21), (2, 22), (3, 23), (4, 24);';
           connection.execute(
             {
               sqlText: sqlText,
-              complete: function (err, statement, rows)
-              {
+              complete: function (err, statement, rows) {
                 // 'number of rows inserted': 5
                 assert.ok(!err);
                 assert.strictEqual(statement.getNumUpdatedRows(), 5);
@@ -245,8 +210,7 @@ describe('Test updated rows', function ()
               }
             });
         },
-        function (callback)
-        {
+        function (callback) {
           var sqlText = 'merge into foo using bar on foo.k = bar.k ' +
               'when matched and foo.k = 0 then update set v = bar.v*100 ' +
               'when matched and foo.k = 1 then delete ' +
@@ -254,8 +218,7 @@ describe('Test updated rows', function ()
           connection.execute(
             {
               sqlText: sqlText,
-              complete: function (err, statement, rows)
-              {
+              complete: function (err, statement, rows) {
                 // 'number of rows inserted': 3
                 // 'number of rows updated': 1
                 // 'number of rows deleted': 1
@@ -268,31 +231,26 @@ describe('Test updated rows', function ()
       done);
     });
 
-    it('multi-table insert', function (done)
-    {
+    it('multi-table insert', function (done) {
       async.series([
-        function (callback)
-        {
+        function (callback) {
           var sqlText = 'create or replace table source(k number, v number);';
           connection.execute(
             {
               sqlText: sqlText,
-              complete: function (err, statement, rows)
-              {
+              complete: function (err, statement, rows) {
                 assert.ok(!err);
                 assert.strictEqual(statement.getNumUpdatedRows(), -1);
                 callback();
               }
             });
         },
-        function (callback)
-        {
+        function (callback) {
           var sqlText = 'insert into source values (0, 100), (1, 101), (2, 102);';
           connection.execute(
             {
               sqlText: sqlText,
-              complete: function (err, statement, rows)
-              {
+              complete: function (err, statement, rows) {
                 // 'number of rows inserted': 3
                 assert.ok(!err);
                 assert.strictEqual(statement.getNumUpdatedRows(), 3);
@@ -300,42 +258,36 @@ describe('Test updated rows', function ()
               }
             });
         },
-        function (callback)
-        {
+        function (callback) {
           var sqlText = 'create or replace table foo (k number, v number);';
           connection.execute(
             {
               sqlText: sqlText,
-              complete: function (err, statement, rows)
-              {
+              complete: function (err, statement, rows) {
                 assert.ok(!err);
                 assert.strictEqual(statement.getNumUpdatedRows(), -1);
                 callback();
               }
             });
         },
-        function (callback)
-        {
+        function (callback) {
           var sqlText = 'create or replace table bar (k number, v number);';
           connection.execute(
             {
               sqlText: sqlText,
-              complete: function (err, statement, rows)
-              {
+              complete: function (err, statement, rows) {
                 assert.ok(!err);
                 assert.strictEqual(statement.getNumUpdatedRows(), -1);
                 callback();
               }
             });
         },
-        function (callback)
-        {
+        function (callback) {
           var sqlText = 'insert ALL into foo into bar select * from source;';
           connection.execute(
             {
               sqlText: sqlText,
-              complete: function (err, statement, rows)
-              {
+              complete: function (err, statement, rows) {
                 // 'number of rows inserted into FOO': 3
                 // 'number of rows inserted into BAR': 3
                 assert.ok(!err);

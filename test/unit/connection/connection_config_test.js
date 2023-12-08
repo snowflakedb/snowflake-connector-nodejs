@@ -6,8 +6,7 @@ var ConnectionConfig = require('./../../../lib/connection/connection_config');
 var ErrorCodes = require('./../../../lib/errors').codes;
 var assert = require('assert');
 
-describe('ConnectionConfig: basic', function ()
-{
+describe('ConnectionConfig: basic', function () {
   ///////////////////////////////////////////////////////////////////////////
   //// Test synchronous errors                                           ////
   ///////////////////////////////////////////////////////////////////////////
@@ -693,22 +692,15 @@ describe('ConnectionConfig: basic', function ()
       },
     ];
 
-  var createNegativeITCallback = function (testCase)
-  {
-    return function ()
-    {
+  var createNegativeITCallback = function (testCase) {
+    return function () {
       var error;
 
-      try
-      {
+      try {
         new ConnectionConfig(testCase.options);
-      }
-      catch (err)
-      {
+      } catch (err) {
         error = err;
-      }
-      finally
-      {
+      } finally {
         assert.ok(error);
         assert.strictEqual(error.code, testCase.errorCode);
       }
@@ -716,8 +708,7 @@ describe('ConnectionConfig: basic', function ()
   };
 
   var index, length, testCase;
-  for (index = 0, length = negativeTestCases.length; index < length; index++)
-  {
+  for (index = 0, length = negativeTestCases.length; index < length; index++) {
     testCase = negativeTestCases[index];
     it(testCase.name, createNegativeITCallback(testCase));
   }
@@ -1207,13 +1198,10 @@ describe('ConnectionConfig: basic', function ()
       },
     ];
 
-  var createItCallback = function (testCase)
-  {
-    return function ()
-    {
+  var createItCallback = function (testCase) {
+    return function () {
       var result_options = new ConnectionConfig(testCase.input);
-      Object.keys(testCase.options).forEach(function (key)
-      {
+      Object.keys(testCase.options).forEach(function (key) {
         var ref = testCase.options[key];
         var val = result_options[key];
         assert.strictEqual(val, ref);
@@ -1221,14 +1209,12 @@ describe('ConnectionConfig: basic', function ()
     };
   };
 
-  for (index = 0, length = testCases.length; index < length; index++)
-  {
+  for (index = 0, length = testCases.length; index < length; index++) {
     testCase = testCases[index];
     it(testCase.name, createItCallback(testCase));
   }
 
-  it('custom prefetch', function ()
-  {
+  it('custom prefetch', function () {
     var username = 'username';
     var password = 'password';
     var account = 'account';

@@ -13,8 +13,7 @@ const Logger = require('../../../lib/logger');
  *
  * @constructor
  */
-function MockHttpClient(clientInfo)
-{
+function MockHttpClient(clientInfo) {
   Errors.assertInternal(Util.exists(clientInfo) && Util.isObject(clientInfo));
   Errors.assertInternal(Util.exists(clientInfo.version) &&
     Util.isString(clientInfo.version));
@@ -31,19 +30,16 @@ module.exports = MockHttpClient;
  *
  * @param {Object} request the request options.
  */
-MockHttpClient.prototype.request = function (request)
-{
+MockHttpClient.prototype.request = function (request) {
   // build the request-to-output map if this is the first request
-  if (!this._mapRequestToOutput)
-  {
+  if (!this._mapRequestToOutput) {
     this._mapRequestToOutput =
       buildRequestToOutputMap(buildRequestOutputMappings(this._clientInfo));
   }
 
   // Closing a connection includes a requestID as a query parameter in the url
   // Example: http://fake504.snowflakecomputing.com/session?delete=true&requestId=a40454c6-c3bb-4824-b0f3-bae041d9d6a2
-  if (request.url.includes('session?delete=true'))
-  {
+  if (request.url.includes('session?delete=true')) {
     // Remove the requestID query parameter for the mock HTTP client
     request.url = request.url.substring(0, request.url.indexOf('&requestId='));
   }
@@ -61,15 +57,13 @@ MockHttpClient.prototype.request = function (request)
   // callback would be invoked before any IO, which would make the behavior
   // different from if we were actually sending the request over the network
   // (which does require IO)
-  setTimeout(function ()
-  {
+  setTimeout(function () {
     // get the response from the output and clone it; this is to prevent tests
     // from interfering with each other if they mutate the response
     var response = JSON.parse(JSON.stringify(requestOutput.response));
     var body = requestOutput.body;
 
-    if (!body && response)
-    {
+    if (!body && response) {
       body = response.body;
     }
 
@@ -116,17 +110,14 @@ MockHttpClient.prototype.requestAsync = function (request) {
  *
  * @returns {Object}
  */
-function buildRequestToOutputMap(mappings)
-{
+function buildRequestToOutputMap(mappings) {
   var mapRequestToOutput = {};
 
   var mapping;
-  for (var index = 0, length = mappings.length; index < length; index++)
-  {
+  for (var index = 0, length = mappings.length; index < length; index++) {
     mapping = mappings[index];
     const k = serializeRequest(mapping.request);
-    if (mapRequestToOutput[k])
-    {
+    if (mapRequestToOutput[k]) {
       Logger.getInstance().error("The mock already exists: %s", k);
     }
     mapRequestToOutput[k] = mapping.output;
@@ -142,8 +133,7 @@ function buildRequestToOutputMap(mappings)
  *
  * @returns {String}
  */
-function serializeRequest(request)
-{
+function serializeRequest(request) {
   // create a sorted clone of the request object and stringify the result;
   // stringifying the request object directly won't work because it will produce
   // different values for { method: 'GET', url: 'foo' } and
@@ -162,24 +152,19 @@ function serializeRequest(request)
  *
  * @returns {*}
  */
-function createSortedClone(target)
-{
+function createSortedClone(target) {
   var keysSorted;
   var sortedClone;
   var index, length, key;
 
-  if (Util.isObject(target))
-  {
+  if (Util.isObject(target)) {
     keysSorted = Object.keys(target).sort();
     sortedClone = {};
-    for (index = 0, length = keysSorted.length; index < length; index++)
-    {
+    for (index = 0, length = keysSorted.length; index < length; index++) {
       key = keysSorted[index];
       sortedClone[key] = createSortedClone(target[key]);
     }
-  }
-  else
-  {
+  } else {
     sortedClone = target;
   }
 
@@ -193,8 +178,7 @@ function createSortedClone(target)
  *
  * @returns {Object[]}
  */
-function buildRequestOutputMappings(clientInfo)
-{
+function buildRequestOutputMappings(clientInfo) {
   return [
     {
       request:

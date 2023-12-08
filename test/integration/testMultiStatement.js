@@ -7,21 +7,17 @@ var testUtil = require('./testUtil');
 var Util = require('./../../lib/util');
 const Logger = require('../../lib/logger');
 
-describe('Test multi statement', function ()
-{
+describe('Test multi statement', function () {
   var connection;
   var alterSessionMultiStatement0 = "alter session set MULTI_STATEMENT_COUNT=0";
   var selectTable = 'select ?; select ?,3; select ?,5,6';
 
-  before(function (done)
-  {
+  before(function (done) {
     connection = testUtil.createConnection();
-    testUtil.connect(connection, function ()
-    {
+    testUtil.connect(connection, function () {
       connection.execute({
         sqlText: alterSessionMultiStatement0,
-        complete: function (err, stmt)
-        {
+        complete: function (err, stmt) {
           testUtil.checkError(err);
           done();
         }
@@ -29,8 +25,7 @@ describe('Test multi statement', function ()
     });
   });
 
-  after(function (done)
-  {
+  after(function (done) {
     testUtil.destroyConnection(connection, done);
   });
 
@@ -66,8 +61,7 @@ describe('Test multi statement', function ()
                 if (stmt.hasNext()) {
                   Logger.getInstance().info('==== hasNext');
                   stmt.NextResult();
-                }
-                else {
+                } else {
                   Logger.getInstance().info('==== close connection');
                   assert.strictEqual(6, count);
                   done();

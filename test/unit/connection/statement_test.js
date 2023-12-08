@@ -6,8 +6,7 @@ var Statement = require('./../../../lib/connection/statement');
 var ErrorCodes = require('./../../../lib/errors').codes;
 var assert = require('assert');
 
-describe('Statement.execute()', function ()
-{
+describe('Statement.execute()', function () {
   ///////////////////////////////////////////////////////////////////////////
   //// Test synchronous errors                                          ////
   //////////////////////////////////////////////////////////////////////////
@@ -94,8 +93,7 @@ describe('Statement.execute()', function ()
             statementOptions:
               {
                 sqlText: '',
-                binds: [function ()
-                {
+                binds: [function () {
                 }]
               }
           },
@@ -210,28 +208,21 @@ describe('Statement.execute()', function ()
       }
     ];
 
-  var createItCallback = function (testCase)
-  {
-    return function ()
-    {
+  var createItCallback = function (testCase) {
+    return function () {
       var options;
       var error;
 
-      try
-      {
+      try {
         options = testCase.options;
 
         Statement.createStatementPreExec(
           options.statementOptions,
           options.services,
           options.connectionConfig);
-      }
-      catch (err)
-      {
+      } catch (err) {
         error = err;
-      }
-      finally
-      {
+      } finally {
         assert.ok(error);
         assert.strictEqual(error.code, testCase.errorCode);
       }
@@ -239,15 +230,13 @@ describe('Statement.execute()', function ()
   };
 
   var index, length, testCase;
-  for (index = 0, length = testCases.length; index < length; index++)
-  {
+  for (index = 0, length = testCases.length; index < length; index++) {
     testCase = testCases[index];
     it(testCase.name, createItCallback(testCase));
   }
 });
 
-describe('Statement.fetchResult()', function ()
-{
+describe('Statement.fetchResult()', function () {
   ///////////////////////////////////////////////////////////////////////////
   //// Test synchronous errors                                          ////
   //////////////////////////////////////////////////////////////////////////
@@ -390,27 +379,20 @@ describe('Statement.fetchResult()', function ()
       }
     ];
 
-  var createItCallback = function (testCase)
-  {
-    return function ()
-    {
+  var createItCallback = function (testCase) {
+    return function () {
       var options;
       var error;
 
-      try
-      {
+      try {
         options = testCase.options;
         Statement.createStatementPostExec(
           options.statementOptions,
           options.services,
           options.connectionConfig);
-      }
-      catch (err)
-      {
+      } catch (err) {
         error = err;
-      }
-      finally
-      {
+      } finally {
         assert.ok(error);
         assert.strictEqual(error.code, testCase.errorCode);
       }
@@ -418,8 +400,7 @@ describe('Statement.fetchResult()', function ()
   };
 
   var index, length, testCase;
-  for (index = 0, length = testCases.length; index < length; index++)
-  {
+  for (index = 0, length = testCases.length; index < length; index++) {
     testCase = testCases[index];
     it(testCase.name, createItCallback(testCase));
   }

@@ -5,14 +5,12 @@
 var assert = require('assert');
 var ResultTestCommon = require('./result_test_common');
 
-describe('Result: test number', function ()
-{
+describe('Result: test number', function () {
   it("select to_number('123.456') as C1, " +
     "to_double('123.456') as C2, " +
     "to_number('12345678901234567890123456789012345678') as C3, " + // pragma: allowlist secret
     "to_double('12345678901234567890123456789012345678') as C4;", // pragma: allowlist secret
-  function (done)
-  {
+  function (done) {
     var response =
         {
           "data": {
@@ -60,8 +58,7 @@ describe('Result: test number', function ()
 
     ResultTestCommon.testResult(
       ResultTestCommon.createResultOptions(response),
-      function (row)
-      {
+      function (row) {
         // fixed small
         assert.strictEqual(row.getColumnValue('C1'), 123);
         assert.strictEqual(row.getColumnValueAsString('C1'), '123');
@@ -81,8 +78,7 @@ describe('Result: test number', function ()
         assert.strictEqual(
           row.getColumnValueAsString('C4'), '1.23456789012346e+37');
       },
-      function (result)
-      {
+      function (result) {
         done();
       }
     );

@@ -64,10 +64,10 @@ async function run() {
       from table(generator(rowcount=>${rowCount}))`;
   const createTableWithVariant = (tableName) => `create or replace table ${tableName}(colA variant)`;
 
-  const dropTableWithVariant = (tableName) =>`drop table if exists ${tableName}`;
+  const dropTableWithVariant = (tableName) => `drop table if exists ${tableName}`;
   const dropTempTable = `drop table if exists ${testVariantTempName}`;
 
-  const insertVariant = (tableName)=> `insert into ${tableName}
+  const insertVariant = (tableName) => `insert into ${tableName}
                          select parse_json(value)
                          from ${testVariantTempName}`;
   const selectCountVariant = (tableName) => `select count(colA) from ${(tableName)}`;
@@ -105,7 +105,7 @@ async function run() {
       await helpers.executeQuery(connection, createTempTableWithJsonData);
       await helpers.executeQuery(connection, createTableWithVariant(testVariantTableName));
       await helpers.executeQuery(connection, insertVariant(testVariantTableName));
-      await helpers.executeQuery(connection, selectCountVariant(testVariantTableName)); ;
+      await helpers.executeQuery(connection, selectCountVariant(testVariantTableName)); 
 
       const queryTimeLabel = parser + 'SelectTime';
       let avgBlock = 0, minBlock = 999999999999999, maxBlock = 0;

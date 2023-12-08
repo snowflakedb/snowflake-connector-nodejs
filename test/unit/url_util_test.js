@@ -4,17 +4,14 @@
 var URLUtil = require('./../../lib/url_util');
 var assert = require('assert');
 
-describe('URLUtil', function ()
-{
-  it('Valid URL', function ()
-  {
+describe('URLUtil', function () {
+  it('Valid URL', function () {
     assert.ok(URLUtil.isValidURL("https://ssoTestURL.okta.com"));
     assert.ok(URLUtil.isValidURL("https://ssoTestURL.okta.com:8080"));
     assert.ok(URLUtil.isValidURL("https://ssoTestURL.okta.com/testpathvalue"));
   });
 
-  it('Invalid URL', function ()
-  {
+  it('Invalid URL', function () {
     assert.ok(!URLUtil.isValidURL("-a Calculator"));
     assert.ok(!URLUtil.isValidURL("This is random text"));
     assert.ok(!URLUtil.isValidURL("file://TestForFile"));

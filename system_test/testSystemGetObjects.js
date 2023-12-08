@@ -15,8 +15,7 @@ var snowflake = require('./../lib/snowflake');
 var connOptions = require('../test/integration/connectionOptions');
 var testUtil = require('../test/integration/testUtil');
 
-describe('system$get_objects()', function ()
-{
+describe('system$get_objects()', function () {
   var createDatabase = "create or replace database node_testdb;";
   var createSchema = "create or replace schema node_testschema;";
   var createTableT1 = "create or replace table t1 (c1 number);";
@@ -44,75 +43,58 @@ describe('system$get_objects()', function ()
   var connTestaccount = snowflake.createConnection(connOptions.valid);
   var connSnowflake = snowflake.createConnection(connOptions.snowflakeAccount);
 
-  before(function (done)
-  {
+  before(function (done) {
     // set up the two connections and create a bunch of objects in testaccount;
     // we'll run queries on these objects from testaccount, get the query id's
     // and verify that executing system$get_objects('execute [query_id];') from
     // the snowflake account produces the desired output
     async.series([
-      function (callback)
-      {
+      function (callback) {
         testUtil.connect(connTestaccount, callback);
       },
-      function (callback)
-      {
+      function (callback) {
         testUtil.executeCmd(connTestaccount, createDatabase, callback);
       },
-      function (callback)
-      {
+      function (callback) {
         testUtil.executeCmd(connTestaccount, createSchema, callback);
       },
-      function (callback)
-      {
+      function (callback) {
         testUtil.executeCmd(connTestaccount, createTableT1, callback);
       },
-      function (callback)
-      {
+      function (callback) {
         testUtil.executeCmd(connTestaccount, createTableT2, callback);
       },
-      function (callback)
-      {
+      function (callback) {
         testUtil.executeCmd(connTestaccount, createViewV1, callback);
       },
-      function (callback)
-      {
+      function (callback) {
         testUtil.executeCmd(connTestaccount, createViewV2, callback);
       },
-      function (callback)
-      {
+      function (callback) {
         testUtil.executeCmd(connTestaccount, createViewV3, callback);
       },
-      function (callback)
-      {
+      function (callback) {
         testUtil.executeCmd(connTestaccount, createViewV4, callback);
       },
-      function (callback)
-      {
+      function (callback) {
         testUtil.executeCmd(connTestaccount, createStage, callback);
       },
-      function (callback)
-      {
+      function (callback) {
         testUtil.executeCmd(connTestaccount, createFileFormat, callback);
       },
-      function (callback)
-      {
+      function (callback) {
         testUtil.executeCmd(connTestaccount, createSequence, callback);
       },
-      function (callback)
-      {
+      function (callback) {
         testUtil.executeCmd(connTestaccount, createSqlUdfAdd1Number, callback);
       },
-      function (callback)
-      {
+      function (callback) {
         testUtil.executeCmd(connTestaccount, createSqlUdfAdd1String, callback);
       },
-      function (callback)
-      {
+      function (callback) {
         testUtil.executeCmd(connTestaccount, createJsUdfAdd1Double, callback);
       },
-      function (callback)
-      {
+      function (callback) {
         testUtil.connect(connSnowflake, callback);
       }],
     done
@@ -120,27 +102,22 @@ describe('system$get_objects()', function ()
   });
 
   // clean up
-  after(function (done)
-  {
+  after(function (done) {
     async.series([
-      function (callback)
-      {
+      function (callback) {
         testUtil.executeCmd(connTestaccount, dropDatabase, callback);
       },
-      function (callback)
-      {
+      function (callback) {
         testUtil.destroyConnection(connTestaccount, callback);
       },
-      function (callback)
-      {
+      function (callback) {
         testUtil.destroyConnection(connSnowflake, callback);
       }],
     done
     );
   });
 
-  it('desc database', function (done)
-  {
+  it('desc database', function (done) {
     testGetObjectsOnStmt(
       {
         connTestaccount: connTestaccount,
@@ -156,8 +133,7 @@ describe('system$get_objects()', function ()
       });
   });
 
-  it('desc schema', function (done)
-  {
+  it('desc schema', function (done) {
     testGetObjectsOnStmt(
       {
         connTestaccount: connTestaccount,
@@ -173,8 +149,7 @@ describe('system$get_objects()', function ()
       });
   });
 
-  it('desc table', function (done)
-  {
+  it('desc table', function (done) {
     testGetObjectsOnStmt(
       {
         connTestaccount: connTestaccount,
@@ -190,8 +165,7 @@ describe('system$get_objects()', function ()
       });
   });
 
-  it('desc view', function (done)
-  {
+  it('desc view', function (done) {
     testGetObjectsOnStmt(
       {
         connTestaccount: connTestaccount,
@@ -207,8 +181,7 @@ describe('system$get_objects()', function ()
       });
   });
 
-  it('desc stage', function (done)
-  {
+  it('desc stage', function (done) {
     testGetObjectsOnStmt(
       {
         connTestaccount: connTestaccount,
@@ -224,8 +197,7 @@ describe('system$get_objects()', function ()
       });
   });
 
-  it('desc file format', function (done)
-  {
+  it('desc file format', function (done) {
     testGetObjectsOnStmt(
       {
         connTestaccount: connTestaccount,
@@ -241,8 +213,7 @@ describe('system$get_objects()', function ()
       });
   });
 
-  it('desc sequence', function (done)
-  {
+  it('desc sequence', function (done) {
     testGetObjectsOnStmt(
       {
         connTestaccount: connTestaccount,
@@ -258,8 +229,7 @@ describe('system$get_objects()', function ()
       });
   });
 
-  it('desc function add1(number)', function (done)
-  {
+  it('desc function add1(number)', function (done) {
     testGetObjectsOnStmt(
       {
         connTestaccount: connTestaccount,
@@ -275,8 +245,7 @@ describe('system$get_objects()', function ()
       });
   });
 
-  it('desc function add1(string)', function (done)
-  {
+  it('desc function add1(string)', function (done) {
     testGetObjectsOnStmt(
       {
         connTestaccount: connTestaccount,
@@ -292,8 +261,7 @@ describe('system$get_objects()', function ()
       });
   });
 
-  it('desc function add1(double)', function (done)
-  {
+  it('desc function add1(double)', function (done) {
     testGetObjectsOnStmt(
       {
         connTestaccount: connTestaccount,
@@ -309,8 +277,7 @@ describe('system$get_objects()', function ()
       });
   });
 
-  it('select from table', function (done)
-  {
+  it('select from table', function (done) {
     testGetObjectsOnStmt(
       {
         connTestaccount: connTestaccount,
@@ -326,8 +293,7 @@ describe('system$get_objects()', function ()
       });
   });
 
-  it('select from view on top of table', function (done)
-  {
+  it('select from view on top of table', function (done) {
     testGetObjectsOnStmt(
       {
         connTestaccount: connTestaccount,
@@ -346,8 +312,7 @@ describe('system$get_objects()', function ()
       });
   });
 
-  it('select from view on top of view', function (done)
-  {
+  it('select from view on top of view', function (done) {
     testGetObjectsOnStmt(
       {
         connTestaccount: connTestaccount,
@@ -369,8 +334,7 @@ describe('system$get_objects()', function ()
       });
   });
 
-  it('select from view on top of view on top of view', function (done)
-  {
+  it('select from view on top of view on top of view', function (done) {
     testGetObjectsOnStmt(
       {
         connTestaccount: connTestaccount,
@@ -393,8 +357,7 @@ describe('system$get_objects()', function ()
       });
   });
 
-  it('select from tables and views', function (done)
-  {
+  it('select from tables and views', function (done) {
     testGetObjectsOnStmt(
       {
         connTestaccount: connTestaccount,
@@ -423,8 +386,7 @@ describe('system$get_objects()', function ()
  *
  * @param {Object} options
  */
-function testGetObjectsOnStmt(options)
-{
+function testGetObjectsOnStmt(options) {
   var connTestaccount = options.connTestaccount;
   var connSnowflake = options.connSnowflake;
   var sql = options.sql;
@@ -440,29 +402,25 @@ function testGetObjectsOnStmt(options)
    *
    * @returns {String}
    */
-  function buildSqlSystem$GetObjects(queryId)
-  {
+  function buildSqlSystem$GetObjects(queryId) {
     return util.format('select system$get_objects(%s)',
       util.format("'execute \\'%s\\';'", queryId));
   }
 
   async.series([
-    function (callback)
-    {
+    function (callback) {
       // execute a statement and get its query id
       connTestaccount.execute(
         {
           sqlText: sql,
-          complete: function (err, statement, rows)
-          {
+          complete: function (err, statement, rows) {
             assert.ok(!err);
             queryId = statement.getQueryId();
             callback();
           }
         });
     },
-    function (callback)
-    {
+    function (callback) {
       // run system$get_objects('execute [query_id];') from the snowflake
       // account and verify that we get the desired output
       var columnName = "map";
@@ -471,8 +429,7 @@ function testGetObjectsOnStmt(options)
       connSnowflake.execute(
         {
           sqlText: sqlText,
-          complete: function (err, statement, rows)
-          {
+          complete: function (err, statement, rows) {
             assert.ok(!err);
             assert.ok(rows && (rows.length === 1));
             assert.deepStrictEqual(JSON.parse(rows[0][columnName]), output);

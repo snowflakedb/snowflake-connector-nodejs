@@ -4,18 +4,15 @@
 var async = require('async');
 var testUtil = require('./testUtil');
 
-describe('Test Cancel Query', function ()
-{
+describe('Test Cancel Query', function () {
   var connection;
   var longQuery = 'select count(*) from table(generator(timeLimit => 3600))';
 
-  before(function (done)
-  {
+  before(function (done) {
     connection = testUtil.createConnection();
     async.series(
       [
-        function (callback)
-        {
+        function (callback) {
           testUtil.connect(connection, callback);
         }
       ],
@@ -23,12 +20,10 @@ describe('Test Cancel Query', function ()
     );
   });
 
-  after(function (done)
-  {
+  after(function (done) {
     async.series(
       [
-        function (callback)
-        {
+        function (callback) {
           testUtil.destroyConnection(connection, callback);
         }
       ],
@@ -37,16 +32,13 @@ describe('Test Cancel Query', function ()
   });
 
 
-  it('testCancelQuerySimple', function (done)
-  {
+  it('testCancelQuerySimple', function (done) {
     var statement = connection.execute({
       sqlText: longQuery
     });
 
-    setTimeout(function ()
-    {
-      statement.cancel(function (err)
-      {
+    setTimeout(function () {
+      statement.cancel(function (err) {
         testUtil.checkError(err);
         done();
       });

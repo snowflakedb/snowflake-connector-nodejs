@@ -348,7 +348,7 @@ describe('Execute test - variant', function () {
       testCase.assertionCheck(row);
     };
 
-    testCases.forEach(testCase=> it(testCase.name, createItCallback(testCase, rowAsserts)));
+    testCases.forEach(testCase => it(testCase.name, createItCallback(testCase, rowAsserts)));
   });
 
   describe( 'Variant JSON', function () {

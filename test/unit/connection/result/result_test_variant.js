@@ -5,13 +5,11 @@
 var assert = require('assert');
 var ResultTestCommon = require('./result_test_common');
 
-describe('Result: test variant', function ()
-{
+describe('Result: test variant', function () {
   it("select to_variant((parse_json('{ a : 1 }'))) as C1, " +
     "to_object(parse_json('{ a : 1 }')) as C2, " +
     "to_array(parse_json('[1, 2]')) as C3;",
-  function (done)
-  {
+  function (done) {
     var response =
         {
           "data": {
@@ -56,8 +54,7 @@ describe('Result: test variant', function ()
 
     ResultTestCommon.testResult(
       ResultTestCommon.createResultOptions(response),
-      function (row)
-      {
+      function (row) {
         // variant
         assert.deepEqual(row.getColumnValue('C1'), {a: 1});
         assert.equal(
@@ -73,8 +70,7 @@ describe('Result: test variant', function ()
         assert.equal(
           row.getColumnValueAsString('C3'), JSON.stringify([1, 2]));
       },
-      function (result)
-      {
+      function (result) {
         done();
       }
     );

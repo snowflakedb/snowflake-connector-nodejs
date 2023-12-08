@@ -6,7 +6,7 @@ const GlobalConfig = require('./../../lib/global_config');
 const snowflake = require('./../../lib/snowflake');
 var testUtil = require('./testUtil');
 const sharedStatement = require('./sharedStatements');
-var bigInt = require("big-integer");
+var bigInt = require('big-integer');
 
 describe('Test DataType', function () {
   var connection;
@@ -113,7 +113,7 @@ describe('Test DataType', function () {
           testUtil.executeQueryAndVerify(
             connection,
             selectDouble,
-            [{'COLA': 123.456}],
+            [{ 'COLA': 123.456 }],
             callback
           );
         }],
@@ -133,7 +133,7 @@ describe('Test DataType', function () {
           testUtil.executeQueryAndVerify(
             connection,
             selectNumber,
-            [{'COLA': 12345678901234567890123456789012345678}],
+            [{ 'COLA': 12345678901234567890123456789012345678 }],
             callback
           );
         }],
@@ -150,13 +150,13 @@ describe('Test DataType', function () {
           testUtil.executeCmd(connection, insertLargeNumber, callback);
         },
         function (callback) {
-          testUtil.executeCmd(connection, "alter session set JS_TREAT_INTEGER_AS_BIGINT=true", callback);
+          testUtil.executeCmd(connection, 'alter session set JS_TREAT_INTEGER_AS_BIGINT=true', callback);
         },
         function (callback) {
           testUtil.executeQueryAndVerify(
             connection,
             selectNumber,
-            [{'COLA': bigInt("12345678901234567890123456789012345678")}], // pragma: allowlist secret
+            [{ 'COLA': bigInt('12345678901234567890123456789012345678') }], // pragma: allowlist secret
             callback,
             null,
             false
@@ -178,7 +178,7 @@ describe('Test DataType', function () {
           testUtil.executeQueryAndVerify(
             connection,
             selectNumber,
-            [{'COLA': 100000001}],
+            [{ 'COLA': 100000001 }],
             callback
           );
         }],
@@ -297,7 +297,7 @@ describe('Test DataType', function () {
             testUtil.executeQueryAndVerify(
               connection,
               selectArray,
-              [{'COLA': ['a', 1]}],
+              [{ 'COLA': ['a', 1] }],
               callback,
               null,
               true,
@@ -323,7 +323,7 @@ describe('Test DataType', function () {
             testUtil.executeQueryAndVerify(
               connection,
               selectDate,
-              [{'COLA': '2012-11-11'}],
+              [{ 'COLA': '2012-11-11' }],
               callback
             );
           }],
@@ -344,7 +344,7 @@ describe('Test DataType', function () {
             testUtil.executeQueryAndVerify(
               connection,
               selectTime,
-              [{'COLA': '12:34:56'}],
+              [{ 'COLA': '12:34:56' }],
               callback
             );
           }],
@@ -422,7 +422,7 @@ describe('Test DataType', function () {
             testUtil.executeQueryAndVerify(
               connection,
               selectString,
-              [{'COLA': 'string with space'}],
+              [{ 'COLA': 'string with space' }],
               callback
             );
           }],

@@ -16,27 +16,27 @@ var connOptions = require('../test/integration/connectionOptions');
 var testUtil = require('../test/integration/testUtil');
 
 describe('system$get_objects()', function () {
-  var createDatabase = "create or replace database node_testdb;";
-  var createSchema = "create or replace schema node_testschema;";
-  var createTableT1 = "create or replace table t1 (c1 number);";
-  var createTableT2 = "create or replace table t2 (c1 number);";
-  var createViewV1 = "create or replace view v1 as select * from t1;";
-  var createViewV2 = "create or replace view v2 as select * from t2;";
-  var createViewV3 = "create or replace view v3 as select v1.c1 from v1, v2;";
-  var createViewV4 = "create or replace view v4 as select * from v3;";
-  var createStage = "create or replace stage test_stage " +
-    "url = 's3://some_url';";
-  var createFileFormat = "create or replace file format " +
-    "test_file_format type = 'csv';";
-  var createSequence = "create or replace sequence test_sequence;";
-  var createSqlUdfAdd1Number = "create or replace function add1 (n number) " +
-    "returns number as 'n + 1';";
-  var createSqlUdfAdd1String = "create or replace function add1 (s string) " +
-    "returns string as 's || ''1''';";
-  var createJsUdfAdd1Double = "create or replace function add1 (n double) " +
-    "returns double language javascript as " +
-    "'return n + 1;';";
-  var dropDatabase = "drop database node_testdb;";
+  var createDatabase = 'create or replace database node_testdb;';
+  var createSchema = 'create or replace schema node_testschema;';
+  var createTableT1 = 'create or replace table t1 (c1 number);';
+  var createTableT2 = 'create or replace table t2 (c1 number);';
+  var createViewV1 = 'create or replace view v1 as select * from t1;';
+  var createViewV2 = 'create or replace view v2 as select * from t2;';
+  var createViewV3 = 'create or replace view v3 as select v1.c1 from v1, v2;';
+  var createViewV4 = 'create or replace view v4 as select * from v3;';
+  var createStage = 'create or replace stage test_stage ' +
+    'url = \'s3://some_url\';';
+  var createFileFormat = 'create or replace file format ' +
+    'test_file_format type = \'csv\';';
+  var createSequence = 'create or replace sequence test_sequence;';
+  var createSqlUdfAdd1Number = 'create or replace function add1 (n number) ' +
+    'returns number as \'n + 1\';';
+  var createSqlUdfAdd1String = 'create or replace function add1 (s string) ' +
+    'returns string as \'s || \'\'1\'\'\';';
+  var createJsUdfAdd1Double = 'create or replace function add1 (n double) ' +
+    'returns double language javascript as ' +
+    '\'return n + 1;\';';
+  var dropDatabase = 'drop database node_testdb;';
 
   // create two connections, one to testaccount and another to the snowflake
   // account
@@ -125,8 +125,8 @@ describe('system$get_objects()', function () {
         sql: 'desc database node_testdb;',
         output:
           {
-            "DATABASE": [
-              "S3TESTACCOUNT.NODE_TESTDB"
+            'DATABASE': [
+              'S3TESTACCOUNT.NODE_TESTDB'
             ]
           },
         callback: done
@@ -141,8 +141,8 @@ describe('system$get_objects()', function () {
         sql: 'desc schema node_testschema;',
         output:
           {
-            "SCHEMA": [
-              "S3TESTACCOUNT.NODE_TESTDB.NODE_TESTSCHEMA"
+            'SCHEMA': [
+              'S3TESTACCOUNT.NODE_TESTDB.NODE_TESTSCHEMA'
             ]
           },
         callback: done
@@ -157,8 +157,8 @@ describe('system$get_objects()', function () {
         sql: 'desc table t1;',
         output:
           {
-            "TABLE": [
-              "S3TESTACCOUNT.NODE_TESTDB.NODE_TESTSCHEMA.T1"
+            'TABLE': [
+              'S3TESTACCOUNT.NODE_TESTDB.NODE_TESTSCHEMA.T1'
             ]
           },
         callback: done
@@ -173,8 +173,8 @@ describe('system$get_objects()', function () {
         sql: 'desc view v1;',
         output:
           {
-            "VIEW": [
-              "S3TESTACCOUNT.NODE_TESTDB.NODE_TESTSCHEMA.V1"
+            'VIEW': [
+              'S3TESTACCOUNT.NODE_TESTDB.NODE_TESTSCHEMA.V1'
             ]
           },
         callback: done
@@ -189,8 +189,8 @@ describe('system$get_objects()', function () {
         sql: 'desc stage test_stage;',
         output:
           {
-            "STAGE": [
-              "S3TESTACCOUNT.NODE_TESTDB.NODE_TESTSCHEMA.TEST_STAGE"
+            'STAGE': [
+              'S3TESTACCOUNT.NODE_TESTDB.NODE_TESTSCHEMA.TEST_STAGE'
             ]
           },
         callback: done
@@ -205,8 +205,8 @@ describe('system$get_objects()', function () {
         sql: 'desc file format test_file_format;',
         output:
           {
-            "FILE_FORMAT": [
-              "S3TESTACCOUNT.NODE_TESTDB.NODE_TESTSCHEMA.TEST_FILE_FORMAT"
+            'FILE_FORMAT': [
+              'S3TESTACCOUNT.NODE_TESTDB.NODE_TESTSCHEMA.TEST_FILE_FORMAT'
             ]
           },
         callback: done
@@ -221,8 +221,8 @@ describe('system$get_objects()', function () {
         sql: 'desc sequence test_sequence;',
         output:
           {
-            "SEQUENCE": [
-              "S3TESTACCOUNT.NODE_TESTDB.NODE_TESTSCHEMA.TEST_SEQUENCE"
+            'SEQUENCE': [
+              'S3TESTACCOUNT.NODE_TESTDB.NODE_TESTSCHEMA.TEST_SEQUENCE'
             ]
           },
         callback: done
@@ -237,8 +237,8 @@ describe('system$get_objects()', function () {
         sql: 'desc function add1(number);',
         output:
           {
-            "FUNCTION": [
-              "S3TESTACCOUNT.NODE_TESTDB.NODE_TESTSCHEMA.ADD1"
+            'FUNCTION': [
+              'S3TESTACCOUNT.NODE_TESTDB.NODE_TESTSCHEMA.ADD1'
             ]
           },
         callback: done
@@ -253,8 +253,8 @@ describe('system$get_objects()', function () {
         sql: 'desc function add1(string);',
         output:
           {
-            "FUNCTION": [
-              "S3TESTACCOUNT.NODE_TESTDB.NODE_TESTSCHEMA.ADD1"
+            'FUNCTION': [
+              'S3TESTACCOUNT.NODE_TESTDB.NODE_TESTSCHEMA.ADD1'
             ]
           },
         callback: done
@@ -269,8 +269,8 @@ describe('system$get_objects()', function () {
         sql: 'desc function add1(double);',
         output:
           {
-            "FUNCTION": [
-              "S3TESTACCOUNT.NODE_TESTDB.NODE_TESTSCHEMA.ADD1"
+            'FUNCTION': [
+              'S3TESTACCOUNT.NODE_TESTDB.NODE_TESTSCHEMA.ADD1'
             ]
           },
         callback: done
@@ -285,8 +285,8 @@ describe('system$get_objects()', function () {
         sql: 'select count(*) from t1;',
         output:
           {
-            "TABLE": [
-              "S3TESTACCOUNT.NODE_TESTDB.NODE_TESTSCHEMA.T1"
+            'TABLE': [
+              'S3TESTACCOUNT.NODE_TESTDB.NODE_TESTSCHEMA.T1'
             ]
           },
         callback: done
@@ -301,11 +301,11 @@ describe('system$get_objects()', function () {
         sql: 'select count(*) from v1;',
         output:
           {
-            "TABLE": [
-              "S3TESTACCOUNT.NODE_TESTDB.NODE_TESTSCHEMA.T1"
+            'TABLE': [
+              'S3TESTACCOUNT.NODE_TESTDB.NODE_TESTSCHEMA.T1'
             ],
-            "VIEW": [
-              "S3TESTACCOUNT.NODE_TESTDB.NODE_TESTSCHEMA.V1"
+            'VIEW': [
+              'S3TESTACCOUNT.NODE_TESTDB.NODE_TESTSCHEMA.V1'
             ]
           },
         callback: done
@@ -320,14 +320,14 @@ describe('system$get_objects()', function () {
         sql: 'select count(*) from v3;',
         output:
           {
-            "TABLE": [
-              "S3TESTACCOUNT.NODE_TESTDB.NODE_TESTSCHEMA.T1",
-              "S3TESTACCOUNT.NODE_TESTDB.NODE_TESTSCHEMA.T2"
+            'TABLE': [
+              'S3TESTACCOUNT.NODE_TESTDB.NODE_TESTSCHEMA.T1',
+              'S3TESTACCOUNT.NODE_TESTDB.NODE_TESTSCHEMA.T2'
             ],
-            "VIEW": [
-              "S3TESTACCOUNT.NODE_TESTDB.NODE_TESTSCHEMA.V2",
-              "S3TESTACCOUNT.NODE_TESTDB.NODE_TESTSCHEMA.V3",
-              "S3TESTACCOUNT.NODE_TESTDB.NODE_TESTSCHEMA.V1"
+            'VIEW': [
+              'S3TESTACCOUNT.NODE_TESTDB.NODE_TESTSCHEMA.V2',
+              'S3TESTACCOUNT.NODE_TESTDB.NODE_TESTSCHEMA.V3',
+              'S3TESTACCOUNT.NODE_TESTDB.NODE_TESTSCHEMA.V1'
             ]
           },
         callback: done
@@ -342,15 +342,15 @@ describe('system$get_objects()', function () {
         sql: 'select count(*) from v4;',
         output:
           {
-            "TABLE": [
-              "S3TESTACCOUNT.NODE_TESTDB.NODE_TESTSCHEMA.T1",
-              "S3TESTACCOUNT.NODE_TESTDB.NODE_TESTSCHEMA.T2"
+            'TABLE': [
+              'S3TESTACCOUNT.NODE_TESTDB.NODE_TESTSCHEMA.T1',
+              'S3TESTACCOUNT.NODE_TESTDB.NODE_TESTSCHEMA.T2'
             ],
-            "VIEW": [
-              "S3TESTACCOUNT.NODE_TESTDB.NODE_TESTSCHEMA.V2",
-              "S3TESTACCOUNT.NODE_TESTDB.NODE_TESTSCHEMA.V3",
-              "S3TESTACCOUNT.NODE_TESTDB.NODE_TESTSCHEMA.V1",
-              "S3TESTACCOUNT.NODE_TESTDB.NODE_TESTSCHEMA.V4"
+            'VIEW': [
+              'S3TESTACCOUNT.NODE_TESTDB.NODE_TESTSCHEMA.V2',
+              'S3TESTACCOUNT.NODE_TESTDB.NODE_TESTSCHEMA.V3',
+              'S3TESTACCOUNT.NODE_TESTDB.NODE_TESTSCHEMA.V1',
+              'S3TESTACCOUNT.NODE_TESTDB.NODE_TESTSCHEMA.V4'
             ]
           },
         callback: done
@@ -365,13 +365,13 @@ describe('system$get_objects()', function () {
         sql: 'select t1.c1 from t1, t2, v1, v2 where t1.c1 = t2.c1;',
         output:
           {
-            "TABLE": [
-              "S3TESTACCOUNT.NODE_TESTDB.NODE_TESTSCHEMA.T1",
-              "S3TESTACCOUNT.NODE_TESTDB.NODE_TESTSCHEMA.T2"
+            'TABLE': [
+              'S3TESTACCOUNT.NODE_TESTDB.NODE_TESTSCHEMA.T1',
+              'S3TESTACCOUNT.NODE_TESTDB.NODE_TESTSCHEMA.T2'
             ],
-            "VIEW": [
-              "S3TESTACCOUNT.NODE_TESTDB.NODE_TESTSCHEMA.V2",
-              "S3TESTACCOUNT.NODE_TESTDB.NODE_TESTSCHEMA.V1"
+            'VIEW': [
+              'S3TESTACCOUNT.NODE_TESTDB.NODE_TESTSCHEMA.V2',
+              'S3TESTACCOUNT.NODE_TESTDB.NODE_TESTSCHEMA.V1'
             ]
           },
         callback: done
@@ -404,7 +404,7 @@ function testGetObjectsOnStmt(options) {
    */
   function buildSqlSystem$GetObjects(queryId) {
     return util.format('select system$get_objects(%s)',
-      util.format("'execute \\'%s\\';'", queryId));
+      util.format('\'execute \\\'%s\\\';\'', queryId));
   }
 
   async.series([
@@ -423,7 +423,7 @@ function testGetObjectsOnStmt(options) {
     function (callback) {
       // run system$get_objects('execute [query_id];') from the snowflake
       // account and verify that we get the desired output
-      var columnName = "map";
+      var columnName = 'map';
       var sqlText = util.format('%s as "%s";',
         buildSqlSystem$GetObjects(queryId), columnName);
       connSnowflake.execute(

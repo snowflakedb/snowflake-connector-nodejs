@@ -5,7 +5,7 @@ const assert = require('assert');
 const async = require('async');
 const testUtil = require('./testUtil');
 const { configureLogger } = require('../configureLogger');
-const {randomizeName} = require('./testUtil');
+const { randomizeName } = require('./testUtil');
 
 describe('Large result Set Tests', function () {
   const sourceRowCount = 10000;
@@ -117,34 +117,34 @@ describe('Large result Set Tests', function () {
       const arrJSON = [];
       for (let i = 0; i < sourceRowCount; i++) {
         const sampleJSON = {
-          "root":
+          'root':
           {
-            "key":
+            'key':
               [
                 {
-                  "key1": i,
-                  "key2": "value2",
-                  "key3": "value3",
-                  "key4": "value4",
-                  "key5":
+                  'key1': i,
+                  'key2': 'value2',
+                  'key3': 'value3',
+                  'key4': 'value4',
+                  'key5':
                   {
-                    "key":
+                    'key':
                       [
-                        { "key1": "value1", "key2": "value2" },
-                        { "key1": "value1", "key2": "value2" },
-                        { "key1": "value1", "key2": "value2" },
-                        { "key1": "value1", "key2": "value2" }
+                        { 'key1': 'value1', 'key2': 'value2' },
+                        { 'key1': 'value1', 'key2': 'value2' },
+                        { 'key1': 'value1', 'key2': 'value2' },
+                        { 'key1': 'value1', 'key2': 'value2' }
                       ]
                   },
-                  "key6":
+                  'key6':
                     [
-                      { "key1": "value1", "key": "value" },
-                      { "key1": "value1", "key": "value" },
-                      { "key1": "value1", "key": "value" },
-                      { "key1": "value1", "key": "value" },
-                      { "key1": "value1", "key": "value" },
-                      { "key1": "value1", "key": "value" },
-                      { "key1": "value1", "key": "value" }
+                      { 'key1': 'value1', 'key': 'value' },
+                      { 'key1': 'value1', 'key': 'value' },
+                      { 'key1': 'value1', 'key': 'value' },
+                      { 'key1': 'value1', 'key': 'value' },
+                      { 'key1': 'value1', 'key': 'value' },
+                      { 'key1': 'value1', 'key': 'value' },
+                      { 'key1': 'value1', 'key': 'value' }
                     ]
                 },
               ]

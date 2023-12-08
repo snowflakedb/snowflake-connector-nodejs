@@ -17,13 +17,13 @@ var testUtil = require('../test/integration/testUtil');
 
 describe('exclude support warehouses', function () {
   var createSysWh =
-    "create or replace warehouse syswh warehouse_size = 'xsmall'";
-  var dropSysWh = "drop warehouse syswh";
+    'create or replace warehouse syswh warehouse_size = \'xsmall\'';
+  var dropSysWh = 'drop warehouse syswh';
 
   var testWhName = 'SF_TEST_WH';
 
-  var createTestWh = util.format("create or replace warehouse %s " +
-    "warehouse_size = 'xsmall'", testWhName);
+  var createTestWh = util.format('create or replace warehouse %s ' +
+    'warehouse_size = \'xsmall\'', testWhName);
   var dropTestWh = util.format('drop warehouse %s', testWhName);
 
   // create two connections, one to externalaccount and another to the snowflake
@@ -138,7 +138,7 @@ describe('exclude support warehouses', function () {
    */
   function getWarehouseId(conn, accountName, warehouseName, callback) {
     var sqlText = util.format(
-      "show warehouses like '%s' in %s", warehouseName, accountName);
+      'show warehouses like \'%s\' in %s', warehouseName, accountName);
 
     conn.execute(
       {

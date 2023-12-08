@@ -927,7 +927,7 @@ describe('ConnectionConfig: basic', function () {
           username: 'username',
           password: 'password',
           account: 'account',
-          application: "test123"
+          application: 'test123'
         },
         options:
         {

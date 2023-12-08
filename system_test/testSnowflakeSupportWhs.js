@@ -29,20 +29,20 @@ describe('exclude support warehouses', function () {
   // number of credits we charge per hour for a standard xsmall warehouse
   var standardXsmallCredits = 1;
 
-  var createSupportWh = util.format("create or replace warehouse %s " +
-    "warehouse_size = 'xsmall'", supportWhName);
+  var createSupportWh = util.format('create or replace warehouse %s ' +
+    'warehouse_size = \'xsmall\'', supportWhName);
   var dropSupportWh = util.format('drop warehouse %s', supportWhName);
 
-  var createTestDb = "create or replace database node_testdb";
-  var dropTestDb = "drop database node_testdb";
+  var createTestDb = 'create or replace database node_testdb';
+  var dropTestDb = 'drop database node_testdb';
 
-  var setServerTypeStandard = "alter account externalaccount set " +
-    "server_type = 'STANDARD'";
+  var setServerTypeStandard = 'alter account externalaccount set ' +
+    'server_type = \'STANDARD\'';
 
-  var enableJobScanFns = "alter account externalaccount set " +
-    "enable_jobscan_functions = true";
-  var unsetJobScanFns = "alter account externalaccount set " +
-    "enable_jobscan_functions = default";
+  var enableJobScanFns = 'alter account externalaccount set ' +
+    'enable_jobscan_functions = true';
+  var unsetJobScanFns = 'alter account externalaccount set ' +
+    'enable_jobscan_functions = default';
 
   var now = new Date();
 
@@ -61,22 +61,22 @@ describe('exclude support warehouses', function () {
 
   // warehouse exclusion can be enabled by setting the exclude start date to a
   // year ago
-  var enableWhExclusion = util.format("alter system set " +
-    "EXCLUDE_SUPPORT_WHS_START_DATE = '%s'", todayLastYearAsString);
+  var enableWhExclusion = util.format('alter system set ' +
+    'EXCLUDE_SUPPORT_WHS_START_DATE = \'%s\'', todayLastYearAsString);
 
   // warehouse exclusion can be disabled by setting the exclude start date to a
   // year from now
-  var disableWhExclusion = util.format("alter system set " +
-    "EXCLUDE_SUPPORT_WHS_START_DATE = '%s'", todayNextYearAsString);
+  var disableWhExclusion = util.format('alter system set ' +
+    'EXCLUDE_SUPPORT_WHS_START_DATE = \'%s\'', todayNextYearAsString);
 
   var unsetWhExclusion =
-    "alter system set EXCLUDE_SUPPORT_WHS_START_DATE = default";
+    'alter system set EXCLUDE_SUPPORT_WHS_START_DATE = default';
 
   var enableSupportWhFlag = util.format(
-    "alter warehouse externalaccount.%s set snowflake_support = true",
+    'alter warehouse externalaccount.%s set snowflake_support = true',
     supportWhName);
   var disableSupportWhFlag = util.format(
-    "alter warehouse externalaccount.%s set snowflake_support = false",
+    'alter warehouse externalaccount.%s set snowflake_support = false',
     supportWhName);
 
   // create two connections, one to externalaccount and another to the snowflake
@@ -101,7 +101,7 @@ describe('exclude support warehouses', function () {
         // get the original server_type for externalaccount
         connSnowflake.execute(
           {
-            sqlText: "show accounts like 'externalaccount'",
+            sqlText: 'show accounts like \'externalaccount\'',
             complete: function (err, statement, rows) {
               assert.ok(!err);
               assert.ok(util.isArray(rows) && (rows.length === 1));
@@ -146,7 +146,7 @@ describe('exclude support warehouses', function () {
       function (callback) {
         // change the server_type in externalaccount back to its original value
         var sqlText = util.format(
-          "alter account externalaccount set server_type = '%s'",
+          'alter account externalaccount set server_type = \'%s\'',
           externalAccServerTypeOrig);
         testUtil.executeCmd(connSnowflake, sqlText, callback);
       },
@@ -372,9 +372,9 @@ describe('exclude support warehouses', function () {
   function assertCreditsFromExternalAcc(conn, expected, cb) {
     var columnName = 'CREDITS';
     var sqlText =
-      util.format("select warehouse_name, sum(credits_used) as %s " +
-        "from table(information_schema.warehouse_metering_history(" +
-        "%s::timestamp, %s::timestamp, '%s')) " +
+      util.format('select warehouse_name, sum(credits_used) as %s ' +
+        'from table(information_schema.warehouse_metering_history(' +
+        '%s::timestamp, %s::timestamp, \'%s\')) ' +
         'group by warehouse_name',
       columnName, startTime, endTime, supportWhName);
 
@@ -407,9 +407,9 @@ describe('exclude support warehouses', function () {
    */
   function assertCreditsFromSnowflakeAcc(conn, exclude, expected, cb) {
     var columnName = 'CREDITS';
-    var sqlText = util.format("select system$get_metrics(" +
-      "'%s', '%s', '%s', '%s'::timestamp, '%s'::timestamp, " +
-      "null, null, '%s', %s) as %s;",
+    var sqlText = util.format('select system$get_metrics(' +
+      '\'%s\', \'%s\', \'%s\', \'%s\'::timestamp, \'%s\'::timestamp, ' +
+      'null, null, \'%s\', %s) as %s;',
     'ACCOUNT', 'EXTERNALACCOUNT', 'METERING',
     startTime, endTime, 'UTC', exclude, columnName);
 

@@ -87,7 +87,7 @@ describe('Statement Tests', function () {
             
         },
         function (callback) {
-          assert.ok(goodConnection.isUp(), "not active");
+          assert.ok(goodConnection.isUp(), 'not active');
           callback();
         },
         function (callback) {
@@ -146,7 +146,7 @@ describe('Statement Tests', function () {
           assert.strictEqual(statement.getQueryId(), undefined);
         },
         function (callback) {
-          assert.ok(badConnection.isUp(), "not active");
+          assert.ok(badConnection.isUp(), 'not active');
           callback();
         },
       ],
@@ -206,7 +206,7 @@ describe('Statement Tests', function () {
           assert.strictEqual(statement.getQueryId(), undefined);
         },
         function (callback) {
-          assert.ok(connection.isUp(), "not active");
+          assert.ok(connection.isUp(), 'not active');
           callback();
         },
         function (callback) {
@@ -249,7 +249,7 @@ describe('Call Statement', function () {
       [
         function (callback) {
           var statement = connection.execute({
-            sqlText: "ALTER SESSION SET USE_STATEMENT_TYPE_CALL_FOR_STORED_PROC_CALLS=true;",
+            sqlText: 'ALTER SESSION SET USE_STATEMENT_TYPE_CALL_FOR_STORED_PROC_CALLS=true;',
             complete: function (err, stmt, rows) {
               var stream = statement.streamRows();
               stream.on('error', function (err) {
@@ -258,7 +258,7 @@ describe('Call Statement', function () {
                 callback();
               });
               stream.on('data', function (row) {
-                assert.strictEqual(true, row.status.includes("success"));
+                assert.strictEqual(true, row.status.includes('success'));
                 callback();
               });
             }
@@ -266,20 +266,20 @@ describe('Call Statement', function () {
         },
         function (callback) {
           var statement = connection.execute({
-            sqlText: "create or replace procedure\n"
-              + "TEST_SP_CALL_STMT_ENABLED(in1 float, in2 variant)\n"
-              + "returns string language javascript as $$\n"
-              + "let res = snowflake.execute({sqlText: 'select ? c1, ? c2', binds:[IN1, JSON.stringify(IN2)]});\n"
-              + "res.next();\n"
-              + "return res.getColumnValueAsString(1) + ' ' + res.getColumnValueAsString(2) + ' ' + IN2;\n"
-              + "$$;",
+            sqlText: 'create or replace procedure\n'
+              + 'TEST_SP_CALL_STMT_ENABLED(in1 float, in2 variant)\n'
+              + 'returns string language javascript as $$\n'
+              + 'let res = snowflake.execute({sqlText: \'select ? c1, ? c2\', binds:[IN1, JSON.stringify(IN2)]});\n'
+              + 'res.next();\n'
+              + 'return res.getColumnValueAsString(1) + \' \' + res.getColumnValueAsString(2) + \' \' + IN2;\n'
+              + '$$;',
             complete: function (err, stmt, rows) {
               var stream = statement.streamRows();
               stream.on('error', function (err) {
                 done(err);
               });
               stream.on('data', function (row) {
-                assert.strictEqual(true, row.status.includes("success"));
+                assert.strictEqual(true, row.status.includes('success'));
               });
               stream.on('end', function (row) {
                 callback();
@@ -289,15 +289,15 @@ describe('Call Statement', function () {
         },
         function (callback) {
           var statement = connection.execute({
-            sqlText: "call TEST_SP_CALL_STMT_ENABLED(?, to_variant(?))",
-            binds: [1, "[2,3]"],
+            sqlText: 'call TEST_SP_CALL_STMT_ENABLED(?, to_variant(?))',
+            binds: [1, '[2,3]'],
             complete: function (err, stmt, rows) {
               var stream = statement.streamRows();
               stream.on('error', function (err) {
                 done(err);
               });
               stream.on('data', function (row) {
-                var result = "1 \"[2,3]\" [2,3]";
+                var result = '1 "[2,3]" [2,3]';
                 assert.strictEqual(result, row.TEST_SP_CALL_STMT_ENABLED);
               });
               stream.on('end', function (row) {
@@ -308,14 +308,14 @@ describe('Call Statement', function () {
         },
         function (callback) {
           var statement = connection.execute({
-            sqlText: "drop procedure if exists TEST_SP_CALL_STMT_ENABLED(float, variant)",
+            sqlText: 'drop procedure if exists TEST_SP_CALL_STMT_ENABLED(float, variant)',
             complete: function (err, stmt, rows) {
               var stream = statement.streamRows();
               stream.on('error', function (err) {
                 done(err);
               });
               stream.on('data', function (row) {
-                assert.strictEqual(true, row.status.includes("success"));
+                assert.strictEqual(true, row.status.includes('success'));
               });
               stream.on('end', function (row) {
                 callback();

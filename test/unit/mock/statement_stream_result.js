@@ -12,8 +12,8 @@ var snowflake = MockTestUtil.snowflake;
 var connOpts = MockTestUtil.connectionOptions.default;
 
 var connOptsStreamResultNone = Util.apply({}, connOpts);
-var connOptsStreamResultFalse = Util.apply({streamResult: false}, connOpts);
-var connOptsStreamResultTrue = Util.apply({streamResult: true}, connOpts);
+var connOptsStreamResultFalse = Util.apply({ streamResult: false }, connOpts);
+var connOptsStreamResultTrue = Util.apply({ streamResult: true }, connOpts);
 
 describe('Statement - stream result', function () {
   var testCases =

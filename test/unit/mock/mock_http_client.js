@@ -118,7 +118,7 @@ function buildRequestToOutputMap(mappings) {
     mapping = mappings[index];
     const k = serializeRequest(mapping.request);
     if (mapRequestToOutput[k]) {
-      Logger.getInstance().error("The mock already exists: %s", k);
+      Logger.getInstance().error('The mock already exists: %s', k);
     }
     mapRequestToOutput[k] = mapping.output;
   }
@@ -189,15 +189,15 @@ function buildRequestOutputMappings(clientInfo) {
             {
               'Accept': 'application/json',
               'Content-Type': 'application/json',
-              "CLIENT_APP_VERSION": clientInfo.version,
-              "CLIENT_APP_ID": "JavaScript",
+              'CLIENT_APP_VERSION': clientInfo.version,
+              'CLIENT_APP_ID': 'JavaScript',
             },
           json:
             {
               data:
                 {
                   ACCOUNT_NAME: 'fakeaccount',
-                  AUTHENTICATOR: "SNOWFLAKE",
+                  AUTHENTICATOR: 'SNOWFLAKE',
                   LOGIN_NAME: 'fakeusername',
                   PASSWORD: 'fakepassword',
                   CLIENT_APP_ID: 'JavaScript',
@@ -213,73 +213,73 @@ function buildRequestOutputMappings(clientInfo) {
           response:
             {
               statusCode: 200,
-              statusMessage: "OK",
+              statusMessage: 'OK',
               body:
                 {
-                  "code": null,
-                  "data":
+                  'code': null,
+                  'data':
                     {
-                      "displayUserName": "FAKEUSERNAME",
-                      "firstLogin": false,
-                      "healthCheckInterval": 45,
-                      "masterToken": "MASTER_TOKEN",
-                      "masterValidityInSeconds": 14400,
-                      "newClientForUpgrade": null,
-                      "remMeToken": "REMEM_TOKEN",
-                      "remMeValidityInSeconds": 14400,
-                      "serverVersion": "Dev",
-                      "sessionId": "51539800306",
-                      "token": "SESSION_TOKEN",
-                      "validityInSeconds": 3600,
-                      "parameters": [{
-                        "name": "TIMEZONE",
-                        "value": "America/Los_Angeles"
+                      'displayUserName': 'FAKEUSERNAME',
+                      'firstLogin': false,
+                      'healthCheckInterval': 45,
+                      'masterToken': 'MASTER_TOKEN',
+                      'masterValidityInSeconds': 14400,
+                      'newClientForUpgrade': null,
+                      'remMeToken': 'REMEM_TOKEN',
+                      'remMeValidityInSeconds': 14400,
+                      'serverVersion': 'Dev',
+                      'sessionId': '51539800306',
+                      'token': 'SESSION_TOKEN',
+                      'validityInSeconds': 3600,
+                      'parameters': [{
+                        'name': 'TIMEZONE',
+                        'value': 'America/Los_Angeles'
                       }, {
-                        "name": "TIMESTAMP_OUTPUT_FORMAT",
-                        "value": "DY, DD MON YYYY HH24:MI:SS TZHTZM"
+                        'name': 'TIMESTAMP_OUTPUT_FORMAT',
+                        'value': 'DY, DD MON YYYY HH24:MI:SS TZHTZM'
                       }, {
-                        "name": "TIMESTAMP_NTZ_OUTPUT_FORMAT",
-                        "value": ""
+                        'name': 'TIMESTAMP_NTZ_OUTPUT_FORMAT',
+                        'value': ''
                       }, {
-                        "name": "TIMESTAMP_LTZ_OUTPUT_FORMAT",
-                        "value": ""
+                        'name': 'TIMESTAMP_LTZ_OUTPUT_FORMAT',
+                        'value': ''
                       }, {
-                        "name": "TIMESTAMP_TZ_OUTPUT_FORMAT",
-                        "value": ""
+                        'name': 'TIMESTAMP_TZ_OUTPUT_FORMAT',
+                        'value': ''
                       }, {
-                        "name": "DATE_OUTPUT_FORMAT",
-                        "value": "YYYY-MM-DD"
+                        'name': 'DATE_OUTPUT_FORMAT',
+                        'value': 'YYYY-MM-DD'
                       }, {
-                        "name": "TIME_OUTPUT_FORMAT",
-                        "value": "HH24:MI:SS"
+                        'name': 'TIME_OUTPUT_FORMAT',
+                        'value': 'HH24:MI:SS'
                       }, {
-                        "name": "CLIENT_RESULT_PREFETCH_SLOTS",
-                        "value": 2
+                        'name': 'CLIENT_RESULT_PREFETCH_SLOTS',
+                        'value': 2
                       }, {
-                        "name": "CLIENT_RESULT_PREFETCH_THREADS",
-                        "value": 1
+                        'name': 'CLIENT_RESULT_PREFETCH_THREADS',
+                        'value': 1
                       }, {
-                        "name": "CLIENT_HONOR_CLIENT_TZ_FOR_TIMESTAMP_NTZ",
-                        "value": true
+                        'name': 'CLIENT_HONOR_CLIENT_TZ_FOR_TIMESTAMP_NTZ',
+                        'value': true
                       }, {
-                        "name": "CLIENT_USE_V1_QUERY_API",
-                        "value": true
+                        'name': 'CLIENT_USE_V1_QUERY_API',
+                        'value': true
                       }, {
-                        "name": "CLIENT_DISABLE_INCIDENTS",
-                        "value": true
+                        'name': 'CLIENT_DISABLE_INCIDENTS',
+                        'value': true
                       }, {
-                        "name": "CLIENT_SESSION_KEEP_ALIVE",
-                        "value": false
+                        'name': 'CLIENT_SESSION_KEEP_ALIVE',
+                        'value': false
                       }, {
-                        "name": "CLIENT_SESSION_KEEP_ALIVE_HEARTBEAT_FREQUENCY",
-                        "value": 3600
+                        'name': 'CLIENT_SESSION_KEEP_ALIVE_HEARTBEAT_FREQUENCY',
+                        'value': 3600
                       }, {
-                        "name": "JS_TREAT_INTEGER_AS_BIGINT",
-                        "value": false
+                        'name': 'JS_TREAT_INTEGER_AS_BIGINT',
+                        'value': false
                       }]
                     },
-                  "message": null,
-                  "success": true
+                  'message': null,
+                  'success': true
                 }
             }
         }
@@ -302,7 +302,7 @@ function buildRequestOutputMappings(clientInfo) {
           response:
             {
               statusCode: 200,
-              statusMessage: "OK",
+              statusMessage: 'OK',
               body:
                 {
                   code: null,
@@ -323,7 +323,7 @@ function buildRequestOutputMappings(clientInfo) {
               'Accept': 'application/json',
               'Authorization': 'Snowflake Token="SESSION_TOKEN"',
               'Content-Type': 'application/json',
-              "X-Snowflake-Service": "fakeservicename2"
+              'X-Snowflake-Service': 'fakeservicename2'
             }
         },
       output:
@@ -332,7 +332,7 @@ function buildRequestOutputMappings(clientInfo) {
           response:
             {
               statusCode: 200,
-              statusMessage: "OK",
+              statusMessage: 'OK',
               body:
                 {
                   code: null,
@@ -367,82 +367,82 @@ function buildRequestOutputMappings(clientInfo) {
           response:
             {
               statusCode: 200,
-              statusMessage: "OK",
+              statusMessage: 'OK',
               body:
                 {
-                  "data":
+                  'data':
                     {
-                      "parameters":
+                      'parameters':
                         [
                           {
-                            "name": "DATE_OUTPUT_FORMAT",
-                            "value": "YYYY-MM-DD"
+                            'name': 'DATE_OUTPUT_FORMAT',
+                            'value': 'YYYY-MM-DD'
                           },
                           {
-                            "name": "CLIENT_USE_V1_QUERY_API",
-                            "value": true
+                            'name': 'CLIENT_USE_V1_QUERY_API',
+                            'value': true
                           },
                           {
-                            "name": "TIMESTAMP_LTZ_OUTPUT_FORMAT",
-                            "value": ""
+                            'name': 'TIMESTAMP_LTZ_OUTPUT_FORMAT',
+                            'value': ''
                           },
                           {
-                            "name": "TIMESTAMP_NTZ_OUTPUT_FORMAT",
-                            "value": ""
+                            'name': 'TIMESTAMP_NTZ_OUTPUT_FORMAT',
+                            'value': ''
                           },
                           {
-                            "name": "CLIENT_RESULT_PREFETCH_THREADS",
-                            "value": 1
+                            'name': 'CLIENT_RESULT_PREFETCH_THREADS',
+                            'value': 1
                           },
                           {
-                            "name": "CLIENT_HONOR_CLIENT_TZ_FOR_TIMESTAMP_NTZ",
-                            "value": true
+                            'name': 'CLIENT_HONOR_CLIENT_TZ_FOR_TIMESTAMP_NTZ',
+                            'value': true
                           },
                           {
-                            "name": "TIMEZONE",
-                            "value": "America/Los_Angeles"
+                            'name': 'TIMEZONE',
+                            'value': 'America/Los_Angeles'
                           },
                           {
-                            "name": "TIMESTAMP_OUTPUT_FORMAT",
-                            "value": "DY, DD MON YYYY HH24:MI:SS TZHTZM"
+                            'name': 'TIMESTAMP_OUTPUT_FORMAT',
+                            'value': 'DY, DD MON YYYY HH24:MI:SS TZHTZM'
                           },
                           {
-                            "name": "TIMESTAMP_TZ_OUTPUT_FORMAT",
-                            "value": ""
+                            'name': 'TIMESTAMP_TZ_OUTPUT_FORMAT',
+                            'value': ''
                           },
                           {
-                            "name": "CLIENT_RESULT_PREFETCH_SLOTS",
-                            "value": 2
+                            'name': 'CLIENT_RESULT_PREFETCH_SLOTS',
+                            'value': 2
                           }
                         ],
-                      "rowtype":
+                      'rowtype':
                         [
                           {
-                            "name": "c1",
-                            "byteLength": null,
-                            "length": null,
-                            "type": "fixed",
-                            "nullable": false,
-                            "precision": 1,
-                            "scale": 0
+                            'name': 'c1',
+                            'byteLength': null,
+                            'length': null,
+                            'type': 'fixed',
+                            'nullable': false,
+                            'precision': 1,
+                            'scale': 0
                           }
                         ],
-                      "rowset": [["1"]],
-                      "total": 1,
-                      "returned": 1,
-                      "queryId": "df2852ef-e082-4bb3-94a4-e540bf0e70c6",
-                      "databaseProvider": null,
-                      "finalDatabaseName": null,
-                      "finalSchemaName": null,
-                      "finalWarehouseName": "NEW_WH",
-                      "finalRoleName": "ACCOUNTADMIN",
-                      "numberOfBinds": 0,
-                      "statementTypeId": 4096,
-                      "version": 0
+                      'rowset': [['1']],
+                      'total': 1,
+                      'returned': 1,
+                      'queryId': 'df2852ef-e082-4bb3-94a4-e540bf0e70c6',
+                      'databaseProvider': null,
+                      'finalDatabaseName': null,
+                      'finalSchemaName': null,
+                      'finalWarehouseName': 'NEW_WH',
+                      'finalRoleName': 'ACCOUNTADMIN',
+                      'numberOfBinds': 0,
+                      'statementTypeId': 4096,
+                      'version': 0
                     },
-                  "message": null,
-                  "code": null,
-                  "success": true
+                  'message': null,
+                  'code': null,
+                  'success': true
                 }
             }
         }
@@ -470,82 +470,82 @@ function buildRequestOutputMappings(clientInfo) {
           response:
             {
               statusCode: 200,
-              statusMessage: "OK",
+              statusMessage: 'OK',
               body:
                 {
-                  "data":
+                  'data':
                     {
-                      "parameters":
+                      'parameters':
                         [
                           {
-                            "name": "DATE_OUTPUT_FORMAT",
-                            "value": "YYYY-MM-DD"
+                            'name': 'DATE_OUTPUT_FORMAT',
+                            'value': 'YYYY-MM-DD'
                           },
                           {
-                            "name": "CLIENT_USE_V1_QUERY_API",
-                            "value": true
+                            'name': 'CLIENT_USE_V1_QUERY_API',
+                            'value': true
                           },
                           {
-                            "name": "TIMESTAMP_LTZ_OUTPUT_FORMAT",
-                            "value": ""
+                            'name': 'TIMESTAMP_LTZ_OUTPUT_FORMAT',
+                            'value': ''
                           },
                           {
-                            "name": "TIMESTAMP_NTZ_OUTPUT_FORMAT",
-                            "value": ""
+                            'name': 'TIMESTAMP_NTZ_OUTPUT_FORMAT',
+                            'value': ''
                           },
                           {
-                            "name": "CLIENT_RESULT_PREFETCH_THREADS",
-                            "value": 1
+                            'name': 'CLIENT_RESULT_PREFETCH_THREADS',
+                            'value': 1
                           },
                           {
-                            "name": "CLIENT_HONOR_CLIENT_TZ_FOR_TIMESTAMP_NTZ",
-                            "value": true
+                            'name': 'CLIENT_HONOR_CLIENT_TZ_FOR_TIMESTAMP_NTZ',
+                            'value': true
                           },
                           {
-                            "name": "TIMEZONE",
-                            "value": "America/Los_Angeles"
+                            'name': 'TIMEZONE',
+                            'value': 'America/Los_Angeles'
                           },
                           {
-                            "name": "TIMESTAMP_OUTPUT_FORMAT",
-                            "value": "DY, DD MON YYYY HH24:MI:SS TZHTZM"
+                            'name': 'TIMESTAMP_OUTPUT_FORMAT',
+                            'value': 'DY, DD MON YYYY HH24:MI:SS TZHTZM'
                           },
                           {
-                            "name": "TIMESTAMP_TZ_OUTPUT_FORMAT",
-                            "value": ""
+                            'name': 'TIMESTAMP_TZ_OUTPUT_FORMAT',
+                            'value': ''
                           },
                           {
-                            "name": "CLIENT_RESULT_PREFETCH_SLOTS",
-                            "value": 2
+                            'name': 'CLIENT_RESULT_PREFETCH_SLOTS',
+                            'value': 2
                           }
                         ],
-                      "rowtype":
+                      'rowtype':
                         [
                           {
-                            "name": "c2",
-                            "byteLength": null,
-                            "length": null,
-                            "type": "fixed",
-                            "nullable": false,
-                            "precision": 1,
-                            "scale": 0
+                            'name': 'c2',
+                            'byteLength': null,
+                            'length': null,
+                            'type': 'fixed',
+                            'nullable': false,
+                            'precision': 1,
+                            'scale': 0
                           }
                         ],
-                      "rowset": [["1"]],
-                      "total": 1,
-                      "returned": 1,
-                      "queryId": "df2852ef-e082-4bb3-94a4-e540bf0e70c6",
-                      "databaseProvider": null,
-                      "finalDatabaseName": null,
-                      "finalSchemaName": null,
-                      "finalWarehouseName": "NEW_WH",
-                      "finalRoleName": "ACCOUNTADMIN",
-                      "numberOfBinds": 0,
-                      "statementTypeId": 4096,
-                      "version": 0
+                      'rowset': [['1']],
+                      'total': 1,
+                      'returned': 1,
+                      'queryId': 'df2852ef-e082-4bb3-94a4-e540bf0e70c6',
+                      'databaseProvider': null,
+                      'finalDatabaseName': null,
+                      'finalSchemaName': null,
+                      'finalWarehouseName': 'NEW_WH',
+                      'finalRoleName': 'ACCOUNTADMIN',
+                      'numberOfBinds': 0,
+                      'statementTypeId': 4096,
+                      'version': 0
                     },
-                  "message": null,
-                  "code": null,
-                  "success": true
+                  'message': null,
+                  'code': null,
+                  'success': true
                 }
             }
         }
@@ -567,8 +567,8 @@ function buildRequestOutputMappings(clientInfo) {
               sqlText: 'select to_boolean(:1) as "boolean", to_date(:2) as "date", 1.123456789123456789 as "number"',
               bindings:
                 {
-                  "1": {type: 'TEXT', value: 'false'},
-                  "2": {type: 'TEXT', value: '1967-06-23'},
+                  '1': { type: 'TEXT', value: 'false' },
+                  '2': { type: 'TEXT', value: '1967-06-23' },
                 },
               queryContextDTO: { entries: [] },
             }
@@ -579,94 +579,94 @@ function buildRequestOutputMappings(clientInfo) {
           response:
             {
               statusCode: 200,
-              statusMessage: "OK",
+              statusMessage: 'OK',
               body:
                 {
-                  "data": {
-                    "parameters": [{
-                      "name": "TIMEZONE",
-                      "value": "America/Los_Angeles"
+                  'data': {
+                    'parameters': [{
+                      'name': 'TIMEZONE',
+                      'value': 'America/Los_Angeles'
                     }, {
-                      "name": "TIMESTAMP_OUTPUT_FORMAT",
-                      "value": "DY, DD MON YYYY HH24:MI:SS TZHTZM"
+                      'name': 'TIMESTAMP_OUTPUT_FORMAT',
+                      'value': 'DY, DD MON YYYY HH24:MI:SS TZHTZM'
                     }, {
-                      "name": "TIMESTAMP_NTZ_OUTPUT_FORMAT",
-                      "value": ""
+                      'name': 'TIMESTAMP_NTZ_OUTPUT_FORMAT',
+                      'value': ''
                     }, {
-                      "name": "TIMESTAMP_LTZ_OUTPUT_FORMAT",
-                      "value": ""
+                      'name': 'TIMESTAMP_LTZ_OUTPUT_FORMAT',
+                      'value': ''
                     }, {
-                      "name": "TIMESTAMP_TZ_OUTPUT_FORMAT",
-                      "value": ""
+                      'name': 'TIMESTAMP_TZ_OUTPUT_FORMAT',
+                      'value': ''
                     }, {
-                      "name": "DATE_OUTPUT_FORMAT",
-                      "value": "YYYY-MM-DD"
+                      'name': 'DATE_OUTPUT_FORMAT',
+                      'value': 'YYYY-MM-DD'
                     }, {
-                      "name": "TIME_OUTPUT_FORMAT",
-                      "value": "HH24:MI:SS"
+                      'name': 'TIME_OUTPUT_FORMAT',
+                      'value': 'HH24:MI:SS'
                     }, {
-                      "name": "CLIENT_RESULT_PREFETCH_SLOTS",
-                      "value": 2
+                      'name': 'CLIENT_RESULT_PREFETCH_SLOTS',
+                      'value': 2
                     }, {
-                      "name": "CLIENT_RESULT_PREFETCH_THREADS",
-                      "value": 1
+                      'name': 'CLIENT_RESULT_PREFETCH_THREADS',
+                      'value': 1
                     }, {
-                      "name": "CLIENT_HONOR_CLIENT_TZ_FOR_TIMESTAMP_NTZ",
-                      "value": true
+                      'name': 'CLIENT_HONOR_CLIENT_TZ_FOR_TIMESTAMP_NTZ',
+                      'value': true
                     }, {
-                      "name": "CLIENT_USE_V1_QUERY_API",
-                      "value": true
+                      'name': 'CLIENT_USE_V1_QUERY_API',
+                      'value': true
                     }, {
-                      "name": "JDBC_EXECUTE_RETURN_COUNT_FOR_DML",
-                      "value": false
+                      'name': 'JDBC_EXECUTE_RETURN_COUNT_FOR_DML',
+                      'value': false
                     }, {
-                      "name": "JDBC_SHARING_WITH_CANONICAL",
-                      "value": false
+                      'name': 'JDBC_SHARING_WITH_CANONICAL',
+                      'value': false
                     }, {
-                      "name": "ODBC_ENABLE_COMPRESSION",
-                      "value": false
-                    }, {"name": "CLIENT_DISABLE_INCIDENTS", "value": true}],
-                    "rowtype": [{
-                      "name": "boolean",
-                      "byteLength": null,
-                      "nullable": false,
-                      "precision": null,
-                      "scale": null,
-                      "length": null,
-                      "type": "boolean"
+                      'name': 'ODBC_ENABLE_COMPRESSION',
+                      'value': false
+                    }, { 'name': 'CLIENT_DISABLE_INCIDENTS', 'value': true }],
+                    'rowtype': [{
+                      'name': 'boolean',
+                      'byteLength': null,
+                      'nullable': false,
+                      'precision': null,
+                      'scale': null,
+                      'length': null,
+                      'type': 'boolean'
                     }, {
-                      "name": "date",
-                      "byteLength": null,
-                      "nullable": false,
-                      "precision": null,
-                      "scale": null,
-                      "length": null,
-                      "type": "date"
+                      'name': 'date',
+                      'byteLength': null,
+                      'nullable': false,
+                      'precision': null,
+                      'scale': null,
+                      'length': null,
+                      'type': 'date'
                     }, {
-                      "name": "number",
-                      "byteLength": null,
-                      "nullable": false,
-                      "precision": 19,
-                      "scale": 18,
-                      "length": null,
-                      "type": "fixed"
+                      'name': 'number',
+                      'byteLength': null,
+                      'nullable': false,
+                      'precision': 19,
+                      'scale': 18,
+                      'length': null,
+                      'type': 'fixed'
                     }],
-                    "rowset": [["0", "-923", "1.123456789123456789"]],
-                    "total": 1,
-                    "returned": 1,
-                    "queryId": "d4dfd395-c2ef-4b2e-afe6-84864d93347b",
-                    "databaseProvider": null,
-                    "finalDatabaseName": null,
-                    "finalSchemaName": null,
-                    "finalWarehouseName": "REGRESS",
-                    "finalRoleName": "ACCOUNTADMIN",
-                    "numberOfBinds": 0,
-                    "statementTypeId": 4096,
-                    "version": 1
+                    'rowset': [['0', '-923', '1.123456789123456789']],
+                    'total': 1,
+                    'returned': 1,
+                    'queryId': 'd4dfd395-c2ef-4b2e-afe6-84864d93347b',
+                    'databaseProvider': null,
+                    'finalDatabaseName': null,
+                    'finalSchemaName': null,
+                    'finalWarehouseName': 'REGRESS',
+                    'finalRoleName': 'ACCOUNTADMIN',
+                    'numberOfBinds': 0,
+                    'statementTypeId': 4096,
+                    'version': 1
                   },
-                  "message": null,
-                  "code": null,
-                  "success": true
+                  'message': null,
+                  'code': null,
+                  'success': true
                 }
             }
         }
@@ -695,23 +695,23 @@ function buildRequestOutputMappings(clientInfo) {
           response:
             {
               statusCode: 200,
-              statusMessage: "OK",
+              statusMessage: 'OK',
               body:
                 {
-                  "data":
+                  'data':
                     {
-                      "internalError": false,
-                      "errorCode": "001003",
-                      "age": 0,
-                      "sqlState": "42000",
-                      "queryId": "13f12818-de4c-41d2-bf19-f115ee8a5cc1",
-                      "line": -1,
-                      "pos": -1,
-                      "type": "COMPILATION"
+                      'internalError': false,
+                      'errorCode': '001003',
+                      'age': 0,
+                      'sqlState': '42000',
+                      'queryId': '13f12818-de4c-41d2-bf19-f115ee8a5cc1',
+                      'line': -1,
+                      'pos': -1,
+                      'type': 'COMPILATION'
                     },
-                  "message": "SQL compilation error:\nsyntax error line 1 at position 6 unexpected ';'.",
-                  "code": "001003",
-                  "success": false
+                  'message': 'SQL compilation error:\nsyntax error line 1 at position 6 unexpected \';\'.',
+                  'code': '001003',
+                  'success': false
                 }
             }
         }
@@ -807,82 +807,82 @@ function buildRequestOutputMappings(clientInfo) {
           response:
             {
               statusCode: 200,
-              statusMessage: "OK",
+              statusMessage: 'OK',
               body:
                 {
-                  "data":
+                  'data':
                     {
-                      "parameters":
+                      'parameters':
                         [
                           {
-                            "name": "DATE_OUTPUT_FORMAT",
-                            "value": "YYYY-MM-DD"
+                            'name': 'DATE_OUTPUT_FORMAT',
+                            'value': 'YYYY-MM-DD'
                           },
                           {
-                            "name": "CLIENT_USE_V1_QUERY_API",
-                            "value": true
+                            'name': 'CLIENT_USE_V1_QUERY_API',
+                            'value': true
                           },
                           {
-                            "name": "TIMESTAMP_LTZ_OUTPUT_FORMAT",
-                            "value": ""
+                            'name': 'TIMESTAMP_LTZ_OUTPUT_FORMAT',
+                            'value': ''
                           },
                           {
-                            "name": "TIMESTAMP_NTZ_OUTPUT_FORMAT",
-                            "value": ""
+                            'name': 'TIMESTAMP_NTZ_OUTPUT_FORMAT',
+                            'value': ''
                           },
                           {
-                            "name": "CLIENT_RESULT_PREFETCH_THREADS",
-                            "value": 1
+                            'name': 'CLIENT_RESULT_PREFETCH_THREADS',
+                            'value': 1
                           },
                           {
-                            "name": "CLIENT_HONOR_CLIENT_TZ_FOR_TIMESTAMP_NTZ",
-                            "value": true
+                            'name': 'CLIENT_HONOR_CLIENT_TZ_FOR_TIMESTAMP_NTZ',
+                            'value': true
                           },
                           {
-                            "name": "TIMEZONE",
-                            "value": "America/Los_Angeles"
+                            'name': 'TIMEZONE',
+                            'value': 'America/Los_Angeles'
                           },
                           {
-                            "name": "TIMESTAMP_OUTPUT_FORMAT",
-                            "value": "DY, DD MON YYYY HH24:MI:SS TZHTZM"
+                            'name': 'TIMESTAMP_OUTPUT_FORMAT',
+                            'value': 'DY, DD MON YYYY HH24:MI:SS TZHTZM'
                           },
                           {
-                            "name": "TIMESTAMP_TZ_OUTPUT_FORMAT",
-                            "value": ""
+                            'name': 'TIMESTAMP_TZ_OUTPUT_FORMAT',
+                            'value': ''
                           },
                           {
-                            "name": "CLIENT_RESULT_PREFETCH_SLOTS",
-                            "value": 2
+                            'name': 'CLIENT_RESULT_PREFETCH_SLOTS',
+                            'value': 2
                           }
                         ],
-                      "rowtype":
+                      'rowtype':
                         [
                           {
-                            "name": "c1",
-                            "byteLength": null,
-                            "length": null,
-                            "type": "fixed",
-                            "nullable": false,
-                            "precision": 1,
-                            "scale": 0
+                            'name': 'c1',
+                            'byteLength': null,
+                            'length': null,
+                            'type': 'fixed',
+                            'nullable': false,
+                            'precision': 1,
+                            'scale': 0
                           }
                         ],
-                      "rowset": [["1"]],
-                      "total": 1,
-                      "returned": 1,
-                      "queryId": "df2852ef-e082-4bb3-94a4-e540bf0e70c6",
-                      "databaseProvider": null,
-                      "finalDatabaseName": null,
-                      "finalSchemaName": null,
-                      "finalWarehouseName": "NEW_WH",
-                      "finalRoleName": "ACCOUNTADMIN",
-                      "numberOfBinds": 0,
-                      "statementTypeId": 4096,
-                      "version": 0
+                      'rowset': [['1']],
+                      'total': 1,
+                      'returned': 1,
+                      'queryId': 'df2852ef-e082-4bb3-94a4-e540bf0e70c6',
+                      'databaseProvider': null,
+                      'finalDatabaseName': null,
+                      'finalSchemaName': null,
+                      'finalWarehouseName': 'NEW_WH',
+                      'finalRoleName': 'ACCOUNTADMIN',
+                      'numberOfBinds': 0,
+                      'statementTypeId': 4096,
+                      'version': 0
                     },
-                  "message": null,
-                  "code": null,
-                  "success": true
+                  'message': null,
+                  'code': null,
+                  'success': true
                 }
             }
         }
@@ -905,20 +905,20 @@ function buildRequestOutputMappings(clientInfo) {
           response:
             {
               statusCode: 200,
-              statusMessage: "OK",
+              statusMessage: 'OK',
               body:
                 {
-                  "data":
+                  'data':
                     {
-                      "internalError": false,
-                      "errorCode": "001003",
-                      "age": 1,
-                      "sqlState": "42000",
-                      "queryId": "13f12818-de4c-41d2-bf19-f115ee8a5cc1"
+                      'internalError': false,
+                      'errorCode': '001003',
+                      'age': 1,
+                      'sqlState': '42000',
+                      'queryId': '13f12818-de4c-41d2-bf19-f115ee8a5cc1'
                     },
-                  "message": "SQL compilation error:\nsyntax error line 1 at position 6 unexpected ';'.",
-                  "code": "001003",
-                  "success": false
+                  'message': 'SQL compilation error:\nsyntax error line 1 at position 6 unexpected \';\'.',
+                  'code': '001003',
+                  'success': false
                 }
             }
         }
@@ -945,20 +945,20 @@ function buildRequestOutputMappings(clientInfo) {
           response:
             {
               statusCode: 200,
-              statusMessage: "OK",
+              statusMessage: 'OK',
               body:
                 {
-                  "code": "",
-                  "data":
+                  'code': '',
+                  'data':
                     {
-                      "age": 0,
-                      "errorCode": "000605",
-                      "internalError": false,
-                      "queryId": null,
-                      "sqlState": "01000"
+                      'age': 0,
+                      'errorCode': '000605',
+                      'internalError': false,
+                      'queryId': null,
+                      'sqlState': '01000'
                     },
-                  "message": "Identified SQL statement is not currently executing.",
-                  "success": false
+                  'message': 'Identified SQL statement is not currently executing.',
+                  'success': false
                 }
             }
         }
@@ -981,8 +981,8 @@ function buildRequestOutputMappings(clientInfo) {
           response:
             {
               statusCode: 306,
-              statusMessage: "306",
-              body: ""
+              statusMessage: '306',
+              body: ''
             }
         }
     },
@@ -1004,8 +1004,8 @@ function buildRequestOutputMappings(clientInfo) {
           response:
             {
               statusCode: 306,
-              statusMessage: "306",
-              body: ""
+              statusMessage: '306',
+              body: ''
             }
         }
     },
@@ -1027,7 +1027,7 @@ function buildRequestOutputMappings(clientInfo) {
         response:
         {
           statusCode: 200,
-          statusMessage: "OK",
+          statusMessage: 'OK',
           data:
           {
             code: null,
@@ -1058,8 +1058,8 @@ function buildRequestOutputMappings(clientInfo) {
           response:
             {
               statusCode: 400,
-              statusMessage: "Bad Request",
-              body: "\"foobar\" is not a UUID."
+              statusMessage: 'Bad Request',
+              body: '"foobar" is not a UUID.'
             }
         }
     },
@@ -1081,8 +1081,8 @@ function buildRequestOutputMappings(clientInfo) {
           response:
             {
               statusCode: 400,
-              statusMessage: "Bad Request",
-              body: "\"foobar\" is not a UUID."
+              statusMessage: 'Bad Request',
+              body: '"foobar" is not a UUID.'
             }
         }
     },
@@ -1111,20 +1111,20 @@ function buildRequestOutputMappings(clientInfo) {
           response:
             {
               statusCode: 200,
-              statusMessage: "OK",
+              statusMessage: 'OK',
               body:
                 {
-                  "code": "000604",
-                  "data":
+                  'code': '000604',
+                  'data':
                     {
-                      "age": 0,
-                      "errorCode": "000604",
-                      "internalError": false,
-                      "queryId": "dd5d30ef-01bf-4b65-a7f2-f5c61ceaa2ca",
-                      "sqlState": "57014"
+                      'age': 0,
+                      'errorCode': '000604',
+                      'internalError': false,
+                      'queryId': 'dd5d30ef-01bf-4b65-a7f2-f5c61ceaa2ca',
+                      'sqlState': '57014'
                     },
-                  "message": "SQL execution canceled",
-                  "success": false
+                  'message': 'SQL execution canceled',
+                  'success': false
                 }
             }
         }
@@ -1151,13 +1151,13 @@ function buildRequestOutputMappings(clientInfo) {
           response:
             {
               statusCode: 200,
-              statusMessage: "OK",
+              statusMessage: 'OK',
               body:
                 {
-                  "code": null,
-                  "data": null,
-                  "message": null,
-                  "success": true
+                  'code': null,
+                  'data': null,
+                  'message': null,
+                  'success': true
                 }
             }
         }
@@ -1186,13 +1186,13 @@ function buildRequestOutputMappings(clientInfo) {
           response:
             {
               statusCode: 200,
-              statusMessage: "OK",
+              statusMessage: 'OK',
               body:
                 {
-                  "data": null,
-                  "message": "Exceeded number of allowed concurrent requests per user. You may try again later. If the problem persists, contact your local administrator.",
-                  "code": "000610",
-                  "success": false
+                  'data': null,
+                  'message': 'Exceeded number of allowed concurrent requests per user. You may try again later. If the problem persists, contact your local administrator.',
+                  'code': '000610',
+                  'success': false
                 }
             }
         }
@@ -1206,15 +1206,15 @@ function buildRequestOutputMappings(clientInfo) {
             {
               'Accept': 'application/json',
               'Content-Type': 'application/json',
-              "CLIENT_APP_VERSION": clientInfo.version,
-              "CLIENT_APP_ID": "JavaScript"
+              'CLIENT_APP_VERSION': clientInfo.version,
+              'CLIENT_APP_ID': 'JavaScript'
             },
           json:
             {
               data:
                 {
                   ACCOUNT_NAME: 'fakeaccount',
-                  AUTHENTICATOR: "SNOWFLAKE",
+                  AUTHENTICATOR: 'SNOWFLAKE',
                   LOGIN_NAME: 'fakeuserservicename',
                   PASSWORD: 'fakepassword',
                   CLIENT_APP_ID: 'JavaScript',
@@ -1230,76 +1230,76 @@ function buildRequestOutputMappings(clientInfo) {
           response:
             {
               statusCode: 200,
-              statusMessage: "OK",
+              statusMessage: 'OK',
               body:
                 {
-                  "code": null,
-                  "data":
+                  'code': null,
+                  'data':
                     {
-                      "displayUserName": "FAKEUSERNAME",
-                      "firstLogin": false,
-                      "healthCheckInterval": 45,
-                      "masterToken": "MASTER_TOKEN",
-                      "masterValidityInSeconds": 14400,
-                      "newClientForUpgrade": null,
-                      "remMeToken": "MASTER_TOKEN",
-                      "remMeValidityInSeconds": 14400,
-                      "serverVersion": "Dev",
-                      "sessionId": "51539800306",
-                      "token": "SESSION_TOKEN",
-                      "validityInSeconds": 3600,
-                      "parameters": [{
-                        "name": "TIMEZONE",
-                        "value": "America/Los_Angeles"
+                      'displayUserName': 'FAKEUSERNAME',
+                      'firstLogin': false,
+                      'healthCheckInterval': 45,
+                      'masterToken': 'MASTER_TOKEN',
+                      'masterValidityInSeconds': 14400,
+                      'newClientForUpgrade': null,
+                      'remMeToken': 'MASTER_TOKEN',
+                      'remMeValidityInSeconds': 14400,
+                      'serverVersion': 'Dev',
+                      'sessionId': '51539800306',
+                      'token': 'SESSION_TOKEN',
+                      'validityInSeconds': 3600,
+                      'parameters': [{
+                        'name': 'TIMEZONE',
+                        'value': 'America/Los_Angeles'
                       }, {
-                        "name": "TIMESTAMP_OUTPUT_FORMAT",
-                        "value": "DY, DD MON YYYY HH24:MI:SS TZHTZM"
+                        'name': 'TIMESTAMP_OUTPUT_FORMAT',
+                        'value': 'DY, DD MON YYYY HH24:MI:SS TZHTZM'
                       }, {
-                        "name": "TIMESTAMP_NTZ_OUTPUT_FORMAT",
-                        "value": ""
+                        'name': 'TIMESTAMP_NTZ_OUTPUT_FORMAT',
+                        'value': ''
                       }, {
-                        "name": "TIMESTAMP_LTZ_OUTPUT_FORMAT",
-                        "value": ""
+                        'name': 'TIMESTAMP_LTZ_OUTPUT_FORMAT',
+                        'value': ''
                       }, {
-                        "name": "TIMESTAMP_TZ_OUTPUT_FORMAT",
-                        "value": ""
+                        'name': 'TIMESTAMP_TZ_OUTPUT_FORMAT',
+                        'value': ''
                       }, {
-                        "name": "DATE_OUTPUT_FORMAT",
-                        "value": "YYYY-MM-DD"
+                        'name': 'DATE_OUTPUT_FORMAT',
+                        'value': 'YYYY-MM-DD'
                       }, {
-                        "name": "TIME_OUTPUT_FORMAT",
-                        "value": "HH24:MI:SS"
+                        'name': 'TIME_OUTPUT_FORMAT',
+                        'value': 'HH24:MI:SS'
                       }, {
-                        "name": "CLIENT_RESULT_PREFETCH_SLOTS",
-                        "value": 2
+                        'name': 'CLIENT_RESULT_PREFETCH_SLOTS',
+                        'value': 2
                       }, {
-                        "name": "CLIENT_RESULT_PREFETCH_THREADS",
-                        "value": 1
+                        'name': 'CLIENT_RESULT_PREFETCH_THREADS',
+                        'value': 1
                       }, {
-                        "name": "CLIENT_HONOR_CLIENT_TZ_FOR_TIMESTAMP_NTZ",
-                        "value": true
+                        'name': 'CLIENT_HONOR_CLIENT_TZ_FOR_TIMESTAMP_NTZ',
+                        'value': true
                       }, {
-                        "name": "CLIENT_USE_V1_QUERY_API",
-                        "value": true
+                        'name': 'CLIENT_USE_V1_QUERY_API',
+                        'value': true
                       }, {
-                        "name": "CLIENT_DISABLE_INCIDENTS",
-                        "value": true
+                        'name': 'CLIENT_DISABLE_INCIDENTS',
+                        'value': true
                       }, {
-                        "name": "SERVICE_NAME",
-                        "value": "fakeservicename"
+                        'name': 'SERVICE_NAME',
+                        'value': 'fakeservicename'
                       }, {
-                        "name": "CLIENT_SESSION_KEEP_ALIVE",
-                        "value": false
+                        'name': 'CLIENT_SESSION_KEEP_ALIVE',
+                        'value': false
                       }, {
-                        "name": "CLIENT_SESSION_KEEP_ALIVE_HEARTBEAT_FREQUENCY",
-                        "value": 3600
+                        'name': 'CLIENT_SESSION_KEEP_ALIVE_HEARTBEAT_FREQUENCY',
+                        'value': 3600
                       }, {
-                        "name": "JS_TREAT_INTEGER_AS_BIGINT",
-                        "value": false
+                        'name': 'JS_TREAT_INTEGER_AS_BIGINT',
+                        'value': false
                       }]
                     },
-                  "message": null,
-                  "success": true
+                  'message': null,
+                  'success': true
                 }
             }
         }
@@ -1329,87 +1329,87 @@ function buildRequestOutputMappings(clientInfo) {
           response:
             {
               statusCode: 200,
-              statusMessage: "OK",
+              statusMessage: 'OK',
               body:
                 {
-                  "data":
+                  'data':
                     {
-                      "parameters":
+                      'parameters':
                         [
                           {
-                            "name": "DATE_OUTPUT_FORMAT",
-                            "value": "YYYY-MM-DD"
+                            'name': 'DATE_OUTPUT_FORMAT',
+                            'value': 'YYYY-MM-DD'
                           },
                           {
-                            "name": "CLIENT_USE_V1_QUERY_API",
-                            "value": true
+                            'name': 'CLIENT_USE_V1_QUERY_API',
+                            'value': true
                           },
                           {
-                            "name": "TIMESTAMP_LTZ_OUTPUT_FORMAT",
-                            "value": ""
+                            'name': 'TIMESTAMP_LTZ_OUTPUT_FORMAT',
+                            'value': ''
                           },
                           {
-                            "name": "TIMESTAMP_NTZ_OUTPUT_FORMAT",
-                            "value": ""
+                            'name': 'TIMESTAMP_NTZ_OUTPUT_FORMAT',
+                            'value': ''
                           },
                           {
-                            "name": "CLIENT_RESULT_PREFETCH_THREADS",
-                            "value": 1
+                            'name': 'CLIENT_RESULT_PREFETCH_THREADS',
+                            'value': 1
                           },
                           {
-                            "name": "CLIENT_HONOR_CLIENT_TZ_FOR_TIMESTAMP_NTZ",
-                            "value": true
+                            'name': 'CLIENT_HONOR_CLIENT_TZ_FOR_TIMESTAMP_NTZ',
+                            'value': true
                           },
                           {
-                            "name": "TIMEZONE",
-                            "value": "America/Los_Angeles"
+                            'name': 'TIMEZONE',
+                            'value': 'America/Los_Angeles'
                           },
                           {
-                            "name": "TIMESTAMP_OUTPUT_FORMAT",
-                            "value": "DY, DD MON YYYY HH24:MI:SS TZHTZM"
+                            'name': 'TIMESTAMP_OUTPUT_FORMAT',
+                            'value': 'DY, DD MON YYYY HH24:MI:SS TZHTZM'
                           },
                           {
-                            "name": "TIMESTAMP_TZ_OUTPUT_FORMAT",
-                            "value": ""
+                            'name': 'TIMESTAMP_TZ_OUTPUT_FORMAT',
+                            'value': ''
                           },
                           {
-                            "name": "CLIENT_RESULT_PREFETCH_SLOTS",
-                            "value": 2
+                            'name': 'CLIENT_RESULT_PREFETCH_SLOTS',
+                            'value': 2
                           }
                           ,
                           {
-                            "name": "SERVICE_NAME",
-                            "value": "fakeservicename2"
+                            'name': 'SERVICE_NAME',
+                            'value': 'fakeservicename2'
                           }
                         ],
-                      "rowtype":
+                      'rowtype':
                         [
                           {
-                            "name": "c2",
-                            "byteLength": null,
-                            "length": null,
-                            "type": "fixed",
-                            "nullable": false,
-                            "precision": 1,
-                            "scale": 0
+                            'name': 'c2',
+                            'byteLength': null,
+                            'length': null,
+                            'type': 'fixed',
+                            'nullable': false,
+                            'precision': 1,
+                            'scale': 0
                           }
                         ],
-                      "rowset": [["1"]],
-                      "total": 1,
-                      "returned": 1,
-                      "queryId": "df2852ef-e082-4bb3-94a4-e540bf0e70c6",
-                      "databaseProvider": null,
-                      "finalDatabaseName": null,
-                      "finalSchemaName": null,
-                      "finalWarehouseName": "NEW_WH",
-                      "finalRoleName": "ACCOUNTADMIN",
-                      "numberOfBinds": 0,
-                      "statementTypeId": 4096,
-                      "version": 0
+                      'rowset': [['1']],
+                      'total': 1,
+                      'returned': 1,
+                      'queryId': 'df2852ef-e082-4bb3-94a4-e540bf0e70c6',
+                      'databaseProvider': null,
+                      'finalDatabaseName': null,
+                      'finalSchemaName': null,
+                      'finalWarehouseName': 'NEW_WH',
+                      'finalRoleName': 'ACCOUNTADMIN',
+                      'numberOfBinds': 0,
+                      'statementTypeId': 4096,
+                      'version': 0
                     },
-                  "message": null,
-                  "code": null,
-                  "success": true
+                  'message': null,
+                  'code': null,
+                  'success': true
                 }
             }
         }
@@ -1423,15 +1423,15 @@ function buildRequestOutputMappings(clientInfo) {
             {
               'Accept': 'application/json',
               'Content-Type': 'application/json',
-              "CLIENT_APP_VERSION": clientInfo.version,
-              "CLIENT_APP_ID": "JavaScript"
+              'CLIENT_APP_VERSION': clientInfo.version,
+              'CLIENT_APP_ID': 'JavaScript'
             },
           json:
             {
               data:
                 {
                   ACCOUNT_NAME: 'fakeaccount',
-                  AUTHENTICATOR: "SNOWFLAKE",
+                  AUTHENTICATOR: 'SNOWFLAKE',
                   LOGIN_NAME: 'fakeusername',
                   PASSWORD: 'fakepassword',
                   CLIENT_APP_ID: 'JavaScript',
@@ -1450,73 +1450,73 @@ function buildRequestOutputMappings(clientInfo) {
           response:
             {
               statusCode: 200,
-              statusMessage: "OK",
+              statusMessage: 'OK',
               body:
                 {
-                  "code": null,
-                  "data":
+                  'code': null,
+                  'data':
                     {
-                      "displayUserName": "FAKEUSERNAME",
-                      "firstLogin": false,
-                      "healthCheckInterval": 45,
-                      "masterToken": "MASTER_TOKEN",
-                      "masterValidityInSeconds": 14400,
-                      "newClientForUpgrade": null,
-                      "remMeToken": "MASTER_TOKEN",
-                      "remMeValidityInSeconds": 14400,
-                      "serverVersion": "Dev",
-                      "sessionId": "51539800306",
-                      "token": "SESSION_TOKEN",
-                      "validityInSeconds": 3600,
-                      "parameters": [{
-                        "name": "TIMEZONE",
-                        "value": "America/Los_Angeles"
+                      'displayUserName': 'FAKEUSERNAME',
+                      'firstLogin': false,
+                      'healthCheckInterval': 45,
+                      'masterToken': 'MASTER_TOKEN',
+                      'masterValidityInSeconds': 14400,
+                      'newClientForUpgrade': null,
+                      'remMeToken': 'MASTER_TOKEN',
+                      'remMeValidityInSeconds': 14400,
+                      'serverVersion': 'Dev',
+                      'sessionId': '51539800306',
+                      'token': 'SESSION_TOKEN',
+                      'validityInSeconds': 3600,
+                      'parameters': [{
+                        'name': 'TIMEZONE',
+                        'value': 'America/Los_Angeles'
                       }, {
-                        "name": "TIMESTAMP_OUTPUT_FORMAT",
-                        "value": "DY, DD MON YYYY HH24:MI:SS TZHTZM"
+                        'name': 'TIMESTAMP_OUTPUT_FORMAT',
+                        'value': 'DY, DD MON YYYY HH24:MI:SS TZHTZM'
                       }, {
-                        "name": "TIMESTAMP_NTZ_OUTPUT_FORMAT",
-                        "value": ""
+                        'name': 'TIMESTAMP_NTZ_OUTPUT_FORMAT',
+                        'value': ''
                       }, {
-                        "name": "TIMESTAMP_LTZ_OUTPUT_FORMAT",
-                        "value": ""
+                        'name': 'TIMESTAMP_LTZ_OUTPUT_FORMAT',
+                        'value': ''
                       }, {
-                        "name": "TIMESTAMP_TZ_OUTPUT_FORMAT",
-                        "value": ""
+                        'name': 'TIMESTAMP_TZ_OUTPUT_FORMAT',
+                        'value': ''
                       }, {
-                        "name": "DATE_OUTPUT_FORMAT",
-                        "value": "YYYY-MM-DD"
+                        'name': 'DATE_OUTPUT_FORMAT',
+                        'value': 'YYYY-MM-DD'
                       }, {
-                        "name": "TIME_OUTPUT_FORMAT",
-                        "value": "HH24:MI:SS"
+                        'name': 'TIME_OUTPUT_FORMAT',
+                        'value': 'HH24:MI:SS'
                       }, {
-                        "name": "CLIENT_RESULT_PREFETCH_SLOTS",
-                        "value": 2
+                        'name': 'CLIENT_RESULT_PREFETCH_SLOTS',
+                        'value': 2
                       }, {
-                        "name": "CLIENT_RESULT_PREFETCH_THREADS",
-                        "value": 1
+                        'name': 'CLIENT_RESULT_PREFETCH_THREADS',
+                        'value': 1
                       }, {
-                        "name": "CLIENT_HONOR_CLIENT_TZ_FOR_TIMESTAMP_NTZ",
-                        "value": true
+                        'name': 'CLIENT_HONOR_CLIENT_TZ_FOR_TIMESTAMP_NTZ',
+                        'value': true
                       }, {
-                        "name": "CLIENT_USE_V1_QUERY_API",
-                        "value": true
+                        'name': 'CLIENT_USE_V1_QUERY_API',
+                        'value': true
                       }, {
-                        "name": "CLIENT_DISABLE_INCIDENTS",
-                        "value": true
+                        'name': 'CLIENT_DISABLE_INCIDENTS',
+                        'value': true
                       }, {
-                        "name": "CLIENT_SESSION_KEEP_ALIVE",
-                        "value": true
+                        'name': 'CLIENT_SESSION_KEEP_ALIVE',
+                        'value': true
                       }, {
-                        "name": "CLIENT_SESSION_KEEP_ALIVE_HEARTBEAT_FREQUENCY",
-                        "value": 1800
+                        'name': 'CLIENT_SESSION_KEEP_ALIVE_HEARTBEAT_FREQUENCY',
+                        'value': 1800
                       }, {
-                        "name": "JS_TREAT_INTEGER_AS_BIGINT",
-                        "value": false
+                        'name': 'JS_TREAT_INTEGER_AS_BIGINT',
+                        'value': false
                       }]
                     },
-                  "message": null,
-                  "success": true
+                  'message': null,
+                  'success': true
                 }
             }
         }
@@ -1530,15 +1530,15 @@ function buildRequestOutputMappings(clientInfo) {
             {
               'Accept': 'application/json',
               'Content-Type': 'application/json',
-              "CLIENT_APP_VERSION": clientInfo.version,
-              "CLIENT_APP_ID": "JavaScript"
+              'CLIENT_APP_VERSION': clientInfo.version,
+              'CLIENT_APP_ID': 'JavaScript'
             },
           json:
             {
               data:
                 {
                   ACCOUNT_NAME: 'fakeaccount',
-                  AUTHENTICATOR: "SNOWFLAKE",
+                  AUTHENTICATOR: 'SNOWFLAKE',
                   LOGIN_NAME: 'fakeusername',
                   PASSWORD: 'fakepassword',
                   CLIENT_APP_ID: 'JavaScript',
@@ -1556,73 +1556,73 @@ function buildRequestOutputMappings(clientInfo) {
           response:
             {
               statusCode: 200,
-              statusMessage: "OK",
+              statusMessage: 'OK',
               body:
                 {
-                  "code": null,
-                  "data":
+                  'code': null,
+                  'data':
                     {
-                      "displayUserName": "FAKEUSERNAME",
-                      "firstLogin": false,
-                      "healthCheckInterval": 45,
-                      "masterToken": "MASTER_TOKEN",
-                      "masterValidityInSeconds": 14400,
-                      "newClientForUpgrade": null,
-                      "remMeToken": "MASTER_TOKEN",
-                      "remMeValidityInSeconds": 14400,
-                      "serverVersion": "Dev",
-                      "sessionId": "51539800306",
-                      "token": "SESSION_TOKEN",
-                      "validityInSeconds": 3600,
-                      "parameters": [{
-                        "name": "TIMEZONE",
-                        "value": "America/Los_Angeles"
+                      'displayUserName': 'FAKEUSERNAME',
+                      'firstLogin': false,
+                      'healthCheckInterval': 45,
+                      'masterToken': 'MASTER_TOKEN',
+                      'masterValidityInSeconds': 14400,
+                      'newClientForUpgrade': null,
+                      'remMeToken': 'MASTER_TOKEN',
+                      'remMeValidityInSeconds': 14400,
+                      'serverVersion': 'Dev',
+                      'sessionId': '51539800306',
+                      'token': 'SESSION_TOKEN',
+                      'validityInSeconds': 3600,
+                      'parameters': [{
+                        'name': 'TIMEZONE',
+                        'value': 'America/Los_Angeles'
                       }, {
-                        "name": "TIMESTAMP_OUTPUT_FORMAT",
-                        "value": "DY, DD MON YYYY HH24:MI:SS TZHTZM"
+                        'name': 'TIMESTAMP_OUTPUT_FORMAT',
+                        'value': 'DY, DD MON YYYY HH24:MI:SS TZHTZM'
                       }, {
-                        "name": "TIMESTAMP_NTZ_OUTPUT_FORMAT",
-                        "value": ""
+                        'name': 'TIMESTAMP_NTZ_OUTPUT_FORMAT',
+                        'value': ''
                       }, {
-                        "name": "TIMESTAMP_LTZ_OUTPUT_FORMAT",
-                        "value": ""
+                        'name': 'TIMESTAMP_LTZ_OUTPUT_FORMAT',
+                        'value': ''
                       }, {
-                        "name": "TIMESTAMP_TZ_OUTPUT_FORMAT",
-                        "value": ""
+                        'name': 'TIMESTAMP_TZ_OUTPUT_FORMAT',
+                        'value': ''
                       }, {
-                        "name": "DATE_OUTPUT_FORMAT",
-                        "value": "YYYY-MM-DD"
+                        'name': 'DATE_OUTPUT_FORMAT',
+                        'value': 'YYYY-MM-DD'
                       }, {
-                        "name": "TIME_OUTPUT_FORMAT",
-                        "value": "HH24:MI:SS"
+                        'name': 'TIME_OUTPUT_FORMAT',
+                        'value': 'HH24:MI:SS'
                       }, {
-                        "name": "CLIENT_RESULT_PREFETCH_SLOTS",
-                        "value": 2
+                        'name': 'CLIENT_RESULT_PREFETCH_SLOTS',
+                        'value': 2
                       }, {
-                        "name": "CLIENT_RESULT_PREFETCH_THREADS",
-                        "value": 1
+                        'name': 'CLIENT_RESULT_PREFETCH_THREADS',
+                        'value': 1
                       }, {
-                        "name": "CLIENT_HONOR_CLIENT_TZ_FOR_TIMESTAMP_NTZ",
-                        "value": true
+                        'name': 'CLIENT_HONOR_CLIENT_TZ_FOR_TIMESTAMP_NTZ',
+                        'value': true
                       }, {
-                        "name": "CLIENT_USE_V1_QUERY_API",
-                        "value": true
+                        'name': 'CLIENT_USE_V1_QUERY_API',
+                        'value': true
                       }, {
-                        "name": "CLIENT_DISABLE_INCIDENTS",
-                        "value": true
+                        'name': 'CLIENT_DISABLE_INCIDENTS',
+                        'value': true
                       }, {
-                        "name": "CLIENT_SESSION_KEEP_ALIVE",
-                        "value": false
+                        'name': 'CLIENT_SESSION_KEEP_ALIVE',
+                        'value': false
                       }, {
-                        "name": "CLIENT_SESSION_KEEP_ALIVE_HEARTBEAT_FREQUENCY",
-                        "value": 3600
+                        'name': 'CLIENT_SESSION_KEEP_ALIVE_HEARTBEAT_FREQUENCY',
+                        'value': 3600
                       }, {
-                        "name": "JS_TREAT_INTEGER_AS_BIGINT",
-                        "value": true
+                        'name': 'JS_TREAT_INTEGER_AS_BIGINT',
+                        'value': true
                       }]
                     },
-                  "message": null,
-                  "success": true
+                  'message': null,
+                  'success': true
                 }
             }
         }
@@ -1637,15 +1637,15 @@ function buildRequestOutputMappings(clientInfo) {
             {
               'Accept': 'application/json',
               'Content-Type': 'application/json',
-              "CLIENT_APP_VERSION": clientInfo.version,
-              "CLIENT_APP_ID": "JavaScript"
+              'CLIENT_APP_VERSION': clientInfo.version,
+              'CLIENT_APP_ID': 'JavaScript'
             },
           json:
             {
               data:
                 {
                   ACCOUNT_NAME: 'fakeaccount',
-                  AUTHENTICATOR: "SNOWFLAKE",
+                  AUTHENTICATOR: 'SNOWFLAKE',
                   LOGIN_NAME: 'fakesessiongone',
                   PASSWORD: 'fakepassword',
                   CLIENT_APP_ID: 'JavaScript',
@@ -1661,28 +1661,28 @@ function buildRequestOutputMappings(clientInfo) {
           response:
             {
               statusCode: 200,
-              statusMessage: "OK",
+              statusMessage: 'OK',
               body:
                 {
-                  "code": null,
-                  "data":
+                  'code': null,
+                  'data':
                     {
-                      "displayUserName": "FAKEUSERNAME",
-                      "firstLogin": false,
-                      "healthCheckInterval": 45,
-                      "masterToken": "SESSION_GONE_MASTER_TOKEN",
-                      "masterValidityInSeconds": 14400,
-                      "newClientForUpgrade": null,
-                      "remMeToken": "SESSION_GONE_REMME_TOKEN",
-                      "remMeValidityInSeconds": 14400,
-                      "serverVersion": "Dev",
-                      "sessionId": "51539800306",
-                      "token": "SESSION_GONE_TOKEN",
-                      "validityInSeconds": 3600,
-                      "parameters": []
+                      'displayUserName': 'FAKEUSERNAME',
+                      'firstLogin': false,
+                      'healthCheckInterval': 45,
+                      'masterToken': 'SESSION_GONE_MASTER_TOKEN',
+                      'masterValidityInSeconds': 14400,
+                      'newClientForUpgrade': null,
+                      'remMeToken': 'SESSION_GONE_REMME_TOKEN',
+                      'remMeValidityInSeconds': 14400,
+                      'serverVersion': 'Dev',
+                      'sessionId': '51539800306',
+                      'token': 'SESSION_GONE_TOKEN',
+                      'validityInSeconds': 3600,
+                      'parameters': []
                     },
-                  "message": null,
-                  "success": true
+                  'message': null,
+                  'success': true
                 }
             }
         }
@@ -1697,7 +1697,7 @@ function buildRequestOutputMappings(clientInfo) {
               'Accept': 'application/json',
               'Authorization': 'Snowflake Token="SESSION_GONE_TOKEN"',
               'Content-Type': 'application/json',
-              "X-Snowflake-Service": "fakeservicename2"
+              'X-Snowflake-Service': 'fakeservicename2'
             }
         },
       output:
@@ -1706,12 +1706,12 @@ function buildRequestOutputMappings(clientInfo) {
           response:
             {
               statusCode: 200,
-              statusMessage: "OK",
+              statusMessage: 'OK',
               body:
                 {
-                  code: "390111",
+                  code: '390111',
                   data: null,
-                  message: "ERROR!",
+                  message: 'ERROR!',
                   success: false
                 }
             }
@@ -1727,15 +1727,15 @@ function buildRequestOutputMappings(clientInfo) {
             {
               'Accept': 'application/json',
               'Content-Type': 'application/json',
-              "CLIENT_APP_VERSION": clientInfo.version,
-              "CLIENT_APP_ID": "JavaScript"
+              'CLIENT_APP_VERSION': clientInfo.version,
+              'CLIENT_APP_ID': 'JavaScript'
             },
           json:
             {
               data:
                 {
                   ACCOUNT_NAME: 'fakeaccount',
-                  AUTHENTICATOR: "SNOWFLAKE",
+                  AUTHENTICATOR: 'SNOWFLAKE',
                   LOGIN_NAME: 'fakesessionexpired',
                   PASSWORD: 'fakepassword',
                   CLIENT_APP_ID: 'JavaScript',
@@ -1751,28 +1751,28 @@ function buildRequestOutputMappings(clientInfo) {
           response:
             {
               statusCode: 200,
-              statusMessage: "OK",
+              statusMessage: 'OK',
               body:
                 {
-                  "code": null,
-                  "data":
+                  'code': null,
+                  'data':
                     {
-                      "displayUserName": "FAKEUSERNAME",
-                      "firstLogin": false,
-                      "healthCheckInterval": 45,
-                      "masterToken": "SESSION_EXPIRED_MASTER_TOKEN",
-                      "masterValidityInSeconds": 14400,
-                      "newClientForUpgrade": null,
-                      "remMeToken": "SESSION_EXPIRED_REMME_TOKEN",
-                      "remMeValidityInSeconds": 14400,
-                      "serverVersion": "Dev",
-                      "sessionId": "51539800306",
-                      "token": "SESSION_EXPIRED_TOKEN",
-                      "validityInSeconds": 0,
-                      "parameters": []
+                      'displayUserName': 'FAKEUSERNAME',
+                      'firstLogin': false,
+                      'healthCheckInterval': 45,
+                      'masterToken': 'SESSION_EXPIRED_MASTER_TOKEN',
+                      'masterValidityInSeconds': 14400,
+                      'newClientForUpgrade': null,
+                      'remMeToken': 'SESSION_EXPIRED_REMME_TOKEN',
+                      'remMeValidityInSeconds': 14400,
+                      'serverVersion': 'Dev',
+                      'sessionId': '51539800306',
+                      'token': 'SESSION_EXPIRED_TOKEN',
+                      'validityInSeconds': 0,
+                      'parameters': []
                     },
-                  "message": null,
-                  "success": true
+                  'message': null,
+                  'success': true
                 }
             }
         }
@@ -1787,7 +1787,7 @@ function buildRequestOutputMappings(clientInfo) {
               'Accept': 'application/json',
               'Authorization': 'Snowflake Token="SESSION_EXPIRED_TOKEN"',
               'Content-Type': 'application/json',
-              "X-Snowflake-Service": "fakeservicename2"
+              'X-Snowflake-Service': 'fakeservicename2'
             }
         },
       output:
@@ -1796,12 +1796,12 @@ function buildRequestOutputMappings(clientInfo) {
           response:
             {
               statusCode: 200,
-              statusMessage: "OK",
+              statusMessage: 'OK',
               body:
                 {
-                  code: "390112",
+                  code: '390112',
                   data: null,
-                  message: "ERROR!",
+                  message: 'ERROR!',
                   success: false
                 }
             }
@@ -1816,15 +1816,15 @@ function buildRequestOutputMappings(clientInfo) {
             {
               'Accept': 'application/json',
               'Content-Type': 'application/json',
-              "CLIENT_APP_VERSION": clientInfo.version,
-              "CLIENT_APP_ID": "JavaScript"
+              'CLIENT_APP_VERSION': clientInfo.version,
+              'CLIENT_APP_ID': 'JavaScript'
             },
           json:
             {
               data:
                 {
                   ACCOUNT_NAME: 'fake504',
-                  AUTHENTICATOR: "SNOWFLAKE",
+                  AUTHENTICATOR: 'SNOWFLAKE',
                   LOGIN_NAME: 'fake504user',
                   PASSWORD: 'fakepassword',
                   CLIENT_APP_ID: 'JavaScript',
@@ -1840,7 +1840,7 @@ function buildRequestOutputMappings(clientInfo) {
           response:
             {
               statusCode: 504,
-              statusMessage: "ERROR",
+              statusMessage: 'ERROR',
               body: {}
             }
         }
@@ -1854,8 +1854,8 @@ function buildRequestOutputMappings(clientInfo) {
             {
               'Accept': 'application/json',
               'Content-Type': 'application/json',
-              "CLIENT_APP_VERSION": clientInfo.version,
-              "CLIENT_APP_ID": "JavaScript"
+              'CLIENT_APP_VERSION': clientInfo.version,
+              'CLIENT_APP_ID': 'JavaScript'
               
             },
           json:
@@ -1863,7 +1863,7 @@ function buildRequestOutputMappings(clientInfo) {
               data:
                 {
                   ACCOUNT_NAME: 'fake504',
-                  AUTHENTICATOR: "SNOWFLAKE",
+                  AUTHENTICATOR: 'SNOWFLAKE',
                   LOGIN_NAME: 'fake504user',
                   PASSWORD: 'fakepassword',
                   CLIENT_APP_ID: 'JavaScript',
@@ -1879,7 +1879,7 @@ function buildRequestOutputMappings(clientInfo) {
           response:
             {
               statusCode: 504,
-              statusMessage: "ERROR",
+              statusMessage: 'ERROR',
               body: {}
             }
         }
@@ -1893,15 +1893,15 @@ function buildRequestOutputMappings(clientInfo) {
             {
               'Accept': 'application/json',
               'Content-Type': 'application/json',
-              "CLIENT_APP_VERSION": clientInfo.version,
-              "CLIENT_APP_ID": "JavaScript"
+              'CLIENT_APP_VERSION': clientInfo.version,
+              'CLIENT_APP_ID': 'JavaScript'
             },
           json:
             {
               data:
                 {
                   ACCOUNT_NAME: 'fake504',
-                  AUTHENTICATOR: "SNOWFLAKE",
+                  AUTHENTICATOR: 'SNOWFLAKE',
                   LOGIN_NAME: 'fake504user',
                   PASSWORD: 'fakepassword',
                   CLIENT_APP_ID: 'JavaScript',
@@ -1917,28 +1917,28 @@ function buildRequestOutputMappings(clientInfo) {
           response:
             {
               statusCode: 200,
-              statusMessage: "OK",
+              statusMessage: 'OK',
               body:
                 {
-                  "code": null,
-                  "data":
+                  'code': null,
+                  'data':
                     {
-                      "displayUserName": "FAKE504USER",
-                      "firstLogin": false,
-                      "healthCheckInterval": 45,
-                      "masterToken": "MASTER_TOKEN",
-                      "masterValidityInSeconds": 14400,
-                      "newClientForUpgrade": null,
-                      "remMeToken": "SESSION_REMME_TOKEN",
-                      "remMeValidityInSeconds": 14400,
-                      "serverVersion": "Dev",
-                      "sessionId": "51539800306",
-                      "token": "SESSION_TOKEN",
-                      "validityInSeconds": 3600,
-                      "parameters": []
+                      'displayUserName': 'FAKE504USER',
+                      'firstLogin': false,
+                      'healthCheckInterval': 45,
+                      'masterToken': 'MASTER_TOKEN',
+                      'masterValidityInSeconds': 14400,
+                      'newClientForUpgrade': null,
+                      'remMeToken': 'SESSION_REMME_TOKEN',
+                      'remMeValidityInSeconds': 14400,
+                      'serverVersion': 'Dev',
+                      'sessionId': '51539800306',
+                      'token': 'SESSION_TOKEN',
+                      'validityInSeconds': 3600,
+                      'parameters': []
                     },
-                  "message": null,
-                  "success": true
+                  'message': null,
+                  'success': true
                 }
             }
         }
@@ -1953,7 +1953,7 @@ function buildRequestOutputMappings(clientInfo) {
               'Accept': 'application/json',
               'Authorization': 'Snowflake Token="SESSION_TOKEN"',
               'Content-Type': 'application/json',
-              "X-Snowflake-Service": "fakeservicename2"
+              'X-Snowflake-Service': 'fakeservicename2'
             }
         },
       output:
@@ -1962,7 +1962,7 @@ function buildRequestOutputMappings(clientInfo) {
           response:
             {
               statusCode: 200,
-              statusMessage: "OK",
+              statusMessage: 'OK',
               body:
                 {
                   code: null,

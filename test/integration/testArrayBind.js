@@ -11,15 +11,15 @@ const Logger = require('../../lib/logger');
 describe('Test Array Bind', function () {
   this.timeout(300000);
   var connection;
-  var createABTable = `create or replace table testAB(colA string, colB number, colC date, colD time, colE TIMESTAMP_NTZ, colF TIMESTAMP_TZ)`;
-  var insertAB = `insert into testAB values(?, ?, ?, ?, ?, ?)`;
-  var selectAB = `select * from testAB where colB = 1`;
-  var createNABTable = `create or replace table testNAB(colA string, colB number, colC date, colD time, colE TIMESTAMP_NTZ, colF TIMESTAMP_TZ)`;
-  var insertNAB = `insert into testNAB values(?, ?, ?, ?, ?, ?)`;
-  var selectNAB = `select * from testNAB where colB = 1`;
-  var createNullTable = `create or replace table testNullTB(colA string, colB number, colC date, colD time, colE TIMESTAMP_NTZ, colF TIMESTAMP_TZ)`;
-  var insertNull = `insert into testNullTB values(?, ?, ?, ?, ?, ?)`;
-  var selectNull = `select * from testNullTB where colB = 1`;
+  var createABTable = 'create or replace table testAB(colA string, colB number, colC date, colD time, colE TIMESTAMP_NTZ, colF TIMESTAMP_TZ)';
+  var insertAB = 'insert into testAB values(?, ?, ?, ?, ?, ?)';
+  var selectAB = 'select * from testAB where colB = 1';
+  var createNABTable = 'create or replace table testNAB(colA string, colB number, colC date, colD time, colE TIMESTAMP_NTZ, colF TIMESTAMP_TZ)';
+  var insertNAB = 'insert into testNAB values(?, ?, ?, ?, ?, ?)';
+  var selectNAB = 'select * from testNAB where colB = 1';
+  var createNullTable = 'create or replace table testNullTB(colA string, colB number, colC date, colD time, colE TIMESTAMP_NTZ, colF TIMESTAMP_TZ)';
+  var insertNull = 'insert into testNullTB values(?, ?, ?, ?, ?, ?)';
+  var selectNull = 'select * from testNullTB where colB = 1';
 
   const usedTableNames = [
     'testAB', 'testNAB', 'testNullTB',
@@ -48,7 +48,7 @@ describe('Test Array Bind', function () {
     var NABData;
     async.series(
       [
-        function(callback) {
+        function (callback) {
           var createNAB = connection.execute({
             sqlText: createABTable,
             complete: function (err, stmt) {
@@ -57,11 +57,11 @@ describe('Test Array Bind', function () {
             }
           });
         },
-        function(callback) {
+        function (callback) {
           var arrBind = [];
           var count = 100;
-          for (var i = 0; i<count; i++) {
-            arrBind.push(['string'+i, i, "2020-05-11", "12:35:41.3333333", "2022-04-01 23:59:59", "2022-07-08 12:05:30.9999999"]);
+          for (var i = 0; i < count; i++) {
+            arrBind.push(['string' + i, i, '2020-05-11', '12:35:41.3333333', '2022-04-01 23:59:59', '2022-07-08 12:05:30.9999999']);
           }
           
           var insertABStmt = connection.execute({
@@ -76,7 +76,7 @@ describe('Test Array Bind', function () {
             }
           });
         },
-        function(callback) {
+        function (callback) {
           var createNAB = connection.execute({
             sqlText: createNABTable,
             complete: function (err, stmt) {
@@ -85,11 +85,11 @@ describe('Test Array Bind', function () {
             }
           });
         },
-        function(callback) {
+        function (callback) {
           var arrBind = [];
           var count = 2;
-          for (var i = 0; i<count; i++) {
-            arrBind.push(['string'+i, i, "2020-05-11", "12:35:41.3333333", "2022-04-01 23:59:59", "2022-07-08 12:05:30.9999999"]);
+          for (var i = 0; i < count; i++) {
+            arrBind.push(['string' + i, i, '2020-05-11', '12:35:41.3333333', '2022-04-01 23:59:59', '2022-07-08 12:05:30.9999999']);
           }
           var insertNABStmt = connection.execute({
             sqlText: insertNAB,
@@ -101,7 +101,7 @@ describe('Test Array Bind', function () {
             }
           });
         },
-        function(callback) {
+        function (callback) {
           var selectNABTable = connection.execute({
             sqlText: selectNAB,
             complete: function (err, stmt, rows) {
@@ -146,7 +146,7 @@ describe('Test Array Bind', function () {
     var NABData;
     async.series(
       [
-        function(callback) {
+        function (callback) {
           connection.execute({
             sqlText: createNullTable,
             complete: function (err) {
@@ -154,11 +154,11 @@ describe('Test Array Bind', function () {
             }
           });
         },
-        function(callback) {
+        function (callback) {
           var arrBind = [];
           var count = 100;
-          for (var i = 0; i<count; i++) {
-            arrBind.push([null, i, "2020-05-11", "12:35:41.3333333", "2022-04-01 23:59:59", "2022-07-08 12:05:30.9999999"]);
+          for (var i = 0; i < count; i++) {
+            arrBind.push([null, i, '2020-05-11', '12:35:41.3333333', '2022-04-01 23:59:59', '2022-07-08 12:05:30.9999999']);
           }
           
           connection.execute({
@@ -175,7 +175,7 @@ describe('Test Array Bind', function () {
             }
           });
         },
-        function(callback) {
+        function (callback) {
           connection.execute({
             sqlText: createNABTable,
             complete: function (err) {
@@ -183,11 +183,11 @@ describe('Test Array Bind', function () {
             }
           });
         },
-        function(callback) {
+        function (callback) {
           var arrBind = [];
           var count = 2;
-          for (let i = 0; i<count; i++) {
-            arrBind.push(['string'+i, i, "2020-05-11", "12:35:41.3333333", "2022-04-01 23:59:59", "2022-07-08 12:05:30.9999999"]);
+          for (let i = 0; i < count; i++) {
+            arrBind.push(['string' + i, i, '2020-05-11', '12:35:41.3333333', '2022-04-01 23:59:59', '2022-07-08 12:05:30.9999999']);
           }
           connection.execute({
             sqlText: insertNAB,
@@ -203,7 +203,7 @@ describe('Test Array Bind', function () {
             }
           });
         },
-        function(callback) {
+        function (callback) {
           connection.execute({
             sqlText: selectNAB,
             complete: function (err, stmt, rows) {
@@ -264,8 +264,8 @@ describe('Test Array Bind', function () {
         function (callback) {
           var arrBind = [];
           var count = 100;
-          for (var i = 0; i<count; i++) {
-            arrBind.push(["some-data-for-stuff1", "some-data-for-stuff2"]);
+          for (var i = 0; i < count; i++) {
+            arrBind.push(['some-data-for-stuff1', 'some-data-for-stuff2']);
           }
           var insertSql = 'insert into testBindJson(cola,colb) select value:stuff1, value:stuff2 from table(flatten(parse_json(?)))';
           var insertStatement = connection.execute({
@@ -295,8 +295,8 @@ describe('Test Array Bind', function () {
         function (callback) {
           var arrBind = [];
           var count = 100;
-          for (var i = 0; i<count; i++) {
-            arrBind.push(["some-data-for-stuff1"]);
+          for (var i = 0; i < count; i++) {
+            arrBind.push(['some-data-for-stuff1']);
           }
           var insertSql = 'insert into testBindLargeArray(colA) values (?)';
           var insertStatement = connection.execute({
@@ -326,45 +326,45 @@ describe('Test Array Bind', function () {
         function (callback) {
           const dataset = [
             [
-              "5489",
-              "SAMPLE",
-              "{\"user\":{\"SSS\":\"KKKK003\",\"email\":\"THE\"}",
-              "2018-11-02T04:14:56.000000Z",
+              '5489',
+              'SAMPLE',
+              '{"user":{"SSS":"KKKK003","email":"THE"}',
+              '2018-11-02T04:14:56.000000Z',
               null
             ],
             [
-              "5490",
-              "SAMPLE",
-              "{\"user\":{\"SSS\":\"LLL108\",\"email\":\"Jenn\"}",
-              "2018-11-02T04:14:56.000000Z",
+              '5490',
+              'SAMPLE',
+              '{"user":{"SSS":"LLL108","email":"Jenn"}',
+              '2018-11-02T04:14:56.000000Z',
               null
             ],
             [
-              "5491",
-              "SAMPLE",
-              "{\"user\":{\"SSS\":\"LLL108\",\"email\":\"Jennif\"}",
-              "2018-11-02T04:14:56.000000Z",
+              '5491',
+              'SAMPLE',
+              '{"user":{"SSS":"LLL108","email":"Jennif"}',
+              '2018-11-02T04:14:56.000000Z',
               null
             ],
             [
-              "5492",
-              "SAMPLE",
-              "{\"user\":{\"SSS\":\"LLL108\",\"email\":\"Je\"}",
-              "2018-11-02T04:14:56.000000Z",
+              '5492',
+              'SAMPLE',
+              '{"user":{"SSS":"LLL108","email":"Je"}',
+              '2018-11-02T04:14:56.000000Z',
               null
             ],
             [
-              "5493",
-              "SAMPLE",
-              "{\"user\":{\"SSS\":\"LLL108\",\"email\":\"Jenn\"}",
-              "2018-11-02T04:14:56.000000Z",
+              '5493',
+              'SAMPLE',
+              '{"user":{"SSS":"LLL108","email":"Jenn"}',
+              '2018-11-02T04:14:56.000000Z',
               null
             ],
             [
-              "5494",
-              "SAMPLE",
-              "{\"user\":{\"SSS\":\"LLL108\",\"email\":\"Jennifer@xxx.com\"}",
-              "2018-11-02T04:14:56.000000Z",
+              '5494',
+              'SAMPLE',
+              '{"user":{"SSS":"LLL108","email":"Jennifer@xxx.com"}',
+              '2018-11-02T04:14:56.000000Z',
               null
             ]
           ];
@@ -396,7 +396,7 @@ describe('Test Array Bind', function () {
             complete: function (err, stmt, rows) {
               testUtil.checkError(err);
               var result = rows[0];
-              assert.equal(result['TYPE'], "SAMPLE");
+              assert.equal(result['TYPE'], 'SAMPLE');
               callback();
             }
           });
@@ -444,8 +444,8 @@ describe('Test Array Bind - full path', function () {
   it('Full path array bind', function (done) {
     var arrBind = [];
     var count = 100;
-    for (var i = 0; i<count; i++) {
-      arrBind.push([null, i, "2020-05-11", "12:35:41.3333333", "2022-04-01 23:59:59", "2022-07-08 12:05:30.9999999"]);
+    for (var i = 0; i < count; i++) {
+      arrBind.push([null, i, '2020-05-11', '12:35:41.3333333', '2022-04-01 23:59:59', '2022-07-08 12:05:30.9999999']);
     }
     
     connection.execute({
@@ -468,12 +468,12 @@ describe('Test Array Bind - full path', function () {
 describe('Test Array Bind Force Error on Upload file', function () {
   this.timeout(300000);
   var connection;
-  var createABTable = `create or replace table testAB(colA string, colB number, colC date, colD time, colE TIMESTAMP_NTZ, colF TIMESTAMP_TZ)`;
-  var insertAB = `insert into testAB values(?, ?, ?, ?, ?, ?)`;
-  var selectAB = `select * from testAB where colB = 1`;
-  var createNABTable = `create or replace table testNAB(colA string, colB number, colC date, colD time, colE TIMESTAMP_NTZ, colF TIMESTAMP_TZ)`;
-  var insertNAB = `insert into testNAB values(?, ?, ?, ?, ?, ?)`;
-  var selectNAB = `select * from testNAB where colB = 1`;
+  var createABTable = 'create or replace table testAB(colA string, colB number, colC date, colD time, colE TIMESTAMP_NTZ, colF TIMESTAMP_TZ)';
+  var insertAB = 'insert into testAB values(?, ?, ?, ?, ?, ?)';
+  var selectAB = 'select * from testAB where colB = 1';
+  var createNABTable = 'create or replace table testNAB(colA string, colB number, colC date, colD time, colE TIMESTAMP_NTZ, colF TIMESTAMP_TZ)';
+  var insertNAB = 'insert into testNAB values(?, ?, ?, ?, ?, ?)';
+  var selectNAB = 'select * from testNAB where colB = 1';
 
   const usedTableNames = ['testAB', 'testNAB'];
 
@@ -513,7 +513,7 @@ describe('Test Array Bind Force Error on Upload file', function () {
           var arrBind = [];
           var count = 100;
           for (var i = 0; i < count; i++) {
-            arrBind.push(['string' + i, i, "2020-05-11", "12:35:41.3333333", "2022-04-01 23:59:59", "2022-07-08 12:05:30.9999999"]);
+            arrBind.push(['string' + i, i, '2020-05-11', '12:35:41.3333333', '2022-04-01 23:59:59', '2022-07-08 12:05:30.9999999']);
           }
 
           var insertABStmt = connection.execute({
@@ -541,7 +541,7 @@ describe('Test Array Bind Force Error on Upload file', function () {
           var arrBind = [];
           var count = 2;
           for (var i = 0; i < count; i++) {
-            arrBind.push(['string' + i, i, "2020-05-11", "12:35:41.3333333", "2022-04-01 23:59:59", "2022-07-08 12:05:30.9999999"]);
+            arrBind.push(['string' + i, i, '2020-05-11', '12:35:41.3333333', '2022-04-01 23:59:59', '2022-07-08 12:05:30.9999999']);
           }
           var insertNABStmt = connection.execute({
             sqlText: insertNAB,

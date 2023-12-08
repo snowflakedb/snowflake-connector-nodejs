@@ -34,9 +34,9 @@ describe('LargeResultSetService', () => {
 
   describe('when all retries fail', () => {
     [
-      {testName: 'should retry on 503', url: '/503', expectedErrorName: 'LargeResultSetError'},
-      {testName: 'should retry on timeout', url: '/hang', expectedErrorName: 'NetworkError'},
-    ].forEach(({testName, url, expectedErrorName}) => {
+      { testName: 'should retry on 503', url: '/503', expectedErrorName: 'LargeResultSetError' },
+      { testName: 'should retry on timeout', url: '/hang', expectedErrorName: 'NetworkError' },
+    ].forEach(({ testName, url, expectedErrorName }) => {
       it(testName, done => {
         largeResultSetService.getObject({
           url: baseUrl + url,
@@ -66,9 +66,9 @@ describe('LargeResultSetService', () => {
     });
 
     [
-      {testName: 'should recover from 503', url: '/eachThirdReturns200Others503'},
-      {testName: 'should recover from timeout', url: '/eachThirdReturns200OthersHang'},
-    ].forEach(({testName, url}) => {
+      { testName: 'should recover from 503', url: '/eachThirdReturns200Others503' },
+      { testName: 'should recover from timeout', url: '/eachThirdReturns200OthersHang' },
+    ].forEach(({ testName, url }) => {
       it(testName, done => {
         largeResultSetService.getObject({
           url: baseUrl + url,

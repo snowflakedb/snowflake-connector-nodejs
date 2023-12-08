@@ -459,7 +459,7 @@ describe('Util', function () {
     const testCases =
       [
         {
-          testName: "test appending retry params with retry reason",
+          testName: 'test appending retry params with retry reason',
           option: {
             url: 'http://www.something.snowflakecomputing.com',
             retryCount: 3,
@@ -469,7 +469,7 @@ describe('Util', function () {
           result: 'http://www.something.snowflakecomputing.com?retryCount=3&retryReason=429'
         },
         {
-          testName: "test appending retry params without retry reason",
+          testName: 'test appending retry params without retry reason',
           option: {
             url: 'http://www.something.snowflakecomputing.com',
             retryCount: 3,
@@ -489,7 +489,7 @@ describe('Util', function () {
     }
   });
 
-  describe("Util.isLoginRequest Test", function () {
+  describe('Util.isLoginRequest Test', function () {
     const baseUrl = 'wwww.test.com';
     const testCases = 
     [
@@ -515,7 +515,7 @@ describe('Util', function () {
       }
     ];
 
-    for (const {testName, endPoint, result} of testCases) {
+    for (const { testName, endPoint, result } of testCases) {
       it(testName, function () {
         const isLoginRequest = Util.isLoginRequest(baseUrl + endPoint);
         assert.strictEqual(isLoginRequest, result);
@@ -523,7 +523,7 @@ describe('Util', function () {
     }
   });
 
-  describe("Util.getJitterSleepTime Test", function () {
+  describe('Util.getJitterSleepTime Test', function () {
     it('test - retryTimeout is over 300', function () {
       const errorCodes =
       [
@@ -599,7 +599,7 @@ describe('Util', function () {
     });
   });
 
-  it("Util.chooseRandom Test", function () {
+  it('Util.chooseRandom Test', function () {
     const positiveInteger = Util.chooseRandom(1, 5);
     const negativeInteger = Util.chooseRandom(-1, -5);
     const randomNumber = Util.chooseRandom(positiveInteger, negativeInteger);
@@ -614,11 +614,11 @@ describe('Util', function () {
     }
 
     for (let i = 0; i < 9; i++) {
-      assert.ok(randomNumbers[i] !== randomNumbers[i+1]);
+      assert.ok(randomNumbers[i] !== randomNumbers[i + 1]);
     }
   });
 
-  it("Util.getJitter Test", function () {
+  it('Util.getJitter Test', function () {
     const randomNumber = Util.chooseRandom(10, 100);
     const jitter = Util.getJitter(randomNumber);
 
@@ -639,15 +639,15 @@ describe('Util', function () {
     src = null;
     assert.strictEqual(Util.apply(dst, src), dst);
 
-    dst = {a: 1};
-    src = {b: 2};
+    dst = { a: 1 };
+    src = { b: 2 };
     assert.strictEqual(Util.apply(dst, src), dst);
     assert.strictEqual(Object.keys(dst).length, 2);
     assert.ok(dst.hasOwnProperty('a') && (dst.a === 1));
     assert.ok(dst.hasOwnProperty('b') && (dst.b === 2));
 
-    dst = {a: 1};
-    src = {a: 2};
+    dst = { a: 1 };
+    src = { a: 2 };
     assert.strictEqual(Util.apply(dst, src), dst);
     assert.strictEqual(Object.keys(dst).length, 1);
     assert.ok(dst.hasOwnProperty('a') && (dst.a === 2));
@@ -768,37 +768,37 @@ describe('Util', function () {
     });
   });
 
-  describe("Util Test - handling circular reference in isValidAsync exception handling", () => {
+  describe('Util Test - handling circular reference in isValidAsync exception handling', () => {
     let shouldMatchNonCircular = '{"one":1,"two":2}';
     let shouldMatchCircular = '{"one":1,"two":2,"myself":"[Circular]"}';
   
-    it("non-circular reference is handled correctly by JSON.stringify replacer", () => {
-      const a = {"one": 1, "two": 2};
+    it('non-circular reference is handled correctly by JSON.stringify replacer', () => {
+      const a = { 'one': 1, 'two': 2 };
       const replacedA = JSON.stringify(a, Util.getCircularReplacer());
       assert.deepEqual(replacedA, shouldMatchNonCircular);
     });
   
-    it("circular reference is handled correctly by JSON.stringify replacer", () => {
-      const b = {"one": 1, "two": 2};
+    it('circular reference is handled correctly by JSON.stringify replacer', () => {
+      const b = { 'one': 1, 'two': 2 };
       b.myself = b;
       const replacedB = JSON.stringify(b, Util.getCircularReplacer());
       assert.deepEqual(replacedB, shouldMatchCircular);
     });
   });
 
-  describe("Util Test - removing http or https from string", () => {
+  describe('Util Test - removing http or https from string', () => {
     const hostAndPortDone = 'my.pro.xy:8080';
     const ipAndPortDone = '10.20.30.40:8080';
     const somethingEntirelyDifferentDone = 'something ENTIRELY different';
 
     [
-      { name: "remove http from url", text: "http://my.pro.xy:8080", shouldMatch: hostAndPortDone },
-      { name: "remove https from url", text: "https://my.pro.xy:8080", shouldMatch: hostAndPortDone },
-      { name: "remove http from ip and port", text: "http://10.20.30.40:8080", shouldMatch: ipAndPortDone },
-      { name: "remove https from ip and port", text: "https://10.20.30.40:8080", shouldMatch: ipAndPortDone },
-      { name: "dont remove http(s) from hostname and port", text: "my.pro.xy:8080", shouldMatch: hostAndPortDone },
-      { name: "dont remove http(s) from ip and port", text: "10.20.30.40:8080", shouldMatch: ipAndPortDone },
-      { name: "dont remove http(s) from simple string", text: somethingEntirelyDifferentDone, shouldMatch: somethingEntirelyDifferentDone}
+      { name: 'remove http from url', text: 'http://my.pro.xy:8080', shouldMatch: hostAndPortDone },
+      { name: 'remove https from url', text: 'https://my.pro.xy:8080', shouldMatch: hostAndPortDone },
+      { name: 'remove http from ip and port', text: 'http://10.20.30.40:8080', shouldMatch: ipAndPortDone },
+      { name: 'remove https from ip and port', text: 'https://10.20.30.40:8080', shouldMatch: ipAndPortDone },
+      { name: 'dont remove http(s) from hostname and port', text: 'my.pro.xy:8080', shouldMatch: hostAndPortDone },
+      { name: 'dont remove http(s) from ip and port', text: '10.20.30.40:8080', shouldMatch: ipAndPortDone },
+      { name: 'dont remove http(s) from simple string', text: somethingEntirelyDifferentDone, shouldMatch: somethingEntirelyDifferentDone }
     ].forEach(({ name, text, shouldMatch }) => {
       it(`${name}`, () => {
         assert.deepEqual(Util.removeScheme(text), shouldMatch);
@@ -806,76 +806,76 @@ describe('Util', function () {
     });
   });
 
-  describe("Util Test - detecting PROXY envvars and compare with the agent proxy settings", () => {
+  describe('Util Test - detecting PROXY envvars and compare with the agent proxy settings', () => {
     // if for some reason there's already a PROXY envvar, try to preserve it
     const httpProxyBeforeTest = process.env.HTTP_PROXY ? process.env.HTTP_PROXY : null;
     const httpsProxyBeforeTest = process.env.HTTPS_PROXY ? process.env.HTTPS_PROXY : null;
 
     [
       {
-        name: "detect http_proxy envvar, no agent proxy",
+        name: 'detect http_proxy envvar, no agent proxy',
         isWarn: false,
-        httpproxy: "10.20.30.40:8080",
+        httpproxy: '10.20.30.40:8080',
         HTTPSPROXY: '',
-        agentOptions: {"keepalive": true},
-        shouldLog: " // PROXY environment variables: HTTP_PROXY: 10.20.30.40:8080 HTTPS_PROXY: <unset> NO_PROXY: <unset>."
+        agentOptions: { 'keepalive': true },
+        shouldLog: ' // PROXY environment variables: HTTP_PROXY: 10.20.30.40:8080 HTTPS_PROXY: <unset> NO_PROXY: <unset>.'
       }, {
-        name: "detect HTTPS_PROXY envvar, no agent proxy",
+        name: 'detect HTTPS_PROXY envvar, no agent proxy',
         isWarn: false,
         httpproxy: '',
-        HTTPSPROXY: "http://pro.xy:3128",
-        agentOptions: {"keepalive": true},
-        shouldLog: " // PROXY environment variables: HTTP_PROXY: <unset> HTTPS_PROXY: http://pro.xy:3128 NO_PROXY: <unset>."
+        HTTPSPROXY: 'http://pro.xy:3128',
+        agentOptions: { 'keepalive': true },
+        shouldLog: ' // PROXY environment variables: HTTP_PROXY: <unset> HTTPS_PROXY: http://pro.xy:3128 NO_PROXY: <unset>.'
       }, {
-        name: "detect both http_proxy and HTTPS_PROXY envvar, no agent proxy",
+        name: 'detect both http_proxy and HTTPS_PROXY envvar, no agent proxy',
         isWarn: false,
-        httpproxy: "10.20.30.40:8080",
-        HTTPSPROXY: "http://pro.xy:3128",
-        agentOptions: {"keepalive": true},
-        shouldLog: " // PROXY environment variables: HTTP_PROXY: 10.20.30.40:8080 HTTPS_PROXY: http://pro.xy:3128 NO_PROXY: <unset>."
+        httpproxy: '10.20.30.40:8080',
+        HTTPSPROXY: 'http://pro.xy:3128',
+        agentOptions: { 'keepalive': true },
+        shouldLog: ' // PROXY environment variables: HTTP_PROXY: 10.20.30.40:8080 HTTPS_PROXY: http://pro.xy:3128 NO_PROXY: <unset>.'
       }, {
-        name: "detect http_proxy envvar, agent proxy set to an unauthenticated proxy, same as the envvar",
+        name: 'detect http_proxy envvar, agent proxy set to an unauthenticated proxy, same as the envvar',
         isWarn: false,
-        httpproxy: "10.20.30.40:8080",
+        httpproxy: '10.20.30.40:8080',
         HTTPSPROXY: '',
-        agentOptions: {"keepalive": true, "host": "10.20.30.40", "port": 8080},
-        shouldLog: " // PROXY environment variables: HTTP_PROXY: 10.20.30.40:8080 HTTPS_PROXY: <unset> NO_PROXY: <unset>. // Proxy configured in Connection: proxy=10.20.30.40:8080"
+        agentOptions: { 'keepalive': true, 'host': '10.20.30.40', 'port': 8080 },
+        shouldLog: ' // PROXY environment variables: HTTP_PROXY: 10.20.30.40:8080 HTTPS_PROXY: <unset> NO_PROXY: <unset>. // Proxy configured in Connection: proxy=10.20.30.40:8080'
       }, {
-        name: "detect both http_proxy and HTTPS_PROXY envvar, agent proxy set to an unauthenticated proxy, same as the envvar",
+        name: 'detect both http_proxy and HTTPS_PROXY envvar, agent proxy set to an unauthenticated proxy, same as the envvar',
         isWarn: false,
-        httpproxy: "10.20.30.40:8080",
-        HTTPSPROXY: "http://10.20.30.40:8080",
-        agentOptions: {"keepalive": true, "host": "10.20.30.40", "port": 8080},
-        shouldLog: " // PROXY environment variables: HTTP_PROXY: 10.20.30.40:8080 HTTPS_PROXY: http://10.20.30.40:8080 NO_PROXY: <unset>. // Proxy configured in Connection: proxy=10.20.30.40:8080"
+        httpproxy: '10.20.30.40:8080',
+        HTTPSPROXY: 'http://10.20.30.40:8080',
+        agentOptions: { 'keepalive': true, 'host': '10.20.30.40', 'port': 8080 },
+        shouldLog: ' // PROXY environment variables: HTTP_PROXY: 10.20.30.40:8080 HTTPS_PROXY: http://10.20.30.40:8080 NO_PROXY: <unset>. // Proxy configured in Connection: proxy=10.20.30.40:8080'
       }, {
-        name: "detect both http_proxy and HTTPS_PROXY envvar, agent proxy set to an authenticated proxy, same as the envvar",
+        name: 'detect both http_proxy and HTTPS_PROXY envvar, agent proxy set to an authenticated proxy, same as the envvar',
         isWarn: false,
-        httpproxy: "10.20.30.40:8080",
-        HTTPSPROXY: "http://10.20.30.40:8080",
-        agentOptions: {"keepalive": true, "host": "10.20.30.40", "port": 8080, "user": "PRX", "password": "proxypass"},
-        shouldLog: " // PROXY environment variables: HTTP_PROXY: 10.20.30.40:8080 HTTPS_PROXY: http://10.20.30.40:8080 NO_PROXY: <unset>. // Proxy configured in Connection: proxy=10.20.30.40:8080 user=PRX"
+        httpproxy: '10.20.30.40:8080',
+        HTTPSPROXY: 'http://10.20.30.40:8080',
+        agentOptions: { 'keepalive': true, 'host': '10.20.30.40', 'port': 8080, 'user': 'PRX', 'password': 'proxypass' },
+        shouldLog: ' // PROXY environment variables: HTTP_PROXY: 10.20.30.40:8080 HTTPS_PROXY: http://10.20.30.40:8080 NO_PROXY: <unset>. // Proxy configured in Connection: proxy=10.20.30.40:8080 user=PRX'
       }, {
-        name: "detect both http_proxy and HTTPS_PROXY envvar, agent proxy set to an authenticated proxy, same as the envvar, with the protocol set",
+        name: 'detect both http_proxy and HTTPS_PROXY envvar, agent proxy set to an authenticated proxy, same as the envvar, with the protocol set',
         isWarn: false,
-        httpproxy: "10.20.30.40:8080",
-        HTTPSPROXY: "http://10.20.30.40:8080",
-        agentOptions: {"keepalive": true, "host": "10.20.30.40", "port": 8080, "user": "PRX", "password": "proxypass", "protocol": "http"},
-        shouldLog: " // PROXY environment variables: HTTP_PROXY: 10.20.30.40:8080 HTTPS_PROXY: http://10.20.30.40:8080 NO_PROXY: <unset>. // Proxy configured in Connection: protocol=http proxy=10.20.30.40:8080 user=PRX"
+        httpproxy: '10.20.30.40:8080',
+        HTTPSPROXY: 'http://10.20.30.40:8080',
+        agentOptions: { 'keepalive': true, 'host': '10.20.30.40', 'port': 8080, 'user': 'PRX', 'password': 'proxypass', 'protocol': 'http' },
+        shouldLog: ' // PROXY environment variables: HTTP_PROXY: 10.20.30.40:8080 HTTPS_PROXY: http://10.20.30.40:8080 NO_PROXY: <unset>. // Proxy configured in Connection: protocol=http proxy=10.20.30.40:8080 user=PRX'
       }, {
       // now some WARN level messages
-        name: "detect HTTPS_PROXY envvar, agent proxy set to an unauthenticated proxy, different from the envvar",
+        name: 'detect HTTPS_PROXY envvar, agent proxy set to an unauthenticated proxy, different from the envvar',
         isWarn: true,
         httpproxy: '',
-        HTTPSPROXY: "http://pro.xy:3128",
-        agentOptions: {"keepalive": true, "host": "10.20.30.40", "port": 8080},
-        shouldLog: " Using both the HTTPS_PROXY (http://pro.xy:3128) and the proxyHost:proxyPort (10.20.30.40:8080) settings to connect, but with different values. If you experience connectivity issues, try unsetting one of them."
+        HTTPSPROXY: 'http://pro.xy:3128',
+        agentOptions: { 'keepalive': true, 'host': '10.20.30.40', 'port': 8080 },
+        shouldLog: ' Using both the HTTPS_PROXY (http://pro.xy:3128) and the proxyHost:proxyPort (10.20.30.40:8080) settings to connect, but with different values. If you experience connectivity issues, try unsetting one of them.'
       }, {
-        name: "detect both http_proxy and HTTPS_PROXY envvar, different from each other, agent proxy set to an unauthenticated proxy, different from the envvars",
+        name: 'detect both http_proxy and HTTPS_PROXY envvar, different from each other, agent proxy set to an unauthenticated proxy, different from the envvars',
         isWarn: true,
         httpproxy: '169.254.169.254:8080',
-        HTTPSPROXY: "http://pro.xy:3128",
-        agentOptions: {"keepalive": true, "host": "10.20.30.40", "port": 8080},
-        shouldLog: " Using both the HTTP_PROXY (169.254.169.254:8080) and the proxyHost:proxyPort (10.20.30.40:8080) settings to connect, but with different values. If you experience connectivity issues, try unsetting one of them. Using both the HTTPS_PROXY (http://pro.xy:3128) and the proxyHost:proxyPort (10.20.30.40:8080) settings to connect, but with different values. If you experience connectivity issues, try unsetting one of them."
+        HTTPSPROXY: 'http://pro.xy:3128',
+        agentOptions: { 'keepalive': true, 'host': '10.20.30.40', 'port': 8080 },
+        shouldLog: ' Using both the HTTP_PROXY (169.254.169.254:8080) and the proxyHost:proxyPort (10.20.30.40:8080) settings to connect, but with different values. If you experience connectivity issues, try unsetting one of them. Using both the HTTPS_PROXY (http://pro.xy:3128) and the proxyHost:proxyPort (10.20.30.40:8080) settings to connect, but with different values. If you experience connectivity issues, try unsetting one of them.'
       }
     ].forEach(({ name, isWarn, httpproxy, HTTPSPROXY, agentOptions, shouldLog }) => {
       it(`${name}`, () => {

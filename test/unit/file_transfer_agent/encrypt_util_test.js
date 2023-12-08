@@ -100,9 +100,9 @@ describe('Encryption util', function () {
     var keySize = decodedKey.length;
 
     var matDesc = {
-      "smkId": encryptionMaterial.smkId,
-      "queryId": encryptionMaterial.queryId,
-      "keySize": keySize * 8
+      'smkId': encryptionMaterial.smkId,
+      'queryId': encryptionMaterial.queryId,
+      'keySize': keySize * 8
     };
     matDesc['smkId'] = matDesc['smkId'].toString();
     matDesc['keySize'] = matDesc['keySize'].toString();

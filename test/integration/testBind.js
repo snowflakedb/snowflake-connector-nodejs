@@ -95,9 +95,9 @@ describe('Test Bind Varible', function () {
             connection,
             selectAllFromTbl,
             [
-              {'COLA': 'string1', 'COLB': 2},
-              {'COLA': 'string2', 'COLB': 4},
-              {'COLA': 'string3', 'COLB': 6}
+              { 'COLA': 'string1', 'COLB': 2 },
+              { 'COLA': 'string2', 'COLB': 4 },
+              { 'COLA': 'string3', 'COLB': 6 }
             ],
             callback
           );
@@ -331,9 +331,9 @@ describe('Test Bind Varible', function () {
         },
         function (callback) {
           var expected = [
-            {'COLA': 'string2', 'COLB': 4},
-            {'COLA': 'string3', 'COLB': 5},
-            {'COLA': 'string4', 'COLB': 6}
+            { 'COLA': 'string2', 'COLB': 4 },
+            { 'COLA': 'string3', 'COLB': 5 },
+            { 'COLA': 'string4', 'COLB': 6 }
           ];
           testUtil.executeQueryAndVerify(
             connection,
@@ -465,7 +465,7 @@ describe('Test Bind Varible', function () {
       testingFunc(
         'boolean',
         [true],
-        [{'COLA': true}],
+        [{ 'COLA': true }],
         done
       );
     });
@@ -474,7 +474,7 @@ describe('Test Bind Varible', function () {
       testingFunc(
         'date',
         ['2012-11-11'],
-        [{'COLA': '2012-11-11'}],
+        [{ 'COLA': '2012-11-11' }],
         done
       );
     });
@@ -483,7 +483,7 @@ describe('Test Bind Varible', function () {
       testingFunc(
         'time',
         ['12:34:56.789789789'],
-        [{'COLA': '12:34:56'}],
+        [{ 'COLA': '12:34:56' }],
         done
       );
     });
@@ -492,7 +492,7 @@ describe('Test Bind Varible', function () {
       testingFunc(
         'timestamp_ltz',
         ['Thu, 21 Jan 2016 06:32:44 -0800'],
-        [{'COLA': '2016-01-21 06:32:44.000 -0800'}],
+        [{ 'COLA': '2016-01-21 06:32:44.000 -0800' }],
         done
       );
     });
@@ -501,7 +501,7 @@ describe('Test Bind Varible', function () {
       testingFunc(
         'timestamp_tz',
         ['Thu, 21 Jan 2016 06:32:44 -0800'],
-        [{'COLA': '2016-01-21 06:32:44.000 -0800'}],
+        [{ 'COLA': '2016-01-21 06:32:44.000 -0800' }],
         done
       );
     });
@@ -510,7 +510,7 @@ describe('Test Bind Varible', function () {
       testingFunc(
         'timestamp_ntz',
         ['Thu, 21 Jan 2016 06:32:44 -0800'],
-        [{'COLA': '2016-01-21 06:32:44.000'}],
+        [{ 'COLA': '2016-01-21 06:32:44.000' }],
         done
       );
     });
@@ -519,7 +519,7 @@ describe('Test Bind Varible', function () {
       testingFunc(
         'timestamp_ntz',
         [new Date('Thu, 21 Jan 2016 06:32:44 -0800')],
-        [{'COLA': '2016-01-21 14:32:44.000'}],
+        [{ 'COLA': '2016-01-21 14:32:44.000' }],
         done
       );
     });

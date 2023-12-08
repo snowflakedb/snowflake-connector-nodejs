@@ -114,31 +114,31 @@ describe('OCSP validation', function () {
 
   const httpsEndpoints = [
     {
-      accessUrl: "https://sfcsupport.snowflakecomputing.com",
-      account: "sfcsupport",
-      username: "fake_user",
-      password: "fake_password"
+      accessUrl: 'https://sfcsupport.snowflakecomputing.com',
+      account: 'sfcsupport',
+      username: 'fake_user',
+      password: 'fake_password'
     },
 
     {
-      accessUrl: "https://sfcsupporteu.eu-centraol-1.snowflakecomputing.com",
-      account: "sfcsupporteu",
-      username: "fake_user",
-      password: "fake_password"
+      accessUrl: 'https://sfcsupporteu.eu-centraol-1.snowflakecomputing.com',
+      account: 'sfcsupporteu',
+      username: 'fake_user',
+      password: 'fake_password'
     },
 
     {
-      accessUrl: "https://sfcsupportva.us-east-1.snowflakecomputing.com",
-      account: "sfcsupportva",
-      username: "fake_user",
-      password: "fake_password"
+      accessUrl: 'https://sfcsupportva.us-east-1.snowflakecomputing.com',
+      account: 'sfcsupportva',
+      username: 'fake_user',
+      password: 'fake_password'
     },
 
     {
-      accessUrl: "https://aztestaccount.east-us-2.azure.snowflakecomputing.com",
-      account: "aztestaccount",
-      username: "fake_user",
-      password: "fake_password"
+      accessUrl: 'https://aztestaccount.east-us-2.azure.snowflakecomputing.com',
+      account: 'aztestaccount',
+      username: 'fake_user',
+      password: 'fake_password'
     }
   ];
 
@@ -189,12 +189,12 @@ describe('OCSP validation', function () {
     SocketUtil.variables.OCSP_RESPONSE_CACHE = undefined;
 
     function cleanup() {
-      snowflake.configure({ocspFailOpen: true});
+      snowflake.configure({ ocspFailOpen: true });
       done();
     }
 
     const testOptions = function (i) {
-      snowflake.configure({ocspFailOpen: false});
+      snowflake.configure({ ocspFailOpen: false });
       const connection = snowflake.createConnection(httpsEndpoints[i]);
       connectToHttpsEndpoint(testOptions, i, connection, cleanup);
     };
@@ -208,12 +208,12 @@ describe('OCSP validation', function () {
 
     function cleanup() {
       SocketUtil.variables.SF_OCSP_RESPONSE_CACHE_SERVER_ENABLED = true;
-      snowflake.configure({ocspFailOpen: true});
+      snowflake.configure({ ocspFailOpen: true });
       done();
     }
 
     const testOptions = function (i) {
-      snowflake.configure({ocspFailOpen: false});
+      snowflake.configure({ ocspFailOpen: false });
       const connection = snowflake.createConnection(httpsEndpoints[i]);
       connectToHttpsEndpoint(testOptions, i, connection, cleanup);
     };
@@ -239,7 +239,7 @@ describe('OCSP validation', function () {
 
   it('Test Ocsp with different endpoints - no cache directory access', function (done) {
     const platform = Os.platform();
-    if (platform === "linux") {
+    if (platform === 'linux') {
       deleteCache();
       SocketUtil.variables.OCSP_RESPONSE_CACHE = undefined;
       process.env['SF_OCSP_RESPONSE_CACHE_DIR'] = '/usr';
@@ -277,14 +277,14 @@ describe('OCSP validation', function () {
         assert.ok(!err, JSON.stringify(err));
       });
     }
-    snowflake.configure({ocspFailOpen: true});
+    snowflake.configure({ ocspFailOpen: true });
 
     done();
   });
 });
 
 describe('OCSP privatelink', function () {
-  const mockUrl = `http://www.mockAccount.com`;
+  const mockUrl = 'http://www.mockAccount.com';
   const mockParsedUrl = require('url').parse(mockUrl);
   const mockDataBuf = Buffer.from('mockData');
   const mockFunc = function () {
@@ -341,21 +341,21 @@ describe.skip('Test Ocsp with network delay', function () {
   var connection;
 
   before(function (done) {
-    exec("sudo tc qdisc add dev eth0 root netem delay 5000ms");
+    exec('sudo tc qdisc add dev eth0 root netem delay 5000ms');
     done();
   });
 
   after(function (done) {
-    exec("sudo tc qdisc delete dev eth0 root");
+    exec('sudo tc qdisc delete dev eth0 root');
     testUtil.destroyConnection(connection, done);
   });
 
   it('Force to download cache with network delay', function (done) {
     const platform = Os.platform();
-    if (platform === "linux") {
+    if (platform === 'linux') {
       OcspResponseCache.deleteCache();
       SocketUtil.variables.OCSP_RESPONSE_CACHE = undefined;
-      snowflake.configure({ocspFailOpen: false});
+      snowflake.configure({ ocspFailOpen: false });
       connection = snowflake.createConnection(connOption.valid);
 
       async.series([

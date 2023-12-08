@@ -48,7 +48,7 @@ describe('testProxy', function () {
           testUtil.executeQueryAndVerify(
             connection,
             'select * from testProxy',
-            [{'COLA': 'testString'}],
+            [{ 'COLA': 'testString' }],
             callback
           );
         },

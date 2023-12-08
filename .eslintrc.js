@@ -46,16 +46,16 @@ module.exports = {
     'no-useless-catch': ['warn'],
     'no-useless-escape': ['warn'],
     'no-var': ['warn'],
-    'object-curly-spacing': ['warn', 'always'],
+    'object-curly-spacing': ['error', 'always'],
     'prefer-const': ['warn'],
-    'quotes': ['warn', 'single'],
+    'quotes': ['error', 'single'],
     'semi': ['error', 'always'],
     'semi-spacing': ['error'],
-    'space-before-function-paren': ['warn', {
+    'space-before-function-paren': ['error', {
       'anonymous': 'always',
       'named': 'never',
       'asyncArrow': 'always',
     }],
-    'space-infix-ops': ['warn'],
+    'space-infix-ops': ['error'],
   }
 };

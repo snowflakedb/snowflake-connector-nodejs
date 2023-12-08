@@ -63,11 +63,11 @@ describe('Execute test', function () {
           testUtil.executeQueryAndVerify(
             connection,
             selectAllSQL,
-            [{'COLA': 1, 'COLB': 'a'},
-              {'COLA': 1, 'COLB': 'a'},
-              {'COLA': 1, 'COLB': 'a'},
-              {'COLA': 1, 'COLB': 'a'},
-              {'COLA': 1, 'COLB': 'a'}],
+            [{ 'COLA': 1, 'COLB': 'a' },
+              { 'COLA': 1, 'COLB': 'a' },
+              { 'COLA': 1, 'COLB': 'a' },
+              { 'COLA': 1, 'COLB': 'a' },
+              { 'COLA': 1, 'COLB': 'a' }],
             callback
           );
         },
@@ -97,7 +97,7 @@ describe('Execute test', function () {
         testUtil.executeQueryAndVerify(
           connection,
           selectAllSQL,
-          [{'COLA': 2, 'COLB': 'b'}],
+          [{ 'COLA': 2, 'COLB': 'b' }],
           callback
         );
       },
@@ -119,7 +119,7 @@ describe('Execute test', function () {
           testUtil.executeQueryAndVerify(
             connection,
             createNodeTSQL,
-            [{'status': 'Table NODET successfully created.'}],
+            [{ 'status': 'Table NODET successfully created.' }],
             callback
           );
         },
@@ -127,7 +127,7 @@ describe('Execute test', function () {
           testUtil.executeQueryAndVerify(
             connection,
             insertNodeTSQL,
-            [{'number of rows inserted': 1}],
+            [{ 'number of rows inserted': 1 }],
             callback
           );
         },
@@ -171,7 +171,7 @@ describe('Execute test - variant', function () {
         alwaysCreateTextNode: testCase.alwaysCreateTextNode
       });
 
-      const sampleTempFile = tmp.fileSync({postfix: testCase.fileExtension});
+      const sampleTempFile = tmp.fileSync({ postfix: testCase.fileExtension });
       fs.writeFileSync(sampleTempFile.name, testCase.sampleData);
 
       let putVariant = `PUT file://${sampleTempFile.name} @${DATABASE_NAME}.${SCHEMA_NAME}.${TEST_VARIANT_STAGE}`;

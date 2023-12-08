@@ -77,23 +77,23 @@ async function run() {
 
   const testCases = [];
   if (!choosenParser || choosenParser.toString().includes('Function')) {
-    testCases.push({parser: 'Function', jsonColumnVariantParser: (rawColumnValue) => new Function(`return (${rawColumnValue})`)});
+    testCases.push({ parser: 'Function', jsonColumnVariantParser: (rawColumnValue) => new Function(`return (${rawColumnValue})`) });
   }
   if (!choosenParser || choosenParser.toString().includes('better-eval')) {
-    testCases.push({parser: 'betterEval', jsonColumnVariantParser: (rawColumnValue) => require('better-eval').call('(' + rawColumnValue + ')')});
+    testCases.push({ parser: 'betterEval', jsonColumnVariantParser: (rawColumnValue) => require('better-eval').call('(' + rawColumnValue + ')') });
   }
   if (!choosenParser || choosenParser.toString().includes('vm')) {
-    testCases.push({parser: 'vm', jsonColumnVariantParser: rawColumnValue => require('vm').runInNewContext('(' + rawColumnValue + ')')});
+    testCases.push({ parser: 'vm', jsonColumnVariantParser: rawColumnValue => require('vm').runInNewContext('(' + rawColumnValue + ')') });
   }
   // eval lib contains vulnerability so we decide to resign using it
   // if (!process.argv[4] || process.argv[4].toString().contains('eval')) {
   //   testCases.push({parser: 'eval', jsonColumnVariantParser: rawColumnValue => eval('(' + rawColumnValue + ')')})
   // };
   if (!choosenParser || choosenParser.toString().includes('JSON')) {
-    testCases.push({parser: 'JSON', jsonColumnVariantParser: rawColumnValue => JSON.parse(rawColumnValue)});
+    testCases.push({ parser: 'JSON', jsonColumnVariantParser: rawColumnValue => JSON.parse(rawColumnValue) });
   }
 
-  const execute = async ({parser, jsonColumnVariantParser}, extractFunction) => {
+  const execute = async ({ parser, jsonColumnVariantParser }, extractFunction) => {
     console.log(`\nTest for parser: [${parser}] extracting by ${extractFunction.name}`);
     const testVariantTableName = `testVariantTable000${parser}`;
     let connection = await helpers.connectUsingEnv();

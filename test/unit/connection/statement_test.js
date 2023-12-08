@@ -54,7 +54,7 @@ describe('Statement.execute()', function () {
         name: 'execute() null sql text',
         options:
           {
-            statementOptions: {sqlText: null}
+            statementOptions: { sqlText: null }
           },
         errorCode: ErrorCodes.ERR_CONN_EXEC_STMT_MISSING_SQL_TEXT
       },
@@ -62,7 +62,7 @@ describe('Statement.execute()', function () {
         name: 'execute() undefined sql text',
         options:
           {
-            statementOptions: {sqlText: undefined}
+            statementOptions: { sqlText: undefined }
           },
         errorCode: ErrorCodes.ERR_CONN_EXEC_STMT_MISSING_SQL_TEXT
       },
@@ -70,7 +70,7 @@ describe('Statement.execute()', function () {
         name: 'execute() invalid sql text',
         options:
           {
-            statementOptions: {sqlText: 0}
+            statementOptions: { sqlText: 0 }
           },
         errorCode: ErrorCodes.ERR_CONN_EXEC_STMT_INVALID_SQL_TEXT
       },
@@ -163,7 +163,7 @@ describe('Statement.execute()', function () {
         name: 'execute() missing services',
         options:
           {
-            statementOptions: {sqlText: 'sqlText'}
+            statementOptions: { sqlText: 'sqlText' }
           },
         errorCode: ErrorCodes.ERR_INTERNAL_ASSERT_FAILED
       },
@@ -171,7 +171,7 @@ describe('Statement.execute()', function () {
         name: 'execute() missing connectionConfig',
         options:
           {
-            statementOptions: {sqlText: 'sqlText'},
+            statementOptions: { sqlText: 'sqlText' },
             services: {}
           },
         errorCode: ErrorCodes.ERR_INTERNAL_ASSERT_FAILED
@@ -180,7 +180,7 @@ describe('Statement.execute()', function () {
         name: 'execute() invalid request id with sqlText',
         options:
           {
-            statementOptions: {sqlText: 'sqlText', requestId: 1234},
+            statementOptions: { sqlText: 'sqlText', requestId: 1234 },
             services: {},
             connectionConfig: null
           },
@@ -190,7 +190,7 @@ describe('Statement.execute()', function () {
         name: 'execute() invalid request id without sqlText',
         options:
           {
-            statementOptions: {requestId: 1234},
+            statementOptions: { requestId: 1234 },
             services: {},
             connectionConfig: null
           },
@@ -281,7 +281,7 @@ describe('Statement.fetchResult()', function () {
         name: 'fetchResult() undefined query id',
         options:
           {
-            statementOptions: {queryId: undefined}
+            statementOptions: { queryId: undefined }
           },
         errorCode: ErrorCodes.ERR_CONN_FETCH_RESULT_MISSING_QUERY_ID
       },
@@ -289,7 +289,7 @@ describe('Statement.fetchResult()', function () {
         name: 'fetchResult() null query id',
         options:
           {
-            statementOptions: {queryId: null}
+            statementOptions: { queryId: null }
           },
         errorCode: ErrorCodes.ERR_CONN_FETCH_RESULT_MISSING_QUERY_ID
       },
@@ -297,7 +297,7 @@ describe('Statement.fetchResult()', function () {
         name: 'fetchResult() invalid query id',
         options:
           {
-            statementOptions: {queryId: 0}
+            statementOptions: { queryId: 0 }
           },
         errorCode: ErrorCodes.ERR_CONN_FETCH_RESULT_INVALID_QUERY_ID
       },
@@ -353,7 +353,7 @@ describe('Statement.fetchResult()', function () {
         name: 'fetchResult() missing services',
         options:
           {
-            statementOptions: {queryId: 'foo'}
+            statementOptions: { queryId: 'foo' }
           },
         errorCode: ErrorCodes.ERR_INTERNAL_ASSERT_FAILED
       },
@@ -361,7 +361,7 @@ describe('Statement.fetchResult()', function () {
         name: 'fetchResult() missing connectionConfig',
         options:
           {
-            statementOptions: {queryId: 'foo'},
+            statementOptions: { queryId: 'foo' },
             services: {},
             connectionConfig: null
           },
@@ -371,7 +371,7 @@ describe('Statement.fetchResult()', function () {
         name: 'fetchResult() invali row mode',
         options:
           {
-            statementOptions: {queryId: 'foo', rowMode: 'invalid'},
+            statementOptions: { queryId: 'foo', rowMode: 'invalid' },
             services: {},
             connectionConfig: null
           },

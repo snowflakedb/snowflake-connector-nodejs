@@ -27,18 +27,18 @@ var typesNumber = [snowflake.NUMBER];
 var typesDate = [snowflake.DATE];
 
 var connOptsNone = Util.apply({}, connOpts);
-var connOptsBoolean = Util.apply({fetchAsString: typesBoolean}, connOpts);
-var connOptsNumber = Util.apply({fetchAsString: typesNumber}, connOpts);
-var connOptsDate = Util.apply({fetchAsString: typesDate}, connOpts);
+var connOptsBoolean = Util.apply({ fetchAsString: typesBoolean }, connOpts);
+var connOptsNumber = Util.apply({ fetchAsString: typesNumber }, connOpts);
+var connOptsDate = Util.apply({ fetchAsString: typesDate }, connOpts);
 
 var stmtOptsNone = Util.apply({}, stmtOpts);
-var stmtOptsBoolean = Util.apply({fetchAsString: typesBoolean}, stmtOpts);
-var stmtOptsNumber = Util.apply({fetchAsString: typesNumber}, stmtOpts);
+var stmtOptsBoolean = Util.apply({ fetchAsString: typesBoolean }, stmtOpts);
+var stmtOptsNumber = Util.apply({ fetchAsString: typesNumber }, stmtOpts);
 
 var strmOptsNone = {};
-var strmOptsNumber = {fetchAsString: typesNumber};
-var strmOptsBoolean = {fetchAsString: typesBoolean};
-var strmOptsDate = {fetchAsString: typesDate};
+var strmOptsNumber = { fetchAsString: typesNumber };
+var strmOptsBoolean = { fetchAsString: typesBoolean };
+var strmOptsDate = { fetchAsString: typesDate };
 
 describe('Statement - fetch as string', function () {
   var testCases =

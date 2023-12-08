@@ -84,7 +84,7 @@ describe('Test Stream Rows API', function () {
 
   it('testEmptyResultSet', function (done) {
     connection.execute({
-      sqlText: "select randstr(10, random()) c1 from table(generator(rowcount=>10)) where c1='abc'",
+      sqlText: 'select randstr(10, random()) c1 from table(generator(rowcount=>10)) where c1=\'abc\'',
       complete: function (err, stmt) {
         testUtil.checkError(err);
         var completedStream = 0;
@@ -157,9 +157,9 @@ describe('Test Stream Rows API', function () {
       var value = [];
       for (var e in entry) {
         var v = entry[e];
-        value.push("'" + v + "'");
+        value.push('\'' + v + '\'');
       }
-      values.push("(" + value.join(',') + ")");
+      values.push('(' + value.join(',') + ')');
     });
     var sql = 'select * from values' + values.join(',');
     connection.execute({

@@ -9,7 +9,7 @@ const Logger = require('../../lib/logger');
 
 describe('Test multi statement', function () {
   var connection;
-  var alterSessionMultiStatement0 = "alter session set MULTI_STATEMENT_COUNT=0";
+  var alterSessionMultiStatement0 = 'alter session set MULTI_STATEMENT_COUNT=0';
   var selectTable = 'select ?; select ?,3; select ?,5,6';
 
   before(function (done) {

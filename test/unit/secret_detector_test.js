@@ -97,9 +97,9 @@ describe('Secret Detector', function () {
 
 
   it('test - false positive', async function () {
-    var falsePositiveToken = "2020-04-30 23:06:04,069 - MainThread auth.py:397" +
-      " - write_temporary_credential() - DEBUG - no ID " +
-      "token is given when try to store temporary credential";
+    var falsePositiveToken = '2020-04-30 23:06:04,069 - MainThread auth.py:397' +
+      ' - write_temporary_credential() - DEBUG - no ID ' +
+      'token is given when try to store temporary credential';
 
     var result = SecretDetector.maskSecrets(falsePositiveToken);
     assert.strictEqual(result.masked, false);
@@ -162,59 +162,59 @@ describe('Secret Detector', function () {
     var randomPwd = 'Fh[+2J~AcqeqW%?';
     var randomPwd2 = randomPwd + 'vdkav13';
 
-    var testStringWithPrefix = "token=" + longToken +
-      " random giberish " +
-      "password:" + randomPwd;
+    var testStringWithPrefix = 'token=' + longToken +
+      ' random giberish ' +
+      'password:' + randomPwd;
     var result = SecretDetector.maskSecrets(testStringWithPrefix);
     assert.strictEqual(result.masked, true);
     assert.strictEqual(result.maskedtxt,
       'token=****' +
-      " random giberish " +
-      "password:****"
+      ' random giberish ' +
+      'password:****'
     );
     assert.strictEqual(result.errstr, null);
 
-    var testStringWithPrefixReversed = "password:" + randomPwd +
-      " random giberish " +
-      "token=" + longToken;
+    var testStringWithPrefixReversed = 'password:' + randomPwd +
+      ' random giberish ' +
+      'token=' + longToken;
     result = SecretDetector.maskSecrets(testStringWithPrefixReversed);
     assert.strictEqual(result.masked, true);
     assert.strictEqual(result.maskedtxt,
-      "password:****"+
-      " random giberish " +
+      'password:****' +
+      ' random giberish ' +
       'token=****'
     );
     assert.strictEqual(result.errstr, null);
 
-    var testStringWithPrefixMultiToken = "token=" + longToken +
-      " random giberish " +
-      "password:" + randomPwd +
-      " random giberish " +
-      "idToken:" + longToken2;
+    var testStringWithPrefixMultiToken = 'token=' + longToken +
+      ' random giberish ' +
+      'password:' + randomPwd +
+      ' random giberish ' +
+      'idToken:' + longToken2;
     result = SecretDetector.maskSecrets(testStringWithPrefixMultiToken);
     assert.strictEqual(result.masked, true);
     assert.strictEqual(result.maskedtxt,
       'token=****' +
-      " random giberish " +
-      "password:****" +
-      " random giberish " +
-      "idToken:****"
+      ' random giberish ' +
+      'password:****' +
+      ' random giberish ' +
+      'idToken:****'
     );
     assert.strictEqual(result.errstr, null);
 
-    var testStringWithPrefixMultiPass = "password=" + randomPwd +
-      " random giberish " +
-      "password=" + randomPwd2 +
-      " random giberish " +
-      "password=" + randomPwd;
+    var testStringWithPrefixMultiPass = 'password=' + randomPwd +
+      ' random giberish ' +
+      'password=' + randomPwd2 +
+      ' random giberish ' +
+      'password=' + randomPwd;
     result = SecretDetector.maskSecrets(testStringWithPrefixMultiPass);
     assert.strictEqual(result.masked, true);
     assert.strictEqual(result.maskedtxt,
-      "password=" + "****" +
-      " random giberish " +
-      "password=" + "****" +
-      " random giberish " +
-      "password=" + "****"
+      'password=' + '****' +
+      ' random giberish ' +
+      'password=' + '****' +
+      ' random giberish ' +
+      'password=' + '****'
     );
     assert.strictEqual(result.errstr, null);
   });
@@ -250,7 +250,7 @@ describe('Secret Detector', function () {
     var result = SecretDetector.maskSecrets(txt);
     assert.strictEqual(result.masked, true);
     assert.strictEqual(result.maskedtxt,
-      "password=**** " +
+      'password=**** ' +
       customPatterns.mask[0]);
     assert.strictEqual(result.errstr, null);
 
@@ -259,7 +259,7 @@ describe('Secret Detector', function () {
     result = SecretDetector.maskSecrets(txt);
     assert.strictEqual(result.masked, true);
     assert.strictEqual(result.maskedtxt,
-      "password=**** " +
+      'password=**** ' +
       customPatterns.mask[1]);
     assert.strictEqual(result.errstr, null);
   });
@@ -271,7 +271,7 @@ describe('Secret Detector', function () {
     try {
       SecretDetector = new SnowflakeSecretDetector(customPatterns);
     } catch (err) {
-      assert.strictEqual(err.toString(), "Error: The customPatterns object must contain the 'regex' key");
+      assert.strictEqual(err.toString(), 'Error: The customPatterns object must contain the \'regex\' key');
     }
   });
 
@@ -282,7 +282,7 @@ describe('Secret Detector', function () {
     try {
       SecretDetector = new SnowflakeSecretDetector(customPatterns);
     } catch (err) {
-      assert.strictEqual(err.toString(), "Error: The customPatterns object must contain the 'mask' key");
+      assert.strictEqual(err.toString(), 'Error: The customPatterns object must contain the \'mask\' key');
     }
   });
 
@@ -294,7 +294,7 @@ describe('Secret Detector', function () {
     try {
       SecretDetector = new SnowflakeSecretDetector(customPatterns);
     } catch (err) {
-      assert.strictEqual(err.toString(), "Error: The customPatterns object must have equal length for both 'regex' and 'mask'");
+      assert.strictEqual(err.toString(), 'Error: The customPatterns object must have equal length for both \'regex\' and \'mask\'');
     }
   });
 });

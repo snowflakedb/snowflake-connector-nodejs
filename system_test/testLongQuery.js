@@ -61,7 +61,7 @@ describe('testPingPong', function () {
     );
   });
 
-  it("testLongRunning", function (done) {
+  it('testLongRunning', function (done) {
     if (!canRunTest) {
       this.skip();
       done();

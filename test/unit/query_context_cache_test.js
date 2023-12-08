@@ -11,14 +11,14 @@ const BASE_READ_TIMESTAMP = 1668727958;
 const CONTEXT = 'Some query Context';
 const MAX_CAPACITY = 5;
 
-function QueryContextElement (id, timestamp, priority, context) {
+function QueryContextElement(id, timestamp, priority, context) {
   this.id = id;
   this.timestamp = timestamp;
   this.priority = priority;
   this.context = context;
 }
 
-function TestingQCC () {
+function TestingQCC() {
   this.qcc = null;
  
   this.expectedIDs;

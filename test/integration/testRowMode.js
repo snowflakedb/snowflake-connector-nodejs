@@ -15,8 +15,8 @@ describe('Test row mode', function () {
                         join (select 'a' as key, 3 as foo) as table3 on table1.key = table3.key`;
 
   const expectedArray = ['a', 1, 3, 'a', 2, 3, 'a', 3];
-  const expectedObject = {KEY: 'a', FOO: 3, NAME: 3, NAME2: 3};
-  const expectedObjectWithRenamedDuplicatedColumns = {KEY: 'a', FOO: 1, NAME: 3, KEY_2: 'a', FOO_2: 2, NAME2: 3, KEY_3: 'a', FOO_3: 3};
+  const expectedObject = { KEY: 'a', FOO: 3, NAME: 3, NAME2: 3 };
+  const expectedObjectWithRenamedDuplicatedColumns = { KEY: 'a', FOO: 1, NAME: 3, KEY_2: 'a', FOO_2: 2, NAME2: 3, KEY_3: 'a', FOO_3: 3 };
 
   const testCases = [
     {
@@ -73,17 +73,17 @@ describe('Test row mode', function () {
   ];
 
 
-  testCases.forEach(({connectionRowMode, statementRowModes }) => {
+  testCases.forEach(({ connectionRowMode, statementRowModes }) => {
     describe(`rowMode ${connectionRowMode} in connection`, function () {
       before(function (done) {
-        connection = testUtil.createConnection({rowMode: connectionRowMode});
+        connection = testUtil.createConnection({ rowMode: connectionRowMode });
         testUtil.connect(connection, done);
       });
       after(function (done) {
         testUtil.destroyConnection(connection, done);
       });
 
-      statementRowModes.forEach(({rowMode, expected}) => {
+      statementRowModes.forEach(({ rowMode, expected }) => {
         describe(`rowMode ${rowMode} in statement`, function () {
 
           it('stream rows', function (done) {
@@ -127,7 +127,7 @@ describe('Test row mode', function () {
   describe('test incorect row mode - connection', function () {
     it('test incorrect row mode', function (done) {
       try {
-        connection = testUtil.createConnection({rowMode: 'invalid'});
+        connection = testUtil.createConnection({ rowMode: 'invalid' });
       } catch (err) {
         assert.strictEqual(err.code, 411006);
         done();
@@ -169,16 +169,16 @@ describe('Test row mode', function () {
 
     it('test duplicates', function (done) {
       const expected = {
-        "KEY": "a",
-        "FOO": 1,
-        "KEY_1": "a1",
-        "FOO_2": 2,
-        "KEY_3": "a2",
-        "FOO_3": 3,
-        "KEY_2": "a3",
-        "FOO_4": 4,
-        "KEY_4": "a4",
-        "FOO_5": 5
+        'KEY': 'a',
+        'FOO': 1,
+        'KEY_1': 'a1',
+        'FOO_2': 2,
+        'KEY_3': 'a2',
+        'FOO_3': 3,
+        'KEY_2': 'a3',
+        'FOO_4': 4,
+        'KEY_4': 'a4',
+        'FOO_5': 5
       };
       connection.execute({
         rowMode: RowMode.OBJECT_WITH_RENAMED_DUPLICATED_COLUMNS,

@@ -9,7 +9,7 @@ const connOption = require('../connectionOptions');
 const Errors = require('../../../lib/errors');
 const ErrorCodes = Errors.codes;
 const HttpsMockAgent = require('./https_ocsp_mock_agent');
-const Logger = require("../../../lib/logger");
+const Logger = require('../../../lib/logger');
 
 function cloneConnOption(connOption) {
   let ret = {};
@@ -24,7 +24,7 @@ describe('Connection test with OCSP Mock', function () {
 
   const valid = cloneConnOption(connOption.valid);
 
-  const isHttps = valid.accessUrl.startsWith("https");
+  const isHttps = valid.accessUrl.startsWith('https');
 
   function connect(errcode, connection, callback) {
     connection.connect(function (err) {

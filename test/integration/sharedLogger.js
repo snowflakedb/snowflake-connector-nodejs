@@ -8,7 +8,7 @@ const snowflake = require('./../../lib/snowflake');
 const Logger = require('./../../lib/logger');
 
 
-snowflake.configure({logLevel: 'trace'});
+snowflake.configure({ logLevel: 'trace' });
 const transports = [];
 if (process.env.SNOWFLAKE_TEST_LOG_CONSOLE === 'true') {
   transports.push(new (winston.transports.Console)());
@@ -17,7 +17,7 @@ if (process.env.SNOWFLAKE_TEST_LOG_CONSOLE === 'true') {
   if (!logDir) {
     logDir = os.homedir();
   }
-  transports.push(new (winston.transports.File)({filename: logDir + '/snowflake.log'}));
+  transports.push(new (winston.transports.File)({ filename: logDir + '/snowflake.log' }));
 }
 const logger = new winston.createLogger(
   {

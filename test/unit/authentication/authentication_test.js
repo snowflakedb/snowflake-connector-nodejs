@@ -67,7 +67,7 @@ describe('external browser authentication', function () {
 
   const credentials = connectionOptionsExternalBrowser;
   const BROWSER_ACTION_TIMEOUT = 10000;
-  const connectionConfig= {
+  const connectionConfig = {
     getBrowserActionTimeout: () => BROWSER_ACTION_TIMEOUT,
     getProxy: () => {},
     host: 'fakehost'
@@ -126,7 +126,7 @@ describe('external browser authentication', function () {
     mock('webbrowser', {
       open: function (url) {
         var client = net.createConnection({ port: browserRedirectPort }, () => {
-          client.write(`\r\n`);
+          client.write('\r\n');
         });
         return;
       }
@@ -448,7 +448,7 @@ describe('okta authentication', function () {
     try {
       await auth.authenticate(connectionOptionsOkta.authenticator, '', connectionOptionsOkta.account, connectionOptionsOkta.username);
     } catch (err) {
-      assert.strictEqual(err.message, "The prefix of the SSO/token URL and the specified authenticator do not match.");
+      assert.strictEqual(err.message, 'The prefix of the SSO/token URL and the specified authenticator do not match.');
     }
   });
 
@@ -499,8 +499,8 @@ describe('okta authentication', function () {
       await auth.authenticate(connectionOptionsOkta.authenticator, '', connectionOptionsOkta.account, connectionOptionsOkta.username);
     } catch (err) {
       assert.strictEqual(err.message,
-        "The specified authenticator and destination URL in the SAML assertion do not match: expected: https://" +
-        connectionOptionsOkta.account + ".snowflakecomputing.com:443 postback: " + mockUrl);
+        'The specified authenticator and destination URL in the SAML assertion do not match: expected: https://' +
+        connectionOptionsOkta.account + '.snowflakecomputing.com:443 postback: ' + mockUrl);
     }
   });
 

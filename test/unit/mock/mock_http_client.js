@@ -1718,6 +1718,96 @@ function buildRequestOutputMappings(clientInfo) {
         }
     },
     {
+      // Session Expired test mock
+      request:
+        {
+          method: 'POST',
+          url: 'http://fakeaccount.snowflakecomputing.com/session/v1/login-request',
+          headers:
+            {
+              'Accept': 'application/json',
+              'Content-Type': 'application/json',
+              "CLIENT_APP_VERSION": clientInfo.version,
+              "CLIENT_APP_ID": "JavaScript"
+            },
+          json:
+            {
+              data:
+                {
+                  ACCOUNT_NAME: 'fakeaccount',
+                  AUTHENTICATOR: "SNOWFLAKE",
+                  LOGIN_NAME: 'fakesessionexpired',
+                  PASSWORD: 'fakepassword',
+                  CLIENT_APP_ID: 'JavaScript',
+                  CLIENT_APP_VERSION: clientInfo.version,
+                  CLIENT_ENVIRONMENT: clientInfo.environment,
+                  SESSION_PARAMETERS: {}
+                }
+            }
+        },
+      output:
+        {
+          err: null,
+          response:
+            {
+              statusCode: 200,
+              statusMessage: "OK",
+              body:
+                {
+                  "code": null,
+                  "data":
+                    {
+                      "displayUserName": "FAKEUSERNAME",
+                      "firstLogin": false,
+                      "healthCheckInterval": 45,
+                      "masterToken": "SESSION_EXPIRED_MASTER_TOKEN",
+                      "masterValidityInSeconds": 14400,
+                      "newClientForUpgrade": null,
+                      "remMeToken": "SESSION_EXPIRED_REMME_TOKEN",
+                      "remMeValidityInSeconds": 14400,
+                      "serverVersion": "Dev",
+                      "sessionId": "51539800306",
+                      "token": "SESSION_EXPIRED_TOKEN",
+                      "validityInSeconds": 0,
+                      "parameters": []
+                    },
+                  "message": null,
+                  "success": true
+                }
+            }
+        }
+    },
+    {
+      request:
+        {
+          method: 'POST',
+          url: 'http://fakeaccount.snowflakecomputing.com/session?delete=true',
+          headers:
+            {
+              'Accept': 'application/json',
+              'Authorization': 'Snowflake Token="SESSION_EXPIRED_TOKEN"',
+              'Content-Type': 'application/json',
+              "X-Snowflake-Service": "fakeservicename2"
+            }
+        },
+      output:
+        {
+          err: null,
+          response:
+            {
+              statusCode: 200,
+              statusMessage: "OK",
+              body:
+                {
+                  code: "390112",
+                  data: null,
+                  message: "ERROR!",
+                  success: false
+                }
+            }
+        }
+    },
+    {
       request:
         {
           method: 'POST',

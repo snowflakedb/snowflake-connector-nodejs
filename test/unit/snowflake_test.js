@@ -8,6 +8,7 @@ var MockTestUtil = require('./mock/mock_test_util');
 const QueryStatus = require('./../../lib/constants/query_status').code;
 var assert = require('assert');
 var async = require('async');
+const {connectAsync, destroyConnectionAsync} = require("../integration/testUtil");
 
 // get a mock snowflake instance
 var snowflake = MockTestUtil.snowflake;
@@ -19,6 +20,7 @@ var connectionOptionsDeserialize = mockConnectionOptions.deserialize;
 var connectionOptionsServiceName = mockConnectionOptions.serviceName;
 var connectionOptionsClientSessionKeepAlive = mockConnectionOptions.clientSessionKeepAlive;
 var connectionOptionsForSessionGone = mockConnectionOptions.sessionGone;
+var connectionOptionsForSessionExpired = mockConnectionOptions.sessionExpired;
 var connectionOptionsExternalBrowser = mockConnectionOptions.authExternalBrowser;
 var connectionOptionsOkta = mockConnectionOptions.authOkta;
 const connectionOptionsFor504 = mockConnectionOptions.http504;
@@ -2181,29 +2183,22 @@ describe('snowflake.createConnection() JS_TREAT_INTEGER_AS_BIGINT', function ()
 
 describe('snowflake.destroyConnection()', function ()
 {
-  it('destroyConnection() ignores SESSION_GONE error', function (done)
-  {
-    var connection = snowflake.createConnection(connectionOptionsForSessionGone);
-    async.series([
-        function (callback)
-        {
-          connection.connect(function (err)
-          {
-            assert.ok(!err, JSON.stringify(err));
-            callback();
-          });
-        },
-        function (callback)
-        {
-          connection.destroy(function (err, con)
-          {
-            // SESSION_GONE error should be ignored.
-            assert.ok(!err, JSON.stringify(err));
-            callback();
-          });
-        }
-      ],
-      done)
+  [
+    {
+      errorName: 'SESSION_GONE',
+      connectionOptions: connectionOptionsForSessionGone
+    },
+    {
+      errorName: 'SESSION_TOKEN_EXPIRED',
+      connectionOptions: connectionOptionsForSessionExpired
+    }
+  ].forEach(({ errorName, connectionOptions }) => {
+    it(`destroyConnection() transitions to Disconnected state after receiving ${errorName} error`, async () => {
+      const connection = snowflake.createConnection(connectionOptions);
+      await connectAsync(connection);
+
+      await assert.doesNotReject(destroyConnectionAsync(connection), `destroying connection failed when ${errorName} error was received`);
+    });
   });
 });
 

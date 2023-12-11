@@ -176,12 +176,12 @@ describe('external browser authentication', function () {
     const auth = new auth_idtoken(connectionOptionsidToken, httpclient);
     await auth.authenticate(credentials.authenticator, '', credentials.account, credentials.username, credentials.host);
 
-    let body = { data: {} };
+    const body = { data: {} };
     auth.updateBody(body);
 
     assert.strictEqual(body['data']['TOKEN'], connectionOptionsidToken.idToken);
     assert.strictEqual(body['data']['AUTHENTICATOR'], authenticationTypes.ID_TOKEN_AUTHENTICATOR);
-  })
+  });
 });
 
 describe('key-pair authentication', function () {

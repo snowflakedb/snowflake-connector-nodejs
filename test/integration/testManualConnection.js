@@ -4,7 +4,7 @@ const assert = require('assert');
 const connOption = require('./connectionOptions');
 const testUtil = require('./testUtil');
 const Logger = require('../../lib/logger');
-const CredentialManager = require('../../lib/global_config');
+const GlobalConfig = require('../../lib/global_config');
 
 if (process.env.RUN_MANUAL_TESTS_ONLY == 'true') {
   describe.only('Run manual tests', function () {
@@ -72,10 +72,10 @@ if (process.env.RUN_MANUAL_TESTS_ONLY == 'true') {
         });
       });
 
-      it("Connection - ID Token authenticator", async function (done) {
+      it('Connection - ID Token authenticator', async function (done) {
         
         //Testing to obtain the id token.
-        CredentialManager.remove(connectionOption.host, connectionOption.username, "ID_TOKEN");
+        GlobalConfig.getCredentialManager().remove(connectionOption.host, connectionOption.username, 'ID_TOKEN');
 
         const connectionOption = connOption.externalBrowser
         const connection = snowflake.createConnection(
@@ -83,7 +83,7 @@ if (process.env.RUN_MANUAL_TESTS_ONLY == 'true') {
         );
         await connection.connectAsync(function (err) {
           assert.ok(!err);
-          const idToken = CredentialManager.read(connectionOption.host, connectionOption.username, "ID_TOKEN");
+          const idToken = GlobalConfig.getCredentialManager().read(connectionOption.host, connectionOption.username, 'ID_TOKEN');
           assert.ok( idToken !== null);
         });
         await testUtil.destroyConnectionAsync(connection);
@@ -96,13 +96,13 @@ if (process.env.RUN_MANUAL_TESTS_ONLY == 'true') {
         await testUtil.destroyConnectionAsync(idTokenConnection);
 
         //Testing reauthentication.
-        await CredentialManager.write(connectionOption.host, connectionOption.username, "ID_TOKEN", "WRONG Token");
+        await GlobalConfig.getCredentialManager().write(connectionOption.host, connectionOption.username, 'ID_TOKEN", "WRONG Token');
         const wrongTokneConnection = testUtil.connectAsync(connOption);
         await wrongTokneConnection.connectAsync(function (err) {
           assert.ok(!err);
           done();
         });
-      })
+      });
     });
 
     describe('Connection test - oauth', function () {

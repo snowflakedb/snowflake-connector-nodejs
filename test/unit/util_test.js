@@ -1043,5 +1043,5 @@ describe('Util', function () {
         });
       }
     });
-
+  });
 });

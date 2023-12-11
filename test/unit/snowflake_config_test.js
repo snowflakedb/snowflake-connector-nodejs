@@ -22,7 +22,6 @@ describe('Snowflake Configure Tests', function () {
       keepAlive: GlobalConfig.getKeepAlive(),
       jsonColumnVariantParser: GlobalConfig.jsonColumnVariantParser,
       xmlColumnVariantParser: GlobalConfig.xmlColumnVariantParser,
-      customCredentialManager: GlobalConfig.CredentialManager,
     };
   });
 

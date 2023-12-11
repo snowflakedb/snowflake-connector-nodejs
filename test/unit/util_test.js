@@ -1054,5 +1054,31 @@ describe('Util', function ()
           result: false,
         },
       ];
-    })
+    });
+
+    describe('checkParametersDefined function Test', function () {
+      const testCases = [
+        {
+          name: 'all the parameters are null or undefined',
+          parameters: [null, undefined, null, null],
+          result: false
+        },
+        {
+          name: 'one parameter is null',
+          parameters: ['a', 2, true, null],
+          result: false
+        },
+        {
+          name: 'all the parameter are existing',
+          parameters: ['a', 123, ["testing"], {}],
+          result: true
+        },
+      ];
+  
+      for (const { name, parameters, result } of testCases) {
+        it(name, function () {
+          assert.strictEqual(Util.checkParametersDefined(...parameters), result);
+        });
+      }
+    });
 });

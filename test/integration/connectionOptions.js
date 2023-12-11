@@ -27,28 +27,23 @@ const snowflakeTestOktaUser = process.env.SNOWFLAKE_TEST_OKTA_USER;
 const snowflakeTestOktaPass = process.env.SNOWFLAKE_TEST_OKTA_PASS;
 const snowflakeTestOktaAuth = process.env.SNOWFLAKE_TEST_OKTA_AUTH;
 
-if (snowflakeTestProtocol === undefined)
-{
+if (snowflakeTestProtocol === undefined) {
   snowflakeTestProtocol = 'https';
 }
 
-if (snowflakeTestHost === undefined)
-{
+if (snowflakeTestHost === undefined) {
   snowflakeTestHost = snowflakeTestAccount + '.snowflakecomputing.com';
 }
 
-if (snowflakeTestPort === undefined)
-{
+if (snowflakeTestPort === undefined) {
   snowflakeTestPort = '443';
 }
 
-if (snowflakeTestProxyHost === undefined)
-{
+if (snowflakeTestProxyHost === undefined) {
   snowflakeTestProxyHost = 'localhost';
 }
 
-if (snowflakeTestProxyPort === undefined)
-{
+if (snowflakeTestProxyPort === undefined) {
   snowflakeTestProxyPort = '3128';
 }
 

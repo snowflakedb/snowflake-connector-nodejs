@@ -11,14 +11,14 @@ const BASE_READ_TIMESTAMP = 1668727958;
 const CONTEXT = 'Some query Context';
 const MAX_CAPACITY = 5;
 
-function QueryContextElement (id,timestamp,priority,context) {
+function QueryContextElement(id, timestamp, priority, context) {
   this.id = id;
   this.timestamp = timestamp;
   this.priority = priority;
   this.context = context;
 }
 
-function TestingQCC () {
+function TestingQCC() {
   this.qcc = null;
  
   this.expectedIDs;
@@ -70,7 +70,7 @@ function TestingQCC () {
   
   this.assertCacheDataWithContext = function (Context) {
     const size = this.qcc.getSize();
-    assert.strictEqual(size,MAX_CAPACITY);
+    assert.strictEqual(size, MAX_CAPACITY);
     const elements = Array.from(this.qcc.getElements());
     for (let i = 0; i < size; i++) {
       assert.strictEqual(this.expectedIDs[i], elements[i].id);
@@ -84,26 +84,26 @@ function TestingQCC () {
 describe('Query Context Cache Test', function () {
   const testingQcc = new TestingQCC();
 
-  it('test - the cache is empty',function () {
+  it('test - the cache is empty', function () {
     testingQcc.initCache();
     assert.strictEqual(testingQcc.qcc.getSize(), 0);
   });
   
-  it('test - some elements in the cache',function () {
+  it('test - some elements in the cache', function () {
     testingQcc.initCacheWithData();
 
     // Compare elements
     testingQcc.assertCacheData();
   });
   
-  it('test - query contexts are randomly added in the cache',function () {
+  it('test - query contexts are randomly added in the cache', function () {
     testingQcc.initCacheWithDataInRandomOrder();
 
     // Compare elements
     testingQcc.assertCacheData();
   });
   
-  it('test - the number of contexts is over the size of capacity',function () {
+  it('test - the number of contexts is over the size of capacity', function () {
     testingQcc.initCacheWithData();
   
     // Add one more element at the end
@@ -116,7 +116,7 @@ describe('Query Context Cache Test', function () {
     testingQcc.assertCacheData();
   });
   
-  it('test updating timestamp',function () {
+  it('test updating timestamp', function () {
     testingQcc.initCacheWithData();
 
     // Add one more element with new TS with existing id
@@ -153,7 +153,7 @@ describe('Query Context Cache Test', function () {
     testingQcc.assertCacheData();
   });
   
-  it('test - the same priority is added',function () {
+  it('test - the same priority is added', function () {
     testingQcc.initCacheWithData();
   
     // Add one more element with same priority
@@ -184,13 +184,13 @@ describe('Query Context Cache Test', function () {
   it('test empty cache with null data', function () {
     testingQcc.initCacheWithData();
     testingQcc.qcc.deserializeQueryContext(null);
-    assert.strictEqual(testingQcc.qcc.getSize(),0,'Empty cache');
+    assert.strictEqual(testingQcc.qcc.getSize(), 0, 'Empty cache');
   });
   
-  it('test empty cache with empty response data',function () {
+  it('test empty cache with empty response data', function () {
     testingQcc.initCacheWithData();
     testingQcc.qcc.deserializeQueryContext({});
-    assert.strictEqual(testingQcc.qcc.getSize(),0,'Empty cache');
+    assert.strictEqual(testingQcc.qcc.getSize(), 0, 'Empty cache');
   });
   
   it('test serialized request and deserialize response data', function () {
@@ -201,7 +201,7 @@ describe('Query Context Cache Test', function () {
 
     // Clear testingQcc.qcc
     testingQcc.qcc.clearCache();
-    assert.strictEqual(testingQcc.qcc.getSize(),0,'Empty cache');
+    assert.strictEqual(testingQcc.qcc.getSize(), 0, 'Empty cache');
     testingQcc.qcc.deserializeQueryContext(response);
     testingQcc.assertCacheData();
   });
@@ -215,7 +215,7 @@ describe('Query Context Cache Test', function () {
 
     //Clear testingQcc.qcc
     testingQcc.qcc.clearCache();
-    assert.strictEqual(testingQcc.qcc.getSize(), 0,'Empty cache');
+    assert.strictEqual(testingQcc.qcc.getSize(), 0, 'Empty cache');
 
     testingQcc.qcc.deserializeQueryContext(response);
     testingQcc.assertCacheDataWithContext(null);

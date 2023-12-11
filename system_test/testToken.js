@@ -7,41 +7,33 @@ var connOption = require('../test/integration/connectionOptions');
 var testUtil = require('../test/integration/testUtil');
 var async = require('async');
 
-describe('testLoginTokenExpire', function ()
-{
-  before(function (done)
-  {
+describe('testLoginTokenExpire', function () {
+  before(function (done) {
     var connectionToSnowflake = snowflake.createConnection(connOption.snowflakeAccount);
     async.series(
       [
-        function (callback)
-        {
-          connectionToSnowflake.connect(function (err)
-          {
+        function (callback) {
+          connectionToSnowflake.connect(function (err) {
             testUtil.checkError(err);
             callback();
           });
         },
-        function (callback)
-        {
+        function (callback) {
           testUtil.executeCmd(
             connectionToSnowflake,
             'alter system set MASTER_TOKEN_VALIDITY=5',
             callback
           );
         },
-        function (callback)
-        {
+        function (callback) {
           testUtil.executeCmd(
             connectionToSnowflake,
             'alter system set SESSION_TOKEN_VALIDITY=2',
             callback
           );
         },
-        function (callback)
-        {
-          connectionToSnowflake.destroy(function (err)
-          {
+        function (callback) {
+          connectionToSnowflake.destroy(function (err) {
             testUtil.checkError(err);
             callback();
           });
@@ -51,39 +43,32 @@ describe('testLoginTokenExpire', function ()
     );
   });
 
-  after(function (done)
-  {
+  after(function (done) {
     var connectionToSnowflake = snowflake.createConnection(connOption.snowflakeAccount);
     async.series(
       [
-        function (callback)
-        {
-          connectionToSnowflake.connect(function (err)
-          {
+        function (callback) {
+          connectionToSnowflake.connect(function (err) {
             testUtil.checkError(err);
             callback();
           });
         },
-        function (callback)
-        {
+        function (callback) {
           testUtil.executeCmd(
             connectionToSnowflake,
             'alter system set MASTER_TOKEN_VALIDITY=default',
             callback
           );
         },
-        function (callback)
-        {
+        function (callback) {
           testUtil.executeCmd(
             connectionToSnowflake,
             'alter system set SESSION_TOKEN_VALIDITY=default',
             callback
           );
         },
-        function (callback)
-        {
-          connectionToSnowflake.destroy(function (err)
-          {
+        function (callback) {
+          connectionToSnowflake.destroy(function (err) {
             testUtil.checkError(err);
             callback();
           });
@@ -93,25 +78,20 @@ describe('testLoginTokenExpire', function ()
     );
   });
 
-  it('testSessionToken', function (done)
-  {
+  it('testSessionToken', function (done) {
     var connection = snowflake.createConnection(connOption.valid);
     async.series(
       [
-        function (callback)
-        {
+        function (callback) {
           testUtil.connect(connection, callback);
         },
-        function (callback)
-        {
+        function (callback) {
           // wait 3 seconds to let session token expired
-          setTimeout(function ()
-          {
+          setTimeout(function () {
             callback();
           }, 3000);
         },
-        function (callback)
-        {
+        function (callback) {
           // the session should refreshed and the sql should succeed
           testUtil.executeCmd(
             connection,
@@ -124,29 +104,23 @@ describe('testLoginTokenExpire', function ()
     );
   });
 
-  it('testMasterTokenExpire', function (done)
-  {
+  it('testMasterTokenExpire', function (done) {
     var connection = snowflake.createConnection(connOption.valid);
     async.series(
       [
-        function (callback)
-        {
+        function (callback) {
           testUtil.connect(connection, callback);
         },
-        function (callback)
-        {
+        function (callback) {
           // wait 10 seconds to let master token expire
-          setTimeout(function ()
-          {
+          setTimeout(function () {
             callback();
           }, 10000);
         },
-        function (callback)
-        {
+        function (callback) {
           connection.execute({
             sqlText: 'create or replace table t(colA varchar)',
-            complete: function (err)
-            {
+            complete: function (err) {
               assert.ok(err);
               assert.strictEqual(err.message, 'Unable to perform ' +
                 'operation using terminated connection.');

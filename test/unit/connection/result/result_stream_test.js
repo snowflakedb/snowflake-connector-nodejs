@@ -6,8 +6,7 @@ var ResultStream = require('./../../../../lib/connection/result/result_stream');
 var ErrorCodes = require('./../../../../lib/errors').codes;
 var assert = require('assert');
 
-describe('ResultStream: basic', function ()
-{
+describe('ResultStream: basic', function () {
   ///////////////////////////////////////////////////////////////////////////
   //// Test synchronous errors                                           ////
   ///////////////////////////////////////////////////////////////////////////
@@ -108,22 +107,15 @@ describe('ResultStream: basic', function ()
       }
     ];
 
-  var createItCallback = function (testCase)
-  {
-    return function ()
-    {
+  var createItCallback = function (testCase) {
+    return function () {
       var error;
 
-      try
-      {
+      try {
         new ResultStream(testCase.options);
-      }
-      catch (err)
-      {
+      } catch (err) {
         error = err;
-      }
-      finally
-      {
+      } finally {
         assert.ok(error);
         assert.strictEqual(error.code, testCase.errorCode);
       }
@@ -131,8 +123,7 @@ describe('ResultStream: basic', function ()
   };
 
   var index, length, testCase;
-  for (index = 0, length = testCases.length; index < length; index++)
-  {
+  for (index = 0, length = testCases.length; index < length; index++) {
     testCase = testCases[index];
     it(testCase.name, createItCallback(testCase));
   }
@@ -141,8 +132,7 @@ describe('ResultStream: basic', function ()
   //// Test valid arguments                                              ////
   ///////////////////////////////////////////////////////////////////////////
 
-  it('valid result stream', function ()
-  {
+  it('valid result stream', function () {
     var resultStream = new ResultStream(
       {
         chunks: [],

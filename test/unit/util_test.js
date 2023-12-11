@@ -5,13 +5,10 @@
 var Util = require('./../../lib/util');
 var assert = require('assert');
 
-describe('Util', function ()
-{
-  it('Util.isFunction()', function ()
-  {
+describe('Util', function () {
+  it('Util.isFunction()', function () {
     // positive tests
-    assert.ok(Util.isFunction(function ()
-    {
+    assert.ok(Util.isFunction(function () {
     }));
     assert.ok(Util.isFunction(new Function()));
 
@@ -27,8 +24,7 @@ describe('Util', function ()
     assert.ok(!Util.isFunction(new Object()));
   });
 
-  it('Util.isObject()', function ()
-  {
+  it('Util.isObject()', function () {
     // positive tests
     assert.ok(Util.isObject({}));
     assert.ok(Util.isObject(new Object()));
@@ -41,14 +37,12 @@ describe('Util', function ()
     assert.ok(!Util.isObject(''));
     assert.ok(!Util.isObject('foo'));
     assert.ok(!Util.isObject(new Date()));
-    assert.ok(!Util.isObject(function ()
-    {
+    assert.ok(!Util.isObject(function () {
     }));
     assert.ok(!Util.isObject(new Function()));
   });
 
-  it('Util.isDate()', function ()
-  {
+  it('Util.isDate()', function () {
     // positive tests
     assert.ok(Util.isDate(new Date()));
 
@@ -61,14 +55,12 @@ describe('Util', function ()
     assert.ok(!Util.isDate(1));
     assert.ok(!Util.isDate(''));
     assert.ok(!Util.isDate('foo'));
-    assert.ok(!Util.isDate(function ()
-    {
+    assert.ok(!Util.isDate(function () {
     }));
     assert.ok(!Util.isDate(new Function()));
   });
 
-  it('isArray()', function ()
-  {
+  it('isArray()', function () {
     // positive tests
     assert.ok(Util.isArray([]));
     assert.ok(Util.isArray([1]));
@@ -84,14 +76,12 @@ describe('Util', function ()
     assert.ok(!Util.isArray(new Date()));
     assert.ok(!Util.isArray({}));
     assert.ok(!Util.isArray(new Object()));
-    assert.ok(!Util.isArray(function ()
-    {
+    assert.ok(!Util.isArray(function () {
     }));
     assert.ok(!Util.isArray(new Function()));
   });
 
-  it('Util.isString()', function ()
-  {
+  it('Util.isString()', function () {
     // positive tests
     assert.ok(Util.isString(''));
     assert.ok(Util.isString('foo'));
@@ -105,14 +95,12 @@ describe('Util', function ()
     assert.ok(!Util.isString(new Date()));
     assert.ok(!Util.isString({}));
     assert.ok(!Util.isString(new Object()));
-    assert.ok(!Util.isString(function ()
-    {
+    assert.ok(!Util.isString(function () {
     }));
     assert.ok(!Util.isString(new Function()));
   });
 
-  it('Util.isBoolean()', function ()
-  {
+  it('Util.isBoolean()', function () {
     // positive tests
     assert.ok(Util.isBoolean(true));
     assert.ok(Util.isBoolean(false));
@@ -127,14 +115,12 @@ describe('Util', function ()
     assert.ok(!Util.isBoolean(new Date()));
     assert.ok(!Util.isBoolean({}));
     assert.ok(!Util.isBoolean(new Object()));
-    assert.ok(!Util.isBoolean(function ()
-    {
+    assert.ok(!Util.isBoolean(function () {
     }));
     assert.ok(!Util.isBoolean(new Function()));
   });
 
-  it('Util.isNumber()', function ()
-  {
+  it('Util.isNumber()', function () {
     // positive tests
     assert.ok(Util.isNumber(Number()));
     assert.ok(Util.isNumber(0));
@@ -153,14 +139,12 @@ describe('Util', function ()
     assert.ok(!Util.isNumber(new Date()));
     assert.ok(!Util.isNumber({}));
     assert.ok(!Util.isNumber(new Object()));
-    assert.ok(!Util.isNumber(function ()
-    {
+    assert.ok(!Util.isNumber(function () {
     }));
     assert.ok(!Util.isNumber(new Function()));
   });
 
-  it('Util.exists()', function ()
-  {
+  it('Util.exists()', function () {
     // positive tests
     assert.ok(Util.exists(0));
     assert.ok(Util.exists(''));
@@ -168,8 +152,7 @@ describe('Util', function ()
     assert.ok(Util.exists(new Date()));
     assert.ok(Util.exists({}));
     assert.ok(Util.exists(new Object()));
-    assert.ok(Util.exists(function ()
-    {
+    assert.ok(Util.exists(function () {
     }));
     assert.ok(Util.exists(new Function()));
 
@@ -178,8 +161,7 @@ describe('Util', function ()
     assert.ok(!Util.exists(undefined));
   });
 
-  it('Util.string.isNotNullOrEmpty()', function ()
-  {
+  it('Util.string.isNotNullOrEmpty()', function () {
     // positive tests
     assert.ok(Util.string.isNotNullOrEmpty('foo'));
 
@@ -194,8 +176,7 @@ describe('Util', function ()
     assert.ok(!Util.string.isNotNullOrEmpty(new Object()));
   });
 
-  it('Util.string.compareVersions()', function ()
-  {
+  it('Util.string.compareVersions()', function () {
     var testCases = [];
 
     // '' and '0' are the same
@@ -297,8 +278,7 @@ describe('Util', function ()
       });
 
     var testCase, actual, expected;
-    for (var index = 0, length = testCases.length; index < length; index++)
-    {
+    for (var index = 0, length = testCases.length; index < length; index++) {
       testCase = testCases[index];
       actual =
         Util.string.compareVersions(testCase.version1, testCase.version2);
@@ -311,8 +291,7 @@ describe('Util', function ()
     }
   });
 
-  it('Util.number.isPositive()', function ()
-  {
+  it('Util.number.isPositive()', function () {
     // positive tests
     assert.ok(Util.number.isPositive(1));
     assert.ok(Util.number.isPositive(1.1));
@@ -330,8 +309,7 @@ describe('Util', function ()
     assert.ok(!Util.number.isPositive(Number.NEGATIVE_INFINITY));
   });
 
-  it('Util.number.isNonNegative()', function ()
-  {
+  it('Util.number.isNonNegative()', function () {
     // positive tests
     assert.ok(Util.number.isNonNegative(0));
     assert.ok(Util.number.isNonNegative(1));
@@ -349,8 +327,7 @@ describe('Util', function ()
     assert.ok(!Util.number.isNonNegative(Number.NEGATIVE_INFINITY));
   });
 
-  it('Util.number.isInteger()', function ()
-  {
+  it('Util.number.isInteger()', function () {
     // positive tests
     assert.ok(Util.number.isInteger(0));
     assert.ok(Util.number.isInteger(1));
@@ -370,8 +347,7 @@ describe('Util', function ()
     assert.ok(!Util.number.isInteger(Number.NaN));
   });
 
-  it('Util.number.isPositiveInteger()', function ()
-  {
+  it('Util.number.isPositiveInteger()', function () {
     // positive tests
     assert.ok(Util.number.isPositiveInteger(1));
     assert.ok(Util.number.isPositiveInteger(100));
@@ -388,8 +364,7 @@ describe('Util', function ()
     assert.ok(!Util.number.isPositiveInteger(Number.NEGATIVE_INFINITY));
   });
 
-  it('Util.number.isNonNegativeInteger()', function ()
-  {
+  it('Util.number.isNonNegativeInteger()', function () {
     // positive tests
     assert.ok(Util.number.isNonNegativeInteger(0));
     assert.ok(Util.number.isNonNegativeInteger(1));
@@ -406,8 +381,7 @@ describe('Util', function ()
     assert.ok(!Util.number.isNonNegativeInteger(Number.NEGATIVE_INFINITY));
   });
 
-  it('Util.url.appendParam()', function ()
-  {
+  it('Util.url.appendParam()', function () {
     /////////////////////////////////////////////////////////////////////////
     ////                 Positive Test Cases                             ////
     /////////////////////////////////////////////////////////////////////////
@@ -435,8 +409,7 @@ describe('Util', function ()
       ];
 
     var testCase;
-    for (var index = 0, length = testCasesPos.length; index < length; index++)
-    {
+    for (var index = 0, length = testCasesPos.length; index < length; index++) {
       testCase = testCasesPos[index];
       assert.strictEqual(
         Util.url.appendParam(
@@ -467,22 +440,16 @@ describe('Util', function ()
       ];
 
     var error;
-    for (index = 0, length = testCasesPos.length; index < length; index++)
-    {
+    for (index = 0, length = testCasesPos.length; index < length; index++) {
       error = null;
 
       testCase = testCasesNeg[index];
-      try
-      {
+      try {
         Util.url.appendParam(
           testCase.url, testCase.paramName, testCase.paramValue);
-      }
-      catch (err)
-      {
+      } catch (err) {
         error = err;
-      }
-      finally
-      {
+      } finally {
         assert.ok(error);
       }
     }
@@ -492,7 +459,7 @@ describe('Util', function ()
     const testCases =
       [
         {
-          testName: "test appending retry params with retry reason",
+          testName: 'test appending retry params with retry reason',
           option: {
             url: 'http://www.something.snowflakecomputing.com',
             retryCount: 3,
@@ -502,7 +469,7 @@ describe('Util', function ()
           result: 'http://www.something.snowflakecomputing.com?retryCount=3&retryReason=429'
         },
         {
-          testName: "test appending retry params without retry reason",
+          testName: 'test appending retry params without retry reason',
           option: {
             url: 'http://www.something.snowflakecomputing.com',
             retryCount: 3,
@@ -513,16 +480,16 @@ describe('Util', function ()
         }
       ];
 
-      for (let i = 0; i < testCases.length; i++) {
-        const testCase = testCases[i];
-        it(testCase.testName, function () {
-          const url = Util.url.appendRetryParam(testCase.option);
-          assert.strictEqual(url, testCase.result);
-        })
-      }
+    for (let i = 0; i < testCases.length; i++) {
+      const testCase = testCases[i];
+      it(testCase.testName, function () {
+        const url = Util.url.appendRetryParam(testCase.option);
+        assert.strictEqual(url, testCase.result);
+      });
+    }
   });
 
-  describe("Util.isLoginRequest Test", function () {
+  describe('Util.isLoginRequest Test', function () {
     const baseUrl = 'wwww.test.com';
     const testCases = 
     [
@@ -539,25 +506,24 @@ describe('Util', function ()
       {
         testName: 'test URL with a right authenticator-request point',
         endPoint: '/authenticator-request',
-        result:true,
+        result: true,
       },
       {
         testName: 'test URL with a wrong authenticator-request point',
         endPoint: '/authenticator-requ',
-        result:false,
+        result: false,
       }
     ];
 
-    for (const {testName, endPoint,result} of testCases)
-    {
+    for (const { testName, endPoint, result } of testCases) {
       it(testName, function () {
         const isLoginRequest = Util.isLoginRequest(baseUrl + endPoint);
         assert.strictEqual(isLoginRequest, result);
-      })
+      });
     }
   });
 
-  describe("Util.getJitterSleepTime Test", function () {
+  describe('Util.getJitterSleepTime Test', function () {
     it('test - retryTimeout is over 300', function () {
       const errorCodes =
       [
@@ -593,51 +559,51 @@ describe('Util', function ()
         },
       ];
       
-    const maxRetryTimeout = 300;
-    let currentSleepTime = 1;
-    let retryCount = 1;
-    let totalTimeout = currentSleepTime;
-    for (const response of errorCodes) {
-       retryCount++;
-       const result = Util.getJitteredSleepTime(retryCount, currentSleepTime, totalTimeout, maxRetryTimeout);
-       const jitter = currentSleepTime / 2
-       const nextSleep = 2 ** retryCount;
-       currentSleepTime = result.sleep;
-       totalTimeout = result.totalTimeout;
+      const maxRetryTimeout = 300;
+      let currentSleepTime = 1;
+      let retryCount = 1;
+      let totalTimeout = currentSleepTime;
+      for (const response of errorCodes) {
+        retryCount++;
+        const result = Util.getJitteredSleepTime(retryCount, currentSleepTime, totalTimeout, maxRetryTimeout);
+        const jitter = currentSleepTime / 2;
+        const nextSleep = 2 ** retryCount;
+        currentSleepTime = result.sleep;
+        totalTimeout = result.totalTimeout;
        
-       assert.strictEqual(Util.isRetryableHttpError(response,true), true);
-       assert.ok(currentSleepTime <= nextSleep + jitter || currentSleepTime >= nextSleep - jitter)
-    }
+        assert.strictEqual(Util.isRetryableHttpError(response, true), true);
+        assert.ok(currentSleepTime <= nextSleep + jitter || currentSleepTime >= nextSleep - jitter);
+      }
     
-    assert.strictEqual(retryCount, 7);
-    assert.ok(totalTimeout <= maxRetryTimeout);
-    }) 
+      assert.strictEqual(retryCount, 7);
+      assert.ok(totalTimeout <= maxRetryTimeout);
+    }); 
 
     it('test - retryTimeout is 0', function () {
-    const maxRetryTimeout = 0;
-    let currentSleepTime = 1;
-    let maxRetryCount = 20;
-    let totalTimeout = currentSleepTime;
-    let retryCount = 1;
-    for ( ; retryCount < maxRetryCount; retryCount++) {
-       const result = Util.getJitteredSleepTime(retryCount, currentSleepTime, totalTimeout, maxRetryTimeout);
-       const jitter = currentSleepTime / 2
-       const nextSleep = 2 ** retryCount;
-       currentSleepTime = result.sleep;
-       totalTimeout = result.totalTimeout;
+      const maxRetryTimeout = 0;
+      let currentSleepTime = 1;
+      const maxRetryCount = 20;
+      let totalTimeout = currentSleepTime;
+      let retryCount = 1;
+      for ( ; retryCount < maxRetryCount; retryCount++) {
+        const result = Util.getJitteredSleepTime(retryCount, currentSleepTime, totalTimeout, maxRetryTimeout);
+        const jitter = currentSleepTime / 2;
+        const nextSleep = 2 ** retryCount;
+        currentSleepTime = result.sleep;
+        totalTimeout = result.totalTimeout;
 
-       assert.ok(currentSleepTime <= nextSleep + jitter || currentSleepTime >= nextSleep - jitter)
-    }
+        assert.ok(currentSleepTime <= nextSleep + jitter || currentSleepTime >= nextSleep - jitter);
+      }
 
-    assert.strictEqual(retryCount, 20);
-    })
+      assert.strictEqual(retryCount, 20);
+    });
   });
 
-  it("Util.chooseRandom Test", function () {
+  it('Util.chooseRandom Test', function () {
     const positiveInteger = Util.chooseRandom(1, 5);
     const negativeInteger = Util.chooseRandom(-1, -5);
     const randomNumber = Util.chooseRandom(positiveInteger, negativeInteger);
-    let randomNumbers = [];
+    const randomNumbers = [];
 
     assert.ok(1 <= positiveInteger && positiveInteger <= 5);
     assert.ok(-5 <= negativeInteger && negativeInteger <= -1);
@@ -648,19 +614,18 @@ describe('Util', function ()
     }
 
     for (let i = 0; i < 9; i++) {
-      assert.ok(randomNumbers[i] !== randomNumbers[i+1]);
+      assert.ok(randomNumbers[i] !== randomNumbers[i + 1]);
     }
-  })
+  });
 
-  it("Util.getJitter Test", function () {
-    const randomNumber = Util.chooseRandom(10,100);
+  it('Util.getJitter Test', function () {
+    const randomNumber = Util.chooseRandom(10, 100);
     const jitter = Util.getJitter(randomNumber);
 
-    assert.ok(randomNumber / -2 <= jitter && jitter <= randomNumber / 2  )
-  })
+    assert.ok(randomNumber / -2 <= jitter && jitter <= randomNumber / 2  );
+  });
 
-  it('Util.apply()', function ()
-  {
+  it('Util.apply()', function () {
     assert.strictEqual(Util.apply(null, null), null);
     assert.strictEqual(Util.apply(null, undefined), null);
     assert.strictEqual(Util.apply(null, {}), null);
@@ -674,22 +639,21 @@ describe('Util', function ()
     src = null;
     assert.strictEqual(Util.apply(dst, src), dst);
 
-    dst = {a: 1};
-    src = {b: 2};
+    dst = { a: 1 };
+    src = { b: 2 };
     assert.strictEqual(Util.apply(dst, src), dst);
     assert.strictEqual(Object.keys(dst).length, 2);
     assert.ok(dst.hasOwnProperty('a') && (dst.a === 1));
     assert.ok(dst.hasOwnProperty('b') && (dst.b === 2));
 
-    dst = {a: 1};
-    src = {a: 2};
+    dst = { a: 1 };
+    src = { a: 2 };
     assert.strictEqual(Util.apply(dst, src), dst);
     assert.strictEqual(Object.keys(dst).length, 1);
     assert.ok(dst.hasOwnProperty('a') && (dst.a === 2));
   });
 
-  it('Util.isRetryableHttpError()', function ()
-  {
+  it('Util.isRetryableHttpError()', function () {
     var testCasesPos =
       [
         {
@@ -750,14 +714,13 @@ describe('Util', function ()
 
     var testCase;
     var err;
-    for (var index = 0, length = testCasesPos.length; index < length; index++)
-    {
+    for (var index = 0, length = testCasesPos.length; index < length; index++) {
       testCase = testCasesPos[index];
       err = {
         response: { statusCode: testCase.statusCode }
       };
       assert.strictEqual(Util.isRetryableHttpError(
-        err.response, testCase.retry403), testCase.isRetryable)
+        err.response, testCase.retry403), testCase.isRetryable);
     }
   });
 
@@ -805,37 +768,37 @@ describe('Util', function ()
     });
   });
 
-  describe("Util Test - handling circular reference in isValidAsync exception handling", () => {
-    let shouldMatchNonCircular = '{"one":1,"two":2}';
-    let shouldMatchCircular = '{"one":1,"two":2,"myself":"[Circular]"}';
+  describe('Util Test - handling circular reference in isValidAsync exception handling', () => {
+    const shouldMatchNonCircular = '{"one":1,"two":2}';
+    const shouldMatchCircular = '{"one":1,"two":2,"myself":"[Circular]"}';
   
-    it("non-circular reference is handled correctly by JSON.stringify replacer", () => {
-      const a = {"one": 1, "two": 2};
+    it('non-circular reference is handled correctly by JSON.stringify replacer', () => {
+      const a = { 'one': 1, 'two': 2 };
       const replacedA = JSON.stringify(a, Util.getCircularReplacer());
       assert.deepEqual(replacedA, shouldMatchNonCircular);
     });
   
-    it("circular reference is handled correctly by JSON.stringify replacer", () => {
-      const b = {"one": 1, "two": 2};
+    it('circular reference is handled correctly by JSON.stringify replacer', () => {
+      const b = { 'one': 1, 'two': 2 };
       b.myself = b;
       const replacedB = JSON.stringify(b, Util.getCircularReplacer());
       assert.deepEqual(replacedB, shouldMatchCircular);
     });
   });
 
-  describe("Util Test - removing http or https from string", () => {
+  describe('Util Test - removing http or https from string', () => {
     const hostAndPortDone = 'my.pro.xy:8080';
     const ipAndPortDone = '10.20.30.40:8080';
     const somethingEntirelyDifferentDone = 'something ENTIRELY different';
 
     [
-      { name: "remove http from url", text: "http://my.pro.xy:8080", shouldMatch: hostAndPortDone },
-      { name: "remove https from url", text: "https://my.pro.xy:8080", shouldMatch: hostAndPortDone },
-      { name: "remove http from ip and port", text: "http://10.20.30.40:8080", shouldMatch: ipAndPortDone },
-      { name: "remove https from ip and port", text: "https://10.20.30.40:8080", shouldMatch: ipAndPortDone },
-      { name: "dont remove http(s) from hostname and port", text: "my.pro.xy:8080", shouldMatch: hostAndPortDone },
-      { name: "dont remove http(s) from ip and port", text: "10.20.30.40:8080", shouldMatch: ipAndPortDone },
-      { name: "dont remove http(s) from simple string", text: somethingEntirelyDifferentDone, shouldMatch: somethingEntirelyDifferentDone}
+      { name: 'remove http from url', text: 'http://my.pro.xy:8080', shouldMatch: hostAndPortDone },
+      { name: 'remove https from url', text: 'https://my.pro.xy:8080', shouldMatch: hostAndPortDone },
+      { name: 'remove http from ip and port', text: 'http://10.20.30.40:8080', shouldMatch: ipAndPortDone },
+      { name: 'remove https from ip and port', text: 'https://10.20.30.40:8080', shouldMatch: ipAndPortDone },
+      { name: 'dont remove http(s) from hostname and port', text: 'my.pro.xy:8080', shouldMatch: hostAndPortDone },
+      { name: 'dont remove http(s) from ip and port', text: '10.20.30.40:8080', shouldMatch: ipAndPortDone },
+      { name: 'dont remove http(s) from simple string', text: somethingEntirelyDifferentDone, shouldMatch: somethingEntirelyDifferentDone }
     ].forEach(({ name, text, shouldMatch }) => {
       it(`${name}`, () => {
         assert.deepEqual(Util.removeScheme(text), shouldMatch);
@@ -843,76 +806,76 @@ describe('Util', function ()
     });
   });
 
-  describe("Util Test - detecting PROXY envvars and compare with the agent proxy settings", () => {
+  describe('Util Test - detecting PROXY envvars and compare with the agent proxy settings', () => {
     // if for some reason there's already a PROXY envvar, try to preserve it
     const httpProxyBeforeTest = process.env.HTTP_PROXY ? process.env.HTTP_PROXY : null;
     const httpsProxyBeforeTest = process.env.HTTPS_PROXY ? process.env.HTTPS_PROXY : null;
 
     [
       {
-        name: "detect http_proxy envvar, no agent proxy",
+        name: 'detect http_proxy envvar, no agent proxy',
         isWarn: false,
-        httpproxy: "10.20.30.40:8080",
+        httpproxy: '10.20.30.40:8080',
         HTTPSPROXY: '',
-        agentOptions: {"keepalive": true},
-        shouldLog: " // PROXY environment variables: HTTP_PROXY: 10.20.30.40:8080 HTTPS_PROXY: <unset> NO_PROXY: <unset>."
+        agentOptions: { 'keepalive': true },
+        shouldLog: ' // PROXY environment variables: HTTP_PROXY: 10.20.30.40:8080 HTTPS_PROXY: <unset> NO_PROXY: <unset>.'
       }, {
-        name: "detect HTTPS_PROXY envvar, no agent proxy",
+        name: 'detect HTTPS_PROXY envvar, no agent proxy',
         isWarn: false,
         httpproxy: '',
-        HTTPSPROXY: "http://pro.xy:3128",
-        agentOptions: {"keepalive": true},
-        shouldLog: " // PROXY environment variables: HTTP_PROXY: <unset> HTTPS_PROXY: http://pro.xy:3128 NO_PROXY: <unset>."
+        HTTPSPROXY: 'http://pro.xy:3128',
+        agentOptions: { 'keepalive': true },
+        shouldLog: ' // PROXY environment variables: HTTP_PROXY: <unset> HTTPS_PROXY: http://pro.xy:3128 NO_PROXY: <unset>.'
       }, {
-        name: "detect both http_proxy and HTTPS_PROXY envvar, no agent proxy",
+        name: 'detect both http_proxy and HTTPS_PROXY envvar, no agent proxy',
         isWarn: false,
-        httpproxy: "10.20.30.40:8080",
-        HTTPSPROXY: "http://pro.xy:3128",
-        agentOptions: {"keepalive": true},
-        shouldLog: " // PROXY environment variables: HTTP_PROXY: 10.20.30.40:8080 HTTPS_PROXY: http://pro.xy:3128 NO_PROXY: <unset>."
+        httpproxy: '10.20.30.40:8080',
+        HTTPSPROXY: 'http://pro.xy:3128',
+        agentOptions: { 'keepalive': true },
+        shouldLog: ' // PROXY environment variables: HTTP_PROXY: 10.20.30.40:8080 HTTPS_PROXY: http://pro.xy:3128 NO_PROXY: <unset>.'
       }, {
-        name: "detect http_proxy envvar, agent proxy set to an unauthenticated proxy, same as the envvar",
+        name: 'detect http_proxy envvar, agent proxy set to an unauthenticated proxy, same as the envvar',
         isWarn: false,
-        httpproxy: "10.20.30.40:8080",
+        httpproxy: '10.20.30.40:8080',
         HTTPSPROXY: '',
-        agentOptions: {"keepalive": true, "host": "10.20.30.40", "port": 8080},
-        shouldLog: " // PROXY environment variables: HTTP_PROXY: 10.20.30.40:8080 HTTPS_PROXY: <unset> NO_PROXY: <unset>. // Proxy configured in Connection: proxy=10.20.30.40:8080"
+        agentOptions: { 'keepalive': true, 'host': '10.20.30.40', 'port': 8080 },
+        shouldLog: ' // PROXY environment variables: HTTP_PROXY: 10.20.30.40:8080 HTTPS_PROXY: <unset> NO_PROXY: <unset>. // Proxy configured in Connection: proxy=10.20.30.40:8080'
       }, {
-        name: "detect both http_proxy and HTTPS_PROXY envvar, agent proxy set to an unauthenticated proxy, same as the envvar",
+        name: 'detect both http_proxy and HTTPS_PROXY envvar, agent proxy set to an unauthenticated proxy, same as the envvar',
         isWarn: false,
-        httpproxy: "10.20.30.40:8080",
-        HTTPSPROXY: "http://10.20.30.40:8080",
-        agentOptions: {"keepalive": true, "host": "10.20.30.40", "port": 8080},
-        shouldLog: " // PROXY environment variables: HTTP_PROXY: 10.20.30.40:8080 HTTPS_PROXY: http://10.20.30.40:8080 NO_PROXY: <unset>. // Proxy configured in Connection: proxy=10.20.30.40:8080"
+        httpproxy: '10.20.30.40:8080',
+        HTTPSPROXY: 'http://10.20.30.40:8080',
+        agentOptions: { 'keepalive': true, 'host': '10.20.30.40', 'port': 8080 },
+        shouldLog: ' // PROXY environment variables: HTTP_PROXY: 10.20.30.40:8080 HTTPS_PROXY: http://10.20.30.40:8080 NO_PROXY: <unset>. // Proxy configured in Connection: proxy=10.20.30.40:8080'
       }, {
-        name: "detect both http_proxy and HTTPS_PROXY envvar, agent proxy set to an authenticated proxy, same as the envvar",
+        name: 'detect both http_proxy and HTTPS_PROXY envvar, agent proxy set to an authenticated proxy, same as the envvar',
         isWarn: false,
-        httpproxy: "10.20.30.40:8080",
-        HTTPSPROXY: "http://10.20.30.40:8080",
-        agentOptions: {"keepalive": true, "host": "10.20.30.40", "port": 8080, "user": "PRX", "password": "proxypass"},
-        shouldLog: " // PROXY environment variables: HTTP_PROXY: 10.20.30.40:8080 HTTPS_PROXY: http://10.20.30.40:8080 NO_PROXY: <unset>. // Proxy configured in Connection: proxy=10.20.30.40:8080 user=PRX"
+        httpproxy: '10.20.30.40:8080',
+        HTTPSPROXY: 'http://10.20.30.40:8080',
+        agentOptions: { 'keepalive': true, 'host': '10.20.30.40', 'port': 8080, 'user': 'PRX', 'password': 'proxypass' },
+        shouldLog: ' // PROXY environment variables: HTTP_PROXY: 10.20.30.40:8080 HTTPS_PROXY: http://10.20.30.40:8080 NO_PROXY: <unset>. // Proxy configured in Connection: proxy=10.20.30.40:8080 user=PRX'
       }, {
-        name: "detect both http_proxy and HTTPS_PROXY envvar, agent proxy set to an authenticated proxy, same as the envvar, with the protocol set",
+        name: 'detect both http_proxy and HTTPS_PROXY envvar, agent proxy set to an authenticated proxy, same as the envvar, with the protocol set',
         isWarn: false,
-        httpproxy: "10.20.30.40:8080",
-        HTTPSPROXY: "http://10.20.30.40:8080",
-        agentOptions: {"keepalive": true, "host": "10.20.30.40", "port": 8080, "user": "PRX", "password": "proxypass", "protocol": "http"},
-        shouldLog: " // PROXY environment variables: HTTP_PROXY: 10.20.30.40:8080 HTTPS_PROXY: http://10.20.30.40:8080 NO_PROXY: <unset>. // Proxy configured in Connection: protocol=http proxy=10.20.30.40:8080 user=PRX"
+        httpproxy: '10.20.30.40:8080',
+        HTTPSPROXY: 'http://10.20.30.40:8080',
+        agentOptions: { 'keepalive': true, 'host': '10.20.30.40', 'port': 8080, 'user': 'PRX', 'password': 'proxypass', 'protocol': 'http' },
+        shouldLog: ' // PROXY environment variables: HTTP_PROXY: 10.20.30.40:8080 HTTPS_PROXY: http://10.20.30.40:8080 NO_PROXY: <unset>. // Proxy configured in Connection: protocol=http proxy=10.20.30.40:8080 user=PRX'
       }, {
       // now some WARN level messages
-        name: "detect HTTPS_PROXY envvar, agent proxy set to an unauthenticated proxy, different from the envvar",
+        name: 'detect HTTPS_PROXY envvar, agent proxy set to an unauthenticated proxy, different from the envvar',
         isWarn: true,
         httpproxy: '',
-        HTTPSPROXY: "http://pro.xy:3128",
-        agentOptions: {"keepalive": true, "host": "10.20.30.40", "port": 8080},
-        shouldLog: " Using both the HTTPS_PROXY (http://pro.xy:3128) and the proxyHost:proxyPort (10.20.30.40:8080) settings to connect, but with different values. If you experience connectivity issues, try unsetting one of them."
+        HTTPSPROXY: 'http://pro.xy:3128',
+        agentOptions: { 'keepalive': true, 'host': '10.20.30.40', 'port': 8080 },
+        shouldLog: ' Using both the HTTPS_PROXY (http://pro.xy:3128) and the proxyHost:proxyPort (10.20.30.40:8080) settings to connect, but with different values. If you experience connectivity issues, try unsetting one of them.'
       }, {
-        name: "detect both http_proxy and HTTPS_PROXY envvar, different from each other, agent proxy set to an unauthenticated proxy, different from the envvars",
+        name: 'detect both http_proxy and HTTPS_PROXY envvar, different from each other, agent proxy set to an unauthenticated proxy, different from the envvars',
         isWarn: true,
         httpproxy: '169.254.169.254:8080',
-        HTTPSPROXY: "http://pro.xy:3128",
-        agentOptions: {"keepalive": true, "host": "10.20.30.40", "port": 8080},
-        shouldLog: " Using both the HTTP_PROXY (169.254.169.254:8080) and the proxyHost:proxyPort (10.20.30.40:8080) settings to connect, but with different values. If you experience connectivity issues, try unsetting one of them. Using both the HTTPS_PROXY (http://pro.xy:3128) and the proxyHost:proxyPort (10.20.30.40:8080) settings to connect, but with different values. If you experience connectivity issues, try unsetting one of them."
+        HTTPSPROXY: 'http://pro.xy:3128',
+        agentOptions: { 'keepalive': true, 'host': '10.20.30.40', 'port': 8080 },
+        shouldLog: ' Using both the HTTP_PROXY (169.254.169.254:8080) and the proxyHost:proxyPort (10.20.30.40:8080) settings to connect, but with different values. If you experience connectivity issues, try unsetting one of them. Using both the HTTPS_PROXY (http://pro.xy:3128) and the proxyHost:proxyPort (10.20.30.40:8080) settings to connect, but with different values. If you experience connectivity issues, try unsetting one of them.'
       }
     ].forEach(({ name, isWarn, httpproxy, HTTPSPROXY, agentOptions, shouldLog }) => {
       it(`${name}`, () => {
@@ -925,7 +888,6 @@ describe('Util', function ()
         } else {
           assert.deepEqual(compareAndLogEnvAndAgentProxies.warnings, shouldLog, 'expected warning message does not match!');
         }
-      });
       });
     });
 
@@ -1081,4 +1043,5 @@ describe('Util', function ()
         });
       }
     });
+
 });

@@ -183,7 +183,7 @@ describe('Snowflake Configure Tests', function () {
           name: 'xml parser',
           options:
           {
-            xmlColumnVariantParser: rawColumnValue => new (require("fast-xml-parser")).XMLParser().parse(rawColumnValue)
+            xmlColumnVariantParser: rawColumnValue => new (require('fast-xml-parser')).XMLParser().parse(rawColumnValue)
           }
         },
       ];

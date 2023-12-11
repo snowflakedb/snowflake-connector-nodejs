@@ -38,9 +38,9 @@ describe('S3 client', function () {
   before(function () {
     mock('s3', {
       S3: function (params) {
-        function S3 () {
+        function S3() {
           this.getObject = function (params) {
-            function getObject () {
+            function getObject() {
               this.then = function (callback) {
                 callback({
                   Metadata: ''
@@ -105,9 +105,9 @@ describe('S3 client', function () {
   it('get file header - fail expired token', async function () {
     mock('s3', {
       S3: function (params) {
-        function S3 () {
+        function S3() {
           this.getObject = function (params) {
-            function getObject () {
+            function getObject() {
               this.then = function (callback) {
                 const err = new Error();
                 err.Code = 'ExpiredToken';
@@ -132,9 +132,9 @@ describe('S3 client', function () {
   it('get file header - fail no such key', async function () {
     mock('s3', {
       S3: function (params) {
-        function S3 () {
+        function S3() {
           this.getObject = function (params) {
-            function getObject () {
+            function getObject() {
               this.then = function (callback) {
                 const err = new Error();
                 err.Code = 'NoSuchKey';
@@ -159,9 +159,9 @@ describe('S3 client', function () {
   it('get file header - fail HTTP 400', async function () {
     mock('s3', {
       S3: function (params) {
-        function S3 () {
+        function S3() {
           this.getObject = function (params) {
-            function getObject () {
+            function getObject() {
               this.then = function (callback) {
                 const err = new Error();
                 err.Code = '400';
@@ -186,9 +186,9 @@ describe('S3 client', function () {
   it('get file header - fail unknown', async function () {
     mock('s3', {
       S3: function (params) {
-        function S3 () {
+        function S3() {
           this.getObject = function (params) {
-            function getObject () {
+            function getObject() {
               this.then = function (callback) {
                 const err = new Error();
                 err.Code = 'unknown';
@@ -218,9 +218,9 @@ describe('S3 client', function () {
   it('upload - fail expired token', async function () {
     mock('s3', {
       S3: function (params) {
-        function S3 () {
+        function S3() {
           this.putObject = function (params) {
-            function putObject () {
+            function putObject() {
               this.then = function () {
                 const err = new Error();
                 err.Code = 'ExpiredToken';
@@ -251,9 +251,9 @@ describe('S3 client', function () {
   it('upload - fail wsaeconnaborted', async function () {
     mock('s3', {
       S3: function (params) {
-        function S3 () {
+        function S3() {
           this.putObject = function (params) {
-            function putObject () {
+            function putObject() {
               this.then = function () {
                 const err = new Error();
                 err.Code = '10053';
@@ -284,9 +284,9 @@ describe('S3 client', function () {
   it('upload - fail HTTP 400', async function () {
     mock('s3', {
       S3: function (params) {
-        function S3 () {
+        function S3() {
           this.putObject = function (params) {
-            function putObject () {
+            function putObject() {
               this.then = () => {
                 const err = new Error();
                 err.Code = '400';

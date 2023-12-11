@@ -5,7 +5,7 @@ const os = require('os');
 const path = require('path');
 const assert = require('assert');
 const mock = require('mock-require');
-const {Levels, ClientConfig, ClientLoggingConfig, ConfigurationUtil} = require('./../../../lib/configuration/client_configuration');
+const { Levels, ClientConfig, ClientLoggingConfig, ConfigurationUtil } = require('./../../../lib/configuration/client_configuration');
 const defaultConfigName = 'sf_client_config.json';
 const configInDriverDirectory = path.join('.', defaultConfigName);
 const configInHomeDirectory = path.join(os.homedir(), defaultConfigName);
@@ -29,7 +29,7 @@ const clientConfig = {
 
 describe('Configuration finding tests', function () {
 
-  it('should take config from connection string', async function() {
+  it('should take config from connection string', async function () {
     // given
     const fsMock = new FsMock()
       .mockFile(configFromConnectionString, fileContent)
@@ -163,7 +163,7 @@ function mockClientConfigFileEnvVariable(envClientConfigFileValue) {
 class FsMock {
   existingFiles = new Map();
 
-  constructor () {}
+  constructor() {}
 
   mockFile(filePath, fileContents) {
     this.existingFiles.set(filePath, fileContents);

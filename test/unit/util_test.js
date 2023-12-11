@@ -928,4 +928,131 @@ describe('Util', function ()
       });
       });
     });
+
+    describe('Util test - custom credential manager util functions', function () {
+      const mock_user = 'mock_user';
+      const mock_host = 'mock_host';
+      const mock_cred = 'mock_cred';
+
+      describe('test function build credential key', function () {
+        const testCases = [
+          {
+            name:"when all the parameters are null",
+            user: null,
+            host: null,
+            cred: null,
+            result: null
+          },
+          {
+            name:"when two parameters are null or undefined",
+            user: mock_user,
+            host: null,
+            cred: undefined,
+            result: null
+          },
+          {
+            name:"when one parameter is null",
+            user: mock_user,
+            host: mock_host,
+            cred: undefined,
+            result: null
+          },
+          {
+            name:"when one parameter is undefined",
+            user: mock_user,
+            host: undefined,
+            cred: mock_cred,
+            result: null
+          },
+          {
+            name:"when all the parameters are valid",
+            user: mock_user,
+            host: mock_host,
+            cred: mock_cred,
+            result: '{MOCK_HOST}:{MOCK_USER}:{SF_NODE_JS_DRIVER}:{MOCK_CRED}}'
+          },
+        ];
+        testCases.forEach((name, user, host, cred, result) => {
+          it(`${name}`, function () {
+            if (!result) {
+              assert.strictEqual(Util.buildCredentialCacheKey(host, user, cred), null);
+            } else{
+              assert.strictEqual(Util.buildCredentialCacheKey(host, user, cred), result);
+            }
+        })
+      });
+    });
+  });
+
+    describe('test valid custom credential manager', function () {
+      
+      function sampleManager() {
+        this.read = function (key) {
+        }
+    
+        this.write = function (key ,credential) {
+        }
+    
+        this.remove = function (key) {
+        }
+    }
+    
+      const testCases = [
+        {
+          name: 'credential manager is an int',
+          credentialManager: 123,
+          result: false,
+        },
+        {
+          name: 'credential manager is a string',
+          credentialManager: 'credential manager',
+          result: false,
+        },
+        {
+          name: 'credential manager is an array',
+          credentialManager: ['write', 'read', 'remove'],
+          result: false,
+        },
+        {
+          name: 'credential manager is an empty obejct',
+          credentialManager: {},
+          result: false,
+        },
+        {
+          name: 'credential manager has property, but invalid types',
+          credentialManager: {
+            read: 'read',
+            write: 1234,
+            remove: []
+          },
+          result: false,
+        },
+        {
+          name: 'credential manager has property, but invalid types',
+          credentialManager: {
+            read: 'read',
+            write: 1234,
+            remove: []
+          },
+          result: false,
+        },
+        {
+          name: 'credential manager has two valid properties, but miss one',
+          credentialManager: {
+            read: function() {
+
+            },
+            write:function() {
+
+            }
+          },
+          result: false,
+        },
+        {
+          name: 'credential manager has two valid properties, but miss one',
+          credentialManager: new sampleManager(),
+          result: false,
+        },
+      ];
+    })
 });

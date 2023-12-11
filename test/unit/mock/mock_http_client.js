@@ -1766,7 +1766,9 @@ function buildRequestOutputMappings(clientInfo)
                   CLIENT_APP_ID: 'JavaScript',
                   CLIENT_APP_VERSION: clientInfo.version,
                   CLIENT_ENVIRONMENT: clientInfo.environment,
-                  SESSION_PARAMETERS: {}
+                  SESSION_PARAMETERS: {
+                    CLIENT_STORE_TEMPORARY_CREDENTIAL:true,                    
+                  }
                 }
             }
         },

@@ -31,7 +31,7 @@ module.exports = {
     'key-spacing': ['error'],
     'keyword-spacing': ['error'],
     'linebreak-style': ['error', 'unix'],
-    'no-async-promise-executor': ['warn'],
+    'no-async-promise-executor': ['error'],
     'no-console': ['error', { 'allow': ['warn', 'error'] }],
     'no-empty': ['error'],
     'no-ex-assign': ['warn'],

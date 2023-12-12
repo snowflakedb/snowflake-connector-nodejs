@@ -44,7 +44,7 @@ module.exports = {
     'no-undef': ['warn'],
     'no-unused-vars': ['warn'],
     'no-useless-catch': ['error'],
-    'no-useless-escape': ['warn'],
+    'no-useless-escape': ['error'],
     'no-var': ['warn'],
     'object-curly-spacing': ['error', 'always'],
     'prefer-const': ['error'],

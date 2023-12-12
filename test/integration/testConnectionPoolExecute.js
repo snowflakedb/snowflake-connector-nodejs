@@ -11,8 +11,8 @@ describe('Execute test with Pool', function () {
   const nodeT = randomizeName('nodeT');
   const createNodeTSQL = `create or replace table ${nodeT}(colA number, colB varchar)`;
   const selectAllSQL = `select * from ${nodeT}`;
-  const insertNodeTSQL = `insert into ${nodeT} values(1, \'a\')`;
-  const updateNodeTSQL = `update ${nodeT} set COLA = 2, COLB = \'b\' where COLA = 1`;
+  const insertNodeTSQL = `insert into ${nodeT} values(1, 'a')`;
+  const updateNodeTSQL = `update ${nodeT} set COLA = 2, COLB = 'b' where COLA = 1`;
   const dropNodeTSQL = `drop table if exists ${nodeT}`;
 
   before(function (done) {
@@ -117,8 +117,8 @@ describe('Execute test use Pool for multiple connections', function () {
   const createNodeBSQL = `create or replace table ${nodeB}(colA number, colB varchar);`;
   const selectAllSQLFromNodeA = `select * from ${nodeA};`;
   const selectAllSQLFromNodeB = `select * from ${nodeB};`;
-  const insertNodeASQL = `insert into ${nodeA} values(1, \'a\');`;
-  const insertNodeBSQL = `insert into ${nodeB} values(1, \'b\');`;
+  const insertNodeASQL = `insert into ${nodeA} values(1, 'a');`;
+  const insertNodeBSQL = `insert into ${nodeB} values(1, 'b');`;
   const dropNodeASQL = `drop table if exists ${nodeA};`;
   const dropNodeBSQL = `drop table if exists ${nodeB};`;
 

@@ -37,7 +37,7 @@ module.exports = {
     'no-ex-assign': ['error'],
     'no-extra-semi': ['error'],
     'no-inner-declarations': ['error'],
-    'no-loss-of-precision': ['warn'],
+    'no-loss-of-precision': ['error'],
     'no-mixed-spaces-and-tabs': ['error'],
     'no-prototype-builtins': ['warn'],
     'no-redeclare': ['warn'],

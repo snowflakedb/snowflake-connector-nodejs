@@ -133,7 +133,7 @@ describe('Test DataType', function () {
           testUtil.executeQueryAndVerify(
             connection,
             selectNumber,
-            [{ 'COLA': 12345678901234567890123456789012345678 }],
+            [{ 'COLA': 1.2345678901234568e+37 }],
             callback
           );
         }],

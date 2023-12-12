@@ -89,7 +89,7 @@ describe('Test Put Small Files', function () {
           var strbuffer = '';
           
           var tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'tmp'));
-          if (tmpDir.indexOf('~') != -1 && process.platform === 'win32') {
+          if (tmpDir.indexOf('~') !== -1 && process.platform === 'win32') {
             var tmpFolderName = tmpDir.substring(tmpDir.lastIndexOf('\\'));
             tmpDir = process.env.USERPROFILE + '\\AppData\\Local\\Temp\\' + tmpFolderName;
           }
@@ -102,7 +102,7 @@ describe('Test Put Small Files', function () {
             }
             strbuffer += '\n';
 
-            if ((strbuffer.length >= filesize) || (i == arrBind.length - 1)) {
+            if ((strbuffer.length >= filesize) || (i === arrBind.length - 1)) {
               var fileName = path.join(tmpDir, (++fileCount).toString());
               fs.writeFileSync(fileName, strbuffer);
               files.push(fileName);

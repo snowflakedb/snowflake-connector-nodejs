@@ -152,7 +152,7 @@ module.exports.executeQueryAndVerify = function (connection, sql, expected, call
       callback();
     });
   };
-  if (bindArray != null && bindArray != undefined) {
+  if (bindArray !== null && bindArray !== undefined) {
     executeOptions.binds = bindArray;
   }
 
@@ -188,7 +188,7 @@ module.exports.executeQueryAndVerifyUsePool = function (connectionPool, sql, exp
       callback();
     });
   };
-  if (bindArray != null && bindArray != undefined) {
+  if (bindArray !== null && bindArray !== undefined) {
     executeOptions.binds = bindArray;
   }
 

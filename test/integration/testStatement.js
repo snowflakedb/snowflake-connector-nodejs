@@ -128,7 +128,7 @@ describe('Statement Tests', function () {
             {
               sqlText: sqlText,
               complete: function (err, stmt) {
-                assert.ok(err != undefined, 'expect an error');
+                assert.ok(err !== undefined, 'expect an error');
                 assert.ok(err.code === ErrorCodes.ERR_SF_RESPONSE_INVALID_TOKEN, 'Should throw invalid token error');
                 callback();
               }

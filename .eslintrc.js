@@ -26,7 +26,7 @@ module.exports = {
     'camelcase': ['warn'],
     'comma-spacing': ['error'],
     'curly': ['error', 'all'],
-    'eqeqeq': ['warn'],
+    'eqeqeq': ['error', 'always', { 'null': 'ignore' }],
     'indent': ['error', 2],
     'key-spacing': ['error'],
     'keyword-spacing': ['error'],

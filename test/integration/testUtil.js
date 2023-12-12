@@ -20,7 +20,7 @@ module.exports.createProxyConnection = function () {
 };
 
 module.exports.createConnectionPool = function () {
-  return snowflake.createPool(connOptions.valid, {max: 10, min: 0, testOnBorrow: true});
+  return snowflake.createPool(connOptions.valid, { max: 10, min: 0, testOnBorrow: true });
 };
 
 module.exports.connect = function (connection, callback) {

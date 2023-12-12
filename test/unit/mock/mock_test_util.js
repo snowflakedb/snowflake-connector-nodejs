@@ -62,6 +62,14 @@ var connectionOptionsForSessionGone =
     account: 'fakeaccount'
   };
 
+var connectionOptionsForSessionExpired =
+  {
+    accessUrl: 'http://fakeaccount.snowflakecomputing.com',
+    username: 'fakesessionexpired',
+    password: 'fakepassword',
+    account: 'fakeaccount'
+  };
+
 var connectionOptions504 =
   {
     accessUrl: 'http://fake504.snowflakecomputing.com',
@@ -143,6 +151,7 @@ exports.connectionOptions =
     serviceName: connectionOptionsWithServiceName,
     clientSessionKeepAlive: connectionOptionsWithClientSessionKeepAlive,
     sessionGone: connectionOptionsForSessionGone,
+    sessionExpired: connectionOptionsForSessionExpired,
     http504: connectionOptions504,
     treatIntAsBigInt: connectionOptionsWithTreatIntAsBigInt,
     authDefault: connectionOptionsDefault,

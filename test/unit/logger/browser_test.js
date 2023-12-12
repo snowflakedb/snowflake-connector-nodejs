@@ -3,7 +3,7 @@
  */
 
 const Logger = require('./../../../lib/logger/browser');
-const {logTagToLevel, LOG_LEVEL_TAGS} = require('./../../../lib/logger/core');
+const { logTagToLevel, LOG_LEVEL_TAGS } = require('./../../../lib/logger/core');
 const assert = require('assert');
 
 describe('Logger - browser', function () {
@@ -28,7 +28,7 @@ describe('Logger - browser', function () {
   const FULL_LOG_MSG_DEBUG = DEBUG + ': ' + LOG_MSG_DEBUG;
   const FULL_LOG_MSG_TRACE = TRACE + ': ' + LOG_MSG_TRACE;
 
-  function logMessages (logger) {
+  function logMessages(logger) {
     logger.error(LOG_MSG_ERROR);
     logger.warn(LOG_MSG_WARN);
     logger.info(LOG_MSG_INFO);
@@ -36,7 +36,7 @@ describe('Logger - browser', function () {
     logger.trace(LOG_MSG_TRACE);
   }
 
-  function createLogger (level) {
+  function createLogger(level) {
     return new Logger(
       {
         includeTimestamp: false,

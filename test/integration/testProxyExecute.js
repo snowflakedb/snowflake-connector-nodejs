@@ -63,11 +63,11 @@ describe('Execute proxy test', function () {
             testUtil.executeQueryAndVerify(
               connection,
               selectAllSQL,
-              [{'COLA': 1, 'COLB': 'a'},
-                {'COLA': 1, 'COLB': 'a'},
-                {'COLA': 1, 'COLB': 'a'},
-                {'COLA': 1, 'COLB': 'a'},
-                {'COLA': 1, 'COLB': 'a'}],
+              [{ 'COLA': 1, 'COLB': 'a' },
+                { 'COLA': 1, 'COLB': 'a' },
+                { 'COLA': 1, 'COLB': 'a' },
+                { 'COLA': 1, 'COLB': 'a' },
+                { 'COLA': 1, 'COLB': 'a' }],
               callback
             );
           }],
@@ -90,7 +90,7 @@ describe('Execute proxy test', function () {
           testUtil.executeQueryAndVerify(
             connection,
             selectAllSQL,
-            [{'COLA': 2, 'COLB': 'b'}],
+            [{ 'COLA': 2, 'COLB': 'b' }],
             callback
           );
         }],
@@ -105,7 +105,7 @@ describe('Execute proxy test', function () {
             testUtil.executeQueryAndVerify(
               connection,
               createNodeTSQL,
-              [{'status': 'Table NODET successfully created.'}],
+              [{ 'status': 'Table NODET successfully created.' }],
               callback
             );
           },
@@ -113,7 +113,7 @@ describe('Execute proxy test', function () {
             testUtil.executeQueryAndVerify(
               connection,
               insertNodeTSQL,
-              [{'number of rows inserted': 1}],
+              [{ 'number of rows inserted': 1 }],
               callback
             );
           }],

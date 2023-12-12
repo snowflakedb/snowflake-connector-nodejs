@@ -6,7 +6,7 @@ const assert = require('assert');
 const ResultTestCommon = require('./result_test_common');
 const RowMode = require('./../../../../lib/constants/row_mode');
 const ColumnNamesCreator = require('../../../../lib/connection/result/unique_column_name_creator');
-const {addoverriddenNamesForDuplicatedColumns} = require('../../../../lib/connection/result/unique_column_name_creator');
+const { addoverriddenNamesForDuplicatedColumns } = require('../../../../lib/connection/result/unique_column_name_creator');
 
 describe('Unique column names', function () {
   describe('result contains renamed columns depend on row mode', function () {
@@ -52,10 +52,10 @@ describe('Unique column names', function () {
       };
     };
 
-    testCases.forEach(({title, rowMode, expectedColumnNames}) => {
+    testCases.forEach(({ title, rowMode, expectedColumnNames }) => {
       it(title, function (done) {
         const response = responseWithColumns(columnNames.map(columnName => {
-          return {'name': columnName};
+          return { 'name': columnName };
         }));
         const resultOptions = ResultTestCommon.createResultOptions(response);
         resultOptions['rowMode'] = rowMode;
@@ -79,13 +79,13 @@ describe('Unique column names', function () {
     const testCases = [
       {
         name: 'without overridden',
-        columns: [{name: 'COL1'}, {name: 'COL2'}],
-        expected: [{name: 'COL1'}, {name: 'COL2'}]
+        columns: [{ name: 'COL1' }, { name: 'COL2' }],
+        expected: [{ name: 'COL1' }, { name: 'COL2' }]
       },
       {
         name: 'single overridden column',
-        columns: [{name: 'COL1'}, {name: 'COL1'}],
-        expected: [{name: 'COL1'}, {name: 'COL1', overriddenName: 'COL1_2'}]
+        columns: [{ name: 'COL1' }, { name: 'COL1' }],
+        expected: [{ name: 'COL1' }, { name: 'COL1', overriddenName: 'COL1_2' }]
       },
       {
         name: 'works with empty column list',
@@ -94,43 +94,43 @@ describe('Unique column names', function () {
       },
       {
         name: 'create unique suffixes if column name exists',
-        columns: [{name: 'COL1'}, {name: 'COL1'}, {name: 'COL1_2'}],
-        expected: [{name: 'COL1'}, {name: 'COL1', overriddenName: 'COL1_3'}, {name: 'COL1_2'}]
+        columns: [{ name: 'COL1' }, { name: 'COL1' }, { name: 'COL1_2' }],
+        expected: [{ name: 'COL1' }, { name: 'COL1', overriddenName: 'COL1_3' }, { name: 'COL1_2' }]
       },
       {
         name: 'create unique suffixes for multiple columns',
-        columns: [{name: 'COL1'}, {name: 'COL1'}, {name: 'COL2'}, {name: 'COL2'}, {name: 'COL2'}, {name: 'COL3'}, {name: 'COL3'}],
-        expected: [{name: 'COL1'}, {name: 'COL1', overriddenName: 'COL1_2'}, {name: 'COL2'}, {
+        columns: [{ name: 'COL1' }, { name: 'COL1' }, { name: 'COL2' }, { name: 'COL2' }, { name: 'COL2' }, { name: 'COL3' }, { name: 'COL3' }],
+        expected: [{ name: 'COL1' }, { name: 'COL1', overriddenName: 'COL1_2' }, { name: 'COL2' }, {
           name: 'COL2',
           overriddenName: 'COL2_2'
-        }, {name: 'COL2', overriddenName: 'COL2_3'}, {name: 'COL3'}, {name: 'COL3', overriddenName: 'COL3_2'}]
+        }, { name: 'COL2', overriddenName: 'COL2_3' }, { name: 'COL3' }, { name: 'COL3', overriddenName: 'COL3_2' }]
       },
       {
         name: 'create unique suffixes for multiple columns despite of numeric suffixes',
-        columns: [{name: 'COL1'}, {name: 'COL1_2'}, {name: 'COL1_2'}, {name: 'COL1'}],
-        expected: [{name: 'COL1'}, {name: 'COL1_2'}, {name: 'COL1_2', overriddenName: 'COL1_2_2'}, {
+        columns: [{ name: 'COL1' }, { name: 'COL1_2' }, { name: 'COL1_2' }, { name: 'COL1' }],
+        expected: [{ name: 'COL1' }, { name: 'COL1_2' }, { name: 'COL1_2', overriddenName: 'COL1_2_2' }, {
           name: 'COL1',
           overriddenName: 'COL1_3'
         }]
       },
       {
         name: 'not changed if empty names',
-        columns: [{name: ''}, {name: ''}],
-        expected: [{name: ''}, {name: ''}]
+        columns: [{ name: '' }, { name: '' }],
+        expected: [{ name: '' }, { name: '' }]
       },
       {
         name: 'not changed if undefined names',
-        columns: [{name: undefined}, {name: undefined}],
-        expected: [{name: undefined}, {name: undefined}]
+        columns: [{ name: undefined }, { name: undefined }],
+        expected: [{ name: undefined }, { name: undefined }]
       },
       {
         name: 'not changed if nulls as names',
-        columns: [{name: null}, {name: null}],
-        expected: [{name: null}, {name: null}]
+        columns: [{ name: null }, { name: null }],
+        expected: [{ name: null }, { name: null }]
       }
     ];
 
-    testCases.forEach(({name, columns, expected}) => {
+    testCases.forEach(({ name, columns, expected }) => {
       it(name, function () {
         ColumnNamesCreator.addOverridenNamesForDuplicatedColumns(columns);
         assert.deepStrictEqual(columns, expected);

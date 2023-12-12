@@ -2,7 +2,7 @@
  * Copyright (c) 2023 Snowflake Computing Inc. All rights reserved.
  */
 const assert = require('assert');
-const {Levels, ConfigurationUtil} = require('./../../../lib/configuration/client_configuration');
+const { Levels, ConfigurationUtil } = require('./../../../lib/configuration/client_configuration');
 const getClientConfig = new ConfigurationUtil().getClientConfig;
 const fsPromises = require('fs/promises');
 const os = require('os');
@@ -28,7 +28,7 @@ describe('Configuration parsing tests', function () {
       testCaseName: 'info',
       logLevel: Levels.Info.toLowerCase()
     },
-  ].forEach(({testCaseName, logLevel}) => {
+  ].forEach(({ testCaseName, logLevel }) => {
     it('should parse json with log level: ' + testCaseName, async function () {
       // given
       const fileName = 'config.json';
@@ -67,7 +67,7 @@ describe('Configuration parsing tests', function () {
         "common": {} 
      }`
     },
-  ].forEach(({testCaseName, fileContent}) => {
+  ].forEach(({ testCaseName, fileContent }) => {
     it('should parse config without values: ' + testCaseName, async function () {
       // given
       const fileName = 'config_nulls_' + replaceSpaces(testCaseName) + '.json';
@@ -96,7 +96,7 @@ describe('Configuration parsing tests', function () {
       testCaseName: 'undefined',
       filePath: undefined
     }
-  ].forEach(({testCaseName, filePath}) => {
+  ].forEach(({ testCaseName, filePath }) => {
     it('should return null when config file not given: ' + testCaseName, async function () {
       // when
       const configuration = await getClientConfig(filePath);
@@ -150,7 +150,7 @@ describe('Configuration parsing tests', function () {
             } 
         }`
     },
-  ].forEach(({testCaseName, fileContent}) => {
+  ].forEach(({ testCaseName, fileContent }) => {
     it('should fail for wrong config content ' + testCaseName, async function () {
       // given
       const fileName = 'config_wrong_' + replaceSpaces(testCaseName) + '.json';
@@ -173,7 +173,7 @@ describe('Configuration parsing tests', function () {
     return stringValue.replace(' ', '_');
   }
 
-  async function writeFile (filePath, fileContent) {
+  async function writeFile(filePath, fileContent) {
     await fsPromises.writeFile(filePath, fileContent, { encoding: 'utf8' });
   }
 });

@@ -4,13 +4,13 @@
 const snowflake = require('./../../lib/snowflake');
 const connOption = require('./connectionOptions');
 const Logger = require('./../../lib/logger');
-const {reset: resetEasyLoggingModule} = require('../../lib/logger/easy_logging_starter');
+const { reset: resetEasyLoggingModule } = require('../../lib/logger/easy_logging_starter');
 const path = require('path');
 const os = require('os');
 const fsPromises = require('fs/promises');
 const assert = require('assert');
 const logLevelBefore = Logger.getInstance().getLevel();
-const {codes} = require('./../../lib/errors');
+const { codes } = require('./../../lib/errors');
 const errorMessages = require('./../../lib/constants/error_messages');
 let tempDir = null;
 
@@ -120,7 +120,7 @@ describe.skip('Easy logging tests', function () {
     return configFilePath;
   }
 
-  async function writeFile (filePath, fileContent) {
+  async function writeFile(filePath, fileContent) {
     await fsPromises.writeFile(filePath, fileContent, { encoding: 'utf8' });
   }
 });

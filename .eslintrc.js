@@ -34,7 +34,7 @@ module.exports = {
     'no-async-promise-executor': ['error'],
     'no-console': ['error', { 'allow': ['warn', 'error'] }],
     'no-empty': ['error'],
-    'no-ex-assign': ['warn'],
+    'no-ex-assign': ['error'],
     'no-extra-semi': ['error'],
     'no-inner-declarations': ['warn'],
     'no-loss-of-precision': ['warn'],

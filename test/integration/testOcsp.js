@@ -239,15 +239,16 @@ describe('OCSP validation', function () {
 
   it('Test Ocsp with different endpoints - no cache directory access', function (done) {
     const platform = Os.platform();
+
+    function cleanup() {
+      delete process.env['SF_OCSP_RESPONSE_CACHE_DIR'];
+      done();
+    }
+
     if (platform === 'linux') {
       deleteCache();
       SocketUtil.variables.OCSP_RESPONSE_CACHE = undefined;
       process.env['SF_OCSP_RESPONSE_CACHE_DIR'] = '/usr';
-
-      function cleanup() {
-        delete process.env['SF_OCSP_RESPONSE_CACHE_DIR'];
-        done();
-      }
 
       const testOptions = function (i) {
         const connection = snowflake.createConnection(httpsEndpoints[i]);

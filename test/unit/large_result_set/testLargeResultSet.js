@@ -5,16 +5,14 @@ const httpClient = require('../../../lib/http/node');
 const ConnectionConfig = require('../../../lib/connection/connection_config');
 const { hangWebServerUrl } = require('../../hangWebserver');
 
-describe('LargeResultSetService', () =>
-{
+describe('LargeResultSetService', () => {
   let httpClientInstance;
   let largeResultSetService;
 
   // it's python hang webserver address to test retries and errors
   const baseUrl = hangWebServerUrl;
 
-  beforeEach(() =>
-  {
+  beforeEach(() => {
     const connectionOptions = {
       ...(connOptions.valid),
       timeout: 100,
@@ -30,37 +28,27 @@ describe('LargeResultSetService', () =>
     httpConnectionOptions.getRetryLargeResultSetMaxNumRetries = () => 2;
     httpConnectionOptions.getRetryLargeResultSetMaxSleepTime = () => 0;
 
-    httpClientInstance = new httpClient(httpConnectionOptions)
+    httpClientInstance = new httpClient(httpConnectionOptions);
     largeResultSetService = new LargeResultSetService(httpConnectionOptions, httpClientInstance);
   });
 
-  describe('when all retries fail', () =>
-  {
+  describe('when all retries fail', () => {
     [
-      {testName: 'should retry on 503', url: '/503', expectedErrorName: 'LargeResultSetError'},
-      {testName: 'should retry on timeout', url: '/hang', expectedErrorName: 'NetworkError'},
-    ].forEach(({testName, url, expectedErrorName}) =>
-    {
-      it(testName, done =>
-      {
+      { testName: 'should retry on 503', url: '/503', expectedErrorName: 'LargeResultSetError' },
+      { testName: 'should retry on timeout', url: '/hang', expectedErrorName: 'NetworkError' },
+    ].forEach(({ testName, url, expectedErrorName }) => {
+      it(testName, done => {
         largeResultSetService.getObject({
           url: baseUrl + url,
-          callback: (err, body) =>
-          {
-            if (err)
-            {
-              if (err && err.name === expectedErrorName)
-              {
-                done()
+          callback: (err, body) => {
+            if (err) {
+              if (err && err.name === expectedErrorName) {
+                done();
+              } else {
+                done(`Expected ${expectedErrorName} but received ${JSON.stringify(err)}`);
               }
-              else
-              {
-                done(`Expected ${expectedErrorName} but received ${JSON.stringify(err)}`)
-              }
-            }
-            else
-            {
-              done('expected error')
+            } else {
+              done('expected error');
             }
           }
         });
@@ -68,10 +56,8 @@ describe('LargeResultSetService', () =>
     });
   });
 
-  describe('when recover at last try', () =>
-  {
-    beforeEach(done =>
-    {
+  describe('when recover at last try', () => {
+    beforeEach(done => {
       httpClientInstance.request({
         url: baseUrl + '/resetCounter',
         method: 'POST',
@@ -80,16 +66,13 @@ describe('LargeResultSetService', () =>
     });
 
     [
-      {testName: 'should recover from 503', url: '/eachThirdReturns200Others503'},
-      {testName: 'should recover from timeout', url: '/eachThirdReturns200OthersHang'},
-    ].forEach(({testName, url}) =>
-    {
-      it(testName, done =>
-      {
+      { testName: 'should recover from 503', url: '/eachThirdReturns200Others503' },
+      { testName: 'should recover from timeout', url: '/eachThirdReturns200OthersHang' },
+    ].forEach(({ testName, url }) => {
+      it(testName, done => {
         largeResultSetService.getObject({
           url: baseUrl + url,
-          callback: (err) =>
-          {
+          callback: (err) => {
             done(err);
           }
         });
@@ -100,9 +83,8 @@ describe('LargeResultSetService', () =>
   it('should fail on xml content', done => {
     largeResultSetService.getObject({
       url: baseUrl + '/xml',
-      callback: (err, body) =>
-      {
-        err && err.name === 'LargeResultSetError' ? done() : done(`Error expected but received body ${body}`)
+      callback: (err, body) => {
+        err && err.name === 'LargeResultSetError' ? done() : done(`Error expected but received body ${body}`);
       }
     });
   });

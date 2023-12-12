@@ -6,26 +6,22 @@ var assert = require('assert');
 var SnowflakeSecretDetector = require('./../../lib/secret_detector');
 
 
-describe('Secret Detector', function ()
-{
+describe('Secret Detector', function () {
   var SecretDetector;
 
   const errstr = new Error('Test exception');
   var mock =
   {
-    execute: function ()
-    {
+    execute: function () {
       throw errstr;
     }
-  }
+  };
 
-  this.beforeEach(function ()
-  {
+  this.beforeEach(function () {
     SecretDetector = new SnowflakeSecretDetector();
   });
 
-  it('basic masking - null', async function ()
-  {
+  it('basic masking - null', async function () {
     var txt = null;
     var result = SecretDetector.maskSecrets(txt);
     assert.strictEqual(result.masked, false);
@@ -33,8 +29,7 @@ describe('Secret Detector', function ()
     assert.strictEqual(result.errstr, null);
   });
 
-  it('basic masking - empty', async function ()
-  {
+  it('basic masking - empty', async function () {
     var txt = '';
     var result = SecretDetector.maskSecrets(txt);
     assert.strictEqual(result.masked, false);
@@ -42,8 +37,7 @@ describe('Secret Detector', function ()
     assert.strictEqual(result.errstr, null);
   });
 
-  it('basic masking - no masking', async function ()
-  {
+  it('basic masking - no masking', async function () {
     var txt = 'This string is innocuous';
     var result = SecretDetector.maskSecrets(txt);
     assert.strictEqual(result.masked, false);
@@ -51,8 +45,7 @@ describe('Secret Detector', function ()
     assert.strictEqual(result.errstr, null);
   });
 
-  it('exception - masking', async function ()
-  {
+  it('exception - masking', async function () {
     SecretDetector = new SnowflakeSecretDetector(null, mock);
     var result = SecretDetector.maskSecrets('test');
     assert.strictEqual(result.masked, true);
@@ -60,8 +53,7 @@ describe('Secret Detector', function ()
     assert.strictEqual(result.errstr, errstr.toString());
   });
 
-  it('test - mask token', async function ()
-  {
+  it('test - mask token', async function () {
     var longToken = '_Y1ZNETTn5/qfUWj3Jedby7gipDzQs=U' +
       'KyJH9DS=nFzzWnfZKGV+C7GopWCGD4Lj' +
       'OLLFZKOE26LXHDt3pTi4iI1qwKuSpf/F' +
@@ -78,25 +70,25 @@ describe('Secret Detector', function ()
     assert.strictEqual(result.maskedtxt, 'Token =****');
     assert.strictEqual(result.errstr, null);
 
-    var idTokenWithPrefix = 'idToken : ' + longToken
+    var idTokenWithPrefix = 'idToken : ' + longToken;
     result = SecretDetector.maskSecrets(idTokenWithPrefix);
     assert.strictEqual(result.masked, true);
     assert.strictEqual(result.maskedtxt, 'idToken : ****');
     assert.strictEqual(result.errstr, null);
 
-    var sessionTokenWithPrefix = 'sessionToken : ' + longToken
+    var sessionTokenWithPrefix = 'sessionToken : ' + longToken;
     result = SecretDetector.maskSecrets(sessionTokenWithPrefix);
     assert.strictEqual(result.masked, true);
     assert.strictEqual(result.maskedtxt, 'sessionToken : ****');
     assert.strictEqual(result.errstr, null);
 
-    var masterTokenWithPrefix = 'masterToken : ' + longToken
+    var masterTokenWithPrefix = 'masterToken : ' + longToken;
     result = SecretDetector.maskSecrets(masterTokenWithPrefix);
     assert.strictEqual(result.masked, true);
     assert.strictEqual(result.maskedtxt, 'masterToken : ****');
     assert.strictEqual(result.errstr, null);
 
-    var assertionWithPrefix = 'assertion content : ' + longToken
+    var assertionWithPrefix = 'assertion content : ' + longToken;
     result = SecretDetector.maskSecrets(assertionWithPrefix);
     assert.strictEqual(result.masked, true);
     assert.strictEqual(result.maskedtxt, 'assertion content : ****');
@@ -104,11 +96,10 @@ describe('Secret Detector', function ()
   });
 
 
-  it('test - false positive', async function ()
-  {
-    var falsePositiveToken = "2020-04-30 23:06:04,069 - MainThread auth.py:397" +
-      " - write_temporary_credential() - DEBUG - no ID " +
-      "token is given when try to store temporary credential";
+  it('test - false positive', async function () {
+    var falsePositiveToken = '2020-04-30 23:06:04,069 - MainThread auth.py:397' +
+      ' - write_temporary_credential() - DEBUG - no ID ' +
+      'token is given when try to store temporary credential';
 
     var result = SecretDetector.maskSecrets(falsePositiveToken);
     assert.strictEqual(result.masked, false);
@@ -116,8 +107,7 @@ describe('Secret Detector', function ()
     assert.strictEqual(result.errstr, null);
   });
 
-  it('test - password', async function ()
-  {
+  it('test - password', async function () {
     var randomPassword = 'Fh[+2J~AcqeqW%?';
 
     var randomPasswordWithPrefix = 'password:' + randomPassword;
@@ -152,8 +142,7 @@ describe('Secret Detector', function ()
   });
 
 
-  it('test - token password', async function ()
-  {
+  it('test - token password', async function () {
     var longToken = '_Y1ZNETTn5/qfUWj3Jedby7gipDzQs=U' +
       'KyJH9DS=nFzzWnfZKGV+C7GopWCGD4Lj' +
       'OLLFZKOE26LXHDt3pTi4iI1qwKuSpf/F' +
@@ -173,65 +162,64 @@ describe('Secret Detector', function ()
     var randomPwd = 'Fh[+2J~AcqeqW%?';
     var randomPwd2 = randomPwd + 'vdkav13';
 
-    var testStringWithPrefix = "token=" + longToken +
-      " random giberish " +
-      "password:" + randomPwd;
+    var testStringWithPrefix = 'token=' + longToken +
+      ' random giberish ' +
+      'password:' + randomPwd;
     var result = SecretDetector.maskSecrets(testStringWithPrefix);
     assert.strictEqual(result.masked, true);
     assert.strictEqual(result.maskedtxt,
       'token=****' +
-      " random giberish " +
-      "password:****"
+      ' random giberish ' +
+      'password:****'
     );
     assert.strictEqual(result.errstr, null);
 
-    var testStringWithPrefixReversed = "password:" + randomPwd +
-      " random giberish " +
-      "token=" + longToken;
+    var testStringWithPrefixReversed = 'password:' + randomPwd +
+      ' random giberish ' +
+      'token=' + longToken;
     result = SecretDetector.maskSecrets(testStringWithPrefixReversed);
     assert.strictEqual(result.masked, true);
     assert.strictEqual(result.maskedtxt,
-      "password:****"+
-      " random giberish " +
+      'password:****' +
+      ' random giberish ' +
       'token=****'
     );
     assert.strictEqual(result.errstr, null);
 
-    var testStringWithPrefixMultiToken = "token=" + longToken +
-      " random giberish " +
-      "password:" + randomPwd +
-      " random giberish " +
-      "idToken:" + longToken2;
+    var testStringWithPrefixMultiToken = 'token=' + longToken +
+      ' random giberish ' +
+      'password:' + randomPwd +
+      ' random giberish ' +
+      'idToken:' + longToken2;
     result = SecretDetector.maskSecrets(testStringWithPrefixMultiToken);
     assert.strictEqual(result.masked, true);
     assert.strictEqual(result.maskedtxt,
       'token=****' +
-      " random giberish " +
-      "password:****" +
-      " random giberish " +
-      "idToken:****"
+      ' random giberish ' +
+      'password:****' +
+      ' random giberish ' +
+      'idToken:****'
     );
     assert.strictEqual(result.errstr, null);
 
-    var testStringWithPrefixMultiPass = "password=" + randomPwd +
-      " random giberish " +
-      "password=" + randomPwd2 +
-      " random giberish " +
-      "password=" + randomPwd;
+    var testStringWithPrefixMultiPass = 'password=' + randomPwd +
+      ' random giberish ' +
+      'password=' + randomPwd2 +
+      ' random giberish ' +
+      'password=' + randomPwd;
     result = SecretDetector.maskSecrets(testStringWithPrefixMultiPass);
     assert.strictEqual(result.masked, true);
     assert.strictEqual(result.maskedtxt,
-      "password=" + "****" +
-      " random giberish " +
-      "password=" + "****" +
-      " random giberish " +
-      "password=" + "****"
+      'password=' + '****' +
+      ' random giberish ' +
+      'password=' + '****' +
+      ' random giberish ' +
+      'password=' + '****'
     );
     assert.strictEqual(result.errstr, null);
   });
 
-  it('custom pattern - success', async function ()
-  {
+  it('custom pattern - success', async function () {
     var customPatterns = {
       regex: [
         String.raw`(testCustomPattern\s*:\s*"([a-z]{8,})")`,
@@ -241,7 +229,7 @@ describe('Secret Detector', function ()
         'maskCustomPattern1',
         'maskCustomPattern2'
       ]
-    }
+    };
 
     SecretDetector = new SnowflakeSecretDetector(customPatterns);
 
@@ -262,7 +250,7 @@ describe('Secret Detector', function ()
     var result = SecretDetector.maskSecrets(txt);
     assert.strictEqual(result.masked, true);
     assert.strictEqual(result.maskedtxt,
-      "password=**** " +
+      'password=**** ' +
       customPatterns.mask[0]);
     assert.strictEqual(result.errstr, null);
 
@@ -271,54 +259,42 @@ describe('Secret Detector', function ()
     result = SecretDetector.maskSecrets(txt);
     assert.strictEqual(result.masked, true);
     assert.strictEqual(result.maskedtxt,
-      "password=**** " +
+      'password=**** ' +
       customPatterns.mask[1]);
     assert.strictEqual(result.errstr, null);
   });
 
-  it('custom pattern - regex error', async function ()
-  {
+  it('custom pattern - regex error', async function () {
     var customPatterns = {
       mask: ['maskCustomPattern1', 'maskCustomPattern2']
-    }
-    try
-    {
+    };
+    try {
       SecretDetector = new SnowflakeSecretDetector(customPatterns);
-    }
-    catch (err)
-    {
-      assert.strictEqual(err.toString(), "Error: The customPatterns object must contain the 'regex' key");
+    } catch (err) {
+      assert.strictEqual(err.toString(), 'Error: The customPatterns object must contain the \'regex\' key');
     }
   });
 
-  it('custom pattern - mask error', async function ()
-  {
+  it('custom pattern - mask error', async function () {
     var customPatterns = {
       regex: ['regexCustomPattern1', 'regexCustomPattern2']
-    }
-    try
-    {
+    };
+    try {
       SecretDetector = new SnowflakeSecretDetector(customPatterns);
-    }
-    catch (err)
-    {
-      assert.strictEqual(err.toString(), "Error: The customPatterns object must contain the 'mask' key");
+    } catch (err) {
+      assert.strictEqual(err.toString(), 'Error: The customPatterns object must contain the \'mask\' key');
     }
   });
 
-  it('custom pattern - unequal length error', async function ()
-  {
+  it('custom pattern - unequal length error', async function () {
     var customPatterns = {
       regex: ['regexCustomPattern1', 'regexCustomPattern2'],
       mask: ['maskCustomPattern1']
-    }
-    try
-    {
+    };
+    try {
       SecretDetector = new SnowflakeSecretDetector(customPatterns);
-    }
-    catch (err)
-    {
-      assert.strictEqual(err.toString(), "Error: The customPatterns object must have equal length for both 'regex' and 'mask'");
+    } catch (err) {
+      assert.strictEqual(err.toString(), 'Error: The customPatterns object must have equal length for both \'regex\' and \'mask\'');
     }
   });
 });

@@ -9,10 +9,8 @@ const ErrorCodes = Errors.codes;
 
 const assert = require('assert');
 
-describe('OCSP early exist error', function ()
-{
-  it('canEarlyExitForOCSP - no error', function (done)
-  {
+describe('OCSP early exist error', function () {
+  it('canEarlyExitForOCSP - no error', function (done) {
     const errors = [null, null, null];
     {
       GlobalConfig.setOcspFailOpen(true);
@@ -27,8 +25,7 @@ describe('OCSP early exist error', function ()
     done();
   });
 
-  it('canEarlyExitForOCSP - revoked', function (done)
-  {
+  it('canEarlyExitForOCSP - revoked', function (done) {
     const errors = [
       Errors.createOCSPError(ErrorCodes.ERR_OCSP_REVOKED),
       null
@@ -46,8 +43,7 @@ describe('OCSP early exist error', function ()
     done();
   });
 
-  it('canEarlyExitForOCSP - unknown', function (done)
-  {
+  it('canEarlyExitForOCSP - unknown', function (done) {
     const errors = [
       Errors.createOCSPError(ErrorCodes.ERR_OCSP_UNKNOWN),
       null
@@ -67,8 +63,7 @@ describe('OCSP early exist error', function ()
     done();
   });
 
-  it('canEarlyExitForOCSP - revoked and other errors', function (done)
-  {
+  it('canEarlyExitForOCSP - revoked and other errors', function (done) {
     const errors = [
       Errors.createOCSPError(ErrorCodes.ERR_OCSP_REVOKED),
       Errors.createOCSPError(ErrorCodes.ERR_OCSP_NO_RESPONSE),
@@ -87,8 +82,7 @@ describe('OCSP early exist error', function ()
     done();
   });
 
-  it('canEarlyExitForOCSP - unknown and other errors', function (done)
-  {
+  it('canEarlyExitForOCSP - unknown and other errors', function (done) {
     const errors = [
       Errors.createOCSPError(ErrorCodes.ERR_OCSP_UNKNOWN),
       Errors.createOCSPError(ErrorCodes.ERR_OCSP_INVALID_SIGNATURE)
@@ -106,8 +100,7 @@ describe('OCSP early exist error', function ()
     done();
   });
 
-  it('canEarlyExitForOCSP - invalid ocsp response', function (done)
-  {
+  it('canEarlyExitForOCSP - invalid ocsp response', function (done) {
     const errors = [
       Errors.createOCSPError(ErrorCodes.ERR_OCSP_NO_SIGNATURE_ALGORITHM),
       Errors.createOCSPError(ErrorCodes.ERR_OCSP_NO_RESPONSE),

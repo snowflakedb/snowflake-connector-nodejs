@@ -43,7 +43,7 @@ module.exports = {
     'no-redeclare': ['warn'],
     'no-undef': ['warn'],
     'no-unused-vars': ['warn'],
-    'no-useless-catch': ['warn'],
+    'no-useless-catch': ['error'],
     'no-useless-escape': ['warn'],
     'no-var': ['warn'],
     'object-curly-spacing': ['error', 'always'],

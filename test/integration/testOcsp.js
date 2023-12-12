@@ -146,7 +146,7 @@ describe('OCSP validation', function () {
     connection.connect(function (err) {
       assert.ok(err);
       if (err) {
-        if (!err.hasOwnProperty('code')) {
+        if (!Object.prototype.hasOwnProperty.call(err, 'code')) {
           Logger.getInstance().error(err);
         }
         assert.equal(err['code'], '390100');

@@ -39,7 +39,7 @@ module.exports = {
     'no-inner-declarations': ['error'],
     'no-loss-of-precision': ['error'],
     'no-mixed-spaces-and-tabs': ['error'],
-    'no-prototype-builtins': ['warn'],
+    'no-prototype-builtins': ['error'],
     'no-redeclare': ['warn'],
     'no-undef': ['warn'],
     'no-unused-vars': ['warn'],

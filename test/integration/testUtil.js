@@ -200,7 +200,7 @@ module.exports.executeQueryAndVerifyUsePool = function (connectionPool, sql, exp
 function normalizeRowObject(row) {
   const normalizedRow = {};
   for (const key in row) {
-    if (row.hasOwnProperty(key)) {
+    if (Object.prototype.hasOwnProperty.call(row, key)) {
       const convertToString = (row[key] !== null) && (row[key] !== undefined)
         && (typeof row[key].toJSON === 'function');
       const convertToJSNumber = (row[key] !== null) && (row[key] !== undefined)

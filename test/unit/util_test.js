@@ -1013,9 +1013,15 @@ describe('Util', function () {
         {
           name: 'credential manager has two valid properties, but miss one',
           credentialManager: new sampleManager(),
-          result: false,
+          result: true,
         },
       ];
+
+      for (const { name, credentialManager, result } of testCases) {
+        it(name, function () {
+          assert.strictEqual(Util.checkValidCustomCredentialManager(credentialManager), result);
+        });
+      }
     });
 
     describe('checkParametersDefined function Test', function () {

@@ -73,37 +73,38 @@ if (process.env.RUN_MANUAL_TESTS_ONLY == 'true') {
         });
       });
 
-      it('Connection - ID Token authenticator', async function (done) {
-        
-        //Testing to obtain the id token.
+      describe('Connection - ID Token authenticator', async function (done) {
         const key = Util.buildCredentialCacheKey(connectionOption.host, connectionOption.username, 'ID_TOKEN');
         GlobalConfig.getCredentialManager().remove(key);
+        
+        const connectionOption = connOption.externalBrowser;
 
-        const connectionOption = connOption.externalBrowser
-        const connection = snowflake.createConnection(
-          connectionOption
-        );
-        await connection.connectAsync(function (err) {
-          assert.ok(!err);
-          const idToken = GlobalConfig.getCredentialManager().read(key);
-          assert.ok( idToken !== null);
-        });
-        await testUtil.destroyConnectionAsync(connection);
+        it('test - obtain the id token from the server and save it on the local storage', async function () {
+          const connection = snowflake.createConnection(connectionOption);
+          await connection.connectAsync(function (err) {
+            assert.ok(!err);
+            const idToken = GlobalConfig.getCredentialManager().read(key);
+            assert.ok( idToken !== null);
+          });
+          await testUtil.destroyConnectionAsync(connection);
+        })
+        
+        it('test - id token reauthentication', async function () {
+          const idTokenConnection = snowflake.createConnection(connectionOption);
+          idTokenConnection.connectAsync(function (err) {
+            assert.ok(!err);
+          });
+          await testUtil.destroyConnectionAsync(idTokenConnection);
+        })
 
-        //Testing  with the id token.
-        const idTokenConnection = snowflake.createConnection(connectionOption);
-        idTokenConnection.connectAsync(function (err) {
-          assert.ok(!err);
-        });
-        await testUtil.destroyConnectionAsync(idTokenConnection);
-
-        //Testing reauthentication.
-        await GlobalConfig.getCredentialManager().write(key);
-        const wrongTokenConnection = testUtil.connectAsync(connOption);
-        await wrongTokenConnection.connectAsync(function (err) {
-          assert.ok(!err);
-          done();
-        });
+        it('test - id token authentication', async function () {
+          await GlobalConfig.getCredentialManager().write(key, '1234');
+          const wrongTokenConnection = testUtil.connectAsync(connOption);
+          await wrongTokenConnection.connectAsync(function (err) {
+            assert.ok(!err);
+            done();
+          });
+        })
       });
     });
 

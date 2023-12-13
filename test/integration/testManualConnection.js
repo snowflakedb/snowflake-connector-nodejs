@@ -97,8 +97,8 @@ if (process.env.RUN_MANUAL_TESTS_ONLY == 'true') {
 
         //Testing reauthentication.
         await GlobalConfig.getCredentialManager().write(connectionOption.host, connectionOption.username, 'ID_TOKEN", "WRONG Token');
-        const wrongTokneConnection = testUtil.connectAsync(connOption);
-        await wrongTokneConnection.connectAsync(function (err) {
+        const wrongTokenConnection = testUtil.connectAsync(connOption);
+        await wrongTokenConnection.connectAsync(function (err) {
           assert.ok(!err);
           done();
         });

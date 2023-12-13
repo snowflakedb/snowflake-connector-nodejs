@@ -25,7 +25,7 @@ var connectionOptionsKeyPair = mockConnectionOptions.authKeyPair;
 var connectionOptionsKeyPairPath = mockConnectionOptions.authKeyPairPath;
 var connectionOptionsOauth = mockConnectionOptions.authOauth;
 var connectionOptionsOkta = mockConnectionOptions.authOkta;
-const connectionOptionsidToken = mockConnectionOptions.authIdToken;
+const connectionOptionsIdToken = mockConnectionOptions.authIdToken;
 
 describe('default authentication', function () {
 
@@ -173,13 +173,13 @@ describe('external browser authentication', function () {
   });
 
   it('external browser - id token', async function () {
-    const auth = new auth_idtoken(connectionOptionsidToken, httpclient);
+    const auth = new auth_idtoken(connectionOptionsIdToken, httpclient);
     await auth.authenticate(credentials.authenticator, '', credentials.account, credentials.username, credentials.host);
 
     const body = { data: {} };
     auth.updateBody(body);
 
-    assert.strictEqual(body['data']['TOKEN'], connectionOptionsidToken.idToken);
+    assert.strictEqual(body['data']['TOKEN'], connectionOptionsIdToken.idToken);
     assert.strictEqual(body['data']['AUTHENTICATOR'], authenticationTypes.ID_TOKEN_AUTHENTICATOR);
   });
 });

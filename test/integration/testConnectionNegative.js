@@ -4,8 +4,7 @@
 var snowflake = require('./../../lib/snowflake');
 var assert = require('assert');
 
-describe('snowflake.createConnection() synchronous errors', function ()
-{
+describe('snowflake.createConnection() synchronous errors', function () {
   // empty error code for now 
   var ErrorCodes = {};
   var testCases =
@@ -134,22 +133,15 @@ describe('snowflake.createConnection() synchronous errors', function ()
       }
     ];
 
-  var createItCallback = function (testCase)
-  {
-    return function ()
-    {
+  var createItCallback = function (testCase) {
+    return function () {
       var error = null;
 
-      try
-      {
+      try {
         snowflake.createConnection(testCase.options);
-      }
-      catch (err)
-      {
+      } catch (err) {
         error = err;
-      }
-      finally
-      {
+      } finally {
         assert.ok(error);
         //assert.strictEqual(error.code, testCase.errorCode);
       }
@@ -157,8 +149,7 @@ describe('snowflake.createConnection() synchronous errors', function ()
   };
 
   var index, length, testCase;
-  for (index = 0, length = testCases.length; index < length; index++)
-  {
+  for (index = 0, length = testCases.length; index < length; index++) {
     testCase = testCases[index];
     it(testCase.name, createItCallback(testCase));
   }

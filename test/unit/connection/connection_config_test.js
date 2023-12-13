@@ -6,8 +6,7 @@ var ConnectionConfig = require('./../../../lib/connection/connection_config');
 var ErrorCodes = require('./../../../lib/errors').codes;
 var assert = require('assert');
 
-describe('ConnectionConfig: basic', function ()
-{
+describe('ConnectionConfig: basic', function () {
   ///////////////////////////////////////////////////////////////////////////
   //// Test synchronous errors                                           ////
   ///////////////////////////////////////////////////////////////////////////
@@ -509,9 +508,9 @@ describe('ConnectionConfig: basic', function ()
         },
         errorCode: ErrorCodes.ERR_CONN_CREATE_INVALID_PROXY_PASS
       },
-    {
-      name: 'invalid noProxy',
-      options:
+      {
+        name: 'invalid noProxy',
+        options:
       {
         username: 'username',
         password: 'password',
@@ -522,8 +521,8 @@ describe('ConnectionConfig: basic', function ()
         proxyPassword: 'proxyPassword',
         noProxy: 0
       },
-      errorCode: ErrorCodes.ERR_CONN_CREATE_INVALID_NO_PROXY
-    },
+        errorCode: ErrorCodes.ERR_CONN_CREATE_INVALID_NO_PROXY
+      },
       {
         name: 'invalid streamResult',
         options:
@@ -674,20 +673,20 @@ describe('ConnectionConfig: basic', function ()
       {
         name: 'invalid clientConfigFile',
         options: {
-            account: 'account',
-            username: 'username',
-            password: 'password',
-            clientConfigFile: 15
+          account: 'account',
+          username: 'username',
+          password: 'password',
+          clientConfigFile: 15
         },
         errorCode: ErrorCodes.ERR_CONN_CREATE_INVALID_CLIENT_CONFIG_FILE
       },
       {
         name: 'invalid retryTimeout',
         options: {
-            account: 'account',
-            username: 'username',
-            password: 'password',
-            retryTimeout: 'invalud'
+          account: 'account',
+          username: 'username',
+          password: 'password',
+          retryTimeout: 'invalud'
         },
         errorCode: ErrorCodes.ERR_CONN_CREATE_INVALID_MAX_LOGIN_TIMEOUT
       },
@@ -703,22 +702,15 @@ describe('ConnectionConfig: basic', function ()
       },
     ];
 
-  var createNegativeITCallback = function (testCase)
-  {
-    return function ()
-    {
+  var createNegativeITCallback = function (testCase) {
+    return function () {
       var error;
 
-      try
-      {
+      try {
         new ConnectionConfig(testCase.options);
-      }
-      catch (err)
-      {
+      } catch (err) {
         error = err;
-      }
-      finally
-      {
+      } finally {
         assert.ok(error);
         assert.strictEqual(error.code, testCase.errorCode);
       }
@@ -726,8 +718,7 @@ describe('ConnectionConfig: basic', function ()
   };
 
   var index, length, testCase;
-  for (index = 0, length = negativeTestCases.length; index < length; index++)
-  {
+  for (index = 0, length = negativeTestCases.length; index < length; index++) {
     testCase = negativeTestCases[index];
     it(testCase.name, createNegativeITCallback(testCase));
   }
@@ -946,7 +937,7 @@ describe('ConnectionConfig: basic', function ()
           username: 'username',
           password: 'password',
           account: 'account',
-          application: "test123"
+          application: 'test123'
         },
         options:
         {
@@ -1002,7 +993,7 @@ describe('ConnectionConfig: basic', function ()
           proxyPort: 1234,
           proxyUser: 'proxyUser',
           proxyPassword: 'proxyPassword',
-          noProxy:  '*.snowflakecomputing.com'
+          noProxy: '*.snowflakecomputing.com'
         },
         options:
         {
@@ -1217,28 +1208,23 @@ describe('ConnectionConfig: basic', function ()
       },
     ];
 
-  var createItCallback = function (testCase)
-  {
-    return function ()
-    {
+  var createItCallback = function (testCase) {
+    return function () {
       var result_options = new ConnectionConfig(testCase.input);
-      Object.keys(testCase.options).forEach(function (key)
-      {
+      Object.keys(testCase.options).forEach(function (key) {
         var ref = testCase.options[key];
         var val = result_options[key];
         assert.strictEqual(val, ref);
-      })
+      });
     };
   };
 
-  for (index = 0, length = testCases.length; index < length; index++)
-  {
+  for (index = 0, length = testCases.length; index < length; index++) {
     testCase = testCases[index];
     it(testCase.name, createItCallback(testCase));
   }
 
-  it('custom prefetch', function ()
-  {
+  it('custom prefetch', function () {
     var username = 'username';
     var password = 'password';
     var account = 'account';

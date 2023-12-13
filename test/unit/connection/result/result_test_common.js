@@ -8,8 +8,7 @@ var Util = require('./../../../../lib/util');
 var ErrorCodes = require('./../../../../lib/errors').codes;
 var assert = require('assert');
 
-describe('Result: synchronous errors', function ()
-{
+describe('Result: synchronous errors', function () {
   ///////////////////////////////////////////////////////////////////////////
   //// Test synchronous errors                                           ////
   ///////////////////////////////////////////////////////////////////////////
@@ -167,22 +166,15 @@ describe('Result: synchronous errors', function ()
       }
     ];
 
-  var createItCallback = function (testCase)
-  {
-    return function ()
-    {
+  var createItCallback = function (testCase) {
+    return function () {
       var error;
 
-      try
-      {
+      try {
         new Result(testCase.options);
-      }
-      catch (err)
-      {
+      } catch (err) {
         error = err;
-      }
-      finally
-      {
+      } finally {
         assert.ok(error);
         assert.strictEqual(error.code, testCase.errorCode);
       }
@@ -190,15 +182,13 @@ describe('Result: synchronous errors', function ()
   };
 
   var index, length, testCase;
-  for (index = 0, length = testCases.length; index < length; index++)
-  {
+  for (index = 0, length = testCases.length; index < length; index++) {
     testCase = testCases[index];
     it(testCase.name, createItCallback(testCase));
   }
 });
 
-exports.createResultOptions = function (response)
-{
+exports.createResultOptions = function (response) {
   return {
     response: response,
     statement: {},
@@ -213,8 +203,7 @@ exports.createResultOptions = function (response)
   };
 };
 
-exports.testResult = function (resultOptions, each, end, startIndex, endIndex)
-{
+exports.testResult = function (resultOptions, each, end, startIndex, endIndex) {
   // create a new result
   var result = new Result(resultOptions);
 
@@ -226,8 +215,7 @@ exports.testResult = function (resultOptions, each, end, startIndex, endIndex)
       startIndex: startIndex,
       endIndex: endIndex,
 
-      each: function (row)
-      {
+      each: function (row) {
         each(row);
 
         numIterationsActual++;
@@ -235,8 +223,7 @@ exports.testResult = function (resultOptions, each, end, startIndex, endIndex)
     });
 
   // when the fetch-rows operation completes
-  operation.on('complete', function (err, continueCallback)
-  {
+  operation.on('complete', function (err, continueCallback) {
     // there should be no error
     assert.ok(!err);
 
@@ -245,12 +232,9 @@ exports.testResult = function (resultOptions, each, end, startIndex, endIndex)
 
     var numIterationsExpected;
 
-    if (Util.isNumber(startIndex) && Util.isNumber(endIndex))
-    {
+    if (Util.isNumber(startIndex) && Util.isNumber(endIndex)) {
       numIterationsExpected = endIndex - startIndex + 1;
-    }
-    else
-    {
+    } else {
       numIterationsExpected = result.getTotalRows();
     }
 

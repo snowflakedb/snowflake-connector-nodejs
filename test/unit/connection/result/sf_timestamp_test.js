@@ -5,8 +5,7 @@
 var SfTimestamp = require('./../../../../lib/connection/result/sf_timestamp');
 var assert = require('assert');
 
-describe('Date: basic', function ()
-{
+describe('Date: basic', function () {
   var testCases =
     [
       {
@@ -59,10 +58,8 @@ describe('Date: basic', function ()
       }
     ];
 
-  testCases.forEach(function (testCase)
-  {
-    it(testCase.name, function ()
-    {
+  testCases.forEach(function (testCase) {
+    it(testCase.name, function () {
       var options = testCase.options;
       assert.strictEqual(
         new SfTimestamp(
@@ -76,8 +73,7 @@ describe('Date: basic', function ()
   });
 });
 
-describe('Timestamp: basic', function ()
-{
+describe('Timestamp: basic', function () {
   var testCases =
     [
       {
@@ -130,10 +126,8 @@ describe('Timestamp: basic', function ()
       }
     ];
 
-  testCases.forEach(function (testCase)
-  {
-    it(testCase.name, function ()
-    {
+  testCases.forEach(function (testCase) {
+    it(testCase.name, function () {
       var options = testCase.options;
       assert.strictEqual(
         new SfTimestamp(
@@ -147,8 +141,7 @@ describe('Timestamp: basic', function ()
   });
 });
 
-describe('Time: basic', function ()
-{
+describe('Time: basic', function () {
   var testCases =
     [
       {
@@ -201,10 +194,8 @@ describe('Time: basic', function ()
       }
     ];
 
-  testCases.forEach(function (testCase)
-  {
-    it(testCase.name, function ()
-    {
+  testCases.forEach(function (testCase) {
+    it(testCase.name, function () {
       var options = testCase.options;
       assert.strictEqual(
         new SfTimestamp(

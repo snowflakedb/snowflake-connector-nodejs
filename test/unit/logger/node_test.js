@@ -207,7 +207,7 @@ describe('Logger node tests', function () {
       .map(s => JSON.parse(s));
   }
 
-  function createLogger (level, filePath) {
+  function createLogger(level, filePath) {
     return new NodeLogger(
       {
         includeTimestamp: false,
@@ -216,7 +216,7 @@ describe('Logger node tests', function () {
       });
   }
 
-  function logMessages (logger) {
+  function logMessages(logger) {
     logger.error(LOG_MSG_ERROR);
     logger.warn(LOG_MSG_WARN);
     logger.info(LOG_MSG_INFO);

@@ -146,7 +146,7 @@ describe('OCSP validation', function () {
     connection.connect(function (err) {
       assert.ok(err);
       if (err) {
-        if (!err.hasOwnProperty('code')) {
+        if (!Object.prototype.hasOwnProperty.call(err, 'code')) {
           Logger.getInstance().error(err);
         }
         assert.equal(err['code'], '390100');
@@ -239,15 +239,16 @@ describe('OCSP validation', function () {
 
   it('Test Ocsp with different endpoints - no cache directory access', function (done) {
     const platform = Os.platform();
+
+    function cleanup() {
+      delete process.env['SF_OCSP_RESPONSE_CACHE_DIR'];
+      done();
+    }
+
     if (platform === 'linux') {
       deleteCache();
       SocketUtil.variables.OCSP_RESPONSE_CACHE = undefined;
       process.env['SF_OCSP_RESPONSE_CACHE_DIR'] = '/usr';
-
-      function cleanup() {
-        delete process.env['SF_OCSP_RESPONSE_CACHE_DIR'];
-        done();
-      }
 
       const testOptions = function (i) {
         const connection = snowflake.createConnection(httpsEndpoints[i]);

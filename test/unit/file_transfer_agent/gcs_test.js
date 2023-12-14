@@ -71,19 +71,19 @@ describe('GCS client', function () {
     assert.strictEqual(result.bucketName, 'sfc-eng-regression');
     assert.strictEqual(result.path, 'test_sub_dir/');
 
-    var result = GCS.extractBucketNameAndPath('sfc-eng-regression/stakeda/test_stg/test_sub_dir/');
+    result = GCS.extractBucketNameAndPath('sfc-eng-regression/stakeda/test_stg/test_sub_dir/');
     assert.strictEqual(result.bucketName, 'sfc-eng-regression');
     assert.strictEqual(result.path, 'stakeda/test_stg/test_sub_dir/');
 
-    var result = GCS.extractBucketNameAndPath('sfc-eng-regression/');
+    result = GCS.extractBucketNameAndPath('sfc-eng-regression/');
     assert.strictEqual(result.bucketName, 'sfc-eng-regression');
     assert.strictEqual(result.path, '');
 
-    var result = GCS.extractBucketNameAndPath('sfc-eng-regression//');
+    result = GCS.extractBucketNameAndPath('sfc-eng-regression//');
     assert.strictEqual(result.bucketName, 'sfc-eng-regression');
     assert.strictEqual(result.path, '/');
 
-    var result = GCS.extractBucketNameAndPath('sfc-eng-regression///');
+    result = GCS.extractBucketNameAndPath('sfc-eng-regression///');
     assert.strictEqual(result.bucketName, 'sfc-eng-regression');
     assert.strictEqual(result.path, '//');
   });

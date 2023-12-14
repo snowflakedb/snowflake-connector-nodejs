@@ -81,7 +81,7 @@ describe('Test Put Small Files', function () {
           var arrBind = [];
           var filesize = 1024 * 100;
           
-          for (var i = 0; i < count; i++) {
+          for (let i = 0; i < count; i++) {
             arrBind.push(['string' + i, i, '2020-05-11', '12:35:41.3333333', '2022-04-01 23:59:59', '2022-07-08 12:05:30.9999999']);
           }
           
@@ -93,8 +93,8 @@ describe('Test Put Small Files', function () {
             var tmpFolderName = tmpDir.substring(tmpDir.lastIndexOf('\\'));
             tmpDir = process.env.USERPROFILE + '\\AppData\\Local\\Temp\\' + tmpFolderName;
           }
-          for (var i = 0; i < arrBind.length; i++) {
-            for (var j = 0; j < arrBind[i].length; j++) {
+          for (let i = 0; i < arrBind.length; i++) {
+            for (let j = 0; j < arrBind[i].length; j++) {
               if (j > 0) {
                 strbuffer += ','; 
               }

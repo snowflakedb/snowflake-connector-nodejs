@@ -80,19 +80,19 @@ describe('S3 client', function () {
     assert.strictEqual(result.bucketName, 'sfc-eng-regression');
     assert.strictEqual(result.s3path, 'test_sub_dir/');
 
-    var result = AWS.extractBucketNameAndPath('sfc-eng-regression/stakeda/test_stg/test_sub_dir/');
+    result = AWS.extractBucketNameAndPath('sfc-eng-regression/stakeda/test_stg/test_sub_dir/');
     assert.strictEqual(result.bucketName, 'sfc-eng-regression');
     assert.strictEqual(result.s3path, 'stakeda/test_stg/test_sub_dir/');
 
-    var result = AWS.extractBucketNameAndPath('sfc-eng-regression/');
+    result = AWS.extractBucketNameAndPath('sfc-eng-regression/');
     assert.strictEqual(result.bucketName, 'sfc-eng-regression');
     assert.strictEqual(result.s3path, '');
 
-    var result = AWS.extractBucketNameAndPath('sfc-eng-regression//');
+    result = AWS.extractBucketNameAndPath('sfc-eng-regression//');
     assert.strictEqual(result.bucketName, 'sfc-eng-regression');
     assert.strictEqual(result.s3path, '/');
 
-    var result = AWS.extractBucketNameAndPath('sfc-eng-regression///');
+    result = AWS.extractBucketNameAndPath('sfc-eng-regression///');
     assert.strictEqual(result.bucketName, 'sfc-eng-regression');
     assert.strictEqual(result.s3path, '//');
   });

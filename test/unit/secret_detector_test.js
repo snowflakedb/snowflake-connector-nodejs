@@ -247,7 +247,7 @@ describe('Secret Detector', function () {
 
     txt = 'password=asdfasdfasdfasdfasdf ' +
       'testCustomPattern: "abcdefghijklmnop"';
-    var result = SecretDetector.maskSecrets(txt);
+    result = SecretDetector.maskSecrets(txt);
     assert.strictEqual(result.masked, true);
     assert.strictEqual(result.maskedtxt,
       'password=**** ' +

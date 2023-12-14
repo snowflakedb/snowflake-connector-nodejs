@@ -40,7 +40,7 @@ module.exports = {
     'no-loss-of-precision': ['error'],
     'no-mixed-spaces-and-tabs': ['error'],
     'no-prototype-builtins': ['error'],
-    'no-redeclare': ['warn'],
+    'no-redeclare': ['error'],
     'no-undef': ['warn'],
     'no-unused-vars': ['warn'],
     'no-useless-catch': ['error'],

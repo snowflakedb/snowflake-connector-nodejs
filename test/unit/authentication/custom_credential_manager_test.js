@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2015-2023 Snowflake Computing Inc. All rights reserved.
+ */
+
 const assert = require('assert');
 const Util = require('../../../lib/util');
 const { randomUUID } = require('crypto');

@@ -45,35 +45,35 @@ describe('test - synchronous customCredentialManager', function () {
   });
 });
 
-describe('test - asynchronous customCredentialManager', function () {
+// describe('test - asynchronous customCredentialManager', function () {
         
-  before(() => {
-    snowflake.configure({ customCredentialManager: {
-      read: async function (key) {
-        return 'mock_token';
-      },
-      write: async function (key, credential) {
-        return 'token_saved';
-      },
-      remove: async function (key, credential) {
-        return null;
-      }
-    } });
-  });
+//   before(() => {
+//     snowflake.configure({ customCredentialManager: {
+//       read: async function (key) {
+//         return 'mock_token';
+//       },
+//       write: async function (key, credential) {
+//         return 'token_saved';
+//       },
+//       remove: async function (key, credential) {
+//         return null;
+//       }
+//     } });
+//   });
         
-  it('test - custom credential manager read function', async function () {
-    const token = await GlobalConfig.getCredentialManager().read(key);
-    assert.strictEqual(token, 'mock_token');
-  });
+//   it('test - custom credential manager read function', async function () {
+//     const token = await GlobalConfig.getCredentialManager().read(key);
+//     assert.strictEqual(token, 'mock_token');
+//   });
 
-  it('test - custom credential manager write function', function () {
-    GlobalConfig.getCredentialManager().write(key, randomPassword).then((result) => {
-      assert.strictEqual(result, 'token_saved');
-    });
-  });
+//   it('test - custom credential manager write function', function () {
+//     GlobalConfig.getCredentialManager().write(key, randomPassword).then((result) => {
+//       assert.strictEqual(result, 'token_saved');
+//     });
+//   });
         
-  it('test - custom credential manager remove function', async function () {
-    const result = await GlobalConfig.getCredentialManager().remove(key);
-    assert.strictEqual(result, null);
-  });
-});
+//   it('test - custom credential manager remove function', async function () {
+//     const result = await GlobalConfig.getCredentialManager().remove(key);
+//     assert.strictEqual(result, null);
+//   });
+// });

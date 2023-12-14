@@ -879,7 +879,7 @@ describe('Util', function () {
       }
     ].forEach(({ name, isWarn, httpproxy, HTTPSPROXY, agentOptions, shouldLog }) => {
       it(`${name}`, () => {
-        process.env.http_proxy = httpproxy;
+        process.env.HTTP_PROXY = httpproxy;
         process.env.HTTPS_PROXY = HTTPSPROXY;
 
         const compareAndLogEnvAndAgentProxies = Util.getCompareAndLogEnvAndAgentProxies(agentOptions);

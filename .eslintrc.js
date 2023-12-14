@@ -23,7 +23,7 @@ module.exports = {
     'arrow-spacing': ['error'],
     'block-spacing': ['error'],
     'brace-style': ['error', '1tbs'],
-    'camelcase': ['warn'],
+    'camelcase': ['error'],
     'comma-spacing': ['error'],
     'curly': ['error', 'all'],
     'eqeqeq': ['error', 'always', { 'null': 'ignore' }],

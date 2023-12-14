@@ -299,7 +299,7 @@ describe('OCSP privatelink', function () {
     }
   };
 
-  const host = Util.construct_hostname(connOption.privatelink.region, connOption.privatelink.account);
+  const host = Util.constructHostname(connOption.privatelink.region, connOption.privatelink.account);
   const ocspResponseCacheServerUrl = `http://ocsp.${host}/ocsp_response_cache.json`;
   const ocspResponderUrl = `http://ocsp.${host}/retry/${mockParsedUrl.hostname}/${mockDataBuf.toString('base64')}`;
 

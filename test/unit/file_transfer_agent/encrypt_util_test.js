@@ -4,7 +4,7 @@
 
 var assert = require('assert');
 var mock = require('mock-require');
-var SnowflakeEncryptionUtil = require('./../../../lib/file_transfer_agent/encrypt_util').encrypt_util;
+var SnowflakeEncryptionUtil = require('./../../../lib/file_transfer_agent/encrypt_util').EncryptUtil;
 
 describe('Encryption util', function () {
   var encryptionMaterial;

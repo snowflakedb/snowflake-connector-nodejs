@@ -1200,10 +1200,10 @@ describe('ConnectionConfig: basic', function () {
 
   var createItCallback = function (testCase) {
     return function () {
-      var result_options = new ConnectionConfig(testCase.input);
+      var resultOptions = new ConnectionConfig(testCase.input);
       Object.keys(testCase.options).forEach(function (key) {
         var ref = testCase.options[key];
-        var val = result_options[key];
+        var val = resultOptions[key];
         assert.strictEqual(val, ref);
       });
     };

@@ -7,11 +7,11 @@ var mock = require('mock-require');
 var net = require('net');
 
 var authenticator = require('./../../../lib/authentication/authentication');
-var auth_default = require('./../../../lib/authentication/auth_default');
-var auth_web = require('./../../../lib/authentication/auth_web');
-var auth_keypair = require('./../../../lib/authentication/auth_keypair');
-var auth_oauth = require('./../../../lib/authentication/auth_oauth');
-var auth_okta = require('./../../../lib/authentication/auth_okta');
+var AuthDefault = require('./../../../lib/authentication/auth_default');
+var AuthWeb = require('./../../../lib/authentication/auth_web');
+var AuthKeypair = require('./../../../lib/authentication/auth_keypair');
+var AuthOauth = require('./../../../lib/authentication/auth_oauth');
+var AuthOkta = require('./../../../lib/authentication/auth_okta');
 var authenticationTypes = require('./../../../lib/authentication/authentication').authenticationTypes;
 
 var MockTestUtil = require('./../mock/mock_test_util');
@@ -29,7 +29,7 @@ var connectionOptionsOkta = mockConnectionOptions.authOkta;
 describe('default authentication', function () {
 
   it('default - authenticate method is thenable', done => {
-    const auth = new auth_default(connectionOptions.password);
+    const auth = new AuthDefault(connectionOptions.password);
 
     auth.authenticate()
       .then(done)
@@ -37,7 +37,7 @@ describe('default authentication', function () {
   });
 
   it('default - check password', function () {
-    var auth = new auth_default(connectionOptions.password);
+    var auth = new AuthDefault(connectionOptions.password);
 
     var body = { data: {} };
     auth.updateBody(body);
@@ -104,7 +104,7 @@ describe('external browser authentication', function () {
   });
 
   it('external browser - authenticate method is thenable', done => {
-    const auth = new auth_web(connectionConfig, httpclient, webbrowser.open);
+    const auth = new AuthWeb(connectionConfig, httpclient, webbrowser.open);
 
     auth.authenticate(credentials.authenticator, '', credentials.account, credentials.username, credentials.host)
       .then(done)
@@ -112,7 +112,7 @@ describe('external browser authentication', function () {
   });
 
   it('external browser - get success', async function () {
-    const auth = new auth_web(connectionConfig, httpclient, webbrowser.open);
+    const auth = new AuthWeb(connectionConfig, httpclient, webbrowser.open);
     await auth.authenticate(credentials.authenticator, '', credentials.account, credentials.username, credentials.host);
 
     var body = { data: {} };
@@ -151,7 +151,7 @@ describe('external browser authentication', function () {
     webbrowser = require('webbrowser');
     httpclient = require('httpclient');
 
-    const auth = new auth_web(connectionConfig, httpclient, webbrowser.open);
+    const auth = new AuthWeb(connectionConfig, httpclient, webbrowser.open);
     await auth.authenticate(credentials.authenticator, '', credentials.account, credentials.username, credentials.host);
 
     var body = { data: {} };
@@ -239,7 +239,7 @@ describe('key-pair authentication', function () {
   });
 
   it('key-pair - authenticate method is thenable', done => {
-    const auth = new auth_keypair(connectionOptionsKeyPair.privateKey,
+    const auth = new AuthKeypair(connectionOptionsKeyPair.privateKey,
       connectionOptionsKeyPair.privateKeyPath,
       connectionOptionsKeyPair.privateKeyPass,
       cryptomod, jwtmod, filesystem);
@@ -250,7 +250,7 @@ describe('key-pair authentication', function () {
   });
 
   it('key-pair - get token with private key', function () {
-    var auth = new auth_keypair(connectionOptionsKeyPair.privateKey,
+    var auth = new AuthKeypair(connectionOptionsKeyPair.privateKey,
       connectionOptionsKeyPair.privateKeyPath,
       connectionOptionsKeyPair.privateKeyPass,
       cryptomod, jwtmod, filesystem);
@@ -265,7 +265,7 @@ describe('key-pair authentication', function () {
   });
 
   it('key-pair - get token with private key path with passphrase', function () {
-    var auth = new auth_keypair(connectionOptionsKeyPairPath.privateKey,
+    var auth = new AuthKeypair(connectionOptionsKeyPairPath.privateKey,
       connectionOptionsKeyPairPath.privateKeyPath,
       connectionOptionsKeyPairPath.privateKeyPass,
       cryptomod, jwtmod, filesystem);
@@ -282,7 +282,7 @@ describe('key-pair authentication', function () {
   });
 
   it('key-pair - get token with private key path without passphrase', function () {
-    var auth = new auth_keypair(connectionOptionsKeyPairPath.privateKey,
+    var auth = new AuthKeypair(connectionOptionsKeyPairPath.privateKey,
       connectionOptionsKeyPairPath.privateKeyPath,
       '',
       cryptomod, jwtmod, filesystem);
@@ -311,7 +311,7 @@ describe('key-pair authentication', function () {
 
 describe('oauth authentication', function () {
   it('oauth - authenticate method is thenable', done => {
-    const auth = new auth_oauth(connectionOptionsOauth.token);
+    const auth = new AuthOauth(connectionOptionsOauth.token);
 
     auth.authenticate(connectionOptionsKeyPair.authenticator, '', connectionOptionsKeyPair.account, connectionOptionsKeyPair.username)
       .then(done)
@@ -319,7 +319,7 @@ describe('oauth authentication', function () {
   });
 
   it('oauth - check token', function () {
-    var auth = new auth_oauth(connectionOptionsOauth.token);
+    var auth = new AuthOauth(connectionOptionsOauth.token);
 
     var body = { data: {} };
     auth.updateBody(body);
@@ -386,7 +386,7 @@ describe('okta authentication', function () {
   });
 
   it('okta - authenticate method is thenable', done => {
-    const auth = new auth_okta(connectionOptionsOkta.password,
+    const auth = new AuthOkta(connectionOptionsOkta.password,
       connectionOptionsOkta.region,
       connectionOptionsOkta.account,
       connectionOptionsOkta.clientAppid,
@@ -399,7 +399,7 @@ describe('okta authentication', function () {
   });
 
   it('okta - SAML response success', async function () {
-    var auth = new auth_okta(connectionOptionsOkta.password,
+    var auth = new AuthOkta(connectionOptionsOkta.password,
       connectionOptionsOkta.region,
       connectionOptionsOkta.account,
       connectionOptionsOkta.clientAppid,
@@ -438,7 +438,7 @@ describe('okta authentication', function () {
 
     httpclient = require('httpclient');
 
-    var auth = new auth_okta(connectionOptionsOkta.password,
+    var auth = new AuthOkta(connectionOptionsOkta.password,
       connectionOptionsOkta.region,
       connectionOptionsOkta.account,
       connectionOptionsOkta.clientAppid,
@@ -488,7 +488,7 @@ describe('okta authentication', function () {
 
     httpclient = require('httpclient');
 
-    var auth = new auth_okta(connectionOptionsOkta.password,
+    var auth = new AuthOkta(connectionOptionsOkta.password,
       connectionOptionsOkta.region,
       connectionOptionsOkta.account,
       connectionOptionsOkta.clientAppid,

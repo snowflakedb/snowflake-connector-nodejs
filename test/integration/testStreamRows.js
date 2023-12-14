@@ -94,7 +94,7 @@ describe('Test Stream Rows API', function () {
         }).on('error', function (err) {
           testUtil.checkError(err);
         }).on('end', function () {
-          if (++completedStream == 2) {
+          if (++completedStream === 2) {
             done();
           }
         });
@@ -103,7 +103,7 @@ describe('Test Stream Rows API', function () {
         nonFlowingStream.on('readable', function () {
           assert.strictEqual(nonFlowingStream.read(), null);
         }).on('end', function () {
-          if (++completedStream == 2) {
+          if (++completedStream === 2) {
             done();
           }
         }).on('error', function () {
@@ -175,7 +175,7 @@ describe('Test Stream Rows API', function () {
           testUtil.checkError(err);
         }).on('end', function () {
           assert.deepStrictEqual(flowingModeResult, expected);
-          if (++completedStream == 2) {
+          if (++completedStream === 2) {
             done();
           }
         });
@@ -191,7 +191,7 @@ describe('Test Stream Rows API', function () {
           testUtil.checkError(err);
         }).on('end', function () {
           assert.deepStrictEqual(nonFlowingModeResult, expected);
-          if (++completedStream == 2) {
+          if (++completedStream === 2) {
             done();
           }
         });
@@ -219,7 +219,7 @@ describe('Test Stream Rows API', function () {
             assert.strictEqual(err);
           }).on('end', function () {
             assert.strictEqual(rowCount, sourceRowCount);
-            if (++completedStream == 20) {
+            if (++completedStream === 20) {
               done();
             }
           });

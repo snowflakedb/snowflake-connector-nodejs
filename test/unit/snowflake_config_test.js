@@ -188,13 +188,13 @@ describe('Snowflake Configure Tests', function () {
         Object.keys(testCase.options).forEach(function (key) {
           const ref = testCase.options[key];
           let val;
-          if (key == 'logLevel') {
+          if (key === 'logLevel') {
             val = Logger.getInstance().getLevelTag();
-          } else if (key == 'insecureConnect') {
+          } else if (key === 'insecureConnect') {
             val = GlobalConfig.isInsecureConnect();
-          } else if (key == 'ocspFailOpen') {
+          } else if (key === 'ocspFailOpen') {
             val = GlobalConfig.getOcspFailOpen();
-          } else if (key == 'keepAlive') {
+          } else if (key === 'keepAlive') {
             val = GlobalConfig.getKeepAlive();
           } else {
             val = GlobalConfig[key];

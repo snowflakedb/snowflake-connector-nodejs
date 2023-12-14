@@ -5,7 +5,7 @@ const connOption = require('./connectionOptions');
 const testUtil = require('./testUtil');
 const Logger = require('../../lib/logger');
 
-if (process.env.RUN_MANUAL_TESTS_ONLY == 'true') {
+if (process.env.RUN_MANUAL_TESTS_ONLY === 'true') {
   describe.only('Run manual tests', function () {
     describe('Connection test - external browser', function () {
       it('Simple Connect', function (done) {

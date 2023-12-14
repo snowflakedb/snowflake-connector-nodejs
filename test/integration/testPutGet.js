@@ -40,7 +40,7 @@ const ROW_DATA_OVERWRITE_SIZE = 19;
 function getPlatformTmpPath(tmpPath) {
   let path = `file://${tmpPath}`;
   // Windows user contains a '~' in the path which causes an error
-  if (process.platform == 'win32') {
+  if (process.platform === 'win32') {
     const fileName = tmpPath.substring(tmpPath.lastIndexOf('\\'));
     path = `file://${process.env.USERPROFILE}\\AppData\\Local\\Temp\\${fileName}`;
   }
@@ -144,7 +144,7 @@ describe('PUT GET test', function () {
 
         let putQuery = `PUT file://${tmpFile.name} @${DATABASE_NAME}.${SCHEMA_NAME}.%${TEMP_TABLE_NAME}`;
         // Windows user contains a '~' in the path which causes an error
-        if (process.platform == 'win32') {
+        if (process.platform === 'win32') {
           const fileName = tmpFile.name.substring(tmpFile.name.lastIndexOf('\\'));
           putQuery = `PUT file://${process.env.USERPROFILE}\\AppData\\Local\\Temp\\${fileName} @${DATABASE_NAME}.${SCHEMA_NAME}.%${TEMP_TABLE_NAME}`;
         }
@@ -155,7 +155,7 @@ describe('PUT GET test', function () {
 
         let getQuery = `GET @${DATABASE_NAME}.${SCHEMA_NAME}.%${TEMP_TABLE_NAME} file://${tmpDir}`;
         // Windows user contains a '~' in the path which causes an error
-        if (process.platform == 'win32') {
+        if (process.platform === 'win32') {
           const dirName = tmpDir.substring(tmpDir.lastIndexOf('\\') + 1);
           getQuery = `GET @${DATABASE_NAME}.${SCHEMA_NAME}.%${TEMP_TABLE_NAME} file://${process.env.USERPROFILE}\\AppData\\Local\\Temp\\${dirName}`;
         }
@@ -320,7 +320,7 @@ describe('PUT GET overwrite test', function () {
   let putQuery = `
     PUT file://${tmpFile.name} @${DATABASE_NAME}.${SCHEMA_NAME}.%${TEMP_TABLE_NAME} AUTO_COMPRESS=FALSE`;
   // Windows user contains a '~' in the path which causes an error
-  if (process.platform == 'win32') {
+  if (process.platform === 'win32') {
     const fileName = tmpFile.name.substring(tmpFile.name.lastIndexOf('\\'));
     putQuery = `
       PUT file://${process.env.USERPROFILE}\\AppData\\Local\\Temp\\${fileName} @${DATABASE_NAME}.${SCHEMA_NAME}.%${TEMP_TABLE_NAME} AUTO_COMPRESS=FALSE`;
@@ -511,7 +511,7 @@ describe('PUT GET test with GCS_USE_DOWNSCOPED_CREDENTIAL', function () {
 
     let putQuery = `PUT file://${tmpFile.name} @${DATABASE_NAME}.${SCHEMA_NAME}.%${TEMP_TABLE_NAME}`;
     // Windows user contains a '~' in the path which causes an error
-    if (process.platform == 'win32') {
+    if (process.platform === 'win32') {
       const fileName = tmpFile.name.substring(tmpFile.name.lastIndexOf('\\'));
       putQuery = `PUT file://${process.env.USERPROFILE}\\AppData\\Local\\Temp\\${fileName} @${DATABASE_NAME}.${SCHEMA_NAME}.%${TEMP_TABLE_NAME}`;
     }
@@ -522,7 +522,7 @@ describe('PUT GET test with GCS_USE_DOWNSCOPED_CREDENTIAL', function () {
 
     let getQuery = `GET @${DATABASE_NAME}.${SCHEMA_NAME}.%${TEMP_TABLE_NAME} file://${tmpDir}`;
     // Windows user contains a '~' in the path which causes an error
-    if (process.platform == 'win32') {
+    if (process.platform === 'win32') {
       const dirName = tmpDir.substring(tmpDir.lastIndexOf('\\') + 1);
       getQuery = `GET @${DATABASE_NAME}.${SCHEMA_NAME}.%${TEMP_TABLE_NAME} file://${process.env.USERPROFILE}\\AppData\\Local\\Temp\\${dirName}`;
     }
@@ -780,7 +780,7 @@ describe('PUT GET test with multiple files', function () {
 
     let putQuery = `PUT file://${os.tmpdir()}/testUploadDownloadMultifiles* ${stage}`;
     // Windows user contains a '~' in the path which causes an error
-    if (process.platform == 'win32') {
+    if (process.platform === 'win32') {
       putQuery = `PUT file://${process.env.USERPROFILE}\\AppData\\Local\\Temp\\testUploadDownloadMultifiles* ${stage}`;
     }
 

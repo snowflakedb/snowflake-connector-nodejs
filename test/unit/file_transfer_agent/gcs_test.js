@@ -267,7 +267,7 @@ describe('GCS client', function () {
     });
     httpclient = require('httpclient');
     filestream = require('filestream');
-    gcsClient = require('gcsClient');
+    var gcsClient = require('gcsClient');
     var GCS = new SnowflakeGCSUtil(httpclient, filestream);
 
     meta.presignedUrl = '';

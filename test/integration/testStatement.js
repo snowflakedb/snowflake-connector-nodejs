@@ -34,6 +34,7 @@ describe('Statement Tests', function () {
 
     const tokenConn = coreInst.createConnection(connectionOptions.valid);
     let goodConnection;
+    let statement;
     async.series(
       [
         function (callback) {
@@ -47,8 +48,7 @@ describe('Statement Tests', function () {
 
             callback();
           });
-        }
-        ,
+        },
         function (callback) {
           statement = goodConnection.execute(
             {
@@ -121,6 +121,7 @@ describe('Statement Tests', function () {
     const badConnection = snowflake.createConnection(Object.assign({}, connectionOptions.valid, {
       username: undefined, password: undefined, sessionToken: 'invalid token'
     }));
+    let statement;
     async.series(
       [
         function (callback) {

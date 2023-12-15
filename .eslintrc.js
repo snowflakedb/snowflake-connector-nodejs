@@ -41,7 +41,7 @@ module.exports = {
     'no-mixed-spaces-and-tabs': ['error'],
     'no-prototype-builtins': ['error'],
     'no-redeclare': ['error'],
-    'no-undef': ['warn'],
+    'no-undef': ['error'],
     'no-unused-vars': ['warn'],
     'no-useless-catch': ['error'],
     'no-useless-escape': ['error'],

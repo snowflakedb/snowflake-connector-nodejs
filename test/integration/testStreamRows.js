@@ -322,6 +322,7 @@ describe('Test Stream Rows API', function () {
 
 describe('Test Stream Rows HighWaterMark', function () {
   this.timeout(300000);
+  var connection;
 
   before(function (done) {
     connection = testUtil.createConnection();

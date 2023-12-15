@@ -60,6 +60,7 @@ describe('default authentication', function () {
 describe('external browser authentication', function () {
   var webbrowser;
   var browserRedirectPort;
+  var httpclient;
 
   const mockProofKey = 'mockProofKey';
   const mockToken = 'mockToken';

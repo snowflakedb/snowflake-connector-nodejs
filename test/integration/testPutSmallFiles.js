@@ -8,7 +8,7 @@ var os = require('os');
 var path = require('path');
 var testUtil = require('./testUtil');
 const connOption = require('./connectionOptions');
-const {randomizeName} = require('./testUtil');
+const { randomizeName } = require('./testUtil');
 
 const DATABASE_NAME = connOption.valid.database;
 const SCHEMA_NAME = connOption.valid.schema;
@@ -18,24 +18,18 @@ const TABLE = randomizeName('TESTTBL');
 var connection;
 var files = new Array();
 
-function uploadFiles(callback, index = 0)
-{
-  if(index < files.length)
-  {
+function uploadFiles(callback, index = 0) {
+  if (index < files.length) {
     var putQuery = `PUT file://${files[index]} @${DATABASE_NAME}.${SCHEMA_NAME}.%${TABLE}`;
     var insertStmt = connection.execute({
       sqlText: putQuery,
       complete: function (err, stmt) {
         testUtil.checkError(err);
-        if(!err)
-        {
+        if (!err) {
           index++;
-          if(index < files.length)
-          {
-              uploadFiles(callback, index);
-          }
-          else
-          {
+          if (index < files.length) {
+            uploadFiles(callback, index);
+          } else {
             callback();
           }
         }
@@ -44,8 +38,7 @@ function uploadFiles(callback, index = 0)
   }
 }
 
-describe('Test Put Small Files', function ()
-{
+describe('Test Put Small Files', function () {
   this.timeout(100000);
   var useWH = `use warehouse ${WAREHOUSE_NAME}`;
   var createTable = `create or replace table ${DATABASE_NAME}.${SCHEMA_NAME}.${TABLE}(colA string, colB number, colC date, colD time, colE TIMESTAMP_NTZ, colF TIMESTAMP_TZ)`;
@@ -54,15 +47,12 @@ describe('Test Put Small Files', function ()
   var selectAll = `select count(*) AS NUM from ${DATABASE_NAME}.${SCHEMA_NAME}.${TABLE}`;
   var count = 5000;
 
-  before(function (done)
-  {
+  before(function (done) {
     connection = testUtil.createConnection();
-    testUtil.connect(connection, function ()
-    {
+    testUtil.connect(connection, function () {
       connection.execute({
         sqlText: useWH,
-        complete: function (err)
-        {
+        complete: function (err) {
           testUtil.checkError(err);
           
           done();
@@ -71,17 +61,14 @@ describe('Test Put Small Files', function ()
     });
   });
 
-  after(function (done)
-  {
+  after(function (done) {
     testUtil.destroyConnection(connection, done);
   });
 
-  it('testPutSmallFiles', function (done)
-  {
+  it('testPutSmallFiles', function (done) {
     async.series(
       [
-        function(callback)
-        {
+        function (callback) {
           var createTableStmt = connection.execute({
             sqlText: createTable,
             complete: function (err, stmt) {
@@ -90,57 +77,49 @@ describe('Test Put Small Files', function ()
             }
           });
         },
-        function(callback)
-        {
+        function (callback) {
           var arrBind = [];
           var filesize = 1024 * 100;
           
-          for(var i = 0; i<count; i++)
-          {
-            arrBind.push(['string'+i, i, "2020-05-11", "12:35:41.3333333", "2022-04-01 23:59:59", "2022-07-08 12:05:30.9999999"]);
+          for (var i = 0; i < count; i++) {
+            arrBind.push(['string' + i, i, '2020-05-11', '12:35:41.3333333', '2022-04-01 23:59:59', '2022-07-08 12:05:30.9999999']);
           }
           
           var fileCount = 0;
-          var strbuffer = "";
+          var strbuffer = '';
           
           var tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'tmp'));
-          if (tmpDir.indexOf('~') != -1 && process.platform === "win32") {
+          if (tmpDir.indexOf('~') !== -1 && process.platform === 'win32') {
             var tmpFolderName = tmpDir.substring(tmpDir.lastIndexOf('\\'));
             tmpDir = process.env.USERPROFILE + '\\AppData\\Local\\Temp\\' + tmpFolderName;
           }
-          for(var i=0; i<arrBind.length; i++)
-          {
-            for(var j=0; j<arrBind[i].length; j++)
-            {
-              if(j>0)
-                strbuffer += ',';
-                strbuffer += arrBind[i][j];
+          for (var i = 0; i < arrBind.length; i++) {
+            for (var j = 0; j < arrBind[i].length; j++) {
+              if (j > 0) {
+                strbuffer += ','; 
+              }
+              strbuffer += arrBind[i][j];
             }
             strbuffer += '\n';
 
-            if((strbuffer.length >= filesize) || (i == arrBind.length-1))
-            {
+            if ((strbuffer.length >= filesize) || (i === arrBind.length - 1)) {
               var fileName = path.join(tmpDir, (++fileCount).toString());
               fs.writeFileSync(fileName, strbuffer);
               files.push(fileName);
-              strbuffer = "";
+              strbuffer = '';
             }
           }
-          var callbackfunc = function()
-          {
-            for(var fileName in files)
-            {
-              if(fs.existsSync(fileName))
-              {
+          var callbackfunc = function () {
+            for (var fileName in files) {
+              if (fs.existsSync(fileName)) {
                 fs.unlinkSync(fileName);
               }
             }
             callback();
-          }
-          uploadFiles(callbackfunc,0);
+          };
+          uploadFiles(callbackfunc, 0);
         },
-        function copy(callback)
-        {
+        function copy(callback) {
           var copyintostmt = connection.execute({
             sqlText: copytInto,
             complete: function (err, stmt) {
@@ -149,8 +128,7 @@ describe('Test Put Small Files', function ()
             }
           });
         },
-        function select(callback)
-        {
+        function select(callback) {
           var selectstmt = connection.execute({
             sqlText: select1row,
             complete: function (err, stmt, rows) {
@@ -164,8 +142,7 @@ describe('Test Put Small Files', function ()
             }
           });
         },
-        function selectall(callback)
-        {
+        function selectall(callback) {
           var selectstmt = connection.execute({
             sqlText: selectAll,
             complete: function (err, stmt, rows) {

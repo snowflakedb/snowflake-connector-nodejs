@@ -4,15 +4,15 @@
 
 const async = require('async');
 const testUtil = require('./testUtil');
-const {randomizeName} = require('./testUtil');
+const { randomizeName } = require('./testUtil');
 
 describe('Execute test with Pool', function () {
   let connectionPool = null;
-  const nodeT= randomizeName('nodeT');
+  const nodeT = randomizeName('nodeT');
   const createNodeTSQL = `create or replace table ${nodeT}(colA number, colB varchar)`;
   const selectAllSQL = `select * from ${nodeT}`;
-  const insertNodeTSQL = `insert into ${nodeT} values(1, \'a\')`;
-  const updateNodeTSQL = `update ${nodeT} set COLA = 2, COLB = \'b\' where COLA = 1`;
+  const insertNodeTSQL = `insert into ${nodeT} values(1, 'a')`;
+  const updateNodeTSQL = `update ${nodeT} set COLA = 2, COLB = 'b' where COLA = 1`;
   const dropNodeTSQL = `drop table if exists ${nodeT}`;
 
   before(function (done) {
@@ -49,11 +49,11 @@ describe('Execute test with Pool', function () {
           testUtil.executeQueryAndVerifyUsePool(
             connectionPool,
             selectAllSQL,
-            [{'COLA': 1, 'COLB': 'a'},
-              {'COLA': 1, 'COLB': 'a'},
-              {'COLA': 1, 'COLB': 'a'},
-              {'COLA': 1, 'COLB': 'a'},
-              {'COLA': 1, 'COLB': 'a'}],
+            [{ 'COLA': 1, 'COLB': 'a' },
+              { 'COLA': 1, 'COLB': 'a' },
+              { 'COLA': 1, 'COLB': 'a' },
+              { 'COLA': 1, 'COLB': 'a' },
+              { 'COLA': 1, 'COLB': 'a' }],
             callback
           );
         }
@@ -77,7 +77,7 @@ describe('Execute test with Pool', function () {
         testUtil.executeQueryAndVerifyUsePool(
           connectionPool,
           selectAllSQL,
-          [{'COLA': 2, 'COLB': 'b'}],
+          [{ 'COLA': 2, 'COLB': 'b' }],
           callback
         );
       }],
@@ -92,7 +92,7 @@ describe('Execute test with Pool', function () {
           testUtil.executeQueryAndVerifyUsePool(
             connectionPool,
             createNodeTSQL,
-            [{'status': `Table ${nodeT.toUpperCase()} successfully created.`}],
+            [{ 'status': `Table ${nodeT.toUpperCase()} successfully created.` }],
             callback
           );
         },
@@ -100,7 +100,7 @@ describe('Execute test with Pool', function () {
           testUtil.executeQueryAndVerifyUsePool(
             connectionPool,
             insertNodeTSQL,
-            [{'number of rows inserted': 1}],
+            [{ 'number of rows inserted': 1 }],
             callback
           );
         }],
@@ -117,8 +117,8 @@ describe('Execute test use Pool for multiple connections', function () {
   const createNodeBSQL = `create or replace table ${nodeB}(colA number, colB varchar);`;
   const selectAllSQLFromNodeA = `select * from ${nodeA};`;
   const selectAllSQLFromNodeB = `select * from ${nodeB};`;
-  const insertNodeASQL = `insert into ${nodeA} values(1, \'a\');`;
-  const insertNodeBSQL = `insert into ${nodeB} values(1, \'b\');`;
+  const insertNodeASQL = `insert into ${nodeA} values(1, 'a');`;
+  const insertNodeBSQL = `insert into ${nodeB} values(1, 'b');`;
   const dropNodeASQL = `drop table if exists ${nodeA};`;
   const dropNodeBSQL = `drop table if exists ${nodeB};`;
 
@@ -164,7 +164,7 @@ describe('Execute test use Pool for multiple connections', function () {
           testUtil.executeQueryAndVerifyUsePool(
             connectionPool,
             selectAllSQLFromNodeA,
-            [{'COLA': 1, 'COLB': 'a'}],
+            [{ 'COLA': 1, 'COLB': 'a' }],
             callback
           );
         },
@@ -172,7 +172,7 @@ describe('Execute test use Pool for multiple connections', function () {
           testUtil.executeQueryAndVerifyUsePool(
             connectionPool,
             selectAllSQLFromNodeB,
-            [{'COLA': 1, 'COLB': 'b'}],
+            [{ 'COLA': 1, 'COLB': 'b' }],
             callback
           );
         }

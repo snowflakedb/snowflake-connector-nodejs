@@ -6,36 +6,29 @@ var async = require('async');
 var testUtil = require('./testUtil');
 require('events').EventEmitter.prototype._maxListeners = 100;
 
-describe('Test Stream Rows API', function ()
-{
+describe('Test Stream Rows API', function () {
   var connection;
 
   this.timeout(300000);
 
-  before(function (done)
-  {
+  before(function (done) {
     connection = testUtil.createConnection();
     testUtil.connect(connection, done);
   });
 
-  after(function (done)
-  {
+  after(function (done) {
     testUtil.destroyConnection(connection, done);
   });
 
-  it('testInvalidStatement', function (done)
-  {
+  it('testInvalidStatement', function (done) {
     connection.execute({
       sqlText: 'select aaa from b aaa',
-      complete: function (err, stmt)
-      {
+      complete: function (err, stmt) {
         var stream = stmt.streamRows();
-        stream.on('data', function ()
-        {
+        stream.on('data', function () {
           assert.ok(false);
         });
-        stream.on('error', function (err)
-        {
+        stream.on('error', function (err) {
           assert.strictEqual(err.code, '002003');
           done();
         });
@@ -43,107 +36,85 @@ describe('Test Stream Rows API', function ()
     });
   });
 
-  it('testStartEndIndexForFlowingMode', function (done)
-  {
+  it('testStartEndIndexForFlowingMode', function (done) {
     connection.execute({
       sqlText: 'select randstr(10, random()) from table(generator(rowcount=>30000))',
-      complete: function (err, stmt)
-      {
+      complete: function (err, stmt) {
         testUtil.checkError(err);
         var rowCount = 0;
         var flowingStream = stmt.streamRows({
           start: 200,
           end: 300
         });
-        flowingStream.on('data', function ()
-        {
+        flowingStream.on('data', function () {
           rowCount++;
-        }).on('end', function ()
-        {
+        }).on('end', function () {
           assert.strictEqual(rowCount, 101);
           done();
-        }).on('error', function (err)
-        {
+        }).on('error', function (err) {
           testUtil.checkError(err);
         });
       }
-    })
+    });
   });
 
-  it('testStartEndIndexForNonFlowingMode', function (done)
-  {
+  it('testStartEndIndexForNonFlowingMode', function (done) {
     connection.execute({
       sqlText: 'select randstr(10, random()) from table(generator(rowcount=>30000))',
-      complete: function (err, stmt)
-      {
+      complete: function (err, stmt) {
         testUtil.checkError(err);
         var rowCount = 0;
         var nonFlowingStream = stmt.streamRows({
           start: 200,
           end: 300
         });
-        nonFlowingStream.on('readable', function ()
-        {
-          while (nonFlowingStream.read() !== null)
-          {
+        nonFlowingStream.on('readable', function () {
+          while (nonFlowingStream.read() !== null) {
             rowCount++;
           }
-        }).on('end', function ()
-        {
+        }).on('end', function () {
           assert.strictEqual(rowCount, 101);
           done();
-        }).on('error', function (err)
-        {
+        }).on('error', function (err) {
           testUtil.checkError(err);
         });
       }
-    })
+    });
   });
 
-  it('testEmptyResultSet', function (done)
-  {
+  it('testEmptyResultSet', function (done) {
     connection.execute({
-      sqlText: "select randstr(10, random()) c1 from table(generator(rowcount=>10)) where c1='abc'",
-      complete: function (err, stmt)
-      {
+      sqlText: 'select randstr(10, random()) c1 from table(generator(rowcount=>10)) where c1=\'abc\'',
+      complete: function (err, stmt) {
         testUtil.checkError(err);
         var completedStream = 0;
         var flowingStream = stmt.streamRows();
-        flowingStream.on('data', function ()
-        {
+        flowingStream.on('data', function () {
           assert.ok(false);
-        }).on('error', function (err)
-        {
+        }).on('error', function (err) {
           testUtil.checkError(err);
-        }).on('end', function ()
-        {
-          if (++completedStream == 2)
-          {
+        }).on('end', function () {
+          if (++completedStream === 2) {
             done();
           }
         });
 
         var nonFlowingStream = stmt.streamRows();
-        nonFlowingStream.on('readable', function ()
-        {
+        nonFlowingStream.on('readable', function () {
           assert.strictEqual(nonFlowingStream.read(), null);
-        }).on('end', function ()
-        {
-          if (++completedStream == 2)
-          {
+        }).on('end', function () {
+          if (++completedStream === 2) {
             done();
           }
-        }).on('error', function ()
-        {
+        }).on('error', function () {
           testUtil.checkError(err);
         });
 
       }
-    })
+    });
   });
 
-  it('testSmallResultSet', function (done)
-  {
+  it('testSmallResultSet', function (done) {
     var expected =
       [
         {
@@ -182,135 +153,107 @@ describe('Test Stream Rows API', function ()
       ];
 
     var values = [];
-    expected.forEach(function (entry)
-    {
+    expected.forEach(function (entry) {
       var value = [];
-      for (var e in entry)
-      {
+      for (var e in entry) {
         var v = entry[e];
-        value.push("'" + v + "'");
+        value.push('\'' + v + '\'');
       }
-      values.push("(" + value.join(',') + ")");
+      values.push('(' + value.join(',') + ')');
     });
     var sql = 'select * from values' + values.join(',');
     connection.execute({
       sqlText: sql,
-      complete: function (err, stmt)
-      {
+      complete: function (err, stmt) {
         testUtil.checkError(err);
         var completedStream = 0;
         var flowingStream = stmt.streamRows();
         var flowingModeResult = [];
-        flowingStream.on('data', function (row)
-        {
+        flowingStream.on('data', function (row) {
           flowingModeResult.push(row);
-        }).on('error', function (err)
-        {
+        }).on('error', function (err) {
           testUtil.checkError(err);
-        }).on('end', function ()
-        {
+        }).on('end', function () {
           assert.deepStrictEqual(flowingModeResult, expected);
-          if (++completedStream == 2)
-          {
+          if (++completedStream === 2) {
             done();
           }
         });
 
         var nonFlowingModeResult = [];
         var nonFlowingStream = stmt.streamRows();
-        nonFlowingStream.on('readable', function ()
-        {
+        nonFlowingStream.on('readable', function () {
           var row;
-          while ((row = nonFlowingStream.read()) !== null)
-          {
+          while ((row = nonFlowingStream.read()) !== null) {
             nonFlowingModeResult.push(row);
           }
-        }).on('error', function (err)
-        {
+        }).on('error', function (err) {
           testUtil.checkError(err);
-        }).on('end', function ()
-        {
+        }).on('end', function () {
           assert.deepStrictEqual(nonFlowingModeResult, expected);
-          if (++completedStream == 2)
-          {
+          if (++completedStream === 2) {
             done();
           }
         });
       }
-    })
+    });
   });
 
-  it('testMultipleStream', function (done)
-  {
+  it('testMultipleStream', function (done) {
     const sourceRowCount = 30000;
     connection.execute({
       sqlText: 'select true from table(generator(rowcount=>' + sourceRowCount + '))',
-      complete: function (err, stmt)
-      {
+      complete: function (err, stmt) {
         testUtil.checkError(err);
         var streamQueue = [];
         var completedStream = 0;
-        for (var i = 0; i < 20; i++)
-        {
+        for (var i = 0; i < 20; i++) {
           streamQueue.push(stmt.streamRows());
         }
 
-        var flowingStreamRegister = function (stream)
-        {
+        var flowingStreamRegister = function (stream) {
           var rowCount = 0;
-          stream.on('data', function ()
-          {
+          stream.on('data', function () {
             rowCount++;
-          }).on('error', function (err)
-          {
+          }).on('error', function (err) {
             assert.strictEqual(err);
-          }).on('end', function ()
-          {
+          }).on('end', function () {
             assert.strictEqual(rowCount, sourceRowCount);
-            if (++completedStream == 20)
-            {
+            if (++completedStream === 20) {
               done();
             }
           });
         };
 
-        for (i = 0; i < 20; i++)
-        {
+        for (i = 0; i < 20; i++) {
           flowingStreamRegister(streamQueue[i]);
         }
       }
-    })
+    });
   });
 
-  it('testPauseAndResumeFlowingStream', function (done)
-  {
+  it('testPauseAndResumeFlowingStream', function (done) {
     const sourceRowCount = 30000;
     connection.execute({
       sqlText: 'select true from table(generator(rowcount=>' + sourceRowCount + '))',
-      complete: function (err, stmt)
-      {
+      complete: function (err, stmt) {
         testUtil.checkError(err);
         var rowCount = 0;
         var stream = stmt.streamRows();
-        stream.on('data', function ()
-        {
+        stream.on('data', function () {
           rowCount++;
-        }).on('error', function (err)
-        {
+        }).on('error', function (err) {
           testUtil.checkError(err);
-        }).on('end', function ()
-        {
+        }).on('end', function () {
           assert.strictEqual(rowCount, sourceRowCount);
           done();
         });
 
-        setTimeout(function ()
-        {
+        setTimeout(function () {
           stream.pause();
         }, 200);
 
-        setTimeout(function ()
-        {
+        setTimeout(function () {
           stream.resume();
         }, 300);
       }
@@ -329,7 +272,7 @@ describe('Test Stream Rows API', function ()
         var rowCount = 0;
         var stream = stmt.streamRows();
         stream.on('data', function () {
-            rowCount++;
+          rowCount++;
         }).on('end', function () {
           assert.strictEqual(rowCount, expectedRowCount);
           done();
@@ -337,7 +280,7 @@ describe('Test Stream Rows API', function ()
           testUtil.checkError(err);
         });
       }
-    })
+    });
   });
 
   /*it('testPipeIntoFile', function(done)
@@ -377,71 +320,55 @@ describe('Test Stream Rows API', function ()
 
 });
 
-describe('Test Stream Rows HighWaterMark', function ()
-{
+describe('Test Stream Rows HighWaterMark', function () {
   this.timeout(300000);
 
-  before(function (done)
-  {
+  before(function (done) {
     connection = testUtil.createConnection();
     testUtil.connect(connection, done);
   });
 
-  after(function (done)
-  {
+  after(function (done) {
     testUtil.destroyConnection(connection, done);
   });
 
-  var testingFunc = function (highWaterMark, expectedRowCount, callback)
-  {
+  var testingFunc = function (highWaterMark, expectedRowCount, callback) {
     async.series(
       [
-        function (callback)
-        {
+        function (callback) {
           // select table with row count equal to expectedRowCount
           var statement = connection.execute({
             sqlText: `SELECT seq8() FROM table(generator(rowCount => ${expectedRowCount}));`,
             streamResult: true,
-            complete: function ()
-            {
+            complete: function () {
               var actualRowCount = 0;
               var rowIndex;
 
               var stream = statement.streamRows();
-              stream.on('error', function (err)
-              {
+              stream.on('error', function (err) {
                 callback(err);
               });
-              stream.on('readable', function ()
-              {
+              stream.on('readable', function () {
                 rowIndex = 0;
 
-                while (this.read() !== null)
-                {
+                while (this.read() !== null) {
                   actualRowCount++;
                   rowIndex++;
                 }
 
                 // assert the amount of rows read per loop never exceeds the highWaterMark threshold
-                try
-                {
+                try {
                   assert.ok(rowIndex <= highWaterMark);
-                }
-                catch (err)
-                {
+                } catch (err) {
                   stream.destroy(err); // passes error to the stream error event
                 }
               });
-              stream.on('end', function ()
-              {
-                try
-                {
+              stream.on('end', function () {
+                try {
                   // assert the total number of rows is equal to the specified row count
                   assert.strictEqual(actualRowCount, expectedRowCount);
                   callback();
-                }
-                catch (err)
-                {
+                } catch (err) {
                   callback(err);
                 }
               });
@@ -455,10 +382,8 @@ describe('Test Stream Rows HighWaterMark', function ()
 
   const highWaterMarkValue = 10; // default parameter value is 10 (based on PARAM_ROW_STREAM_HIGH_WATER_MARK)
 
-  [1000, 10000, 100000, 1000000].forEach(rowCount =>
-  {
-    it(`test ${rowCount} rows`, done =>
-    {
+  [1000, 10000, 100000, 1000000].forEach(rowCount => {
+    it(`test ${rowCount} rows`, done => {
       testingFunc(highWaterMarkValue, rowCount, done);
     });
   });

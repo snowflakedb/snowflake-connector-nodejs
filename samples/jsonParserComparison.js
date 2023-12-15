@@ -64,48 +64,48 @@ async function run() {
       from table(generator(rowcount=>${rowCount}))`;
   const createTableWithVariant = (tableName) => `create or replace table ${tableName}(colA variant)`;
 
-  const dropTableWithVariant = (tableName) =>`drop table if exists ${tableName}`;
+  const dropTableWithVariant = (tableName) => `drop table if exists ${tableName}`;
   const dropTempTable = `drop table if exists ${testVariantTempName}`;
 
-  const insertVariant = (tableName)=> `insert into ${tableName}
+  const insertVariant = (tableName) => `insert into ${tableName}
                          select parse_json(value)
                          from ${testVariantTempName}`;
   const selectCountVariant = (tableName) => `select count(colA) from ${(tableName)}`;
 
-  let avgBlock = 0, minBlock = 999999999999999, maxBlock = 0;
-  let blockCount = 0;
+  const avgBlock = 0, minBlock = 999999999999999, maxBlock = 0;
+  const blockCount = 0;
 
   const testCases = [];
   if (!choosenParser || choosenParser.toString().includes('Function')) {
-    testCases.push({parser: 'Function', jsonColumnVariantParser: (rawColumnValue) => new Function(`return (${rawColumnValue})`)});
+    testCases.push({ parser: 'Function', jsonColumnVariantParser: (rawColumnValue) => new Function(`return (${rawColumnValue})`) });
   }
   if (!choosenParser || choosenParser.toString().includes('better-eval')) {
-    testCases.push({parser: 'betterEval', jsonColumnVariantParser: (rawColumnValue) => require('better-eval').call('(' + rawColumnValue + ')')});
+    testCases.push({ parser: 'betterEval', jsonColumnVariantParser: (rawColumnValue) => require('better-eval').call('(' + rawColumnValue + ')') });
   }
   if (!choosenParser || choosenParser.toString().includes('vm')) {
-    testCases.push({parser: 'vm', jsonColumnVariantParser: rawColumnValue => require('vm').runInNewContext('(' + rawColumnValue + ')')});
+    testCases.push({ parser: 'vm', jsonColumnVariantParser: rawColumnValue => require('vm').runInNewContext('(' + rawColumnValue + ')') });
   }
   // eval lib contains vulnerability so we decide to resign using it
   // if (!process.argv[4] || process.argv[4].toString().contains('eval')) {
   //   testCases.push({parser: 'eval', jsonColumnVariantParser: rawColumnValue => eval('(' + rawColumnValue + ')')})
   // };
   if (!choosenParser || choosenParser.toString().includes('JSON')) {
-    testCases.push({parser: 'JSON', jsonColumnVariantParser: rawColumnValue => JSON.parse(rawColumnValue)});
+    testCases.push({ parser: 'JSON', jsonColumnVariantParser: rawColumnValue => JSON.parse(rawColumnValue) });
   }
 
-  const execute = async ({parser, jsonColumnVariantParser}, extractFunction) => {
+  const execute = async ({ parser, jsonColumnVariantParser }, extractFunction) => {
     console.log(`\nTest for parser: [${parser}] extracting by ${extractFunction.name}`);
     const testVariantTableName = `testVariantTable000${parser}`;
-    let connection = await helpers.connectUsingEnv();
-    return new Promise(async (resolve, reject) => {
+    const connection = await helpers.connectUsingEnv();
+    return new Promise( (resolve, reject) => {
       snowflake.configure({
         jsonColumnVariantParser: jsonColumnVariantParser
       });
 
-      await helpers.executeQuery(connection, createTempTableWithJsonData);
-      await helpers.executeQuery(connection, createTableWithVariant(testVariantTableName));
-      await helpers.executeQuery(connection, insertVariant(testVariantTableName));
-      await helpers.executeQuery(connection, selectCountVariant(testVariantTableName));;
+      helpers.executeQuery(connection, createTempTableWithJsonData);
+      helpers.executeQuery(connection, createTableWithVariant(testVariantTableName));
+      helpers.executeQuery(connection, insertVariant(testVariantTableName));
+      helpers.executeQuery(connection, selectCountVariant(testVariantTableName));
 
       const queryTimeLabel = parser + 'SelectTime';
       let avgBlock = 0, minBlock = 999999999999999, maxBlock = 0;

@@ -12,7 +12,7 @@ const tmp = require('tmp');
 const os = require('os');
 const path = require('path');
 const zlib = require('zlib');
-const {randomizeName} = require("./testUtil");
+const { randomizeName } = require('./testUtil');
 
 const DATABASE_NAME = connOption.valid.database;
 const SCHEMA_NAME = connOption.valid.schema;
@@ -37,17 +37,17 @@ const ROW_DATA_SIZE = 76;
 const ROW_DATA_OVERWRITE = COL3_DATA + ',' + COL1_DATA + ',' + COL2_DATA + '\n';
 const ROW_DATA_OVERWRITE_SIZE = 19;
 
-function getPlatformTmpPath (tmpPath) {
+function getPlatformTmpPath(tmpPath) {
   let path = `file://${tmpPath}`;
   // Windows user contains a '~' in the path which causes an error
-  if (process.platform == 'win32') {
+  if (process.platform === 'win32') {
     const fileName = tmpPath.substring(tmpPath.lastIndexOf('\\'));
     path = `file://${process.env.USERPROFILE}\\AppData\\Local\\Temp\\${fileName}`;
   }
   return path;
 }
 
-function executePutCmd (connection, putQuery, callback, results) {
+function executePutCmd(connection, putQuery, callback, results) {
   // Upload file
   connection.execute({
     sqlText: putQuery,
@@ -144,7 +144,7 @@ describe('PUT GET test', function () {
 
         let putQuery = `PUT file://${tmpFile.name} @${DATABASE_NAME}.${SCHEMA_NAME}.%${TEMP_TABLE_NAME}`;
         // Windows user contains a '~' in the path which causes an error
-        if (process.platform == 'win32') {
+        if (process.platform === 'win32') {
           const fileName = tmpFile.name.substring(tmpFile.name.lastIndexOf('\\'));
           putQuery = `PUT file://${process.env.USERPROFILE}\\AppData\\Local\\Temp\\${fileName} @${DATABASE_NAME}.${SCHEMA_NAME}.%${TEMP_TABLE_NAME}`;
         }
@@ -155,7 +155,7 @@ describe('PUT GET test', function () {
 
         let getQuery = `GET @${DATABASE_NAME}.${SCHEMA_NAME}.%${TEMP_TABLE_NAME} file://${tmpDir}`;
         // Windows user contains a '~' in the path which causes an error
-        if (process.platform == 'win32') {
+        if (process.platform === 'win32') {
           const dirName = tmpDir.substring(tmpDir.lastIndexOf('\\') + 1);
           getQuery = `GET @${DATABASE_NAME}.${SCHEMA_NAME}.%${TEMP_TABLE_NAME} file://${process.env.USERPROFILE}\\AppData\\Local\\Temp\\${dirName}`;
         }
@@ -320,7 +320,7 @@ describe('PUT GET overwrite test', function () {
   let putQuery = `
     PUT file://${tmpFile.name} @${DATABASE_NAME}.${SCHEMA_NAME}.%${TEMP_TABLE_NAME} AUTO_COMPRESS=FALSE`;
   // Windows user contains a '~' in the path which causes an error
-  if (process.platform == 'win32') {
+  if (process.platform === 'win32') {
     const fileName = tmpFile.name.substring(tmpFile.name.lastIndexOf('\\'));
     putQuery = `
       PUT file://${process.env.USERPROFILE}\\AppData\\Local\\Temp\\${fileName} @${DATABASE_NAME}.${SCHEMA_NAME}.%${TEMP_TABLE_NAME} AUTO_COMPRESS=FALSE`;
@@ -511,7 +511,7 @@ describe('PUT GET test with GCS_USE_DOWNSCOPED_CREDENTIAL', function () {
 
     let putQuery = `PUT file://${tmpFile.name} @${DATABASE_NAME}.${SCHEMA_NAME}.%${TEMP_TABLE_NAME}`;
     // Windows user contains a '~' in the path which causes an error
-    if (process.platform == 'win32') {
+    if (process.platform === 'win32') {
       const fileName = tmpFile.name.substring(tmpFile.name.lastIndexOf('\\'));
       putQuery = `PUT file://${process.env.USERPROFILE}\\AppData\\Local\\Temp\\${fileName} @${DATABASE_NAME}.${SCHEMA_NAME}.%${TEMP_TABLE_NAME}`;
     }
@@ -522,7 +522,7 @@ describe('PUT GET test with GCS_USE_DOWNSCOPED_CREDENTIAL', function () {
 
     let getQuery = `GET @${DATABASE_NAME}.${SCHEMA_NAME}.%${TEMP_TABLE_NAME} file://${tmpDir}`;
     // Windows user contains a '~' in the path which causes an error
-    if (process.platform == 'win32') {
+    if (process.platform === 'win32') {
       const dirName = tmpDir.substring(tmpDir.lastIndexOf('\\') + 1);
       getQuery = `GET @${DATABASE_NAME}.${SCHEMA_NAME}.%${TEMP_TABLE_NAME} file://${process.env.USERPROFILE}\\AppData\\Local\\Temp\\${dirName}`;
     }
@@ -780,7 +780,7 @@ describe('PUT GET test with multiple files', function () {
 
     let putQuery = `PUT file://${os.tmpdir()}/testUploadDownloadMultifiles* ${stage}`;
     // Windows user contains a '~' in the path which causes an error
-    if (process.platform == 'win32') {
+    if (process.platform === 'win32') {
       putQuery = `PUT file://${process.env.USERPROFILE}\\AppData\\Local\\Temp\\testUploadDownloadMultifiles* ${stage}`;
     }
 
@@ -847,7 +847,7 @@ describe('PUT GET test with multiple files', function () {
   function expectArrayToBeFinallyFilledWithTrue(expectedResultSize, testResult, callback){
     const expectedResult = new Array(expectedResultSize).fill(true);
     function checkResult() {
-      if(testResult.length >= expectedResultSize) {
+      if (testResult.length >= expectedResultSize) {
         try {
           assert.deepEqual(testResult, expectedResult);
           callback();
@@ -985,7 +985,7 @@ describe('PUT GET test with different size', function () {
     tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'get'));
     // Create a file of 100 MB
     const fh = fs.openSync(largeFile.name, 'w');
-    fs.writeSync(fh, 'ok', Math.max(0, 100*1024*1024 - 2));
+    fs.writeSync(fh, 'ok', Math.max(0, 100 * 1024 * 1024 - 2));
     fs.closeSync(fh);
 
     zeroByteFilePath = getPlatformTmpPath(zeroByteFile.name);
@@ -1033,11 +1033,11 @@ describe('PUT GET test with different size', function () {
         function (callback) {
           executePutWithFileSize(
             `PUT ${largeFilePath} ${stage} AUTO_COMPRESS=FALSE`,
-            100*1024*1024,
+            100 * 1024 * 1024,
             callback);
         },
         function (callback) {
-          executeGetWithFileSize(getQuery, 100*1024*1024, callback);
+          executeGetWithFileSize(getQuery, 100 * 1024 * 1024, callback);
         }
       ],
       done
@@ -1106,7 +1106,7 @@ describe('PUT GET test with error', function () {
 
   let tmpFile = null; 
   let tmpfilePath = null;
-  let testCases = null;
+  const testCases = null;
 
   before(async () => {
     // Create a temp file without specified file extension

@@ -27,21 +27,20 @@ var typesNumber = [snowflake.NUMBER];
 var typesDate = [snowflake.DATE];
 
 var connOptsNone = Util.apply({}, connOpts);
-var connOptsBoolean = Util.apply({fetchAsString: typesBoolean}, connOpts);
-var connOptsNumber = Util.apply({fetchAsString: typesNumber}, connOpts);
-var connOptsDate = Util.apply({fetchAsString: typesDate}, connOpts);
+var connOptsBoolean = Util.apply({ fetchAsString: typesBoolean }, connOpts);
+var connOptsNumber = Util.apply({ fetchAsString: typesNumber }, connOpts);
+var connOptsDate = Util.apply({ fetchAsString: typesDate }, connOpts);
 
 var stmtOptsNone = Util.apply({}, stmtOpts);
-var stmtOptsBoolean = Util.apply({fetchAsString: typesBoolean}, stmtOpts);
-var stmtOptsNumber = Util.apply({fetchAsString: typesNumber}, stmtOpts);
+var stmtOptsBoolean = Util.apply({ fetchAsString: typesBoolean }, stmtOpts);
+var stmtOptsNumber = Util.apply({ fetchAsString: typesNumber }, stmtOpts);
 
 var strmOptsNone = {};
-var strmOptsNumber = {fetchAsString: typesNumber};
-var strmOptsBoolean = {fetchAsString: typesBoolean};
-var strmOptsDate = {fetchAsString: typesDate};
+var strmOptsNumber = { fetchAsString: typesNumber };
+var strmOptsBoolean = { fetchAsString: typesBoolean };
+var strmOptsDate = { fetchAsString: typesDate };
 
-describe('Statement - fetch as string', function ()
-{
+describe('Statement - fetch as string', function () {
   var testCases =
     [
       {
@@ -102,8 +101,7 @@ describe('Statement - fetch as string', function ()
       }
     ];
 
-  for (var index = 0, length = testCases.length; index < length; index++)
-  {
+  for (var index = 0, length = testCases.length; index < length; index++) {
     var testCase = testCases[index];
     it(testCase.name,
       createItCallback(
@@ -118,50 +116,40 @@ function createItCallback(
   connectionOptions,
   statementOptions,
   streamOptions,
-  verifyFn)
-{
-  return function (done)
-  {
+  verifyFn) {
+  return function (done) {
     var connection;
     async.series(
       [
-        function (callback)
-        {
+        function (callback) {
           connection = snowflake.createConnection(connectionOptions);
-          connection.connect(function (err)
-          {
+          connection.connect(function (err) {
             assert.ok(!err);
             callback();
           });
         },
-        function (callback)
-        {
+        function (callback) {
           var rows = [];
           connection.execute(statementOptions).streamRows(streamOptions)
-            .on('data', function (row)
-            {
+            .on('data', function (row) {
               rows.push(row);
             })
-            .on('end', function ()
-            {
+            .on('end', function () {
               verifyFn(rows);
               callback();
             })
-            .on('error', function (err)
-            {
+            .on('error', function (err) {
               assert.ok(!err);
             });
         }
       ],
-      function ()
-      {
+      function () {
         done();
       });
   };
 }
 
-function verifyOnlyNumberConverted(rows)
-{
+function verifyOnlyNumberConverted(rows) {
   verifyRows(rows);
 
   var row = rows[0];
@@ -171,8 +159,7 @@ function verifyOnlyNumberConverted(rows)
   verifyDateNotConverted(row);
 }
 
-function verifyOnlyBooleanConverted(rows)
-{
+function verifyOnlyBooleanConverted(rows) {
   verifyRows(rows);
 
   var row = rows[0];
@@ -182,8 +169,7 @@ function verifyOnlyBooleanConverted(rows)
   verifyDateNotConverted(row);
 }
 
-function verifyOnlyDateConverted(rows)
-{
+function verifyOnlyDateConverted(rows) {
   verifyRows(rows);
 
   var row = rows[0];
@@ -193,39 +179,32 @@ function verifyOnlyDateConverted(rows)
   verifyDateConverted(row);
 }
 
-function verifyRows(rows)
-{
+function verifyRows(rows) {
   assert.ok(Util.isArray(rows));
   assert.strictEqual(rows.length, 1);
 }
 
-function verifyNumberNotConverted(row)
-{
+function verifyNumberNotConverted(row) {
   assert.strictEqual(row.number, 1.1234567891234568);
 }
 
-function verifyBooleanNotConverted(row)
-{
+function verifyBooleanNotConverted(row) {
   assert.strictEqual(row.boolean, false);
 }
 
-function verifyDateNotConverted(row)
-{
+function verifyDateNotConverted(row) {
   assert.ok(Util.isDate(row.date));
   assert.strictEqual(row.date.toJSON(), dateAsString);
 }
 
-function verifyNumberConverted(row)
-{
+function verifyNumberConverted(row) {
   assert.strictEqual(row.number, numberAsString);
 }
 
-function verifyBooleanConverted(row)
-{
+function verifyBooleanConverted(row) {
   assert.strictEqual(row.boolean, booleanAsString);
 }
 
-function verifyDateConverted(row)
-{
+function verifyDateConverted(row) {
   assert.strictEqual(row.date, dateAsString);
 }

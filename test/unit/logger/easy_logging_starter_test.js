@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 2023 Snowflake Computing Inc. All rights reserved.
  */
-const {init, reset: resetEasyLoggingModule} = require('../../../lib/logger/easy_logging_starter');
+const { init, reset: resetEasyLoggingModule } = require('../../../lib/logger/easy_logging_starter');
 
 const assert = require('assert');
 const fsPromises = require('fs/promises');
@@ -25,8 +25,8 @@ after(async function () {
   await fsPromises.rm(tempDir, { recursive: true, force: true });
 });
 
-afterEach(async function() {
-  await fsPromises.rm(path.join(os.tmpdir(), defaultConfigName), {force: true});
+afterEach(async function () {
+  await fsPromises.rm(path.join(os.tmpdir(), defaultConfigName), { force: true });
   resetEasyLoggingModule();
 });
 
@@ -119,7 +119,7 @@ describe('Easy logging starter tests', function () {
     return configFilePath;
   }
 
-  async function writeFile (filePath, fileContent) {
+  async function writeFile(filePath, fileContent) {
     await fsPromises.writeFile(filePath, fileContent, { encoding: 'utf8' });
   }
 });

@@ -12,15 +12,12 @@ const ErrorCodes = Errors.codes;
  * @param options
  * @constructor
  */
-function HttpsMockAgentOcspRevoked(options)
-{
-  var agent = HttpsAgent.apply(this, arguments)
-  agent.createConnection = function (options)
-  {
+function HttpsMockAgentOcspRevoked(options) {
+  var agent = HttpsAgent.apply(this, arguments);
+  agent.createConnection = function (options) {
     const socket = HttpsAgent.prototype.createConnection.apply(this, arguments);
     return SocketUtil.secureSocket(socket, options.host, null, {
-      validateCertChain: function (cert, cb)
-      {
+      validateCertChain: function (cert, cb) {
         cb(Errors.createOCSPError(ErrorCodes.ERR_OCSP_REVOKED));
       }
     });
@@ -33,15 +30,12 @@ function HttpsMockAgentOcspRevoked(options)
  * @param options
  * @constructor
  */
-function HttpsMockAgentOcspUnkwown(options)
-{
-  var agent = HttpsAgent.apply(this, arguments)
-  agent.createConnection = function (options)
-  {
+function HttpsMockAgentOcspUnkwown(options) {
+  var agent = HttpsAgent.apply(this, arguments);
+  agent.createConnection = function (options) {
     const socket = HttpsAgent.prototype.createConnection.apply(this, arguments);
     return SocketUtil.secureSocket(socket, options.host, null, {
-      validateCertChain: function (cert, cb)
-      {
+      validateCertChain: function (cert, cb) {
         cb(Errors.createOCSPError(ErrorCodes.ERR_OCSP_UNKNOWN));
       }
     });
@@ -54,15 +48,12 @@ function HttpsMockAgentOcspUnkwown(options)
  * @param options
  * @constructor
  */
-function HttpsMockAgentOcspInvalid(options)
-{
-  var agent = HttpsAgent.apply(this, arguments)
-  agent.createConnection = function (options)
-  {
+function HttpsMockAgentOcspInvalid(options) {
+  var agent = HttpsAgent.apply(this, arguments);
+  agent.createConnection = function (options) {
     const socket = HttpsAgent.prototype.createConnection.apply(this, arguments);
     return SocketUtil.secureSocket(socket, options.host, null, {
-      validateCertChain: function (cert, cb)
-      {
+      validateCertChain: function (cert, cb) {
         cb(Errors.createOCSPError(ErrorCodes.ERR_OCSP_INVALID_VALIDITY));
       }
     });

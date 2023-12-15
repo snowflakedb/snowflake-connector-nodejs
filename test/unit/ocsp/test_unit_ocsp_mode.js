@@ -6,10 +6,8 @@ const GlobalConfig = require('../../../lib/global_config');
 
 const assert = require('assert');
 
-describe('OCSP mode', function ()
-{
-  it('getOcspMode', function (done)
-  {
+describe('OCSP mode', function () {
+  it('getOcspMode', function (done) {
     // insecure mode
     GlobalConfig.setInsecureConnect(true);
     assert.equal(GlobalConfig.getOcspMode(), GlobalConfig.ocspModes.INSECURE);

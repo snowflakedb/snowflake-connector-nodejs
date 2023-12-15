@@ -20,7 +20,7 @@ module.exports.createProxyConnection = function () {
 };
 
 module.exports.createConnectionPool = function () {
-  return snowflake.createPool(connOptions.valid, {max: 10, min: 0, testOnBorrow: true});
+  return snowflake.createPool(connOptions.valid, { max: 10, min: 0, testOnBorrow: true });
 };
 
 module.exports.connect = function (connection, callback) {
@@ -152,7 +152,7 @@ module.exports.executeQueryAndVerify = function (connection, sql, expected, call
       callback();
     });
   };
-  if (bindArray != null && bindArray != undefined) {
+  if (bindArray !== null && bindArray !== undefined) {
     executeOptions.binds = bindArray;
   }
 
@@ -188,7 +188,7 @@ module.exports.executeQueryAndVerifyUsePool = function (connectionPool, sql, exp
       callback();
     });
   };
-  if (bindArray != null && bindArray != undefined) {
+  if (bindArray !== null && bindArray !== undefined) {
     executeOptions.binds = bindArray;
   }
 
@@ -200,7 +200,7 @@ module.exports.executeQueryAndVerifyUsePool = function (connectionPool, sql, exp
 function normalizeRowObject(row) {
   const normalizedRow = {};
   for (const key in row) {
-    if (row.hasOwnProperty(key)) {
+    if (Object.prototype.hasOwnProperty.call(row, key)) {
       const convertToString = (row[key] !== null) && (row[key] !== undefined)
         && (typeof row[key].toJSON === 'function');
       const convertToJSNumber = (row[key] !== null) && (row[key] !== undefined)

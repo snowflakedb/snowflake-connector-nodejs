@@ -58,11 +58,11 @@ exports.connectUsingEnv = async () => {
 
 exports.destroyAsync = connection => new Promise((resolve, reject) => {
   connection.destroy(err => {
-      if (err) {
-        reject(err);
-      } else {
-        resolve();
-      }
+    if (err) {
+      reject(err);
+    } else {
+      resolve();
     }
+  }
   );
 });

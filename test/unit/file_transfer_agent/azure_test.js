@@ -38,7 +38,7 @@ describe('Azure client', function () {
   function getClientMock(getPropertiesFn, uploadFn) {
     if (getPropertiesFn !== null) {
       return {
-        BlobServiceClient: function() {
+        BlobServiceClient: function () {
           function BlobServiceClient() {
             this.getContainerClient = function () {
               function getContainerClient() {
@@ -64,7 +64,7 @@ describe('Azure client', function () {
 
     if (uploadFn !== null) {
       return {
-        BlobServiceClient: function() {
+        BlobServiceClient: function () {
           function BlobServiceClient() {
             this.getContainerClient = function () {
               function getContainerClient() {
@@ -84,7 +84,7 @@ describe('Azure client', function () {
     }
   }
 
-  function verifyNameAndPath (bucketPath, containerName, path) {
+  function verifyNameAndPath(bucketPath, containerName, path) {
     const result = Azure.extractContainerNameAndPath(bucketPath);
     assert.strictEqual(result.containerName, containerName);
     assert.strictEqual(result.path, path);
@@ -141,7 +141,7 @@ describe('Azure client', function () {
     mock('client', getClientMock(
       function () {
         const err = new Error();
-        err.statusCode = '404';
+        err.statusCode = 404;
         throw err;
       }, null));
 
@@ -156,7 +156,7 @@ describe('Azure client', function () {
     mock('client', getClientMock(
       function () {
         const err = new Error();
-        err.statusCode = '400';
+        err.statusCode = 400;
         throw err;
       }, null));
 
@@ -204,7 +204,7 @@ describe('Azure client', function () {
       function () {
         function upload() {
           const err = new Error('Server failed to authenticate the request.');
-          err.statusCode = '403';
+          err.statusCode = 403;
           throw err;
         }
         return new upload;
@@ -224,7 +224,7 @@ describe('Azure client', function () {
       function () {
         function upload() {
           const err = new Error();
-          err.statusCode = '400';
+          err.statusCode = 400;
           throw err;
         }
         return new upload;

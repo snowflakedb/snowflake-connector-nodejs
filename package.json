@@ -1,6 +1,6 @@
 {
   "name": "snowflake-sdk",
-  "version": "1.9.1",
+  "version": "1.9.2",
   "description": "Node.js driver for Snowflake",
   "dependencies": {
     "@aws-sdk/client-s3": "^3.388.0",
@@ -22,8 +22,8 @@
     "fast-xml-parser": "^4.2.5",
     "fastest-levenshtein": "^1.0.16",
     "generic-pool": "^3.8.2",
-    "glob": "^7.1.6",
-    "https-proxy-agent": "^5.0.1",
+    "glob": "^9.0.0",
+    "https-proxy-agent": "^7.0.2",
     "jsonwebtoken": "^9.0.0",
     "mime-types": "^2.1.29",
     "mkdirp": "^1.0.3",
@@ -49,9 +49,6 @@
     "asn1.js": "^5.4.1"
   },
   "overrides": {
-    "@azure/storage-blob": {
-      "node-fetch": "^3.2.10"
-    },
     "semver": "^7.5.2"
   },
   "repository": {

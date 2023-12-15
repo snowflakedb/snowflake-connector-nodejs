@@ -2,8 +2,8 @@
  * Copyright (c) 2015-2019 Snowflake Computing Inc. All rights reserved.
  */
 
-var assert = require('assert');
-var ResultTestCommon = require('./result_test_common');
+const assert = require('assert');
+const ResultTestCommon = require('./result_test_common');
 
 describe('Result: test number', function () {
   it('select to_number(\'123.456\') as C1, ' +
@@ -11,7 +11,7 @@ describe('Result: test number', function () {
     'to_number(\'12345678901234567890123456789012345678\') as C3, ' + // pragma: allowlist secret
     'to_double(\'12345678901234567890123456789012345678\') as C4;', // pragma: allowlist secret
   function (done) {
-    var response =
+    const response =
         {
           'data': {
             'parameters': [{ 'name': 'TIMEZONE', 'value': 'America/Los_Angeles' }, {

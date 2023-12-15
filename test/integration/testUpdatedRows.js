@@ -2,12 +2,12 @@
  * Copyright (c) 2015-2019 Snowflake Computing Inc. All rights reserved.
  */
 
-var assert = require('assert');
-var async = require('async');
-var testUtil = require('./testUtil');
+const assert = require('assert');
+const async = require('async');
+const testUtil = require('./testUtil');
 
 describe('Test updated rows', function () {
-  var connection;
+  let connection;
   const dropTableFoo = 'drop table if exists foo';
   const dropTableBar = 'drop table if exists bar';
   const dropTableFoo2 = 'drop table if exists foo2';
@@ -54,7 +54,7 @@ describe('Test updated rows', function () {
     it('insert, update, delete', function (done) {
       async.series([
         function (callback) {
-          var sqlText = 'create or replace table foo (c1 number, c2 number);';
+          const sqlText = 'create or replace table foo (c1 number, c2 number);';
           connection.execute(
             {
               sqlText: sqlText,
@@ -66,7 +66,7 @@ describe('Test updated rows', function () {
             });
         },
         function (callback) {
-          var sqlText = 'insert into foo values' +
+          const sqlText = 'insert into foo values' +
               ' (1,10)' +
               ',(2,10)' +
               ',(3,10)' +
@@ -87,7 +87,7 @@ describe('Test updated rows', function () {
             });
         },
         function (callback) {
-          var sqlText = 'create or replace table foo2 (c3 number, c4 number);';
+          const sqlText = 'create or replace table foo2 (c3 number, c4 number);';
           connection.execute(
             {
               sqlText: sqlText,
@@ -99,7 +99,7 @@ describe('Test updated rows', function () {
             });
         },
         function (callback) {
-          var sqlText = 'insert into foo2 values' +
+          const sqlText = 'insert into foo2 values' +
               ' (1,5)' +
               ',(2,5)' +
               ',(3,5)' +
@@ -116,7 +116,7 @@ describe('Test updated rows', function () {
             });
         },
         function (callback) {
-          var sqlText =
+          const sqlText =
               'update foo set c2 = c4 from foo2 where foo.c1 = foo2.c3;';
           connection.execute(
             {
@@ -131,7 +131,7 @@ describe('Test updated rows', function () {
             });
         },
         function (callback) {
-          var sqlText = 'delete from foo;';
+          const sqlText = 'delete from foo;';
           connection.execute(
             {
               sqlText: sqlText,
@@ -149,7 +149,7 @@ describe('Test updated rows', function () {
     it('merge', function (done) {
       async.series([
         function (callback) {
-          var sqlText = 'create or replace table fooMaster (k number, v number);';
+          const sqlText = 'create or replace table fooMaster (k number, v number);';
           connection.execute(
             {
               sqlText: sqlText,
@@ -161,7 +161,7 @@ describe('Test updated rows', function () {
             });
         },
         function (callback) {
-          var sqlText = 'insert into fooMaster values (0, 10), (1, 11), (5, 15), (6, 16);';
+          const sqlText = 'insert into fooMaster values (0, 10), (1, 11), (5, 15), (6, 16);';
           connection.execute(
             {
               sqlText: sqlText,
@@ -174,7 +174,7 @@ describe('Test updated rows', function () {
             });
         },
         function (callback) {
-          var sqlText = 'create or replace table foo clone fooMaster;';
+          const sqlText = 'create or replace table foo clone fooMaster;';
           connection.execute(
             {
               sqlText: sqlText,
@@ -186,7 +186,7 @@ describe('Test updated rows', function () {
             });
         },
         function (callback) {
-          var sqlText = 'create or replace table bar (k number, v number);';
+          const sqlText = 'create or replace table bar (k number, v number);';
           connection.execute(
             {
               sqlText: sqlText,
@@ -198,7 +198,7 @@ describe('Test updated rows', function () {
             });
         },
         function (callback) {
-          var sqlText = 'insert into bar values (0, 20), (1, 21), (2, 22), (3, 23), (4, 24);';
+          const sqlText = 'insert into bar values (0, 20), (1, 21), (2, 22), (3, 23), (4, 24);';
           connection.execute(
             {
               sqlText: sqlText,
@@ -211,7 +211,7 @@ describe('Test updated rows', function () {
             });
         },
         function (callback) {
-          var sqlText = 'merge into foo using bar on foo.k = bar.k ' +
+          const sqlText = 'merge into foo using bar on foo.k = bar.k ' +
               'when matched and foo.k = 0 then update set v = bar.v*100 ' +
               'when matched and foo.k = 1 then delete ' +
               'when not matched then insert values (k,v);';
@@ -234,7 +234,7 @@ describe('Test updated rows', function () {
     it('multi-table insert', function (done) {
       async.series([
         function (callback) {
-          var sqlText = 'create or replace table source(k number, v number);';
+          const sqlText = 'create or replace table source(k number, v number);';
           connection.execute(
             {
               sqlText: sqlText,
@@ -246,7 +246,7 @@ describe('Test updated rows', function () {
             });
         },
         function (callback) {
-          var sqlText = 'insert into source values (0, 100), (1, 101), (2, 102);';
+          const sqlText = 'insert into source values (0, 100), (1, 101), (2, 102);';
           connection.execute(
             {
               sqlText: sqlText,
@@ -259,7 +259,7 @@ describe('Test updated rows', function () {
             });
         },
         function (callback) {
-          var sqlText = 'create or replace table foo (k number, v number);';
+          const sqlText = 'create or replace table foo (k number, v number);';
           connection.execute(
             {
               sqlText: sqlText,
@@ -271,7 +271,7 @@ describe('Test updated rows', function () {
             });
         },
         function (callback) {
-          var sqlText = 'create or replace table bar (k number, v number);';
+          const sqlText = 'create or replace table bar (k number, v number);';
           connection.execute(
             {
               sqlText: sqlText,
@@ -283,7 +283,7 @@ describe('Test updated rows', function () {
             });
         },
         function (callback) {
-          var sqlText = 'insert ALL into foo into bar select * from source;';
+          const sqlText = 'insert ALL into foo into bar select * from source;';
           connection.execute(
             {
               sqlText: sqlText,

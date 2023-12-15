@@ -45,7 +45,7 @@ module.exports = {
     'no-unused-vars': ['warn'],
     'no-useless-catch': ['error'],
     'no-useless-escape': ['error'],
-    'no-var': ['warn'],
+    'no-var': ['error'],
     'object-curly-spacing': ['error', 'always'],
     'prefer-const': ['error'],
     'quotes': ['error', 'single'],

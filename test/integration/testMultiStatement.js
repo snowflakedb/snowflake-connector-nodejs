@@ -1,16 +1,16 @@
 /*
  * Copyright (c) 2015-2019 Snowflake Computing Inc. All rights reserved.
  */
-var async = require('async');
-var assert = require('assert');
-var testUtil = require('./testUtil');
-var Util = require('./../../lib/util');
+const async = require('async');
+const assert = require('assert');
+const testUtil = require('./testUtil');
+const Util = require('./../../lib/util');
 const Logger = require('../../lib/logger');
 
 describe('Test multi statement', function () {
-  var connection;
-  var alterSessionMultiStatement0 = 'alter session set MULTI_STATEMENT_COUNT=0';
-  var selectTable = 'select ?; select ?,3; select ?,5,6';
+  let connection;
+  const alterSessionMultiStatement0 = 'alter session set MULTI_STATEMENT_COUNT=0';
+  const selectTable = 'select ?; select ?,3; select ?,5,6';
 
   before(function (done) {
     connection = testUtil.createConnection();
@@ -44,14 +44,14 @@ describe('Test multi statement', function () {
           });
         },
         function (callback) {
-          var bindArr = [1, 2, 4];
-          var count = 0;
+          const bindArr = [1, 2, 4];
+          let count = 0;
           connection.execute({
             sqlText: selectTable,
             binds: bindArr,
             complete: function (err, stmt) {
               testUtil.checkError(err);
-              var stream = stmt.streamRows();
+              const stream = stmt.streamRows();
               stream.on('error', function (err) {
                 testUtil.checkError(err);
               });

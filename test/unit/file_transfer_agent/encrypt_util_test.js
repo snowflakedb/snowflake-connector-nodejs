@@ -2,22 +2,22 @@
  * Copyright (c) 2021 Snowflake Computing Inc. All rights reserved.
  */
 
-var assert = require('assert');
-var mock = require('mock-require');
-var SnowflakeEncryptionUtil = require('./../../../lib/file_transfer_agent/encrypt_util').EncryptUtil;
+const assert = require('assert');
+const mock = require('mock-require');
+const SnowflakeEncryptionUtil = require('./../../../lib/file_transfer_agent/encrypt_util').EncryptUtil;
 
 describe('Encryption util', function () {
-  var encryptionMaterial;
-  var mockData = 'mockData';
-  var mockFileName = 'mockFileName';
-  var mockRandomBytes = 'mockRandomBytes';
-  var mockTmpDir = 'mockTmpDir';
-  var mockTmpName = 'mockTmpName';
+  let encryptionMaterial;
+  const mockData = 'mockData';
+  const mockFileName = 'mockFileName';
+  const mockRandomBytes = 'mockRandomBytes';
+  const mockTmpDir = 'mockTmpDir';
+  const mockTmpName = 'mockTmpName';
 
-  var EncryptionUtil;
-  var encrypt;
-  var filestream;
-  var temp;
+  let EncryptionUtil;
+  let encrypt;
+  let filestream;
+  let temp;
 
   this.beforeEach(function () {
     encryptionMaterial = {
@@ -94,12 +94,12 @@ describe('Encryption util', function () {
   });
 
   it('encrypt file', async function () {
-    var result = await EncryptionUtil.encryptFile(encryptionMaterial, mockFileName, mockTmpDir);
+    const result = await EncryptionUtil.encryptFile(encryptionMaterial, mockFileName, mockTmpDir);
 
-    var decodedKey = Buffer.from(encryptionMaterial['queryStageMasterKey'], 'base64');
-    var keySize = decodedKey.length;
+    const decodedKey = Buffer.from(encryptionMaterial['queryStageMasterKey'], 'base64');
+    const keySize = decodedKey.length;
 
-    var matDesc = {
+    let matDesc = {
       'smkId': encryptionMaterial.smkId,
       'queryId': encryptionMaterial.queryId,
       'keySize': keySize * 8

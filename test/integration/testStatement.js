@@ -1,15 +1,15 @@
 /*
  * Copyright (c) 2015-2019 Snowflake Computing Inc. All rights reserved.
  */
-var snowflake = require('./../../lib/snowflake');
-var Core = require('./../../lib/core');
-var assert = require('assert');
-var async = require('async');
-var connectionOptions = require('./connectionOptions');
+const snowflake = require('./../../lib/snowflake');
+const Core = require('./../../lib/core');
+const assert = require('assert');
+const async = require('async');
+const connectionOptions = require('./connectionOptions');
 const Errors = require('./../../lib/errors');
 const ErrorCodes = Errors.codes;
-var Util = require('./../../lib/util');
-var testUtil = require('./testUtil');
+const Util = require('./../../lib/util');
+const testUtil = require('./testUtil');
 
 describe('Statement Tests', function () {
   let connection;
@@ -59,7 +59,7 @@ describe('Statement Tests', function () {
                   'the execute() callback should be invoked with the statement');
 
                 // we should only have one column c1
-                var columns = statement.getColumns();
+                const columns = statement.getColumns();
                 assert.ok(columns);
                 assert.strictEqual(columns.length, 1);
                 assert.ok(columns[0]);
@@ -91,7 +91,7 @@ describe('Statement Tests', function () {
           callback();
         },
         function (callback) {
-          var rows = [];
+          const rows = [];
           statement.fetchRows(
             {
               each: function (row) {
@@ -157,7 +157,7 @@ describe('Statement Tests', function () {
   });
 
   it('statement api', function (done) {
-    var statement;
+    let statement;
 
     async.series(
       [
@@ -180,7 +180,7 @@ describe('Statement Tests', function () {
                   'the execute() callback should be invoked with the statement');
 
                 // we should only have one column c1
-                var columns = statement.getColumns();
+                const columns = statement.getColumns();
                 assert.ok(columns);
                 assert.strictEqual(columns.length, 1);
                 assert.ok(columns[0]);
@@ -211,7 +211,7 @@ describe('Statement Tests', function () {
           callback();
         },
         function (callback) {
-          var rows = [];
+          const rows = [];
           statement.fetchRows(
             {
               each: function (row) {
@@ -249,10 +249,10 @@ describe('Call Statement', function () {
     async.series(
       [
         function (callback) {
-          var statement = connection.execute({
+          const statement = connection.execute({
             sqlText: 'ALTER SESSION SET USE_STATEMENT_TYPE_CALL_FOR_STORED_PROC_CALLS=true;',
             complete: function (err, stmt, rows) {
-              var stream = statement.streamRows();
+              const stream = statement.streamRows();
               stream.on('error', function (err) {
                 // Expected error - SqlState: 22023, VendorCode: 1006
                 assert.strictEqual('22023', err.sqlState);
@@ -266,7 +266,7 @@ describe('Call Statement', function () {
           });
         },
         function (callback) {
-          var statement = connection.execute({
+          const statement = connection.execute({
             sqlText: 'create or replace procedure\n'
               + 'TEST_SP_CALL_STMT_ENABLED(in1 float, in2 variant)\n'
               + 'returns string language javascript as $$\n'
@@ -275,7 +275,7 @@ describe('Call Statement', function () {
               + 'return res.getColumnValueAsString(1) + \' \' + res.getColumnValueAsString(2) + \' \' + IN2;\n'
               + '$$;',
             complete: function (err, stmt, rows) {
-              var stream = statement.streamRows();
+              const stream = statement.streamRows();
               stream.on('error', function (err) {
                 done(err);
               });
@@ -289,16 +289,16 @@ describe('Call Statement', function () {
           });
         },
         function (callback) {
-          var statement = connection.execute({
+          const statement = connection.execute({
             sqlText: 'call TEST_SP_CALL_STMT_ENABLED(?, to_variant(?))',
             binds: [1, '[2,3]'],
             complete: function (err, stmt, rows) {
-              var stream = statement.streamRows();
+              const stream = statement.streamRows();
               stream.on('error', function (err) {
                 done(err);
               });
               stream.on('data', function (row) {
-                var result = '1 "[2,3]" [2,3]';
+                const result = '1 "[2,3]" [2,3]';
                 assert.strictEqual(result, row.TEST_SP_CALL_STMT_ENABLED);
               });
               stream.on('end', function (row) {
@@ -308,10 +308,10 @@ describe('Call Statement', function () {
           });
         },
         function (callback) {
-          var statement = connection.execute({
+          const statement = connection.execute({
             sqlText: 'drop procedure if exists TEST_SP_CALL_STMT_ENABLED(float, variant)',
             complete: function (err, stmt, rows) {
-              var stream = statement.streamRows();
+              const stream = statement.streamRows();
               stream.on('error', function (err) {
                 done(err);
               });

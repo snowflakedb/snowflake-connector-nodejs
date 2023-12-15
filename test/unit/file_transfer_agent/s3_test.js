@@ -76,7 +76,7 @@ describe('S3 client', function () {
   });
 
   it('extract bucket name and path', async function () {
-    var result = AWS.extractBucketNameAndPath('sfc-eng-regression/test_sub_dir/');
+    let result = AWS.extractBucketNameAndPath('sfc-eng-regression/test_sub_dir/');
     assert.strictEqual(result.bucketName, 'sfc-eng-regression');
     assert.strictEqual(result.s3path, 'test_sub_dir/');
 

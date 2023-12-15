@@ -2,12 +2,12 @@
  * Copyright (c) 2015 Snowflake Computing Inc. All rights reserved.
  */
 
-var assert = require('assert');
-var ResultTestCommon = require('./result_test_common');
+const assert = require('assert');
+const ResultTestCommon = require('./result_test_common');
 
 describe('Result: test boolean', function () {
   it('select true as C1, false as C2, to_boolean(null) as C3;', function (done) {
-    var response =
+    const response =
       {
         'data': {
           'parameters': [{ 'name': 'TIMEZONE', 'value': 'America/Los_Angeles' }, {
@@ -72,7 +72,7 @@ describe('Result: test boolean', function () {
 
   it('select to_boolean(\'1\') as C1, to_boolean(\'0\') as C2, \' + ' +
     '\'to_boolean(null) as C3;', function (done) {
-    var response =
+    const response =
       {
         'data': {
           'parameters': [{ 'name': 'TIMEZONE', 'value': 'America/Los_Angeles' }, {

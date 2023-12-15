@@ -2,15 +2,15 @@
  * Copyright (c) 2015-2019 Snowflake Computing Inc. All rights reserved.
  */
 
-var assert = require('assert');
-var ResultTestCommon = require('./result_test_common');
+const assert = require('assert');
+const ResultTestCommon = require('./result_test_common');
 
 describe('Result: test variant', function () {
   it('select to_variant((parse_json(\'{ a : 1 }\'))) as C1, ' +
     'to_object(parse_json(\'{ a : 1 }\')) as C2, ' +
     'to_array(parse_json(\'[1, 2]\')) as C3;',
   function (done) {
-    var response =
+    const response =
         {
           'data': {
             'parameters': [{ 'name': 'TIMEZONE', 'value': 'America/Los_Angeles' }, {

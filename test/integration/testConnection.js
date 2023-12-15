@@ -45,7 +45,7 @@ describe('Connection test', function () {
   });
 
   it('Wrong Username', function (done) {
-    var connection = snowflake.createConnection(connOption.wrongUserName);
+    const connection = snowflake.createConnection(connOption.wrongUserName);
     connection.connect(function (err) {
       assert.ok(err, 'Username is an empty string');
       assert.equal(
@@ -57,7 +57,7 @@ describe('Connection test', function () {
   });
 
   it('Wrong Password', function (done) {
-    var connection = snowflake.createConnection(connOption.wrongPwd);
+    const connection = snowflake.createConnection(connOption.wrongPwd);
     connection.connect(function (err) {
       assert.ok(err, 'Password is an empty string');
       assert.equal(
@@ -207,7 +207,7 @@ describe('Connection test - connection pool', function () {
   this.timeout(30000);
 
   it('1 min connection', function (done) {
-    var connectionPool = snowflake.createPool(connOption.valid, {
+    const connectionPool = snowflake.createPool(connOption.valid, {
       max: 10,
       min: 1,
     });
@@ -220,7 +220,7 @@ describe('Connection test - connection pool', function () {
   });
 
   it('5 min connection', function (done) {
-    var connectionPool = snowflake.createPool(connOption.valid, {
+    const connectionPool = snowflake.createPool(connOption.valid, {
       max: 10,
       min: 5,
     });
@@ -233,7 +233,7 @@ describe('Connection test - connection pool', function () {
   });
 
   it('10 min connection', function (done) {
-    var connectionPool = snowflake.createPool(connOption.valid, {
+    const connectionPool = snowflake.createPool(connOption.valid, {
       max: 10,
       min: 10,
     });
@@ -246,7 +246,7 @@ describe('Connection test - connection pool', function () {
   });
 
   it('min greater than max connection', function (done) {
-    var connectionPool = snowflake.createPool(connOption.valid, {
+    const connectionPool = snowflake.createPool(connOption.valid, {
       max: 5,
       min: 10,
     });
@@ -259,7 +259,7 @@ describe('Connection test - connection pool', function () {
   });
 
   it('1 max connection', function (done) {
-    var connectionPool = snowflake.createPool(connOption.valid, {
+    const connectionPool = snowflake.createPool(connOption.valid, {
       max: 1,
       min: 0,
     });
@@ -275,7 +275,7 @@ describe('Connection test - connection pool', function () {
   });
 
   it('1 max connection and acquire() more than 1', function (done) {
-    var connectionPool = snowflake.createPool(connOption.valid, {
+    const connectionPool = snowflake.createPool(connOption.valid, {
       max: 1,
       min: 0,
     });
@@ -293,7 +293,7 @@ describe('Connection test - connection pool', function () {
   });
 
   it('5 max connection', function (done) {
-    var connectionPool = snowflake.createPool(connOption.valid, {
+    const connectionPool = snowflake.createPool(connOption.valid, {
       max: 5,
       min: 0,
     });
@@ -317,7 +317,7 @@ describe('Connection test - connection pool', function () {
   });
 
   it('5 max connections and acquire() more than 5', function (done) {
-    var connectionPool = snowflake.createPool(connOption.valid, {
+    const connectionPool = snowflake.createPool(connOption.valid, {
       max: 5,
       min: 0,
     });
@@ -343,7 +343,7 @@ describe('Connection test - connection pool', function () {
   });
 
   it('10 max connection', function (done) {
-    var connectionPool = snowflake.createPool(connOption.valid, {
+    const connectionPool = snowflake.createPool(connOption.valid, {
       max: 10,
       min: 0,
     });
@@ -377,7 +377,7 @@ describe('Connection test - connection pool', function () {
   });
 
   it('10 max connections and acquire() more than 10', function (done) {
-    var connectionPool = snowflake.createPool(connOption.valid, {
+    const connectionPool = snowflake.createPool(connOption.valid, {
       max: 10,
       min: 0,
     });
@@ -413,7 +413,7 @@ describe('Connection test - connection pool', function () {
   });
 
   it('acquire() 1 connection and release()', function (done) {
-    var connectionPool = snowflake.createPool(connOption.valid, {
+    const connectionPool = snowflake.createPool(connOption.valid, {
       max: 5,
       min: 0,
     });
@@ -447,7 +447,7 @@ describe('Connection test - connection pool', function () {
 
   it('acquire() 5 connections and release()', function (done) {
     // Create the connection pool
-    var connectionPool = snowflake.createPool(connOption.valid, {
+    const connectionPool = snowflake.createPool(connOption.valid, {
       max: 5,
       min: 0,
     });
@@ -531,7 +531,7 @@ describe('Connection test - connection pool', function () {
   });
 
   it('acquire() 1 connection and destroy()', function (done) {
-    var connectionPool = snowflake.createPool(connOption.valid, {
+    const connectionPool = snowflake.createPool(connOption.valid, {
       max: 5,
       min: 0,
     });
@@ -557,7 +557,7 @@ describe('Connection test - connection pool', function () {
   });
 
   it('acquire() 5 connections and destroy()', function (done) {
-    var connectionPool = snowflake.createPool(connOption.valid, {
+    const connectionPool = snowflake.createPool(connOption.valid, {
       max: 5,
       min: 0,
     });
@@ -641,7 +641,7 @@ describe('Connection test - connection pool', function () {
   });
 
   it('use()', function (done) {
-    var connectionPool = snowflake.createPool(connOption.valid, {
+    const connectionPool = snowflake.createPool(connOption.valid, {
       max: 5,
       min: 0,
     });
@@ -679,7 +679,7 @@ describe('Connection test - connection pool', function () {
   });
 
   it('wrong password - use', async function () {
-    var connectionPool = snowflake.createPool(connOption.wrongPwd, {
+    const connectionPool = snowflake.createPool(connOption.wrongPwd, {
       max: 10,
       min: 1,
     });
@@ -703,7 +703,7 @@ describe('Connection test - connection pool', function () {
   });
 
   it('wrong password - acquire', async function () {
-    var connectionPool = snowflake.createPool(connOption.wrongPwd, {
+    const connectionPool = snowflake.createPool(connOption.wrongPwd, {
       max: 10,
       min: 1,
     });

@@ -81,7 +81,7 @@ describe('S3 client', function () {
     };
   });
   this.afterEach(function () {
-    meta.client.destroy();
+    meta['client'].destroy();
   });
 
   it('extract bucket name and path', async function () {

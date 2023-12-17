@@ -23,11 +23,11 @@ describe('exclude support warehouses', function () {
   const supportWhName = 'WH_' + nowInEpochSecs;
 
   // define the window for which we'll be requesting warehouse metrics
-  const startTime = nowInEpochSecs - 24 * 3600;
-  const endTime = nowInEpochSecs + 24 * 3600;
+  // const startTime = nowInEpochSecs - 24 * 3600;
+  // const endTime = nowInEpochSecs + 24 * 3600;
 
   // number of credits we charge per hour for a standard xsmall warehouse
-  const standardXsmallCredits = 1;
+  // const standardXsmallCredits = 1;
 
   const createSupportWh = util.format('create or replace warehouse %s ' +
     'warehouse_size = \'xsmall\'', supportWhName);
@@ -44,40 +44,40 @@ describe('exclude support warehouses', function () {
   const unsetJobScanFns = 'alter account externalaccount set ' +
     'enable_jobscan_functions = default';
 
-  const now = new Date();
+  // const now = new Date();
 
   // get the current year as yy
-  const currentYear = Number(now.getFullYear().toString().substr(2));
+  // const currentYear = Number(now.getFullYear().toString().substr(2));
 
   // subtract a year from the current date and get the result as a string in the
   // following format: MM/dd/yy
-  const todayLastYearAsString =
-    (now.getMonth() + 1) + '/' + now.getDate() + '/' + (currentYear - 1);
+  // const todayLastYearAsString =
+  //   (now.getMonth() + 1) + '/' + now.getDate() + '/' + (currentYear - 1);
 
   // add a year to the current date and get the result as a string in the
   // following format: MM/dd/yy
-  const todayNextYearAsString =
-    (now.getMonth() + 1) + '/' + now.getDate() + '/' + (currentYear + 1);
+  // const todayNextYearAsString =
+  //   (now.getMonth() + 1) + '/' + now.getDate() + '/' + (currentYear + 1);
 
   // warehouse exclusion can be enabled by setting the exclude start date to a
   // year ago
-  const enableWhExclusion = util.format('alter system set ' +
-    'EXCLUDE_SUPPORT_WHS_START_DATE = \'%s\'', todayLastYearAsString);
+  // const enableWhExclusion = util.format('alter system set ' +
+  //   'EXCLUDE_SUPPORT_WHS_START_DATE = \'%s\'', todayLastYearAsString);
 
   // warehouse exclusion can be disabled by setting the exclude start date to a
   // year from now
-  const disableWhExclusion = util.format('alter system set ' +
-    'EXCLUDE_SUPPORT_WHS_START_DATE = \'%s\'', todayNextYearAsString);
+  // const disableWhExclusion = util.format('alter system set ' +
+  //   'EXCLUDE_SUPPORT_WHS_START_DATE = \'%s\'', todayNextYearAsString);
 
-  const unsetWhExclusion =
-    'alter system set EXCLUDE_SUPPORT_WHS_START_DATE = default';
+  // const unsetWhExclusion =
+  //   'alter system set EXCLUDE_SUPPORT_WHS_START_DATE = default';
 
-  const enableSupportWhFlag = util.format(
-    'alter warehouse externalaccount.%s set snowflake_support = true',
-    supportWhName);
-  const disableSupportWhFlag = util.format(
-    'alter warehouse externalaccount.%s set snowflake_support = false',
-    supportWhName);
+  // const enableSupportWhFlag = util.format(
+  //   'alter warehouse externalaccount.%s set snowflake_support = true',
+  //   supportWhName);
+  // const disableSupportWhFlag = util.format(
+  //   'alter warehouse externalaccount.%s set snowflake_support = false',
+  //   supportWhName);
 
   // create two connections, one to externalaccount and another to the snowflake
   // account
@@ -369,31 +369,31 @@ describe('exclude support warehouses', function () {
    * @param expected the expected number of credits.
    * @param cb the callback to invoke if the assert succeeds.
    */
-  function assertCreditsFromExternalAcc(conn, expected, cb) {
-    const columnName = 'CREDITS';
-    const sqlText =
-      util.format('select warehouse_name, sum(credits_used) as %s ' +
-        'from table(information_schema.warehouse_metering_history(' +
-        '%s::timestamp, %s::timestamp, \'%s\')) ' +
-        'group by warehouse_name',
-      columnName, startTime, endTime, supportWhName);
-
-    conn.execute(
-      {
-        sqlText: sqlText,
-        complete: function (err, statement, rows) {
-          assert.ok(!err);
-          assert.ok(util.isArray(rows));
-
-          // the actual number of credits must equal the expected value
-          const credits = (rows.length === 0) ? 0 : rows[0][columnName];
-          assert.strictEqual(credits, expected);
-
-          // we're done; invoke the callback
-          cb();
-        }
-      });
-  }
+  // function assertCreditsFromExternalAcc(conn, expected, cb) {
+  //   const columnName = 'CREDITS';
+  //   const sqlText =
+  //     util.format('select warehouse_name, sum(credits_used) as %s ' +
+  //       'from table(information_schema.warehouse_metering_history(' +
+  //       '%s::timestamp, %s::timestamp, \'%s\')) ' +
+  //       'group by warehouse_name',
+  //     columnName, startTime, endTime, supportWhName);
+  //
+  //   conn.execute(
+  //     {
+  //       sqlText: sqlText,
+  //       complete: function (err, statement, rows) {
+  //         assert.ok(!err);
+  //         assert.ok(util.isArray(rows));
+  //
+  //         // the actual number of credits must equal the expected value
+  //         const credits = (rows.length === 0) ? 0 : rows[0][columnName];
+  //         assert.strictEqual(credits, expected);
+  //
+  //         // we're done; invoke the callback
+  //         cb();
+  //       }
+  //     });
+  // }
 
   /**
    * Asynchronous function that can be used to assert whether the test warehouse
@@ -405,72 +405,72 @@ describe('exclude support warehouses', function () {
    * @param expected the expected number of credits.
    * @param cb the callback to invoke if the assert succeeds.
    */
-  function assertCreditsFromSnowflakeAcc(conn, exclude, expected, cb) {
-    const columnName = 'CREDITS';
-    const sqlText = util.format('select system$get_metrics(' +
-      '\'%s\', \'%s\', \'%s\', \'%s\'::timestamp, \'%s\'::timestamp, ' +
-      'null, null, \'%s\', %s) as %s;',
-    'ACCOUNT', 'EXTERNALACCOUNT', 'METERING',
-    startTime, endTime, 'UTC', exclude, columnName);
-
-    conn.execute(
-      {
-        sqlText: sqlText,
-        complete: function (err, statement, rows) {
-          assert.ok(!err);
-          assert.ok(rows && (rows.length === 1));
-
-          // convert the one-row-one-column result to JSON
-          const response = JSON.parse(rows[0][columnName]);
-          assert(util.isObject(response));
-
-          // extract the instance types
-          const instanceTypes = response.instanceTypes;
-          assert(util.isArray(instanceTypes));
-
-          // create a map in which the keys are instance types and the values are
-          // the prices for the corresponding instance types
-          const mapInstanceTypeToPrice = {};
-          for (let index = 0, length = instanceTypes.length; index < length; index++) {
-            const instanceType = instanceTypes[index];
-            mapInstanceTypeToPrice[instanceType.id] = instanceType.price;
-          }
-
-          // extract the aggregations
-          const aggregations = response.aggregations;
-          assert(util.isArray(aggregations));
-
-          // find the aggregation for the support warehouse
-          let supportWhAggregation;
-          for (let index = 0, length = aggregations.length; index < length; index++) {
-            if (aggregations[index].name === supportWhName) {
-              supportWhAggregation = aggregations[index];
-            }
-          }
-
-          let credits = 0;
-
-          // if we have an aggregation for the support warehouse
-          if (util.isObject(supportWhAggregation)) {
-            // extract the configs array; this contains information about the
-            // total number of credits
-            assert(util.isObject(supportWhAggregation.aggregate));
-            const supportWhConfigs = supportWhAggregation.aggregate.config;
-            assert(util.isArray(supportWhConfigs));
-
-            // convert the counts to credits
-            for (let index = 0, length = supportWhConfigs.length; index < length; index++) {
-              const config = supportWhConfigs[index];
-              credits += mapInstanceTypeToPrice[config.type] * [config.count];
-            }
-          }
-
-          // the actual number of credits must equal the expected value
-          assert.strictEqual(credits, expected);
-
-          // we're done; invoke the callback
-          cb();
-        }
-      });
-  }
+  // function assertCreditsFromSnowflakeAcc(conn, exclude, expected, cb) {
+  //   const columnName = 'CREDITS';
+  //   const sqlText = util.format('select system$get_metrics(' +
+  //     '\'%s\', \'%s\', \'%s\', \'%s\'::timestamp, \'%s\'::timestamp, ' +
+  //     'null, null, \'%s\', %s) as %s;',
+  //   'ACCOUNT', 'EXTERNALACCOUNT', 'METERING',
+  //   startTime, endTime, 'UTC', exclude, columnName);
+  //
+  //   conn.execute(
+  //     {
+  //       sqlText: sqlText,
+  //       complete: function (err, statement, rows) {
+  //         assert.ok(!err);
+  //         assert.ok(rows && (rows.length === 1));
+  //
+  //         // convert the one-row-one-column result to JSON
+  //         const response = JSON.parse(rows[0][columnName]);
+  //         assert(util.isObject(response));
+  //
+  //         // extract the instance types
+  //         const instanceTypes = response.instanceTypes;
+  //         assert(util.isArray(instanceTypes));
+  //
+  //         // create a map in which the keys are instance types and the values are
+  //         // the prices for the corresponding instance types
+  //         const mapInstanceTypeToPrice = {};
+  //         for (let index = 0, length = instanceTypes.length; index < length; index++) {
+  //           const instanceType = instanceTypes[index];
+  //           mapInstanceTypeToPrice[instanceType.id] = instanceType.price;
+  //         }
+  //
+  //         // extract the aggregations
+  //         const aggregations = response.aggregations;
+  //         assert(util.isArray(aggregations));
+  //
+  //         // find the aggregation for the support warehouse
+  //         let supportWhAggregation;
+  //         for (let index = 0, length = aggregations.length; index < length; index++) {
+  //           if (aggregations[index].name === supportWhName) {
+  //             supportWhAggregation = aggregations[index];
+  //           }
+  //         }
+  //
+  //         let credits = 0;
+  //
+  //         // if we have an aggregation for the support warehouse
+  //         if (util.isObject(supportWhAggregation)) {
+  //           // extract the configs array; this contains information about the
+  //           // total number of credits
+  //           assert(util.isObject(supportWhAggregation.aggregate));
+  //           const supportWhConfigs = supportWhAggregation.aggregate.config;
+  //           assert(util.isArray(supportWhConfigs));
+  //
+  //           // convert the counts to credits
+  //           for (let index = 0, length = supportWhConfigs.length; index < length; index++) {
+  //             const config = supportWhConfigs[index];
+  //             credits += mapInstanceTypeToPrice[config.type] * [config.count];
+  //           }
+  //         }
+  //
+  //         // the actual number of credits must equal the expected value
+  //         assert.strictEqual(credits, expected);
+  //
+  //         // we're done; invoke the callback
+  //         cb();
+  //       }
+  //     });
+  // }
 });

@@ -59,7 +59,9 @@ const valid =
     warehouse: snowflakeTestWarehouse,
     database: snowflakeTestDatabase,
     schema: snowflakeTestSchema,
-    role: snowflakeTestRole
+    role: snowflakeTestRole,
+    proxyHost: 'localhost',
+    proxyPort: 8080,
   };
 
 const snowflakeAccount = snowflakeTestAdminUser !== undefined ?

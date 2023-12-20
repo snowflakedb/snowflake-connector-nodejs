@@ -6,6 +6,8 @@ const connOptions = require('./connectionOptions');
 const assert = require('assert');
 const fs = require('fs');
 const crypto = require('crypto');
+const os = require('os');
+const path = require('path');
 const Logger = require('../../lib/logger');
 
 module.exports.createConnection = function (validConnectionOptionsOverride = {}) {
@@ -266,4 +268,26 @@ module.exports.randomizeName = function (name) {
 module.exports.assertLogMessage = function (expectedLevel, expectedMessage, actualMessage) {
   const regexPattern = `^{"level":"${expectedLevel}","message":"\\[.*\\]: ${expectedMessage}`;
   return assert.match(actualMessage, new RegExp(regexPattern));
+};
+
+module.exports.createTestingDirectoryInTemp = function (directories) {
+  const paths = [];
+  for (const dir of directories) {
+    const tempDir = path.join(os.tmpdir(), dir);
+    paths.push(tempDir);
+    fs.mkdirSync(tempDir, { recursive: true });
+  }
+  return paths;
+};
+
+module.exports.createTempFile = function (directorty, fileName, data) {
+  const fullpath = path.join(directorty, fileName);
+  fs.writeFileSync(fullpath, data);
+  return fullpath;
+};
+
+module.exports.createRandomFileName = function ({ prefix, postfix, extension }) {
+  const randomName = crypto.randomUUID();
+  const fileName = `${prefix || ''}${randomName}${postfix || ''}${extension || ''}`;
+  return fileName;
 };

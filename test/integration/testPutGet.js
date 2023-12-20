@@ -12,6 +12,7 @@ const tmp = require('tmp');
 const os = require('os');
 const path = require('path');
 const zlib = require('zlib');
+const crypto = require('crypto');
 const { randomizeName } = require('./testUtil');
 
 const DATABASE_NAME = connOption.valid.database;
@@ -839,94 +840,88 @@ describe('PUT GET test with multiple files', function () {
     );
   });
 
-  // it('testUploadMultifiles with sub directories', function (done) {
-  //   const count = 6;
-  //   const results = {};
-  //   const tmpdirPath = getPlatformTmpPath(tmpDir);
-  //   const getQuery = `GET ${stage} ${tmpdirPath}`;
-
-  //   // Create temp files with specified prefix
-  //   tmpFiles = [];
-  //   for (let i = 0; i < 2; i++) {
-  //     const tmpFile = tmp.fileSync({ prefix: 'testUploadDownloadMultifiles' });
-  //     fs.writeFileSync(tmpFile.name, ROW_DATA);
-  //     tmpFiles.push(tmpFile);
-  //   }
-  //   const sub1 = tmp.dirSync();
-  //   for (let i = 0; i < 2; i++) {
-  //     const tmpname = tmp.tmpNameSync({ prefix: 'testUploadDownloadMultifiles' });
-  //     fs.writeFileSync(path.join(sub1.name, tmpname), ROW_DATA);
-  //     tmpFiles.push(tmpFile);
-  //   }
-
-  //   const sub2 = tmp.dirSync();
-  //   const nestedSub = fs.mkdirSync(path.join(sub2.name, 'nestedSub'));
-  //   for (let i = 0; i < 2; i++) {
-  //     const tmpname = tmp.tmpNameSync({ prefix: 'testUploadDownloadMultifiles' });
-  //     fs.writeFileSync(ath.join(sub2.name, 'nestedSub'), ROW_DATA);
-  //     tmpFiles.push(tmpFile);
-  //   }
-
-  //   let putQuery = `PUT file://${os.tmpdir()}/testUploadDownloadMultifiles** ${stage}`;
-  //   // Windows user contains a '~' in the path which causes an error
-  //   if (process.platform === 'win32') {
-  //     putQuery = `PUT file://${process.env.USERPROFILE}\\AppData\\Local\\Temp\\testUploadDownloadMultifiles** ${stage}`;
-  //   }
-
-  //   const testResult = [];
-
-  //   async.series(
-  //     [
-  //       function (callback) {
-  //         executePutCmd(connection, putQuery, callback, results);
-  //       },
-  //       function (callback) {
-  //         // Run GET command
-  //         connection.execute({
-  //           sqlText: getQuery,
-  //           streamResult: true,
-  //           complete: function (err, stmt) {
-  //             if (err) {
-  //               callback(err);
-  //             } else {
-  //               const stream = stmt.streamRows();
-  //               stream.on('error', function (err) {
-  //                 callback(err);
-  //               });
-  //               stream.on('data', function (row) {
-  //                 assert.strictEqual(row.status, DOWNLOADED);
-  //                 assert.strictEqual(row.size, results.fileSize);
-
-  //                 // Decompress the downloaded file
-  //                 const compressedFile = path.join(tmpDir, row.file);
-  //                 const decompressedFile = path.join(tmpDir, 'de-' + row.file);
-  //                 const fileContents = fs.createReadStream(compressedFile);
-  //                 const writeStream = fs.createWriteStream(decompressedFile);
-  //                 const unzip = zlib.createGunzip();
-
-  //                 fileContents.pipe(unzip).pipe(writeStream).on('finish', function () {
-  //                   // Verify the data of the downloaded file
-  //                   // this callback is called asynchronously so we gather results and in stream end we check if all files are correct
-  //                   const data = fs.readFileSync(decompressedFile).toString();
-  //                   try {
-  //                     assert.strictEqual(data, ROW_DATA);
-  //                     testResult.push(true);
-  //                   } catch (e) {
-  //                     testResult.push(e);
-  //                   }
-  //                 });
-  //               });
-  //               stream.on('end', function () {
-  //                 expectArrayToBeFinallyFilledWithTrue(count, testResult, callback);
-  //               });
-  //             }
-  //           }
-  //         });
-  //       },
-  //     ],
-  //     done
-  //   );
-  // });
+  it('testUploadMultifiles with sub directories', function (done) {
+    const count = 6;
+    const tmpdirPath = testUtil.createTestingDirectoryInTemp([crypto.randomUUID()])[0];
+    const results = {};
+    const getQuery = `GET ${stage} file://${tmpdirPath}`;
+    const testingDir = path.join(crypto.randomUUID());
+    const subDirectory = path.join(testingDir, crypto.randomUUID());
+    const subDirectory2 = path.join(testingDir, crypto.randomUUID(), crypto.randomUUID());
+  
+    const tempDir = testUtil.createTestingDirectoryInTemp([testingDir, subDirectory, subDirectory2]);
+  
+    for (const directory of tempDir) {
+      for (let k = 0; k < 2; k++) {
+        testUtil.createTempFile(directory, testUtil.createRandomFileName({ prefix: 'uploadTesting' }), ROW_DATA);
+      }
+    }
+  
+    let putQuery = `PUT file://${os.tmpdir()}/${testingDir}/** ${stage}`;
+    // Windows user contains a '~' in the path which causes an error
+    if (process.platform === 'win32') {
+      putQuery = `PUT file://${process.env.USERPROFILE}\\AppData\\Local\\Temp\\${testingDir}\\** ${stage}`;
+    }
+  
+    const testResult = [];
+  
+    async.series(
+      [
+        function (callback) {
+          executePutCmd(connection, putQuery, callback, results);
+        },
+        function (callback) {
+          // Run GET command
+          connection.execute({
+            sqlText: getQuery,
+            streamResult: true,
+            complete: function (err, stmt) {
+              if (err) {
+                callback(err);
+              } else {
+                const stream = stmt.streamRows();
+                stream.on('error', function (err) {
+                  callback(err);
+                });
+                stream.on('data', function (row) {
+                  assert.strictEqual(row.status, DOWNLOADED);
+                  assert.strictEqual(row.size, results.fileSize);
+  
+                  // Decompress the downloaded file
+                  const compressedFile = path.join(tmpdirPath, row.file);
+                  const decompressedFile = path.join(tmpdirPath, path.dirname(row.file), 'de-' + path.basename(row.file));
+                  const fileContents = fs.createReadStream(compressedFile);
+                  const writeStream = fs.createWriteStream(decompressedFile);
+                  const unzip = zlib.createGunzip();
+  
+                  fileContents.pipe(unzip).pipe(writeStream).on('finish', function () {
+                    // Verify the data of the downloaded file
+                    // this callback is called asynchronously so we gather results and in stream end we check if all files are correct
+                    const data = fs.readFileSync(decompressedFile).toString();
+                    try {
+                      assert.strictEqual(data, ROW_DATA);
+                      testResult.push(true);
+                    } catch (e) {
+                      testResult.push(e);
+                    }
+                  });
+                });
+                stream.on('end', function () {
+                  expectArrayToBeFinallyFilledWithTrue(count, testResult, callback);
+                });
+              }
+            }
+          });
+        },
+        function (callback) {
+          testUtil.deleteFolderSyncIgnoringErrors(tmpdirPath);
+          testUtil.deleteFolderSyncIgnoringErrors(tempDir[0]);
+          callback();
+        }
+      ],
+      done,
+    );
+  });
 
   /**
    * @param expectedResultSize `number` expected result size

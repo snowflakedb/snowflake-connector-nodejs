@@ -13,7 +13,6 @@ const os = require('os');
 const crypto = require('crypto');
 const path = require('path');
 const zlib = require('zlib');
-const crypto = require('crypto');
 const { randomizeName } = require('./testUtil');
 
 const DATABASE_NAME = connOption.valid.database;

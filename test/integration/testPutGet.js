@@ -649,7 +649,7 @@ describe('PUT GET test with GCS_USE_DOWNSCOPED_CREDENTIAL', function () {
   });
 });
 
-describe.only('PUT GET test with multiple files', function () {
+describe('PUT GET test with multiple files', function () {
   let connection;
   let tmpDir;
   const TEMP_TABLE_NAME = randomizeName('TEMP_TABLE');
@@ -840,7 +840,7 @@ describe.only('PUT GET test with multiple files', function () {
     );
   });
 
-  it.only('testUploadMultifiles with sub directories', function (done) {
+  it('testUploadMultifiles with sub directories', function (done) {
     const count = 6;
     const tmpdirPath = testUtil.createTestingDirectoryInTemp([crypto.randomUUID()])[0];
     const directory = getPlatformTmpPath(tmpdirPath);

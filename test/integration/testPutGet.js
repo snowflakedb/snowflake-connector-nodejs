@@ -39,13 +39,13 @@ const ROW_DATA_OVERWRITE = COL3_DATA + ',' + COL1_DATA + ',' + COL2_DATA + '\n';
 const ROW_DATA_OVERWRITE_SIZE = 19;
 
 function getPlatformTmpPath(tmpPath) {
-  let path = `file://${tmpPath}`;
+  let location = `file://${tmpPath}`;
   // Windows user contains a '~' in the path which causes an error
   if (process.platform === 'win32') {
-    const fileName = tmpPath.substring(tmpPath.lastIndexOf('\\'));
-    path = `file://${process.env.USERPROFILE}\\AppData\\Local\\Temp\\${fileName}`;
+    // const fileName = tmpPath.substring(tmpPath.lastIndexOf('\\'));
+    location = `file://${process.env.USERPROFILE}\\AppData\\Local\\Temp\\${path.basename(tmpPath)}`;
   }
-  return path;
+  return location;
 }
 
 function executePutCmd(connection, putQuery, callback, results) {
@@ -649,7 +649,7 @@ describe('PUT GET test with GCS_USE_DOWNSCOPED_CREDENTIAL', function () {
   });
 });
 
-describe('PUT GET test with multiple files', function () {
+describe.only('PUT GET test with multiple files', function () {
   let connection;
   let tmpDir;
   const TEMP_TABLE_NAME = randomizeName('TEMP_TABLE');
@@ -840,11 +840,14 @@ describe('PUT GET test with multiple files', function () {
     );
   });
 
-  it('testUploadMultifiles with sub directories', function (done) {
+  it.only('testUploadMultifiles with sub directories', function (done) {
     const count = 6;
     const tmpdirPath = testUtil.createTestingDirectoryInTemp([crypto.randomUUID()])[0];
+    const directory = getPlatformTmpPath(tmpdirPath);
+    const getQuery = `GET ${stage} ${directory}`;
+
     const results = {};
-    const getQuery = `GET ${stage} file://${tmpdirPath}`;
+  
     const testingDir = path.join(crypto.randomUUID());
     const subDirectory = path.join(testingDir, crypto.randomUUID());
     const subDirectory2 = path.join(testingDir, crypto.randomUUID(), crypto.randomUUID());

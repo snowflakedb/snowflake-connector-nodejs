@@ -70,10 +70,10 @@ describe('S3 client', function () {
   });
   beforeEach(function () {
     const stageInfo = {
-        location: mockLocation,
-        path: mockTable + '/' + mockPath + '/',
-        creds: {}
-      };
+      location: mockLocation,
+      path: mockTable + '/' + mockPath + '/',
+      creds: {}
+    };
     meta = {
       stageInfo,
       SHA256_DIGEST: mockDigest,

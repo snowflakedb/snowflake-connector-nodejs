@@ -270,14 +270,11 @@ module.exports.assertLogMessage = function (expectedLevel, expectedMessage, actu
   return assert.match(actualMessage, new RegExp(regexPattern));
 };
 
-module.exports.createTestingDirectoryInTemp = function (directories) {
-  const paths = [];
-  for (const dir of directories) {
-    const tempDir = path.join(os.tmpdir(), dir);
-    paths.push(tempDir);
-    fs.mkdirSync(tempDir, { recursive: true });
-  }
-  return paths;
+module.exports.createTestingDirectoryInTemp = function (directory) {
+  const tempDir = path.join(os.tmpdir(), directory);
+  fs.mkdirSync(tempDir, { recursive: true });
+
+  return tempDir;
 };
 
 module.exports.createTempFile = function (directorty, fileName, data) {

@@ -13,12 +13,12 @@ describe('Errors', function () {
     var errCode;
 
     for (errName in mapErrNameToErrCode) {
-      if (mapErrNameToErrCode.hasOwnProperty(errName)) {
+      if (Object.prototype.hasOwnProperty.call(mapErrNameToErrCode, errName)) {
         errCode = mapErrNameToErrCode[errName];
 
         assert.ok(errCode, 'missing error code for: ' + errName);
 
-        assert.ok(mapErrCodeToErrMessage.hasOwnProperty(errCode),
+        assert.ok(Object.prototype.hasOwnProperty.call(mapErrCodeToErrMessage, errCode),
           'missing error message for: ' + errCode);
         assert.ok(mapErrCodeToErrMessage[errCode],
           'invalid error message for: ' + errCode);
@@ -31,10 +31,10 @@ describe('Errors', function () {
     var mapErrCodeToErrName = {};
     var errName, errCode;
     for (errName in mapErrNameToErrCode) {
-      if (mapErrNameToErrCode.hasOwnProperty(errName)) {
+      if (Object.prototype.hasOwnProperty.call(mapErrNameToErrCode, errName)) {
         errCode = mapErrNameToErrCode[errName];
 
-        assert.ok(!mapErrCodeToErrName.hasOwnProperty(errCode),
+        assert.ok(!Object.prototype.hasOwnProperty.call(mapErrCodeToErrName, errCode),
           'more than one error name for code: ' + errCode);
 
         mapErrCodeToErrName[errCode] = errName;
@@ -45,13 +45,13 @@ describe('Errors', function () {
   it('validate error code to sql state mapping', function () {
     var mapErrCodeToErrName = {};
     for (var errName in mapErrNameToErrCode) {
-      if (mapErrNameToErrCode.hasOwnProperty(errName)) {
+      if (Object.prototype.hasOwnProperty.call(mapErrNameToErrCode, errName)) {
         mapErrCodeToErrName[mapErrNameToErrCode[errName]] = errName;
       }
     }
 
     for (var errCode in mapErrCodeToSqlState) {
-      if (mapErrCodeToSqlState.hasOwnProperty(errCode)) {
+      if (Object.prototype.hasOwnProperty.call(mapErrCodeToSqlState, errCode)) {
         assert.ok(mapErrCodeToErrName[errCode],
           'invalid mapping: ' + errCode + ':' +
           mapErrCodeToSqlState[errCode]);

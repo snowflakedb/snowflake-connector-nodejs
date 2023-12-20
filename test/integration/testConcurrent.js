@@ -50,7 +50,7 @@ describe('Test Concurrent Execution', function () {
           stream.on('end', function () {
             assert.strictEqual(rowCount, sourceRowCount);
             completedQueries++;
-            if (completedQueries == numberOfQueries) {
+            if (completedQueries === numberOfQueries) {
               done();
             }
           });

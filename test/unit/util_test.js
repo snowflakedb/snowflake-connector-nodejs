@@ -643,14 +643,14 @@ describe('Util', function () {
     src = { b: 2 };
     assert.strictEqual(Util.apply(dst, src), dst);
     assert.strictEqual(Object.keys(dst).length, 2);
-    assert.ok(dst.hasOwnProperty('a') && (dst.a === 1));
-    assert.ok(dst.hasOwnProperty('b') && (dst.b === 2));
+    assert.ok(Object.prototype.hasOwnProperty.call(dst, 'a') && (dst.a === 1));
+    assert.ok(Object.prototype.hasOwnProperty.call(dst, 'b') && (dst.b === 2));
 
     dst = { a: 1 };
     src = { a: 2 };
     assert.strictEqual(Util.apply(dst, src), dst);
     assert.strictEqual(Object.keys(dst).length, 1);
-    assert.ok(dst.hasOwnProperty('a') && (dst.a === 2));
+    assert.ok(Object.prototype.hasOwnProperty.call(dst, 'a') && (dst.a === 2));
   });
 
   it('Util.isRetryableHttpError()', function () {

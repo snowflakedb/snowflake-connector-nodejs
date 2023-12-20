@@ -842,17 +842,17 @@ describe('PUT GET test with multiple files', function () {
 
   it('testUploadMultifiles with sub directories', function (done) {
     const count = 6;
+    const results = {};
+
     const tmpdirPath = testUtil.createTestingDirectoryInTemp(crypto.randomUUID());
     const directory = getPlatformTmpPath(tmpdirPath);
     const getQuery = `GET ${stage} ${directory}`;
-
-    const results = {};
   
+    const tempDir = []; 
     const testingDir = path.join(crypto.randomUUID());
     const subDirectory = path.join(testingDir, crypto.randomUUID());
     const subDirectory2 = path.join(testingDir, crypto.randomUUID(), crypto.randomUUID());
   
-    const tempDir = []; 
     [testingDir, subDirectory, subDirectory2].forEach((dir) => {
      const location = testUtil.createTestingDirectoryInTemp(dir);
      tempDir.push(location);

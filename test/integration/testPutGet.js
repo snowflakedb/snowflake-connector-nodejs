@@ -10,6 +10,7 @@ const fs = require('fs');
 const testUtil = require('./testUtil');
 const tmp = require('tmp');
 const os = require('os');
+const crypto = require('crypto');
 const path = require('path');
 const zlib = require('zlib');
 const crypto = require('crypto');
@@ -770,19 +771,19 @@ describe.only('PUT GET test with multiple files', function () {
     const results = {};
     const tmpdirPath = getPlatformTmpPath(tmpDir);
     const getQuery = `GET ${stage} ${tmpdirPath}`;
-
+    const testId = crypto.randomUUID();
     // Create temp files with specified prefix
     tmpFiles = [];
     for (let i = 0; i < count; i++) {
-      const tmpFile = tmp.fileSync({ prefix: 'testUploadDownloadMultifiles' });
+      const tmpFile = tmp.fileSync({ prefix: `testUploadDownloadMultifiles-${testId}` });
       fs.writeFileSync(tmpFile.name, ROW_DATA);
       tmpFiles.push(tmpFile);
     }
 
-    let putQuery = `PUT file://${os.tmpdir()}/testUploadDownloadMultifiles* ${stage}`;
+    let putQuery = `PUT file://${os.tmpdir()}/testUploadDownloadMultifiles-${testId}* ${stage}`;
     // Windows user contains a '~' in the path which causes an error
     if (process.platform === 'win32') {
-      putQuery = `PUT file://${process.env.USERPROFILE}\\AppData\\Local\\Temp\\testUploadDownloadMultifiles* ${stage}`;
+      putQuery = `PUT file://${process.env.USERPROFILE}\\AppData\\Local\\Temp\\testUploadDownloadMultifiles-${testId}* ${stage}`;
     }
 
     const testResult = [];

@@ -7,29 +7,29 @@
  * moved into a different suite at some point because they really test GS
  * functionality more than core driver behavior.
  */
-var assert = require('assert');
-var async = require('async');
-var util = require('util');
-var snowflake = require('../lib/snowflake');
-var connOptions = require('../test/integration/connectionOptions');
-var connOptionsInternal = require('./connectionOptions');
-var testUtil = require('../test/integration/testUtil');
+const assert = require('assert');
+const async = require('async');
+const util = require('util');
+const snowflake = require('../lib/snowflake');
+const connOptions = require('../test/integration/connectionOptions');
+const connOptionsInternal = require('./connectionOptions');
+const testUtil = require('../test/integration/testUtil');
 
 describe('exclude support warehouses', function () {
-  var createSysWh =
+  const createSysWh =
     'create or replace warehouse syswh warehouse_size = \'xsmall\'';
-  var dropSysWh = 'drop warehouse syswh';
+  const dropSysWh = 'drop warehouse syswh';
 
-  var testWhName = 'SF_TEST_WH';
+  const testWhName = 'SF_TEST_WH';
 
-  var createTestWh = util.format('create or replace warehouse %s ' +
+  const createTestWh = util.format('create or replace warehouse %s ' +
     'warehouse_size = \'xsmall\'', testWhName);
-  var dropTestWh = util.format('drop warehouse %s', testWhName);
+  const dropTestWh = util.format('drop warehouse %s', testWhName);
 
   // create two connections, one to externalaccount and another to the snowflake
   // account
-  var connExternal = snowflake.createConnection(connOptionsInternal.externalAccount);
-  var connSnowflake = snowflake.createConnection(connOptions.snowflakeAccount);
+  const connExternal = snowflake.createConnection(connOptionsInternal.externalAccount);
+  const connSnowflake = snowflake.createConnection(connOptions.snowflakeAccount);
 
   before(function (done) {
     async.series([
@@ -73,7 +73,7 @@ describe('exclude support warehouses', function () {
    * snowflake_support flag on both active and dropped warehouses.
    */
   it('set the snowflake_support flag on both active and dropped warehouse', function (done) {
-    var testWhId;
+    let testWhId;
 
     async.series([
       function (cb) {
@@ -137,7 +137,7 @@ describe('exclude support warehouses', function () {
    * @param callback the callback to invoke once the operation is complete.
    */
   function getWarehouseId(conn, accountName, warehouseName, callback) {
-    var sqlText = util.format(
+    const sqlText = util.format(
       'show warehouses like \'%s\' in %s', warehouseName, accountName);
 
     conn.execute(
@@ -165,14 +165,14 @@ describe('exclude support warehouses', function () {
    */
   function setWhSnowflakeSupportFlag(
     conn, warehouseId, snowflakeSupportFlag, callback) {
-    var sqlText = util.format(
+    const sqlText = util.format(
       'select system$set_wh_snowflake_support_flag(%s, %s);',
       warehouseId, snowflakeSupportFlag);
 
     conn.execute(
       {
         sqlText: sqlText,
-        complete: function (err, statement, rows) {
+        complete: function (err) {
           assert.ok(!err);
           callback();
         }
@@ -189,8 +189,8 @@ describe('exclude support warehouses', function () {
    * @param callback the callback to invoke if the assert succeeds.
    */
   function assertSnowflakeSupportFlag(conn, warehouseId, expected, callback) {
-    var columnName = 'FLAG';
-    var sqlText = util.format(
+    const columnName = 'FLAG';
+    const sqlText = util.format(
       'select $1:"WarehouseDPO:primary":snowflakeSupportFlag::string as %s ' +
       'from table(dposcan($${"slices": [{"name": "WarehouseDPO:primary"}], ' +
       '"ranges": [{"name": "id", "value": %s}]}$$))', columnName, warehouseId);
@@ -204,7 +204,7 @@ describe('exclude support warehouses', function () {
           assert.strictEqual(rows.length, 1);
 
           // the value is a string so compare with 'true' to convert to boolean
-          var actualSnowflakeSupportFlag = (rows[0][columnName] === 'true');
+          const actualSnowflakeSupportFlag = (rows[0][columnName] === 'true');
           assert.strictEqual(actualSnowflakeSupportFlag, expected);
 
           // we're done; invoke the callback

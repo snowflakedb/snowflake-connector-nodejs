@@ -2,21 +2,21 @@
  * Copyright (c) 2015-2019 Snowflake Computing Inc. All rights reserved.
  */
 
-var Util = require('../../../lib/util');
-var MockTestUtil = require('./mock_test_util');
-var assert = require('assert');
-var async = require('async');
+const Util = require('../../../lib/util');
+const MockTestUtil = require('./mock_test_util');
+const assert = require('assert');
+const async = require('async');
 
 // get a mock snowflake instance and an options object to connect to it
-var snowflake = MockTestUtil.snowflake;
-var connOpts = MockTestUtil.connectionOptions.default;
+const snowflake = MockTestUtil.snowflake;
+const connOpts = MockTestUtil.connectionOptions.default;
 
-var connOptsStreamResultNone = Util.apply({}, connOpts);
-var connOptsStreamResultFalse = Util.apply({ streamResult: false }, connOpts);
-var connOptsStreamResultTrue = Util.apply({ streamResult: true }, connOpts);
+const connOptsStreamResultNone = Util.apply({}, connOpts);
+const connOptsStreamResultFalse = Util.apply({ streamResult: false }, connOpts);
+const connOptsStreamResultTrue = Util.apply({ streamResult: true }, connOpts);
 
 describe('Statement - stream result', function () {
-  var testCases =
+  const testCases =
     [
       {
         name: 'connection = none, statement = none',
@@ -74,8 +74,8 @@ describe('Statement - stream result', function () {
       }
     ];
 
-  for (var index = 0, length = testCases.length; index < length; index++) {
-    var testCase = testCases[index];
+  for (let index = 0, length = testCases.length; index < length; index++) {
+    const testCase = testCases[index];
     it(testCase.name, createItCallback(
       testCase.connOpts, testCase.streamResult, testCase.verifyFn));
   }
@@ -83,12 +83,12 @@ describe('Statement - stream result', function () {
 
 function createItCallback(connectionOptions, streamResult, verifyFn) {
   return function (done) {
-    var connection;
+    let connection;
     async.series(
       [
         function (callback) {
           connection = snowflake.createConnection(connectionOptions);
-          connection.connect(function (err) {
+          connection.connect(function () {
             callback();
           });
         },

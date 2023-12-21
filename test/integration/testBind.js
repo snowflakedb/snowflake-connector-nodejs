@@ -1,24 +1,23 @@
 /*
  * Copyright (c) 2015-2019 Snowflake Computing Inc. All rights reserved.
  */
-var async = require('async');
-var assert = require('assert');
-var testUtil = require('./testUtil');
-var util = require('util');
+const async = require('async');
+const assert = require('assert');
+const testUtil = require('./testUtil');
+const util = require('util');
 const sharedStatement = require('./sharedStatements');
-const Logger = require('../../lib/logger');
 
 describe('Test Bind Varible', function () {
-  var connection;
-  var createTestTbl = 'create or replace table testTbl(colA string, colB number)';
-  var dropTestTbl = 'drop table if exists testTbl';
-  var insertWithQmark = 'insert into testTbl values(?, ?)';
-  var insertWithSemiColon = 'insert into testTbl values(:1, :2)';
-  var insertValue = 'insert into testTbl values(\'string\', 3)';
-  var insertSingleBind = 'insert into testTbl values(?)';
-  var selectAllFromTbl = 'select * from testTbl order by 1';
-  var selectAllFromTblLimit1 = 'select * from testTbl order by 1 limit ?';
-  var selectWithBind = 'select * from testTbl where COLA = :2 and COLB = :1';
+  let connection;
+  const createTestTbl = 'create or replace table testTbl(colA string, colB number)';
+  const dropTestTbl = 'drop table if exists testTbl';
+  const insertWithQmark = 'insert into testTbl values(?, ?)';
+  const insertWithSemiColon = 'insert into testTbl values(:1, :2)';
+  const insertValue = 'insert into testTbl values(\'string\', 3)';
+  const insertSingleBind = 'insert into testTbl values(?)';
+  const selectAllFromTbl = 'select * from testTbl order by 1';
+  const selectAllFromTblLimit1 = 'select * from testTbl order by 1 limit ?';
+  const selectWithBind = 'select * from testTbl where COLA = :2 and COLB = :1';
 
   before(function (done) {
     connection = testUtil.createConnection();
@@ -182,7 +181,7 @@ describe('Test Bind Varible', function () {
             {
               sqlText: insertWithSemiColon,
               binds: [null, 3],
-              complete: function (err, statement, rows) {
+              complete: function (err) {
                 assert.ok(!err);
                 callback();
               }
@@ -209,7 +208,7 @@ describe('Test Bind Varible', function () {
   });
 
   it('testWrongBinds', function (done) {
-    var wrongBindsOptions =
+    const wrongBindsOptions =
       [
         {
           // empty binds array
@@ -276,9 +275,9 @@ describe('Test Bind Varible', function () {
           testUtil.executeCmd(connection, createTestTbl, callback);
         },
         function (callback) {
-          var executeWrongBindsOption = function (index) {
+          const executeWrongBindsOption = function (index) {
             if (index < wrongBindsOptions.length) {
-              var option = wrongBindsOptions[index];
+              const option = wrongBindsOptions[index];
               option.complete = function (err, stmt) {
                 option.verifyResults(err, stmt);
                 executeWrongBindsOption(index + 1);
@@ -306,13 +305,13 @@ describe('Test Bind Varible', function () {
           testUtil.executeCmd(connection, createTestTbl, callback);
         },
         function (callback) {
-          var bindSets = [
+          const bindSets = [
             ['string2', 4],
             ['string3', 5],
             ['string4', 6]
           ];
 
-          var insertWithDifferentBinds = function (i) {
+          const insertWithDifferentBinds = function (i) {
             if (i < bindSets.length) {
               testUtil.executeCmd(
                 connection,
@@ -330,7 +329,7 @@ describe('Test Bind Varible', function () {
           insertWithDifferentBinds(0);
         },
         function (callback) {
-          var expected = [
+          const expected = [
             { 'COLA': 'string2', 'COLB': 4 },
             { 'COLA': 'string3', 'COLB': 5 },
             { 'COLA': 'string4', 'COLB': 6 }
@@ -385,7 +384,7 @@ describe('Test Bind Varible', function () {
   });
 
   describe('testBindingWithDifferentDataType', function () {
-    var testingFunc = function (dataType, binds, expected, callback) {
+    const testingFunc = function (dataType, binds, expected, callback) {
       async.series(
         [
           function (callback) {
@@ -576,7 +575,7 @@ describe('Test Bind Varible', function () {
           testUtil.executeCmd(connection, insertValue, callback);
         },
         function (callback) {
-          var maliciousOptions = [
+          const maliciousOptions = [
             {
               sqlText: 'select * from testTbl where colA = ?',
               binds: ['a; drop table if exists testTbl']
@@ -586,7 +585,7 @@ describe('Test Bind Varible', function () {
               binds: ['$*~?\':1234567890!@#$%^&*()_=']
             }
           ];
-          var selectWithOption = function (i) {
+          const selectWithOption = function (i) {
             if (i < maliciousOptions.length) {
               testUtil.executeQueryAndVerify(
                 connection,

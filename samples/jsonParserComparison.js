@@ -72,9 +72,6 @@ async function run() {
                          from ${testVariantTempName}`;
   const selectCountVariant = (tableName) => `select count(colA) from ${(tableName)}`;
 
-  const avgBlock = 0, minBlock = 999999999999999, maxBlock = 0;
-  const blockCount = 0;
-
   const testCases = [];
   if (!choosenParser || choosenParser.toString().includes('Function')) {
     testCases.push({ parser: 'Function', jsonColumnVariantParser: (rawColumnValue) => new Function(`return (${rawColumnValue})`) });

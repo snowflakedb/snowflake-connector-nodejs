@@ -20,15 +20,8 @@ describe('Azure client', function () {
   let Azure = null;
   let client = null;
   let filestream = null;
+  let meta = null;
   const dataFile = mockDataFile;
-  const meta = {
-    stageInfo: {
-      location: mockLocation,
-      path: mockTable + '/' + mockPath + '/',
-      creds: {}
-    },
-    SHA256_DIGEST: mockDigest,
-  };
   const encryptionMetadata = {
     key: mockKey,
     iv: mockIv,
@@ -108,6 +101,18 @@ describe('Azure client', function () {
     filestream = require('filestream');
     Azure = new SnowflakeAzureUtil(client, filestream);
   });
+  beforeEach(function () {
+    const stageInfo = {
+      location: mockLocation,
+      path: mockTable + '/' + mockPath + '/',
+      creds: {}
+    };
+    meta = {
+      stageInfo,
+      SHA256_DIGEST: mockDigest,
+      client: Azure.createClient(stageInfo),
+    };
+  });
 
   it('extract bucket name and path', async function () {
     verifyNameAndPath('sfc-eng-regression/test_sub_dir/', 'sfc-eng-regression', 'test_sub_dir/');
@@ -132,6 +137,7 @@ describe('Azure client', function () {
 
     client = require('client');
     Azure = new SnowflakeAzureUtil(client);
+    meta['client'] = Azure.createClient(meta['stageInfo']);
 
     await Azure.getFileHeader(meta, dataFile);
     assert.strictEqual(meta['resultStatus'], resultStatus.RENEW_TOKEN);
@@ -147,6 +153,7 @@ describe('Azure client', function () {
 
     client = require('client');
     const Azure = new SnowflakeAzureUtil(client);
+    meta['client'] = Azure.createClient(meta['stageInfo']);
 
     await Azure.getFileHeader(meta, dataFile);
     assert.strictEqual(meta['resultStatus'], resultStatus.NOT_FOUND_FILE);
@@ -162,6 +169,7 @@ describe('Azure client', function () {
 
     client = require('client');
     Azure = new SnowflakeAzureUtil(client);
+    meta['client'] = Azure.createClient(meta['stageInfo']);
 
     await Azure.getFileHeader(meta, dataFile);
     assert.strictEqual(meta['resultStatus'], resultStatus.RENEW_TOKEN);
@@ -177,6 +185,7 @@ describe('Azure client', function () {
 
     client = require('client');
     Azure = new SnowflakeAzureUtil(client);
+    meta['client'] = Azure.createClient(meta['stageInfo']);
 
     await Azure.getFileHeader(meta, dataFile);
     assert.strictEqual(meta['resultStatus'], resultStatus.ERROR);
@@ -193,6 +202,7 @@ describe('Azure client', function () {
     client = require('client');
     filestream = require('filestream');
     Azure = new SnowflakeAzureUtil(client, filestream);
+    meta['client'] = Azure.createClient(meta['stageInfo']);
 
     await Azure.uploadFile(dataFile, meta, encryptionMetadata);
     assert.strictEqual(meta['resultStatus'], resultStatus.UPLOADED);
@@ -213,6 +223,7 @@ describe('Azure client', function () {
     client = require('client');
     filestream = require('filestream');
     Azure = new SnowflakeAzureUtil(client, filestream);
+    meta['client'] = Azure.createClient(meta['stageInfo']);
 
     await Azure.uploadFile(dataFile, meta, encryptionMetadata);
     assert.strictEqual(meta['resultStatus'], resultStatus.RENEW_TOKEN);
@@ -233,6 +244,7 @@ describe('Azure client', function () {
     client = require('client');
     filestream = require('filestream');
     Azure = new SnowflakeAzureUtil(client, filestream);
+    meta['client'] = Azure.createClient(meta['stageInfo']);
 
     await Azure.uploadFile(dataFile, meta, encryptionMetadata);
     assert.strictEqual(meta['resultStatus'], resultStatus.NEED_RETRY);

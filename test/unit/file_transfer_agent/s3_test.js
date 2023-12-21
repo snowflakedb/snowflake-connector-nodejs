@@ -20,15 +20,8 @@ describe('S3 client', function () {
   let AWS;
   let s3;
   let filesystem;
+  let meta;
   const dataFile = mockDataFile;
-  const meta = {
-    stageInfo: {
-      location: mockLocation,
-      path: mockTable + '/' + mockPath + '/',
-      creds: {}
-    },
-    SHA256_DIGEST: mockDigest,
-  };
   const encryptionMetadata = {
     key: mockKey,
     iv: mockIv,
@@ -59,6 +52,7 @@ describe('S3 client', function () {
 
             return new putObject;
           };
+          this.destroy = function () {};
         }
 
         return new S3;
@@ -73,6 +67,21 @@ describe('S3 client', function () {
     filesystem = require('filesystem');
 
     AWS = new SnowflakeS3Util(s3, filesystem);
+  });
+  beforeEach(function () {
+    const stageInfo = {
+      location: mockLocation,
+      path: mockTable + '/' + mockPath + '/',
+      creds: {}
+    };
+    meta = {
+      stageInfo,
+      SHA256_DIGEST: mockDigest,
+      client: AWS.createClient(stageInfo),
+    };
+  });
+  this.afterEach(function () {
+    AWS.destroyClient(meta['client']);
   });
 
   it('extract bucket name and path', async function () {
@@ -117,6 +126,7 @@ describe('S3 client', function () {
 
             return new getObject;
           };
+          this.destroy = function () {};
         }
 
         return new S3;
@@ -124,6 +134,7 @@ describe('S3 client', function () {
     });
     s3 = require('s3');
     const AWS = new SnowflakeS3Util(s3);
+    meta['client'] = AWS.createClient(meta['stageInfo']);
 
     await AWS.getFileHeader(meta, dataFile);
     assert.strictEqual(meta['resultStatus'], resultStatus.RENEW_TOKEN);
@@ -144,6 +155,7 @@ describe('S3 client', function () {
 
             return new getObject;
           };
+          this.destroy = function () {};
         }
 
         return new S3;
@@ -151,6 +163,7 @@ describe('S3 client', function () {
     });
     s3 = require('s3');
     const AWS = new SnowflakeS3Util(s3);
+    meta['client'] = AWS.createClient(meta['stageInfo']);
 
     await AWS.getFileHeader(meta, dataFile);
     assert.strictEqual(meta['resultStatus'], resultStatus.NOT_FOUND_FILE);
@@ -171,6 +184,7 @@ describe('S3 client', function () {
 
             return new getObject;
           };
+          this.destroy = function () {};
         }
 
         return new S3;
@@ -178,6 +192,7 @@ describe('S3 client', function () {
     });
     s3 = require('s3');
     const AWS = new SnowflakeS3Util(s3);
+    meta['client'] = AWS.createClient(meta['stageInfo']);
 
     await AWS.getFileHeader(meta, dataFile);
     assert.strictEqual(meta['resultStatus'], resultStatus.RENEW_TOKEN);
@@ -198,6 +213,7 @@ describe('S3 client', function () {
 
             return new getObject;
           };
+          this.destroy = function () {};
         }
 
         return new S3;
@@ -205,6 +221,7 @@ describe('S3 client', function () {
     });
     s3 = require('s3');
     const AWS = new SnowflakeS3Util(s3);
+    meta['client'] = AWS.createClient(meta['stageInfo']);
 
     await AWS.getFileHeader(meta, dataFile);
     assert.strictEqual(meta['resultStatus'], resultStatus.ERROR);
@@ -230,6 +247,7 @@ describe('S3 client', function () {
 
             return new putObject;
           };
+          this.destroy = function () {};
         }
 
         return new S3;
@@ -243,6 +261,7 @@ describe('S3 client', function () {
     s3 = require('s3');
     filesystem = require('filesystem');
     const AWS = new SnowflakeS3Util(s3, filesystem);
+    meta['client'] = AWS.createClient(meta['stageInfo']);
 
     await AWS.uploadFile(dataFile, meta, encryptionMetadata);
     assert.strictEqual(meta['resultStatus'], resultStatus.RENEW_TOKEN);
@@ -263,6 +282,7 @@ describe('S3 client', function () {
 
             return new putObject;
           };
+          this.destroy = function () {};
         }
 
         return new S3;
@@ -276,6 +296,7 @@ describe('S3 client', function () {
     s3 = require('s3');
     filesystem = require('filesystem');
     const AWS = new SnowflakeS3Util(s3, filesystem);
+    meta['client'] = AWS.createClient(meta['stageInfo']);
 
     await AWS.uploadFile(dataFile, meta, encryptionMetadata);
     assert.strictEqual(meta['resultStatus'], resultStatus.NEED_RETRY_WITH_LOWER_CONCURRENCY);
@@ -296,6 +317,7 @@ describe('S3 client', function () {
 
             return new putObject;
           };
+          this.destroy = function () {};
         }
 
         return new S3;
@@ -309,6 +331,7 @@ describe('S3 client', function () {
     s3 = require('s3');
     filesystem = require('filesystem');
     const AWS = new SnowflakeS3Util(s3, filesystem);
+    meta['client'] = AWS.createClient(meta['stageInfo']);
 
     await AWS.uploadFile(dataFile, meta, encryptionMetadata);
     assert.strictEqual(meta['resultStatus'], resultStatus.NEED_RETRY);

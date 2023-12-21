@@ -1,8 +1,8 @@
 /*
  * Copyright (c) 2015-2023 Snowflake Computing Inc. All rights reserved.
  */
-var URLUtil = require('./../../lib/url_util');
-var assert = require('assert');
+const URLUtil = require('./../../lib/url_util');
+const assert = require('assert');
 
 describe('URLUtil', function () {
   it('Valid URL', function () {

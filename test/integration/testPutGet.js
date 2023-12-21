@@ -1101,14 +1101,13 @@ describe('PUT GET test with error', function () {
   let connection;
   const TEMP_TABLE_NAME = randomizeName('TEMP_TABLE');
   const stage = `@${DATABASE_NAME}.${SCHEMA_NAME}.%${TEMP_TABLE_NAME}`;
-  const stage_not_exist = `@${DATABASE_NAME}.${SCHEMA_NAME}.%NONEXISTTABLE`;
+  const stageNotExist = `@${DATABASE_NAME}.${SCHEMA_NAME}.%NONEXISTTABLE`;
   const createTable = `create or replace table ${TEMP_TABLE_NAME} (${COL1} STRING, ${COL2} STRING, ${COL3} STRING)`;
   const removeFile = `REMOVE ${stage}`;
   const dropTable = `DROP TABLE IF EXISTS ${TEMP_TABLE_NAME}`;
 
   let tmpFile = null; 
   let tmpfilePath = null;
-  const testCases = null;
 
   before(async () => {
     // Create a temp file without specified file extension
@@ -1154,7 +1153,7 @@ describe('PUT GET test with error', function () {
     async.series(
       [
         function (callback) {
-          verifyCompilationError(`PUT ${tmpfilePath} ${stage_not_exist}`, callback);
+          verifyCompilationError(`PUT ${tmpfilePath} ${stageNotExist}`, callback);
         }
       ],
       done

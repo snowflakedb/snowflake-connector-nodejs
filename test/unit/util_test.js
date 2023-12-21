@@ -2,8 +2,8 @@
  * Copyright (c) 2015 Snowflake Computing Inc. All rights reserved.
  */
 
-var Util = require('./../../lib/util');
-var assert = require('assert');
+const Util = require('./../../lib/util');
+const assert = require('assert');
 
 describe('Util', function () {
   it('Util.isFunction()', function () {
@@ -177,7 +177,7 @@ describe('Util', function () {
   });
 
   it('Util.string.compareVersions()', function () {
-    var testCases = [];
+    const testCases = [];
 
     // '' and '0' are the same
     testCases.push(
@@ -277,8 +277,8 @@ describe('Util', function () {
         result: NaN
       });
 
-    var testCase, actual, expected;
-    for (var index = 0, length = testCases.length; index < length; index++) {
+    let testCase, actual, expected;
+    for (let index = 0, length = testCases.length; index < length; index++) {
       testCase = testCases[index];
       actual =
         Util.string.compareVersions(testCase.version1, testCase.version2);
@@ -386,7 +386,7 @@ describe('Util', function () {
     ////                 Positive Test Cases                             ////
     /////////////////////////////////////////////////////////////////////////
 
-    var testCasesPos =
+    const testCasesPos =
       [
         {
           url: 'a',
@@ -408,8 +408,8 @@ describe('Util', function () {
         }
       ];
 
-    var testCase;
-    for (var index = 0, length = testCasesPos.length; index < length; index++) {
+    let testCase;
+    for (let index = 0, length = testCasesPos.length; index < length; index++) {
       testCase = testCasesPos[index];
       assert.strictEqual(
         Util.url.appendParam(
@@ -421,7 +421,7 @@ describe('Util', function () {
     ////                 Negative Test Cases                             ////
     /////////////////////////////////////////////////////////////////////////
 
-    var testCasesNeg =
+    const testCasesNeg =
       [
         {
           paramName: 'foo',
@@ -439,8 +439,8 @@ describe('Util', function () {
         }
       ];
 
-    var error;
-    for (index = 0, length = testCasesPos.length; index < length; index++) {
+    let error;
+    for (let index = 0, length = testCasesPos.length; index < length; index++) {
       error = null;
 
       testCase = testCasesNeg[index];
@@ -633,7 +633,7 @@ describe('Util', function () {
     assert.strictEqual(Util.apply(undefined, undefined), undefined);
     assert.strictEqual(Util.apply(undefined, {}), undefined);
 
-    var dst, src;
+    let dst, src;
 
     dst = {};
     src = null;
@@ -654,7 +654,7 @@ describe('Util', function () {
   });
 
   it('Util.isRetryableHttpError()', function () {
-    var testCasesPos =
+    const testCasesPos =
       [
         {
           name: '200 - OK',
@@ -712,9 +712,9 @@ describe('Util', function () {
         },
       ];
 
-    var testCase;
-    var err;
-    for (var index = 0, length = testCasesPos.length; index < length; index++) {
+    let testCase;
+    let err;
+    for (let index = 0, length = testCasesPos.length; index < length; index++) {
       testCase = testCasesPos[index];
       err = {
         response: { statusCode: testCase.statusCode }
@@ -807,10 +807,6 @@ describe('Util', function () {
   });
 
   describe('Util Test - detecting PROXY envvars and compare with the agent proxy settings', () => {
-    // if for some reason there's already a PROXY envvar, try to preserve it
-    const httpProxyBeforeTest = process.env.HTTP_PROXY ? process.env.HTTP_PROXY : null;
-    const httpsProxyBeforeTest = process.env.HTTPS_PROXY ? process.env.HTTPS_PROXY : null;
-
     [
       {
         name: 'detect http_proxy envvar, no agent proxy',
@@ -879,7 +875,7 @@ describe('Util', function () {
       }
     ].forEach(({ name, isWarn, httpproxy, HTTPSPROXY, agentOptions, shouldLog }) => {
       it(`${name}`, () => {
-        process.env.http_proxy = httpproxy;
+        process.env.HTTP_PROXY = httpproxy;
         process.env.HTTPS_PROXY = HTTPSPROXY;
 
         const compareAndLogEnvAndAgentProxies = Util.getCompareAndLogEnvAndAgentProxies(agentOptions);

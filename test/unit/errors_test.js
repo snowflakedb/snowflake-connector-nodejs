@@ -2,15 +2,15 @@
  * Copyright (c) 2015 Snowflake Computing Inc. All rights reserved.
  */
 
-var mapErrNameToErrCode = require('./../../lib/errors').codes;
-var mapErrCodeToErrMessage = require('./../../lib/constants/error_messages');
-var mapErrCodeToSqlState = require('./../../lib/errors').mapErrorCodeToSqlState;
-var assert = require('assert');
+const mapErrNameToErrCode = require('./../../lib/errors').codes;
+const mapErrCodeToErrMessage = require('./../../lib/constants/error_messages');
+const mapErrCodeToSqlState = require('./../../lib/errors').mapErrorCodeToSqlState;
+const assert = require('assert');
 
 describe('Errors', function () {
   it('every error name should have an error code and error message', function () {
-    var errName;
-    var errCode;
+    let errName;
+    let errCode;
 
     for (errName in mapErrNameToErrCode) {
       if (Object.prototype.hasOwnProperty.call(mapErrNameToErrCode, errName)) {
@@ -28,8 +28,8 @@ describe('Errors', function () {
 
   it('no two error names should have the same error code', function () {
     // make sure the mapping from error-name to error-code is one-to-one
-    var mapErrCodeToErrName = {};
-    var errName, errCode;
+    const mapErrCodeToErrName = {};
+    let errName, errCode;
     for (errName in mapErrNameToErrCode) {
       if (Object.prototype.hasOwnProperty.call(mapErrNameToErrCode, errName)) {
         errCode = mapErrNameToErrCode[errName];
@@ -43,14 +43,14 @@ describe('Errors', function () {
   });
 
   it('validate error code to sql state mapping', function () {
-    var mapErrCodeToErrName = {};
-    for (var errName in mapErrNameToErrCode) {
+    const mapErrCodeToErrName = {};
+    for (const errName in mapErrNameToErrCode) {
       if (Object.prototype.hasOwnProperty.call(mapErrNameToErrCode, errName)) {
         mapErrCodeToErrName[mapErrNameToErrCode[errName]] = errName;
       }
     }
 
-    for (var errCode in mapErrCodeToSqlState) {
+    for (const errCode in mapErrCodeToSqlState) {
       if (Object.prototype.hasOwnProperty.call(mapErrCodeToSqlState, errCode)) {
         assert.ok(mapErrCodeToErrName[errCode],
           'invalid mapping: ' + errCode + ':' +

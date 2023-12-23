@@ -1,15 +1,15 @@
 /*
  * Copyright (c) 2015-2019 Snowflake Computing Inc. All rights reserved.
  */
-var snowflake = require('../lib/snowflake');
-var async = require('async');
-var testUtil = require('../test/integration/testUtil');
-var connOptions = require('./connectionOptions');
+const snowflake = require('../lib/snowflake');
+const async = require('async');
+const testUtil = require('../test/integration/testUtil');
+const connOptions = require('./connectionOptions');
 
 
 describe('testProxy', function () {
   it('testConnectionWithProxy', function (done) {
-    var connection = snowflake.createConnection(connOptions.connectionWithProxy);
+    const connection = snowflake.createConnection(connOptions.connectionWithProxy);
     async.series(
       [
         function (callback) {
@@ -24,7 +24,7 @@ describe('testProxy', function () {
   });
 
   it('testSimpleSelectWithProxy', function (done) {
-    var connection = snowflake.createConnection(connOptions.connectionWithProxy);
+    const connection = snowflake.createConnection(connOptions.connectionWithProxy);
     async.series(
       [
         function (callback) {

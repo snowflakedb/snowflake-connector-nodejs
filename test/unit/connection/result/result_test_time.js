@@ -2,14 +2,13 @@
  * Copyright (c) 2015-2019 Snowflake Computing Inc. All rights reserved.
  */
 
-var Util = require('./../../../../lib/util');
-var assert = require('assert');
-var ResultTestCommon = require('./result_test_common');
+const assert = require('assert');
+const ResultTestCommon = require('./result_test_common');
 
 describe('Result: test time', function () {
   it('select to_time(\'12:34:56.789789789\') as C1;',
     function (done) {
-      var response =
+      const response =
         {
           'data': {
             'parameters': [{ 'name': 'TIMEZONE', 'value': 'America/Los_Angeles' }, {
@@ -54,7 +53,7 @@ describe('Result: test time', function () {
         function (row) {
           assert.strictEqual(row.getColumnValue('C1'), '12:34:56');
         },
-        function (result) {
+        function () {
           done();
         }
       );
@@ -63,7 +62,7 @@ describe('Result: test time', function () {
   it('alter session set TIME_OUTPUT_FORMAT=\'HH24:MI:SS.FF\';' +
     ' select to_time(\'12:34:56.789789789\') as C1;',
   function (done) {
-    var response =
+    const response =
         {
           'data': {
             'parameters': [{ 'name': 'TIMEZONE', 'value': 'America/Los_Angeles' }, {
@@ -108,7 +107,7 @@ describe('Result: test time', function () {
       function (row) {
         assert.strictEqual(row.getColumnValue('C1'), '12:34:56.789789789');
       },
-      function (result) {
+      function () {
         done();
       }
     );

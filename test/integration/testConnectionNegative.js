@@ -1,13 +1,13 @@
 /*
  * Copyright (c) 2015-2019 Snowflake Computing Inc. All rights reserved.
  */
-var snowflake = require('./../../lib/snowflake');
-var assert = require('assert');
+const snowflake = require('./../../lib/snowflake');
+const assert = require('assert');
 
 describe('snowflake.createConnection() synchronous errors', function () {
   // empty error code for now 
-  var ErrorCodes = {};
-  var testCases =
+  const ErrorCodes = {};
+  const testCases =
     [
       {
         name: 'missing options',
@@ -133,9 +133,9 @@ describe('snowflake.createConnection() synchronous errors', function () {
       }
     ];
 
-  var createItCallback = function (testCase) {
+  const createItCallback = function (testCase) {
     return function () {
-      var error = null;
+      let error = null;
 
       try {
         snowflake.createConnection(testCase.options);
@@ -148,7 +148,7 @@ describe('snowflake.createConnection() synchronous errors', function () {
     };
   };
 
-  var index, length, testCase;
+  let index, length, testCase;
   for (index = 0, length = testCases.length; index < length; index++) {
     testCase = testCases[index];
     it(testCase.name, createItCallback(testCase));

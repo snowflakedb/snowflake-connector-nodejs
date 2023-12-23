@@ -2,11 +2,11 @@
  * Copyright (c) 2015-2019 Snowflake Computing Inc. All rights reserved.
  */
 
-var SfTimestamp = require('./../../../../lib/connection/result/sf_timestamp');
-var assert = require('assert');
+const SfTimestamp = require('./../../../../lib/connection/result/sf_timestamp');
+const assert = require('assert');
 
 describe('Date: basic', function () {
-  var testCases =
+  const testCases =
     [
       {
         name: 'date: YYYY-MM-DD',
@@ -60,7 +60,7 @@ describe('Date: basic', function () {
 
   testCases.forEach(function (testCase) {
     it(testCase.name, function () {
-      var options = testCase.options;
+      const options = testCase.options;
       assert.strictEqual(
         new SfTimestamp(
           options.epochSeconds,
@@ -74,7 +74,7 @@ describe('Date: basic', function () {
 });
 
 describe('Timestamp: basic', function () {
-  var testCases =
+  const testCases =
     [
       {
         name: 'timestamp: DY, DD MON YYYY HH24:MI:SS TZHTZM',
@@ -128,7 +128,7 @@ describe('Timestamp: basic', function () {
 
   testCases.forEach(function (testCase) {
     it(testCase.name, function () {
-      var options = testCase.options;
+      const options = testCase.options;
       assert.strictEqual(
         new SfTimestamp(
           options.epochSeconds,
@@ -142,7 +142,7 @@ describe('Timestamp: basic', function () {
 });
 
 describe('Time: basic', function () {
-  var testCases =
+  const testCases =
     [
       {
         name: 'time: HH24:MI:SS',
@@ -196,7 +196,7 @@ describe('Time: basic', function () {
 
   testCases.forEach(function (testCase) {
     it(testCase.name, function () {
-      var options = testCase.options;
+      const options = testCase.options;
       assert.strictEqual(
         new SfTimestamp(
           options.epochSeconds,

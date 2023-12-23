@@ -2,16 +2,16 @@
  * Copyright (c) 2015-2019 Snowflake Computing Inc. All rights reserved.
  */
 
-var Util = require('./../../../../lib/util');
-var assert = require('assert');
-var ResultTestCommon = require('./result_test_common');
+const Util = require('./../../../../lib/util');
+const assert = require('assert');
+const ResultTestCommon = require('./result_test_common');
 
 describe('Result: test timestamp', function () {
   it('select to_timestamp_ltz(\'Thu, 21 Jan 2016 06:32:44 -0800\') as C1, ' +
     'to_timestamp_tz(\'Thu, 21 Jan 2016 06:32:44 -0800\') as C2, ' +
     'to_timestamp_ntz(\'Thu, 21 Jan 2016 06:32:44 -0800\') as C3;',
   function (done) {
-    var response =
+    const response =
         {
           'data': {
             'parameters': [{ 'name': 'TIMEZONE', 'value': 'America/Los_Angeles' }, {
@@ -76,7 +76,7 @@ describe('Result: test timestamp', function () {
           row.getColumnValueAsString('C3'),
           'Thu, 21 Jan 2016 06:32:44 +0000');
       },
-      function (result) {
+      function () {
         done();
       }
     );

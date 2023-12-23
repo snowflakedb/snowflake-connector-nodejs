@@ -1,12 +1,12 @@
 /*
  * Copyright (c) 2015-2019 Snowflake Computing Inc. All rights reserved.
  */
-var async = require('async');
-var testUtil = require('./testUtil');
+const async = require('async');
+const testUtil = require('./testUtil');
 
 describe('Test Cancel Query', function () {
-  var connection;
-  var longQuery = 'select count(*) from table(generator(timeLimit => 3600))';
+  let connection;
+  const longQuery = 'select count(*) from table(generator(timeLimit => 3600))';
 
   before(function (done) {
     connection = testUtil.createConnection();
@@ -33,7 +33,7 @@ describe('Test Cancel Query', function () {
 
 
   it('testCancelQuerySimple', function (done) {
-    var statement = connection.execute({
+    const statement = connection.execute({
       sqlText: longQuery
     });
 

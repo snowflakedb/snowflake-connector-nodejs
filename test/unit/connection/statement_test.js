@@ -2,16 +2,16 @@
  * Copyright (c) 2015 Snowflake Computing Inc. All rights reserved.
  */
 
-var Statement = require('./../../../lib/connection/statement');
-var ErrorCodes = require('./../../../lib/errors').codes;
-var assert = require('assert');
+const Statement = require('./../../../lib/connection/statement');
+const ErrorCodes = require('./../../../lib/errors').codes;
+const assert = require('assert');
 
 describe('Statement.execute()', function () {
   ///////////////////////////////////////////////////////////////////////////
   //// Test synchronous errors                                          ////
   //////////////////////////////////////////////////////////////////////////
 
-  var testCases =
+  const testCases =
     [
       {
         name: 'execute() missing options',
@@ -208,10 +208,10 @@ describe('Statement.execute()', function () {
       }
     ];
 
-  var createItCallback = function (testCase) {
+  const createItCallback = function (testCase) {
     return function () {
-      var options;
-      var error;
+      let options;
+      let error;
 
       try {
         options = testCase.options;
@@ -229,7 +229,7 @@ describe('Statement.execute()', function () {
     };
   };
 
-  var index, length, testCase;
+  let index, length, testCase;
   for (index = 0, length = testCases.length; index < length; index++) {
     testCase = testCases[index];
     it(testCase.name, createItCallback(testCase));
@@ -241,7 +241,7 @@ describe('Statement.fetchResult()', function () {
   //// Test synchronous errors                                          ////
   //////////////////////////////////////////////////////////////////////////
 
-  var testCases =
+  const testCases =
     [
       {
         name: 'fetchResult() undefined options',
@@ -379,10 +379,10 @@ describe('Statement.fetchResult()', function () {
       }
     ];
 
-  var createItCallback = function (testCase) {
+  const createItCallback = function (testCase) {
     return function () {
-      var options;
-      var error;
+      let options;
+      let error;
 
       try {
         options = testCase.options;
@@ -399,7 +399,7 @@ describe('Statement.fetchResult()', function () {
     };
   };
 
-  var index, length, testCase;
+  let index, length, testCase;
   for (index = 0, length = testCases.length; index < length; index++) {
     testCase = testCases[index];
     it(testCase.name, createItCallback(testCase));

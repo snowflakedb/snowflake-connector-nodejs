@@ -199,10 +199,9 @@ describe('Execute test - variant', function () {
                 stream.on('end', function () {
                   done();
                 });
-              } catch (e) {
+              } catch (e){
                 done(e);
-              }
-              finally {
+              } finally {
                 testUtil.removeFileSyncIgnoringErrors(tempFilePath);
               }
             }

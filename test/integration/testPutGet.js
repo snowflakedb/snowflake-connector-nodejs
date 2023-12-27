@@ -299,7 +299,7 @@ describe('PUT GET overwrite test', function () {
 
   // Create a temp file without specified file extension and wwrite row data to temp file.
 
-  const tmpFile = testUtil.createTempFile(os.tmpdir(), testUtil.createRandomFileName(), ROW_DATA)
+  const tmpFile = testUtil.createTempFile(os.tmpdir(), testUtil.createRandomFileName(), ROW_DATA);
 
   before(async () => {
     connection = testUtil.createConnection();
@@ -504,7 +504,7 @@ describe('PUT GET test with GCS_USE_DOWNSCOPED_CREDENTIAL', function () {
   it('testUploadDownload', function (done) {
 
     // Create a temp file with specified file extension and write row data to temp file
-    tmpFile = testUtil.createTempFile(os.tmpdir(), testUtil.createRandomFileName( { postfix: 'gz'} ), ROW_DATA)
+    tmpFile = testUtil.createTempFile(os.tmpdir(), testUtil.createRandomFileName( { postfix: 'gz' } ), ROW_DATA);
 
     let putQuery = `PUT file://${tmpFile} @${DATABASE_NAME}.${SCHEMA_NAME}.%${TEMP_TABLE_NAME}`;
     // Windows user contains a '~' in the path which causes an error
@@ -1100,7 +1100,7 @@ describe('PUT GET test with error', function () {
 
   before(async () => {
     // Create a temp file without specified file extension
-    tmpFile = testUtil.createTempFile(os.tmpdir(), testUtil.createRandomFileName()) 
+    tmpFile = testUtil.createTempFile(os.tmpdir(), testUtil.createRandomFileName());
     tmpfilePath = getPlatformTmpPath(tmpFile);
     
     connection = testUtil.createConnection();

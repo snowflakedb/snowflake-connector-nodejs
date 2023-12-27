@@ -6,8 +6,7 @@ const assert = require('assert');
 const async = require('async');
 const connOption = require('./connectionOptions').valid;
 const testUtil = require('./testUtil');
-const fs = require('fs');
-const tmp = require('tmp');
+const os = require('os');
 const globalConfig = require('../../lib/global_config');
 
 
@@ -171,15 +170,14 @@ describe('Execute test - variant', function () {
         alwaysCreateTextNode: testCase.alwaysCreateTextNode
       });
 
-      const sampleTempFile = tmp.fileSync({ postfix: testCase.fileExtension });
-      fs.writeFileSync(sampleTempFile.name, testCase.sampleData);
+      const sampleTempFile = testUtil.createRandomFileName({ extension: testCase.fileExtension });
+      const tempFilePath = testUtil.createTempFile(os.tmpdir(), sampleTempFile, testCase.sampleData);
 
-      let putVariant = `PUT file://${sampleTempFile.name} @${DATABASE_NAME}.${SCHEMA_NAME}.${TEST_VARIANT_STAGE}`;
+      let putVariant = `PUT file://${tempFilePath} @${DATABASE_NAME}.${SCHEMA_NAME}.${TEST_VARIANT_STAGE}`;
 
       // Windows user contains a '~' in the path which causes an error
       if (process.platform === 'win32') {
-        const fileName = sampleTempFile.name.substring(sampleTempFile.name.lastIndexOf('\\'));
-        putVariant = `PUT file://${process.env.USERPROFILE}\\AppData\\Local\\Temp\\${fileName} @${DATABASE_NAME}.${SCHEMA_NAME}.${TEST_VARIANT_STAGE}`;
+        putVariant = `PUT file://${process.env.USERPROFILE}\\AppData\\Local\\Temp\\${sampleTempFile} @${DATABASE_NAME}.${SCHEMA_NAME}.${TEST_VARIANT_STAGE}`;
       }
 
       testUtil.executeCmdAsync(connection, putVariant)
@@ -203,6 +201,9 @@ describe('Execute test - variant', function () {
                 });
               } catch (e) {
                 done(e);
+              }
+              finally {
+                testUtil.removeFileSyncIgnoringErrors(tempFilePath);
               }
             }
           });

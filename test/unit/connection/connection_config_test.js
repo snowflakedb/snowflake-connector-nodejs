@@ -1206,6 +1206,24 @@ describe('ConnectionConfig: basic', function () {
             region: 'region.region2.region3',
           }
       },
+      {
+        name: 'region (deprecated)',
+        input:
+          {
+            username: 'username',
+            password: 'password',
+            account: 'account',
+            region: 'testregion',
+            disableConsoleLogin: false,
+          },
+        options:
+          {
+            accessUrl: 'https://account.testregion.snowflakecomputing.com',
+            username: 'username',
+            password: 'password',
+            account: 'account',
+          }
+      },
     ];
 
   const createItCallback = function (testCase) {

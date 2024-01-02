@@ -71,9 +71,7 @@ describe('external browser authentication', function () {
   const connectionConfig = {
     getBrowserActionTimeout: () => BROWSER_ACTION_TIMEOUT,
     getProxy: () => {},
-    getDisableConsoleLogin: () => {
-      return true;
-    },
+    getDisableConsoleLogin: () => true,
     host: 'fakehost'
   };
 

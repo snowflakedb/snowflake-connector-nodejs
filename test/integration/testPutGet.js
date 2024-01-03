@@ -74,7 +74,7 @@ function executePutCmd(connection, putQuery, callback, results) {
 
 describe('PUT GET test', function () {
   this.retries(3); // this test suit are considered as flaky test
-  snowflake.configure({insecureConnect: true});
+  snowflake.configure({ insecureConnect: true });
   let connection;
   let tmpFile;
   const TEMP_TABLE_NAME = randomizeName('TEMP_TABLE');

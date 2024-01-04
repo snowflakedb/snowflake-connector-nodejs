@@ -10,6 +10,7 @@ const fs = require('fs');
 const testUtil = require('./testUtil');
 const tmp = require('tmp');
 const os = require('os');
+const crypto = require('crypto');
 const path = require('path');
 const zlib = require('zlib');
 const { randomizeName } = require('./testUtil');
@@ -769,19 +770,19 @@ describe('PUT GET test with multiple files', function () {
     const results = {};
     const tmpdirPath = getPlatformTmpPath(tmpDir);
     const getQuery = `GET ${stage} ${tmpdirPath}`;
-
+    const testId = crypto.randomUUID();
     // Create temp files with specified prefix
     tmpFiles = [];
     for (let i = 0; i < count; i++) {
-      const tmpFile = tmp.fileSync({ prefix: 'testUploadDownloadMultifiles' });
+      const tmpFile = tmp.fileSync({ prefix: `testUploadDownloadMultifiles-${testId}` });
       fs.writeFileSync(tmpFile.name, ROW_DATA);
       tmpFiles.push(tmpFile);
     }
 
-    let putQuery = `PUT file://${os.tmpdir()}/testUploadDownloadMultifiles* ${stage}`;
+    let putQuery = `PUT file://${os.tmpdir()}/testUploadDownloadMultifiles-${testId}* ${stage}`;
     // Windows user contains a '~' in the path which causes an error
     if (process.platform === 'win32') {
-      putQuery = `PUT file://${process.env.USERPROFILE}\\AppData\\Local\\Temp\\testUploadDownloadMultifiles* ${stage}`;
+      putQuery = `PUT file://${process.env.USERPROFILE}\\AppData\\Local\\Temp\\testUploadDownloadMultifiles-${testId}* ${stage}`;
     }
 
     const testResult = [];
@@ -1099,14 +1100,13 @@ describe('PUT GET test with error', function () {
   let connection;
   const TEMP_TABLE_NAME = randomizeName('TEMP_TABLE');
   const stage = `@${DATABASE_NAME}.${SCHEMA_NAME}.%${TEMP_TABLE_NAME}`;
-  const stage_not_exist = `@${DATABASE_NAME}.${SCHEMA_NAME}.%NONEXISTTABLE`;
+  const stageNotExist = `@${DATABASE_NAME}.${SCHEMA_NAME}.%NONEXISTTABLE`;
   const createTable = `create or replace table ${TEMP_TABLE_NAME} (${COL1} STRING, ${COL2} STRING, ${COL3} STRING)`;
   const removeFile = `REMOVE ${stage}`;
   const dropTable = `DROP TABLE IF EXISTS ${TEMP_TABLE_NAME}`;
 
   let tmpFile = null; 
   let tmpfilePath = null;
-  const testCases = null;
 
   before(async () => {
     // Create a temp file without specified file extension
@@ -1152,7 +1152,7 @@ describe('PUT GET test with error', function () {
     async.series(
       [
         function (callback) {
-          verifyCompilationError(`PUT ${tmpfilePath} ${stage_not_exist}`, callback);
+          verifyCompilationError(`PUT ${tmpfilePath} ${stageNotExist}`, callback);
         }
       ],
       done

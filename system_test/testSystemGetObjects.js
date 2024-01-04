@@ -8,40 +8,40 @@
  * functionality more than core driver behavior.
  */
 
-var assert = require('assert');
-var async = require('async');
-var util = require('util');
-var snowflake = require('./../lib/snowflake');
-var connOptions = require('../test/integration/connectionOptions');
-var testUtil = require('../test/integration/testUtil');
+const assert = require('assert');
+const async = require('async');
+const util = require('util');
+const snowflake = require('./../lib/snowflake');
+const connOptions = require('../test/integration/connectionOptions');
+const testUtil = require('../test/integration/testUtil');
 
 describe('system$get_objects()', function () {
-  var createDatabase = 'create or replace database node_testdb;';
-  var createSchema = 'create or replace schema node_testschema;';
-  var createTableT1 = 'create or replace table t1 (c1 number);';
-  var createTableT2 = 'create or replace table t2 (c1 number);';
-  var createViewV1 = 'create or replace view v1 as select * from t1;';
-  var createViewV2 = 'create or replace view v2 as select * from t2;';
-  var createViewV3 = 'create or replace view v3 as select v1.c1 from v1, v2;';
-  var createViewV4 = 'create or replace view v4 as select * from v3;';
-  var createStage = 'create or replace stage test_stage ' +
+  const createDatabase = 'create or replace database node_testdb;';
+  const createSchema = 'create or replace schema node_testschema;';
+  const createTableT1 = 'create or replace table t1 (c1 number);';
+  const createTableT2 = 'create or replace table t2 (c1 number);';
+  const createViewV1 = 'create or replace view v1 as select * from t1;';
+  const createViewV2 = 'create or replace view v2 as select * from t2;';
+  const createViewV3 = 'create or replace view v3 as select v1.c1 from v1, v2;';
+  const createViewV4 = 'create or replace view v4 as select * from v3;';
+  const createStage = 'create or replace stage test_stage ' +
     'url = \'s3://some_url\';';
-  var createFileFormat = 'create or replace file format ' +
+  const createFileFormat = 'create or replace file format ' +
     'test_file_format type = \'csv\';';
-  var createSequence = 'create or replace sequence test_sequence;';
-  var createSqlUdfAdd1Number = 'create or replace function add1 (n number) ' +
+  const createSequence = 'create or replace sequence test_sequence;';
+  const createSqlUdfAdd1Number = 'create or replace function add1 (n number) ' +
     'returns number as \'n + 1\';';
-  var createSqlUdfAdd1String = 'create or replace function add1 (s string) ' +
+  const createSqlUdfAdd1String = 'create or replace function add1 (s string) ' +
     'returns string as \'s || \'\'1\'\'\';';
-  var createJsUdfAdd1Double = 'create or replace function add1 (n double) ' +
+  const createJsUdfAdd1Double = 'create or replace function add1 (n double) ' +
     'returns double language javascript as ' +
     '\'return n + 1;\';';
-  var dropDatabase = 'drop database node_testdb;';
+  const dropDatabase = 'drop database node_testdb;';
 
   // create two connections, one to testaccount and another to the snowflake
   // account
-  var connTestaccount = snowflake.createConnection(connOptions.valid);
-  var connSnowflake = snowflake.createConnection(connOptions.snowflakeAccount);
+  const connTestaccount = snowflake.createConnection(connOptions.valid);
+  const connSnowflake = snowflake.createConnection(connOptions.snowflakeAccount);
 
   before(function (done) {
     // set up the two connections and create a bunch of objects in testaccount;
@@ -387,12 +387,12 @@ describe('system$get_objects()', function () {
  * @param {Object} options
  */
 function testGetObjectsOnStmt(options) {
-  var connTestaccount = options.connTestaccount;
-  var connSnowflake = options.connSnowflake;
-  var sql = options.sql;
-  var output = options.output;
+  const connTestaccount = options.connTestaccount;
+  const connSnowflake = options.connSnowflake;
+  const sql = options.sql;
+  const output = options.output;
 
-  var queryId;
+  let queryId;
 
   /**
    * Builds the SQL text for a system$get_objects('execute [query_id];')
@@ -413,7 +413,7 @@ function testGetObjectsOnStmt(options) {
       connTestaccount.execute(
         {
           sqlText: sql,
-          complete: function (err, statement, rows) {
+          complete: function (err, statement) {
             assert.ok(!err);
             queryId = statement.getQueryId();
             callback();
@@ -423,8 +423,8 @@ function testGetObjectsOnStmt(options) {
     function (callback) {
       // run system$get_objects('execute [query_id];') from the snowflake
       // account and verify that we get the desired output
-      var columnName = 'map';
-      var sqlText = util.format('%s as "%s";',
+      const columnName = 'map';
+      const sqlText = util.format('%s as "%s";',
         buildSqlSystem$GetObjects(queryId), columnName);
       connSnowflake.execute(
         {

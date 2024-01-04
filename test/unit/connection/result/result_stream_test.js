@@ -2,16 +2,16 @@
  * Copyright (c) 2015 Snowflake Computing Inc. All rights reserved.
  */
 
-var ResultStream = require('./../../../../lib/connection/result/result_stream');
-var ErrorCodes = require('./../../../../lib/errors').codes;
-var assert = require('assert');
+const ResultStream = require('./../../../../lib/connection/result/result_stream');
+const ErrorCodes = require('./../../../../lib/errors').codes;
+const assert = require('assert');
 
 describe('ResultStream: basic', function () {
   ///////////////////////////////////////////////////////////////////////////
   //// Test synchronous errors                                           ////
   ///////////////////////////////////////////////////////////////////////////
 
-  var testCases =
+  const testCases =
     [
       {
         name: 'missing options',
@@ -107,9 +107,9 @@ describe('ResultStream: basic', function () {
       }
     ];
 
-  var createItCallback = function (testCase) {
+  const createItCallback = function (testCase) {
     return function () {
-      var error;
+      let error;
 
       try {
         new ResultStream(testCase.options);
@@ -122,7 +122,7 @@ describe('ResultStream: basic', function () {
     };
   };
 
-  var index, length, testCase;
+  let index, length, testCase;
   for (index = 0, length = testCases.length; index < length; index++) {
     testCase = testCases[index];
     it(testCase.name, createItCallback(testCase));
@@ -133,7 +133,7 @@ describe('ResultStream: basic', function () {
   ///////////////////////////////////////////////////////////////////////////
 
   it('valid result stream', function () {
-    var resultStream = new ResultStream(
+    const resultStream = new ResultStream(
       {
         chunks: [],
         prefetchSize: 1

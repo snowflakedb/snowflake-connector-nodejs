@@ -2,22 +2,22 @@
  * Copyright (c) 2021 Snowflake Computing Inc. All rights reserved.
  */
 
-var assert = require('assert');
-var mock = require('mock-require');
-var SnowflakeEncryptionUtil = require('./../../../lib/file_transfer_agent/encrypt_util').encrypt_util;
+const assert = require('assert');
+const mock = require('mock-require');
+const SnowflakeEncryptionUtil = require('./../../../lib/file_transfer_agent/encrypt_util').EncryptUtil;
 
 describe('Encryption util', function () {
-  var encryptionMaterial;
-  var mockData = 'mockData';
-  var mockFileName = 'mockFileName';
-  var mockRandomBytes = 'mockRandomBytes';
-  var mockTmpDir = 'mockTmpDir';
-  var mockTmpName = 'mockTmpName';
+  let encryptionMaterial;
+  const mockData = 'mockData';
+  const mockFileName = 'mockFileName';
+  const mockRandomBytes = 'mockRandomBytes';
+  const mockTmpDir = 'mockTmpDir';
+  const mockTmpName = 'mockTmpName';
 
-  var EncryptionUtil;
-  var encrypt;
-  var filestream;
-  var temp;
+  let EncryptionUtil;
+  let encrypt;
+  let filestream;
+  let temp;
 
   this.beforeEach(function () {
     encryptionMaterial = {
@@ -27,13 +27,13 @@ describe('Encryption util', function () {
     };
 
     mock('encrypt', {
-      randomBytes: function (options) {
+      randomBytes: function () {
         return Buffer.from(mockRandomBytes);
       },
-      createCipheriv: function (AES_CBC, fileKey, ivData) {
+      createCipheriv: function () {
         function createCipheriv() {
           this.update = function (data) {
-            function update(data) {
+            function update() {
               return Buffer.from(mockData.substring(0, 4));
             }
             return new update(data);
@@ -49,7 +49,7 @@ describe('Encryption util', function () {
       }
     });
     mock('filestream', {
-      createReadStream: function (inFileName, options) {
+      createReadStream: function () {
         function createReadStream() {
           this.on = function (event, callback) {
             callback();
@@ -58,9 +58,9 @@ describe('Encryption util', function () {
         }
         return new createReadStream;
       },
-      createWriteStream: function (options) {
+      createWriteStream: function () {
         function createWriteStream() {
-          this.write = function (data) {
+          this.write = function () {
             return;
           };
           this.close = function (resolve) {
@@ -70,18 +70,18 @@ describe('Encryption util', function () {
         }
         return new createWriteStream;
       },
-      closeSync: function (fd) {
+      closeSync: function () {
         return;
       }
     });
     mock('temp', {
-      fileSync: function (options) {
+      fileSync: function () {
         return {
           name: mockTmpName,
           fd: 0
         };
       },
-      openSync: function (options) {
+      openSync: function () {
         return;
       }
     });
@@ -94,12 +94,12 @@ describe('Encryption util', function () {
   });
 
   it('encrypt file', async function () {
-    var result = await EncryptionUtil.encryptFile(encryptionMaterial, mockFileName, mockTmpDir);
+    const result = await EncryptionUtil.encryptFile(encryptionMaterial, mockFileName, mockTmpDir);
 
-    var decodedKey = Buffer.from(encryptionMaterial['queryStageMasterKey'], 'base64');
-    var keySize = decodedKey.length;
+    const decodedKey = Buffer.from(encryptionMaterial['queryStageMasterKey'], 'base64');
+    const keySize = decodedKey.length;
 
-    var matDesc = {
+    let matDesc = {
       'smkId': encryptionMaterial.smkId,
       'queryId': encryptionMaterial.queryId,
       'keySize': keySize * 8

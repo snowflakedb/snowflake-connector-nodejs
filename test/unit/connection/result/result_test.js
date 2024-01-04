@@ -2,16 +2,13 @@
  * Copyright (c) 2015 Snowflake Computing Inc. All rights reserved.
  */
 
-var Result = require('./../../../../lib/connection/result/result');
-var ConnectionConfig = require('./../../../../lib/connection/connection_config');
-var Util = require('./../../../../lib/util');
-var ErrorCodes = require('./../../../../lib/errors').codes;
-var assert = require('assert');
+const Util = require('./../../../../lib/util');
+const assert = require('assert');
 
-var ResultTestCommon = require('./result_test_common');
+const ResultTestCommon = require('./result_test_common');
 
 describe('Result', function () {
-  var response =
+  const response =
     {
       'data': {
         'parameters': [{ 'name': 'DATE_OUTPUT_FORMAT', 'value': 'YYYY-MM-DD' }, {
@@ -58,7 +55,7 @@ describe('Result', function () {
     };
 
   it('small result', function (done) {
-    var rows = [];
+    const rows = [];
 
     ResultTestCommon.testResult(
       ResultTestCommon.createResultOptions(response),
@@ -66,7 +63,7 @@ describe('Result', function () {
         rows.push(row);
       },
       function (result) {
-        var responseData = response.data;
+        const responseData = response.data;
 
         assert.strictEqual(result.getTotalRows(), responseData.total);
         assert.strictEqual(result.getReturnedRows(), responseData.returned);
@@ -74,7 +71,7 @@ describe('Result', function () {
         assert.strictEqual(result.getQueryId(), responseData.queryId);
         assert.strictEqual(result.getVersion(), String(responseData.version));
 
-        var sessionState = result.getSessionState();
+        const sessionState = result.getSessionState();
 
         assert.strictEqual(
           sessionState.getCurrentDatabaseProvider(),
@@ -96,14 +93,14 @@ describe('Result', function () {
           sessionState.getCurrentRole(),
           responseData.finalRoleName);
 
-        var rowtype = responseData.rowtype;
-        var rowset = responseData.rowset;
+        const rowtype = responseData.rowtype;
+        const rowset = responseData.rowset;
 
-        var columns = result.getColumns();
+        const columns = result.getColumns();
 
         assert.strictEqual(columns.length, rowtype.length);
 
-        var rowIndex, rowsLength, row;
+        let rowIndex, rowsLength, row;
         for (rowIndex = 0, rowsLength = rows.length; rowIndex < rowsLength;
           rowIndex++) {
           row = rows[rowIndex];
@@ -111,7 +108,7 @@ describe('Result', function () {
           assert.ok(Util.isObject(row));
           assert.strictEqual(row.rowIndex, rowIndex);
 
-          var columnIndex, columnsLength, column;
+          let columnIndex, columnsLength, column;
           for (columnIndex = 0, columnsLength = columns.length;
             columnIndex < columnsLength; columnIndex++) {
             column = columns[columnIndex];

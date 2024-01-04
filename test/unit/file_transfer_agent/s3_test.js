@@ -20,15 +20,8 @@ describe('S3 client', function () {
   let AWS;
   let s3;
   let filesystem;
+  let meta;
   const dataFile = mockDataFile;
-  const meta = {
-    stageInfo: {
-      location: mockLocation,
-      path: mockTable + '/' + mockPath + '/',
-      creds: {}
-    },
-    SHA256_DIGEST: mockDigest,
-  };
   const encryptionMetadata = {
     key: mockKey,
     iv: mockIv,
@@ -37,9 +30,9 @@ describe('S3 client', function () {
 
   before(function () {
     mock('s3', {
-      S3: function (params) {
+      S3: function () {
         function S3() {
-          this.getObject = function (params) {
+          this.getObject = function () {
             function getObject() {
               this.then = function (callback) {
                 callback({
@@ -50,7 +43,7 @@ describe('S3 client', function () {
 
             return new getObject;
           };
-          this.putObject = function (params) {
+          this.putObject = function () {
             function putObject() {
               this.then = function (callback) {
                 callback();
@@ -59,6 +52,7 @@ describe('S3 client', function () {
 
             return new putObject;
           };
+          this.destroy = function () {};
         }
 
         return new S3;
@@ -74,25 +68,40 @@ describe('S3 client', function () {
 
     AWS = new SnowflakeS3Util(s3, filesystem);
   });
+  beforeEach(function () {
+    const stageInfo = {
+      location: mockLocation,
+      path: mockTable + '/' + mockPath + '/',
+      creds: {}
+    };
+    meta = {
+      stageInfo,
+      SHA256_DIGEST: mockDigest,
+      client: AWS.createClient(stageInfo),
+    };
+  });
+  this.afterEach(function () {
+    AWS.destroyClient(meta['client']);
+  });
 
   it('extract bucket name and path', async function () {
-    var result = AWS.extractBucketNameAndPath('sfc-eng-regression/test_sub_dir/');
+    let result = AWS.extractBucketNameAndPath('sfc-eng-regression/test_sub_dir/');
     assert.strictEqual(result.bucketName, 'sfc-eng-regression');
     assert.strictEqual(result.s3path, 'test_sub_dir/');
 
-    var result = AWS.extractBucketNameAndPath('sfc-eng-regression/stakeda/test_stg/test_sub_dir/');
+    result = AWS.extractBucketNameAndPath('sfc-eng-regression/stakeda/test_stg/test_sub_dir/');
     assert.strictEqual(result.bucketName, 'sfc-eng-regression');
     assert.strictEqual(result.s3path, 'stakeda/test_stg/test_sub_dir/');
 
-    var result = AWS.extractBucketNameAndPath('sfc-eng-regression/');
+    result = AWS.extractBucketNameAndPath('sfc-eng-regression/');
     assert.strictEqual(result.bucketName, 'sfc-eng-regression');
     assert.strictEqual(result.s3path, '');
 
-    var result = AWS.extractBucketNameAndPath('sfc-eng-regression//');
+    result = AWS.extractBucketNameAndPath('sfc-eng-regression//');
     assert.strictEqual(result.bucketName, 'sfc-eng-regression');
     assert.strictEqual(result.s3path, '/');
 
-    var result = AWS.extractBucketNameAndPath('sfc-eng-regression///');
+    result = AWS.extractBucketNameAndPath('sfc-eng-regression///');
     assert.strictEqual(result.bucketName, 'sfc-eng-regression');
     assert.strictEqual(result.s3path, '//');
   });
@@ -104,11 +113,11 @@ describe('S3 client', function () {
 
   it('get file header - fail expired token', async function () {
     mock('s3', {
-      S3: function (params) {
+      S3: function () {
         function S3() {
-          this.getObject = function (params) {
+          this.getObject = function () {
             function getObject() {
-              this.then = function (callback) {
+              this.then = function () {
                 const err = new Error();
                 err.Code = 'ExpiredToken';
                 throw err;
@@ -117,6 +126,7 @@ describe('S3 client', function () {
 
             return new getObject;
           };
+          this.destroy = function () {};
         }
 
         return new S3;
@@ -124,6 +134,7 @@ describe('S3 client', function () {
     });
     s3 = require('s3');
     const AWS = new SnowflakeS3Util(s3);
+    meta['client'] = AWS.createClient(meta['stageInfo']);
 
     await AWS.getFileHeader(meta, dataFile);
     assert.strictEqual(meta['resultStatus'], resultStatus.RENEW_TOKEN);
@@ -131,11 +142,11 @@ describe('S3 client', function () {
 
   it('get file header - fail no such key', async function () {
     mock('s3', {
-      S3: function (params) {
+      S3: function () {
         function S3() {
-          this.getObject = function (params) {
+          this.getObject = function () {
             function getObject() {
-              this.then = function (callback) {
+              this.then = function () {
                 const err = new Error();
                 err.Code = 'NoSuchKey';
                 throw err;
@@ -144,6 +155,7 @@ describe('S3 client', function () {
 
             return new getObject;
           };
+          this.destroy = function () {};
         }
 
         return new S3;
@@ -151,6 +163,7 @@ describe('S3 client', function () {
     });
     s3 = require('s3');
     const AWS = new SnowflakeS3Util(s3);
+    meta['client'] = AWS.createClient(meta['stageInfo']);
 
     await AWS.getFileHeader(meta, dataFile);
     assert.strictEqual(meta['resultStatus'], resultStatus.NOT_FOUND_FILE);
@@ -158,11 +171,11 @@ describe('S3 client', function () {
 
   it('get file header - fail HTTP 400', async function () {
     mock('s3', {
-      S3: function (params) {
+      S3: function () {
         function S3() {
-          this.getObject = function (params) {
+          this.getObject = function () {
             function getObject() {
-              this.then = function (callback) {
+              this.then = function () {
                 const err = new Error();
                 err.Code = '400';
                 throw err;
@@ -171,6 +184,7 @@ describe('S3 client', function () {
 
             return new getObject;
           };
+          this.destroy = function () {};
         }
 
         return new S3;
@@ -178,6 +192,7 @@ describe('S3 client', function () {
     });
     s3 = require('s3');
     const AWS = new SnowflakeS3Util(s3);
+    meta['client'] = AWS.createClient(meta['stageInfo']);
 
     await AWS.getFileHeader(meta, dataFile);
     assert.strictEqual(meta['resultStatus'], resultStatus.RENEW_TOKEN);
@@ -185,11 +200,11 @@ describe('S3 client', function () {
 
   it('get file header - fail unknown', async function () {
     mock('s3', {
-      S3: function (params) {
+      S3: function () {
         function S3() {
-          this.getObject = function (params) {
+          this.getObject = function () {
             function getObject() {
-              this.then = function (callback) {
+              this.then = function () {
                 const err = new Error();
                 err.Code = 'unknown';
                 throw err;
@@ -198,6 +213,7 @@ describe('S3 client', function () {
 
             return new getObject;
           };
+          this.destroy = function () {};
         }
 
         return new S3;
@@ -205,6 +221,7 @@ describe('S3 client', function () {
     });
     s3 = require('s3');
     const AWS = new SnowflakeS3Util(s3);
+    meta['client'] = AWS.createClient(meta['stageInfo']);
 
     await AWS.getFileHeader(meta, dataFile);
     assert.strictEqual(meta['resultStatus'], resultStatus.ERROR);
@@ -217,9 +234,9 @@ describe('S3 client', function () {
 
   it('upload - fail expired token', async function () {
     mock('s3', {
-      S3: function (params) {
+      S3: function () {
         function S3() {
-          this.putObject = function (params) {
+          this.putObject = function () {
             function putObject() {
               this.then = function () {
                 const err = new Error();
@@ -230,6 +247,7 @@ describe('S3 client', function () {
 
             return new putObject;
           };
+          this.destroy = function () {};
         }
 
         return new S3;
@@ -243,6 +261,7 @@ describe('S3 client', function () {
     s3 = require('s3');
     filesystem = require('filesystem');
     const AWS = new SnowflakeS3Util(s3, filesystem);
+    meta['client'] = AWS.createClient(meta['stageInfo']);
 
     await AWS.uploadFile(dataFile, meta, encryptionMetadata);
     assert.strictEqual(meta['resultStatus'], resultStatus.RENEW_TOKEN);
@@ -250,9 +269,9 @@ describe('S3 client', function () {
 
   it('upload - fail wsaeconnaborted', async function () {
     mock('s3', {
-      S3: function (params) {
+      S3: function () {
         function S3() {
-          this.putObject = function (params) {
+          this.putObject = function () {
             function putObject() {
               this.then = function () {
                 const err = new Error();
@@ -263,6 +282,7 @@ describe('S3 client', function () {
 
             return new putObject;
           };
+          this.destroy = function () {};
         }
 
         return new S3;
@@ -276,6 +296,7 @@ describe('S3 client', function () {
     s3 = require('s3');
     filesystem = require('filesystem');
     const AWS = new SnowflakeS3Util(s3, filesystem);
+    meta['client'] = AWS.createClient(meta['stageInfo']);
 
     await AWS.uploadFile(dataFile, meta, encryptionMetadata);
     assert.strictEqual(meta['resultStatus'], resultStatus.NEED_RETRY_WITH_LOWER_CONCURRENCY);
@@ -283,9 +304,9 @@ describe('S3 client', function () {
 
   it('upload - fail HTTP 400', async function () {
     mock('s3', {
-      S3: function (params) {
+      S3: function () {
         function S3() {
-          this.putObject = function (params) {
+          this.putObject = function () {
             function putObject() {
               this.then = () => {
                 const err = new Error();
@@ -296,6 +317,7 @@ describe('S3 client', function () {
 
             return new putObject;
           };
+          this.destroy = function () {};
         }
 
         return new S3;
@@ -309,6 +331,7 @@ describe('S3 client', function () {
     s3 = require('s3');
     filesystem = require('filesystem');
     const AWS = new SnowflakeS3Util(s3, filesystem);
+    meta['client'] = AWS.createClient(meta['stageInfo']);
 
     await AWS.uploadFile(dataFile, meta, encryptionMetadata);
     assert.strictEqual(meta['resultStatus'], resultStatus.NEED_RETRY);

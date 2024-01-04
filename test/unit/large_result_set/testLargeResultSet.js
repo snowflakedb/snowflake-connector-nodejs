@@ -40,7 +40,7 @@ describe('LargeResultSetService', () => {
       it(testName, done => {
         largeResultSetService.getObject({
           url: baseUrl + url,
-          callback: (err, body) => {
+          callback: (err) => {
             if (err) {
               if (err && err.name === expectedErrorName) {
                 done();

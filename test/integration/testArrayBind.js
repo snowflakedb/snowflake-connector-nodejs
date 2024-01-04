@@ -2,24 +2,24 @@
  * Copyright (c) 2015-2019 Snowflake Computing Inc. All rights reserved.
  */
 const snowflake = require('./../../lib/snowflake');
-var async = require('async');
-var assert = require('assert');
-var testUtil = require('./testUtil');
-var connOption = require('./connectionOptions');
+const async = require('async');
+const assert = require('assert');
+const testUtil = require('./testUtil');
+const connOption = require('./connectionOptions');
 const Logger = require('../../lib/logger');
 
 describe('Test Array Bind', function () {
   this.timeout(300000);
-  var connection;
-  var createABTable = 'create or replace table testAB(colA string, colB number, colC date, colD time, colE TIMESTAMP_NTZ, colF TIMESTAMP_TZ)';
-  var insertAB = 'insert into testAB values(?, ?, ?, ?, ?, ?)';
-  var selectAB = 'select * from testAB where colB = 1';
-  var createNABTable = 'create or replace table testNAB(colA string, colB number, colC date, colD time, colE TIMESTAMP_NTZ, colF TIMESTAMP_TZ)';
-  var insertNAB = 'insert into testNAB values(?, ?, ?, ?, ?, ?)';
-  var selectNAB = 'select * from testNAB where colB = 1';
-  var createNullTable = 'create or replace table testNullTB(colA string, colB number, colC date, colD time, colE TIMESTAMP_NTZ, colF TIMESTAMP_TZ)';
-  var insertNull = 'insert into testNullTB values(?, ?, ?, ?, ?, ?)';
-  var selectNull = 'select * from testNullTB where colB = 1';
+  let connection;
+  const createABTable = 'create or replace table testAB(colA string, colB number, colC date, colD time, colE TIMESTAMP_NTZ, colF TIMESTAMP_TZ)';
+  const insertAB = 'insert into testAB values(?, ?, ?, ?, ?, ?)';
+  const selectAB = 'select * from testAB where colB = 1';
+  const createNABTable = 'create or replace table testNAB(colA string, colB number, colC date, colD time, colE TIMESTAMP_NTZ, colF TIMESTAMP_TZ)';
+  const insertNAB = 'insert into testNAB values(?, ?, ?, ?, ?, ?)';
+  const selectNAB = 'select * from testNAB where colB = 1';
+  const createNullTable = 'create or replace table testNullTB(colA string, colB number, colC date, colD time, colE TIMESTAMP_NTZ, colF TIMESTAMP_TZ)';
+  const insertNull = 'insert into testNullTB values(?, ?, ?, ?, ?, ?)';
+  const selectNull = 'select * from testNullTB where colB = 1';
 
   const usedTableNames = [
     'testAB', 'testNAB', 'testNullTB',
@@ -45,26 +45,26 @@ describe('Test Array Bind', function () {
   });
 
   it('testArrayBind', function (done) {
-    var NABData;
+    let NABData;
     async.series(
       [
         function (callback) {
-          var createNAB = connection.execute({
+          connection.execute({
             sqlText: createABTable,
-            complete: function (err, stmt) {
+            complete: function (err) {
               testUtil.checkError(err);
               callback();
             }
           });
         },
         function (callback) {
-          var arrBind = [];
-          var count = 100;
-          for (var i = 0; i < count; i++) {
+          const arrBind = [];
+          const count = 100;
+          for (let i = 0; i < count; i++) {
             arrBind.push(['string' + i, i, '2020-05-11', '12:35:41.3333333', '2022-04-01 23:59:59', '2022-07-08 12:05:30.9999999']);
           }
           
-          var insertABStmt = connection.execute({
+          const insertABStmt = connection.execute({
             sqlText: insertAB,
             binds: arrBind,
             complete: function (err, stmt) {
@@ -77,21 +77,21 @@ describe('Test Array Bind', function () {
           });
         },
         function (callback) {
-          var createNAB = connection.execute({
+          connection.execute({
             sqlText: createNABTable,
-            complete: function (err, stmt) {
+            complete: function (err) {
               testUtil.checkError(err);
               callback();
             }
           });
         },
         function (callback) {
-          var arrBind = [];
-          var count = 2;
-          for (var i = 0; i < count; i++) {
+          const arrBind = [];
+          const count = 2;
+          for (let i = 0; i < count; i++) {
             arrBind.push(['string' + i, i, '2020-05-11', '12:35:41.3333333', '2022-04-01 23:59:59', '2022-07-08 12:05:30.9999999']);
           }
-          var insertNABStmt = connection.execute({
+          connection.execute({
             sqlText: insertNAB,
             binds: arrBind,
             complete: function (err, stmt) {
@@ -102,7 +102,7 @@ describe('Test Array Bind', function () {
           });
         },
         function (callback) {
-          var selectNABTable = connection.execute({
+          connection.execute({
             sqlText: selectNAB,
             complete: function (err, stmt, rows) {
               testUtil.checkError(err);
@@ -112,20 +112,20 @@ describe('Test Array Bind', function () {
           });
         },
         function (callback) {
-          var selectABTable = connection.execute({
+          connection.execute({
             sqlText: selectAB,
             complete: function (err, stmt, rows) {
               testUtil.checkError(err);
-              var ABData = rows[0];
+              const ABData = rows[0];
 
-              var ABDate = new Date(ABData['COLC']);
-              var ABDataD = new Date(ABData['COLD']).getTime();
-              var ABDataE = new Date(ABData['COLE']).getTime();
-              var ABDataF = new Date(ABData['COLF']).getTime();
-              var NABDate = new Date(NABData['COLC']);
-              var NABDataD = new Date(NABData['COLD']).getTime();
-              var NABDataE = new Date(NABData['COLE']).getTime();
-              var NABDataF = new Date(NABData['COLF']).getTime();
+              const ABDate = new Date(ABData['COLC']);
+              const ABDataD = new Date(ABData['COLD']).getTime();
+              const ABDataE = new Date(ABData['COLE']).getTime();
+              const ABDataF = new Date(ABData['COLF']).getTime();
+              const NABDate = new Date(NABData['COLC']);
+              const NABDataD = new Date(NABData['COLD']).getTime();
+              const NABDataE = new Date(NABData['COLE']).getTime();
+              const NABDataF = new Date(NABData['COLF']).getTime();
 
               assert.equal(ABData['COLA'], NABData['COLA']);
               assert.equal(ABData['COLB'], NABData['COLB']);
@@ -143,7 +143,7 @@ describe('Test Array Bind', function () {
   });
 
   it('testArrayBindWillNull', function (done) {
-    var NABData;
+    let NABData;
     async.series(
       [
         function (callback) {
@@ -155,9 +155,9 @@ describe('Test Array Bind', function () {
           });
         },
         function (callback) {
-          var arrBind = [];
-          var count = 100;
-          for (var i = 0; i < count; i++) {
+          const arrBind = [];
+          const count = 100;
+          for (let i = 0; i < count; i++) {
             arrBind.push([null, i, '2020-05-11', '12:35:41.3333333', '2022-04-01 23:59:59', '2022-07-08 12:05:30.9999999']);
           }
           
@@ -184,8 +184,8 @@ describe('Test Array Bind', function () {
           });
         },
         function (callback) {
-          var arrBind = [];
-          var count = 2;
+          const arrBind = [];
+          const count = 2;
           for (let i = 0; i < count; i++) {
             arrBind.push(['string' + i, i, '2020-05-11', '12:35:41.3333333', '2022-04-01 23:59:59', '2022-07-08 12:05:30.9999999']);
           }
@@ -224,16 +224,16 @@ describe('Test Array Bind', function () {
                 callback(err);
               } else {
                 try {
-                  var ABData = rows[0];
+                  const ABData = rows[0];
 
-                  var ABDate = new Date(ABData['COLC']);
-                  var ABDataD = new Date(ABData['COLD']).getTime();
-                  var ABDataE = new Date(ABData['COLE']).getTime();
-                  var ABDataF = new Date(ABData['COLF']).getTime();
-                  var NABDate = new Date(NABData['COLC']);
-                  var NABDataD = new Date(NABData['COLD']).getTime();
-                  var NABDataE = new Date(NABData['COLE']).getTime();
-                  var NABDataF = new Date(NABData['COLF']).getTime();
+                  const ABDate = new Date(ABData['COLC']);
+                  const ABDataD = new Date(ABData['COLD']).getTime();
+                  const ABDataE = new Date(ABData['COLE']).getTime();
+                  const ABDataF = new Date(ABData['COLF']).getTime();
+                  const NABDate = new Date(NABData['COLC']);
+                  const NABDataD = new Date(NABData['COLD']).getTime();
+                  const NABDataE = new Date(NABData['COLE']).getTime();
+                  const NABDataF = new Date(NABData['COLF']).getTime();
 
                   assert.equal(ABData['COLA'], '');
                   assert.equal(ABData['COLB'], NABData['COLB']);
@@ -258,17 +258,17 @@ describe('Test Array Bind', function () {
     async.series(
       [
         function (callback) {
-          var createSql = 'create or replace table testBindJson(colA varchar(30), colB varchar(30))';
+          const createSql = 'create or replace table testBindJson(colA varchar(30), colB varchar(30))';
           testUtil.executeCmd(connection, createSql, callback);
         },
         function (callback) {
-          var arrBind = [];
-          var count = 100;
-          for (var i = 0; i < count; i++) {
+          const arrBind = [];
+          const count = 100;
+          for (let i = 0; i < count; i++) {
             arrBind.push(['some-data-for-stuff1', 'some-data-for-stuff2']);
           }
-          var insertSql = 'insert into testBindJson(cola,colb) select value:stuff1, value:stuff2 from table(flatten(parse_json(?)))';
-          var insertStatement = connection.execute({
+          const insertSql = 'insert into testBindJson(cola,colb) select value:stuff1, value:stuff2 from table(flatten(parse_json(?)))';
+          connection.execute({
             sqlText: insertSql,
             binds: [JSON.stringify(arrBind)],
             complete: function (err, stmt) {
@@ -289,17 +289,17 @@ describe('Test Array Bind', function () {
     async.series(
       [
         function (callback) {
-          var createSql = 'create or replace table testBindLargeArray(colA varchar(30))';
+          const createSql = 'create or replace table testBindLargeArray(colA varchar(30))';
           testUtil.executeCmd(connection, createSql, callback);
         },
         function (callback) {
-          var arrBind = [];
-          var count = 100;
-          for (var i = 0; i < count; i++) {
+          const arrBind = [];
+          const count = 100;
+          for (let i = 0; i < count; i++) {
             arrBind.push(['some-data-for-stuff1']);
           }
-          var insertSql = 'insert into testBindLargeArray(colA) values (?)';
-          var insertStatement = connection.execute({
+          const insertSql = 'insert into testBindLargeArray(colA) values (?)';
+          connection.execute({
             sqlText: insertSql,
             binds: arrBind,
             complete: function (err, stmt) {
@@ -320,7 +320,7 @@ describe('Test Array Bind', function () {
     async.series(
       [
         function (callback) {
-          var createSql = 'create or replace table test101 (id INT, type VARCHAR(40), data VARIANT, createdDateTime TIMESTAMP_TZ(0), action VARCHAR(256))';
+          const createSql = 'create or replace table test101 (id INT, type VARCHAR(40), data VARIANT, createdDateTime TIMESTAMP_TZ(0), action VARCHAR(256))';
           testUtil.executeCmd(connection, createSql, callback);
         },
         function (callback) {
@@ -369,18 +369,18 @@ describe('Test Array Bind', function () {
             ]
           ];
           
-          var flatValue = [];
+          const flatValue = [];
           dataset.forEach(element => {
             element.forEach(value => {
               flatValue.push(value); 
             }); 
           });
-          var insertTable101 = 'insert into test101 (id,type,data,createdDateTime,action) select COLUMN1,COLUMN2,TRY_PARSE_JSON(COLUMN3),COLUMN4,COLUMN5 from values  (?,?,?,?,?),(?,?,?,?,?),(?,?,?,?,?),(?,?,?,?,?),(?,?,?,?,?),(?,?,?,?,?)';
-          var insertStatement = connection.execute({
+          const insertTable101 = 'insert into test101 (id,type,data,createdDateTime,action) select COLUMN1,COLUMN2,TRY_PARSE_JSON(COLUMN3),COLUMN4,COLUMN5 from values  (?,?,?,?,?),(?,?,?,?,?),(?,?,?,?,?),(?,?,?,?,?),(?,?,?,?,?),(?,?,?,?,?)';
+          connection.execute({
             sqlText: insertTable101,
             binds: flatValue,
             fetchAsString: ['Number', 'Date', 'JSON'],
-            complete: function (err, stmt) {
+            complete: function (err) {
               if (err) {
                 callback(err);
               } else {
@@ -390,12 +390,12 @@ describe('Test Array Bind', function () {
           });
         },
         function (callback) {
-          var selectSql = 'select * from test101 where ID = 5489';
-          var selectABTable = connection.execute({
+          const selectSql = 'select * from test101 where ID = 5489';
+          connection.execute({
             sqlText: selectSql,
             complete: function (err, stmt, rows) {
               testUtil.checkError(err);
-              var result = rows[0];
+              const result = rows[0];
               assert.equal(result['TYPE'], 'SAMPLE');
               callback();
             }
@@ -414,10 +414,10 @@ describe('Test Array Bind - full path', function () {
   this.timeout(600000);
   this.retries(3); // this test suit are considered as flaky
 
-  var connection;
+  let connection;
   const fullTableName = `${DATABASE_NAME}.${SCHEMA_NAME}.testAB`;
-  var createABTable = `create or replace table ${fullTableName}(colA string, colB number, colC date, colD time, colE TIMESTAMP_NTZ, colF TIMESTAMP_TZ)`;
-  var insertAB = `insert into ${fullTableName} values(?, ?, ?, ?, ?, ?)`;
+  const createABTable = `create or replace table ${fullTableName}(colA string, colB number, colC date, colD time, colE TIMESTAMP_NTZ, colF TIMESTAMP_TZ)`;
+  const insertAB = `insert into ${fullTableName} values(?, ?, ?, ?, ?, ?)`;
   
   before(function (done) {
     connection = snowflake.createConnection({
@@ -442,9 +442,9 @@ describe('Test Array Bind - full path', function () {
   });
 
   it('Full path array bind', function (done) {
-    var arrBind = [];
-    var count = 100;
-    for (var i = 0; i < count; i++) {
+    const arrBind = [];
+    const count = 100;
+    for (let i = 0; i < count; i++) {
       arrBind.push([null, i, '2020-05-11', '12:35:41.3333333', '2022-04-01 23:59:59', '2022-07-08 12:05:30.9999999']);
     }
     
@@ -467,13 +467,13 @@ describe('Test Array Bind - full path', function () {
 
 describe('Test Array Bind Force Error on Upload file', function () {
   this.timeout(300000);
-  var connection;
-  var createABTable = 'create or replace table testAB(colA string, colB number, colC date, colD time, colE TIMESTAMP_NTZ, colF TIMESTAMP_TZ)';
-  var insertAB = 'insert into testAB values(?, ?, ?, ?, ?, ?)';
-  var selectAB = 'select * from testAB where colB = 1';
-  var createNABTable = 'create or replace table testNAB(colA string, colB number, colC date, colD time, colE TIMESTAMP_NTZ, colF TIMESTAMP_TZ)';
-  var insertNAB = 'insert into testNAB values(?, ?, ?, ?, ?, ?)';
-  var selectNAB = 'select * from testNAB where colB = 1';
+  let connection;
+  const createABTable = 'create or replace table testAB(colA string, colB number, colC date, colD time, colE TIMESTAMP_NTZ, colF TIMESTAMP_TZ)';
+  const insertAB = 'insert into testAB values(?, ?, ?, ?, ?, ?)';
+  const selectAB = 'select * from testAB where colB = 1';
+  const createNABTable = 'create or replace table testNAB(colA string, colB number, colC date, colD time, colE TIMESTAMP_NTZ, colF TIMESTAMP_TZ)';
+  const insertNAB = 'insert into testNAB values(?, ?, ?, ?, ?, ?)';
+  const selectNAB = 'select * from testNAB where colB = 1';
 
   const usedTableNames = ['testAB', 'testNAB'];
 
@@ -497,26 +497,26 @@ describe('Test Array Bind Force Error on Upload file', function () {
   });
 
   it('testArrayBind force upload file error', function (done) {
-    var NABData;
+    let NABData;
     async.series(
       [
         function (callback) {
-          var createNAB = connection.execute({
+          connection.execute({
             sqlText: createABTable,
-            complete: function (err, stmt) {
+            complete: function (err) {
               testUtil.checkError(err);
               callback();
             }
           });
         },
         function (callback) {
-          var arrBind = [];
-          var count = 100;
-          for (var i = 0; i < count; i++) {
+          const arrBind = [];
+          const count = 100;
+          for (let i = 0; i < count; i++) {
             arrBind.push(['string' + i, i, '2020-05-11', '12:35:41.3333333', '2022-04-01 23:59:59', '2022-07-08 12:05:30.9999999']);
           }
 
-          var insertABStmt = connection.execute({
+          const insertABStmt = connection.execute({
             sqlText: insertAB,
             binds: arrBind,
             complete: function (err, stmt) {
@@ -529,21 +529,21 @@ describe('Test Array Bind Force Error on Upload file', function () {
           });
         },
         function (callback) {
-          var createNAB = connection.execute({
+          connection.execute({
             sqlText: createNABTable,
-            complete: function (err, stmt) {
+            complete: function (err) {
               testUtil.checkError(err);
               callback();
             }
           });
         },
         function (callback) {
-          var arrBind = [];
-          var count = 2;
-          for (var i = 0; i < count; i++) {
+          const arrBind = [];
+          const count = 2;
+          for (let i = 0; i < count; i++) {
             arrBind.push(['string' + i, i, '2020-05-11', '12:35:41.3333333', '2022-04-01 23:59:59', '2022-07-08 12:05:30.9999999']);
           }
-          var insertNABStmt = connection.execute({
+          connection.execute({
             sqlText: insertNAB,
             binds: arrBind,
             complete: function (err, stmt) {
@@ -554,7 +554,7 @@ describe('Test Array Bind Force Error on Upload file', function () {
           });
         },
         function (callback) {
-          var selectNABTable = connection.execute({
+          connection.execute({
             sqlText: selectNAB,
             complete: function (err, stmt, rows) {
               testUtil.checkError(err);
@@ -564,20 +564,20 @@ describe('Test Array Bind Force Error on Upload file', function () {
           });
         },
         function (callback) {
-          var selectABTable = connection.execute({
+          connection.execute({
             sqlText: selectAB,
             complete: function (err, stmt, rows) {
               testUtil.checkError(err);
-              var ABData = rows[0];
+              const ABData = rows[0];
 
-              var ABDate = new Date(ABData['COLC']);
-              var ABDataD = new Date(ABData['COLD']).getTime();
-              var ABDataE = new Date(ABData['COLE']).getTime();
-              var ABDataF = new Date(ABData['COLF']).getTime();
-              var NABDate = new Date(NABData['COLC']);
-              var NABDataD = new Date(NABData['COLD']).getTime();
-              var NABDataE = new Date(NABData['COLE']).getTime();
-              var NABDataF = new Date(NABData['COLF']).getTime();
+              const ABDate = new Date(ABData['COLC']);
+              const ABDataD = new Date(ABData['COLD']).getTime();
+              const ABDataE = new Date(ABData['COLE']).getTime();
+              const ABDataF = new Date(ABData['COLF']).getTime();
+              const NABDate = new Date(NABData['COLC']);
+              const NABDataD = new Date(NABData['COLD']).getTime();
+              const NABDataE = new Date(NABData['COLE']).getTime();
+              const NABDataF = new Date(NABData['COLF']).getTime();
 
               assert.equal(ABData['COLA'], NABData['COLA']);
               assert.equal(ABData['COLB'], NABData['COLB']);

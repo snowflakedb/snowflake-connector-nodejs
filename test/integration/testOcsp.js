@@ -35,13 +35,13 @@ describe('OCSP validation', function () {
           });
         },
         function (callback) {
-          var numErrors = 0;
-          var numStmtsExecuted = 0;
-          var numStmtsTotal = 20;
+          let numErrors = 0;
+          let numStmtsExecuted = 0;
+          const numStmtsTotal = 20;
 
           // execute a simple statement several times
           // and make sure there are no errors
-          for (var index = 0; index < numStmtsTotal; index++) {
+          for (let index = 0; index < numStmtsTotal; index++) {
             connection.execute(
               {
                 sqlText: 'select 1;',
@@ -80,13 +80,13 @@ describe('OCSP validation', function () {
           });
         },
         function (callback) {
-          var numErrors = 0;
-          var numStmtsExecuted = 0;
-          var numStmtsTotal = 5;
+          let numErrors = 0;
+          let numStmtsExecuted = 0;
+          const numStmtsTotal = 5;
 
           // execute a simple statement several times
           // and make sure there are no errors
-          for (var index = 0; index < numStmtsTotal; index++) {
+          for (let index = 0; index < numStmtsTotal; index++) {
             setTimeout(function () {
               connection.execute(
                 {
@@ -299,12 +299,12 @@ describe('OCSP privatelink', function () {
     }
   };
 
-  const host = Util.construct_hostname(connOption.privatelink.region, connOption.privatelink.account);
+  const host = Util.constructHostname(connOption.privatelink.region, connOption.privatelink.account);
   const ocspResponseCacheServerUrl = `http://ocsp.${host}/ocsp_response_cache.json`;
   const ocspResponderUrl = `http://ocsp.${host}/retry/${mockParsedUrl.hostname}/${mockDataBuf.toString('base64')}`;
 
   it('Account with privatelink', function (done) {
-    var connection = snowflake.createConnection(connOption.privatelink);
+    const connection = snowflake.createConnection(connOption.privatelink);
 
     connection.connect(function (err) {
       assert.ok(!err, JSON.stringify(err));
@@ -322,7 +322,7 @@ describe('OCSP privatelink', function () {
   });
 
   it('Account without privatelink', function (done) {
-    var connection = snowflake.createConnection(connOption.valid);
+    const connection = snowflake.createConnection(connOption.valid);
     connection.connect(function (err) {
       assert.ok(!err, JSON.stringify(err));
 
@@ -339,7 +339,7 @@ describe('OCSP privatelink', function () {
 // Skipped - requires manual interaction to set the network interface in system command and enter sudo user password
 describe.skip('Test Ocsp with network delay', function () {
   this.timeout(500000);
-  var connection;
+  let connection;
 
   before(function (done) {
     exec('sudo tc qdisc add dev eth0 root netem delay 5000ms');
@@ -361,7 +361,7 @@ describe.skip('Test Ocsp with network delay', function () {
 
       async.series([
         function (callback) {
-          connection.connect(function (err, conn) {
+          connection.connect(function (err) {
             assert.ok(!err, JSON.stringify(err));
             callback();
           });

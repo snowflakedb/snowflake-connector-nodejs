@@ -39,13 +39,13 @@ const ROW_DATA_OVERWRITE = COL3_DATA + ',' + COL1_DATA + ',' + COL2_DATA + '\n';
 const ROW_DATA_OVERWRITE_SIZE = 19;
 
 function getPlatformTmpPath(tmpPath) {
-  let path = `file://${tmpPath}`;
+  let location = `file://${tmpPath}`;
   // Windows user contains a '~' in the path which causes an error
   if (process.platform === 'win32') {
-    const fileName = tmpPath.substring(tmpPath.lastIndexOf('\\'));
-    path = `file://${process.env.USERPROFILE}\\AppData\\Local\\Temp\\${fileName}`;
+    // const fileName = tmpPath.substring(tmpPath.lastIndexOf('\\'));
+    location = `file://${process.env.USERPROFILE}\\AppData\\Local\\Temp\\${path.basename(tmpPath)}`;
   }
-  return path;
+  return location;
 }
 
 function executePutCmd(connection, putQuery, callback, results) {
@@ -837,6 +837,96 @@ describe('PUT GET test with multiple files', function () {
         },
       ],
       done
+    );
+  });
+
+  it('testUploadMultifiles with sub directories', function (done) {
+    const count = 6;
+    const results = {};
+
+    const tmpdirPath = testUtil.createTestingDirectoryInTemp(crypto.randomUUID());
+    const directory = getPlatformTmpPath(tmpdirPath);
+    const getQuery = `GET ${stage} ${directory}`;
+  
+    const tempDir = []; 
+    const testingDir = path.join(crypto.randomUUID());
+    const subDirectory = path.join(testingDir, crypto.randomUUID());
+    const subDirectory2 = path.join(testingDir, crypto.randomUUID(), crypto.randomUUID());
+  
+    [testingDir, subDirectory, subDirectory2].forEach((dir) => {
+     const location = testUtil.createTestingDirectoryInTemp(dir);
+     tempDir.push(location);
+    })
+  
+    for (const directory of tempDir) {
+      for (let k = 0; k < 2; k++) {
+        testUtil.createTempFile(directory, testUtil.createRandomFileName({ prefix: 'uploadTesting' }), ROW_DATA);
+      }
+    }
+  
+    let putQuery = `PUT file://${os.tmpdir()}/${testingDir}/** ${stage}`;
+    // Windows user contains a '~' in the path which causes an error
+    if (process.platform === 'win32') {
+      putQuery = `PUT file://${process.env.USERPROFILE}\\AppData\\Local\\Temp\\${testingDir}\\** ${stage}`;
+    }
+  
+    const testResult = [];
+  
+    async.series(
+      [
+        function (callback) {
+          executePutCmd(connection, putQuery, callback, results);
+        },
+        function (callback) {
+          // Run GET command
+          connection.execute({
+            sqlText: getQuery,
+            streamResult: true,
+            complete: function (err, stmt) {
+              if (err) {
+                callback(err);
+              } else {
+                const stream = stmt.streamRows();
+                stream.on('error', function (err) {
+                  callback(err);
+                });
+                stream.on('data', function (row) {
+                  assert.strictEqual(row.status, DOWNLOADED);
+                  assert.strictEqual(row.size, results.fileSize);
+  
+                  // Decompress the downloaded file
+                  const compressedFile = path.join(tmpdirPath, row.file);
+                  const decompressedFile = path.join(tmpdirPath, path.dirname(row.file), 'de-' + path.basename(row.file));
+                  const fileContents = fs.createReadStream(compressedFile);
+                  const writeStream = fs.createWriteStream(decompressedFile);
+                  const unzip = zlib.createGunzip();
+  
+                  fileContents.pipe(unzip).pipe(writeStream).on('finish', function () {
+                    // Verify the data of the downloaded file
+                    // this callback is called asynchronously so we gather results and in stream end we check if all files are correct
+                    const data = fs.readFileSync(decompressedFile).toString();
+                    try {
+                      assert.strictEqual(data, ROW_DATA);
+                      testResult.push(true);
+                    } catch (e) {
+                      testResult.push(e);
+                    }
+                  });
+                });
+                stream.on('end', function () {
+                  expectArrayToBeFinallyFilledWithTrue(count, testResult, callback);
+                });
+              }
+            }
+          });
+        },
+        function (callback) {
+          testUtil.deleteFolderSyncIgnoringErrors(tmpdirPath);
+          testUtil.deleteFolderSyncIgnoringErrors(tempDir[0]);
+          callback();
+        }
+      ],
+      done,
     );
   });
 

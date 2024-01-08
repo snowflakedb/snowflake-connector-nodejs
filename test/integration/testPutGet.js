@@ -14,7 +14,6 @@ const crypto = require('crypto');
 const path = require('path');
 const zlib = require('zlib');
 const { randomizeName } = require('./testUtil');
-const snowflake = require('./../../lib/snowflake');
 
 const DATABASE_NAME = connOption.valid.database;
 const SCHEMA_NAME = connOption.valid.schema;
@@ -74,7 +73,6 @@ function executePutCmd(connection, putQuery, callback, results) {
 
 describe('PUT GET test', function () {
   this.retries(3); // this test suit are considered as flaky test
-  snowflake.configure({ insecureConnect: true });
   let connection;
   let tmpFile;
   const TEMP_TABLE_NAME = randomizeName('TEMP_TABLE');

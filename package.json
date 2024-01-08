@@ -10,7 +10,7 @@
     "agent-base": "^6.0.2",
     "asn1.js-rfc2560": "^5.0.0",
     "asn1.js-rfc5280": "^3.0.0",
-    "axios": "^1.6.0",
+    "axios": "^1.6.5",
     "big-integer": "^1.6.43",
     "bignumber.js": "^9.1.2",
     "binascii": "0.0.2",
@@ -32,7 +32,6 @@
     "open": "^7.3.1",
     "python-struct": "^1.1.3",
     "simple-lru-cache": "^0.0.2",
-    "tmp": "^0.2.1",
     "uuid": "^8.3.2",
     "winston": "^3.1.0"
   },

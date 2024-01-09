@@ -5,6 +5,8 @@
 const assert = require('assert');
 const mock = require('mock-require');
 const SnowflakeS3Util = require('./../../../lib/file_transfer_agent/s3_util').S3Util;
+const extractBucketNameAndPath = require('./../../../lib/file_transfer_agent/s3_util').extractBucketNameAndPath;
+
 const resultStatus = require('./../../../lib/file_transfer_agent/file_util').resultStatus;
 
 describe('S3 client', function () {
@@ -16,6 +18,11 @@ describe('S3 client', function () {
   const mockKey = 'mockKey';
   const mockIv = 'mockIv';
   const mockMatDesc = 'mockMatDesc';
+  const mockConnectionConfig = {
+    getProxy: function () {
+      return null;
+    }
+  };
 
   let AWS;
   let s3;
@@ -66,7 +73,7 @@ describe('S3 client', function () {
     s3 = require('s3');
     filesystem = require('filesystem');
 
-    AWS = new SnowflakeS3Util(s3, filesystem);
+    AWS = new SnowflakeS3Util(mockConnectionConfig, s3, filesystem);
   });
   beforeEach(function () {
     const stageInfo = {
@@ -85,23 +92,23 @@ describe('S3 client', function () {
   });
 
   it('extract bucket name and path', async function () {
-    let result = AWS.extractBucketNameAndPath('sfc-eng-regression/test_sub_dir/');
+    let result = extractBucketNameAndPath('sfc-eng-regression/test_sub_dir/');
     assert.strictEqual(result.bucketName, 'sfc-eng-regression');
     assert.strictEqual(result.s3path, 'test_sub_dir/');
 
-    result = AWS.extractBucketNameAndPath('sfc-eng-regression/stakeda/test_stg/test_sub_dir/');
+    result = extractBucketNameAndPath('sfc-eng-regression/stakeda/test_stg/test_sub_dir/');
     assert.strictEqual(result.bucketName, 'sfc-eng-regression');
     assert.strictEqual(result.s3path, 'stakeda/test_stg/test_sub_dir/');
 
-    result = AWS.extractBucketNameAndPath('sfc-eng-regression/');
+    result = extractBucketNameAndPath('sfc-eng-regression/');
     assert.strictEqual(result.bucketName, 'sfc-eng-regression');
     assert.strictEqual(result.s3path, '');
 
-    result = AWS.extractBucketNameAndPath('sfc-eng-regression//');
+    result = extractBucketNameAndPath('sfc-eng-regression//');
     assert.strictEqual(result.bucketName, 'sfc-eng-regression');
     assert.strictEqual(result.s3path, '/');
 
-    result = AWS.extractBucketNameAndPath('sfc-eng-regression///');
+    result = extractBucketNameAndPath('sfc-eng-regression///');
     assert.strictEqual(result.bucketName, 'sfc-eng-regression');
     assert.strictEqual(result.s3path, '//');
   });
@@ -133,7 +140,7 @@ describe('S3 client', function () {
       }
     });
     s3 = require('s3');
-    const AWS = new SnowflakeS3Util(s3);
+    const AWS = new SnowflakeS3Util(mockConnectionConfig, s3);
     meta['client'] = AWS.createClient(meta['stageInfo']);
 
     await AWS.getFileHeader(meta, dataFile);
@@ -162,7 +169,7 @@ describe('S3 client', function () {
       }
     });
     s3 = require('s3');
-    const AWS = new SnowflakeS3Util(s3);
+    const AWS = new SnowflakeS3Util(mockConnectionConfig, s3);
     meta['client'] = AWS.createClient(meta['stageInfo']);
 
     await AWS.getFileHeader(meta, dataFile);
@@ -191,7 +198,7 @@ describe('S3 client', function () {
       }
     });
     s3 = require('s3');
-    const AWS = new SnowflakeS3Util(s3);
+    const AWS = new SnowflakeS3Util(mockConnectionConfig, s3);
     meta['client'] = AWS.createClient(meta['stageInfo']);
 
     await AWS.getFileHeader(meta, dataFile);
@@ -220,7 +227,7 @@ describe('S3 client', function () {
       }
     });
     s3 = require('s3');
-    const AWS = new SnowflakeS3Util(s3);
+    const AWS = new SnowflakeS3Util(mockConnectionConfig, s3);
     meta['client'] = AWS.createClient(meta['stageInfo']);
 
     await AWS.getFileHeader(meta, dataFile);
@@ -260,7 +267,7 @@ describe('S3 client', function () {
     });
     s3 = require('s3');
     filesystem = require('filesystem');
-    const AWS = new SnowflakeS3Util(s3, filesystem);
+    const AWS = new SnowflakeS3Util(mockConnectionConfig, s3, filesystem);
     meta['client'] = AWS.createClient(meta['stageInfo']);
 
     await AWS.uploadFile(dataFile, meta, encryptionMetadata);
@@ -295,7 +302,7 @@ describe('S3 client', function () {
     });
     s3 = require('s3');
     filesystem = require('filesystem');
-    const AWS = new SnowflakeS3Util(s3, filesystem);
+    const AWS = new SnowflakeS3Util(mockConnectionConfig, s3, filesystem);
     meta['client'] = AWS.createClient(meta['stageInfo']);
 
     await AWS.uploadFile(dataFile, meta, encryptionMetadata);
@@ -330,10 +337,13 @@ describe('S3 client', function () {
     });
     s3 = require('s3');
     filesystem = require('filesystem');
-    const AWS = new SnowflakeS3Util(s3, filesystem);
+    const AWS = new SnowflakeS3Util(mockConnectionConfig, s3, filesystem);
     meta['client'] = AWS.createClient(meta['stageInfo']);
 
     await AWS.uploadFile(dataFile, meta, encryptionMetadata);
     assert.strictEqual(meta['resultStatus'], resultStatus.NEED_RETRY);
+  });
+  it('proxy configured', async function () {
+
   });
 });

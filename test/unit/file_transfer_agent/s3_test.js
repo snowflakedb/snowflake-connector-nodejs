@@ -59,7 +59,8 @@ describe('S3 client', function () {
 
             return new putObject;
           };
-          this.destroy = function () {};
+          this.destroy = function () {
+          };
         }
 
         return new S3;
@@ -133,7 +134,8 @@ describe('S3 client', function () {
 
             return new getObject;
           };
-          this.destroy = function () {};
+          this.destroy = function () {
+          };
         }
 
         return new S3;
@@ -162,7 +164,8 @@ describe('S3 client', function () {
 
             return new getObject;
           };
-          this.destroy = function () {};
+          this.destroy = function () {
+          };
         }
 
         return new S3;
@@ -191,7 +194,8 @@ describe('S3 client', function () {
 
             return new getObject;
           };
-          this.destroy = function () {};
+          this.destroy = function () {
+          };
         }
 
         return new S3;
@@ -220,7 +224,8 @@ describe('S3 client', function () {
 
             return new getObject;
           };
-          this.destroy = function () {};
+          this.destroy = function () {
+          };
         }
 
         return new S3;
@@ -254,7 +259,8 @@ describe('S3 client', function () {
 
             return new putObject;
           };
-          this.destroy = function () {};
+          this.destroy = function () {
+          };
         }
 
         return new S3;
@@ -289,7 +295,8 @@ describe('S3 client', function () {
 
             return new putObject;
           };
-          this.destroy = function () {};
+          this.destroy = function () {
+          };
         }
 
         return new S3;
@@ -324,7 +331,8 @@ describe('S3 client', function () {
 
             return new putObject;
           };
-          this.destroy = function () {};
+          this.destroy = function () {
+          };
         }
 
         return new S3;
@@ -372,5 +380,6 @@ describe('S3 client', function () {
     assert.equal(clientConfig.httpsAgent.options.hostname, 'snowflake.com');
     assert.equal(clientConfig.httpsAgent.options.user, proxyOptions.user);
     assert.equal(clientConfig.httpsAgent.options.password, proxyOptions.password);
-    assert.equal(clientConfig.httpsAgent.options.port, proxyOptions.port);  });
+    assert.equal(clientConfig.httpsAgent.options.port, proxyOptions.port);
+  });
 });

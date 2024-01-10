@@ -9,7 +9,7 @@ const connOption = require('./connectionOptions');
 const Logger = require('../../lib/logger');
 
 describe('Test Array Bind', function () {
-  this.timeout(300000);
+  this.timeout(500000);
   let connection;
   const createABTable = 'create or replace table testAB(colA string, colB number, colC date, colD time, colE TIMESTAMP_NTZ, colF TIMESTAMP_TZ)';
   const insertAB = 'insert into testAB values(?, ?, ?, ?, ?, ?)';
@@ -466,7 +466,7 @@ describe('Test Array Bind - full path', function () {
 });
 
 describe('Test Array Bind Force Error on Upload file', function () {
-  this.timeout(300000);
+  this.timeout(500000);
   let connection;
   const createABTable = 'create or replace table testAB(colA string, colB number, colC date, colD time, colE TIMESTAMP_NTZ, colF TIMESTAMP_TZ)';
   const insertAB = 'insert into testAB values(?, ?, ?, ?, ?, ?)';

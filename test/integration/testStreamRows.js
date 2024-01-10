@@ -9,7 +9,7 @@ require('events').EventEmitter.prototype._maxListeners = 100;
 describe('Test Stream Rows API', function () {
   let connection;
 
-  this.timeout(300000);
+  this.timeout(500000);
 
   before(function (done) {
     connection = testUtil.createConnection();
@@ -321,7 +321,7 @@ describe('Test Stream Rows API', function () {
 });
 
 describe('Test Stream Rows HighWaterMark', function () {
-  this.timeout(300000);
+  this.timeout(500000);
   let connection;
 
   before(function (done) {

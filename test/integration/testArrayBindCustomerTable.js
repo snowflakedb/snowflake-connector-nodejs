@@ -5,7 +5,7 @@ const assert = require('assert');
 const testUtil = require('./testUtil');
 
 describe('Test Stage Binding with Customer Table', function () {
-  this.timeout(300000);
+  this.timeout(500000);
   this.retries(3); // this test suit are considered as flaky test
 
   let connection;

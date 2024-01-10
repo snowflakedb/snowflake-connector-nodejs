@@ -357,7 +357,8 @@ describe('S3 client', function () {
         return proxyOptions;
       }
     };
-    const AWS = new SnowflakeS3Util(proxyConnectionConfig);
+    const s3 = require('@aws-sdk/client-s3');
+    const AWS = new SnowflakeS3Util(proxyConnectionConfig, s3);
     meta['client'] = AWS.createClient(meta['stageInfo']);
 
     const clientConfig = await meta['client'].config.requestHandler.configProvider;

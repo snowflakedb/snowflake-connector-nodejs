@@ -351,7 +351,21 @@ describe('S3 client', function () {
     await AWS.uploadFile(dataFile, meta, encryptionMetadata);
     assert.strictEqual(meta['resultStatus'], resultStatus.NEED_RETRY);
   });
+
   it('proxy configured', async function () {
+    mock('s3', {
+      S3: function (config) {
+        function S3() {
+          this.config = config;
+          this.putObject = function () {
+          };
+          this.destroy = function () {
+          };
+        }
+
+        return new S3;
+      }
+    });
     const proxyOptions = {
       host: '127.0.0.1',
       port: 8080,
@@ -365,7 +379,7 @@ describe('S3 client', function () {
         return proxyOptions;
       }
     };
-    const s3 = require('@aws-sdk/client-s3');
+    s3 = require('s3');
     const AWS = new SnowflakeS3Util(proxyConnectionConfig, s3);
     meta['client'] = AWS.createClient(meta['stageInfo']);
 

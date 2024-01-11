@@ -63,7 +63,7 @@ describe('Max LOB test', function () {
       },
     },
     {
-      name: 'insert the Max size data',
+      name: 'insert the max size data',
       data: {
         C1: generateRandomString(MAX_LOB_SIZE), 
         C2: generateRandomString(ORIGIN_SIZE), 
@@ -84,11 +84,11 @@ describe('Max LOB test', function () {
       await testUtil.destroyConnectionAsync(connection);
     });
 
-    testSizes.forEach((size)=>{
-      it(`test ${size} size data`, function(){
-        testUtil.executeCmd(connection,`select randstr(${size}, 124)`,(err) => assert.ok(!err));
-      })
-    })
+    testSizes.forEach((size) => {
+      it(`test ${size} size data`, function (){
+        testUtil.executeCmd(connection, `select randstr(${size}, 124)`, (err) => assert.ok(!err));
+      });
+    });
   });
 
   describe('Literal Insert', function () {

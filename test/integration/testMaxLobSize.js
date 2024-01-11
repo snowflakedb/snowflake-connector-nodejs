@@ -11,20 +11,21 @@ function generateRandomString(sizeInBytes) {
   return buffer.toString('hex').slice(0, sizeInBytes);
 }
 
-describe.skip('Max LOB test', function () {
+describe('Max LOB test', function () {
   let connection;
+  // This size cannot be tested on our env. The snowflake team should test internally.
+  // const MAX_LOB_SIZE = 128 * 1024 * 1024; 
+  const MAX_LOB_SIZE = 16 * 1024 * 1024;
+  const LARGE_SIZE = MAX_LOB_SIZE / 2;
+  const MEDIEUM_SIZE = LARGE_SIZE / 2;
+  const ORIGIN_SIZE = MEDIEUM_SIZE / 2; 
   const SMALL_SIZE = 16;
-  const ORIGIN_SIZE = 16 * 1024 * 1024; 
-  const MEDIEUM_SIZE = ORIGIN_SIZE * 2;
-  const LARGE_SIZE = MEDIEUM_SIZE * 2;
-  const MAX_LOB_SIZE = LARGE_SIZE * 2;
 
-  const singleTest = 'select randstr(50000000, 124);';
   const tableName = 'my_lob_test';
   const createTable = `create or replace table ${tableName} (c1 varchar, c2 varchar, c3 int)`;
   const normalInsert = `insert into ${tableName}(c1, c2, c3) values `;
-  const bindInsert = `insert into ${tableName}(c1, c2, c3) values (?, ?, ?)`;
-  const positionalInsert = `insert into ${tableName}(c1, c2, c3) values (:2, :1, :3)`;
+  const positionalBindingInsert = `insert into ${tableName}(c1, c2, c3) values (?, ?, ?)`;
+  const namedBindingInsert = `insert into ${tableName}(c1, c2, c3) values (:1, :2, :3)`;
   const selectTable = `select * FROM ${tableName}`;
 
   const testCases = [
@@ -46,7 +47,7 @@ describe.skip('Max LOB test', function () {
       },
     },
     {
-      name: 'insert a origin size data',
+      name: 'insert a medium size data',
       data: {
         C1: generateRandomString(MEDIEUM_SIZE), 
         C2: generateRandomString(ORIGIN_SIZE), 
@@ -54,7 +55,7 @@ describe.skip('Max LOB test', function () {
       },
     },
     {
-      name: 'insert a origin size data',
+      name: 'insert a large size data',
       data: {
         C1: generateRandomString(LARGE_SIZE), 
         C2: generateRandomString(ORIGIN_SIZE), 
@@ -62,7 +63,7 @@ describe.skip('Max LOB test', function () {
       },
     },
     {
-      name: 'insert a origin size data',
+      name: 'insert the Max size data',
       data: {
         C1: generateRandomString(MAX_LOB_SIZE), 
         C2: generateRandomString(ORIGIN_SIZE), 
@@ -70,6 +71,25 @@ describe.skip('Max LOB test', function () {
       },
     },
   ];
+
+  describe('test the increased LOB memory', function () {
+    const testSizes = [SMALL_SIZE, ORIGIN_SIZE, MEDIEUM_SIZE, LARGE_SIZE, MAX_LOB_SIZE];
+
+    before(async function () {
+      connection = testUtil.createConnection();
+      await testUtil.connectAsync(connection);
+    });
+    
+    after(async () => {
+      await testUtil.destroyConnectionAsync(connection);
+    });
+
+    testSizes.forEach((size)=>{
+      it(`test ${size} size data`, function(){
+        testUtil.executeCmd(connection,`select randstr(${size}, 124)`,(err) => assert.ok(!err));
+      })
+    })
+  });
 
   describe('Literal Insert', function () {
     before(async function () {
@@ -84,15 +104,6 @@ describe.skip('Max LOB test', function () {
     
     beforeEach(async () => {
       await testUtil.executeCmdAsync(connection, createTable);
-    });
-
-    it('test increased memoery',  function () {
-      connection.execute({
-        sqlText: singleTest,
-        complete: function (err) {
-          assert.ok(!err);
-        },
-      });
     });
 
     testCases.forEach(({ name, data }) => {
@@ -116,7 +127,7 @@ describe.skip('Max LOB test', function () {
     });
   });
 
-  describe('test bind insert', function () {
+  describe('test named binding insert', function () {
     before(async function () {
       connection = testUtil.createConnection();
       await testUtil.connectAsync(connection);
@@ -135,7 +146,7 @@ describe.skip('Max LOB test', function () {
       it(name, function (done){
         async.series([
           function (callback) {
-            testUtil.executeCmd(connection, bindInsert, callback, Object.values(data));
+            testUtil.executeCmd(connection, namedBindingInsert, callback, Object.values(data));
           },
           function (callback) {
             testUtil.executeQueryAndVerify(
@@ -152,7 +163,7 @@ describe.skip('Max LOB test', function () {
     });
   });
 
-  describe('test bind insert', function () {
+  describe('test positional binding insert', function () {
     before(async function () {
       connection = testUtil.createConnection();
       await testUtil.connectAsync(connection);
@@ -171,49 +182,13 @@ describe.skip('Max LOB test', function () {
       it(name, function (done){
         async.series([
           function (callback) {
-            testUtil.executeCmd(connection, bindInsert, callback, Object.values(data));
+            testUtil.executeCmd(connection, positionalBindingInsert, callback, Object.values(data));
           },
           function (callback) {
             testUtil.executeQueryAndVerify(
               connection,
               selectTable,
               [{ ...data }],
-              callback
-            );
-          },
-        ],
-        done
-        );
-      });
-    });
-  });
-
-  describe('test positional insert', function () {
-    before(async function () {
-      connection = testUtil.createConnection();
-      await testUtil.connectAsync(connection);
-    });
-  
-    after(async () => {
-      await testUtil.dropTablesIgnoringErrorsAsync(connection, [tableName]);
-      await testUtil.destroyConnectionAsync(connection);
-    });
-  
-    beforeEach(async () => {
-      await testUtil.executeCmdAsync(connection, createTable);
-    });
-
-    testCases.forEach(({ name, data }) => {
-      it(name, function (done){
-        async.series([
-          function (callback) {
-            testUtil.executeCmd(connection, positionalInsert, callback, Object.values(data));
-          },
-          function (callback) {
-            testUtil.executeQueryAndVerify(
-              connection,
-              selectTable,
-              [{ ...data, C1: data.C2, C2: data.C1 }],
               callback
             );
           },
@@ -246,7 +221,7 @@ describe.skip('Max LOB test', function () {
       it(name, function (done){
         async.series([
           function (callback) {
-            testUtil.executeCmd(connection, bindInsert, callback, Object.values(data));
+            testUtil.executeCmd(connection, positionalBindingInsert, callback, Object.values(data));
           },
           function (callback) {
             testUtil.executeQueryAndVerify(

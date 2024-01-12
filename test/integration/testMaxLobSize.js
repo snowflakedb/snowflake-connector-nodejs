@@ -85,13 +85,13 @@ describe('Max LOB test', function () {
     });
 
     testSizes.forEach((size) => {
-      it(`test ${size} size data`, function (){
+      it(`test ${size} byte size data`, function (){
         testUtil.executeCmd(connection, `select randstr(${size}, 124)`, (err) => assert.ok(!err));
       });
     });
   });
 
-  describe('Literal Insert', function () {
+  describe('test literal Insert', function () {
     before(async function () {
       connection = testUtil.createConnection();
       await testUtil.connectAsync(connection);

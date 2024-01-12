@@ -1207,23 +1207,42 @@ describe('ConnectionConfig: basic', function () {
           }
       },
       {
-        name: 'region (deprecated)',
+        name: 'host',
         input:
           {
+            account: 'account',
             username: 'username',
             password: 'password',
-            account: 'account',
-            region: 'testregion',
-            disableConsoleLogin: false,
+            retryTimeout: 1234,
+            host: 'host.sub-domain.snowflakecomputing.com'
           },
         options:
           {
-            accessUrl: 'https://account.testregion.snowflakecomputing.com',
+            accessUrl: 'https://host.sub-domain.snowflakecomputing.com',
             username: 'username',
             password: 'password',
-            account: 'account',
+            account: 'account'
           }
       },
+      {
+        name: 'accessUrl and host',
+        input:
+          {
+            account: 'account',
+            username: 'username',
+            password: 'password',
+            retryTimeout: 1234,
+            host: 'host.snowflakecomputing.com',
+            accessUrl: 'https://access-url.snowflakecomputing.com'
+          },
+        options:
+          {
+            accessUrl: 'https://access-url.snowflakecomputing.com',
+            username: 'username',
+            password: 'password',
+            account: 'account'
+          }
+      }
     ];
 
   const createItCallback = function (testCase) {

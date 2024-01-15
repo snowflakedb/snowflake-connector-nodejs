@@ -73,6 +73,7 @@ describe('external browser authentication', function () {
     getProxy: () => {},
     getAuthenticator: () => credentials.authenticator,
     getServiceName: () => '',
+    getDisableConsoleLogin: () => true,
     host: 'fakehost'
   };
 

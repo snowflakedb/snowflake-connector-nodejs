@@ -189,7 +189,6 @@ describe('external browser authentication', function () {
     assert.strictEqual(
       body['data']['AUTHENTICATOR'], authenticationTypes.EXTERNAL_BROWSER_AUTHENTICATOR, 'Authenticator should be EXTERNALBROWSER');
   });
-  
 });
 
 describe('key-pair authentication', function () {

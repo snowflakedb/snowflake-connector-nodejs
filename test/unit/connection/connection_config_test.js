@@ -690,6 +690,16 @@ describe('ConnectionConfig: basic', function () {
         },
         errorCode: ErrorCodes.ERR_CONN_CREATE_INVALID_MAX_LOGIN_TIMEOUT
       },
+      {
+        name: 'invalid disableConsoleLogin',
+        options: {
+          account: 'account',
+          username: 'username',
+          password: 'password',
+          disableConsoleLogin: 'invalud'
+        },
+        errorCode: ErrorCodes.ERR_CONN_CREATE_INVALID_DISABLE_CONSOLE_LOGIN
+      },
     ];
 
   const createNegativeITCallback = function (testCase) {

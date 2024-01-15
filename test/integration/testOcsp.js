@@ -361,7 +361,7 @@ describe.skip('Test Ocsp with network delay', function () {
 
       async.series([
         function (callback) {
-          connection.connect(function (err) {
+          connection.connect(function (err, conn) {
             assert.ok(!err, JSON.stringify(err));
             callback();
           });

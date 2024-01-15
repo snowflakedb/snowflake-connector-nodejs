@@ -2,6 +2,7 @@
  * Copyright (c) 2015-2019 Snowflake Computing Inc. All rights reserved.
  */
 
+const Util = require('./../../../../lib/util');
 const assert = require('assert');
 const ResultTestCommon = require('./result_test_common');
 
@@ -53,7 +54,7 @@ describe('Result: test time', function () {
         function (row) {
           assert.strictEqual(row.getColumnValue('C1'), '12:34:56');
         },
-        function () {
+        function (result) {
           done();
         }
       );
@@ -107,7 +108,7 @@ describe('Result: test time', function () {
       function (row) {
         assert.strictEqual(row.getColumnValue('C1'), '12:34:56.789789789');
       },
-      function () {
+      function (result) {
         done();
       }
     );

@@ -2,6 +2,7 @@
  * Copyright (c) 2015-2019 Snowflake Computing Inc. All rights reserved.
  */
 
+const Util = require('./../../../../lib/util');
 const assert = require('assert');
 const ResultTestCommon = require('./result_test_common');
 
@@ -63,7 +64,7 @@ describe('Result: test binary', function () {
           assert.ok(row.getColumnValue('C1').equals(buffer));
           assert.strictEqual(row.getColumnValueAsString('C1'), '0123456789ABCDEF');
         },
-        function () {
+        function (result) {
           done();
         }
       );
@@ -127,7 +128,7 @@ describe('Result: test binary', function () {
         assert.ok(row.getColumnValue('C1').equals(buffer));
         assert.strictEqual(row.getColumnValueAsString('C1'), 'ASNFZ4mrze8=');
       },
-      function () {
+      function (result) {
         done();
       }
     );

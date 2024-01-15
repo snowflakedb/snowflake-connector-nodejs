@@ -71,6 +71,8 @@ describe('external browser authentication', function () {
   const connectionConfig = {
     getBrowserActionTimeout: () => BROWSER_ACTION_TIMEOUT,
     getProxy: () => {},
+    getAuthenticator: () => credentials.authenticator,
+    getServiceName: () => '',
     host: 'fakehost'
   };
 
@@ -118,6 +120,21 @@ describe('external browser authentication', function () {
 
     const body = { data: {} };
     auth.updateBody(body);
+
+    assert.strictEqual(body['data']['TOKEN'], mockToken);
+    assert.strictEqual(body['data']['PROOF_KEY'], mockProofKey);
+  });
+
+  it('external browser - reauthenticate', async function () {
+    const auth = new AuthWeb(connectionConfig, httpclient, webbrowser.open);
+    await auth.authenticate(credentials.authenticator, '', credentials.account, credentials.username, credentials.host);
+
+    const body = { data: {
+      TOKEN: 'wrong token',
+      PROOF_KEY: 'first proofkey'
+    } };
+   
+    await auth.reauthenticate(body);
 
     assert.strictEqual(body['data']['TOKEN'], mockToken);
     assert.strictEqual(body['data']['PROOF_KEY'], mockProofKey);
@@ -171,6 +188,7 @@ describe('external browser authentication', function () {
     assert.strictEqual(
       body['data']['AUTHENTICATOR'], authenticationTypes.EXTERNAL_BROWSER_AUTHENTICATOR, 'Authenticator should be EXTERNALBROWSER');
   });
+  
 });
 
 describe('key-pair authentication', function () {

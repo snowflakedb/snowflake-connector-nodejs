@@ -88,7 +88,7 @@ function createItCallback(connectionOptions, streamResult, verifyFn) {
       [
         function (callback) {
           connection = snowflake.createConnection(connectionOptions);
-          connection.connect(function () {
+          connection.connect(function (err) {
             callback();
           });
         },

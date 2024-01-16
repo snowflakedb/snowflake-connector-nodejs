@@ -78,7 +78,7 @@ describe('Result: test number', function () {
         assert.strictEqual(
           row.getColumnValueAsString('C4'), '1.23456789012346e+37');
       },
-      function () {
+      function (result) {
         done();
       }
     );

@@ -4,6 +4,7 @@
 const assert = require('assert');
 const async = require('async');
 const testUtil = require('./testUtil');
+const { configureLogger } = require('../configureLogger');
 const { randomizeName } = require('./testUtil');
 
 describe('Large result Set Tests', function () {

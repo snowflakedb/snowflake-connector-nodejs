@@ -70,7 +70,7 @@ describe('Result: test variant', function () {
         assert.equal(
           row.getColumnValueAsString('C3'), JSON.stringify([1, 2]));
       },
-      function () {
+      function (result) {
         done();
       }
     );

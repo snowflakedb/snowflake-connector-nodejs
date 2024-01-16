@@ -2,7 +2,10 @@
  * Copyright (c) 2015 Snowflake Computing Inc. All rights reserved.
  */
 
+const Result = require('./../../../../lib/connection/result/result');
+const ConnectionConfig = require('./../../../../lib/connection/connection_config');
 const Util = require('./../../../../lib/util');
+const ErrorCodes = require('./../../../../lib/errors').codes;
 const assert = require('assert');
 
 const ResultTestCommon = require('./result_test_common');

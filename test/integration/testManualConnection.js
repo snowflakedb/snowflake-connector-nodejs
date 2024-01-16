@@ -16,7 +16,7 @@ if (process.env.RUN_MANUAL_TESTS_ONLY === 'true') {
         connection.connectAsync(function (err, connection) {
           try {
             assert.ok(connection.isUp(), 'not active');
-            testUtil.destroyConnection(connection, function () {
+            testUtil.destroyConnection(connection, function (err, r) {
               try {
                 assert.ok(!connection.isUp(), 'not active');
                 done();
@@ -282,7 +282,7 @@ if (process.env.RUN_MANUAL_TESTS_ONLY === 'true') {
     });
 
     function executeSingleQuery() {
-      return new Promise((resolve) => {
+      return new Promise((resolve, reject) => {
         const start = Date.now();
         connection.execute({
           sqlText: `SELECT VALUE
@@ -296,10 +296,10 @@ if (process.env.RUN_MANUAL_TESTS_ONLY === 'true') {
                 .on('error', function (err) {
                   throw err;
                 })
-                .on('data', function () {
+                .on('data', function (row) {
                   return;
                 })
-                .on('end', function () {
+                .on('end', function (row) {
                   const end = Date.now();
                   const time = end - start;
                   resolve(time);

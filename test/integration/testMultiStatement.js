@@ -17,7 +17,7 @@ describe('Test multi statement', function () {
     testUtil.connect(connection, function () {
       connection.execute({
         sqlText: alterSessionMultiStatement0,
-        complete: function (err) {
+        complete: function (err, stmt) {
           testUtil.checkError(err);
           done();
         }
@@ -43,7 +43,7 @@ describe('Test multi statement', function () {
             }
           });
         },
-        function () {
+        function (callback) {
           const bindArr = [1, 2, 4];
           let count = 0;
           connection.execute({

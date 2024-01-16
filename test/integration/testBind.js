@@ -6,6 +6,7 @@ const assert = require('assert');
 const testUtil = require('./testUtil');
 const util = require('util');
 const sharedStatement = require('./sharedStatements');
+const Logger = require('../../lib/logger');
 
 describe('Test Bind Varible', function () {
   let connection;
@@ -181,7 +182,7 @@ describe('Test Bind Varible', function () {
             {
               sqlText: insertWithSemiColon,
               binds: [null, 3],
-              complete: function (err) {
+              complete: function (err, statement, rows) {
                 assert.ok(!err);
                 callback();
               }

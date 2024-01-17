@@ -413,7 +413,7 @@ function testGetObjectsOnStmt(options) {
       connTestaccount.execute(
         {
           sqlText: sql,
-          complete: function (err, statement) {
+          complete: function (err, statement, rows) {
             assert.ok(!err);
             queryId = statement.getQueryId();
             callback();

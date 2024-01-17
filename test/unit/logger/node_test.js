@@ -226,7 +226,7 @@ describe('Logger node tests', function () {
 
   async function closeTransportsWithTimeout(logger) {
     logger.closeTransports();
-    return new Promise((resolve) => {
+    return new Promise((resolve, reject) => {
       setTimeout(() => {
         resolve();
       }, millisTimeoutToFlushLogFile);

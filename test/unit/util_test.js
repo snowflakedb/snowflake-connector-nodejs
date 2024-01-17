@@ -807,6 +807,10 @@ describe('Util', function () {
   });
 
   describe('Util Test - detecting PROXY envvars and compare with the agent proxy settings', () => {
+    // if for some reason there's already a PROXY envvar, try to preserve it
+    const httpProxyBeforeTest = process.env.HTTP_PROXY ? process.env.HTTP_PROXY : null;
+    const httpsProxyBeforeTest = process.env.HTTPS_PROXY ? process.env.HTTPS_PROXY : null;
+
     [
       {
         name: 'detect http_proxy envvar, no agent proxy',

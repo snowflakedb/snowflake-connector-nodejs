@@ -409,7 +409,7 @@ describe('okta authentication', function () {
       body['data']['RAW_SAML_RESPONSE'], connectionOptionsOkta.rawSamlResponse, 'SAML response should be equal');
   });
 
-  it('okta - SAML response success', async function () {
+  it('okta - reauthenticate', async function () {
     const auth = new AuthOkta(connectionOptionsOkta, httpclient);
     const body = { data: {
       RAW_SAML_RESPONSE: 'WRONG SAML'

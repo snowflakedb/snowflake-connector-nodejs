@@ -126,21 +126,6 @@ describe('external browser authentication', function () {
     assert.strictEqual(body['data']['PROOF_KEY'], mockProofKey);
   });
 
-  it('external browser - reauthenticate', async function () {
-    const auth = new AuthWeb(connectionConfig, httpclient, webbrowser.open);
-    await auth.authenticate(credentials.authenticator, '', credentials.account, credentials.username, credentials.host);
-
-    const body = { data: {
-      TOKEN: 'wrong token',
-      PROOF_KEY: 'first proofkey'
-    } };
-   
-    await auth.reauthenticate(body);
-
-    assert.strictEqual(body['data']['TOKEN'], mockToken);
-    assert.strictEqual(body['data']['PROOF_KEY'], mockProofKey);
-  });
-
   it('external browser - get fail', async function () {
     mock('webbrowser', {
       open: function () {
@@ -405,12 +390,7 @@ describe('okta authentication', function () {
   });
 
   it('okta - authenticate method is thenable', done => {
-    const auth = new AuthOkta(connectionOptionsOkta.password,
-      connectionOptionsOkta.region,
-      connectionOptionsOkta.account,
-      connectionOptionsOkta.clientAppid,
-      connectionOptionsOkta.clientAppVersion,
-      httpclient);
+    const auth = new AuthOkta(connectionOptionsOkta, httpclient);
 
     auth.authenticate(connectionOptionsOkta.authenticator, '', connectionOptionsOkta.account, connectionOptionsOkta.username)
       .then(done)
@@ -418,17 +398,23 @@ describe('okta authentication', function () {
   });
 
   it('okta - SAML response success', async function () {
-    const auth = new AuthOkta(connectionOptionsOkta.password,
-      connectionOptionsOkta.region,
-      connectionOptionsOkta.account,
-      connectionOptionsOkta.clientAppid,
-      connectionOptionsOkta.clientAppVersion,
-      httpclient);
+    const auth = new AuthOkta(connectionOptionsOkta, httpclient);
 
     await auth.authenticate(connectionOptionsOkta.authenticator, '', connectionOptionsOkta.account, connectionOptionsOkta.username);
 
     const body = { data: {} };
     auth.updateBody(body);
+
+    assert.strictEqual(
+      body['data']['RAW_SAML_RESPONSE'], connectionOptionsOkta.rawSamlResponse, 'SAML response should be equal');
+  });
+
+  it('okta - SAML response success',async function () {
+    const auth = new AuthOkta(connectionOptionsOkta, httpclient);
+    const body = { data: {
+      RAW_SAML_RESPONSE: 'WRONG SAML'
+    } };
+    await auth.reauthenticate(body)
 
     assert.strictEqual(
       body['data']['RAW_SAML_RESPONSE'], connectionOptionsOkta.rawSamlResponse, 'SAML response should be equal');
@@ -457,12 +443,7 @@ describe('okta authentication', function () {
 
     httpclient = require('httpclient');
 
-    const auth = new AuthOkta(connectionOptionsOkta.password,
-      connectionOptionsOkta.region,
-      connectionOptionsOkta.account,
-      connectionOptionsOkta.clientAppid,
-      connectionOptionsOkta.clientAppVersion,
-      httpclient);
+    const auth = new AuthOkta(connectionOptionsOkta, httpclient);
 
     try {
       await auth.authenticate(connectionOptionsOkta.authenticator, '', connectionOptionsOkta.account, connectionOptionsOkta.username);
@@ -507,12 +488,7 @@ describe('okta authentication', function () {
 
     httpclient = require('httpclient');
 
-    const auth = new AuthOkta(connectionOptionsOkta.password,
-      connectionOptionsOkta.region,
-      connectionOptionsOkta.account,
-      connectionOptionsOkta.clientAppid,
-      connectionOptionsOkta.clientAppVersion,
-      httpclient);
+    const auth = new AuthOkta(connectionOptionsOkta, httpclient);
 
     try {
       await auth.authenticate(connectionOptionsOkta.authenticator, '', connectionOptionsOkta.account, connectionOptionsOkta.username);

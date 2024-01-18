@@ -42,13 +42,13 @@ describe('GCS client', function () {
     };
 
     mock('httpclient', {
-      put: async function () {
+      put: async function (url, body, header) {
         return;
       },
-      get: async function () {
+      get: async function (url) {
         return;
       },
-      head: async function () {
+      head: async function (url, header) {
         return {
           headers: ''
         };
@@ -97,10 +97,10 @@ describe('GCS client', function () {
 
   it('get file header - fail not found file with presigned url', async function () {
     mock('httpclient', {
-      put: async function () {
+      put: async function (url, body, header) {
         return;
       },
-      get: async function () {
+      get: async function (url) {
         const err = new Error();
         err.response = { status: 401 };
         throw err;
@@ -115,7 +115,7 @@ describe('GCS client', function () {
 
   it('get file header - fail need retry', async function () {
     mock('httpclient', {
-      head: async function () {
+      head: async function (url) {
         const err = new Error();
         err.response = { status: 403 };
         throw err;
@@ -132,7 +132,7 @@ describe('GCS client', function () {
 
   it('get file header - fail not found file without presigned url', async function () {
     mock('httpclient', {
-      head: async function () {
+      head: async function (url) {
         const err = new Error();
         err.response = { status: 404 };
         throw err;
@@ -149,7 +149,7 @@ describe('GCS client', function () {
 
   it('get file header - fail expired token', async function () {
     mock('httpclient', {
-      head: async function () {
+      head: async function (url, header) {
         const err = new Error();
         err.response = { status: 401 };
         throw err;
@@ -167,7 +167,7 @@ describe('GCS client', function () {
   it('get file header - fail unknown status', async function () {
     let err;
     mock('httpclient', {
-      head: async function () {
+      head: async function (url, header) {
         err = new Error();
         err.response = { status: 0 };
         throw err;
@@ -192,7 +192,7 @@ describe('GCS client', function () {
 
   it('upload - fail need retry', async function () {
     mock('httpclient', {
-      put: async function () {
+      put: async function (url, body, header) {
         const err = new Error();
         err.code = 403;
         throw err;
@@ -213,7 +213,7 @@ describe('GCS client', function () {
 
   it('upload - fail renew presigned url', async function () {
     mock('httpclient', {
-      put: async function () {
+      put: async function (url, body, header) {
         const err = new Error();
         err.code = 400;
         throw err;
@@ -237,7 +237,7 @@ describe('GCS client', function () {
 
   it('upload - fail expired token', async function () {
     mock('httpclient', {
-      put: async function () {
+      put: async function (url, body, header) {
         const err = new Error();
         err.code = 401;
         throw err;
@@ -249,11 +249,11 @@ describe('GCS client', function () {
       }
     });
     mock('gcsClient', {
-      bucket: function () {
+      bucket: function (bucketName) {
         function bucket() {
-          this.file = function () {
+          this.file = function (bucketPath) {
             function file() {
-              this.save = function () {
+              this.save = function (fileStream, options) {
                 const err = new Error();
                 err.code = 401;
                 throw err;

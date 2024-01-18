@@ -38,7 +38,7 @@ describe('Statement Tests', function () {
     async.series(
       [
         function (callback) {
-          tokenConn.connect(function (err) {
+          tokenConn.connect(function (err, conn) {
             assert.ok(!err, 'there should be no error');
             const sessionToken = tokenConn.getTokens().sessionToken;
             assert.ok(sessionToken);
@@ -128,7 +128,7 @@ describe('Statement Tests', function () {
           statement = badConnection.execute(
             {
               sqlText: sqlText,
-              complete: function (err) {
+              complete: function (err, stmt) {
                 assert.ok(err !== undefined, 'expect an error');
                 assert.ok(err.code === ErrorCodes.ERR_SF_RESPONSE_INVALID_TOKEN, 'Should throw invalid token error');
                 callback();
@@ -251,7 +251,7 @@ describe('Call Statement', function () {
         function (callback) {
           const statement = connection.execute({
             sqlText: 'ALTER SESSION SET USE_STATEMENT_TYPE_CALL_FOR_STORED_PROC_CALLS=true;',
-            complete: function () {
+            complete: function (err, stmt, rows) {
               const stream = statement.streamRows();
               stream.on('error', function (err) {
                 // Expected error - SqlState: 22023, VendorCode: 1006
@@ -274,7 +274,7 @@ describe('Call Statement', function () {
               + 'res.next();\n'
               + 'return res.getColumnValueAsString(1) + \' \' + res.getColumnValueAsString(2) + \' \' + IN2;\n'
               + '$$;',
-            complete: function () {
+            complete: function (err, stmt, rows) {
               const stream = statement.streamRows();
               stream.on('error', function (err) {
                 done(err);
@@ -282,7 +282,7 @@ describe('Call Statement', function () {
               stream.on('data', function (row) {
                 assert.strictEqual(true, row.status.includes('success'));
               });
-              stream.on('end', function () {
+              stream.on('end', function (row) {
                 callback();
               });
             }
@@ -292,7 +292,7 @@ describe('Call Statement', function () {
           const statement = connection.execute({
             sqlText: 'call TEST_SP_CALL_STMT_ENABLED(?, to_variant(?))',
             binds: [1, '[2,3]'],
-            complete: function () {
+            complete: function (err, stmt, rows) {
               const stream = statement.streamRows();
               stream.on('error', function (err) {
                 done(err);
@@ -301,7 +301,7 @@ describe('Call Statement', function () {
                 const result = '1 "[2,3]" [2,3]';
                 assert.strictEqual(result, row.TEST_SP_CALL_STMT_ENABLED);
               });
-              stream.on('end', function () {
+              stream.on('end', function (row) {
                 callback();
               });
             }
@@ -310,7 +310,7 @@ describe('Call Statement', function () {
         function (callback) {
           const statement = connection.execute({
             sqlText: 'drop procedure if exists TEST_SP_CALL_STMT_ENABLED(float, variant)',
-            complete: function () {
+            complete: function (err, stmt, rows) {
               const stream = statement.streamRows();
               stream.on('error', function (err) {
                 done(err);
@@ -318,7 +318,7 @@ describe('Call Statement', function () {
               stream.on('data', function (row) {
                 assert.strictEqual(true, row.status.includes('success'));
               });
-              stream.on('end', function () {
+              stream.on('end', function (row) {
                 callback();
               });
             }

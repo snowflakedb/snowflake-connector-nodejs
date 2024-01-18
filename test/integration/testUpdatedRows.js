@@ -58,7 +58,7 @@ describe('Test updated rows', function () {
           connection.execute(
             {
               sqlText: sqlText,
-              complete: function (err, statement) {
+              complete: function (err, statement, rows) {
                 assert.ok(!err);
                 assert.strictEqual(statement.getNumUpdatedRows(), -1);
                 callback();
@@ -78,7 +78,7 @@ describe('Test updated rows', function () {
           connection.execute(
             {
               sqlText: sqlText,
-              complete: function (err, statement) {
+              complete: function (err, statement, rows) {
                 // 'number of rows inserted': 8
                 assert.ok(!err);
                 assert.strictEqual(statement.getNumUpdatedRows(), 8);
@@ -91,7 +91,7 @@ describe('Test updated rows', function () {
           connection.execute(
             {
               sqlText: sqlText,
-              complete: function (err, statement) {
+              complete: function (err, statement, rows) {
                 assert.ok(!err);
                 assert.strictEqual(statement.getNumUpdatedRows(), -1);
                 callback();
@@ -107,7 +107,7 @@ describe('Test updated rows', function () {
           connection.execute(
             {
               sqlText: sqlText,
-              complete: function (err, statement) {
+              complete: function (err, statement, rows) {
                 // 'number of rows inserted': 4
                 assert.ok(!err);
                 assert.strictEqual(statement.getNumUpdatedRows(), 4);
@@ -121,7 +121,7 @@ describe('Test updated rows', function () {
           connection.execute(
             {
               sqlText: sqlText,
-              complete: function (err, statement) {
+              complete: function (err, statement, rows) {
                 // 'number of rows updated': 3
                 // 'number of multi-joined rows updated': 1
                 assert.ok(!err);
@@ -135,7 +135,7 @@ describe('Test updated rows', function () {
           connection.execute(
             {
               sqlText: sqlText,
-              complete: function (err, statement) {
+              complete: function (err, statement, rows) {
                 // 'number of rows deleted': 8
                 assert.ok(!err);
                 assert.strictEqual(statement.getNumUpdatedRows(), 8);
@@ -153,7 +153,7 @@ describe('Test updated rows', function () {
           connection.execute(
             {
               sqlText: sqlText,
-              complete: function (err, statement) {
+              complete: function (err, statement, rows) {
                 assert.ok(!err);
                 assert.strictEqual(statement.getNumUpdatedRows(), -1);
                 callback();
@@ -165,7 +165,7 @@ describe('Test updated rows', function () {
           connection.execute(
             {
               sqlText: sqlText,
-              complete: function (err, statement) {
+              complete: function (err, statement, rows) {
                 // 'number of rows inserted': 4
                 assert.ok(!err);
                 assert.strictEqual(statement.getNumUpdatedRows(), 4);
@@ -178,7 +178,7 @@ describe('Test updated rows', function () {
           connection.execute(
             {
               sqlText: sqlText,
-              complete: function (err, statement) {
+              complete: function (err, statement, rows) {
                 assert.ok(!err);
                 assert.strictEqual(statement.getNumUpdatedRows(), -1);
                 callback();
@@ -190,7 +190,7 @@ describe('Test updated rows', function () {
           connection.execute(
             {
               sqlText: sqlText,
-              complete: function (err, statement) {
+              complete: function (err, statement, rows) {
                 assert.ok(!err);
                 assert.strictEqual(statement.getNumUpdatedRows(), -1);
                 callback();
@@ -202,7 +202,7 @@ describe('Test updated rows', function () {
           connection.execute(
             {
               sqlText: sqlText,
-              complete: function (err, statement) {
+              complete: function (err, statement, rows) {
                 // 'number of rows inserted': 5
                 assert.ok(!err);
                 assert.strictEqual(statement.getNumUpdatedRows(), 5);
@@ -218,7 +218,7 @@ describe('Test updated rows', function () {
           connection.execute(
             {
               sqlText: sqlText,
-              complete: function (err, statement) {
+              complete: function (err, statement, rows) {
                 // 'number of rows inserted': 3
                 // 'number of rows updated': 1
                 // 'number of rows deleted': 1
@@ -238,7 +238,7 @@ describe('Test updated rows', function () {
           connection.execute(
             {
               sqlText: sqlText,
-              complete: function (err, statement) {
+              complete: function (err, statement, rows) {
                 assert.ok(!err);
                 assert.strictEqual(statement.getNumUpdatedRows(), -1);
                 callback();
@@ -250,7 +250,7 @@ describe('Test updated rows', function () {
           connection.execute(
             {
               sqlText: sqlText,
-              complete: function (err, statement) {
+              complete: function (err, statement, rows) {
                 // 'number of rows inserted': 3
                 assert.ok(!err);
                 assert.strictEqual(statement.getNumUpdatedRows(), 3);
@@ -263,7 +263,7 @@ describe('Test updated rows', function () {
           connection.execute(
             {
               sqlText: sqlText,
-              complete: function (err, statement) {
+              complete: function (err, statement, rows) {
                 assert.ok(!err);
                 assert.strictEqual(statement.getNumUpdatedRows(), -1);
                 callback();
@@ -275,7 +275,7 @@ describe('Test updated rows', function () {
           connection.execute(
             {
               sqlText: sqlText,
-              complete: function (err, statement) {
+              complete: function (err, statement, rows) {
                 assert.ok(!err);
                 assert.strictEqual(statement.getNumUpdatedRows(), -1);
                 callback();
@@ -287,7 +287,7 @@ describe('Test updated rows', function () {
           connection.execute(
             {
               sqlText: sqlText,
-              complete: function (err, statement) {
+              complete: function (err, statement, rows) {
                 // 'number of rows inserted into FOO': 3
                 // 'number of rows inserted into BAR': 3
                 assert.ok(!err);

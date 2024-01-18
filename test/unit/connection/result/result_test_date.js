@@ -51,7 +51,7 @@ describe('Result: test date', function () {
           assert.ok(Util.isDate(row.getColumnValue('C1')));
           assert.strictEqual(row.getColumnValueAsString('C1'), '2016-01-21');
         },
-        function () {
+        function (result) {
           done();
         }
       );

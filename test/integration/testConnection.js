@@ -268,7 +268,7 @@ describe('Connection test - connection pool', function () {
     assert.equal(connectionPool.min, 0);
 
     // Acquire a connection
-    const resourcePromise1 = connectionPool.acquire();
+    connectionPool.acquire();
     assert.equal(connectionPool.size, 1);
 
     done();
@@ -284,9 +284,9 @@ describe('Connection test - connection pool', function () {
     assert.equal(connectionPool.min, 0);
 
     // Acquire 2 connections
-    const resourcePromise1 = connectionPool.acquire();
+    connectionPool.acquire();
     assert.equal(connectionPool.size, 1);
-    const resourcePromise2 = connectionPool.acquire();
+    connectionPool.acquire();
     assert.equal(connectionPool.size, 1);
 
     done();
@@ -302,15 +302,15 @@ describe('Connection test - connection pool', function () {
     assert.equal(connectionPool.min, 0);
 
     // Acquire 5 connections
-    const resourcePromise1 = connectionPool.acquire();
+    connectionPool.acquire();
     assert.equal(connectionPool.size, 1);
-    const resourcePromise2 = connectionPool.acquire();
+    connectionPool.acquire();
     assert.equal(connectionPool.size, 2);
-    const resourcePromise3 = connectionPool.acquire();
+    connectionPool.acquire();
     assert.equal(connectionPool.size, 3);
-    const resourcePromise4 = connectionPool.acquire();
+    connectionPool.acquire();
     assert.equal(connectionPool.size, 4);
-    const resourcePromise5 = connectionPool.acquire();
+    connectionPool.acquire();
     assert.equal(connectionPool.size, 5);
 
     done();
@@ -326,17 +326,17 @@ describe('Connection test - connection pool', function () {
     assert.equal(connectionPool.min, 0);
 
     // Acquire 6 connections
-    const resourcePromise1 = connectionPool.acquire();
+    connectionPool.acquire();
     assert.equal(connectionPool.size, 1);
-    const resourcePromise2 = connectionPool.acquire();
+    connectionPool.acquire();
     assert.equal(connectionPool.size, 2);
-    const resourcePromise3 = connectionPool.acquire();
+    connectionPool.acquire();
     assert.equal(connectionPool.size, 3);
-    const resourcePromise4 = connectionPool.acquire();
+    connectionPool.acquire();
     assert.equal(connectionPool.size, 4);
-    const resourcePromise5 = connectionPool.acquire();
+    connectionPool.acquire();
     assert.equal(connectionPool.size, 5);
-    const resourcePromise6 = connectionPool.acquire();
+    connectionPool.acquire();
     assert.equal(connectionPool.size, 5);
 
     done();
@@ -352,25 +352,25 @@ describe('Connection test - connection pool', function () {
     assert.equal(connectionPool.min, 0);
 
     // Acquire 10 connections
-    const resourcePromise1 = connectionPool.acquire();
+    connectionPool.acquire();
     assert.equal(connectionPool.size, 1);
-    const resourcePromise2 = connectionPool.acquire();
+    connectionPool.acquire();
     assert.equal(connectionPool.size, 2);
-    const resourcePromise3 = connectionPool.acquire();
+    connectionPool.acquire();
     assert.equal(connectionPool.size, 3);
-    const resourcePromise4 = connectionPool.acquire();
+    connectionPool.acquire();
     assert.equal(connectionPool.size, 4);
-    const resourcePromise5 = connectionPool.acquire();
+    connectionPool.acquire();
     assert.equal(connectionPool.size, 5);
-    const resourcePromise6 = connectionPool.acquire();
+    connectionPool.acquire();
     assert.equal(connectionPool.size, 6);
-    const resourcePromise7 = connectionPool.acquire();
+    connectionPool.acquire();
     assert.equal(connectionPool.size, 7);
-    const resourcePromise8 = connectionPool.acquire();
+    connectionPool.acquire();
     assert.equal(connectionPool.size, 8);
-    const resourcePromise9 = connectionPool.acquire();
+    connectionPool.acquire();
     assert.equal(connectionPool.size, 9);
-    const resourcePromise10 = connectionPool.acquire();
+    connectionPool.acquire();
     assert.equal(connectionPool.size, 10);
 
     done();
@@ -386,27 +386,27 @@ describe('Connection test - connection pool', function () {
     assert.equal(connectionPool.min, 0);
 
     // Acquire 11 connections
-    const resourcePromise1 = connectionPool.acquire();
+    connectionPool.acquire();
     assert.equal(connectionPool.size, 1);
-    const resourcePromise2 = connectionPool.acquire();
+    connectionPool.acquire();
     assert.equal(connectionPool.size, 2);
-    const resourcePromise3 = connectionPool.acquire();
+    connectionPool.acquire();
     assert.equal(connectionPool.size, 3);
-    const resourcePromise4 = connectionPool.acquire();
+    connectionPool.acquire();
     assert.equal(connectionPool.size, 4);
-    const resourcePromise5 = connectionPool.acquire();
+    connectionPool.acquire();
     assert.equal(connectionPool.size, 5);
-    const resourcePromise6 = connectionPool.acquire();
+    connectionPool.acquire();
     assert.equal(connectionPool.size, 6);
-    const resourcePromise7 = connectionPool.acquire();
+    connectionPool.acquire();
     assert.equal(connectionPool.size, 7);
-    const resourcePromise8 = connectionPool.acquire();
+    connectionPool.acquire();
     assert.equal(connectionPool.size, 8);
-    const resourcePromise9 = connectionPool.acquire();
+    connectionPool.acquire();
     assert.equal(connectionPool.size, 9);
-    const resourcePromise10 = connectionPool.acquire();
+    connectionPool.acquire();
     assert.equal(connectionPool.size, 10);
-    const resourcePromise11 = connectionPool.acquire();
+    connectionPool.acquire();
     assert.equal(connectionPool.size, 10);
 
     done();

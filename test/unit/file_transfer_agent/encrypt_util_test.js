@@ -27,13 +27,13 @@ describe('Encryption util', function () {
     };
 
     mock('encrypt', {
-      randomBytes: function (options) {
+      randomBytes: function () {
         return Buffer.from(mockRandomBytes);
       },
-      createCipheriv: function (AES_CBC, fileKey, ivData) {
+      createCipheriv: function () {
         function createCipheriv() {
           this.update = function (data) {
-            function update(data) {
+            function update() {
               return Buffer.from(mockData.substring(0, 4));
             }
             return new update(data);
@@ -49,7 +49,7 @@ describe('Encryption util', function () {
       }
     });
     mock('filestream', {
-      createReadStream: function (inFileName, options) {
+      createReadStream: function () {
         function createReadStream() {
           this.on = function (event, callback) {
             callback();
@@ -58,9 +58,9 @@ describe('Encryption util', function () {
         }
         return new createReadStream;
       },
-      createWriteStream: function (options) {
+      createWriteStream: function () {
         function createWriteStream() {
-          this.write = function (data) {
+          this.write = function () {
             return;
           };
           this.close = function (resolve) {
@@ -70,18 +70,18 @@ describe('Encryption util', function () {
         }
         return new createWriteStream;
       },
-      closeSync: function (fd) {
+      closeSync: function () {
         return;
       }
     });
     mock('temp', {
-      fileSync: function (options) {
+      fileSync: function () {
         return {
           name: mockTmpName,
           fd: 0
         };
       },
-      openSync: function (options) {
+      openSync: function () {
         return;
       }
     });

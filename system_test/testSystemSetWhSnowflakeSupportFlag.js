@@ -172,7 +172,7 @@ describe('exclude support warehouses', function () {
     conn.execute(
       {
         sqlText: sqlText,
-        complete: function (err, statement, rows) {
+        complete: function (err) {
           assert.ok(!err);
           callback();
         }

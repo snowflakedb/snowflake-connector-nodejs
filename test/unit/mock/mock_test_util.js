@@ -146,7 +146,7 @@ const connectionOptionsOkta =
   getServiceName: () => '',
   getRetryTimeout: () => 300,
   getElapsedTime: () => 0,
-  setElapsedTime: (time) => {},
+  setElapsedTime: () => {},
   getNumofRetries: () => 1,
   setNumofRetries: () => {},
 };

@@ -145,6 +145,10 @@ const connectionOptionsOkta =
   getAuthenticator: () => 'https://dev-12345678.okta.com/',
   getServiceName: () => '',
   getRetryTimeout: () => 300,
+  getElapsedTime: () => 0,
+  setElapsedTime: (time) => {},
+  getNumofRetries: () => 1,
+  setNumofRetries: () => {},
 };
 
 exports.connectionOptions =

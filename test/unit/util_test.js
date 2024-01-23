@@ -562,35 +562,35 @@ describe('Util', function () {
       const maxRetryTimeout = 300;
       let currentSleepTime = 1;
       let retryCount = 1;
-      let totalTimeout = currentSleepTime;
+      let totalElaspedTime = currentSleepTime;
       for (const response of errorCodes) {
         retryCount++;
-        const result = Util.getJitteredSleepTime(retryCount, currentSleepTime, totalTimeout, maxRetryTimeout);
+        const result = Util.getJitteredSleepTime(retryCount, currentSleepTime, totalElaspedTime, maxRetryTimeout);
         const jitter = currentSleepTime / 2;
         const nextSleep = 2 ** retryCount;
         currentSleepTime = result.sleep;
-        totalTimeout = result.totalTimeout;
+        totalElaspedTime = result.totalElaspedTime;
        
         assert.strictEqual(Util.isRetryableHttpError(response, true), true);
         assert.ok(currentSleepTime <= nextSleep + jitter || currentSleepTime >= nextSleep - jitter);
       }
     
       assert.strictEqual(retryCount, 7);
-      assert.ok(totalTimeout <= maxRetryTimeout);
+      assert.ok(totalElaspedTime <= maxRetryTimeout);
     }); 
 
     it('test - retryTimeout is 0', function () {
       const maxRetryTimeout = 0;
       let currentSleepTime = 1;
       const maxRetryCount = 20;
-      let totalTimeout = currentSleepTime;
+      let totalElaspedTime = currentSleepTime;
       let retryCount = 1;
       for ( ; retryCount < maxRetryCount; retryCount++) {
-        const result = Util.getJitteredSleepTime(retryCount, currentSleepTime, totalTimeout, maxRetryTimeout);
+        const result = Util.getJitteredSleepTime(retryCount, currentSleepTime, totalElaspedTime, maxRetryTimeout);
         const jitter = currentSleepTime / 2;
         const nextSleep = 2 ** retryCount;
         currentSleepTime = result.sleep;
-        totalTimeout = result.totalTimeout;
+        totalElaspedTime = result.totalElaspedTime;
 
         assert.ok(currentSleepTime <= nextSleep + jitter || currentSleepTime >= nextSleep - jitter);
       }

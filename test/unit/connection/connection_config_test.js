@@ -1290,4 +1290,40 @@ describe('ConnectionConfig: basic', function () {
     assert.strictEqual(
       connectionConfig.getResultPrefetch(), resultPrefetchCustom);
   });
+
+  it('the number of retries', function () {
+    const username = 'username';
+    const password = 'password';
+    const account = 'account';
+
+    const connectionConfig = new ConnectionConfig(
+      {
+        username: username,
+        password: password,
+        account: account
+      });
+    
+    assert.strictEqual(1, connectionConfig.getNumofRetries());
+    const randomNumber = Math.floor(Math.random() * 7);
+    connectionConfig.setNumofRetries(randomNumber);
+    assert.strictEqual(randomNumber, connectionConfig.getNumofRetries());
+  });
+
+  it('total elapsed time', function () {
+    const username = 'username';
+    const password = 'password';
+    const account = 'account';
+
+    const connectionConfig = new ConnectionConfig(
+      {
+        username: username,
+        password: password,
+        account: account
+      });
+    
+    assert.strictEqual(0, connectionConfig.getElapsedTime());
+    const randomNumber = Math.floor(Math.random() * 300);
+    connectionConfig.setElapsedTime(randomNumber);
+    assert.strictEqual(randomNumber, connectionConfig.getElapsedTime());
+  });
 });

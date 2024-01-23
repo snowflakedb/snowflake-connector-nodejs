@@ -49,9 +49,9 @@ describe('Test Array Bind', function () {
     async.series(
       [
         function (callback) {
-          const createNAB = connection.execute({
+          connection.execute({
             sqlText: createABTable,
-            complete: function (err, stmt) {
+            complete: function (err) {
               testUtil.checkError(err);
               callback();
             }
@@ -77,9 +77,9 @@ describe('Test Array Bind', function () {
           });
         },
         function (callback) {
-          const createNAB = connection.execute({
+          connection.execute({
             sqlText: createNABTable,
-            complete: function (err, stmt) {
+            complete: function (err) {
               testUtil.checkError(err);
               callback();
             }
@@ -91,7 +91,7 @@ describe('Test Array Bind', function () {
           for (let i = 0; i < count; i++) {
             arrBind.push(['string' + i, i, '2020-05-11', '12:35:41.3333333', '2022-04-01 23:59:59', '2022-07-08 12:05:30.9999999']);
           }
-          const insertNABStmt = connection.execute({
+          connection.execute({
             sqlText: insertNAB,
             binds: arrBind,
             complete: function (err, stmt) {
@@ -102,7 +102,7 @@ describe('Test Array Bind', function () {
           });
         },
         function (callback) {
-          const selectNABTable = connection.execute({
+          connection.execute({
             sqlText: selectNAB,
             complete: function (err, stmt, rows) {
               testUtil.checkError(err);
@@ -112,7 +112,7 @@ describe('Test Array Bind', function () {
           });
         },
         function (callback) {
-          const selectABTable = connection.execute({
+          connection.execute({
             sqlText: selectAB,
             complete: function (err, stmt, rows) {
               testUtil.checkError(err);
@@ -268,7 +268,7 @@ describe('Test Array Bind', function () {
             arrBind.push(['some-data-for-stuff1', 'some-data-for-stuff2']);
           }
           const insertSql = 'insert into testBindJson(cola,colb) select value:stuff1, value:stuff2 from table(flatten(parse_json(?)))';
-          const insertStatement = connection.execute({
+          connection.execute({
             sqlText: insertSql,
             binds: [JSON.stringify(arrBind)],
             complete: function (err, stmt) {
@@ -299,7 +299,7 @@ describe('Test Array Bind', function () {
             arrBind.push(['some-data-for-stuff1']);
           }
           const insertSql = 'insert into testBindLargeArray(colA) values (?)';
-          const insertStatement = connection.execute({
+          connection.execute({
             sqlText: insertSql,
             binds: arrBind,
             complete: function (err, stmt) {
@@ -376,11 +376,11 @@ describe('Test Array Bind', function () {
             }); 
           });
           const insertTable101 = 'insert into test101 (id,type,data,createdDateTime,action) select COLUMN1,COLUMN2,TRY_PARSE_JSON(COLUMN3),COLUMN4,COLUMN5 from values  (?,?,?,?,?),(?,?,?,?,?),(?,?,?,?,?),(?,?,?,?,?),(?,?,?,?,?),(?,?,?,?,?)';
-          const insertStatement = connection.execute({
+          connection.execute({
             sqlText: insertTable101,
             binds: flatValue,
             fetchAsString: ['Number', 'Date', 'JSON'],
-            complete: function (err, stmt) {
+            complete: function (err) {
               if (err) {
                 callback(err);
               } else {
@@ -391,7 +391,7 @@ describe('Test Array Bind', function () {
         },
         function (callback) {
           const selectSql = 'select * from test101 where ID = 5489';
-          const selectABTable = connection.execute({
+          connection.execute({
             sqlText: selectSql,
             complete: function (err, stmt, rows) {
               testUtil.checkError(err);
@@ -501,9 +501,9 @@ describe('Test Array Bind Force Error on Upload file', function () {
     async.series(
       [
         function (callback) {
-          const createNAB = connection.execute({
+          connection.execute({
             sqlText: createABTable,
-            complete: function (err, stmt) {
+            complete: function (err) {
               testUtil.checkError(err);
               callback();
             }
@@ -529,9 +529,9 @@ describe('Test Array Bind Force Error on Upload file', function () {
           });
         },
         function (callback) {
-          const createNAB = connection.execute({
+          connection.execute({
             sqlText: createNABTable,
-            complete: function (err, stmt) {
+            complete: function (err) {
               testUtil.checkError(err);
               callback();
             }
@@ -543,7 +543,7 @@ describe('Test Array Bind Force Error on Upload file', function () {
           for (let i = 0; i < count; i++) {
             arrBind.push(['string' + i, i, '2020-05-11', '12:35:41.3333333', '2022-04-01 23:59:59', '2022-07-08 12:05:30.9999999']);
           }
-          const insertNABStmt = connection.execute({
+          connection.execute({
             sqlText: insertNAB,
             binds: arrBind,
             complete: function (err, stmt) {
@@ -554,7 +554,7 @@ describe('Test Array Bind Force Error on Upload file', function () {
           });
         },
         function (callback) {
-          const selectNABTable = connection.execute({
+          connection.execute({
             sqlText: selectNAB,
             complete: function (err, stmt, rows) {
               testUtil.checkError(err);
@@ -564,7 +564,7 @@ describe('Test Array Bind Force Error on Upload file', function () {
           });
         },
         function (callback) {
-          const selectABTable = connection.execute({
+          connection.execute({
             sqlText: selectAB,
             complete: function (err, stmt, rows) {
               testUtil.checkError(err);

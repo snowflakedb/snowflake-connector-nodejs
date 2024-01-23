@@ -79,7 +79,7 @@ describe('external browser authentication', function () {
 
   before(function () {
     mock('webbrowser', {
-      open: function (url) {
+      open: function () {
         const client = net.createConnection({ port: browserRedirectPort }, () => {
           client.write(`GET /?token=${mockToken} HTTP/1.1\r\n`);
         });
@@ -128,7 +128,7 @@ describe('external browser authentication', function () {
 
   it('external browser - get fail', async function () {
     mock('webbrowser', {
-      open: function (url) {
+      open: function () {
         const client = net.createConnection({ port: browserRedirectPort }, () => {
           client.write('\r\n');
         });
@@ -227,12 +227,12 @@ describe('key-pair authentication', function () {
       }
     });
     mock('jwtmod', {
-      sign: function (payload, privateKey, algorithm) {
+      sign: function () {
         return mockToken;
       }
     });
     mock('filesystem', {
-      readFileSync: function (path) {
+      readFileSync: function () {
         return mockPrivateKeyFile;
       }
     });
@@ -355,7 +355,7 @@ describe('okta authentication', function () {
 
   before(function () {
     mock('httpclient', {
-      post: async function (url, body, header) {
+      post: async function (url) {
         let json;
         if (url.startsWith('https://' + connectionOptionsOkta.account)) {
           json =
@@ -377,7 +377,7 @@ describe('okta authentication', function () {
         }
         return json;
       },
-      get: async function (url, body, header) {
+      get: async function () {
         const json =
         {
           data: mockSamlResponse
@@ -429,7 +429,7 @@ describe('okta authentication', function () {
 
   it('okta - SAML response fail prefix', async function () {
     mock('httpclient', {
-      post: async function (url, body, header) {
+      post: async function (url) {
         let json;
         if (url.startsWith('https://' + connectionOptionsOkta.account)) {
           json =
@@ -461,7 +461,7 @@ describe('okta authentication', function () {
 
   it('okta - SAML response fail postback', async function () {
     mock('httpclient', {
-      post: async function (url, body, header) {
+      post: async function (url) {
         let json;
         if (url.startsWith('https://' + connectionOptionsOkta.account)) {
           json =
@@ -484,7 +484,7 @@ describe('okta authentication', function () {
         }
         return json;
       },
-      get: async function (url, body, header) {
+      get: async function () {
         const json =
         {
           data: mockUrl

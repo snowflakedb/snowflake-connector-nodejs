@@ -949,7 +949,7 @@ describe('too many concurrent requests', function () {
             {
               sqlText: sqlText,
               requestId: requestId,
-              complete: function (err, statement) {
+              complete: function (err) {
                 assert.ok(err, 'there should be an error');
                 assert.strictEqual(err.code, '000610');
 
@@ -1261,14 +1261,14 @@ describe('statement.cancel()', function () {
 
   it('cancel a running statement', function (done) {
     const connection = snowflake.createConnection(connectionOptions);
-    connection.connect(function (err, conn) {
+    connection.connect(function (err) {
       assert.ok(!err, 'should not get an error');
 
       const statement = connection.execute(
         {
           sqlText: 'select count(*) from table(generator(timelimit=>10));',
           requestId: 'b97fee20-a805-11e5-a0ab-ddd3321ed586',
-          complete: function (err, stmt) {
+          complete: function (err) {
             assert.ok(err, 'there should be an error');
             assert.strictEqual(err.sqlState, '57014',
               'the error should have the right sql state');
@@ -1790,7 +1790,7 @@ describe('serialize connection', function () {
           const sqlText = 'select 1 as "c1";';
           const requestId = 'foobar';
 
-          connection.connect(function (err, conn) {
+          connection.connect(function (err) {
             assert.ok(!err);
 
             statementFirst = connection.execute(
@@ -1914,7 +1914,7 @@ describe('snowflake.createConnection() SERVICE_NAME', function () {
           {
             sqlText: 'select * from faketable',
             requestId: 'foobar',
-            complete: function (err, stmt) {
+            complete: function (err) {
               assert.ok(!err, JSON.stringify(err));
               callback();
             }
@@ -2018,7 +2018,7 @@ describe('snowflake.connect() with 504', function () {
         });
       },
       function (callback) {
-        connection.destroy(function (err, con) {
+        connection.destroy(function (err) {
           assert.ok(!err, JSON.stringify(err));
           callback();
         });

@@ -76,7 +76,7 @@ describe('Result: test timestamp', function () {
           row.getColumnValueAsString('C3'),
           'Thu, 21 Jan 2016 06:32:44 +0000');
       },
-      function (result) {
+      function () {
         done();
       }
     );

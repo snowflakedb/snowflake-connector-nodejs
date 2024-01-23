@@ -21,9 +21,9 @@ const files = new Array();
 function uploadFiles(callback, index = 0) {
   if (index < files.length) {
     const putQuery = `PUT file://${files[index]} @${DATABASE_NAME}.${SCHEMA_NAME}.%${TABLE}`;
-    const insertStmt = connection.execute({
+    connection.execute({
       sqlText: putQuery,
-      complete: function (err, stmt) {
+      complete: function (err) {
         testUtil.checkError(err);
         if (!err) {
           index++;
@@ -69,9 +69,9 @@ describe('Test Put Small Files', function () {
     async.series(
       [
         function (callback) {
-          const createTableStmt = connection.execute({
+          connection.execute({
             sqlText: createTable,
-            complete: function (err, stmt) {
+            complete: function (err) {
               testUtil.checkError(err);
               callback();
             }
@@ -120,16 +120,16 @@ describe('Test Put Small Files', function () {
           uploadFiles(callbackfunc, 0);
         },
         function copy(callback) {
-          const copyintostmt = connection.execute({
+          connection.execute({
             sqlText: copytInto,
-            complete: function (err, stmt) {
+            complete: function (err) {
               testUtil.checkError(err);
               callback();
             }
           });
         },
         function select(callback) {
-          const selectstmt = connection.execute({
+          connection.execute({
             sqlText: select1row,
             complete: function (err, stmt, rows) {
               testUtil.checkError(err);
@@ -143,7 +143,7 @@ describe('Test Put Small Files', function () {
           });
         },
         function selectall(callback) {
-          const selectstmt = connection.execute({
+          connection.execute({
             sqlText: selectAll,
             complete: function (err, stmt, rows) {
               testUtil.checkError(err);

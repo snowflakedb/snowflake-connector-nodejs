@@ -37,9 +37,9 @@ describe('S3 client', function () {
 
   before(function () {
     mock('s3', {
-      S3: function (params) {
+      S3: function () {
         function S3() {
-          this.getObject = function (params) {
+          this.getObject = function () {
             function getObject() {
               this.then = function (callback) {
                 callback({
@@ -50,7 +50,7 @@ describe('S3 client', function () {
 
             return new getObject;
           };
-          this.putObject = function (params) {
+          this.putObject = function () {
             function putObject() {
               this.then = function (callback) {
                 callback();
@@ -104,11 +104,11 @@ describe('S3 client', function () {
 
   it('get file header - fail expired token', async function () {
     mock('s3', {
-      S3: function (params) {
+      S3: function () {
         function S3() {
-          this.getObject = function (params) {
+          this.getObject = function () {
             function getObject() {
-              this.then = function (callback) {
+              this.then = function () {
                 const err = new Error();
                 err.Code = 'ExpiredToken';
                 throw err;
@@ -131,11 +131,11 @@ describe('S3 client', function () {
 
   it('get file header - fail no such key', async function () {
     mock('s3', {
-      S3: function (params) {
+      S3: function () {
         function S3() {
-          this.getObject = function (params) {
+          this.getObject = function () {
             function getObject() {
-              this.then = function (callback) {
+              this.then = function () {
                 const err = new Error();
                 err.Code = 'NoSuchKey';
                 throw err;
@@ -158,11 +158,11 @@ describe('S3 client', function () {
 
   it('get file header - fail HTTP 400', async function () {
     mock('s3', {
-      S3: function (params) {
+      S3: function () {
         function S3() {
-          this.getObject = function (params) {
+          this.getObject = function () {
             function getObject() {
-              this.then = function (callback) {
+              this.then = function () {
                 const err = new Error();
                 err.Code = '400';
                 throw err;
@@ -185,11 +185,11 @@ describe('S3 client', function () {
 
   it('get file header - fail unknown', async function () {
     mock('s3', {
-      S3: function (params) {
+      S3: function () {
         function S3() {
-          this.getObject = function (params) {
+          this.getObject = function () {
             function getObject() {
-              this.then = function (callback) {
+              this.then = function () {
                 const err = new Error();
                 err.Code = 'unknown';
                 throw err;
@@ -217,9 +217,9 @@ describe('S3 client', function () {
 
   it('upload - fail expired token', async function () {
     mock('s3', {
-      S3: function (params) {
+      S3: function () {
         function S3() {
-          this.putObject = function (params) {
+          this.putObject = function () {
             function putObject() {
               this.then = function () {
                 const err = new Error();
@@ -250,9 +250,9 @@ describe('S3 client', function () {
 
   it('upload - fail wsaeconnaborted', async function () {
     mock('s3', {
-      S3: function (params) {
+      S3: function () {
         function S3() {
-          this.putObject = function (params) {
+          this.putObject = function () {
             function putObject() {
               this.then = function () {
                 const err = new Error();
@@ -283,9 +283,9 @@ describe('S3 client', function () {
 
   it('upload - fail HTTP 400', async function () {
     mock('s3', {
-      S3: function (params) {
+      S3: function () {
         function S3() {
-          this.putObject = function (params) {
+          this.putObject = function () {
             function putObject() {
               this.then = () => {
                 const err = new Error();

@@ -427,6 +427,16 @@ describe('okta authentication', function () {
       body['data']['RAW_SAML_RESPONSE'], connectionOptionsOkta.rawSamlResponse, 'SAML response should be equal');
   });
 
+  it.only('okta - timeout error', async function () {
+    const auth = authenticator.getAuthenticator({ ...connectionOptionsOkta, getElapsedTime: () => 303 }, httpclient);
+    try {
+      await auth.authenticate(connectionOptionsOkta.authenticator, '', connectionOptionsOkta.account, connectionOptionsOkta.username);
+      assert.fail();
+    } catch (err) {
+      assert.strictEqual('Reached out to the Login Timeout', err.message);
+    }
+  });
+
   it('okta - SAML response fail prefix', async function () {
     mock('httpclient', {
       post: async function (url) {

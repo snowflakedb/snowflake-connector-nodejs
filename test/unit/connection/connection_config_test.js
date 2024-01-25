@@ -690,6 +690,16 @@ describe('ConnectionConfig: basic', function () {
         },
         errorCode: ErrorCodes.ERR_CONN_CREATE_INVALID_MAX_LOGIN_TIMEOUT
       },
+      {
+        name: 'invalid disableConsoleLogin',
+        options: {
+          account: 'account',
+          username: 'username',
+          password: 'password',
+          disableConsoleLogin: 'invalud'
+        },
+        errorCode: ErrorCodes.ERR_CONN_CREATE_INVALID_DISABLE_CONSOLE_LOGIN
+      },
     ];
 
   const createNegativeITCallback = function (testCase) {
@@ -1196,6 +1206,43 @@ describe('ConnectionConfig: basic', function () {
             region: 'region.region2.region3',
           }
       },
+      {
+        name: 'host',
+        input:
+          {
+            account: 'account',
+            username: 'username',
+            password: 'password',
+            retryTimeout: 1234,
+            host: 'host.sub-domain.snowflakecomputing.com'
+          },
+        options:
+          {
+            accessUrl: 'https://host.sub-domain.snowflakecomputing.com',
+            username: 'username',
+            password: 'password',
+            account: 'account'
+          }
+      },
+      {
+        name: 'accessUrl and host',
+        input:
+          {
+            account: 'account',
+            username: 'username',
+            password: 'password',
+            retryTimeout: 1234,
+            host: 'host.snowflakecomputing.com',
+            accessUrl: 'https://access-url.snowflakecomputing.com'
+          },
+        options:
+          {
+            accessUrl: 'https://access-url.snowflakecomputing.com',
+            username: 'username',
+            password: 'password',
+            account: 'account'
+          }
+      }
     ];
 
   const createItCallback = function (testCase) {

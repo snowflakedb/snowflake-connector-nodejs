@@ -338,7 +338,7 @@ describe('OCSP privatelink', function () {
 
 // Skipped - requires manual interaction to set the network interface in system command and enter sudo user password
 describe.skip('Test Ocsp with network delay', function () {
-  this.timeout(300000);
+  this.timeout(500000);
   let connection;
 
   before(function (done) {

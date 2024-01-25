@@ -10,7 +10,6 @@ const fs = require('fs');
 const testUtil = require('./testUtil');
 const os = require('os');
 const path = require('path');
-//const snowflake = require('./../../lib/snowflake');
 const crypto = require('crypto');
 const zlib = require('zlib');
 const { randomizeName } = require('./testUtil');
@@ -72,7 +71,6 @@ function executePutCmd(connection, putQuery, callback, results) {
 }
 
 describe('PUT GET test', function () {
-  //snowflake.configure({ insecureConnect: true });
   this.retries(3); // this test suit are considered as flaky test
   let connection;
   let tmpFile;

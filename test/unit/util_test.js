@@ -562,35 +562,35 @@ describe('Util', function () {
       const maxRetryTimeout = 300;
       let currentSleepTime = 1;
       let retryCount = 1;
-      let totalElaspedTime = currentSleepTime;
+      let totalElapsedTime = currentSleepTime;
       for (const response of errorCodes) {
         retryCount++;
-        const result = Util.getJitteredSleepTime(retryCount, currentSleepTime, totalElaspedTime, maxRetryTimeout);
+        const result = Util.getJitteredSleepTime(retryCount, currentSleepTime, totalElapsedTime, maxRetryTimeout);
         const jitter = currentSleepTime / 2;
         const nextSleep = 2 ** retryCount;
         currentSleepTime = result.sleep;
-        totalElaspedTime = result.totalElaspedTime;
+        totalElapsedTime = result.totalElapsedTime;
        
         assert.strictEqual(Util.isRetryableHttpError(response, true), true);
         assert.ok(currentSleepTime <= nextSleep + jitter || currentSleepTime >= nextSleep - jitter);
       }
     
       assert.strictEqual(retryCount, 7);
-      assert.ok(totalElaspedTime <= maxRetryTimeout);
+      assert.ok(totalElapsedTime <= maxRetryTimeout);
     }); 
 
     it('test - retryTimeout is 0', function () {
       const maxRetryTimeout = 0;
       let currentSleepTime = 1;
       const maxRetryCount = 20;
-      let totalElaspedTime = currentSleepTime;
+      let totalElapsedTime = currentSleepTime;
       let retryCount = 1;
       for ( ; retryCount < maxRetryCount; retryCount++) {
-        const result = Util.getJitteredSleepTime(retryCount, currentSleepTime, totalElaspedTime, maxRetryTimeout);
+        const result = Util.getJitteredSleepTime(retryCount, currentSleepTime, totalElapsedTime, maxRetryTimeout);
         const jitter = currentSleepTime / 2;
         const nextSleep = 2 ** retryCount;
         currentSleepTime = result.sleep;
-        totalElaspedTime = result.totalElaspedTime;
+        totalElapsedTime = result.totalElapsedTime;
 
         assert.ok(currentSleepTime <= nextSleep + jitter || currentSleepTime >= nextSleep - jitter);
       }

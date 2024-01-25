@@ -421,7 +421,7 @@ describe('okta authentication', function () {
     assert.strictEqual(auth, sameAuth);
 
     sameAuth.reauthenticate(body, {
-      remainingTimeout: 120,
+      totalElapsedTime: 120,
       numRetries: 2,
     }).then(() => {
       assert.strictEqual(

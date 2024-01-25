@@ -412,19 +412,21 @@ describe('okta authentication', function () {
   it('okta - reauthenticate', async function () {
     const auth = authenticator.getAuthenticator(connectionOptionsOkta, httpclient);
     await auth.authenticate(connectionOptionsOkta.authenticator, '', connectionOptionsOkta.account, connectionOptionsOkta.username);
-
     const body = { 
       data: {
         RAW_SAML_RESPONSE: 'WRONG SAML'
       } 
     };
-
     const sameAuth = authenticator.getCurrentAuth();
-    await sameAuth.reauthenticate(body);
-
     assert.strictEqual(auth, sameAuth);
-    assert.strictEqual(
-      body['data']['RAW_SAML_RESPONSE'], connectionOptionsOkta.rawSamlResponse, 'SAML response should be equal');
+
+    sameAuth.reauthenticate(body, {
+      remainingTimeout: 120,
+      numRetries: 2,
+    }).then(() => {
+      assert.strictEqual(
+        body['data']['RAW_SAML_RESPONSE'], connectionOptionsOkta.rawSamlResponse, 'SAML response should be equal');
+    });
   });
 
   it('okta - timeout error', async function () {

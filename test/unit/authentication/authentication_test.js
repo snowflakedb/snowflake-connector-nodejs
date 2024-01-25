@@ -428,7 +428,7 @@ describe('okta authentication', function () {
   });
 
   it('okta - timeout error', async function () {
-    const auth = authenticator.getAuthenticator({ ...connectionOptionsOkta, getElapsedTime: () => 303 }, httpclient);
+    const auth = authenticator.getAuthenticator({ ...connectionOptionsOkta, getTimeout: () => -1 }, httpclient);
     try {
       await auth.authenticate(connectionOptionsOkta.authenticator, '', connectionOptionsOkta.account, connectionOptionsOkta.username);
       assert.fail();

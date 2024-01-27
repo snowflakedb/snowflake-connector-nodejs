@@ -429,13 +429,27 @@ describe('okta authentication', function () {
     });
   });
 
-  it('okta - timeout error', async function () {
-    const auth = authenticator.getAuthenticator({ ...connectionOptionsOkta, getTimeout: () => -1 }, httpclient);
+  it('okta - reauthentication timeout error', async function () {
+    const auth = authenticator.getAuthenticator(connectionOptionsOkta, httpclient);
+    await auth.authenticate(connectionOptionsOkta.authenticator, '', connectionOptionsOkta.account, connectionOptionsOkta.username);
+    
     try {
-      await auth.authenticate(connectionOptionsOkta.authenticator, '', connectionOptionsOkta.account, connectionOptionsOkta.username);
+      await auth.reauthenticate({ data: { RAW_SAML_RESPONSE: 'token' } }, { numRetries: 5, totalElapsedTime: 350 });
       assert.fail();
     } catch (err) {
       assert.strictEqual('Reached out to the Login Timeout', err.message);
+    }
+  });
+
+  it('okta - reauthentication max retry error', async function () {
+    const auth = authenticator.getAuthenticator(connectionOptionsOkta, httpclient);
+    await auth.authenticate(connectionOptionsOkta.authenticator, '', connectionOptionsOkta.account, connectionOptionsOkta.username);
+    
+    try {
+      await auth.reauthenticate({ data: { RAW_SAML_RESPONSE: 'token' } }, { numRetries: 9, totalElapsedTime: 280 });
+      assert.fail();
+    } catch (err) {
+      assert.strictEqual('Reached out to the max retry count', err.message);
     }
   });
 

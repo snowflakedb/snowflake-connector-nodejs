@@ -8,7 +8,8 @@ const fsPromises = require('fs/promises');
 const path = require('path');
 const os = require('os');
 const Logger = require('../../../lib/logger');
-require('../../../lib/snowflake'); // import of it sets up node logger
+require('../../../lib/snowflake');
+const { exists } = require('../../../lib/util'); // import of it sets up node logger
 const defaultConfigName = 'sf_client_config.json';
 const logLevelBefore = Logger.getInstance().getLevel();
 let tempDir = null;
@@ -26,7 +27,7 @@ after(async function () {
 });
 
 afterEach(async function () {
-  await fsPromises.rm(path.join(os.tmpdir(), defaultConfigName), { force: true });
+  await fsPromises.rm(path.join(os.homedir(), defaultConfigName), { force: true });
   resetEasyLoggingModule();
 });
 
@@ -58,7 +59,7 @@ describe('Easy logging starter tests', function () {
   it('should configure easy logging only once when initialized without config file path', async function () {
     // given
     const logLevel = 'ERROR';
-    await createConfigFile(logLevel, os.tmpdir(), defaultConfigName);
+    await createConfigFile(logLevel, os.homedir(), defaultConfigName);
 
     // when
     await init(null);
@@ -71,8 +72,8 @@ describe('Easy logging starter tests', function () {
 
   it('should reconfigure easy logging if config file path is not given for the first time', async function () {
     // given
-    const tmpDirLogLevel = 'ERROR';
-    await createConfigFile(tmpDirLogLevel, os.tmpdir(), defaultConfigName);
+    const homeDirLogLevel = 'ERROR';
+    await createConfigFile(homeDirLogLevel, os.homedir(), defaultConfigName);
     const customLogLevel = 'DEBUG';
     const customConfigFilePath = await createConfigFile(customLogLevel, tempDir, 'config.json');
 
@@ -80,7 +81,7 @@ describe('Easy logging starter tests', function () {
     await init(null);
 
     // then
-    assert.strictEqual(Logger.getInstance().getLevelTag(), tmpDirLogLevel);
+    assert.strictEqual(Logger.getInstance().getLevelTag(), homeDirLogLevel);
     assert.strictEqual(Logger.getInstance().easyLoggingConfigureCounter, 1);
 
     // when
@@ -107,12 +108,28 @@ describe('Easy logging starter tests', function () {
       });
   });
 
-  async function createConfigFile(logLevel, configDirectory, configFileName) {
+  it('should fail for inaccessible log path', async function () {
+    // given
+    const logLevel = 'ERROR';
+    const configFilePath = await createConfigFile(logLevel, tempDir, defaultConfigName, '/inaccessible');
+
+    // expect
+    await assert.rejects(
+      async () => await init(configFilePath),
+      (err) => {
+        assert.strictEqual(err.name, 'EasyLoggingError');
+        assert.strictEqual(err.message, 'Failed to initialize easy logging');
+        assert.match(err.cause.message, /no such file or directory/);
+        return true;
+      });
+  });
+
+  async function createConfigFile(logLevel, configDirectory, configFileName, logPath) {
     const configFilePath = path.join(configDirectory, configFileName);
     const configContent = `{
               "common": {
                   "log_level": "${logLevel}",
-                  "log_path": "${tempDir.replace(/\\/g, '\\\\')}"
+                  "log_path": "${exists(logPath) ? logPath : tempDir.replace(/\\/g, '\\\\')}"
               } 
           }`;
     await writeFile(configFilePath, configContent);
@@ -120,6 +137,6 @@ describe('Easy logging starter tests', function () {
   }
 
   async function writeFile(filePath, fileContent) {
-    await fsPromises.writeFile(filePath, fileContent, { encoding: 'utf8' });
+    await fsPromises.writeFile(filePath, fileContent, { encoding: 'utf8', mode: 0o700 });
   }
 });

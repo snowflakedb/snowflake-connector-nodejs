@@ -67,6 +67,24 @@ describe('Configuration parsing tests', function () {
         "common": {} 
      }`
     },
+    {
+      testCaseName: 'config with known values and unknown key',
+      fileContent: `{
+            "common": {
+                "log_level": "ERROR",
+                "log_path": null,
+                "unknown_key": "unknown_value"
+            } 
+        }`
+    },
+    {
+      testCaseName: 'config with unknown key',
+      fileContent: `{
+            "common": {
+                "unknown_key": "unknown_value"
+            } 
+        }`
+    }
   ].forEach(({ testCaseName, fileContent }) => {
     it('should parse config without values: ' + testCaseName, async function () {
       // given
@@ -107,12 +125,13 @@ describe('Configuration parsing tests', function () {
   });
 
   it('should fail when config file does not exist', async function () {
+    const filePath = './not-existing-config.json';
     // expect
     await assert.rejects(
-      async () => await getClientConfig('./not-existing-config.json'),
+      async () => await getClientConfig(filePath),
       (err) => {
         assert.strictEqual(err.name, 'ConfigurationError');
-        assert.strictEqual(err.message, 'Finding client configuration failed');
+        assert.strictEqual(err.message, `Configuration file: ${filePath} cannot be accessed`);
         assert.match(err.cause.message, /ENOENT: no such file or directory./);
         return true;
       });

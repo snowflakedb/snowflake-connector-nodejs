@@ -958,32 +958,24 @@ describe('Util', function () {
       });
 
       [
-        { dirPerm: 0o700 },
-        { dirPerm: 0o600 },
-        { dirPerm: 0o500 },
-        { dirPerm: 0o400 },
-        { dirPerm: 0o300 },
-        { dirPerm: 0o200 },
-        { dirPerm: 0o100 },
-        { dirPerm: 0o707 },
-        { dirPerm: 0o706 },
-        { dirPerm: 0o705 },
-        { dirPerm: 0o704 },
-        { dirPerm: 0o703 },
-        { dirPerm: 0o702 },
-        { dirPerm: 0o701 },
-        { dirPerm: 0o770 },
-        { dirPerm: 0o760 },
-        { dirPerm: 0o750 },
-        { dirPerm: 0o740 },
-        { dirPerm: 0o730 },
-        { dirPerm: 0o720 },
-        { dirPerm: 0o710 },
-      ].forEach(async function ({ dirPerm }) {
-        it('Directory permission: ' + dirPerm.toString(8) + ' should equal to ' + dirPerm.toString(8), async function () {
+        { dirPerm: 0o700, expectedPerm: 0o700, isCorrect: true },
+        { dirPerm: 0o755, expectedPerm: 0o600, isCorrect: false },
+      ].forEach(async function ({ dirPerm, expectedPerm, isCorrect }) {
+        it('Should return ' + isCorrect + ' when directory permission ' + dirPerm.toString(8) + ' is compared to ' + expectedPerm.toString(8), async function () {
           const dirPath = path.join(tempDir, `dir_${dirPerm.toString(8)}`);
           await fsPromises.mkdir(dirPath, { mode: dirPerm });
-          assert.strictEqual(await Util.isFileModeCorrect(dirPath, dirPerm, fsPromises), true);
+          assert.strictEqual(await Util.isFileModeCorrect(dirPath, expectedPerm, fsPromises), isCorrect);
+        });
+      });
+
+      [
+        { filePerm: 0o700, expectedPerm: 0o700, isCorrect: true },
+        { filePerm: 0o755, expectedPerm: 0o600, isCorrect: false },
+      ].forEach(async function ({ filePerm, expectedPerm, isCorrect }) {
+        it('Should return ' + isCorrect + ' when file permission ' + filePerm.toString(8) + ' is compared to ' + expectedPerm.toString(8), async function () {
+          const dirPath = path.join(tempDir, `file_${filePerm.toString(8)}`);
+          await fsPromises.appendFile(dirPath, '', { mode: filePerm });
+          assert.strictEqual(await Util.isFileModeCorrect(dirPath, expectedPerm, fsPromises), isCorrect);
         });
       });
     });

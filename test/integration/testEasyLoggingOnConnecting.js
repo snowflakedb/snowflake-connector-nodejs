@@ -14,7 +14,7 @@ const { codes } = require('./../../lib/errors');
 const errorMessages = require('./../../lib/constants/error_messages');
 let tempDir = null;
 
-describe.skip('Easy logging tests', function () {
+describe('Easy logging tests', function () {
 
   before(async function () {
     tempDir = await fsPromises.mkdtemp(path.join(os.tmpdir(), 'easy_logging_connect_tests_'));
@@ -91,14 +91,14 @@ describe.skip('Easy logging tests', function () {
     const connection = snowflake.createConnection(configParameters);
 
     // expect
-    await connection.connectAsync(err => {
-      if (err) {
+    await assert.rejects(
+      async () => await connection.connectAsync(),
+      (err) => {
         assert.strictEqual(err.message, errorMessages[codes.ERR_CONN_CONNECT_INVALID_CLIENT_CONFIG]);
         assert.strictEqual(err.code, codes.ERR_CONN_CONNECT_INVALID_CLIENT_CONFIG);
-      } else {
-        assert.fail('Error should be thrown');
+        return true;
       }
-    });
+    );
   });
 
   function createConfigParameters(clientConfigFile) {

@@ -111,7 +111,7 @@ describe('Easy logging starter tests', function () {
   it('should fail for inaccessible log path', async function () {
     // given
     const logLevel = 'ERROR';
-    const configFilePath = await createConfigFile(logLevel, tempDir, defaultConfigName, '/inaccessible');
+    const configFilePath = await createConfigFile(logLevel, tempDir, defaultConfigName, '/?inaccessible');
 
     // expect
     await assert.rejects(

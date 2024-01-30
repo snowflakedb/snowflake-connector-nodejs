@@ -932,7 +932,7 @@ describe('Util', function () {
         it('File with permission: ' + filePerm.toString(8) + ' should be valid=' + isValid, async function () {
           const filePath = path.join(tempDir, `file_${filePerm.toString()}`);
           await writeFile(filePath, filePerm);
-          assert.strictEqual(await Util.isFileWritableOnlyByUser(filePath), isValid);
+          assert.strictEqual(await Util.isFileWritableOnlyByUser(filePath, fsPromises), isValid);
         });
       });
 
@@ -983,7 +983,7 @@ describe('Util', function () {
         it('Directory permission: ' + dirPerm.toString(8) + ' should equal to ' + dirPerm.toString(8), async function () {
           const dirPath = path.join(tempDir, `dir_${dirPerm.toString(8)}`);
           await fsPromises.mkdir(dirPath, { mode: dirPerm });
-          assert.strictEqual(await Util.isFileModeCorrect(dirPath, dirPerm), true);
+          assert.strictEqual(await Util.isFileModeCorrect(dirPath, dirPerm, fsPromises), true);
         });
       });
     });

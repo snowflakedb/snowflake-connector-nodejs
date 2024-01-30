@@ -203,12 +203,12 @@ class FsMock {
     }
     if (filePath === badPermissionsConfig) {
       return {
-        mode: 16895, // 0o40777
+        mode: 0o40777,
       };
     }
 
     return {
-      mode: 16832, // 0o40700
+      mode: 0o40700,
     };
   }
 }

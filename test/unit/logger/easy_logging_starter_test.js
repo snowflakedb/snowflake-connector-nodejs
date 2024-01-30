@@ -8,8 +8,8 @@ const fsPromises = require('fs/promises');
 const path = require('path');
 const os = require('os');
 const Logger = require('../../../lib/logger');
-require('../../../lib/snowflake');
-const { exists } = require('../../../lib/util'); // import of it sets up node logger
+require('../../../lib/snowflake'); // import of it sets up node logger
+const { exists } = require('../../../lib/util');
 const defaultConfigName = 'sf_client_config.json';
 const logLevelBefore = Logger.getInstance().getLevel();
 let tempDir = null;

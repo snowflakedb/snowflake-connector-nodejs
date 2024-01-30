@@ -891,103 +891,101 @@ describe('Util', function () {
     });
   });
 
-  describe('Util.isFileWritableOnlyByUser()', function () {
-    let tempDir = null;
-    let oldMask = null;
+  if (os.platform() !== 'win32') {
+    describe('Util.isFileWritableOnlyByUser()', function () {
+      let tempDir = null;
+      let oldMask = null;
 
-    before(async function () {
-      tempDir = await fsPromises.mkdtemp(path.join(os.tmpdir(), 'permission_tests'));
-      oldMask = process.umask(0o000);
+      before(async function () {
+        tempDir = await fsPromises.mkdtemp(path.join(os.tmpdir(), 'permission_tests'));
+        oldMask = process.umask(0o000);
+      });
+
+      after(async function () {
+        await fsPromises.rm(tempDir, { recursive: true, force: true });
+        process.umask(oldMask);
+      });
+
+      [
+        { filePerm: 0o700, isValid: true },
+        { filePerm: 0o600, isValid: true },
+        { filePerm: 0o500, isValid: true },
+        { filePerm: 0o400, isValid: true },
+        { filePerm: 0o300, isValid: true },
+        { filePerm: 0o200, isValid: true },
+        { filePerm: 0o100, isValid: true },
+        { filePerm: 0o707, isValid: false },
+        { filePerm: 0o706, isValid: false },
+        { filePerm: 0o705, isValid: true },
+        { filePerm: 0o704, isValid: true },
+        { filePerm: 0o703, isValid: false },
+        { filePerm: 0o702, isValid: false },
+        { filePerm: 0o701, isValid: true },
+        { filePerm: 0o770, isValid: false },
+        { filePerm: 0o760, isValid: false },
+        { filePerm: 0o750, isValid: true },
+        { filePerm: 0o740, isValid: true },
+        { filePerm: 0o730, isValid: false },
+        { filePerm: 0o720, isValid: false },
+        { filePerm: 0o710, isValid: true },
+      ].forEach(async function ({ filePerm, isValid }) {
+        it('File with permission: ' + filePerm.toString(8) + ' should be valid=' + isValid, async function () {
+          const filePath = path.join(tempDir, `file_${filePerm.toString()}`);
+          await writeFile(filePath, filePerm);
+          assert.strictEqual(await Util.isFileWritableOnlyByUser(filePath), isValid);
+        });
+      });
+
+      async function writeFile(filePath, mode) {
+        await fsPromises.writeFile(filePath, '', { encoding: 'utf8', mode: mode });
+      }
     });
+  }
 
-    after(async function () {
-      await fsPromises.rm(tempDir, { recursive: true, force: true });
-      process.umask(oldMask);
-    });
+  if (os.platform() !== 'win32') {
+    describe('Util.isFileModeCorrect()', function () {
+      const tempDir = path.join(os.tmpdir(), 'permission_tests');
+      let oldMask = null;
 
-    [
-      { filePerm: 0o700, isValid: true },
-      { filePerm: 0o600, isValid: true },
-      { filePerm: 0o500, isValid: true },
-      { filePerm: 0o400, isValid: true },
-      { filePerm: 0o300, isValid: true },
-      { filePerm: 0o200, isValid: true },
-      { filePerm: 0o100, isValid: true },
-      { filePerm: 0o707, isValid: false },
-      { filePerm: 0o706, isValid: false },
-      { filePerm: 0o705, isValid: true },
-      { filePerm: 0o704, isValid: true },
-      { filePerm: 0o703, isValid: false },
-      { filePerm: 0o702, isValid: false },
-      { filePerm: 0o701, isValid: true },
-      { filePerm: 0o770, isValid: false },
-      { filePerm: 0o760, isValid: false },
-      { filePerm: 0o750, isValid: true },
-      { filePerm: 0o740, isValid: true },
-      { filePerm: 0o730, isValid: false },
-      { filePerm: 0o720, isValid: false },
-      { filePerm: 0o710, isValid: true },
-    ].forEach(async function (test) {
-      it(test.filePerm.toString(8), async function () {
-        if (os.platform() === 'win32') {
-          this.skip();
-        }
-        const filePath = path.join(tempDir, `file_${test.filePerm.toString()}`);
-        await writeFile(filePath, test.filePerm);
-        assert.strictEqual(await Util.isFileWritableOnlyByUser(filePath), test.isValid);
+      before(async function () {
+        await fsPromises.mkdir(tempDir);
+        oldMask = process.umask(0o000);
+      });
+
+      after(async function () {
+        await fsPromises.rm(tempDir, { recursive: true, force: true });
+        process.umask(oldMask);
+      });
+
+      [
+        { dirPerm: 0o700 },
+        { dirPerm: 0o600 },
+        { dirPerm: 0o500 },
+        { dirPerm: 0o400 },
+        { dirPerm: 0o300 },
+        { dirPerm: 0o200 },
+        { dirPerm: 0o100 },
+        { dirPerm: 0o707 },
+        { dirPerm: 0o706 },
+        { dirPerm: 0o705 },
+        { dirPerm: 0o704 },
+        { dirPerm: 0o703 },
+        { dirPerm: 0o702 },
+        { dirPerm: 0o701 },
+        { dirPerm: 0o770 },
+        { dirPerm: 0o760 },
+        { dirPerm: 0o750 },
+        { dirPerm: 0o740 },
+        { dirPerm: 0o730 },
+        { dirPerm: 0o720 },
+        { dirPerm: 0o710 },
+      ].forEach(async function ({ dirPerm }) {
+        it('Directory permission: ' + dirPerm.toString(8) + ' should equal to ' + dirPerm.toString(8), async function () {
+          const dirPath = path.join(tempDir, `dir_${dirPerm.toString(8)}`);
+          await fsPromises.mkdir(dirPath, { mode: dirPerm });
+          assert.strictEqual(await Util.isFileModeCorrect(dirPath, dirPerm), true);
+        });
       });
     });
-
-    async function writeFile(filePath, mode) {
-      await fsPromises.writeFile(filePath, '', { encoding: 'utf8', mode: mode });
-    }
-  });
-
-  describe('Util.isFileModeCorrect()', function () {
-    const tempDir = path.join(os.tmpdir(), 'permission_tests');
-    let oldMask = null;
-
-    before(async function () {
-      await fsPromises.mkdir(tempDir);
-      oldMask = process.umask(0o000);
-    });
-
-    after(async function () {
-      await fsPromises.rm(tempDir, { recursive: true, force: true });
-      process.umask(oldMask);
-    });
-
-    [
-      { dirPerm: 0o700 },
-      { dirPerm: 0o600 },
-      { dirPerm: 0o500 },
-      { dirPerm: 0o400 },
-      { dirPerm: 0o300 },
-      { dirPerm: 0o200 },
-      { dirPerm: 0o100 },
-      { dirPerm: 0o707 },
-      { dirPerm: 0o706 },
-      { dirPerm: 0o705 },
-      { dirPerm: 0o704 },
-      { dirPerm: 0o703 },
-      { dirPerm: 0o702 },
-      { dirPerm: 0o701 },
-      { dirPerm: 0o770 },
-      { dirPerm: 0o760 },
-      { dirPerm: 0o750 },
-      { dirPerm: 0o740 },
-      { dirPerm: 0o730 },
-      { dirPerm: 0o720 },
-      { dirPerm: 0o710 },
-    ].forEach(async function (test) {
-      it(test.dirPerm.toString(8), async function () {
-        if (os.platform() === 'win32') {
-          this.skip();
-        }
-        const dirPath = path.join(tempDir, `dir_${test.dirPerm.toString(8)}`);
-        await fsPromises.mkdir(dirPath, { mode: test.dirPerm });
-        assert.strictEqual(await Util.isFileModeCorrect(dirPath, test.dirPerm), true);
-      });
-    });
-  });
+  }
 });

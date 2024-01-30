@@ -137,7 +137,7 @@ describe('ExecuteAsync test', function () {
             await connection.getQueryStatusThrowIfError(queryId);
             assert.fail();
           } catch (err) {
-            assert.ok(err);
+            assert.strictEqual(err.name, 'OperationFailedError');
           }
 
           // Check getting the results throws an error
@@ -145,7 +145,7 @@ describe('ExecuteAsync test', function () {
             await connection.getResultsFromQueryId({ queryId: queryId });
             assert.fail();
           } catch (err) {
-            assert.ok(err);
+            assert.strictEqual(err.name, 'OperationFailedError');
           }
         }
       ],

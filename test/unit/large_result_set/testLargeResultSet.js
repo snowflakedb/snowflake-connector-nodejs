@@ -1,7 +1,7 @@
 const connOptions = require('../../integration/connectionOptions');
 const LargeResultSetService = require('../../../lib/services/large_result_set');
 
-const httpClient = require('../../../lib/http/node');
+const httpClient = require('../../../lib/http/node').NodeHttpClient;
 const ConnectionConfig = require('../../../lib/connection/connection_config');
 const { hangWebServerUrl } = require('../../hangWebserver');
 

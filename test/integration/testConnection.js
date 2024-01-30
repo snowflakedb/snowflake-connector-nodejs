@@ -15,7 +15,7 @@ describe('Connection test', function () {
   it('return tokens in qaMode', function () {
     const coreInst = Core({
       qaMode: true,
-      httpClientClass: require('./../../lib/http/node'),
+      httpClientClass: require('./../../lib/http/node').NodeHttpClient,
       loggerClass: require('./../../lib/logger/node'),
       client: {
         version: Util.driverVersion,

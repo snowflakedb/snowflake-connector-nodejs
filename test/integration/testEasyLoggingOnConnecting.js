@@ -9,9 +9,9 @@ const path = require('path');
 const os = require('os');
 const fsPromises = require('fs/promises');
 const assert = require('assert');
-const logLevelBefore = Logger.getInstance().getLevel();
 const { codes } = require('./../../lib/errors');
 const errorMessages = require('./../../lib/constants/error_messages');
+const { configureLogger } = require('../configureLogger');
 let tempDir = null;
 
 describe('Easy logging tests', function () {
@@ -21,10 +21,7 @@ describe('Easy logging tests', function () {
   });
 
   after(async function () {
-    Logger.getInstance().configure({
-      level: logLevelBefore,
-      filePath: 'snowflake.log'
-    });
+    configureLogger();
     await fsPromises.rm(tempDir, { recursive: true, force: true });
   });
 

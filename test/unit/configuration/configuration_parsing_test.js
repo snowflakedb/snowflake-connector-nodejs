@@ -131,7 +131,7 @@ describe('Configuration parsing tests', function () {
       async () => await getClientConfig(filePath),
       (err) => {
         assert.strictEqual(err.name, 'ConfigurationError');
-        assert.strictEqual(err.message, `Configuration file: ${filePath} cannot be accessed`);
+        assert.strictEqual(err.message, 'Finding client configuration failed');
         assert.match(err.cause.message, /ENOENT: no such file or directory./);
         return true;
       });

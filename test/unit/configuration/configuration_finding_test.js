@@ -128,28 +128,30 @@ describe('Configuration finding tests', function () {
     assert.strictEqual(configFound, null);
   });
 
-  it('should fail to open config when file has bad permissions', async function () {
-    // given
-    const fsMock = new FsMock()
-      .mockFile(badPermissionsConfig, 'gibberish');
-    mockFiles(fsMock);
-    const fsPromises = require('fs/promises');
-    const process = require('process');
-    const configUtil = new ConfigurationUtil(fsPromises, process);
+  if (os.platform() !== 'win32') {
+    it('should fail to open config when file has bad permissions', async function () {
+      // given
+      const fsMock = new FsMock()
+        .mockFile(badPermissionsConfig, 'gibberish');
+      mockFiles(fsMock);
+      const fsPromises = require('fs/promises');
+      const process = require('process');
+      const configUtil = new ConfigurationUtil(fsPromises, process);
 
-    // when
-    const config = configUtil.getClientConfig(badPermissionsConfig);
+      // when
+      const config = configUtil.getClientConfig(badPermissionsConfig);
 
-    //then
-    await assert.rejects(
-      async () => await config,
-      (err) => {
-        assert.strictEqual(err.name, 'ConfigurationError');
-        assert.strictEqual(err.message, `Configuration file: ${badPermissionsConfig} can be modified by group or others`);
-        assert.strictEqual(err.cause, 'IncorrectPerms');
-        return true;
-      });
-  });
+      //then
+      await assert.rejects(
+        async () => await config,
+        (err) => {
+          assert.strictEqual(err.name, 'ConfigurationError');
+          assert.strictEqual(err.message, `Configuration file: ${badPermissionsConfig} can be modified by group or others`);
+          assert.strictEqual(err.cause, 'IncorrectPerms');
+          return true;
+        });
+    });
+  }
 });
 
 function mockFiles(fsMock) {

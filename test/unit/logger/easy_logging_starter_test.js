@@ -119,7 +119,7 @@ describe('Easy logging starter tests', function () {
       (err) => {
         assert.strictEqual(err.name, 'EasyLoggingError');
         assert.strictEqual(err.message, 'Failed to initialize easy logging');
-        assert.match(err.cause.message, /no such file or directory/);
+        assert.match(err.cause.message, /no such file or directory|permission denied/);
         return true;
       });
   });

@@ -892,7 +892,7 @@ describe('Util', function () {
   });
 
   if (os.platform() !== 'win32') {
-    describe('Util.isFileWritableOnlyByUser()', function () {
+    describe('Util.isFileNotWritableByGroupOrOthers()', function () {
       let tempDir = null;
       let oldMask = null;
 
@@ -932,7 +932,7 @@ describe('Util', function () {
         it('File with permission: ' + filePerm.toString(8) + ' should be valid=' + isValid, async function () {
           const filePath = path.join(tempDir, `file_${filePerm.toString()}`);
           await writeFile(filePath, filePerm);
-          assert.strictEqual(await Util.isFileWritableOnlyByUser(filePath, fsPromises), isValid);
+          assert.strictEqual(await Util.isFileNotWritableByGroupOrOthers(filePath, fsPromises), isValid);
         });
       });
 

@@ -30,7 +30,7 @@ describe('Easy logging tests', function () {
   });
 
   it('Should apply easy logging config when connection is being opened with callback', function (done) {
-    const logLevel = 'ERROR';
+    const logLevel = 'INFO';
     createConfigFile(logLevel).then((configFilePath) => {
       const configParameters = createConfigParameters(configFilePath);
       const connection = snowflake.createConnection(configParameters);
@@ -39,6 +39,8 @@ describe('Easy logging tests', function () {
           done(err);
         } else {
           assert.strictEqual(Logger.getInstance().getLevelTag(), logLevel);
+          Logger.getInstance().info('Test log');
+          Logger.getInstance().info('test2');
           done();
         }
       });

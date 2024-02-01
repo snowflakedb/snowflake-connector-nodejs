@@ -724,6 +724,84 @@ describe('Util', function () {
     }
   });
 
+  describe('Okta Authentication Retry Condition', () => {
+    const testCases =
+    [
+      {
+        name: 'test - default values',
+        retryOption: { 
+          maxRetryCount: 7, 
+          numRetries: 1, 
+          startTime: Date.now(), 
+          remainingTimeout: 300000,
+          maxRetryTimeout: 300000
+        },
+        result: true,
+      },
+      {
+        name: 'test - max retry timout is 0',
+        retryOption: { 
+          maxRetryCount: 7, 
+          numRetries: 1, 
+          startTime: Date.now(), 
+          remainingTimeout: 300000,
+          maxRetryTimeout: 0 
+        },
+        result: true,
+      },
+      {
+        name: 'test - only max retry timeout is 0 and other conditions are false',
+        retryOption: { 
+          maxRetryCount: 7, 
+          numRetries: 11, 
+          startTime: Date.now(), 
+          remainingTimeout: -50,
+          maxRetryTimeout: 0 
+        },
+        result: true,
+      },
+      {
+        name: 'test - the retry count is over the max retry count ',
+        retryOption: { 
+          maxRetryCount: 7, 
+          numRetries: 8, 
+          startTime: Date.now(), 
+          remainingTimeout: 300000,
+          maxRetryTimeout: 300
+        },
+        result: false,
+      },
+      {
+        name: 'test - the remaining timout is 0',
+        retryOption: { 
+          maxRetryCount: 7, 
+          numRetries: 8, 
+          startTime: Date.now(), 
+          remainingTimeout: 0,
+          maxRetryTimeout: 300 
+        },
+        result: false,
+      },
+      {
+        name: 'test - the remaining timoue is negative',
+        retryOption: { 
+          maxRetryCount: 7, 
+          numRetries: 8, 
+          startTime: Date.now(), 
+          remainingTimeout: -10,
+          maxRetryTimeout: 300 
+        },
+        result: false,
+      },
+    ];
+
+    testCases.forEach(({ name, retryOption, result }) => {
+      it(name, () => {
+        assert.strictEqual(Util.shouldRetryOktaAuth(retryOption), result);
+      });
+    });
+  });
+
   describe('isPrivateKey', () => {
     [
       // pragma: allowlist nextline secret

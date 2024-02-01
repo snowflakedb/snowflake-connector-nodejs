@@ -732,7 +732,6 @@ describe('Util', function () {
         retryOption: { 
           maxRetryCount: 7, 
           numRetries: 1, 
-          startTime: Date.now(), 
           remainingTimeout: 300000,
           maxRetryTimeout: 300000
         },
@@ -743,7 +742,6 @@ describe('Util', function () {
         retryOption: { 
           maxRetryCount: 7, 
           numRetries: 7, 
-          startTime: Date.now(), 
           remainingTimeout: 300000,
           maxRetryTimeout: 300000
         },
@@ -754,7 +752,6 @@ describe('Util', function () {
         retryOption: { 
           maxRetryCount: 7, 
           numRetries: 1, 
-          startTime: Date.now(), 
           remainingTimeout: 300000,
           maxRetryTimeout: 0 
         },
@@ -765,7 +762,6 @@ describe('Util', function () {
         retryOption: { 
           maxRetryCount: 7, 
           numRetries: 8, 
-          startTime: Date.now(), 
           remainingTimeout: -50,
           maxRetryTimeout: 0 
         },
@@ -776,7 +772,6 @@ describe('Util', function () {
         retryOption: { 
           maxRetryCount: 7, 
           numRetries: 8, 
-          startTime: Date.now(), 
           remainingTimeout: 300000,
           maxRetryTimeout: 300
         },
@@ -787,7 +782,6 @@ describe('Util', function () {
         retryOption: { 
           maxRetryCount: 7, 
           numRetries: 8, 
-          startTime: Date.now(), 
           remainingTimeout: 0,
           maxRetryTimeout: 300 
         },
@@ -798,7 +792,6 @@ describe('Util', function () {
         retryOption: { 
           maxRetryCount: 7, 
           numRetries: 8, 
-          startTime: Date.now(), 
           remainingTimeout: -10,
           maxRetryTimeout: 300 
         },
@@ -808,7 +801,7 @@ describe('Util', function () {
 
     testCases.forEach(({ name, retryOption, result }) => {
       it(name, () => {
-        assert.strictEqual(Util.shouldRetryOktaAuth(retryOption), result);
+        assert.strictEqual(Util.shouldRetryOktaAuth({ ...retryOption, startTime: Date.now() }), result);
       });
     });
   });

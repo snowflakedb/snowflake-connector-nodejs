@@ -561,36 +561,36 @@ describe('Util', function () {
       
       const maxRetryTimeout = 300;
       let currentSleepTime = 1;
-      let retryCount = 1;
-      let totalTimeout = currentSleepTime;
+      let retryCount = 0;
+      let totalElapsedTime = currentSleepTime;
       for (const response of errorCodes) {
-        retryCount++;
-        const result = Util.getJitteredSleepTime(retryCount, currentSleepTime, totalTimeout, maxRetryTimeout);
+        const result = Util.getJitteredSleepTime(retryCount, currentSleepTime, totalElapsedTime, maxRetryTimeout);
         const jitter = currentSleepTime / 2;
         const nextSleep = 2 ** retryCount;
         currentSleepTime = result.sleep;
-        totalTimeout = result.totalTimeout;
+        totalElapsedTime = result.totalElapsedTime;
+        retryCount++;
        
         assert.strictEqual(Util.isRetryableHttpError(response, true), true);
         assert.ok(currentSleepTime <= nextSleep + jitter || currentSleepTime >= nextSleep - jitter);
       }
     
-      assert.strictEqual(retryCount, 7);
-      assert.ok(totalTimeout <= maxRetryTimeout);
+      assert.strictEqual(retryCount, 6);
+      assert.ok(totalElapsedTime <= maxRetryTimeout);
     }); 
 
     it('test - retryTimeout is 0', function () {
       const maxRetryTimeout = 0;
       let currentSleepTime = 1;
       const maxRetryCount = 20;
-      let totalTimeout = currentSleepTime;
+      let totalElapsedTime = currentSleepTime;
       let retryCount = 1;
       for ( ; retryCount < maxRetryCount; retryCount++) {
-        const result = Util.getJitteredSleepTime(retryCount, currentSleepTime, totalTimeout, maxRetryTimeout);
+        const result = Util.getJitteredSleepTime(retryCount, currentSleepTime, totalElapsedTime, maxRetryTimeout);
         const jitter = currentSleepTime / 2;
         const nextSleep = 2 ** retryCount;
         currentSleepTime = result.sleep;
-        totalTimeout = result.totalTimeout;
+        totalElapsedTime = result.totalElapsedTime;
 
         assert.ok(currentSleepTime <= nextSleep + jitter || currentSleepTime >= nextSleep - jitter);
       }
@@ -722,6 +722,88 @@ describe('Util', function () {
       assert.strictEqual(Util.isRetryableHttpError(
         err.response, testCase.retry403), testCase.isRetryable);
     }
+  });
+
+  describe('Okta Authentication Retry Condition', () => {
+    const testCases =
+    [
+      {
+        name: 'test - default values',
+        retryOption: { 
+          maxRetryCount: 7, 
+          numRetries: 1, 
+          remainingTimeout: 300000,
+          maxRetryTimeout: 300000
+        },
+        result: true,
+      },
+      {
+        name: 'test - the value of the numRetries is the same as the max retry count',
+        retryOption: { 
+          maxRetryCount: 7, 
+          numRetries: 7, 
+          remainingTimeout: 300000,
+          maxRetryTimeout: 300000
+        },
+        result: true,
+      },
+      {
+        name: 'test - max retry timout is 0',
+        retryOption: { 
+          maxRetryCount: 7, 
+          numRetries: 1, 
+          remainingTimeout: 300000,
+          maxRetryTimeout: 0 
+        },
+        result: true,
+      },
+      {
+        name: 'test - the max retry timeout is 0 and number of retry is over',
+        retryOption: { 
+          maxRetryCount: 7, 
+          numRetries: 8, 
+          remainingTimeout: -50,
+          maxRetryTimeout: 0 
+        },
+        result: false,
+      },
+      {
+        name: 'test - the retry count is over the max retry count ',
+        retryOption: { 
+          maxRetryCount: 7, 
+          numRetries: 8, 
+          remainingTimeout: 300000,
+          maxRetryTimeout: 300
+        },
+        result: false,
+      },
+      {
+        name: 'test - the remaining timout is 0',
+        retryOption: { 
+          maxRetryCount: 7, 
+          numRetries: 8, 
+          remainingTimeout: 0,
+          maxRetryTimeout: 300 
+        },
+        result: false,
+      },
+      {
+        name: 'test - the remaining timoue is negative',
+        retryOption: { 
+          maxRetryCount: 7, 
+          numRetries: 8, 
+          remainingTimeout: -10,
+          maxRetryTimeout: 300 
+        },
+        result: false,
+      },
+    ];
+
+    testCases.forEach(({ name, retryOption, result }) => {
+      it(name, () => {
+        assert.strictEqual(Util.shouldRetryOktaAuth({ ...retryOption, startTime: Date.now() }), result);
+      });
+    });
   });
 
   describe('isPrivateKey', () => {

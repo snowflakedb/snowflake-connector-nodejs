@@ -750,15 +750,15 @@ describe('Util', function () {
         result: true,
       },
       {
-        name: 'test - only max retry timeout is 0 and other conditions are false',
+        name: 'test - only max retry timeout is 0 and number of retry is over',
         retryOption: { 
           maxRetryCount: 7, 
-          numRetries: 11, 
+          numRetries: 8, 
           startTime: Date.now(), 
           remainingTimeout: -50,
           maxRetryTimeout: 0 
         },
-        result: true,
+        result: false,
       },
       {
         name: 'test - the retry count is over the max retry count ',

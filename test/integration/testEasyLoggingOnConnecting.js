@@ -22,7 +22,7 @@ describe('Easy logging tests', function () {
 
   after(async function () {
     configureLogger();
-    await fsPromises.rm(tempDir, { recursive: true, force: true });
+    await fsPromises.rm(tempDir, { recursive: true, force: true, maxRetries: 3 });
   });
 
   afterEach(function () {

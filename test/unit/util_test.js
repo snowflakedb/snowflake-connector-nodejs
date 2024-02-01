@@ -739,6 +739,17 @@ describe('Util', function () {
         result: true,
       },
       {
+        name: 'test - the value of the numRetries is the same as the max retry count',
+        retryOption: { 
+          maxRetryCount: 7, 
+          numRetries: 7, 
+          startTime: Date.now(), 
+          remainingTimeout: 300000,
+          maxRetryTimeout: 300000
+        },
+        result: true,
+      },
+      {
         name: 'test - max retry timout is 0',
         retryOption: { 
           maxRetryCount: 7, 
@@ -750,7 +761,7 @@ describe('Util', function () {
         result: true,
       },
       {
-        name: 'test - only max retry timeout is 0 and number of retry is over',
+        name: 'test - the max retry timeout is 0 and number of retry is over',
         retryOption: { 
           maxRetryCount: 7, 
           numRetries: 8, 

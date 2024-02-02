@@ -71,6 +71,8 @@ describe('external browser authentication', function () {
   const connectionConfig = {
     getBrowserActionTimeout: () => BROWSER_ACTION_TIMEOUT,
     getProxy: () => {},
+    getAuthenticator: () => credentials.authenticator,
+    getServiceName: () => '',
     getDisableConsoleLogin: () => true,
     host: 'fakehost'
   };
@@ -388,12 +390,7 @@ describe('okta authentication', function () {
   });
 
   it('okta - authenticate method is thenable', done => {
-    const auth = new AuthOkta(connectionOptionsOkta.password,
-      connectionOptionsOkta.region,
-      connectionOptionsOkta.account,
-      connectionOptionsOkta.clientAppid,
-      connectionOptionsOkta.clientAppVersion,
-      httpclient);
+    const auth = new AuthOkta(connectionOptionsOkta, httpclient);
 
     auth.authenticate(connectionOptionsOkta.authenticator, '', connectionOptionsOkta.account, connectionOptionsOkta.username)
       .then(done)
@@ -401,12 +398,7 @@ describe('okta authentication', function () {
   });
 
   it('okta - SAML response success', async function () {
-    const auth = new AuthOkta(connectionOptionsOkta.password,
-      connectionOptionsOkta.region,
-      connectionOptionsOkta.account,
-      connectionOptionsOkta.clientAppid,
-      connectionOptionsOkta.clientAppVersion,
-      httpclient);
+    const auth = new AuthOkta(connectionOptionsOkta, httpclient);
 
     await auth.authenticate(connectionOptionsOkta.authenticator, '', connectionOptionsOkta.account, connectionOptionsOkta.username);
 
@@ -415,6 +407,50 @@ describe('okta authentication', function () {
 
     assert.strictEqual(
       body['data']['RAW_SAML_RESPONSE'], connectionOptionsOkta.rawSamlResponse, 'SAML response should be equal');
+  });
+
+  it('okta - reauthenticate', async function () {
+    const auth = authenticator.getAuthenticator(connectionOptionsOkta, httpclient);
+    await auth.authenticate(connectionOptionsOkta.authenticator, '', connectionOptionsOkta.account, connectionOptionsOkta.username);
+    const body = { 
+      data: {
+        RAW_SAML_RESPONSE: 'WRONG SAML'
+      } 
+    };
+    const sameAuth = authenticator.getCurrentAuth();
+    assert.strictEqual(auth, sameAuth);
+
+    sameAuth.reauthenticate(body, {
+      totalElapsedTime: 120,
+      numRetries: 2,
+    }).then(() => {
+      assert.strictEqual(
+        body['data']['RAW_SAML_RESPONSE'], connectionOptionsOkta.rawSamlResponse, 'SAML response should be equal');
+    });
+  });
+
+  it('okta - reauthentication timeout error', async function () {
+    const auth = authenticator.getAuthenticator(connectionOptionsOkta, httpclient);
+    await auth.authenticate(connectionOptionsOkta.authenticator, '', connectionOptionsOkta.account, connectionOptionsOkta.username);
+    
+    try {
+      await auth.reauthenticate({ data: { RAW_SAML_RESPONSE: 'token' } }, { numRetries: 5, totalElapsedTime: 350 });
+      assert.fail();
+    } catch (err) {
+      assert.strictEqual('Reached out to the Login Timeout', err.message);
+    }
+  });
+
+  it('okta - reauthentication max retry error', async function () {
+    const auth = authenticator.getAuthenticator(connectionOptionsOkta, httpclient);
+    await auth.authenticate(connectionOptionsOkta.authenticator, '', connectionOptionsOkta.account, connectionOptionsOkta.username);
+    
+    try {
+      await auth.reauthenticate({ data: { RAW_SAML_RESPONSE: 'token' } }, { numRetries: 9, totalElapsedTime: 280 });
+      assert.fail();
+    } catch (err) {
+      assert.strictEqual('Reached out to the max retry count', err.message);
+    }
   });
 
   it('okta - SAML response fail prefix', async function () {
@@ -440,12 +476,7 @@ describe('okta authentication', function () {
 
     httpclient = require('httpclient');
 
-    const auth = new AuthOkta(connectionOptionsOkta.password,
-      connectionOptionsOkta.region,
-      connectionOptionsOkta.account,
-      connectionOptionsOkta.clientAppid,
-      connectionOptionsOkta.clientAppVersion,
-      httpclient);
+    const auth = new AuthOkta(connectionOptionsOkta, httpclient);
 
     try {
       await auth.authenticate(connectionOptionsOkta.authenticator, '', connectionOptionsOkta.account, connectionOptionsOkta.username);
@@ -490,12 +521,7 @@ describe('okta authentication', function () {
 
     httpclient = require('httpclient');
 
-    const auth = new AuthOkta(connectionOptionsOkta.password,
-      connectionOptionsOkta.region,
-      connectionOptionsOkta.account,
-      connectionOptionsOkta.clientAppid,
-      connectionOptionsOkta.clientAppVersion,
-      httpclient);
+    const auth = new AuthOkta(connectionOptionsOkta, httpclient);
 
     try {
       await auth.authenticate(connectionOptionsOkta.authenticator, '', connectionOptionsOkta.account, connectionOptionsOkta.username);

@@ -138,10 +138,15 @@ const connectionOptionsOkta =
   username: 'fakeusername',
   account: 'fakeaccount',
   token: 'faketoken',
-  clientAppid: 'JavaScript',
-  clientAppVersion: '1.6.21',
+  getClientType: () => 'JavaScript',
+  getClientVersion: () => '1.6.21',
   rawSamlResponse: '<form action="https://fakeaccount.snowflakecomputing.com/fed/login">',
-  authenticator: 'https://dev-12345678.okta.com/'
+  authenticator: 'https://dev-12345678.okta.com/',
+  getAuthenticator: () => 'https://dev-12345678.okta.com/',
+  getServiceName: () => '',
+  getTimeout: () => 90,
+  getRetryTimeout: () => 300,
+  getRetrySfMaxLoginRetries: () => 7,
 };
 
 exports.connectionOptions =
@@ -159,5 +164,5 @@ exports.connectionOptions =
     authKeyPair: connectionOptionsKeyPair,
     authKeyPairPath: connectionOptionsKeyPairPath,
     authOauth: connectionOptionsOauth,
-    authOkta: connectionOptionsOkta
+    authOkta: connectionOptionsOkta,
   };

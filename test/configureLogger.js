@@ -7,6 +7,6 @@ const snowflake = require('../lib/snowflake');
  */
 exports.configureLogger = (logLevel = 'ERROR') => {
   Logger.getInstance().closeTransports();
-  Logger.setInstance(new NodeLogger());
+  Logger.setInstance(new NodeLogger({ filePath: 'STDOUT' }));
   snowflake.configure({ logLevel });
 };

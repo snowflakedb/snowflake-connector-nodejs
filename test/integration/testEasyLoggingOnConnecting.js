@@ -39,8 +39,6 @@ describe('Easy logging tests', function () {
           done(err);
         } else {
           assert.strictEqual(Logger.getInstance().getLevelTag(), logLevel);
-          Logger.getInstance().info('Test log');
-          Logger.getInstance().info('test2');
           done();
         }
       });

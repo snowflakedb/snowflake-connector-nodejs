@@ -10,6 +10,7 @@ const Util = require('./../../lib/util');
 const Core = require('./../../lib/core');
 const { stdout } = require('test-console');
 const { assertLogMessage } = require('./testUtil');
+const { configureLogger } = require('../configureLogger');
 
 describe('Connection test', function () {
   it('return tokens in qaMode', function () {
@@ -111,6 +112,10 @@ describe('Connection test', function () {
 });
 
 describe('Connection test - validate default parameters', function () {
+  before(() => {
+    configureLogger();
+  });
+
   it('Valid "warehouse" parameter', function () {
     const output = stdout.inspectSync(() => {
       snowflake.createConnection({

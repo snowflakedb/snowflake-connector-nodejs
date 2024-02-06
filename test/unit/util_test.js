@@ -1068,34 +1068,34 @@ describe('Util', function () {
       {
         name: 'test - default',
         accessToken: 'Token',
-        disableGCPTokenUplaod: false,
+        forceGCPUseDownscopedCredential: false,
         result: true,
       },
       {
         name: 'test - when the disableGCPTokenUplaod is enabled',
         accessToken: 'Token',
-        disableGCPTokenUplaod: true,
+        forceGCPUseDownscopedCredential: true,
         result: false,
       },
       {
         name: 'test - when token is emptry but the disableGCPTokenUplaod is enabled',
         accessToken: null,
-        disableGCPTokenUplaod: true,
+        forceGCPUseDownscopedCredential: true,
         result: false,
       },
       {
         name: 'test - test - when token is emptry but the disableGCPTokenUplaod is disabled',
         accessToken: null,
-        disableGCPTokenUplaod: false,
+        forceGCPUseDownscopedCredential: false,
         result: false,
       },
     ];
 
-    testCases.forEach(({ name, accessToken, disableGCPTokenUplaod, result }) => {
+    testCases.forEach(({ name, accessToken, forceGCPUseDownscopedCredential, result }) => {
       it(name, () => {
-        process.env.SNOWFLAKE_DISABLE_GCP_TOKEN_UPLOAD = disableGCPTokenUplaod;
+        process.env.SNOWFLAKE_FORCE_GCP_USE_DOWNSCOPED_CREDENTIAL = forceGCPUseDownscopedCredential;
         assert.strictEqual(Util.shouldPerformGCPBucket(accessToken), result);
-        delete process.env.SNOWFLAKE_DISABLE_GCP_TOKEN_UPLOAD;
+        delete process.env.SNOWFLAKE_FORCE_GCP_USE_DOWNSCOPED_CREDENTIAL;
       });
     });
   });

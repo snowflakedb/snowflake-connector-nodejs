@@ -706,9 +706,9 @@ describe('ConnectionConfig: basic', function () {
           account: 'account',
           username: 'username',
           password: 'password',
-          disableGCPTokenUpload: 'invalud'
+          forceGCPUseDownscopedCredential: 'invalud'
         },
-        errorCode: ErrorCodes.ERR_CONN_CREATE_INVALID_DISABLE_GCP_TOKEN_UPLOAD
+        errorCode: ErrorCodes.ERR_CONN_CREATE_INVALID_FORCE_GCP_USE_DOWNSCOPED_CREDENTIAL
       },
     ];
 

@@ -1097,7 +1097,6 @@ describe('PUT GET test with error', function () {
 
   let tmpFile = null; 
   let tmpfilePath = null;
-  const testCases = null;
 
   before(async () => {
     // Create a temp file without specified file extension

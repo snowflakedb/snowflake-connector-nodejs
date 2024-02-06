@@ -1062,4 +1062,41 @@ describe('Util', function () {
       });
     });
   }
+
+  describe('shouldPerformGCPBucket function test', () => {
+    const testCases = [
+      {
+        name: 'test - default',
+        accessToken: 'Token',
+        disableGCPTokenUplaod: false,
+        result: true,
+      },
+      {
+        name: 'test - when the disableGCPTokenUplaod is enabled',
+        accessToken: 'Token',
+        disableGCPTokenUplaod: true,
+        result: false,
+      },
+      {
+        name: 'test - when token is emptry but the disableGCPTokenUplaod is enabled',
+        accessToken: null,
+        disableGCPTokenUplaod: true,
+        result: false,
+      },
+      {
+        name: 'test - test - when token is emptry but the disableGCPTokenUplaod is disabled',
+        accessToken: null,
+        disableGCPTokenUplaod: false,
+        result: false,
+      },
+    ];
+
+    testCases.forEach(({ name, accessToken, disableGCPTokenUplaod, result }) => {
+      it(name, () => {
+        process.env.SNOWFLAKE_DISABLE_GCP_TOKEN_UPLOAD = disableGCPTokenUplaod;
+        assert.strictEqual(Util.shouldPerformGCPBucket(accessToken), result);
+        delete process.env.SNOWFLAKE_DISABLE_GCP_TOKEN_UPLOAD;
+      });
+    });
+  });
 });

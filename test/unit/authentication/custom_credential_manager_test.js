@@ -47,13 +47,13 @@ describe('test - asynchronous customCredentialManager', function () {
         
   before(() => {
     GlobalConfig.setCustomCredentialManager({
-      read: async function (key) {
+      read: async function () {
         return 'mock_token';
       },
-      write: async function (key, credential) {
+      write: async function () {
         return 'token_saved';
       },
-      remove: async function (key, credential) {
+      remove: async function () {
         return null;
       }
     });

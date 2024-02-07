@@ -12,6 +12,7 @@ const AuthWeb = require('./../../../lib/authentication/auth_web');
 const AuthKeypair = require('./../../../lib/authentication/auth_keypair');
 const AuthOauth = require('./../../../lib/authentication/auth_oauth');
 const AuthOkta = require('./../../../lib/authentication/auth_okta');
+const AuthIDToken = require('./../../../lib/authentication/auth_idtoken');
 const authenticationTypes = require('./../../../lib/authentication/authentication').authenticationTypes;
 
 const MockTestUtil = require('./../mock/mock_test_util');
@@ -178,7 +179,7 @@ describe('external browser authentication', function () {
   });
 
   it('external browser - id token', async function () {
-    const auth = new auth_idtoken(connectionOptionsIdToken, httpclient);
+    const auth = new AuthIDToken(connectionOptionsIdToken, httpclient);
     await auth.authenticate(credentials.authenticator, '', credentials.account, credentials.username, credentials.host);
 
     const body = { data: {} };

@@ -15,13 +15,13 @@ const randomPassword = randomUUID();
 describe('test - synchronous customCredentialManager', function () {
   before(() => {
     GlobalConfig.setCustomCredentialManager({
-      read: function (key) {
+      read: function () {
         return 'mock_token';
       },
-      write: function (key, credential) {
+      write: function () {
         return 'token_saved';
       },
-      remove: function (key) {
+      remove: function () {
         return null;
       }
     });

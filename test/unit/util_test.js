@@ -973,72 +973,69 @@ describe('Util', function () {
     });
 
     describe('Util test - custom credential manager util functions', function () {
-      const mock_user = 'mock_user';
-      const mock_host = 'mock_host';
-      const mock_cred = 'mock_cred';
+      const mockUser = 'mockUser';
+      const mockHost = 'mockHost';
+      const mockCred = 'mockCred';
 
       describe('test function build credential key', function () {
         const testCases = [
           {
-            name:"when all the parameters are null",
+            name: 'when all the parameters are null',
             user: null,
             host: null,
             cred: null,
             result: null
           },
           {
-            name:"when two parameters are null or undefined",
-            user: mock_user,
+            name: 'when two parameters are null or undefined',
+            user: mockUser,
             host: null,
             cred: undefined,
             result: null
           },
           {
-            name:"when one parameter is null",
-            user: mock_user,
-            host: mock_host,
+            name: 'when one parameter is null',
+            user: mockUser,
+            host: mockHost,
             cred: undefined,
             result: null
           },
           {
-            name:"when one parameter is undefined",
-            user: mock_user,
+            name: 'when one parameter is undefined',
+            user: mockUser,
             host: undefined,
-            cred: mock_cred,
+            cred: mockCred,
             result: null
           },
           {
-            name:"when all the parameters are valid",
-            user: mock_user,
-            host: mock_host,
-            cred: mock_cred,
-            result: '{MOCK_HOST}:{MOCK_USER}:{SF_NODE_JS_DRIVER}:{MOCK_CRED}}'
+            name: 'when all the parameters are valid',
+            user: mockUser,
+            host: mockHost,
+            cred: mockCred,
+            result: '{mockHost}:{mockUser}:{SF_NODE_JS_DRIVER}:{mockCred}}'
           },
         ];
         testCases.forEach((name, user, host, cred, result) => {
           it(`${name}`, function () {
             if (!result) {
               assert.strictEqual(Util.buildCredentialCacheKey(host, user, cred), null);
-            } else{
+            } else {
               assert.strictEqual(Util.buildCredentialCacheKey(host, user, cred), result);
             }
-        })
+          });
+        });
       });
     });
-  });
 
     describe('test valid custom credential manager', function () {
       
       function sampleManager() {
-        this.read = function (key) {
-        }
+        this.read = function () {};
     
-        this.write = function (key ,credential) {
-        }
+        this.write = function () {};
     
-        this.remove = function (key) {
-        }
-    }
+        this.remove = function () {};
+      }
     
       const testCases = [
         {
@@ -1082,10 +1079,10 @@ describe('Util', function () {
         {
           name: 'credential manager has two valid properties, but miss one',
           credentialManager: {
-            read: function() {
+            read: function () {
 
             },
-            write:function() {
+            write: function () {
 
             }
           },
@@ -1119,7 +1116,7 @@ describe('Util', function () {
         },
         {
           name: 'all the parameter are existing',
-          parameters: ['a', 123, ["testing"], {}],
+          parameters: ['a', 123, ['testing'], {}],
           result: true
         },
       ];

@@ -87,7 +87,7 @@ if (process.env.RUN_MANUAL_TESTS_ONLY === 'true') {
             assert.ok( idToken !== null);
           });
           await testUtil.destroyConnectionAsync(connection);
-        })
+        });
         
         it('test - id token reauthentication', async function () {
           const idTokenConnection = snowflake.createConnection(connectionOption);
@@ -95,7 +95,7 @@ if (process.env.RUN_MANUAL_TESTS_ONLY === 'true') {
             assert.ok(!err);
           });
           await testUtil.destroyConnectionAsync(idTokenConnection);
-        })
+        });
 
         it('test - id token authentication', async function () {
           await GlobalConfig.getCredentialManager().write(key, '1234');
@@ -104,7 +104,7 @@ if (process.env.RUN_MANUAL_TESTS_ONLY === 'true') {
             assert.ok(!err);
             done();
           });
-        })
+        });
       });
     });
 

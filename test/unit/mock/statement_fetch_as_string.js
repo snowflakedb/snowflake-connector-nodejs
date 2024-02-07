@@ -2,46 +2,46 @@
  * Copyright (c) 2015-2019 Snowflake Computing Inc. All rights reserved.
  */
 
-var Util = require('../../../lib/util');
-var MockTestUtil = require('./mock_test_util');
-var assert = require('assert');
-var async = require('async');
+const Util = require('../../../lib/util');
+const MockTestUtil = require('./mock_test_util');
+const assert = require('assert');
+const async = require('async');
 
 // get a mock snowflake instance and an options object to connect to it
-var snowflake = MockTestUtil.snowflake;
-var connOpts = MockTestUtil.connectionOptions.default;
+const snowflake = MockTestUtil.snowflake;
+const connOpts = MockTestUtil.connectionOptions.default;
 
-var stmtOpts =
+const stmtOpts =
   {
     sqlText: 'select to_boolean(:1) as "boolean", to_date(:2) as "date", 1.123456789123456789 as "number"',
     binds: ['false', '1967-06-23'],
     requestId: 'foobar'
   };
 
-var numberAsString = '1.123456789123456789';
-var booleanAsString = 'FALSE';
-var dateAsString = '1967-06-23';
+const numberAsString = '1.123456789123456789';
+const booleanAsString = 'FALSE';
+const dateAsString = '1967-06-23';
 
-var typesBoolean = [snowflake.BOOLEAN];
-var typesNumber = [snowflake.NUMBER];
-var typesDate = [snowflake.DATE];
+const typesBoolean = [snowflake.BOOLEAN];
+const typesNumber = [snowflake.NUMBER];
+const typesDate = [snowflake.DATE];
 
-var connOptsNone = Util.apply({}, connOpts);
-var connOptsBoolean = Util.apply({ fetchAsString: typesBoolean }, connOpts);
-var connOptsNumber = Util.apply({ fetchAsString: typesNumber }, connOpts);
-var connOptsDate = Util.apply({ fetchAsString: typesDate }, connOpts);
+const connOptsNone = Util.apply({}, connOpts);
+const connOptsBoolean = Util.apply({ fetchAsString: typesBoolean }, connOpts);
+const connOptsNumber = Util.apply({ fetchAsString: typesNumber }, connOpts);
+const connOptsDate = Util.apply({ fetchAsString: typesDate }, connOpts);
 
-var stmtOptsNone = Util.apply({}, stmtOpts);
-var stmtOptsBoolean = Util.apply({ fetchAsString: typesBoolean }, stmtOpts);
-var stmtOptsNumber = Util.apply({ fetchAsString: typesNumber }, stmtOpts);
+const stmtOptsNone = Util.apply({}, stmtOpts);
+const stmtOptsBoolean = Util.apply({ fetchAsString: typesBoolean }, stmtOpts);
+const stmtOptsNumber = Util.apply({ fetchAsString: typesNumber }, stmtOpts);
 
-var strmOptsNone = {};
-var strmOptsNumber = { fetchAsString: typesNumber };
-var strmOptsBoolean = { fetchAsString: typesBoolean };
-var strmOptsDate = { fetchAsString: typesDate };
+const strmOptsNone = {};
+const strmOptsNumber = { fetchAsString: typesNumber };
+const strmOptsBoolean = { fetchAsString: typesBoolean };
+const strmOptsDate = { fetchAsString: typesDate };
 
 describe('Statement - fetch as string', function () {
-  var testCases =
+  const testCases =
     [
       {
         name: 'connection = none, statement = none, stream = number',
@@ -101,8 +101,8 @@ describe('Statement - fetch as string', function () {
       }
     ];
 
-  for (var index = 0, length = testCases.length; index < length; index++) {
-    var testCase = testCases[index];
+  for (let index = 0, length = testCases.length; index < length; index++) {
+    const testCase = testCases[index];
     it(testCase.name,
       createItCallback(
         testCase.connOpts,
@@ -118,7 +118,7 @@ function createItCallback(
   streamOptions,
   verifyFn) {
   return function (done) {
-    var connection;
+    let connection;
     async.series(
       [
         function (callback) {
@@ -129,7 +129,7 @@ function createItCallback(
           });
         },
         function (callback) {
-          var rows = [];
+          const rows = [];
           connection.execute(statementOptions).streamRows(streamOptions)
             .on('data', function (row) {
               rows.push(row);
@@ -152,7 +152,7 @@ function createItCallback(
 function verifyOnlyNumberConverted(rows) {
   verifyRows(rows);
 
-  var row = rows[0];
+  const row = rows[0];
 
   verifyNumberConverted(row);
   verifyBooleanNotConverted(row);
@@ -162,7 +162,7 @@ function verifyOnlyNumberConverted(rows) {
 function verifyOnlyBooleanConverted(rows) {
   verifyRows(rows);
 
-  var row = rows[0];
+  const row = rows[0];
 
   verifyNumberNotConverted(row);
   verifyBooleanConverted(row);
@@ -172,7 +172,7 @@ function verifyOnlyBooleanConverted(rows) {
 function verifyOnlyDateConverted(rows) {
   verifyRows(rows);
 
-  var row = rows[0];
+  const row = rows[0];
 
   verifyNumberNotConverted(row);
   verifyBooleanNotConverted(row);

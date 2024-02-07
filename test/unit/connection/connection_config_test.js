@@ -2,16 +2,16 @@
  * Copyright (c) 2015 Snowflake Computing Inc. All rights reserved.
  */
 
-var ConnectionConfig = require('./../../../lib/connection/connection_config');
-var ErrorCodes = require('./../../../lib/errors').codes;
-var assert = require('assert');
+const ConnectionConfig = require('./../../../lib/connection/connection_config');
+const ErrorCodes = require('./../../../lib/errors').codes;
+const assert = require('assert');
 
 describe('ConnectionConfig: basic', function () {
   ///////////////////////////////////////////////////////////////////////////
   //// Test synchronous errors                                           ////
   ///////////////////////////////////////////////////////////////////////////
 
-  var negativeTestCases =
+  const negativeTestCases =
     [
       {
         name: 'missing options',
@@ -701,11 +701,21 @@ describe('ConnectionConfig: basic', function () {
         },
         errorCode: ErrorCodes.ERR_CONN_CREATE_INVALID_MAX_LOGIN_TIMEOUT
       },
+      {
+        name: 'invalid disableConsoleLogin',
+        options: {
+          account: 'account',
+          username: 'username',
+          password: 'password',
+          disableConsoleLogin: 'invalud'
+        },
+        errorCode: ErrorCodes.ERR_CONN_CREATE_INVALID_DISABLE_CONSOLE_LOGIN
+      },
     ];
 
-  var createNegativeITCallback = function (testCase) {
+  const createNegativeITCallback = function (testCase) {
     return function () {
-      var error;
+      let error;
 
       try {
         new ConnectionConfig(testCase.options);
@@ -718,7 +728,7 @@ describe('ConnectionConfig: basic', function () {
     };
   };
 
-  var index, length, testCase;
+  let index, length, testCase;
   for (index = 0, length = negativeTestCases.length; index < length; index++) {
     testCase = negativeTestCases[index];
     it(testCase.name, createNegativeITCallback(testCase));
@@ -728,7 +738,7 @@ describe('ConnectionConfig: basic', function () {
   //// Test valid arguments                                              ////
   ///////////////////////////////////////////////////////////////////////////
 
-  var testCases =
+  const testCases =
     [
       {
         name: 'basic',
@@ -1207,14 +1217,51 @@ describe('ConnectionConfig: basic', function () {
             region: 'region.region2.region3',
           }
       },
+      {
+        name: 'host',
+        input:
+          {
+            account: 'account',
+            username: 'username',
+            password: 'password',
+            retryTimeout: 1234,
+            host: 'host.sub-domain.snowflakecomputing.com'
+          },
+        options:
+          {
+            accessUrl: 'https://host.sub-domain.snowflakecomputing.com',
+            username: 'username',
+            password: 'password',
+            account: 'account'
+          }
+      },
+      {
+        name: 'accessUrl and host',
+        input:
+          {
+            account: 'account',
+            username: 'username',
+            password: 'password',
+            retryTimeout: 1234,
+            host: 'host.snowflakecomputing.com',
+            accessUrl: 'https://access-url.snowflakecomputing.com'
+          },
+        options:
+          {
+            accessUrl: 'https://access-url.snowflakecomputing.com',
+            username: 'username',
+            password: 'password',
+            account: 'account'
+          }
+      }
     ];
 
-  var createItCallback = function (testCase) {
+  const createItCallback = function (testCase) {
     return function () {
-      var result_options = new ConnectionConfig(testCase.input);
+      const resultOptions = new ConnectionConfig(testCase.input);
       Object.keys(testCase.options).forEach(function (key) {
-        var ref = testCase.options[key];
-        var val = result_options[key];
+        const ref = testCase.options[key];
+        const val = resultOptions[key];
         assert.strictEqual(val, ref);
       });
     };
@@ -1226,11 +1273,11 @@ describe('ConnectionConfig: basic', function () {
   }
 
   it('custom prefetch', function () {
-    var username = 'username';
-    var password = 'password';
-    var account = 'account';
+    const username = 'username';
+    const password = 'password';
+    const account = 'account';
 
-    var connectionConfig = new ConnectionConfig(
+    let connectionConfig = new ConnectionConfig(
       {
         username: username,
         password: password,
@@ -1238,10 +1285,10 @@ describe('ConnectionConfig: basic', function () {
       });
 
     // get the default value of the resultPrefetch parameter
-    var resultPrefetchDefault = connectionConfig.getResultPrefetch();
+    const resultPrefetchDefault = connectionConfig.getResultPrefetch();
 
     // create a ConnectionConfig object with a custom value for resultPrefetch
-    var resultPrefetchCustom = resultPrefetchDefault + 1;
+    const resultPrefetchCustom = resultPrefetchDefault + 1;
     connectionConfig = new ConnectionConfig(
       {
         username: username,

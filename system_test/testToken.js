@@ -1,15 +1,15 @@
 /*
  * Copyright (c) 2015-2019 Snowflake Computing Inc. All rights reserved.
  */
-var snowflake = require('./../lib/snowflake');
-var assert = require('assert');
-var connOption = require('../test/integration/connectionOptions');
-var testUtil = require('../test/integration/testUtil');
-var async = require('async');
+const snowflake = require('./../lib/snowflake');
+const assert = require('assert');
+const connOption = require('../test/integration/connectionOptions');
+const testUtil = require('../test/integration/testUtil');
+const async = require('async');
 
 describe('testLoginTokenExpire', function () {
   before(function (done) {
-    var connectionToSnowflake = snowflake.createConnection(connOption.snowflakeAccount);
+    const connectionToSnowflake = snowflake.createConnection(connOption.snowflakeAccount);
     async.series(
       [
         function (callback) {
@@ -44,7 +44,7 @@ describe('testLoginTokenExpire', function () {
   });
 
   after(function (done) {
-    var connectionToSnowflake = snowflake.createConnection(connOption.snowflakeAccount);
+    const connectionToSnowflake = snowflake.createConnection(connOption.snowflakeAccount);
     async.series(
       [
         function (callback) {
@@ -79,7 +79,7 @@ describe('testLoginTokenExpire', function () {
   });
 
   it('testSessionToken', function (done) {
-    var connection = snowflake.createConnection(connOption.valid);
+    const connection = snowflake.createConnection(connOption.valid);
     async.series(
       [
         function (callback) {
@@ -105,7 +105,7 @@ describe('testLoginTokenExpire', function () {
   });
 
   it('testMasterTokenExpire', function (done) {
-    var connection = snowflake.createConnection(connOption.valid);
+    const connection = snowflake.createConnection(connOption.valid);
     async.series(
       [
         function (callback) {

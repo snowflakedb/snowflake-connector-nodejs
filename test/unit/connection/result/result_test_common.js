@@ -2,18 +2,18 @@
  * Copyright (c) 2015-2019 Snowflake Computing Inc. All rights reserved.
  */
 
-var Result = require('./../../../../lib/connection/result/result');
-var ConnectionConfig = require('./../../../../lib/connection/connection_config');
-var Util = require('./../../../../lib/util');
-var ErrorCodes = require('./../../../../lib/errors').codes;
-var assert = require('assert');
+const Result = require('./../../../../lib/connection/result/result');
+const ConnectionConfig = require('./../../../../lib/connection/connection_config');
+const Util = require('./../../../../lib/util');
+const ErrorCodes = require('./../../../../lib/errors').codes;
+const assert = require('assert');
 
 describe('Result: synchronous errors', function () {
   ///////////////////////////////////////////////////////////////////////////
   //// Test synchronous errors                                           ////
   ///////////////////////////////////////////////////////////////////////////
 
-  var testCases =
+  const testCases =
     [
       {
         name: 'missing options',
@@ -166,9 +166,9 @@ describe('Result: synchronous errors', function () {
       }
     ];
 
-  var createItCallback = function (testCase) {
+  const createItCallback = function (testCase) {
     return function () {
-      var error;
+      let error;
 
       try {
         new Result(testCase.options);
@@ -181,7 +181,7 @@ describe('Result: synchronous errors', function () {
     };
   };
 
-  var index, length, testCase;
+  let index, length, testCase;
   for (index = 0, length = testCases.length; index < length; index++) {
     testCase = testCases[index];
     it(testCase.name, createItCallback(testCase));
@@ -205,12 +205,12 @@ exports.createResultOptions = function (response) {
 
 exports.testResult = function (resultOptions, each, end, startIndex, endIndex) {
   // create a new result
-  var result = new Result(resultOptions);
+  const result = new Result(resultOptions);
 
-  var numIterationsActual = 0;
+  let numIterationsActual = 0;
 
   // initiate a fetch-rows operation
-  var operation = result.fetchRows(
+  const operation = result.fetchRows(
     {
       startIndex: startIndex,
       endIndex: endIndex,
@@ -230,7 +230,7 @@ exports.testResult = function (resultOptions, each, end, startIndex, endIndex) {
     // the continue callback should be undefined (because there's no error)
     assert.ok(!Util.exists(continueCallback));
 
-    var numIterationsExpected;
+    let numIterationsExpected;
 
     if (Util.isNumber(startIndex) && Util.isNumber(endIndex)) {
       numIterationsExpected = endIndex - startIndex + 1;

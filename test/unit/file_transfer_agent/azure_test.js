@@ -141,7 +141,7 @@ describe('Azure client', function () {
     mock('client', getClientMock(
       function () {
         const err = new Error();
-        err.statusCode = '404';
+        err.statusCode = 404;
         throw err;
       }, null));
 
@@ -156,7 +156,7 @@ describe('Azure client', function () {
     mock('client', getClientMock(
       function () {
         const err = new Error();
-        err.statusCode = '400';
+        err.statusCode = 400;
         throw err;
       }, null));
 
@@ -204,7 +204,7 @@ describe('Azure client', function () {
       function () {
         function upload() {
           const err = new Error('Server failed to authenticate the request.');
-          err.statusCode = '403';
+          err.statusCode = 403;
           throw err;
         }
         return new upload;
@@ -224,7 +224,7 @@ describe('Azure client', function () {
       function () {
         function upload() {
           const err = new Error();
-          err.statusCode = '400';
+          err.statusCode = 400;
           throw err;
         }
         return new upload;

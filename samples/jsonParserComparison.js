@@ -72,9 +72,6 @@ async function run() {
                          from ${testVariantTempName}`;
   const selectCountVariant = (tableName) => `select count(colA) from ${(tableName)}`;
 
-  const avgBlock = 0, minBlock = 999999999999999, maxBlock = 0;
-  const blockCount = 0;
-
   const testCases = [];
   if (!choosenParser || choosenParser.toString().includes('Function')) {
     testCases.push({ parser: 'Function', jsonColumnVariantParser: (rawColumnValue) => new Function(`return (${rawColumnValue})`) });
@@ -97,15 +94,15 @@ async function run() {
     console.log(`\nTest for parser: [${parser}] extracting by ${extractFunction.name}`);
     const testVariantTableName = `testVariantTable000${parser}`;
     const connection = await helpers.connectUsingEnv();
-    return new Promise(async (resolve, reject) => {
+    return new Promise( (resolve, reject) => {
       snowflake.configure({
         jsonColumnVariantParser: jsonColumnVariantParser
       });
 
-      await helpers.executeQuery(connection, createTempTableWithJsonData);
-      await helpers.executeQuery(connection, createTableWithVariant(testVariantTableName));
-      await helpers.executeQuery(connection, insertVariant(testVariantTableName));
-      await helpers.executeQuery(connection, selectCountVariant(testVariantTableName)); 
+      helpers.executeQuery(connection, createTempTableWithJsonData);
+      helpers.executeQuery(connection, createTableWithVariant(testVariantTableName));
+      helpers.executeQuery(connection, insertVariant(testVariantTableName));
+      helpers.executeQuery(connection, selectCountVariant(testVariantTableName));
 
       const queryTimeLabel = parser + 'SelectTime';
       let avgBlock = 0, minBlock = 999999999999999, maxBlock = 0;

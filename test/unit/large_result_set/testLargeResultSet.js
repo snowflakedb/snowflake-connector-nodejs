@@ -1,7 +1,7 @@
 const connOptions = require('../../integration/connectionOptions');
 const LargeResultSetService = require('../../../lib/services/large_result_set');
 
-const httpClient = require('../../../lib/http/node');
+const httpClient = require('../../../lib/http/node').NodeHttpClient;
 const ConnectionConfig = require('../../../lib/connection/connection_config');
 const { hangWebServerUrl } = require('../../hangWebserver');
 
@@ -40,7 +40,7 @@ describe('LargeResultSetService', () => {
       it(testName, done => {
         largeResultSetService.getObject({
           url: baseUrl + url,
-          callback: (err, body) => {
+          callback: (err) => {
             if (err) {
               if (err && err.name === expectedErrorName) {
                 done();

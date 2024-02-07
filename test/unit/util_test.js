@@ -2,8 +2,11 @@
  * Copyright (c) 2015 Snowflake Computing Inc. All rights reserved.
  */
 
-var Util = require('./../../lib/util');
-var assert = require('assert');
+const Util = require('./../../lib/util');
+const assert = require('assert');
+const path = require('path');
+const fsPromises = require('fs/promises');
+const os = require('os');
 
 describe('Util', function () {
   it('Util.isFunction()', function () {
@@ -177,7 +180,7 @@ describe('Util', function () {
   });
 
   it('Util.string.compareVersions()', function () {
-    var testCases = [];
+    const testCases = [];
 
     // '' and '0' are the same
     testCases.push(
@@ -277,8 +280,8 @@ describe('Util', function () {
         result: NaN
       });
 
-    var testCase, actual, expected;
-    for (var index = 0, length = testCases.length; index < length; index++) {
+    let testCase, actual, expected;
+    for (let index = 0, length = testCases.length; index < length; index++) {
       testCase = testCases[index];
       actual =
         Util.string.compareVersions(testCase.version1, testCase.version2);
@@ -386,7 +389,7 @@ describe('Util', function () {
     ////                 Positive Test Cases                             ////
     /////////////////////////////////////////////////////////////////////////
 
-    var testCasesPos =
+    const testCasesPos =
       [
         {
           url: 'a',
@@ -408,8 +411,8 @@ describe('Util', function () {
         }
       ];
 
-    var testCase;
-    for (var index = 0, length = testCasesPos.length; index < length; index++) {
+    let testCase;
+    for (let index = 0, length = testCasesPos.length; index < length; index++) {
       testCase = testCasesPos[index];
       assert.strictEqual(
         Util.url.appendParam(
@@ -421,7 +424,7 @@ describe('Util', function () {
     ////                 Negative Test Cases                             ////
     /////////////////////////////////////////////////////////////////////////
 
-    var testCasesNeg =
+    const testCasesNeg =
       [
         {
           paramName: 'foo',
@@ -439,8 +442,8 @@ describe('Util', function () {
         }
       ];
 
-    var error;
-    for (index = 0, length = testCasesPos.length; index < length; index++) {
+    let error;
+    for (let index = 0, length = testCasesPos.length; index < length; index++) {
       error = null;
 
       testCase = testCasesNeg[index];
@@ -561,36 +564,36 @@ describe('Util', function () {
       
       const maxRetryTimeout = 300;
       let currentSleepTime = 1;
-      let retryCount = 1;
-      let totalTimeout = currentSleepTime;
+      let retryCount = 0;
+      let totalElapsedTime = currentSleepTime;
       for (const response of errorCodes) {
-        retryCount++;
-        const result = Util.getJitteredSleepTime(retryCount, currentSleepTime, totalTimeout, maxRetryTimeout);
+        const result = Util.getJitteredSleepTime(retryCount, currentSleepTime, totalElapsedTime, maxRetryTimeout);
         const jitter = currentSleepTime / 2;
         const nextSleep = 2 ** retryCount;
         currentSleepTime = result.sleep;
-        totalTimeout = result.totalTimeout;
+        totalElapsedTime = result.totalElapsedTime;
+        retryCount++;
        
         assert.strictEqual(Util.isRetryableHttpError(response, true), true);
         assert.ok(currentSleepTime <= nextSleep + jitter || currentSleepTime >= nextSleep - jitter);
       }
     
-      assert.strictEqual(retryCount, 7);
-      assert.ok(totalTimeout <= maxRetryTimeout);
+      assert.strictEqual(retryCount, 6);
+      assert.ok(totalElapsedTime <= maxRetryTimeout);
     }); 
 
     it('test - retryTimeout is 0', function () {
       const maxRetryTimeout = 0;
       let currentSleepTime = 1;
       const maxRetryCount = 20;
-      let totalTimeout = currentSleepTime;
+      let totalElapsedTime = currentSleepTime;
       let retryCount = 1;
       for ( ; retryCount < maxRetryCount; retryCount++) {
-        const result = Util.getJitteredSleepTime(retryCount, currentSleepTime, totalTimeout, maxRetryTimeout);
+        const result = Util.getJitteredSleepTime(retryCount, currentSleepTime, totalElapsedTime, maxRetryTimeout);
         const jitter = currentSleepTime / 2;
         const nextSleep = 2 ** retryCount;
         currentSleepTime = result.sleep;
-        totalTimeout = result.totalTimeout;
+        totalElapsedTime = result.totalElapsedTime;
 
         assert.ok(currentSleepTime <= nextSleep + jitter || currentSleepTime >= nextSleep - jitter);
       }
@@ -633,7 +636,7 @@ describe('Util', function () {
     assert.strictEqual(Util.apply(undefined, undefined), undefined);
     assert.strictEqual(Util.apply(undefined, {}), undefined);
 
-    var dst, src;
+    let dst, src;
 
     dst = {};
     src = null;
@@ -643,18 +646,18 @@ describe('Util', function () {
     src = { b: 2 };
     assert.strictEqual(Util.apply(dst, src), dst);
     assert.strictEqual(Object.keys(dst).length, 2);
-    assert.ok(dst.hasOwnProperty('a') && (dst.a === 1));
-    assert.ok(dst.hasOwnProperty('b') && (dst.b === 2));
+    assert.ok(Object.prototype.hasOwnProperty.call(dst, 'a') && (dst.a === 1));
+    assert.ok(Object.prototype.hasOwnProperty.call(dst, 'b') && (dst.b === 2));
 
     dst = { a: 1 };
     src = { a: 2 };
     assert.strictEqual(Util.apply(dst, src), dst);
     assert.strictEqual(Object.keys(dst).length, 1);
-    assert.ok(dst.hasOwnProperty('a') && (dst.a === 2));
+    assert.ok(Object.prototype.hasOwnProperty.call(dst, 'a') && (dst.a === 2));
   });
 
   it('Util.isRetryableHttpError()', function () {
-    var testCasesPos =
+    const testCasesPos =
       [
         {
           name: '200 - OK',
@@ -712,9 +715,9 @@ describe('Util', function () {
         },
       ];
 
-    var testCase;
-    var err;
-    for (var index = 0, length = testCasesPos.length; index < length; index++) {
+    let testCase;
+    let err;
+    for (let index = 0, length = testCasesPos.length; index < length; index++) {
       testCase = testCasesPos[index];
       err = {
         response: { statusCode: testCase.statusCode }
@@ -722,6 +725,88 @@ describe('Util', function () {
       assert.strictEqual(Util.isRetryableHttpError(
         err.response, testCase.retry403), testCase.isRetryable);
     }
+  });
+
+  describe('Okta Authentication Retry Condition', () => {
+    const testCases =
+    [
+      {
+        name: 'test - default values',
+        retryOption: { 
+          maxRetryCount: 7, 
+          numRetries: 1, 
+          remainingTimeout: 300000,
+          maxRetryTimeout: 300000
+        },
+        result: true,
+      },
+      {
+        name: 'test - the value of the numRetries is the same as the max retry count',
+        retryOption: { 
+          maxRetryCount: 7, 
+          numRetries: 7, 
+          remainingTimeout: 300000,
+          maxRetryTimeout: 300000
+        },
+        result: true,
+      },
+      {
+        name: 'test - max retry timout is 0',
+        retryOption: { 
+          maxRetryCount: 7, 
+          numRetries: 1, 
+          remainingTimeout: 300000,
+          maxRetryTimeout: 0 
+        },
+        result: true,
+      },
+      {
+        name: 'test - the max retry timeout is 0 and number of retry is over',
+        retryOption: { 
+          maxRetryCount: 7, 
+          numRetries: 8, 
+          remainingTimeout: -50,
+          maxRetryTimeout: 0 
+        },
+        result: false,
+      },
+      {
+        name: 'test - the retry count is over the max retry count ',
+        retryOption: { 
+          maxRetryCount: 7, 
+          numRetries: 8, 
+          remainingTimeout: 300000,
+          maxRetryTimeout: 300
+        },
+        result: false,
+      },
+      {
+        name: 'test - the remaining timout is 0',
+        retryOption: { 
+          maxRetryCount: 7, 
+          numRetries: 8, 
+          remainingTimeout: 0,
+          maxRetryTimeout: 300 
+        },
+        result: false,
+      },
+      {
+        name: 'test - the remaining timoue is negative',
+        retryOption: { 
+          maxRetryCount: 7, 
+          numRetries: 8, 
+          remainingTimeout: -10,
+          maxRetryTimeout: 300 
+        },
+        result: false,
+      },
+    ];
+
+    testCases.forEach(({ name, retryOption, result }) => {
+      it(name, () => {
+        assert.strictEqual(Util.shouldRetryOktaAuth({ ...retryOption, startTime: Date.now() }), result);
+      });
+    });
   });
 
   describe('isPrivateKey', () => {
@@ -807,10 +892,6 @@ describe('Util', function () {
   });
 
   describe('Util Test - detecting PROXY envvars and compare with the agent proxy settings', () => {
-    // if for some reason there's already a PROXY envvar, try to preserve it
-    const httpProxyBeforeTest = process.env.HTTP_PROXY ? process.env.HTTP_PROXY : null;
-    const httpsProxyBeforeTest = process.env.HTTPS_PROXY ? process.env.HTTPS_PROXY : null;
-
     [
       {
         name: 'detect http_proxy envvar, no agent proxy',
@@ -879,7 +960,7 @@ describe('Util', function () {
       }
     ].forEach(({ name, isWarn, httpproxy, HTTPSPROXY, agentOptions, shouldLog }) => {
       it(`${name}`, () => {
-        process.env.http_proxy = httpproxy;
+        process.env.HTTP_PROXY = httpproxy;
         process.env.HTTPS_PROXY = HTTPSPROXY;
 
         const compareAndLogEnvAndAgentProxies = Util.getCompareAndLogEnvAndAgentProxies(agentOptions);
@@ -1050,4 +1131,94 @@ describe('Util', function () {
       }
     });
   });
+
+  if (os.platform() !== 'win32') {
+    describe('Util.isFileNotWritableByGroupOrOthers()', function () {
+      let tempDir = null;
+      let oldMask = null;
+
+      before(async function () {
+        tempDir = await fsPromises.mkdtemp(path.join(os.tmpdir(), 'permission_tests'));
+        oldMask = process.umask(0o000);
+      });
+
+      after(async function () {
+        await fsPromises.rm(tempDir, { recursive: true, force: true });
+        process.umask(oldMask);
+      });
+
+      [
+        { filePerm: 0o700, isValid: true },
+        { filePerm: 0o600, isValid: true },
+        { filePerm: 0o500, isValid: true },
+        { filePerm: 0o400, isValid: true },
+        { filePerm: 0o300, isValid: true },
+        { filePerm: 0o200, isValid: true },
+        { filePerm: 0o100, isValid: true },
+        { filePerm: 0o707, isValid: false },
+        { filePerm: 0o706, isValid: false },
+        { filePerm: 0o705, isValid: true },
+        { filePerm: 0o704, isValid: true },
+        { filePerm: 0o703, isValid: false },
+        { filePerm: 0o702, isValid: false },
+        { filePerm: 0o701, isValid: true },
+        { filePerm: 0o770, isValid: false },
+        { filePerm: 0o760, isValid: false },
+        { filePerm: 0o750, isValid: true },
+        { filePerm: 0o740, isValid: true },
+        { filePerm: 0o730, isValid: false },
+        { filePerm: 0o720, isValid: false },
+        { filePerm: 0o710, isValid: true },
+      ].forEach(async function ({ filePerm, isValid }) {
+        it('File with permission: ' + filePerm.toString(8) + ' should be valid=' + isValid, async function () {
+          const filePath = path.join(tempDir, `file_${filePerm.toString()}`);
+          await writeFile(filePath, filePerm);
+          assert.strictEqual(await Util.isFileNotWritableByGroupOrOthers(filePath, fsPromises), isValid);
+        });
+      });
+
+      async function writeFile(filePath, mode) {
+        await fsPromises.writeFile(filePath, '', { encoding: 'utf8', mode: mode });
+      }
+    });
+  }
+
+  if (os.platform() !== 'win32') {
+    describe('Util.isFileModeCorrect()', function () {
+      const tempDir = path.join(os.tmpdir(), 'permission_tests');
+      let oldMask = null;
+
+      before(async function () {
+        await fsPromises.mkdir(tempDir);
+        oldMask = process.umask(0o000);
+      });
+
+      after(async function () {
+        await fsPromises.rm(tempDir, { recursive: true, force: true });
+        process.umask(oldMask);
+      });
+
+      [
+        { dirPerm: 0o700, expectedPerm: 0o700, isCorrect: true },
+        { dirPerm: 0o755, expectedPerm: 0o600, isCorrect: false },
+      ].forEach(async function ({ dirPerm, expectedPerm, isCorrect }) {
+        it('Should return ' + isCorrect + ' when directory permission ' + dirPerm.toString(8) + ' is compared to ' + expectedPerm.toString(8), async function () {
+          const dirPath = path.join(tempDir, `dir_${dirPerm.toString(8)}`);
+          await fsPromises.mkdir(dirPath, { mode: dirPerm });
+          assert.strictEqual(await Util.isFileModeCorrect(dirPath, expectedPerm, fsPromises), isCorrect);
+        });
+      });
+
+      [
+        { filePerm: 0o700, expectedPerm: 0o700, isCorrect: true },
+        { filePerm: 0o755, expectedPerm: 0o600, isCorrect: false },
+      ].forEach(async function ({ filePerm, expectedPerm, isCorrect }) {
+        it('Should return ' + isCorrect + ' when file permission ' + filePerm.toString(8) + ' is compared to ' + expectedPerm.toString(8), async function () {
+          const dirPath = path.join(tempDir, `file_${filePerm.toString(8)}`);
+          await fsPromises.appendFile(dirPath, '', { mode: filePerm });
+          assert.strictEqual(await Util.isFileModeCorrect(dirPath, expectedPerm, fsPromises), isCorrect);
+        });
+      });
+    });
+  }
 });

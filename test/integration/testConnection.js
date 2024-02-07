@@ -10,12 +10,13 @@ const Util = require('./../../lib/util');
 const Core = require('./../../lib/core');
 const { stdout } = require('test-console');
 const { assertLogMessage } = require('./testUtil');
+const { configureLogger } = require('../configureLogger');
 
 describe('Connection test', function () {
   it('return tokens in qaMode', function () {
     const coreInst = Core({
       qaMode: true,
-      httpClientClass: require('./../../lib/http/node'),
+      httpClientClass: require('./../../lib/http/node').NodeHttpClient,
       loggerClass: require('./../../lib/logger/node'),
       client: {
         version: Util.driverVersion,
@@ -45,7 +46,7 @@ describe('Connection test', function () {
   });
 
   it('Wrong Username', function (done) {
-    var connection = snowflake.createConnection(connOption.wrongUserName);
+    const connection = snowflake.createConnection(connOption.wrongUserName);
     connection.connect(function (err) {
       assert.ok(err, 'Username is an empty string');
       assert.equal(
@@ -57,7 +58,7 @@ describe('Connection test', function () {
   });
 
   it('Wrong Password', function (done) {
-    var connection = snowflake.createConnection(connOption.wrongPwd);
+    const connection = snowflake.createConnection(connOption.wrongPwd);
     connection.connect(function (err) {
       assert.ok(err, 'Password is an empty string');
       assert.equal(
@@ -111,6 +112,10 @@ describe('Connection test', function () {
 });
 
 describe('Connection test - validate default parameters', function () {
+  before(() => {
+    configureLogger();
+  });
+
   it('Valid "warehouse" parameter', function () {
     const output = stdout.inspectSync(() => {
       snowflake.createConnection({
@@ -207,7 +212,7 @@ describe('Connection test - connection pool', function () {
   this.timeout(30000);
 
   it('1 min connection', function (done) {
-    var connectionPool = snowflake.createPool(connOption.valid, {
+    const connectionPool = snowflake.createPool(connOption.valid, {
       max: 10,
       min: 1,
     });
@@ -220,7 +225,7 @@ describe('Connection test - connection pool', function () {
   });
 
   it('5 min connection', function (done) {
-    var connectionPool = snowflake.createPool(connOption.valid, {
+    const connectionPool = snowflake.createPool(connOption.valid, {
       max: 10,
       min: 5,
     });
@@ -233,7 +238,7 @@ describe('Connection test - connection pool', function () {
   });
 
   it('10 min connection', function (done) {
-    var connectionPool = snowflake.createPool(connOption.valid, {
+    const connectionPool = snowflake.createPool(connOption.valid, {
       max: 10,
       min: 10,
     });
@@ -246,7 +251,7 @@ describe('Connection test - connection pool', function () {
   });
 
   it('min greater than max connection', function (done) {
-    var connectionPool = snowflake.createPool(connOption.valid, {
+    const connectionPool = snowflake.createPool(connOption.valid, {
       max: 5,
       min: 10,
     });
@@ -259,7 +264,7 @@ describe('Connection test - connection pool', function () {
   });
 
   it('1 max connection', function (done) {
-    var connectionPool = snowflake.createPool(connOption.valid, {
+    const connectionPool = snowflake.createPool(connOption.valid, {
       max: 1,
       min: 0,
     });
@@ -268,14 +273,14 @@ describe('Connection test - connection pool', function () {
     assert.equal(connectionPool.min, 0);
 
     // Acquire a connection
-    const resourcePromise1 = connectionPool.acquire();
+    connectionPool.acquire();
     assert.equal(connectionPool.size, 1);
 
     done();
   });
 
   it('1 max connection and acquire() more than 1', function (done) {
-    var connectionPool = snowflake.createPool(connOption.valid, {
+    const connectionPool = snowflake.createPool(connOption.valid, {
       max: 1,
       min: 0,
     });
@@ -284,16 +289,16 @@ describe('Connection test - connection pool', function () {
     assert.equal(connectionPool.min, 0);
 
     // Acquire 2 connections
-    const resourcePromise1 = connectionPool.acquire();
+    connectionPool.acquire();
     assert.equal(connectionPool.size, 1);
-    const resourcePromise2 = connectionPool.acquire();
+    connectionPool.acquire();
     assert.equal(connectionPool.size, 1);
 
     done();
   });
 
   it('5 max connection', function (done) {
-    var connectionPool = snowflake.createPool(connOption.valid, {
+    const connectionPool = snowflake.createPool(connOption.valid, {
       max: 5,
       min: 0,
     });
@@ -302,22 +307,22 @@ describe('Connection test - connection pool', function () {
     assert.equal(connectionPool.min, 0);
 
     // Acquire 5 connections
-    const resourcePromise1 = connectionPool.acquire();
+    connectionPool.acquire();
     assert.equal(connectionPool.size, 1);
-    const resourcePromise2 = connectionPool.acquire();
+    connectionPool.acquire();
     assert.equal(connectionPool.size, 2);
-    const resourcePromise3 = connectionPool.acquire();
+    connectionPool.acquire();
     assert.equal(connectionPool.size, 3);
-    const resourcePromise4 = connectionPool.acquire();
+    connectionPool.acquire();
     assert.equal(connectionPool.size, 4);
-    const resourcePromise5 = connectionPool.acquire();
+    connectionPool.acquire();
     assert.equal(connectionPool.size, 5);
 
     done();
   });
 
   it('5 max connections and acquire() more than 5', function (done) {
-    var connectionPool = snowflake.createPool(connOption.valid, {
+    const connectionPool = snowflake.createPool(connOption.valid, {
       max: 5,
       min: 0,
     });
@@ -326,24 +331,24 @@ describe('Connection test - connection pool', function () {
     assert.equal(connectionPool.min, 0);
 
     // Acquire 6 connections
-    const resourcePromise1 = connectionPool.acquire();
+    connectionPool.acquire();
     assert.equal(connectionPool.size, 1);
-    const resourcePromise2 = connectionPool.acquire();
+    connectionPool.acquire();
     assert.equal(connectionPool.size, 2);
-    const resourcePromise3 = connectionPool.acquire();
+    connectionPool.acquire();
     assert.equal(connectionPool.size, 3);
-    const resourcePromise4 = connectionPool.acquire();
+    connectionPool.acquire();
     assert.equal(connectionPool.size, 4);
-    const resourcePromise5 = connectionPool.acquire();
+    connectionPool.acquire();
     assert.equal(connectionPool.size, 5);
-    const resourcePromise6 = connectionPool.acquire();
+    connectionPool.acquire();
     assert.equal(connectionPool.size, 5);
 
     done();
   });
 
   it('10 max connection', function (done) {
-    var connectionPool = snowflake.createPool(connOption.valid, {
+    const connectionPool = snowflake.createPool(connOption.valid, {
       max: 10,
       min: 0,
     });
@@ -352,32 +357,32 @@ describe('Connection test - connection pool', function () {
     assert.equal(connectionPool.min, 0);
 
     // Acquire 10 connections
-    const resourcePromise1 = connectionPool.acquire();
+    connectionPool.acquire();
     assert.equal(connectionPool.size, 1);
-    const resourcePromise2 = connectionPool.acquire();
+    connectionPool.acquire();
     assert.equal(connectionPool.size, 2);
-    const resourcePromise3 = connectionPool.acquire();
+    connectionPool.acquire();
     assert.equal(connectionPool.size, 3);
-    const resourcePromise4 = connectionPool.acquire();
+    connectionPool.acquire();
     assert.equal(connectionPool.size, 4);
-    const resourcePromise5 = connectionPool.acquire();
+    connectionPool.acquire();
     assert.equal(connectionPool.size, 5);
-    const resourcePromise6 = connectionPool.acquire();
+    connectionPool.acquire();
     assert.equal(connectionPool.size, 6);
-    const resourcePromise7 = connectionPool.acquire();
+    connectionPool.acquire();
     assert.equal(connectionPool.size, 7);
-    const resourcePromise8 = connectionPool.acquire();
+    connectionPool.acquire();
     assert.equal(connectionPool.size, 8);
-    const resourcePromise9 = connectionPool.acquire();
+    connectionPool.acquire();
     assert.equal(connectionPool.size, 9);
-    const resourcePromise10 = connectionPool.acquire();
+    connectionPool.acquire();
     assert.equal(connectionPool.size, 10);
 
     done();
   });
 
   it('10 max connections and acquire() more than 10', function (done) {
-    var connectionPool = snowflake.createPool(connOption.valid, {
+    const connectionPool = snowflake.createPool(connOption.valid, {
       max: 10,
       min: 0,
     });
@@ -386,34 +391,34 @@ describe('Connection test - connection pool', function () {
     assert.equal(connectionPool.min, 0);
 
     // Acquire 11 connections
-    const resourcePromise1 = connectionPool.acquire();
+    connectionPool.acquire();
     assert.equal(connectionPool.size, 1);
-    const resourcePromise2 = connectionPool.acquire();
+    connectionPool.acquire();
     assert.equal(connectionPool.size, 2);
-    const resourcePromise3 = connectionPool.acquire();
+    connectionPool.acquire();
     assert.equal(connectionPool.size, 3);
-    const resourcePromise4 = connectionPool.acquire();
+    connectionPool.acquire();
     assert.equal(connectionPool.size, 4);
-    const resourcePromise5 = connectionPool.acquire();
+    connectionPool.acquire();
     assert.equal(connectionPool.size, 5);
-    const resourcePromise6 = connectionPool.acquire();
+    connectionPool.acquire();
     assert.equal(connectionPool.size, 6);
-    const resourcePromise7 = connectionPool.acquire();
+    connectionPool.acquire();
     assert.equal(connectionPool.size, 7);
-    const resourcePromise8 = connectionPool.acquire();
+    connectionPool.acquire();
     assert.equal(connectionPool.size, 8);
-    const resourcePromise9 = connectionPool.acquire();
+    connectionPool.acquire();
     assert.equal(connectionPool.size, 9);
-    const resourcePromise10 = connectionPool.acquire();
+    connectionPool.acquire();
     assert.equal(connectionPool.size, 10);
-    const resourcePromise11 = connectionPool.acquire();
+    connectionPool.acquire();
     assert.equal(connectionPool.size, 10);
 
     done();
   });
 
   it('acquire() 1 connection and release()', function (done) {
-    var connectionPool = snowflake.createPool(connOption.valid, {
+    const connectionPool = snowflake.createPool(connOption.valid, {
       max: 5,
       min: 0,
     });
@@ -447,7 +452,7 @@ describe('Connection test - connection pool', function () {
 
   it('acquire() 5 connections and release()', function (done) {
     // Create the connection pool
-    var connectionPool = snowflake.createPool(connOption.valid, {
+    const connectionPool = snowflake.createPool(connOption.valid, {
       max: 5,
       min: 0,
     });
@@ -531,7 +536,7 @@ describe('Connection test - connection pool', function () {
   });
 
   it('acquire() 1 connection and destroy()', function (done) {
-    var connectionPool = snowflake.createPool(connOption.valid, {
+    const connectionPool = snowflake.createPool(connOption.valid, {
       max: 5,
       min: 0,
     });
@@ -557,7 +562,7 @@ describe('Connection test - connection pool', function () {
   });
 
   it('acquire() 5 connections and destroy()', function (done) {
-    var connectionPool = snowflake.createPool(connOption.valid, {
+    const connectionPool = snowflake.createPool(connOption.valid, {
       max: 5,
       min: 0,
     });
@@ -641,7 +646,7 @@ describe('Connection test - connection pool', function () {
   });
 
   it('use()', function (done) {
-    var connectionPool = snowflake.createPool(connOption.valid, {
+    const connectionPool = snowflake.createPool(connOption.valid, {
       max: 5,
       min: 0,
     });
@@ -679,7 +684,7 @@ describe('Connection test - connection pool', function () {
   });
 
   it('wrong password - use', async function () {
-    var connectionPool = snowflake.createPool(connOption.wrongPwd, {
+    const connectionPool = snowflake.createPool(connOption.wrongPwd, {
       max: 10,
       min: 1,
     });
@@ -703,7 +708,7 @@ describe('Connection test - connection pool', function () {
   });
 
   it('wrong password - acquire', async function () {
-    var connectionPool = snowflake.createPool(connOption.wrongPwd, {
+    const connectionPool = snowflake.createPool(connOption.wrongPwd, {
       max: 10,
       min: 1,
     });

@@ -6,19 +6,13 @@ import { Options as PoolOptions, Pool } from "generic-pool";
 import Connection from "./connection/connection";
 import { ConnectionOptions } from "./connection/connection_config";
 
-declare const STRING = "STRING";
-declare const BOOLEAN = "BOOLEAN";
-declare const NUMBER = "NUMBER";
-declare const DATE = "DATE";
-declare const JSON = "JSON";
-
-declare enum OcspModes {
+enum OcspModes {
     FAIL_CLOSED = "FAIL_CLOSED",
     FAIL_OPEN = "FAIL_OPEN",
     INSECURE = "INSECURE",
 }
 
-declare enum LogLevel {
+enum LogLevel {
     ERROR = 'ERROR',
     WARN = 'WARN',
     INFO = 'INFO',
@@ -26,13 +20,19 @@ declare enum LogLevel {
     TRACE = 'TRACE',
 }
 
-export interface ConfigureOptions {
+type CustomParser = (rawColumnValue: string) => any;
+
+interface ConfigureOptions {
     logLevel?: LogLevel | undefined;
+    logFilePath?: string | undefined;
     insecureConnect?: boolean | undefined;
     ocspFailOpen?: boolean | undefined;
+    jsonColumnVariantParser?: CustomParser;
+    xmlColumnVariantParser?: CustomParser;
+    keepAlive?: boolean,
 }
 
-interface CoreInstance {
+export interface CoreInstance {
     ocspModes: OcspModes;
     /**
      * Creates a connection object that can be used to communicate with Snowflake.

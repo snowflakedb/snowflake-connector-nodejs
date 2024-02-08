@@ -1,18 +1,27 @@
+/*
+ * Copyright (c) 2015-2024 Snowflake Computing Inc. All rights reserved.
+ */
+
 import { SnowflakeError } from "../errors";
-import { BaseStatement } from "./statement";
+import { RowStatement, FileAndStageBindStatement, StatemnentOption } from "./statement";
 
-export type Bind = string | number;
-export type Binds = Bind[] | InsertBinds;
-export type InsertBinds = Bind[][];
-
-interface SQLOption {
-    sqlText: string;
-    streamResult?: boolean | undefined;
-    binds?: Binds | undefined;
-    fetchAsString?: Array<"String" | "Boolean" | "Number" | "Date" | "JSON" | "Buffer"> | undefined;
-    complete?: (err: SnowflakeError | undefined, stmt: BaseStatement, rows: any[] | undefined) => void;
-    parameters?: Record<string, unknown>;
+enum QueryStatus {
+    RUNNING = 'RUNNING',
+    ABORTING = 'ABORTING',
+    SUCCESS = 'SUCCESS',
+    FAILED_WITH_ERROR = 'FAILED_WITH_ERROR',
+    ABORTED = 'ABORTED',
+    QUEUED = 'QUEUED',
+    FAILED_WITH_INCIDENT = 'FAILED_WITH_INCIDENT',
+    DISCONNECTED = 'DISCONNECTED',
+    RESUMING_WAREHOUSE = 'RESUMING_WAREHOUSE',
+    QUEUED_REPARING_WAREHOUSE = 'QUEUED_REPARING_WAREHOUSE',
+    RESTARTED = 'RESTARTED',
+    BLOCKED = 'BLOCKED',
+    NO_DATA = 'NO_DATA',
 }
+
+type ConnectionCallback = (err: SnowflakeError | undefined, conn: Connection) => void
 
 export type Connection = NodeJS.EventEmitter & {
     /**
@@ -25,18 +34,15 @@ export type Connection = NodeJS.EventEmitter & {
      */
     isUp(): boolean;
 
+    /**
+     * Returns true if the session token and master token are valid
+     */
     isTokenValid(): boolean;
-    getServiceName(): string;
-    getClientSessionKeepAlive(): boolean;
-    getClientSessionKeepAliveHeartbeatFrequency(): number;
-    getJsTreatIntegerAsBigInt(): boolean;
 
     /**
      * Returns the connection id.
      */
     getId(): string;
-    heartbeat(): void;
-    heartbeatAsync(): Promise<Array>;
 
     /**
      * Returns true if the connection is good to send a query otherwise false
@@ -53,7 +59,7 @@ export type Connection = NodeJS.EventEmitter & {
      * Establishes a connection if not in a fatal state.
      *
      */
-    connect(callback: (err: SnowflakeError | undefined, conn: Connection) => void): void;
+    connect(callback: ConnectionCallback): void;
 
     /**
      * Establishes a connection if not in a fatal state.
@@ -62,25 +68,64 @@ export type Connection = NodeJS.EventEmitter & {
      * `https://<okta_account_name>.okta.com` (in order to use native SSO through Okta), call the {@link connect}
      * method.
      */
-    connectAsync(callback: (err: SnowflakeError | undefined, conn: Connection) => void): Promise<void>;
+    connectAsync(callback: ConnectionCallback): Promise<void>;
 
-    execute(options: SQLOption): BaseStatement;
+    /**
+     * Executes a statement.
+     */
+
+    execute(options: StatemnentOption): RowStatement | FileAndStageBindStatement;
 
     /**
      * Fetches the result of a previously issued statement.
      */
-    fetchResult(): any;
+    fetchResult(options: StatemnentOption): RowStatement | FileAndStageBindStatement;
 
     /**
      * Immediately terminates the connection without waiting for
      * currently executing statements to complete.
      */
-    destroy(fn: (err: SnowflakeError | undefined, conn: Connection) => void): void;
+    destroy(fn: ConnectionCallback): void;
+
+    /**
+     * Gets the status of the query based on queryId
+     */
+    getQueryStatus(queryId: string): string;
+
+    /**
+     * Gets the status of the query based on queryId and throws if there's an error.
+     */
+    getQueryStatusThrowIfError(queryId: string): string;
+
+    /**
+     *  Gets the results from a previously ran query based on queryId
+     */
+    getResultsFromQueryId(options: StatemnentOption): RowStatement | FileAndStageBindStatement;
+
+    /**
+     * Checks whether the given status is currently running.
+     */
+    isStillRunning(status: QueryStatus): boolean;
+
+    /**
+     * Checks whether the given status means that there has been an error.
+     */
+    isAnError(): boolean;
 
     /**
      * Returns a serialized version of this connection.
      */
     serialize(): string;
+
+
+    heartbeat(): void;
+    heartbeatAsync(): Promise<Array<Record<string, any>>>;
+    getServiceName(): string;
+    getClientSessionKeepAlive(): boolean;
+    getClientSessionKeepAliveHeartbeatFrequency(): number;
+    getJsTreatIntegerAsBigInt(): boolean;
+
+
 };
 
 export default Connection;

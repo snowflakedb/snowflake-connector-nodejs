@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2015-2024 Snowflake Computing Inc. All rights reserved.
+ */
+
 export default interface Column {
     /**
      * Returns the name of this column.
@@ -28,6 +32,12 @@ export default interface Column {
      * Returns the type associated with this column.
      */
     getType(): string;
+
+    /**
+     * Returns the precision associated with this column
+     *
+     */
+    getPrecision(): number;
 
     /**
      * Returns true if this column is type STRING.
@@ -93,4 +103,14 @@ export default interface Column {
      * Returns true if this column is type ARRAY.
      */
     isArray(): boolean;
+
+    /**
+     * Returns the value of this column in a row.
+     */
+    getRowValue(row: object): any;
+
+    /**
+     * Returns the value of this in a row as a String.
+     */
+    getRowValueAsString(row: object): string;
 }

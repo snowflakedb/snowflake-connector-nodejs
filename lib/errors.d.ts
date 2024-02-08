@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2015-2024 Snowflake Computing Inc. All rights reserved.
+ */
+
 export enum ErrorCode {
     // 400001
     ERR_INTERNAL_ASSERT_FAILED = 400001,
@@ -161,7 +165,20 @@ export enum ErrorCode {
     ERR_GET_RESULTS_QUERY_ID_NOT_SUCCESS_STATUS = 460003,
 };
 
-export interface SnowflakeErrorExternal extends Error {
+interface SnowflakeErrorExternal extends Error {
+    name?: any,
+    code?: any,
+    message?: any,
+    sqlState?: any,
+    data?: any,
+    response?: any,
+    responseBody?: any,
+    cause?: any,
+    isFatal?: any,
+    stack?: any
+};
+
+export interface SnowflakeError extends Error {
     code?: ErrorCode,
     sqlState?: string,
     data?: Record<string, any>,
@@ -169,8 +186,6 @@ export interface SnowflakeErrorExternal extends Error {
     responseBody?: string,
     cause?: Error,
     isFatal?: boolean,
+    externalize?: () => SnowflakeErrorExternal | undefined,
 };
 
-export interface SnowflakeError extends SnowflakeErrorExternal {
-    externalize?: () => SnowflakeErrorExternal,
-};

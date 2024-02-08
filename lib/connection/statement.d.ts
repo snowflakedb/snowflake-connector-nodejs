@@ -1,11 +1,40 @@
+/*
+ * Copyright (c) 2015-2024 Snowflake Computing Inc. All rights reserved.
+ */
+
 import { Readable } from 'stream';
 import { SnowflakeError } from '../errors';
 import Column from './result/column';
 
+type Bind = string | number;
+type InsertBinds = Bind[][];
+type Binds = Bind[] | InsertBinds;
+type StatementCallback = (err: SnowflakeError | undefined, stmt: RowStatement | FileAndStageBindStatement, rows: any[] | undefined) => void;
+
+export enum DataType {
+    String = 'String',
+    Boolean = 'Boolean',
+    Number = 'Number',
+    Date = 'Date',
+    JSON = 'JSON',
+    Buffer = 'Buffer',
+}
+
 interface StreamOptions {
     start?: number;
     end?: number;
-    fetchAsString?: Array<"String" | "Boolean" | "Number" | "Date" | "JSON" | "Buffer"> | undefined;
+    fetchAsString?: DataType[] | undefined;
+}
+
+export interface StatemnentOption {
+    sqlText: string;
+    complete: StatementCallback,
+    requestId?: string;
+    queryId?: string;
+    streamResult?: boolean;
+    binds?: Binds;
+    fetchAsString?: DataType[];
+    parameters?: Record<string, unknown>;
 }
 
 enum StatementStatus {
@@ -13,7 +42,8 @@ enum StatementStatus {
     Complete = "complete",
 }
 
-export interface BaseStatement {
+export interface RowStatement {
+
     /**
      * Returns this statement's SQL text.
      */
@@ -45,9 +75,8 @@ export interface BaseStatement {
     /**
      * Returns the number of rows updated by this statement.
      *
-     * @returns {Number}
      */
-    getNumUpdatedRows(): Number | undefined;
+    getNumUpdatedRows(): number | undefined;
 
     /**
      * Returns an object that contains information about the values of the
@@ -77,22 +106,25 @@ export interface BaseStatement {
      * If the statement is still executing and we don't know the query id
      * yet, this method will return undefined.
      *
-     * @returns {String}
      */
     getQueryId(): string;
-
-
-    /**
-     * Cancels this statement if possible.
-     * @param fn The callback to use.
-     */
-    cancel(fn: (err: SnowflakeError | undefined, stmt: BaseStatement) => void): void;
 
     /**
      * Streams the rows in this statement's result. If start and end values are
      * specified, only rows in the specified range are streamed.
      *
-     * @param StreamOptions options
      */
     streamRows(options?: StreamOptions): Readable;
+
+    fetchRows(options?: StreamOptions): Readable;
+
+    //Testing Purpose
+    getQueryContextCacheSize(): unknown;
+
+    getQueryContextDTOSize(): unknown;
+}
+
+export interface FileAndStageBindStatement extends RowStatement {
+    hasNext(): () => boolean;
+    NextResult(): () => void;
 }

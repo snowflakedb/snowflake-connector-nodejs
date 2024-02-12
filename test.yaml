@@ -1,0 +1,35 @@
+schemaVersion: "2.0.0"
+
+commandTests:
+  - name: "run default"
+    command: "node"
+    args: [ "node/hello_sharp.js" ]
+    expectedError: [ "Fontconfig error: Cannot load default config file: No such file: \\(null\\)",]
+    expectedOutput: [
+      "Hello world",
+      "Image was generated",
+      "Version: v18.17.1",
+      "FIPS enabled"]
+
+
+metadataTest:
+  entrypoint: [ "/usr/bin/dumb-init", "--"]
+  cmd: [ "node", "node/hello_sharp.js" ]
+  workdir: "/opt/snowflakedb/container-images/bazel/examples/node/hello_sharp.runfiles/sfc_container_images_examples"
+  labels: [ {
+      key: "com.snowflake.owners.slack",
+      value: "#team-cloud-os-engineering"
+    },
+    {
+      key: "com.snowflake.owners.team",
+      value: "os-engineering"
+    },
+    {
+      key: "com.snowflake.owners.email",
+      value: "team_engineering-os@snowflake.com"
+    } ]
+
+fileExistenceTests:
+  - name: 'Root'
+    path: '/mnt/snowflakedb/container-images/bazel/examples/README.md'
+    shouldExist: true

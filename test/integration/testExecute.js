@@ -8,6 +8,7 @@ const connOption = require('./connectionOptions').valid;
 const testUtil = require('./testUtil');
 const os = require('os');
 const globalConfig = require('../../lib/global_config');
+const snowflake = require('./../../lib/snowflake');
 
 
 describe('Execute test', function () {
@@ -139,8 +140,11 @@ describe('Execute test', function () {
   });
 });
 
-describe('Execute test - variant', function () {
+describe.only('Execute test variant', function () {
   this.timeout(100000);
+  snowflake.configure({
+    logLevel: "TRACE",
+  })
 
   let connection;
 

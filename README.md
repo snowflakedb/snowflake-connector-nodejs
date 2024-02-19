@@ -15,7 +15,7 @@ NodeJS Driver for Snowflake
 Install
 ======================================================================
 
-Run `npm i snowflake-sdk` in your existing NodeJs project.
+Run `npm i snowflake-sdk` in your existing NodeJs project
 
 Docs
 ======================================================================

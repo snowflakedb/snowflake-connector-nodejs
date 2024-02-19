@@ -238,6 +238,7 @@ module.exports.deleteFileSyncIgnoringErrors = function (file) {
  */
 module.exports.deleteFolderSyncIgnoringErrors = function (directory) {
   try {
+    console.log(' fs.rmSync(directory, { recursive: true })');
     if (fs.rm) { // node >= 14 has rm method for recursive delete and rmdir with recursive flag is deprecated
       fs.rmSync(directory, { recursive: true });
     } else {

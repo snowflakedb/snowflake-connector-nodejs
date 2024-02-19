@@ -12,7 +12,7 @@ function generateRandomString(sizeInBytes) {
 }
 
 if (process.env.RUN_MANUAL_TESTS_ONLY === 'true'){
-  describe.only('Max LOB test', function () {
+  describe.only('Max LOB test 2', function () {
     let connection;
     // This size cannot be tested on our env. The snowflake team should test internally.
     const MAX_LOB_SIZE = 128 * 1024 * 1024; 

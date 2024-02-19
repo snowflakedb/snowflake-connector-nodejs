@@ -33,7 +33,7 @@ describe('Configuration finding tests', function () {
 
   after(() => {
     if (!driverDirectory) {
-      assert.fail("driver directory not set");
+      assert.fail('driver directory not set');
     }
     mock.stop('fs/promises');
     mock.stop('process');

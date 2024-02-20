@@ -780,11 +780,11 @@ describe('PUT GET test with multiple files', function () {
 
     let putQuery = `PUT file://${os.tmpdir()}/testUploadDownloadMultifiles-${testId}* ${stage}`;
     // Windows user contains a '~' in the path which causes an error
-    // if (process.platform === 'win32') {
+    if (process.platform === 'win32') {
       const basename1 = path.basename(tmpFiles[0]);
       putQuery = `PUT file://${process.env.USERPROFILE}\\AppData\\Local\\Temp\\testUploadDownloadMultifiles-${testId}* ${stage}`.replace(/\\/g, '/');
       console.log(`PUT QUERY ${putQuery}`);
-    // }
+    }
 
     const testResult = [];
 

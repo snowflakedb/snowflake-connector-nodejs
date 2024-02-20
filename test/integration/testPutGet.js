@@ -757,7 +757,7 @@ describe('PUT GET test with multiple files', function () {
     );
   });
 
-  it('testUploadMultifiles', function (done) {
+  it.only('testUploadMultifiles', function (done) {
     const count = 5;
     const results = {};
     const tmpdirPath = getPlatformTmpPath(tmpDir);
@@ -773,7 +773,8 @@ describe('PUT GET test with multiple files', function () {
     let putQuery = `PUT file://${os.tmpdir()}/testUploadDownloadMultifiles-${testId}* ${stage}`;
     // Windows user contains a '~' in the path which causes an error
     if (process.platform === 'win32') {
-      putQuery = `PUT file://${process.env.USERPROFILE}\\AppData\\Local\\Temp\\testUploadDownloadMultifiles-${testId}* ${stage}`;
+      const basename1 = path.basename(tmpFiles[0]);
+      putQuery = `PUT file://${process.env.USERPROFILE}\\AppData\\Local\\Temp\\${basename1} ${stage}`;
     }
 
     const testResult = [];

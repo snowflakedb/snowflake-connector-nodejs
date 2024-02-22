@@ -7,48 +7,45 @@ const testUtil = require('../../integration/testUtil');
 const os = require('os');
 const fsPromises = require('fs').promises;
 const crypto = require('crypto');
-const FileUtil = require('../../../lib/file_transfer_agent/file_util').FileUtil;
+const getMatchingFilePaths = require('../../../lib/file_transfer_agent/file_util').getMatchingFilePaths;
 
-const SnowflakeFileUtil = new FileUtil();
 
 describe('matching files by wildcard', function () {
   const randomName = crypto.randomUUID();
   const excpetedNomberOfMatchedFiles = 3;
 
-  async function clean(randomName) {
-    const matchedFiles = SnowflakeFileUtil.getMatchingFilePaths(os.tmpdir(), `${randomName}matched` + '*');
-    const notmatchedFiles = SnowflakeFileUtil.getMatchingFilePaths(os.tmpdir(), `${randomName}notmatched` + '*');
-
-    for (const filePath of matchedFiles) {
-      await fsPromises.rm(filePath);
-    }
-    for (const filePath of notmatchedFiles) {
-      await fsPromises.rm(filePath);
-    }
-  }
-
-  async function createFiles(randomName, options) {
+  async function createFiles(options) {
     for (let i = 0; i < excpetedNomberOfMatchedFiles; i++) {
       await testUtil.createTempFileAsync(os.tmpdir(), testUtil.createRandomFileName(options));
     }
   }
 
-  after(function () {
-    clean(randomName);
+  after(async function () {
+    const matchedFiles = getMatchingFilePaths(os.tmpdir(), `${randomName}matched` + '*');
+    const notmatchedFiles = getMatchingFilePaths(os.tmpdir(), `${randomName}notmatched` + '*');
+    const promises = [];
+
+    for (const filePath of matchedFiles) {
+      promises.push(fsPromises.rm(filePath));
+    }
+    for (const filePath of notmatchedFiles) {
+      promises.push(fsPromises.rm(filePath));
+    }
+    await Promise.all(promises);
   });
 
   it('match paths with prefix', async function () {
-    await createFiles(randomName, { prefix: `${randomName}matched` });
-    await createFiles(randomName, { prefix: `${randomName}notmatched` });
-    const matched = SnowflakeFileUtil.getMatchingFilePaths(os.tmpdir(), `${randomName}matched` + '*');
+    await createFiles({ prefix: `${randomName}matched` });
+    await createFiles({ prefix: `${randomName}notmatched` });
+    const matched = getMatchingFilePaths(os.tmpdir(), `${randomName}matched` + '*');
     assert.strictEqual(matched.length, excpetedNomberOfMatchedFiles);
   });
 
   it('match paths with prefix and extension', async function () {
-    await createFiles(randomName, { prefix: `${randomName}matched`, extension: '.gz' });
-    await createFiles(randomName, { prefix: `${randomName}matched`, extension: '.txt' });
-    await createFiles(randomName, { prefix: `${randomName}notmatched` });
-    const matched = SnowflakeFileUtil.getMatchingFilePaths(os.tmpdir(), `${randomName}matched` + '*.gz');
+    await createFiles({ prefix: `${randomName}matched`, extension: '.gz' });
+    await createFiles({ prefix: `${randomName}matched`, extension: '.txt' });
+    await createFiles({ prefix: `${randomName}notmatched` });
+    const matched = getMatchingFilePaths(os.tmpdir(), `${randomName}matched` + '*.gz');
     assert.strictEqual(matched.length, excpetedNomberOfMatchedFiles);
   });
 

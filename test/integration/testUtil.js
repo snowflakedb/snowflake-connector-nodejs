@@ -293,9 +293,9 @@ module.exports.createTempFile = function (mainDir, fileName, data = '') {
 };
 /**
  *  Async version of method to create temp file
- * @param mainDir string
- * @param fileName string
- * @param data string
+ * @param mainDir string Main directory for created file
+ * @param fileName string Created file name
+ * @param data string Input for created file
  * @return string
  */
 module.exports.createTempFileAsync = async function (mainDir, fileName, data = '') {

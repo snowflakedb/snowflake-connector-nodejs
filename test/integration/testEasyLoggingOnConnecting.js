@@ -38,7 +38,9 @@ describe('Easy logging tests', function () {
         if (err) {
           done(err);
         } else {
+          Logger.getInstance().info("Logging something");
           assert.strictEqual(Logger.getInstance().getLevelTag(), logLevel);
+          assert.strictEqual(Logger.getInstance().getTransportLabels().toString(), ['File'].toString());
           done();
         }
       });

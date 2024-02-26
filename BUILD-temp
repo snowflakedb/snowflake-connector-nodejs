@@ -1,0 +1,77 @@
+load("@aspect_rules_js//js:defs.bzl", "js_binary", "js_image_layer", "js_run_binary", "js_test")
+load("@rules_oci//oci:defs.bzl", "oci_image", "oci_tarball")
+load("@npm//:defs.bzl", "npm_link_all_packages")
+load("@sfc_container_images_gcbi//:defs.bzl", "sfc_images_from_js_binary")
+load("@container_structure_test//:defs.bzl", "container_structure_test")
+load("//:blueprint.bzl", "BLUEPRINT")
+
+npm_link_all_packages()
+
+# You can run locally using:  bazel run //node:hello_sharp
+js_binary(
+    name = "nodejs-driver-tests",
+    data = [
+        "//node:node_modules/sharp",
+    ],
+    entry_point = "hello_sharp.js",
+)
+
+# You can run locally using:  bazel run //node:hello_sharp
+sfc_images_from_js_binary(
+    name = "hello_sharp_image",
+    args = [package_name() + "/hello_sharp.js"],
+    blueprint = BLUEPRINT,
+    target = ":hello_sharp",
+    workdir = "/opt/snowflakedb/container-images/bazel/examples/node/hello_sharp.runfiles/sfc_container_images_examples",
+)
+
+container_structure_test(
+    name = "test_host",
+    configs = [
+        "test.yaml",
+    ],
+    image = ":hello_sharp_image.host.image",
+)
+
+container_structure_test(
+    name = "test_amd64",
+    configs = [
+        "test.yaml",
+    ],
+    image = ":hello_sharp_image.amd64.image",
+)
+
+container_structure_test(
+    name = "test_arm64",
+    configs = [
+        "test.yaml",
+    ],
+    image = ":hello_sharp_image.arm64.image",
+    target_compatible_with = ["@platforms//cpu:arm64"],
+)
+js_binary(
+    name = "hello_sharp",
+    data = [
+        "//node:node_modules/sharp",
+    ],
+    entry_point = "hello_sharp.js",
+)
+
+# Make babel binary
+nodejs_binary(
+    name = "npm",
+    entry_point = "npm_deps/node_modules/babel-cli/bin/babel",
+    install_source_map_support = False,
+    node_modules = "@npm_deps//:node_modules",
+)
+
+# Compile source files with babel
+genrule(
+    name = "compiled_src",
+    srcs = [
+        ":src_files",
+    ],
+    outs = ["src"],
+    cmd = "$(location babel) src  --out-dir $@",
+    tools = [":babel"],
+)

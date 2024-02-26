@@ -1,0 +1,35 @@
+load("@aspect_rules_js//js:defs.bzl", "js_binary", "js_image_layer", "js_run_binary", "js_test")
+load("@npm//mocha:index.bzl", "mocha_test")
+load("@npm//http-server:index.bzl", "http_server")
+load("@npm//:defs.bzl", "npm_link_all_packages")
+
+npm_link_all_packages()
+
+sfc_images_from_js_binary(
+    name = "nodejs driver",
+    args = ["npm run test""],
+    blueprint = BLUEPRINT,
+    target = ":hello_sharp",
+    workdir = "/opt/snowflakedb/container-images/bazel/examples/node/hello_sharp.runfiles/sfc_container_images_examples",
+)
+
+http_server(
+    name = "server",
+    data = [":app"],
+    templated_args = ["app"],
+)
+
+mocha_test(
+    name = "test_sourcemaps",
+    # if we were in a subdirectory we'd need
+    # package_name() + "/*.spec.js"
+    args = ["/test/unit*.js"],
+    data = [ ":app_files",
+                   "@//:node_modules",
+               ]
+)
+
+sh_test(
+    name = "dummy_test",
+    srcs = ["error_test.js"],
+)

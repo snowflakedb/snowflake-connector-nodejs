@@ -1,0 +1,79 @@
+workspace(name = "sfc_container_images_examples")
+
+GIT_REPOSITORY_NAME = "container-images"
+
+WORKSPACE_PATH = "bazel/examples"
+
+SFC_BOOTSTRAP_GIT_REF = "d29cc3c5c8eeb53f7446b85ac053f4fa45578c40"  # 2023-09-22 13:43:07 +0200 # pragma: allowlist secret
+
+load("@bazel_tools//tools/build_defs/repo:git.bzl", "git_repository")
+# ######################################################################################################################
+# Local overrides of dependency repositories - usually not needed in prod, but convenient for quick local iterations
+
+# For local development use ONLY. Do not use in the other repos.
+local_repository(
+    name = "sfc_bootstrap",
+    path = "../bootstrap",
+)
+
+local_repository(
+    name = "sfc_container_images_gcbi",
+    path = "../gcbi",
+)
+
+# ######################################################################################################################
+
+git_repository(
+    name = "sfc_bootstrap",
+    commit = SFC_BOOTSTRAP_GIT_REF,
+    remote = "git@github.com:snowflakedb/container-images.git",
+    strip_prefix = "bazel/bootstrap",
+)
+
+load("@sfc_bootstrap//:bootstrap.bzl", "sfc_ctx")
+
+workspace_ctx = sfc_ctx(
+    git_repository_name = GIT_REPOSITORY_NAME,
+    workspace_path = WORKSPACE_PATH,
+)
+
+#### GCBI specific initialization
+
+load("@sfc_container_images_gcbi//init:stage1.bzl", "sfc_gcbi_init_stage1of3")
+
+sfc_gcbi_init_stage1of3(workspace_ctx = workspace_ctx)
+
+load("@sfc_container_images_gcbi//init:stage2.bzl", "sfc_gcbi_init_stage2of3")
+
+sfc_gcbi_init_stage2of3(workspace_ctx = workspace_ctx)
+
+load("@sfc_container_images_gcbi//init:stage3.bzl", "sfc_gcbi_init_stage3of3")
+
+sfc_gcbi_init_stage3of3(
+    workspace_ctx = workspace_ctx,
+)
+
+############################## RULES_JS setup ##########################################################################
+
+load("@aspect_rules_js//js:repositories.bzl", "rules_js_dependencies")
+
+rules_js_dependencies()
+
+load("@rules_nodejs//nodejs:repositories.bzl", "nodejs_register_toolchains")
+
+nodejs_register_toolchains(
+    name = "nodejs",
+    node_version = "18.17.1",
+)
+
+load("@aspect_rules_js//npm:repositories.bzl", "npm_translate_lock")
+
+npm_translate_lock(
+    name = "npm",
+    pnpm_lock = "//:pnpm-lock.yaml",
+    verify_node_modules_ignored = "//:.bazelignore",
+)
+
+load("@npm//:repositories.bzl", "npm_repositories")
+
+npm_repositories()

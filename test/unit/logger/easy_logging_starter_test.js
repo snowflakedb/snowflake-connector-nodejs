@@ -41,7 +41,7 @@ describe('Easy logging starter tests', function () {
 
     // when
     await init(configFilePath);
-    Logger.getInstance().error("Logging something"); // we need to log anything to make the logger being recreated
+    Logger.getInstance().error('Logging something'); // we need to log anything to make the logger being recreated
 
     // then
     assert.strictEqual(Logger.getInstance().getLevelTag(), logLevel);
@@ -67,7 +67,7 @@ describe('Easy logging starter tests', function () {
     // when
     await init(null);
     await init(null);
-    Logger.getInstance().error("Logging something"); // we need to log anything to make the logger being recreated
+    Logger.getInstance().error('Logging something'); // we need to log anything to make the logger being recreated
 
     // then
     assert.strictEqual(Logger.getInstance().getLevelTag(), logLevel);
@@ -84,7 +84,7 @@ describe('Easy logging starter tests', function () {
 
     // when
     await init(null);
-    Logger.getInstance().error("Logging something"); // we need to log anything to make the logger being recreated
+    Logger.getInstance().error('Logging something'); // we need to log anything to make the logger being recreated
 
     // then
     assert.strictEqual(Logger.getInstance().getLevelTag(), homeDirLogLevel);
@@ -93,7 +93,7 @@ describe('Easy logging starter tests', function () {
 
     // when
     await init(customConfigFilePath);
-    Logger.getInstance().error("Logging something"); // we need to log anything to make the logger being recreated
+    Logger.getInstance().error('Logging something'); // we need to log anything to make the logger being recreated
 
     // then
     assert.strictEqual(Logger.getInstance().getLevelTag(), customLogLevel);
@@ -135,7 +135,7 @@ describe('Easy logging starter tests', function () {
 
   it('should create console and file transports by default when not using client configuration', function () {
     // when
-    Logger.getInstance().error("Logging something");
+    Logger.getInstance().error('Logging something');
 
     // then
     assert.strictEqual(Logger.getInstance().easyLoggingConfigureCounter, undefined);

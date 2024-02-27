@@ -700,6 +700,16 @@ describe('ConnectionConfig: basic', function () {
         },
         errorCode: ErrorCodes.ERR_CONN_CREATE_INVALID_DISABLE_CONSOLE_LOGIN
       },
+      {
+        name: 'invalid disableGCPTokenUpload',
+        options: {
+          account: 'account',
+          username: 'username',
+          password: 'password',
+          forceGCPUseDownscopedCredential: 'invalud'
+        },
+        errorCode: ErrorCodes.ERR_CONN_CREATE_INVALID_FORCE_GCP_USE_DOWNSCOPED_CREDENTIAL
+      },
     ];
 
   const createNegativeITCallback = function (testCase) {
@@ -1242,7 +1252,7 @@ describe('ConnectionConfig: basic', function () {
             password: 'password',
             account: 'account'
           }
-      }
+      },
     ];
 
   const createItCallback = function (testCase) {

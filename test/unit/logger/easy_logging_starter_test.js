@@ -10,6 +10,7 @@ const os = require('os');
 const Logger = require('../../../lib/logger');
 require('../../../lib/snowflake'); // import of it sets up node logger
 const { exists } = require('../../../lib/util');
+const snowflake = require('../../../lib/snowflake');
 const defaultConfigName = 'sf_client_config.json';
 const logLevelBefore = Logger.getInstance().getLevel();
 let tempDir = null;
@@ -140,6 +141,32 @@ describe('Easy logging starter tests', function () {
     // then
     assert.strictEqual(Logger.getInstance().easyLoggingConfigureCounter, undefined);
     assert.strictEqual(Logger.getInstance().getTransportLabels().toString(), ['Console', 'File'].toString());
+  });
+
+  it('should configure logger with file and console', function () {
+    // given
+    const logLevel = 'ERROR';
+
+    // when
+    snowflake.configure({ logLevel });
+    Logger.getInstance().error('Logging something');
+
+    // then
+    assert.strictEqual(Logger.getInstance().easyLoggingConfigureCounter, undefined);
+    assert.strictEqual(Logger.getInstance().getTransportLabels().toString(), ['Console', 'File'].toString());
+  });
+
+  it('should configure logger for file without console', function () {
+    // given
+    const logLevel = 'ERROR';
+
+    // when
+    snowflake.configure({ logLevel: logLevel, additionalLogToConsole: false});
+    Logger.getInstance().error('Logging something');
+
+    // then
+    assert.strictEqual(Logger.getInstance().easyLoggingConfigureCounter, undefined);
+    assert.strictEqual(Logger.getInstance().getTransportLabels().toString(), ['File'].toString());
   });
 
   async function createConfigFile(logLevel, configDirectory, configFileName, logPath) {

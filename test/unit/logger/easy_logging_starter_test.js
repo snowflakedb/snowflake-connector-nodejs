@@ -161,7 +161,7 @@ describe('Easy logging starter tests', function () {
     const logLevel = 'ERROR';
 
     // when
-    snowflake.configure({ logLevel: logLevel, additionalLogToConsole: false});
+    snowflake.configure({ logLevel: logLevel, additionalLogToConsole: false });
     Logger.getInstance().error('Logging something');
 
     // then

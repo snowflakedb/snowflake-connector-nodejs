@@ -482,7 +482,7 @@ describe('okta authentication', function () {
     try {
       await auth.authenticate(connectionOptionsOkta.authenticator, '', connectionOptionsOkta.account, connectionOptionsOkta.username);
     } catch (err) {
-      assert.strictEqual(err.message, 'The prefix of the SSO/token URL and the specified authenticator do not match.');
+      assert.strictEqual(err.message, 'Authenticator, SSO, or token URL is invalid.');
     }
   });
 
@@ -546,12 +546,12 @@ describe('okta authentication', function () {
   describe('validateURLs test for Native Okta SSO - prefix must match', () => {
     // original function is private
     function mockValidateURLs(authenticator, ssoUrl, tokenUrl) {
-      const a_URL = new URL(authenticator.toLowerCase());
-      const s_URL = new URL(ssoUrl.toLowerCase());
-      const t_URL = new URL(tokenUrl.toLowerCase());
+      const aUrl = new URL(authenticator.toLowerCase());
+      const sUrl = new URL(ssoUrl.toLowerCase());
+      const tUrl = new URL(tokenUrl.toLowerCase());
 
-      return (!(a_URL.protocol + '//' + a_URL.host == s_URL.protocol + '//' + s_URL.host &&
-          a_URL.protocol + '//' + a_URL.host == t_URL.protocol + '//' + t_URL.host))
+      return (!(aUrl.protocol + '//' + aUrl.host === sUrl.protocol + '//' + sUrl.host &&
+          aUrl.protocol + '//' + aUrl.host === tUrl.protocol + '//' + tUrl.host));
     }
     // positive cases
     [

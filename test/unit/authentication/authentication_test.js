@@ -15,7 +15,6 @@ const AuthOkta = require('./../../../lib/authentication/auth_okta');
 const authenticationTypes = require('./../../../lib/authentication/authentication').authenticationTypes;
 
 const MockTestUtil = require('./../mock/mock_test_util');
-const Util = require("../../../lib/util");
 
 // get connection options to connect to this mock snowflake instance
 const mockConnectionOptions = MockTestUtil.connectionOptions;

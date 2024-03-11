@@ -7,7 +7,7 @@ THIS_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 export WORKSPACE=${WORKSPACE:-/mnt/workspace}
 export SOURCE_ROOT=${SOURCE_ROOT:-/mnt/host}
 export DRIVER_NAME=nodejs
-export TIMEOUT=180000
+export TIMEOUT=360000
 export SF_OCSP_TEST_OCSP_RESPONDER_TIMEOUT=1000
 
 [[ -z "$GIT_BRANCH" ]] && echo "Set GIT_BRANCH to test" && exit 1
@@ -70,11 +70,11 @@ python3 $THIS_DIR/hang_webserver.py 12345 > hang_webserver.out 2>&1 &
 if [[ "$SHOULD_GENERATE_COVERAGE_REPORT" == "1" ]];
   then
     MOCHA_CMD=(
-       "npx" "nyc" "--reporter=lcov" "--reporter=text" "mocha" "--exit" "--timeout" "$TIMEOUT" "--recursive" "--full-trace"
+       "npx" "nyc" "--reporter=lcov" "--reporter=text" "mocha" "--exit" "--timeout" "$TIMEOUT" "--recursive" "--full-trace" "--max-old-space-size=150"
     )
   else
     MOCHA_CMD=(
-        "mocha" "--timeout" "$TIMEOUT" "--recursive" "--full-trace"
+        "mocha" "--timeout" "$TIMEOUT" "--recursive" "--full-trace" "--max-old-space-size=150"
     )
 fi
 

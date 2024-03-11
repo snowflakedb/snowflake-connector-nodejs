@@ -494,17 +494,17 @@ describe('Util', function () {
 
   describe('Util.isLoginRequest Test', function () {
     const baseUrl = 'wwww.test.com';
-    const testCases = 
+    const testCases =
     [
       {
         testName: 'test URL with a right login end point',
         endPoint: '/v1/login-request',
-        result: true, 
+        result: true,
       },
       {
         testName: 'test URL with a wrong login end point',
         endPoint: '/login-request',
-        result: false, 
+        result: false,
       },
       {
         testName: 'test URL with a right authenticator-request point',
@@ -561,7 +561,7 @@ describe('Util', function () {
           isRetryable: true,
         },
       ];
-      
+
       const maxRetryTimeout = 300;
       let currentSleepTime = 1;
       let retryCount = 0;
@@ -573,14 +573,14 @@ describe('Util', function () {
         currentSleepTime = result.sleep;
         totalElapsedTime = result.totalElapsedTime;
         retryCount++;
-       
+
         assert.strictEqual(Util.isRetryableHttpError(response, true), true);
         assert.ok(currentSleepTime <= nextSleep + jitter || currentSleepTime >= nextSleep - jitter);
       }
-    
+
       assert.strictEqual(retryCount, 6);
       assert.ok(totalElapsedTime <= maxRetryTimeout);
-    }); 
+    });
 
     it('test - retryTimeout is 0', function () {
       const maxRetryTimeout = 0;
@@ -732,9 +732,9 @@ describe('Util', function () {
     [
       {
         name: 'test - default values',
-        retryOption: { 
-          maxRetryCount: 7, 
-          numRetries: 1, 
+        retryOption: {
+          maxRetryCount: 7,
+          numRetries: 1,
           remainingTimeout: 300000,
           maxRetryTimeout: 300000
         },
@@ -742,9 +742,9 @@ describe('Util', function () {
       },
       {
         name: 'test - the value of the numRetries is the same as the max retry count',
-        retryOption: { 
-          maxRetryCount: 7, 
-          numRetries: 7, 
+        retryOption: {
+          maxRetryCount: 7,
+          numRetries: 7,
           remainingTimeout: 300000,
           maxRetryTimeout: 300000
         },
@@ -752,29 +752,29 @@ describe('Util', function () {
       },
       {
         name: 'test - max retry timout is 0',
-        retryOption: { 
-          maxRetryCount: 7, 
-          numRetries: 1, 
+        retryOption: {
+          maxRetryCount: 7,
+          numRetries: 1,
           remainingTimeout: 300000,
-          maxRetryTimeout: 0 
+          maxRetryTimeout: 0
         },
         result: true,
       },
       {
         name: 'test - the max retry timeout is 0 and number of retry is over',
-        retryOption: { 
-          maxRetryCount: 7, 
-          numRetries: 8, 
+        retryOption: {
+          maxRetryCount: 7,
+          numRetries: 8,
           remainingTimeout: -50,
-          maxRetryTimeout: 0 
+          maxRetryTimeout: 0
         },
         result: false,
       },
       {
         name: 'test - the retry count is over the max retry count ',
-        retryOption: { 
-          maxRetryCount: 7, 
-          numRetries: 8, 
+        retryOption: {
+          maxRetryCount: 7,
+          numRetries: 8,
           remainingTimeout: 300000,
           maxRetryTimeout: 300
         },
@@ -782,21 +782,21 @@ describe('Util', function () {
       },
       {
         name: 'test - the remaining timout is 0',
-        retryOption: { 
-          maxRetryCount: 7, 
-          numRetries: 8, 
+        retryOption: {
+          maxRetryCount: 7,
+          numRetries: 8,
           remainingTimeout: 0,
-          maxRetryTimeout: 300 
+          maxRetryTimeout: 300
         },
         result: false,
       },
       {
         name: 'test - the remaining timoue is negative',
-        retryOption: { 
-          maxRetryCount: 7, 
-          numRetries: 8, 
+        retryOption: {
+          maxRetryCount: 7,
+          numRetries: 8,
           remainingTimeout: -10,
-          maxRetryTimeout: 300 
+          maxRetryTimeout: 300
         },
         result: false,
       },
@@ -856,13 +856,13 @@ describe('Util', function () {
   describe('Util Test - handling circular reference in isValidAsync exception handling', () => {
     const shouldMatchNonCircular = '{"one":1,"two":2}';
     const shouldMatchCircular = '{"one":1,"two":2,"myself":"[Circular]"}';
-  
+
     it('non-circular reference is handled correctly by JSON.stringify replacer', () => {
       const a = { 'one': 1, 'two': 2 };
       const replacedA = JSON.stringify(a, Util.getCircularReplacer());
       assert.deepEqual(replacedA, shouldMatchNonCircular);
     });
-  
+
     it('circular reference is handled correctly by JSON.stringify replacer', () => {
       const b = { 'one': 1, 'two': 2 };
       b.myself = b;
@@ -1218,4 +1218,41 @@ describe('Util', function () {
       });
     });
   }
+
+  describe('shouldPerformGCPBucket function test', () => {
+    const testCases = [
+      {
+        name: 'test - default',
+        accessToken: 'Token',
+        forceGCPUseDownscopedCredential: false,
+        result: true,
+      },
+      {
+        name: 'test - when the disableGCPTokenUplaod is enabled',
+        accessToken: 'Token',
+        forceGCPUseDownscopedCredential: true,
+        result: false,
+      },
+      {
+        name: 'test - when token is empty but the disableGCPTokenUplaod is enabled',
+        accessToken: null,
+        forceGCPUseDownscopedCredential: true,
+        result: false,
+      },
+      {
+        name: 'test - test - when token is empty but the disableGCPTokenUplaod is disabled',
+        accessToken: null,
+        forceGCPUseDownscopedCredential: false,
+        result: false,
+      },
+    ];
+
+    testCases.forEach(({ name, accessToken, forceGCPUseDownscopedCredential, result }) => {
+      it(name, () => {
+        process.env.SNOWFLAKE_FORCE_GCP_USE_DOWNSCOPED_CREDENTIAL = forceGCPUseDownscopedCredential;
+        assert.strictEqual(Util.shouldPerformGCPBucket(accessToken), result);
+        delete process.env.SNOWFLAKE_FORCE_GCP_USE_DOWNSCOPED_CREDENTIAL;
+      });
+    });
+  });
 });

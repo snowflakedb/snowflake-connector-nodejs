@@ -6,9 +6,11 @@ const path = require('path');
 const assert = require('assert');
 const mock = require('mock-require');
 const { Levels, ConfigurationUtil } = require('./../../../lib/configuration/client_configuration');
+const { getDriverDirectory } = require('./../../../lib/util');
 const defaultConfigName = 'sf_client_config.json';
 const badPermissionsConfig = 'bad_perm_config.json';
-const configInDriverDirectory = path.join('.', defaultConfigName);
+const driverDirectory = getDriverDirectory();
+const configInDriverDirectory = path.join(driverDirectory, defaultConfigName);
 const configInHomeDirectory = path.join(os.homedir(), defaultConfigName);
 const configFromEnvVariable = 'env_config.json';
 const configFromConnectionString = 'conn_config.json';
@@ -30,6 +32,9 @@ const clientConfig = {
 describe('Configuration finding tests', function () {
 
   after(() => {
+    if (!driverDirectory) {
+      assert.fail('driver directory not set');
+    }
     mock.stop('fs/promises');
     mock.stop('process');
   });
@@ -85,7 +90,7 @@ describe('Configuration finding tests', function () {
     const fsPromises = require('fs/promises');
     const process = require('process');
     const configUtil = new ConfigurationUtil(fsPromises, process);
-    clientConfig.configPath = 'sf_client_config.json';
+    clientConfig.configPath = configInDriverDirectory;
 
     // when
     const configFound = await configUtil.getClientConfig(null);

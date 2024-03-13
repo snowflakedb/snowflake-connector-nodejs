@@ -113,15 +113,18 @@ export interface RowStatement {
      * Streams the rows in this statement's result. If start and end values are
      * specified, only rows in the specified range are streamed.
      *
+     * @param {Object} options
      */
     streamRows(options?: StreamOptions): Readable;
 
+    /**
+     * Fetches the rows in this statement's result and invokes the each()
+     * callback on each row. If start and end values are specified, the each()
+     * callback will only be invoked on rows in the specified range.
+     * 
+     * @param {Object} options
+     */
     fetchRows(options?: StreamOptions): Readable;
-
-    //Testing Purpose
-    getQueryContextCacheSize(): unknown;
-
-    getQueryContextDTOSize(): unknown;
 }
 
 export interface FileAndStageBindStatement extends RowStatement {

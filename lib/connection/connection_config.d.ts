@@ -143,14 +143,28 @@ export interface ConnectionOptions {
      */
     arrayBindingThreshold?: number;
 
-    sessionToken?: string;
-    masterToken?: string;
-    sessionTokenExpirationTime?: number;
-    masterTokenExpirationTime?: number;
-    agentClass?: any;
+    /**
+     * Validate default options set by users.
+     */
     validateDefaultParameters?: boolean;
+
+    /**
+    * 
+    */
     forceStageBindError?: number;
+
+    /**
+     * Set whether the retry reason is included or not in the retry url.
+     */
     includeRetryReason?: boolean;
+
+    /**
+     * The option to disable the query context cache feature. The default value is false.
+     */
     disableQueryContextCache?: boolean;
+
+    /**
+     * The max login timeout value. This value is either 0 or over 300.
+     */
     retryTimeout?: number;
 }

@@ -58,13 +58,6 @@ export interface CoreInstance {
      * Creates a connection pool for Snowflake connections.
      */
     createPool(options: ConnectionOptions, poolOptions?: PoolOptions): Pool<Connection>;
-
-    readonly STRING: string;
-    readonly BOOLEAN: string;
-    readonly NUMBER: string;
-    readonly DATE: string;
-    readonly JSON: string;
-
 }
 
 export default function Core(options: JSON): CoreInstance;

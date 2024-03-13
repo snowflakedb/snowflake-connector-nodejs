@@ -87,7 +87,7 @@ export type Connection = NodeJS.EventEmitter & {
      */
     destroy(fn: ConnectionCallback): void;
 
-    /**
+    /**                          
      * Gets the status of the query based on queryId
      */
     getQueryStatus(queryId: string): string;
@@ -116,16 +116,6 @@ export type Connection = NodeJS.EventEmitter & {
      * Returns a serialized version of this connection.
      */
     serialize(): string;
-
-
-    heartbeat(): void;
-    heartbeatAsync(): Promise<Array<Record<string, any>>>;
-    getServiceName(): string;
-    getClientSessionKeepAlive(): boolean;
-    getClientSessionKeepAliveHeartbeatFrequency(): number;
-    getJsTreatIntegerAsBigInt(): boolean;
-
-
 };
 
 export default Connection;

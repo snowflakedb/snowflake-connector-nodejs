@@ -37,7 +37,7 @@ export interface StatemnentOption {
     parameters?: Record<string, unknown>;
 }
 
-enum StatementStatus {
+declare enum StatementStatus {
     Fetching = "fetching",
     Complete = "complete",
 }

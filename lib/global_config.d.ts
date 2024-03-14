@@ -1,11 +1,11 @@
 import { XMLParser } from "fast-xml-parser";
 
-export enum rest {
+export enum Rest {
     HTTPS_PORT = 443,
-    HTTPS_PROTOCOL = 'https'
+    HTTPS_PROTOCOL = 'https',
 };
 
-export enum ocspModes {
+export enum OcspModes {
     FAIL_CLOSED = 'FAIL_CLOSED',
     FAIL_OPEN = 'FAIL_OPEN',
     INSECURE = 'INSECURE',
@@ -46,7 +46,7 @@ export function getOcspFailOpen(): boolean;
  *
  * @returns {string}
  */
-export function getOcspMode(): ocspModes
+export function getOcspMode(): OcspModes
 
 /**
  * Returns the upper limit for number of entries we can have in the OCSP response cache.
@@ -121,9 +121,7 @@ export function createXmlColumnVariantParserWithParameters(params: XmlParserConf
  * @param {object} config
  */
 
-function createXmlColumnVariantParser(config: XmlParserConfiguration): function;
-
-let keepAlive: boolean;
+export function createXmlColumnVariantParser(config: XmlParserConfiguration): Function;
 
 /**
  * Updates the value of the 'keepAlive' parameter.

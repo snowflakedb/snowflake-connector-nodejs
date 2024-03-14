@@ -4,7 +4,7 @@
 
 import { DataType } from "./statement";
 
-enum RowMode {
+declare enum RowMode {
     ARRAY = 'array',
     OBJECT = 'object',
     OBJECT_WITH_RENAMED_DUPLICATED_COLUMNS = 'object_with_renamed_duplicated_columns',

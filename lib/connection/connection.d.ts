@@ -5,7 +5,7 @@
 import { SnowflakeError } from "../errors";
 import { RowStatement, FileAndStageBindStatement, StatemnentOption } from "./statement";
 
-enum QueryStatus {
+declare enum QueryStatus {
     RUNNING = 'RUNNING',
     ABORTING = 'ABORTING',
     SUCCESS = 'SUCCESS',

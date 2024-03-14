@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2015-2024 Snowflake Computing Inc. All rights reserved.
+ */
+
 import { XMLParser } from "fast-xml-parser";
 
 export enum Rest {

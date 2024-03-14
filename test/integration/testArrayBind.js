@@ -61,7 +61,7 @@ describe('Test Array Bind', function () {
           const arrBind = [];
           const count = 100;
           for (let i = 0; i < count; i++) {
-            arrBind.push(['string' + i, i, '2020-05-11', '12:35:41.3333333', '2022-04-01 23:59:59', '2022-07-08 12:05:30.9999999']);
+            arrBind.push(['string' + i, i, '2020-05-11', '12:35:41.3333333', new Date('2022-04-01 23:59:59'), new Date('2022-07-08 12:05:30.9999999')]);
           }
           
           const insertABStmt = connection.execute({
@@ -89,7 +89,7 @@ describe('Test Array Bind', function () {
           const arrBind = [];
           const count = 2;
           for (let i = 0; i < count; i++) {
-            arrBind.push(['string' + i, i, '2020-05-11', '12:35:41.3333333', '2022-04-01 23:59:59', '2022-07-08 12:05:30.9999999']);
+            arrBind.push(['string' + i, i, '2020-05-11', '12:35:41.3333333', new Date('2022-04-01 23:59:59'), new Date('2022-07-08 12:05:30.9999999')]);
           }
           connection.execute({
             sqlText: insertNAB,

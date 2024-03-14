@@ -29,12 +29,40 @@ interface StreamOptions {
 export interface StatemnentOption {
     sqlText: string;
     complete: StatementCallback,
+
+    /**
+     * The requestId is for resubmitting requests.
+     * Detailed Information: https://docs.snowflake.com/en/developer-guide/node-js/nodejs-driver-execute.
+     */
     requestId?: string;
+
+    /**
+     * // use different rest endpoints based on whether the query id is available
+     */
     queryId?: string;
+
+    /**
+     * You can also consume a result as a stream of rows by setting the streamResult connection parameter to true in connection.execute when calling the statement.streamRows() method.
+     * Detailed Information: https://docs.snowflake.com/en/developer-guide/node-js/nodejs-driver-consume.
+     */
     streamResult?: boolean;
+
+    /**
+     * Find information: https://docs.snowflake.com/en/developer-guide/node-js/nodejs-driver-execute.
+     */
     binds?: Binds;
+
+    /**
+     * Thje fetchAsString option is to return the following data types as strings: Boolean, Number, Date, Buffer, and JSON.
+     * Detailed information: https://docs.snowflake.com/en/developer-guide/node-js/nodejs-driver-consume.
+     */
     fetchAsString?: DataType[];
-    parameters?: Record<string, unknown>;
+
+    /**
+     * Statement parameters
+     * Detailed information: https://docs.snowflake.com/en/developer-guide/node-js/nodejs-driver-execute.
+     */
+    parameters?: Record<string, any>;
 }
 
 declare enum StatementStatus {
@@ -43,7 +71,6 @@ declare enum StatementStatus {
 }
 
 export interface RowStatement {
-
     /**
      * Returns this statement's SQL text.
      */

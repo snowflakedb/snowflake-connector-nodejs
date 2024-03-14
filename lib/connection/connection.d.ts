@@ -73,7 +73,6 @@ export type Connection = NodeJS.EventEmitter & {
     /**
      * Executes a statement.
      */
-
     execute(options: StatemnentOption): RowStatement | FileAndStageBindStatement;
 
     /**

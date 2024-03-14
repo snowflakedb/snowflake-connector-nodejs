@@ -543,18 +543,11 @@ describe('okta authentication', function () {
   });
 
   describe('validateURLs test for Native Okta SSO - prefix must match', () => {
-    // original function is private
-    function mockValidateURLs(authenticator, ssoUrl, tokenUrl) {
-      const aUrl = new URL(authenticator.toLowerCase());
-      const sUrl = new URL(ssoUrl.toLowerCase());
-      const tUrl = new URL(tokenUrl.toLowerCase());
+    const auth = new AuthOkta(connectionOptionsOkta, httpclient);
 
-      return (!(aUrl.protocol + '//' + aUrl.host === sUrl.protocol + '//' + sUrl.host &&
-          aUrl.protocol + '//' + aUrl.host === tUrl.protocol + '//' + tUrl.host));
-    }
     // positive cases
     [
-      { name: '.okta.com format, ssourl and tokenurl matches', authenticator: 'https://mycustom.okta.com', ssourl: 'https://mycustom.okta.com/app/snowflake/mytokenmytokenmytoken',
+      { name: '.okta.com format, ssourl and tokenurl matches', authenticator: 'https://MYCUSTOM.okta.com', ssourl: 'https://mycustom.okta.com/app/snowflake/mytokenmytokenmytoken',
         tokenurl: 'https://mycustom.okta.com/api/v1/sessions' },
       { name: 'custom okta format, ssourl and tokenurl matches', authenticator: 'HTTPS://MYAPPS.MYDOMAIN.COM/SNOWFLAKE/OKTA', ssourl: 'https://MYAPPS.MYDOMAIN.COM/app/snowflake/mytokenmytoken/sso/saml',
         tokenurl: 'https://MYAPPS.MYDOMAIN.COM/api/v1/authn' },
@@ -568,12 +561,14 @@ describe('okta authentication', function () {
         tokenurl: 'https://MYAPPS.MYDOMAIN.COM:8443/api/v1/authn' }
     ].forEach(({ name, authenticator, ssourl, tokenurl }) => {
       it(`${name}`, () => {
-        assert.equal(mockValidateURLs(authenticator, ssourl, tokenurl), false);
+        assert.doesNotThrow(() => {
+          return  auth.validateURLs(authenticator, ssourl, tokenurl);
+        });
       });
     });
     // negative cases
     [
-      { name: '.okta.com format, ssourl doesnt match', authenticator: 'https://mycustom.okta.com', ssourl: 'https://another.okta.com/app/snowflake/mytokenmytokenmytoken',
+      { name: '.okta.com format, ssourl doesnt match', authenticator: 'https://MyCUSTOM.okta.com', ssourl: 'https://another.okta.com/app/snowflake/mytokenmytokenmytoken',
         tokenurl: 'https://mycustom.okta.com/api/v1/sessions',  },
       { name: 'custom okta format, ssourl doesnt match', authenticator: 'HTTPS://MYAPPS.MYDOMAIN.COM/SNOWFLAKE/OKTA', ssourl: 'https://MYAPPS.MYDOMAIN.NET/app/snowflake/mytokenmytoken/sso/saml',
         tokenurl: 'https://MYAPPS.MYDOMAIN.COM/api/v1/authn' },
@@ -587,11 +582,13 @@ describe('okta authentication', function () {
         tokenurl: 'https://MYAPPS.MYDOMAIN.COM:8443/api/v1/authn' },
       { name: '.okta.com format, authenticator port substring of ssourl port', authenticator: 'https://mycustom.okta.com:3030', ssourl: 'https://mycustom.okta.com:30303/app/snowflake/mytokenmytokenmytoken',
         tokenurl: 'https://mycustom.okta.com/api/v1/sessions' },
-      { name: 'custom okta format, ssourl/tokenurl port substring of authenticator port', authenticator: 'HTTPS://MYAPPS.MYDOMAIN.COM:8443/SNOWFLAKE/OKTA', ssourl: 'https://MYAPPS.MYDOMAIN.COM:443/app/snowflake/mytokenmytoken/sso/saml',
+      { name: 'custom okta format, ssourl/tokenurl port substring of authenticator port', authenticator: 'https://myaPPS.MYDOMAIN.COM:8443/SNOWFLAKE/OKTA', ssourl: 'https://MYAPPS.MYDOMAIN.COM:443/app/snowflake/mytokenmytoken/sso/saml',
         tokenurl: 'https://MYAPPS.MYDOMAIN.COM:443/api/v1/authn' }
     ].forEach(({ name, authenticator, ssourl, tokenurl }) => {
       it(`${name}`, () => {
-        assert.equal(mockValidateURLs(authenticator, ssourl, tokenurl), true);
+        assert.throws(() => {
+          return  auth.validateURLs(authenticator, ssourl, tokenurl);
+        });
       });
     });
   });

@@ -3,13 +3,13 @@ import { XMLParser } from "fast-xml-parser";
 export enum Rest {
     HTTPS_PORT = 443,
     HTTPS_PROTOCOL = 'https',
-};
+}
 
 export enum OcspModes {
     FAIL_CLOSED = 'FAIL_CLOSED',
     FAIL_OPEN = 'FAIL_OPEN',
     INSECURE = 'INSECURE',
-};
+}
 
 /**
  * Updates the value of the 'insecureConnect' parameter.
@@ -79,6 +79,7 @@ export let jsonColumnVariantParser: (rawColumnValue: string) => any;
  * @param {Function: (rawColumnValue: string) => any} value
  */
 export function setJsonColumnVariantParser(value: (rawColumnValue: string) => any): void;
+
 /**
  * As a default we set parameters values identical like in fast-xml-parser lib defaults
  * thus preserving backward compatibility if customer doesn't set custom configuration
@@ -89,7 +90,7 @@ interface XmlParserConfiguration {
     alwaysCreateTextNode?: boolean,
     attributeNamePrefix?: string,
     attributesGroupName?: boolean,
-};
+}
 
 // The default XML parser
 export let xmlColumnVariantParser: XMLParser;

@@ -163,7 +163,7 @@ export enum ErrorCode {
     ERR_GET_RESPONSE_QUERY_INVALID_UUID = 460001,
     ERR_GET_RESULTS_QUERY_ID_NO_DATA = 460002,
     ERR_GET_RESULTS_QUERY_ID_NOT_SUCCESS_STATUS = 460003,
-};
+}
 
 interface SnowflakeErrorExternal extends Error {
     name: any,
@@ -176,7 +176,7 @@ interface SnowflakeErrorExternal extends Error {
     cause?: any,
     isFatal?: any,
     stack?: any
-};
+}
 
 export interface SnowflakeError extends Error {
     code?: ErrorCode,
@@ -187,5 +187,5 @@ export interface SnowflakeError extends Error {
     cause?: Error,
     isFatal?: boolean,
     externalize?: () => SnowflakeErrorExternal | undefined,
-};
+}
 

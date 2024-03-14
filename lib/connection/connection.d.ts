@@ -25,11 +25,6 @@ type ConnectionCallback = (err: SnowflakeError | undefined, conn: Connection) =>
 
 export type Connection = NodeJS.EventEmitter & {
     /**
-     * Make session tokens available for testing.
-     */
-    getTokens(): unknown;
-
-    /**
      * Returns true if the connection is active otherwise false.
      */
     isUp(): boolean;
@@ -81,8 +76,7 @@ export type Connection = NodeJS.EventEmitter & {
     fetchResult(options: StatemnentOption): RowStatement | FileAndStageBindStatement;
 
     /**
-     * Immediately terminates the connection without waiting for
-     * currently executing statements to complete.
+     * Immediately terminates the connection without waiting for currently executing statements to complete.
      */
     destroy(fn: ConnectionCallback): void;
 

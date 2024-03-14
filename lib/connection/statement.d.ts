@@ -37,7 +37,7 @@ export interface StatemnentOption {
     requestId?: string;
 
     /**
-     * // use different rest endpoints based on whether the query id is available
+     * // use different rest endpoints based on whether the query id is available.
      */
     queryId?: string;
 
@@ -59,7 +59,6 @@ export interface StatemnentOption {
     fetchAsString?: DataType[];
 
     /**
-     * Statement parameters
      * Detailed information: https://docs.snowflake.com/en/developer-guide/node-js/nodejs-driver-execute.
      */
     parameters?: Record<string, any>;

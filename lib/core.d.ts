@@ -25,7 +25,7 @@ type CustomParser = (rawColumnValue: string) => any;
 interface ConfigureOptions {
     /**
      * Set the logLevel and logFilePath, 
-     * https://docs.snowflake.com/en/developer-guide/node-js/nodejs-driver-logs
+     * https://docs.snowflake.com/en/developer-guide/node-js/nodejs-driver-logs.
      */
     logLevel?: LogLevel | undefined;
     logFilePath?: string | undefined;
@@ -37,13 +37,13 @@ interface ConfigureOptions {
 
     /**
      * The default value is true. 
-     * Detailed infor.ation: https://docs.snowflake.com/en/user-guide/ocsp
+     * Detailed infor.ation: https://docs.snowflake.com/en/user-guide/ocsp.
      */
     ocspFailOpen?: boolean | undefined;
 
     /**
-     * The Snowflake Node.js driver provides the following default parsers for processing JSON and XML data in result sets:
-     * Detailed information: https://docs.snowflake.com/en/developer-guide/node-js/nodejs-driver-consume
+     * The Snowflake Node.js driver provides the following default parsers for processing JSON and XML data in result sets.
+     * Detailed information: https://docs.snowflake.com/en/developer-guide/node-js/nodejs-driver-consume.
      */
     jsonColumnVariantParser?: CustomParser;
     xmlColumnVariantParser?: CustomParser;

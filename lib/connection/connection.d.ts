@@ -25,17 +25,17 @@ type ConnectionCallback = (err: SnowflakeError | undefined, conn: Connection) =>
 
 export type Connection = NodeJS.EventEmitter & {
     /**
-     * Make session tokens available for testing
+     * Make session tokens available for testing.
      */
     getTokens(): unknown;
 
     /**
-     * Returns true if the connection is active otherwise false
+     * Returns true if the connection is active otherwise false.
      */
     isUp(): boolean;
 
     /**
-     * Returns true if the session token and master token are valid
+     * Returns true if the session token and master token are valid.
      */
     isTokenValid(): boolean;
 
@@ -45,7 +45,7 @@ export type Connection = NodeJS.EventEmitter & {
     getId(): string;
 
     /**
-     * Returns true if the connection is good to send a query otherwise false
+     * Returns true if the connection is good to send a query otherwise false.
      */
     isValidAsync(): Promise<boolean>;
 
@@ -87,7 +87,7 @@ export type Connection = NodeJS.EventEmitter & {
     destroy(fn: ConnectionCallback): void;
 
     /**                          
-     * Gets the status of the query based on queryId
+     * Gets the status of the query based on queryId.
      */
     getQueryStatus(queryId: string): string;
 
@@ -97,7 +97,7 @@ export type Connection = NodeJS.EventEmitter & {
     getQueryStatusThrowIfError(queryId: string): string;
 
     /**
-     *  Gets the results from a previously ran query based on queryId
+     *  Gets the results from a previously ran query based on queryId.
      */
     getResultsFromQueryId(options: StatemnentOption): RowStatement | FileAndStageBindStatement;
 

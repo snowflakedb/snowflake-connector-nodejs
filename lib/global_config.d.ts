@@ -42,7 +42,7 @@ export function setOcspFailOpen(): void;
 export function getOcspFailOpen(): boolean;
 
 /**
- * Returns the OCSP mode
+ * Returns the OCSP mode.
  *
  * @returns {string}
  */
@@ -56,8 +56,7 @@ export function getOcspMode(): OcspModes
 export function getOcspResponseCacheSizeLimit(): number;
 
 /**
- * Returns the maximum time in seconds that entries can live in the OCSP
- * response cache.
+ * Returns the maximum time in seconds that entries can live in the OCSP response cache.
  *
  * @returns {number}
  */
@@ -77,13 +76,13 @@ export let jsonColumnVariantParser: (rawColumnValue: string) => any;
 /**
  * Updates the value of the 'jsonColumnVariantParser' parameter.
  *
- * @param {function: (rawColumnValue: string) => any} value
+ * @param {Function: (rawColumnValue: string) => any} value
  */
 export function setJsonColumnVariantParser(value: (rawColumnValue: string) => any): void;
 /**
  * As a default we set parameters values identical like in fast-xml-parser lib defaults
  * thus preserving backward compatibility if customer doesn't set custom configuration
- * and give possibility to set only part of parameters
+ * and give possibility to set only part of parameters.
  */
 interface XmlParserConfiguration {
     ignoreAttributes?: boolean,
@@ -99,14 +98,14 @@ export let xmlColumnVariantParser: XMLParser;
  * Updates the value of the 'xmlColumnVariantParser' parameter.
  * Return fucntion with custom XmlParser configuration or default if not set.
  *
- * @param {function: (rawColumnValue: string) => any} value
+ * @param {Function: (rawColumnValue: string) => any} value
  */
 export function setXmlColumnVariantParser(value: (rawColumnValue: string) => any): void;
 
 /**
  * Create and update the 'xmlColumnVariantParser' parameter using custom parser configuration.
  *
- * @param {function: (rawColumnValue: string) => any} params
+ * @param {Function: (rawColumnValue: string) => any} params
  */
 export function createXmlColumnVariantParserWithParameters(params: XmlParserConfiguration): void;
 
@@ -131,7 +130,7 @@ export function createXmlColumnVariantParser(config: XmlParserConfiguration): Fu
 export function setKeepAlive(value: boolean): void;
 
 /**
- * Returns the overriden value of 'keepAlive' or default if not set. Default value is true
+ * Returns the overriden value of 'keepAlive' or default if not set. Default value is true.
  *
  * @param {boolean} value
  */

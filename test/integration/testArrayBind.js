@@ -17,9 +17,10 @@ describe('Test Array Bind', function () {
   const createNABTable = 'create or replace table testNAB(colA string, colB number, colC date, colD time, colE TIMESTAMP_NTZ, colF TIMESTAMP_TZ, bi binary(5), bool boolean)';
   const insertNAB = 'insert into testNAB values(?, ?, ?, ?, ?, ?, ?, ?)';
   const selectNAB = 'select * from testNAB where colB = 1';
-  const createNullTable = 'create or replace table testNullTB(colA string, colB number, colC date, colD time, colE TIMESTAMP_NTZ, colF TIMESTAMP_TZ)';
-  const insertNull = 'insert into testNullTB values(?, ?, ?, ?, ?, ?)';
+  const createNullTable = 'create or replace table testNullTB(colA string, colB number, colC date, colD time, colE TIMESTAMP_NTZ, colF TIMESTAMP_TZ, bi binary(5), bool boolean)';
+  const insertNull = 'insert into testNullTB values(?, ?, ?, ?, ?, ?, ?, ?)';
   const selectNull = 'select * from testNullTB where colB = 1';
+  const binaryData = (0xffff00).toString(16);
 
   const usedTableNames = [
     'testAB', 'testNAB', 'testNullTB',
@@ -46,7 +47,6 @@ describe('Test Array Bind', function () {
 
   it('testArrayBind', function (done) {
     let NABData;
-    const binaryData = (0xffff00).toString(16);
     async.series(
       [
         function (callback) {
@@ -162,7 +162,7 @@ describe('Test Array Bind', function () {
           const arrBind = [];
           const count = 100;
           for (let i = 0; i < count; i++) {
-            arrBind.push([null, i, '2020-05-11', '12:35:41.3333333', '2022-04-01 23:59:59', '2022-07-08 12:05:30.9999999']);
+            arrBind.push([null, i, '2020-05-11', '12:35:41.3333333', '2022-04-01 23:59:59', '2022-07-08 12:05:30.9999999', binaryData, true]);
           }
           
           connection.execute({
@@ -191,7 +191,7 @@ describe('Test Array Bind', function () {
           const arrBind = [];
           const count = 2;
           for (let i = 0; i < count; i++) {
-            arrBind.push(['string' + i, i, '2020-05-11', '12:35:41.3333333', '2022-04-01 23:59:59', '2022-07-08 12:05:30.9999999']);
+            arrBind.push(['string' + i, i, '2020-05-11', '12:35:41.3333333', '2022-04-01 23:59:59', '2022-07-08 12:05:30.9999999', binaryData, true]);
           }
           connection.execute({
             sqlText: insertNAB,

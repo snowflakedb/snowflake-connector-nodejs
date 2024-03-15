@@ -66,7 +66,7 @@ export interface ConnectionOptions {
     proxyPort?: number;
 
     /**
-     * Hint for load balancer
+     * Specifies the serviceName.
      */
     serviceName?: string;
 

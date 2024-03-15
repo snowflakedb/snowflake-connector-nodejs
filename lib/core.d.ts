@@ -5,12 +5,7 @@
 import { Options as PoolOptions, Pool } from "generic-pool";
 import Connection from "./connection/connection";
 import { ConnectionOptions } from "./connection/connection_config";
-
-declare enum OcspModes {
-    FAIL_CLOSED = "FAIL_CLOSED",
-    FAIL_OPEN = "FAIL_OPEN",
-    INSECURE = "INSECURE",
-}
+import { OcspModes } from "./global_config";
 
 declare enum LogLevel {
     ERROR = 'ERROR',

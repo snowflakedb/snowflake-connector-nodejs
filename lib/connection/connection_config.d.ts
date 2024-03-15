@@ -65,7 +65,9 @@ export interface ConnectionOptions {
      */
     proxyPort?: number;
 
-
+    /**
+     * Hint for load balancer
+     */
     serviceName?: string;
 
     /**
@@ -149,11 +151,6 @@ export interface ConnectionOptions {
     validateDefaultParameters?: boolean;
 
     /**
-    * 
-    */
-    forceStageBindError?: number;
-
-    /**
      * Set whether the retry reason is included or not in the retry url.
      */
     includeRetryReason?: boolean;
@@ -167,4 +164,11 @@ export interface ConnectionOptions {
      * The max login timeout value. This value is either 0 or over 300.
      */
     retryTimeout?: number;
+
+    /**
+     * The option to use https request only for the snowlfkae server if other GCP metadata or configuration is already set on thee machine.
+     * The default value is false.
+     */
+    forceGCPUseDownscopedCredential?: boolean
+
 }

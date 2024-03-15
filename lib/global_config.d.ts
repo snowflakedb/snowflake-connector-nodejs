@@ -5,11 +5,6 @@
 import { XMLParser } from "fast-xml-parser";
 import { CustomParser, OcspModes } from "./core";
 
-export enum Rest {
-    HTTPS_PORT = 443,
-    HTTPS_PROTOCOL = 'https',
-}
-
 /**
  * Returns the value of the 'insecureConnect' parameter.
  *
@@ -48,14 +43,8 @@ export function getOcspResponseCacheSizeLimit(): number;
 export function getOcspResponseCacheMaxAge(): number;
 
 /**
- * Creates a cache directory.
- *
- * @returns {string}
+ * The default JSON parser
  */
-export function mkdirCacheDir(): string;
-
-
-// The default JSON parser
 export let jsonColumnVariantParser: CustomParser
 
 /**

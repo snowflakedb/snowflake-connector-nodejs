@@ -29,12 +29,7 @@ export type Connection = NodeJS.EventEmitter & {
      */
     isUp(): boolean;
 
-    /**
-     * Returns true if the session token and master token are valid.
-     */
-    isTokenValid(): boolean;
-
-    /**
+    /** 
      * Returns the connection id.
      */
     getId(): string;
@@ -104,11 +99,6 @@ export type Connection = NodeJS.EventEmitter & {
      * Checks whether the given status means that there has been an error.
      */
     isAnError(): boolean;
-
-    /**
-     * Returns a serialized version of this connection.
-     */
-    serialize(): string;
 };
 
 export default Connection;

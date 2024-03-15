@@ -5,7 +5,6 @@
 import { Options as PoolOptions, Pool } from "generic-pool";
 import Connection from "./connection/connection";
 import { ConnectionOptions } from "./connection/connection_config";
-import { OcspModes } from "./global_config";
 
 declare enum LogLevel {
     ERROR = 'ERROR',
@@ -15,7 +14,13 @@ declare enum LogLevel {
     TRACE = 'TRACE',
 }
 
-type CustomParser = (rawColumnValue: string) => any;
+export type CustomParser = (rawColumnValue: string) => any;
+
+export enum OcspModes {
+    FAIL_CLOSED = 'FAIL_CLOSED',
+    FAIL_OPEN = 'FAIL_OPEN',
+    INSECURE = 'INSECURE',
+}
 
 interface ConfigureOptions {
     /**

@@ -170,5 +170,4 @@ export interface ConnectionOptions {
      * The default value is false.
      */
     forceGCPUseDownscopedCredential?: boolean
-
 }

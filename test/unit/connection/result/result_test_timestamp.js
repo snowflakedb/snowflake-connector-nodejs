@@ -82,16 +82,16 @@ describe('Result: test timestamp', function () {
     );
   });
 
-  it('select dateadd(ns,-1, to_timestamp_ntz(\'10000-01-01T00:00:00\', \'YYYY-MM-DD\"T\"HH24:MI:SS\')) AS C1;',
-  function (done) {
-    const response =
+  it('select dateadd(ns,-1, to_timestamp_ntz(\'10000-01-01T00:00:00\', \'YYYY-MM-DD"T"HH24:MI:SS\')) AS C1;',
+    function (done) {
+      const response =
         {
           'data': {
             'parameters': [
               { 'name': 'TIMEZONE', 'value': 'America/Los_Angeles' },
               { 'name': 'TIMESTAMP_OUTPUT_FORMAT', 'value': 'YYYY-MM-DD HH24:MI:SS.FF3' },
               { 'name': 'TIMESTAMP_NTZ_OUTPUT_FORMAT', 'value': '' },
-              { 'name': 'TIMESTAMP_LTZ_OUTPUT_FORMAT', 'value': ''},
+              { 'name': 'TIMESTAMP_LTZ_OUTPUT_FORMAT', 'value': '' },
               { 'name': 'TIMESTAMP_TZ_OUTPUT_FORMAT', 'value': '' },
               { 'name': 'DATE_OUTPUT_FORMAT', 'value': 'YYYY-MM-DD' },
               { 'name': 'CLIENT_RESULT_PREFETCH_SLOTS', 'value': 2 },
@@ -126,17 +126,17 @@ describe('Result: test timestamp', function () {
           'success': true
         };
 
-    ResultTestCommon.testResult(
-      ResultTestCommon.createResultOptions(response),
-      function (row) {
-        assert.ok(Util.isDate(row.getColumnValue('C1')));
-        assert.strictEqual(
-          row.getColumnValue('C1').toJSON(),
-          '9999-12-31 23:59:59.999');
-      },
-      function () {
-        done();
-      }
-    );
-  });
+      ResultTestCommon.testResult(
+        ResultTestCommon.createResultOptions(response),
+        function (row) {
+          assert.ok(Util.isDate(row.getColumnValue('C1')));
+          assert.strictEqual(
+            row.getColumnValue('C1').toJSON(),
+            '9999-12-31 23:59:59.999');
+        },
+        function () {
+          done();
+        }
+      );
+    });
 });

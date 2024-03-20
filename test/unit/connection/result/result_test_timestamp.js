@@ -129,10 +129,11 @@ describe('Result: test timestamp', function () {
       ResultTestCommon.testResult(
         ResultTestCommon.createResultOptions(response),
         function (row) {
+          const actualTimestamp = row.getColumnValue('C1');
           assert.ok(Util.isDate(row.getColumnValue('C1')));
-          assert.strictEqual(
-            row.getColumnValue('C1').toJSON(),
-            '9999-12-31 23:59:59.999');
+          assert.strictEqual(actualTimestamp.toJSON(), '9999-12-31 23:59:59.999');
+          assert.strictEqual(actualTimestamp.getNanoSeconds(), 999999999);
+          assert.strictEqual(actualTimestamp.getEpochSeconds(), 253402300799);
         },
         function () {
           done();

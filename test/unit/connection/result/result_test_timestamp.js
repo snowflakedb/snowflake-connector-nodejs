@@ -134,6 +134,7 @@ describe('Result: test timestamp', function () {
           assert.strictEqual(actualTimestamp.toJSON(), '9999-12-31 23:59:59.999');
           assert.strictEqual(actualTimestamp.getNanoSeconds(), 999999999);
           assert.strictEqual(actualTimestamp.getEpochSeconds(), 253402300799);
+          assert.strictEqual(actualTimestamp.getScale(), 9);
         },
         function () {
           done();

@@ -588,7 +588,7 @@ describe('okta authentication', function () {
       it(`${name}`, () => {
         assert.throws(() => {
           return  auth.validateURLs(authenticator, ssourl, tokenurl);
-        });
+        }, { message: 'The prefix of the SSO/token URL and the specified authenticator do not match.' });
       });
     });
   });

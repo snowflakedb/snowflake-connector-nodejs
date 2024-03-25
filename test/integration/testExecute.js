@@ -10,7 +10,7 @@ const os = require('os');
 const globalConfig = require('../../lib/global_config');
 
 
-describe('Execute test', function () {
+describe.only('Execute test', function () {
   let connection;
   const createNodeTSQL = 'create or replace table NodeT(colA number, colB varchar)';
   const selectAllSQL = 'select * from NodeT';

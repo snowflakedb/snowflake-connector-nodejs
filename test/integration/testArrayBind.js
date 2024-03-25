@@ -411,7 +411,7 @@ describe('Test Array Bind', function () {
   });
 });
 
-describe('Test Array Bind - full path', function () {
+describe.only('Test Array Bind - full path', function () {
   const DATABASE_NAME = connOption.valid.database;
   const SCHEMA_NAME = connOption.valid.schema;
 

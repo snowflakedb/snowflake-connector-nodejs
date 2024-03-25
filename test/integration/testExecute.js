@@ -8,6 +8,7 @@ const connOption = require('./connectionOptions').valid;
 const testUtil = require('./testUtil');
 const os = require('os');
 const globalConfig = require('../../lib/global_config');
+const { configureLogger } = require('../configureLogger');
 
 
 describe.only('Execute test', function () {
@@ -140,7 +141,9 @@ describe.only('Execute test', function () {
 });
 
 describe.only('Execute test - variant', function () {
+  configureLogger('TRACE');
   this.timeout(100000);
+
 
   let connection;
 
@@ -231,6 +234,7 @@ describe.only('Execute test - variant', function () {
     before(async () => {
       const createFileFormatVariant = `CREATE OR REPLACE FILE FORMAT ${TEST_VARIANT_FORMAT} TYPE = XML`;
       await testUtil.executeCmdAsync(connection, createFileFormatVariant);
+      configureLogger('TRACE');
     });
 
     beforeEach(async () => {

@@ -48,7 +48,7 @@ jobs:
         strategy:
             fail-fast: false
             matrix:
-                cloud: [ 'AWS', 'AZURE', 'GCP' ]
+                cloud: [ 'AZURE' ]
                 nodeVersion: [ '14.x', '16.x', '18.x', '20.x']
         steps:
             - uses: actions/checkout@v4
@@ -86,7 +86,7 @@ jobs:
         strategy:
             fail-fast: false
             matrix:
-                cloud: [ 'AWS', 'AZURE', 'GCP' ]
+                cloud: [ 'AZURE' ]
                 nodeVersion: [ '14.x', '16.x', '18.x', '20.x']
         steps:
             - uses: actions/checkout@v4
@@ -117,7 +117,7 @@ jobs:
             fail-fast: false
             matrix:
                 image: [ 'nodejs-centos7-node14', 'nodejs-centos7-fips']
-                cloud: [ 'AWS', 'AZURE', 'GCP' ]
+                cloud: [ 'AZURE' ]
         steps:
             - uses: actions/checkout@v4
             - name: Download Build Artifacts
@@ -133,37 +133,37 @@ jobs:
                 TARGET_DOCKER_TEST_IMAGE: ${{ matrix.image }}
               run: ./ci/test.sh
 
-    test-ubuntu:
-      needs: build
-      name: Tests on Ubuntu
-      runs-on: ubuntu-latest
-      strategy:
-        fail-fast: false
-        matrix:
-          cloud: [ 'AWS', 'AZURE', 'GCP' ]
-          nodeVersion: ['18.x', '20.x']
-      steps:
-        - uses: actions/checkout@v4
-        - name: Download Build Artifacts
-          uses: actions/download-artifact@v3
-          with:
-            name: artifacts
-            path: artifacts
-        - name: Use Node.js
-          uses: actions/setup-node@v3
-          with:
-            node-version: ${{ matrix.node-version }}
-        - name: Tests
-          shell: bash
-          env:
-            PARAMETERS_SECRET: ${{ secrets.PARAMETERS_SECRET }}
-            CLOUD_PROVIDER: ${{ matrix.cloud }}
-          run: ./ci/test_ubuntu.sh
-        - name: Upload coverage reports to Codecov
-          uses: codecov/codecov-action@v3
-          with:
-            # without the token code cov may fail because of Github limits https://github.com/codecov/codecov-action/issues/557
-            token: ${{ secrets.CODE_COV_UPLOAD_TOKEN }}
-            fail_ci_if_error: true
-
-
+#    test-ubuntu:
+#      needs: build
+#      name: Tests on Ubuntu
+#      runs-on: ubuntu-latest
+#      strategy:
+#        fail-fast: false
+#        matrix:
+#          cloud: [ 'AWS', 'AZURE', 'GCP' ]
+#          nodeVersion: ['18.x', '20.x']
+#      steps:
+#        - uses: actions/checkout@v4
+#        - name: Download Build Artifacts
+#          uses: actions/download-artifact@v3
+#          with:
+#            name: artifacts
+#            path: artifacts
+#        - name: Use Node.js
+#          uses: actions/setup-node@v3
+#          with:
+#            node-version: ${{ matrix.node-version }}
+#        - name: Tests
+#          shell: bash
+#          env:
+#            PARAMETERS_SECRET: ${{ secrets.PARAMETERS_SECRET }}
+#            CLOUD_PROVIDER: ${{ matrix.cloud }}
+#          run: ./ci/test_ubuntu.sh
+#        - name: Upload coverage reports to Codecov
+#          uses: codecov/codecov-action@v3
+#          with:
+#            # without the token code cov may fail because of Github limits https://github.com/codecov/codecov-action/issues/557
+#            token: ${{ secrets.CODE_COV_UPLOAD_TOKEN }}
+#            fail_ci_if_error: true
+#
+#

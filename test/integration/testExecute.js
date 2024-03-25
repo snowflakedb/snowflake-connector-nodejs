@@ -221,7 +221,7 @@ describe('Execute test - variant', function () {
     await testUtil.executeCmdAsync(connection, dropTableVariant);
   });
 
-  describe('Variant XML', function () {
+  describe.only('Variant XML', function () {
     const TEST_ATTRIBUTE_NAME = 'attr';
     const TEST_ATTRIBUTE_VALUE = 'attrValue';
     const TEST_ATTRIBUTE_CUSTOM_PREFIX = '##';

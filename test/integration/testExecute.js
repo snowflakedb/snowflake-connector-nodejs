@@ -139,7 +139,7 @@ describe.only('Execute test', function () {
   });
 });
 
-describe('Execute test - variant', function () {
+describe.only('Execute test - variant', function () {
   this.timeout(100000);
 
   let connection;

@@ -13,6 +13,7 @@ const globalConfig = require('../../lib/global_config');
 describe('Execute test', function () {
   let connection;
   const createNodeTSQL = 'create or replace table NodeT(colA number, colB varchar)';
+
   const selectAllSQL = 'select * from NodeT';
   const insertNodeTSQL = 'insert into NodeT values(1, \'a\')';
   const updateNodeTSQL = 'update NodeT set COLA = 2, COLB = \'b\' where COLA = 1';

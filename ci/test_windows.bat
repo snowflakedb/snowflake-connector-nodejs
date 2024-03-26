@@ -54,6 +54,13 @@ if %ERRORLEVEL% NEQ 0 (
 echo [INFO] Installing Snowflake NodeJS Driver
 copy %GITHUB_WORKSPACE%\artifacts\* .
 for %%f in (snowflake-sdk*.tgz) do cmd /c npm install %%f
+
+FOR /F "tokens=* USEBACKQ" %%F IN (`node -v`) DO (
+SET nodeVersion=%%F
+)
+ECHO %nodeVersion%
+if not x%nodeVersion:v14.=%==x%str1% cmd /c npm install @azure/core-lro@2.6.0
+
 if %ERRORLEVEL% NEQ 0 (
     echo [ERROR] failed to install the Snowflake NodeJS Driver
     exit /b 1

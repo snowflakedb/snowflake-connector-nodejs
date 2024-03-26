@@ -31,7 +31,7 @@ PACKAGE_NAME=$(cd $WORKSPACE && ls snowflake-sdk*.tgz)
 npm install $WORKSPACE/${PACKAGE_NAME}
 
 nodeVersion=$(node -v)
-if [[ $nodeVersion == 'v14.'* ]]; then
+if [[ "$nodeVersion" == 'v14.'* ]]; then
   npm install @azure/core-lro@2.6.0
 fi
 

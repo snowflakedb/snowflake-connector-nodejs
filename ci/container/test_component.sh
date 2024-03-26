@@ -30,6 +30,11 @@ npm install
 PACKAGE_NAME=$(cd $WORKSPACE && ls snowflake-sdk*.tgz)
 npm install $WORKSPACE/${PACKAGE_NAME}
 
+nodeVersion=$(node -v)
+if [[ $nodeVersion == 'v14.'* ]]; then
+  npm install @azure/core-lro@2.6.0
+fi
+
 echo "[INFO] Setting test parameters"
 if [[ "$LOCAL_USER_NAME" == "jenkins" ]]; then
     echo "[INFO] Use the default test parameters.json"

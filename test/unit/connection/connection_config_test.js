@@ -700,6 +700,16 @@ describe('ConnectionConfig: basic', function () {
         },
         errorCode: ErrorCodes.ERR_CONN_CREATE_INVALID_DISABLE_CONSOLE_LOGIN
       },
+      {
+        name: 'invalid disableGCPTokenUpload',
+        options: {
+          account: 'account',
+          username: 'username',
+          password: 'password',
+          forceGCPUseDownscopedCredential: 'invalud'
+        },
+        errorCode: ErrorCodes.ERR_CONN_CREATE_INVALID_FORCE_GCP_USE_DOWNSCOPED_CREDENTIAL
+      },
     ];
 
   const createNegativeITCallback = function (testCase) {
@@ -1114,6 +1124,75 @@ describe('ConnectionConfig: basic', function () {
           }
       },
       {
+        name: 'only one letter account',
+        input:
+          {
+            account: 'a',
+            username: 'username',
+            password: 'password',
+            retryTimeout: 1234,
+          },
+        options:
+          {
+            accessUrl: 'https://a.snowflakecomputing.com',
+            username: 'username',
+            password: 'password',
+            account: 'a',
+          }
+      },
+      {
+        name: 'only one letter account and subdomain',
+        input:
+          {
+            account: 'a.b',
+            username: 'username',
+            password: 'password',
+            retryTimeout: 1234,
+          },
+        options:
+          {
+            accessUrl: 'https://a.b.snowflakecomputing.com',
+            username: 'username',
+            password: 'password',
+            account: 'a',
+            region: 'b'
+          }
+      },
+      {
+        name: 'account with [-] in the middle',
+        input:
+          {
+            account: 'a-b',
+            username: 'username',
+            password: 'password',
+            retryTimeout: 1234,
+          },
+        options:
+          {
+            accessUrl: 'https://a-b.snowflakecomputing.com',
+            username: 'username',
+            password: 'password',
+            account: 'a-b',
+          }
+      },
+      {
+        name: 'account with [_] in the middle',
+        input:
+          {
+            account: 'a_b',
+            username: 'username',
+            password: 'password',
+            retryTimeout: 1234,
+          },
+        options:
+          {
+            accessUrl: 'https://a_b.snowflakecomputing.com',
+            username: 'username',
+            password: 'password',
+            account: 'a_b',
+          }
+      },
+      {
         name: 'account with subdomain',
         input:
           {
@@ -1135,18 +1214,18 @@ describe('ConnectionConfig: basic', function () {
         name: 'account with subdomain with _ and -',
         input:
           {
-            account: 'acc_ount.sub-domain',
+            account: 'acc_ount.sub-domain.aws',
             username: 'username',
             password: 'password',
             retryTimeout: 1234,
           },
         options:
           {
-            accessUrl: 'https://acc_ount.sub-domain.snowflakecomputing.com',
+            accessUrl: 'https://acc_ount.sub-domain.aws.snowflakecomputing.com',
             username: 'username',
             password: 'password',
             account: 'acc_ount',
-            region: 'sub-domain',
+            region: 'sub-domain.aws',
           }
       },
       {
@@ -1242,7 +1321,7 @@ describe('ConnectionConfig: basic', function () {
             password: 'password',
             account: 'account'
           }
-      }
+      },
     ];
 
   const createItCallback = function (testCase) {

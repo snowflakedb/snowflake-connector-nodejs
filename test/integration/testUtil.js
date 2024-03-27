@@ -5,6 +5,7 @@ const snowflake = require('./../../lib/snowflake');
 const connOptions = require('./connectionOptions');
 const assert = require('assert');
 const fs = require('fs');
+const fsPromises = require('fs').promises;
 const crypto = require('crypto');
 const Logger = require('../../lib/logger');
 const path = require('path');
@@ -288,6 +289,18 @@ module.exports.createTestingDirectoryInTemp = function (directory) {
 module.exports.createTempFile = function (mainDir, fileName, data = '') {
   const fullpath = path.join(mainDir, fileName);
   fs.writeFileSync(fullpath, data);
+  return fullpath;
+};
+/**
+ *  Async version of method to create temp file
+ * @param mainDir string Main directory for created file
+ * @param fileName string Created file name
+ * @param data string Input for created file
+ * @return string
+ */
+module.exports.createTempFileAsync = async function (mainDir, fileName, data = '') {
+  const fullpath = path.join(mainDir, fileName);
+  await fsPromises.writeFile(fullpath, data);
   return fullpath;
 };
 

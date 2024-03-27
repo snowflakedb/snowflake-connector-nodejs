@@ -81,4 +81,64 @@ describe('Result: test timestamp', function () {
       }
     );
   });
+
+  it('select dateadd(ns,-1, to_timestamp_ntz(\'10000-01-01T00:00:00\', \'YYYY-MM-DD"T"HH24:MI:SS\')) AS C1;',
+    function (done) {
+      const response =
+        {
+          'data': {
+            'parameters': [
+              { 'name': 'TIMEZONE', 'value': 'America/Los_Angeles' },
+              { 'name': 'TIMESTAMP_OUTPUT_FORMAT', 'value': 'YYYY-MM-DD HH24:MI:SS.FF3' },
+              { 'name': 'TIMESTAMP_NTZ_OUTPUT_FORMAT', 'value': '' },
+              { 'name': 'TIMESTAMP_LTZ_OUTPUT_FORMAT', 'value': '' },
+              { 'name': 'TIMESTAMP_TZ_OUTPUT_FORMAT', 'value': '' },
+              { 'name': 'DATE_OUTPUT_FORMAT', 'value': 'YYYY-MM-DD' },
+              { 'name': 'CLIENT_RESULT_PREFETCH_SLOTS', 'value': 2 },
+              { 'name': 'CLIENT_RESULT_PREFETCH_THREADS', 'value': 1 },
+              { 'name': 'CLIENT_HONOR_CLIENT_TZ_FOR_TIMESTAMP_NTZ', 'value': true },
+              { 'name': 'CLIENT_USE_V1_QUERY_API', 'value': true }
+            ],
+            'rowtype': [{
+              'name': 'C1',
+              'byteLength': null,
+              'nullable': false,
+              'precision': 0,
+              'scale': 9,
+              'length': null,
+              'type': 'timestamp_ntz'
+            }],
+            'rowset': [['253402300799.999999999']],
+            'total': 1,
+            'returned': 1,
+            'queryId': 'b603b7fb-48df-48b6-bc90-25a7cb355e1d',
+            'databaseProvider': null,
+            'finalDatabaseName': null,
+            'finalSchemaName': null,
+            'finalWarehouseName': 'NEW_WH',
+            'finalRoleName': 'ACCOUNTADMIN',
+            'numberOfBinds': 0,
+            'statementTypeId': 4096,
+            'version': 0
+          },
+          'message': null,
+          'code': null,
+          'success': true
+        };
+
+      ResultTestCommon.testResult(
+        ResultTestCommon.createResultOptions(response),
+        function (row) {
+          const actualTimestamp = row.getColumnValue('C1');
+          assert.ok(Util.isDate(row.getColumnValue('C1')));
+          assert.strictEqual(actualTimestamp.toJSON(), '9999-12-31 23:59:59.999');
+          assert.strictEqual(actualTimestamp.getNanoSeconds(), 999999999);
+          assert.strictEqual(actualTimestamp.getEpochSeconds(), 253402300799);
+          assert.strictEqual(actualTimestamp.getScale(), 9);
+        },
+        function () {
+          done();
+        }
+      );
+    });
 });

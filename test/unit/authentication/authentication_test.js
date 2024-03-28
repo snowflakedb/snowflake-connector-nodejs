@@ -592,4 +592,34 @@ describe('okta authentication', function () {
       });
     });
   });
+
+  describe('test getAuthenticator()', () => {
+    [
+      { name: 'default', providedAuth: authenticationTypes.DEFAULT_AUTHENTICATOR, expectedAuth: 'AuthDefault' },
+      { name: 'external browser', providedAuth: authenticationTypes.EXTERNAL_BROWSER_AUTHENTICATOR, expectedAuth: 'AuthWeb' },
+      { name: 'key pair', providedAuth: authenticationTypes.KEY_PAIR_AUTHENTICATOR, expectedAuth: 'AuthKeypair' },
+      { name: 'oauth', providedAuth: authenticationTypes.OAUTH_AUTHENTICATOR, expectedAuth: 'AuthOauth' },
+      { name: 'okta', providedAuth: 'https://mycustom.okta.com:8443', expectedAuth: 'AuthOkta' },
+      { name: 'unknown', providedAuth: 'unknown', expectedAuth: 'AuthDefault' }
+    ].forEach(({ name, providedAuth, expectedAuth }) => {
+      it(`${name}`, () => {
+        const connectionConfig = {
+          getBrowserActionTimeout: () => 100,
+          getProxy: () => {},
+          getAuthenticator: () => providedAuth,
+          getServiceName: () => '',
+          getDisableConsoleLogin: () => true,
+          getPrivateKey: () => '',
+          getPrivateKeyPath: () => '',
+          getPrivateKeyPass: () => '',
+          getToken: () => '',
+          getClientType: () => '',
+          getClientVersion: () => '',
+          host: 'host',
+        };
+
+        assert.strictEqual(authenticator.getAuthenticator(connectionConfig, { }).constructor.name, expectedAuth);
+      });
+    });
+  });
 });

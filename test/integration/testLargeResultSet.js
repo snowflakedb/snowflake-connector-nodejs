@@ -5,31 +5,41 @@ const assert = require('assert');
 const async = require('async');
 const testUtil = require('./testUtil');
 const { randomizeName } = require('./testUtil');
+const { writeHeapSnapshot } = require('node:v8');
 
 describe('Large result Set Tests', function () {
-  const sourceRowCount = 10000;
-
+  const sourceRowCount = 1000000;
   let connection;
   const selectAllFromOrders = `select randstr(1000,random()) from table(generator(rowcount=>${sourceRowCount}))`;
-
+  // const selectAllFromOrders = `select * from fake_sample_data.public.customer limit 400000`;
+  // const selectAllFromOrders = `select * from fake_sample_data.public.customer`;
   before(async () => {
-    connection = testUtil.createConnection();
+    // configureLogger('TRACE');
+    connection = testUtil.createConnection({
+      resultPrefetch: 2,
+    });
     await testUtil.connectAsync(connection);
+    await testUtil.executeCmdAsync(connection, "alter session set CLIENT_RESULT_CHUNK_SIZE=48");
   });
 
   after(async () => {
     await testUtil.destroyConnectionAsync(connection);
   });
 
-  it('testSimpleLarge', function (done) {
+  it.only('testSimpleLarge', function (done) {
     connection.execute({
       sqlText: selectAllFromOrders,
+      streamResult: true,
       complete: function (err, stmt) {
         testUtil.checkError(err);
         const stream = stmt.streamRows();
         let rowCount = 0;
         stream.on('data', function () {
           rowCount++;
+          if (rowCount % 5000 === 0) {
+            console.log(`Row count: ${rowCount}`);
+            // console.log(writeHeapSnapshot());
+          }
         });
         stream.on('error', function (err) {
           testUtil.checkError(err);

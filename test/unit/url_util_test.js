@@ -1,6 +1,7 @@
 /*
- * Copyright (c) 2015-2023 Snowflake Computing Inc. All rights reserved.
+ * Copyright (c) 2015-2024 Snowflake Computing Inc. All rights reserved.
  */
+
 const URLUtil = require('./../../lib/url_util');
 const assert = require('assert');
 

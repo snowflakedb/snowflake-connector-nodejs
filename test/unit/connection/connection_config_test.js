@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 Snowflake Computing Inc. All rights reserved.
+ * Copyright (c) 2015 - 2024 Snowflake Computing Inc. All rights reserved.
  */
 
 const ConnectionConfig = require('./../../../lib/connection/connection_config');
@@ -669,6 +669,17 @@ describe('ConnectionConfig: basic', function () {
           includeRetryReason: 'invalid'
         },
         errorCode: ErrorCodes.ERR_CONN_CREATE_INVALID_INCLUDE_RETRY_REASON,
+      },
+      {
+        name: 'invalid clientStoreTemporaryCredential',
+        options:
+        {
+          username: 'username',
+          password: 'password',
+          account: 'account',
+          clientStoreTemporaryCredential: 'invalid'
+        },
+        errorCode: ErrorCodes.ERR_CONN_CREATE_INVALID_CLIENT_STORE_TEMPORARY_CREDENTIAL,
       },
       {
         name: 'invalid clientConfigFile',

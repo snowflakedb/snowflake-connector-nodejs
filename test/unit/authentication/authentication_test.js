@@ -155,7 +155,16 @@ describe('external browser authentication', function () {
     webbrowser = require('webbrowser');
     httpclient = require('httpclient');
 
-    const auth = new AuthWeb(connectionConfig, httpclient, webbrowser.open);
+    const fastFailConnectionConfig = {
+      getBrowserActionTimeout: () => 10,
+      getProxy: () => {},
+      getAuthenticator: () => credentials.authenticator,
+      getServiceName: () => '',
+      getDisableConsoleLogin: () => true,
+      host: 'fakehost'
+    };
+
+    const auth = new AuthWeb(fastFailConnectionConfig, httpclient, webbrowser.open);
     await assert.rejects(async () => {
       await auth.authenticate(credentials.authenticator, '', credentials.account, credentials.username);
     }, {

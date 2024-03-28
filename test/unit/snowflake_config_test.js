@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Snowflake Computing Inc. All rights reserved.
+ * Copyright (c) 2024 Snowflake Computing Inc. All rights reserved.
  */
 
 const assert = require('assert');
@@ -19,7 +19,7 @@ describe('Snowflake Configure Tests', function () {
       ocspFailOpen: GlobalConfig.getOcspFailOpen(),
       keepAlive: GlobalConfig.getKeepAlive(),
       jsonColumnVariantParser: GlobalConfig.jsonColumnVariantParser,
-      xmlColumnVariantParser: GlobalConfig.xmlColumnVariantParser,
+      xmlColumnVariantParser: GlobalConfig.xmlColumnVariantParser
     };
   });
 

@@ -110,14 +110,14 @@ describe('external browser authentication', function () {
   it('external browser - authenticate method is thenable', done => {
     const auth = new AuthWeb(connectionConfig, httpclient, webbrowser.open);
 
-    auth.authenticate(credentials.authenticator, '', credentials.account, credentials.username, credentials.host)
+    auth.authenticate(credentials.authenticator, '', credentials.account, credentials.username)
       .then(done)
       .catch(done);
   });
 
   it('external browser - get success', async function () {
     const auth = new AuthWeb(connectionConfig, httpclient, webbrowser.open);
-    await auth.authenticate(credentials.authenticator, '', credentials.account, credentials.username, credentials.host);
+    await auth.authenticate(credentials.authenticator, '', credentials.account, credentials.username);
 
     const body = { data: {} };
     auth.updateBody(body);
@@ -155,14 +155,21 @@ describe('external browser authentication', function () {
     webbrowser = require('webbrowser');
     httpclient = require('httpclient');
 
-    const auth = new AuthWeb(connectionConfig, httpclient, webbrowser.open);
-    await auth.authenticate(credentials.authenticator, '', credentials.account, credentials.username, credentials.host);
+    const fastFailConnectionConfig = {
+      getBrowserActionTimeout: () => 10,
+      getProxy: () => {},
+      getAuthenticator: () => credentials.authenticator,
+      getServiceName: () => '',
+      getDisableConsoleLogin: () => true,
+      host: 'fakehost'
+    };
 
-    const body = { data: {} };
-    auth.updateBody(body);
-
-    assert.strictEqual(typeof body['data']['TOKEN'], 'undefined');
-    assert.strictEqual(typeof body['data']['PROOF_KEY'], 'undefined');
+    const auth = new AuthWeb(fastFailConnectionConfig, httpclient, webbrowser.open);
+    await assert.rejects(async () => {
+      await auth.authenticate(credentials.authenticator, '', credentials.account, credentials.username);
+    }, {
+      message: /Error while getting SAML token:/
+    });
   });
 
   it('external browser - check authenticator', function () {

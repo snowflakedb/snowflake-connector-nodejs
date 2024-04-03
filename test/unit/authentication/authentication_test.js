@@ -12,6 +12,7 @@ const AuthWeb = require('./../../../lib/authentication/auth_web');
 const AuthKeypair = require('./../../../lib/authentication/auth_keypair');
 const AuthOauth = require('./../../../lib/authentication/auth_oauth');
 const AuthOkta = require('./../../../lib/authentication/auth_okta');
+const AuthIDToken = require('./../../../lib/authentication/auth_idtoken');
 const authenticationTypes = require('./../../../lib/authentication/authentication').authenticationTypes;
 
 const MockTestUtil = require('./../mock/mock_test_util');
@@ -25,6 +26,8 @@ const connectionOptionsKeyPair = mockConnectionOptions.authKeyPair;
 const connectionOptionsKeyPairPath = mockConnectionOptions.authKeyPairPath;
 const connectionOptionsOauth = mockConnectionOptions.authOauth;
 const connectionOptionsOkta = mockConnectionOptions.authOkta;
+const connectionOptionsIdToken = mockConnectionOptions.authIdToken;
+
 
 describe('default authentication', function () {
 
@@ -110,14 +113,14 @@ describe('external browser authentication', function () {
   it('external browser - authenticate method is thenable', done => {
     const auth = new AuthWeb(connectionConfig, httpclient, webbrowser.open);
 
-    auth.authenticate(credentials.authenticator, '', credentials.account, credentials.username)
+    auth.authenticate(credentials.authenticator, '', credentials.account, credentials.username, credentials.host)
       .then(done)
       .catch(done);
   });
 
   it('external browser - get success', async function () {
     const auth = new AuthWeb(connectionConfig, httpclient, webbrowser.open);
-    await auth.authenticate(credentials.authenticator, '', credentials.account, credentials.username);
+    await auth.authenticate(credentials.authenticator, '', credentials.account, credentials.username, credentials.host);
 
     const body = { data: {} };
     auth.updateBody(body);
@@ -180,6 +183,17 @@ describe('external browser authentication', function () {
 
     assert.strictEqual(
       body['data']['AUTHENTICATOR'], authenticationTypes.EXTERNAL_BROWSER_AUTHENTICATOR, 'Authenticator should be EXTERNALBROWSER');
+  });
+
+  it('external browser - id token', async function () {
+    const auth = new AuthIDToken(connectionOptionsIdToken, httpclient);
+    await auth.authenticate(credentials.authenticator, '', credentials.account, credentials.username, credentials.host);
+
+    const body = { data: {} };
+    auth.updateBody(body);
+
+    assert.strictEqual(body['data']['TOKEN'], connectionOptionsIdToken.idToken);
+    assert.strictEqual(body['data']['AUTHENTICATOR'], authenticationTypes.ID_TOKEN_AUTHENTICATOR);
   });
 });
 

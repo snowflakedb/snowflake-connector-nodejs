@@ -28,7 +28,6 @@ const connectionOptionsOauth = mockConnectionOptions.authOauth;
 const connectionOptionsOkta = mockConnectionOptions.authOkta;
 const connectionOptionsIdToken = mockConnectionOptions.authIdToken;
 
-
 describe('default authentication', function () {
 
   it('default - authenticate method is thenable', done => {

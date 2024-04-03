@@ -11,7 +11,6 @@ declare enum RowMode {
 }
 
 export interface ConnectionOptions {
-
     //Detail information: https://docs.snowflake.com/en/developer-guide/node-js/nodejs-driver-options
 
     /**
@@ -111,9 +110,9 @@ export interface ConnectionOptions {
     role?: string;
 
     /**
-   * Returns the rowMode string value ('array', 'object' or 'object_with_renamed_duplicated_columns'). Could be null or undefined.
-   *
-   */
+     * Returns the rowMode string value ('array', 'object' or 'object_with_renamed_duplicated_columns'). Could be null or undefined.
+     *
+     */
     rowMode?: RowMode;
 
     /**

@@ -17,28 +17,24 @@ declare let ocspFailOpen: boolean;
 /**
  * Returns the value of the 'ocspFailOpen' parameter.
  *
- * @param {boolean} value
  */
 export function getOcspFailOpen(): boolean;
 
 /**
  * Returns the OCSP mode.
  *
- * @returns {string}
  */
 export function getOcspMode(): OcspModes
 
 /**
  * Returns the upper limit for number of entries we can have in the OCSP response cache.
  *
- * @returns {number}
  */
 export function getOcspResponseCacheSizeLimit(): number;
 
 /**
  * Returns the maximum time in seconds that entries can live in the OCSP response cache.
  *
- * @returns {number}
  */
 export function getOcspResponseCacheMaxAge(): number;
 
@@ -66,7 +62,6 @@ export let xmlColumnVariantParser: XMLParser | CustomParser;
 /**
  * Create and update the 'xmlColumnVariantParser' parameter using custom parser configuration.
  *
- * @param {Object} params
  */
 export function createXmlColumnVariantParserWithParameters(params: XmlParserConfiguration): void;
 
@@ -78,7 +73,6 @@ export function createXmlColumnVariantParserWithParameters(params: XmlParserConf
  *  attributesGroupName: false,
  *  alwaysCreateTextNode: false
  *
- * @param {object} config
  */
 
 export function createXmlColumnVariantParser(config: XmlParserConfiguration): Function;
@@ -86,7 +80,6 @@ export function createXmlColumnVariantParser(config: XmlParserConfiguration): Fu
 /**
  * Returns the overriden value of 'keepAlive' or default if not set. Default value is true.
  *
- * @param {boolean} value
  */
 export function getKeepAlive(): boolean;
 

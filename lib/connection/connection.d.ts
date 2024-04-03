@@ -29,7 +29,6 @@ export type Connection = NodeJS.EventEmitter & {
      */
     isUp(): boolean;
 
-
     /** 
      * Returns the connection id.
      */

@@ -157,7 +157,23 @@ describe('external browser authentication', function () {
     webbrowser = require('webbrowser');
     httpclient = require('httpclient');
 
-    const auth = new AuthWeb(connectionConfig, httpclient, webbrowser.open);
+    const fastFailConnectionConfig = {
+      getBrowserActionTimeout: () => 10,
+      getProxy: () => {},
+      getAuthenticator: () => credentials.authenticator,
+      getServiceName: () => '',
+      getDisableConsoleLogin: () => true,
+      host: 'fakehost'
+    };
+
+    let auth = new AuthWeb(fastFailConnectionConfig, httpclient, webbrowser.open);
+    await assert.rejects(async () => {
+      await auth.authenticate(credentials.authenticator, '', credentials.account, credentials.username);
+    }, {
+      message: /Error while getting SAML token:/
+    });
+
+    auth = new AuthWeb(connectionConfig, httpclient, webbrowser.open);
     await auth.authenticate(credentials.authenticator, '', credentials.account, credentials.username, credentials.host);
 
     const body = { data: {} };
@@ -602,6 +618,36 @@ describe('okta authentication', function () {
         assert.throws(() => {
           return  auth.validateURLs(authenticator, ssourl, tokenurl);
         }, { message: 'The prefix of the SSO/token URL and the specified authenticator do not match.' });
+      });
+    });
+  });
+
+  describe('test getAuthenticator()', () => {
+    [
+      { name: 'default', providedAuth: authenticationTypes.DEFAULT_AUTHENTICATOR, expectedAuth: 'AuthDefault' },
+      { name: 'external browser', providedAuth: authenticationTypes.EXTERNAL_BROWSER_AUTHENTICATOR, expectedAuth: 'AuthWeb' },
+      { name: 'key pair', providedAuth: authenticationTypes.KEY_PAIR_AUTHENTICATOR, expectedAuth: 'AuthKeypair' },
+      { name: 'oauth', providedAuth: authenticationTypes.OAUTH_AUTHENTICATOR, expectedAuth: 'AuthOauth' },
+      { name: 'okta', providedAuth: 'https://mycustom.okta.com:8443', expectedAuth: 'AuthOkta' },
+      { name: 'unknown', providedAuth: 'unknown', expectedAuth: 'AuthDefault' }
+    ].forEach(({ name, providedAuth, expectedAuth }) => {
+      it(`${name}`, () => {
+        const connectionConfig = {
+          getBrowserActionTimeout: () => 100,
+          getProxy: () => {},
+          getAuthenticator: () => providedAuth,
+          getServiceName: () => '',
+          getDisableConsoleLogin: () => true,
+          getPrivateKey: () => '',
+          getPrivateKeyPath: () => '',
+          getPrivateKeyPass: () => '',
+          getToken: () => '',
+          getClientType: () => '',
+          getClientVersion: () => '',
+          host: 'host',
+        };
+
+        assert.strictEqual(authenticator.getAuthenticator(connectionConfig, { }).constructor.name, expectedAuth);
       });
     });
   });

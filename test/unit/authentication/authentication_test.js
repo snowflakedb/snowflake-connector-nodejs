@@ -110,14 +110,14 @@ describe('external browser authentication', function () {
   it('external browser - authenticate method is thenable', done => {
     const auth = new AuthWeb(connectionConfig, httpclient, webbrowser.open);
 
-    auth.authenticate(credentials.authenticator, '', credentials.account, credentials.username, credentials.host)
+    auth.authenticate(credentials.authenticator, '', credentials.account, credentials.username)
       .then(done)
       .catch(done);
   });
 
   it('external browser - get success', async function () {
     const auth = new AuthWeb(connectionConfig, httpclient, webbrowser.open);
-    await auth.authenticate(credentials.authenticator, '', credentials.account, credentials.username, credentials.host);
+    await auth.authenticate(credentials.authenticator, '', credentials.account, credentials.username);
 
     const body = { data: {} };
     auth.updateBody(body);
@@ -155,14 +155,21 @@ describe('external browser authentication', function () {
     webbrowser = require('webbrowser');
     httpclient = require('httpclient');
 
-    const auth = new AuthWeb(connectionConfig, httpclient, webbrowser.open);
-    await auth.authenticate(credentials.authenticator, '', credentials.account, credentials.username, credentials.host);
+    const fastFailConnectionConfig = {
+      getBrowserActionTimeout: () => 10,
+      getProxy: () => {},
+      getAuthenticator: () => credentials.authenticator,
+      getServiceName: () => '',
+      getDisableConsoleLogin: () => true,
+      host: 'fakehost'
+    };
 
-    const body = { data: {} };
-    auth.updateBody(body);
-
-    assert.strictEqual(typeof body['data']['TOKEN'], 'undefined');
-    assert.strictEqual(typeof body['data']['PROOF_KEY'], 'undefined');
+    const auth = new AuthWeb(fastFailConnectionConfig, httpclient, webbrowser.open);
+    await assert.rejects(async () => {
+      await auth.authenticate(credentials.authenticator, '', credentials.account, credentials.username);
+    }, {
+      message: /Error while getting SAML token:/
+    });
   });
 
   it('external browser - check authenticator', function () {
@@ -481,7 +488,7 @@ describe('okta authentication', function () {
     try {
       await auth.authenticate(connectionOptionsOkta.authenticator, '', connectionOptionsOkta.account, connectionOptionsOkta.username);
     } catch (err) {
-      assert.strictEqual(err.message, 'The prefix of the SSO/token URL and the specified authenticator do not match.');
+      assert.strictEqual(err.message, 'Authenticator, SSO, or token URL is invalid.');
     }
   });
 
@@ -540,5 +547,86 @@ describe('okta authentication', function () {
 
     assert.strictEqual(
       body['data']['AUTHENTICATOR'], undefined, 'No authenticator should be present');
+  });
+
+  describe('validateURLs test for Native Okta SSO - prefix must match', () => {
+    const auth = new AuthOkta(connectionOptionsOkta, httpclient);
+
+    // positive cases
+    [
+      { name: '.okta.com format, ssourl and tokenurl matches', authenticator: 'https://MYCUSTOM.okta.com', ssourl: 'https://mycustom.okta.com/app/snowflake/mytokenmytokenmytoken',
+        tokenurl: 'https://mycustom.okta.com/api/v1/sessions' },
+      { name: 'custom okta format, ssourl and tokenurl matches', authenticator: 'HTTPS://MYAPPS.MYDOMAIN.COM/SNOWFLAKE/OKTA', ssourl: 'https://MYAPPS.MYDOMAIN.COM/app/snowflake/mytokenmytoken/sso/saml',
+        tokenurl: 'https://MYAPPS.MYDOMAIN.COM/api/v1/authn' },
+      { name: '.okta.com format with default https port, ssourl (no port) and tokenurl matches', authenticator: 'https://mycustom.okta.com:443', ssourl: 'https://mycustom.okta.com/app/snowflake/mytokenmytokenmytoken',
+        tokenurl: 'https://mycustom.okta.com/api/v1/sessions' },
+      { name: 'custom okta format with default https port, ssourl and tokenurl matches', authenticator: 'HTTPS://MYAPPS.MYDOMAIN.COM:443/SNOWFLAKE/OKTA', ssourl: 'https://MYAPPS.MYDOMAIN.COM:443/app/snowflake/mytokenmytoken/sso/saml',
+        tokenurl: 'https://MYAPPS.MYDOMAIN.COM/api/v1/authn' },
+      { name: '.okta.com format with custom https port, ssourl and tokenurl matches', authenticator: 'https://mycustom.okta.com:8443', ssourl: 'https://mycustom.okta.com:8443/app/snowflake/mytokenmytokenmytoken',
+        tokenurl: 'https://mycustom.okta.com:8443/api/v1/sessions' },
+      { name: 'custom okta format with custom https port, ssourl and tokenurl matches', authenticator: 'HTTPS://MYAPPS.MYDOMAIN.COM:8443/SNOWFLAKE/OKTA', ssourl: 'https://MYAPPS.MYDOMAIN.COM:8443/app/snowflake/mytokenmytoken/sso/saml',
+        tokenurl: 'https://MYAPPS.MYDOMAIN.COM:8443/api/v1/authn' }
+    ].forEach(({ name, authenticator, ssourl, tokenurl }) => {
+      it(`${name}`, () => {
+        assert.doesNotThrow(() => {
+          return  auth.validateURLs(authenticator, ssourl, tokenurl);
+        });
+      });
+    });
+    // negative cases
+    [
+      { name: '.okta.com format, ssourl doesnt match', authenticator: 'https://MyCUSTOM.okta.com', ssourl: 'https://another.okta.com/app/snowflake/mytokenmytokenmytoken',
+        tokenurl: 'https://mycustom.okta.com/api/v1/sessions',  },
+      { name: 'custom okta format, ssourl doesnt match', authenticator: 'HTTPS://MYAPPS.MYDOMAIN.COM/SNOWFLAKE/OKTA', ssourl: 'https://MYAPPS.MYDOMAIN.NET/app/snowflake/mytokenmytoken/sso/saml',
+        tokenurl: 'https://MYAPPS.MYDOMAIN.COM/api/v1/authn' },
+      { name: '.okta.com format, protocol doesnt match', authenticator: 'https://mycustom.okta.com', ssourl: 'http://mycustom.okta.com/app/snowflake/mytokenmytokenmytoken',
+        tokenurl: 'http://mycustom.okta.com/api/v1/sessions' },
+      { name: 'custom okta format, port doesnt match', authenticator: 'HTTP://MYAPPS.MYDOMAIN.COM/SNOWFLAKE/OKTA', ssourl: 'https://MYAPPS.MYDOMAIN.COM/app/snowflake/mytokenmytoken/sso/saml',
+        tokenurl: 'http://MYAPPS.MYDOMAIN.COM/api/v1/authn' },
+      { name: '.okta.com format, ssourl and tokenurl match, port doesnt match', authenticator: 'https://mycustom.okta.com', ssourl: 'https://mycustom.okta.com:8443/app/snowflake/mytokenmytokenmytoken',
+        tokenurl: 'https://mycustom.okta.com:8443/api/v1/sessions' },
+      { name: 'custom okta format, ssourl and tokenurl match, port doesnt match', authenticator: 'HTTPS://MYAPPS.MYDOMAIN.COM/SNOWFLAKE/OKTA', ssourl: 'https://MYAPPS.MYDOMAIN.COM:8443/app/snowflake/mytokenmytoken/sso/saml',
+        tokenurl: 'https://MYAPPS.MYDOMAIN.COM:8443/api/v1/authn' },
+      { name: '.okta.com format, authenticator port substring of ssourl port', authenticator: 'https://mycustom.okta.com:3030', ssourl: 'https://mycustom.okta.com:30303/app/snowflake/mytokenmytokenmytoken',
+        tokenurl: 'https://mycustom.okta.com/api/v1/sessions' },
+      { name: 'custom okta format, ssourl/tokenurl port substring of authenticator port', authenticator: 'https://myaPPS.MYDOMAIN.COM:8443/SNOWFLAKE/OKTA', ssourl: 'https://MYAPPS.MYDOMAIN.COM:443/app/snowflake/mytokenmytoken/sso/saml',
+        tokenurl: 'https://MYAPPS.MYDOMAIN.COM:443/api/v1/authn' }
+    ].forEach(({ name, authenticator, ssourl, tokenurl }) => {
+      it(`${name}`, () => {
+        assert.throws(() => {
+          return  auth.validateURLs(authenticator, ssourl, tokenurl);
+        }, { message: 'The prefix of the SSO/token URL and the specified authenticator do not match.' });
+      });
+    });
+  });
+
+  describe('test getAuthenticator()', () => {
+    [
+      { name: 'default', providedAuth: authenticationTypes.DEFAULT_AUTHENTICATOR, expectedAuth: 'AuthDefault' },
+      { name: 'external browser', providedAuth: authenticationTypes.EXTERNAL_BROWSER_AUTHENTICATOR, expectedAuth: 'AuthWeb' },
+      { name: 'key pair', providedAuth: authenticationTypes.KEY_PAIR_AUTHENTICATOR, expectedAuth: 'AuthKeypair' },
+      { name: 'oauth', providedAuth: authenticationTypes.OAUTH_AUTHENTICATOR, expectedAuth: 'AuthOauth' },
+      { name: 'okta', providedAuth: 'https://mycustom.okta.com:8443', expectedAuth: 'AuthOkta' },
+      { name: 'unknown', providedAuth: 'unknown', expectedAuth: 'AuthDefault' }
+    ].forEach(({ name, providedAuth, expectedAuth }) => {
+      it(`${name}`, () => {
+        const connectionConfig = {
+          getBrowserActionTimeout: () => 100,
+          getProxy: () => {},
+          getAuthenticator: () => providedAuth,
+          getServiceName: () => '',
+          getDisableConsoleLogin: () => true,
+          getPrivateKey: () => '',
+          getPrivateKeyPath: () => '',
+          getPrivateKeyPass: () => '',
+          getToken: () => '',
+          getClientType: () => '',
+          getClientVersion: () => '',
+          host: 'host',
+        };
+
+        assert.strictEqual(authenticator.getAuthenticator(connectionConfig, { }).constructor.name, expectedAuth);
+      });
+    });
   });
 });

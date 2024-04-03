@@ -111,8 +111,9 @@ export interface ConnectionOptions {
     role?: string;
 
     /**
-     * Specifies how to return results that contain duplicate column names.
-     */
+   * Returns the rowMode string value ('array', 'object' or 'object_with_renamed_duplicated_columns'). Could be null or undefined.
+   *
+   */
     rowMode?: RowMode;
 
     /**

@@ -4,6 +4,8 @@ const assert = require('assert');
 const connOption = require('./connectionOptions');
 const testUtil = require('./testUtil');
 const Logger = require('../../lib/logger');
+const GlobalConfig = require('../../lib/global_config');
+const Util = require('../../lib/util');
 
 if (process.env.RUN_MANUAL_TESTS_ONLY === 'true') {
   describe.only('Run manual tests', function () {
@@ -68,6 +70,40 @@ if (process.env.RUN_MANUAL_TESTS_ONLY === 'true') {
           } catch (err) {
             done(err);
           }
+        });
+      });
+
+      describe('Connection - ID Token authenticator', async function (done) {
+        const key = Util.buildCredentialCacheKey(connectionOption.host, connectionOption.username, 'ID_TOKEN');
+        GlobalConfig.getCredentialManager().remove(key);
+        
+        const connectionOption = connOption.externalBrowser;
+
+        it('test - obtain the id token from the server and save it on the local storage', async function () {
+          const connection = snowflake.createConnection(connectionOption);
+          await connection.connectAsync(function (err) {
+            assert.ok(!err);
+            const idToken = GlobalConfig.getCredentialManager().read(key);
+            assert.ok( idToken !== null);
+          });
+          await testUtil.destroyConnectionAsync(connection);
+        });
+        
+        it('test - id token reauthentication', async function () {
+          const idTokenConnection = snowflake.createConnection(connectionOption);
+          idTokenConnection.connectAsync(function (err) {
+            assert.ok(!err);
+          });
+          await testUtil.destroyConnectionAsync(idTokenConnection);
+        });
+
+        it('test - id token authentication', async function () {
+          await GlobalConfig.getCredentialManager().write(key, '1234');
+          const wrongTokenConnection = testUtil.connectAsync(connOption);
+          await wrongTokenConnection.connectAsync(function (err) {
+            assert.ok(!err);
+            done();
+          });
         });
       });
     });

@@ -104,6 +104,15 @@ const connectionOptionsExternalBrowser =
   authenticator: 'EXTERNALBROWSER'
 };
 
+const connectionOptionsidToken =
+{
+  accessUrl: 'http://fakeaccount.snowflakecomputing.com',
+  username: 'fakeusername',
+  account: 'fakeaccount',
+  idToken: 'fakeIdToken',
+  authenticator: 'EXTERNALBROWSER'
+};
+
 const connectionOptionsKeyPair =
 {
   accessUrl: 'http://fakeaccount.snowflakecomputing.com',
@@ -165,4 +174,5 @@ exports.connectionOptions =
     authKeyPairPath: connectionOptionsKeyPairPath,
     authOauth: connectionOptionsOauth,
     authOkta: connectionOptionsOkta,
+    authIdToken: connectionOptionsidToken,
   };

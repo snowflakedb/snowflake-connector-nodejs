@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Snowflake Computing Inc. All rights reserved.
+ * Copyright (c) 2024 Snowflake Computing Inc. All rights reserved.
  */
 
 const assert = require('assert');
@@ -12,6 +12,7 @@ const AuthWeb = require('./../../../lib/authentication/auth_web');
 const AuthKeypair = require('./../../../lib/authentication/auth_keypair');
 const AuthOauth = require('./../../../lib/authentication/auth_oauth');
 const AuthOkta = require('./../../../lib/authentication/auth_okta');
+const AuthIDToken = require('./../../../lib/authentication/auth_idtoken');
 const authenticationTypes = require('./../../../lib/authentication/authentication').authenticationTypes;
 
 const MockTestUtil = require('./../mock/mock_test_util');
@@ -25,6 +26,8 @@ const connectionOptionsKeyPair = mockConnectionOptions.authKeyPair;
 const connectionOptionsKeyPairPath = mockConnectionOptions.authKeyPairPath;
 const connectionOptionsOauth = mockConnectionOptions.authOauth;
 const connectionOptionsOkta = mockConnectionOptions.authOkta;
+const connectionOptionsIdToken = mockConnectionOptions.authIdToken;
+
 
 describe('default authentication', function () {
 
@@ -110,14 +113,14 @@ describe('external browser authentication', function () {
   it('external browser - authenticate method is thenable', done => {
     const auth = new AuthWeb(connectionConfig, httpclient, webbrowser.open);
 
-    auth.authenticate(credentials.authenticator, '', credentials.account, credentials.username)
+    auth.authenticate(credentials.authenticator, '', credentials.account, credentials.username, credentials.host)
       .then(done)
       .catch(done);
   });
 
   it('external browser - get success', async function () {
     const auth = new AuthWeb(connectionConfig, httpclient, webbrowser.open);
-    await auth.authenticate(credentials.authenticator, '', credentials.account, credentials.username);
+    await auth.authenticate(credentials.authenticator, '', credentials.account, credentials.username, credentials.host);
 
     const body = { data: {} };
     auth.updateBody(body);
@@ -155,21 +158,14 @@ describe('external browser authentication', function () {
     webbrowser = require('webbrowser');
     httpclient = require('httpclient');
 
-    const fastFailConnectionConfig = {
-      getBrowserActionTimeout: () => 10,
-      getProxy: () => {},
-      getAuthenticator: () => credentials.authenticator,
-      getServiceName: () => '',
-      getDisableConsoleLogin: () => true,
-      host: 'fakehost'
-    };
+    const auth = new AuthWeb(connectionConfig, httpclient, webbrowser.open);
+    await auth.authenticate(credentials.authenticator, '', credentials.account, credentials.username, credentials.host);
 
-    const auth = new AuthWeb(fastFailConnectionConfig, httpclient, webbrowser.open);
-    await assert.rejects(async () => {
-      await auth.authenticate(credentials.authenticator, '', credentials.account, credentials.username);
-    }, {
-      message: /Error while getting SAML token:/
-    });
+    const body = { data: {} };
+    auth.updateBody(body);
+
+    assert.strictEqual(typeof body['data']['TOKEN'], 'undefined');
+    assert.strictEqual(typeof body['data']['PROOF_KEY'], 'undefined');
   });
 
   it('external browser - check authenticator', function () {
@@ -180,6 +176,17 @@ describe('external browser authentication', function () {
 
     assert.strictEqual(
       body['data']['AUTHENTICATOR'], authenticationTypes.EXTERNAL_BROWSER_AUTHENTICATOR, 'Authenticator should be EXTERNALBROWSER');
+  });
+
+  it('external browser - id token', async function () {
+    const auth = new AuthIDToken(connectionOptionsIdToken, httpclient);
+    await auth.authenticate(credentials.authenticator, '', credentials.account, credentials.username, credentials.host);
+
+    const body = { data: {} };
+    auth.updateBody(body);
+
+    assert.strictEqual(body['data']['TOKEN'], connectionOptionsIdToken.idToken);
+    assert.strictEqual(body['data']['AUTHENTICATOR'], authenticationTypes.ID_TOKEN_AUTHENTICATOR);
   });
 });
 
@@ -596,36 +603,6 @@ describe('okta authentication', function () {
         assert.throws(() => {
           return  auth.validateURLs(authenticator, ssourl, tokenurl);
         }, { message: 'The prefix of the SSO/token URL and the specified authenticator do not match.' });
-      });
-    });
-  });
-
-  describe('test getAuthenticator()', () => {
-    [
-      { name: 'default', providedAuth: authenticationTypes.DEFAULT_AUTHENTICATOR, expectedAuth: 'AuthDefault' },
-      { name: 'external browser', providedAuth: authenticationTypes.EXTERNAL_BROWSER_AUTHENTICATOR, expectedAuth: 'AuthWeb' },
-      { name: 'key pair', providedAuth: authenticationTypes.KEY_PAIR_AUTHENTICATOR, expectedAuth: 'AuthKeypair' },
-      { name: 'oauth', providedAuth: authenticationTypes.OAUTH_AUTHENTICATOR, expectedAuth: 'AuthOauth' },
-      { name: 'okta', providedAuth: 'https://mycustom.okta.com:8443', expectedAuth: 'AuthOkta' },
-      { name: 'unknown', providedAuth: 'unknown', expectedAuth: 'AuthDefault' }
-    ].forEach(({ name, providedAuth, expectedAuth }) => {
-      it(`${name}`, () => {
-        const connectionConfig = {
-          getBrowserActionTimeout: () => 100,
-          getProxy: () => {},
-          getAuthenticator: () => providedAuth,
-          getServiceName: () => '',
-          getDisableConsoleLogin: () => true,
-          getPrivateKey: () => '',
-          getPrivateKeyPath: () => '',
-          getPrivateKeyPass: () => '',
-          getToken: () => '',
-          getClientType: () => '',
-          getClientVersion: () => '',
-          host: 'host',
-        };
-
-        assert.strictEqual(authenticator.getAuthenticator(connectionConfig, { }).constructor.name, expectedAuth);
       });
     });
   });

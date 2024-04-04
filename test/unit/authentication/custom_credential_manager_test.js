@@ -6,25 +6,45 @@ const assert = require('assert');
 const Util = require('../../../lib/util');
 const { randomUUID } = require('crypto');
 const GlobalConfig = require('../../../lib/global_config');
+const JsonCredentialManager = require('../../../lib/authentication/secure_storage/json_credential_manager');
 const host = 'mock_host';
 const user = 'mock_user';
 const credType = 'mock_cred';
 const key = Util.buildCredentialCacheKey(host, user, credType);
 const randomPassword = randomUUID();
+const defaultCredentialManager = new JsonCredentialManager();
+const mockCustomCrednetialManager = {
+  read: function () {
+    return 'mock_token';
+  },
+  write: function () {
+    return 'token_saved';
+  },
+  remove: function () {
+    return null;
+  }
+};
+
+describe('test - getter and setter for customCrendentialManager', () => {
+
+  after(() => {
+    GlobalConfig.setCustomCredentialManager(defaultCredentialManager);
+  });
+
+  it('test setCustomCredentialManager', () => {
+    GlobalConfig.setCustomCredentialManager(mockCustomCrednetialManager);
+    assert.strictEqual(GlobalConfig.getCredentialManager(), mockCustomCrednetialManager);
+  });
+});
 
 describe('test - synchronous customCredentialManager', function () {
+  
   before(() => {
-    GlobalConfig.setCustomCredentialManager({
-      read: function () {
-        return 'mock_token';
-      },
-      write: function () {
-        return 'token_saved';
-      },
-      remove: function () {
-        return null;
-      }
-    });
+    GlobalConfig.setCustomCredentialManager(mockCustomCrednetialManager);
+  });
+
+  after(() => {
+    GlobalConfig.setCustomCredentialManager(defaultCredentialManager);
   });
 
   it('test - custom credential manager read function', function () {
@@ -57,6 +77,10 @@ describe('test - asynchronous customCredentialManager', function () {
         return null;
       }
     });
+  });
+
+  after(() => {
+    GlobalConfig.setCustomCredentialManager(defaultCredentialManager);
   });
         
   it('test - custom credential manager read function', async function () {

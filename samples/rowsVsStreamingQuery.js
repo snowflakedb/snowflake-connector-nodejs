@@ -1,4 +1,3 @@
-/* eslint-disable no-console */
 const snowflake = require('snowflake-sdk');
 const { connectUsingEnv, destroyAsync } = require('./helpers');
 
@@ -52,4 +51,4 @@ async function main() {
   await runQueryReadingResultsFromStream(query);
 }
 
-main();
+main().catch((err) => console.error(err));

@@ -11,7 +11,7 @@ module.exports = {
     {
       'files': ['samples/*.js'],
       'rules': {
-        'no-console': ['warn'],
+        'no-console': ['off'],
       }
     }
   ],

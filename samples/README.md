@@ -1,5 +1,5 @@
 ********************************************************************************
-NodeJS Driver - Samples
+Node.js Driver - Samples
 ********************************************************************************
 
 Install
@@ -41,7 +41,7 @@ npm run jsonParserComparison
 Test can be started with parameters:
  - number of rows in table, default=300000
  - number of selected rows, default=300000
- - only for choosen parser if got as last parameter: Function, vm, better-eval, JSON, default all
+ - only for chosen parser if got as last parameter: Function, vm, better-eval, JSON, default all
 
 Example:
 ```

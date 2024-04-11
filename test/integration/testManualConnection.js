@@ -12,7 +12,7 @@ const GlobalConfig = require('../../lib/global_config');
 const Util = require('../../lib/util');
 
 if (process.env.RUN_MANUAL_TESTS_ONLY === 'true') {
-  describe.only('Run manual tests', function () {
+  describe('Run manual tests', function () {
     describe('Connection test - external browser', function () {
       it('Simple Connect', function (done) {
         const connection = snowflake.createConnection(
@@ -76,38 +76,39 @@ if (process.env.RUN_MANUAL_TESTS_ONLY === 'true') {
           }
         });
       });
+    });
 
-      describe('Connection - ID Token authenticator', async function (done) {
-        const key = Util.buildCredentialCacheKey(connectionOption.host, connectionOption.username, 'ID_TOKEN');
-        GlobalConfig.getCredentialManager().remove(key);
-        
-        const connectionOption = connOption.externalBrowser;
+    describe('Connection - ID Token authenticator', async function (done) {
+      const connectionOption = connOption.externalBrowser;
+      connectionOption.clientStoreTemporaryCredential = true;
+      const key = Util.buildCredentialCacheKey(connectionOption.host, connectionOption.username, 'ID_TOKEN');
+      await GlobalConfig.getCredentialManager().remove(key);
 
-        it('test - obtain the id token from the server and save it on the local storage', async function () {
-          const connection = snowflake.createConnection(connectionOption);
-          await connection.connectAsync(function (err) {
-            assert.ok(!err);
-            const idToken = GlobalConfig.getCredentialManager().read(key);
-            assert.ok( idToken !== null);
-          });
-          await testUtil.destroyConnectionAsync(connection);
+      it('test - obtain the id token from the server and save it on the local storage', async function () {
+        const connection = snowflake.createConnection(connectionOption);
+        await connection.connectAsync(function (err) {
+          assert.ok(!err);
         });
-        
-        it('test - id token reauthentication', async function () {
-          const idTokenConnection = snowflake.createConnection(connectionOption);
-          idTokenConnection.connectAsync(function (err) {
-            assert.ok(!err);
-          });
-          await testUtil.destroyConnectionAsync(idTokenConnection);
-        });
+        const idToken = await GlobalConfig.getCredentialManager().read(key);
+        assert.ok( idToken !== null);
+      });
 
-        it('test - id token authentication', async function () {
-          await GlobalConfig.getCredentialManager().write(key, '1234');
-          const wrongTokenConnection = testUtil.connectAsync(connOption);
-          await wrongTokenConnection.connectAsync(function (err) {
-            assert.ok(!err);
-            done();
-          });
+      //Web Browser should not be open.
+      it('test - id token authentication', async function () {
+        const idTokenConnection = snowflake.createConnection(connectionOption);
+        await idTokenConnection.connectAsync(function (err) {
+          assert.ok(!err);
+        });
+        await testUtil.destroyConnectionAsync(idTokenConnection);
+      });
+
+      //Web Browser should be open.
+      it('test - id token reauthentication', async function () {
+        await GlobalConfig.getCredentialManager().write(key, '1234');
+        const wrongTokenConnection = testUtil.connectAsync(connOption);
+        await wrongTokenConnection.connectAsync(function (err) {
+          assert.ok(!err);
+          done();
         });
       });
     });
@@ -301,7 +302,7 @@ if (process.env.RUN_MANUAL_TESTS_ONLY === 'true') {
     });
   });
 
-  describe.only('keepAlive test', function () {
+  describe('keepAlive test', function () {
     let connection;
     const loopCount = 10;
     const rowCount = 10;

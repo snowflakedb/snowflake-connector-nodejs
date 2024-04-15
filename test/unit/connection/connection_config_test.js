@@ -699,7 +699,8 @@ describe('ConnectionConfig: basic', function () {
           clientRequestMFAToken: 'invalid'
         },
         errorCode: ErrorCodes.ERR_CONN_CREATE_INVALID_CLIENT_REQUEST_MFA_TOKEN,
-
+      },
+      {
         name: 'invalid disableConsoleLogin',
         options: {
           account: 'account',

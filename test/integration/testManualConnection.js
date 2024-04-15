@@ -4,6 +4,8 @@ const assert = require('assert');
 const connOption = require('./connectionOptions');
 const testUtil = require('./testUtil');
 const Logger = require('../../lib/logger');
+const Util = require('../../lib/util');
+const GlobalConfig = require('../../lib/global_config');
 
 if (process.env.RUN_MANUAL_TESTS_ONLY === 'true') {
   describe.only('Run manual tests', function () {
@@ -262,27 +264,27 @@ if (process.env.RUN_MANUAL_TESTS_ONLY === 'true') {
   });
 
   describe('Connection - MFA authenticator', async function (done) {
-        
-    it('test - obtain id token from the server and save it on the local storage', async function () {
-      const key = Util.buildCredentialCacheKey(connectionOption.host, connectionOption.username, 'USERNAME_PASSWORD_MFA');
+    const connectionOption = connOption.valid;
+    connectionOption.clientRequestMFAToken = true;
+    const connection = snowflake.createConnection(connectionOption);
+    const key = Util.buildCredentialCacheKey(connectionOption.host, connectionOption.username, 'USERNAME_PASSWORD_MFA');
+
+    it('test - obtain MFA token from the server and save it on the local storage', async function () {
       GlobalConfig.getCredentialManager().remove(key);
-  
-      const connectionOption = connOption.valid
-      const connection = snowflake.createConnection(connectionOption);
       await connection.connectAsync(function (err) {
         assert.ok(!err);
-        const idToken = GlobalConfig.getCredentialManager().read(key);
-        assert.ok( idToken !== null);
+        const mfaToken = GlobalConfig.getCredentialManager().read(key);
+        assert.ok( mfaToken !== null);
       });
       await testUtil.destroyConnectionAsync(connection);
-    })
+    });
     
     it('test - mfa token connection', async function () {
-      const idTokenConnection = snowflake.createConnection(connectionOption);
-      idTokenConnection.connectAsync(function (err) {
+      const mfaTokenConnection = snowflake.createConnection(connectionOption);
+      mfaTokenConnection.connectAsync(function (err) {
         assert.ok(!err);
       });
-      await testUtil.destroyConnectionAsync(idTokenConnection);
+      await testUtil.destroyConnectionAsync(mfaTokenConnection);
     });
 
     it('test - mfa reauthentication', async function () {
@@ -292,7 +294,7 @@ if (process.env.RUN_MANUAL_TESTS_ONLY === 'true') {
         assert.ok(!err);
         done();
       });
-    }) 
+    }); 
   });
 
   describe.only('keepAlive test', function () {

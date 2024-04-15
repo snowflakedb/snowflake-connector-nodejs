@@ -631,10 +631,10 @@ describe('okta authentication', function () {
   });
 });
 
-describe('MFA authentication', async function (done) {
-  const mfaTokenOption = {...connectionOptionsDefault, authenticator: authenticationTypes.MFA_TOKEN_AUTHENTICATOR}
+describe('MFA authentication', async function () {
+  const mfaTokenOption = { ...connectionOptionsDefault, authenticator: authenticationTypes.MFA_TOKEN_AUTHENTICATOR };
 
-  it("test - no mfa token is saved on the secure storage", function () {
+  it('test - no mfa token is saved on the secure storage', function () {
     const auth = new AuthMFAToken(mfaTokenOption);
     const body = authenticator.formAuthJSON(mfaTokenOption.authenticator,
       mfaTokenOption.account,
@@ -648,7 +648,7 @@ describe('MFA authentication', async function (done) {
     assert.strictEqual(body['data']['TOKEN'], undefined);
   });
 
-  it("test - mfa token is saved on the secure storage", function () {
+  it('test - mfa token is saved on the secure storage', function () {
     mfaTokenOption.mfaToken =  'mock_token';
     const auth = new AuthMFAToken(mfaTokenOption);
     const body = authenticator.formAuthJSON(mfaTokenOption.authenticator,
@@ -663,4 +663,4 @@ describe('MFA authentication', async function (done) {
     assert.strictEqual(body['data']['TOKEN'], mfaTokenOption.mfaToken);
   });
 
-})
+});

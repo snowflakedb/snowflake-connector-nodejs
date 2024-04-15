@@ -2,16 +2,16 @@
  * Copyright (c) 2015 Snowflake Computing Inc. All rights reserved.
  */
 
-var ConnectionConfig = require('./../../../lib/connection/connection_config');
-var ErrorCodes = require('./../../../lib/errors').codes;
-var assert = require('assert');
+const ConnectionConfig = require('./../../../lib/connection/connection_config');
+const ErrorCodes = require('./../../../lib/errors').codes;
+const assert = require('assert');
 
 describe('ConnectionConfig: basic', function () {
   ///////////////////////////////////////////////////////////////////////////
   //// Test synchronous errors                                           ////
   ///////////////////////////////////////////////////////////////////////////
 
-  var negativeTestCases =
+  const negativeTestCases =
     [
       {
         name: 'missing options',
@@ -699,12 +699,31 @@ describe('ConnectionConfig: basic', function () {
           clientRequestMFAToken: 'invalid'
         },
         errorCode: ErrorCodes.ERR_CONN_CREATE_INVALID_CLIENT_REQUEST_MFA_TOKEN,
+
+        name: 'invalid disableConsoleLogin',
+        options: {
+          account: 'account',
+          username: 'username',
+          password: 'password',
+          disableConsoleLogin: 'invalud'
+        },
+        errorCode: ErrorCodes.ERR_CONN_CREATE_INVALID_DISABLE_CONSOLE_LOGIN
+      },
+      {
+        name: 'invalid disableGCPTokenUpload',
+        options: {
+          account: 'account',
+          username: 'username',
+          password: 'password',
+          forceGCPUseDownscopedCredential: 'invalud'
+        },
+        errorCode: ErrorCodes.ERR_CONN_CREATE_INVALID_FORCE_GCP_USE_DOWNSCOPED_CREDENTIAL
       },
     ];
 
-  var createNegativeITCallback = function (testCase) {
+  const createNegativeITCallback = function (testCase) {
     return function () {
-      var error;
+      let error;
 
       try {
         new ConnectionConfig(testCase.options);
@@ -717,7 +736,7 @@ describe('ConnectionConfig: basic', function () {
     };
   };
 
-  var index, length, testCase;
+  let index, length, testCase;
   for (index = 0, length = negativeTestCases.length; index < length; index++) {
     testCase = negativeTestCases[index];
     it(testCase.name, createNegativeITCallback(testCase));
@@ -727,7 +746,7 @@ describe('ConnectionConfig: basic', function () {
   //// Test valid arguments                                              ////
   ///////////////////////////////////////////////////////////////////////////
 
-  var testCases =
+  const testCases =
     [
       {
         name: 'basic',
@@ -1114,6 +1133,75 @@ describe('ConnectionConfig: basic', function () {
           }
       },
       {
+        name: 'only one letter account',
+        input:
+          {
+            account: 'a',
+            username: 'username',
+            password: 'password',
+            retryTimeout: 1234,
+          },
+        options:
+          {
+            accessUrl: 'https://a.snowflakecomputing.com',
+            username: 'username',
+            password: 'password',
+            account: 'a',
+          }
+      },
+      {
+        name: 'only one letter account and subdomain',
+        input:
+          {
+            account: 'a.b',
+            username: 'username',
+            password: 'password',
+            retryTimeout: 1234,
+          },
+        options:
+          {
+            accessUrl: 'https://a.b.snowflakecomputing.com',
+            username: 'username',
+            password: 'password',
+            account: 'a',
+            region: 'b'
+          }
+      },
+      {
+        name: 'account with [-] in the middle',
+        input:
+          {
+            account: 'a-b',
+            username: 'username',
+            password: 'password',
+            retryTimeout: 1234,
+          },
+        options:
+          {
+            accessUrl: 'https://a-b.snowflakecomputing.com',
+            username: 'username',
+            password: 'password',
+            account: 'a-b',
+          }
+      },
+      {
+        name: 'account with [_] in the middle',
+        input:
+          {
+            account: 'a_b',
+            username: 'username',
+            password: 'password',
+            retryTimeout: 1234,
+          },
+        options:
+          {
+            accessUrl: 'https://a_b.snowflakecomputing.com',
+            username: 'username',
+            password: 'password',
+            account: 'a_b',
+          }
+      },
+      {
         name: 'account with subdomain',
         input:
           {
@@ -1135,18 +1223,18 @@ describe('ConnectionConfig: basic', function () {
         name: 'account with subdomain with _ and -',
         input:
           {
-            account: 'acc_ount.sub-domain',
+            account: 'acc_ount.sub-domain.aws',
             username: 'username',
             password: 'password',
             retryTimeout: 1234,
           },
         options:
           {
-            accessUrl: 'https://acc_ount.sub-domain.snowflakecomputing.com',
+            accessUrl: 'https://acc_ount.sub-domain.aws.snowflakecomputing.com',
             username: 'username',
             password: 'password',
             account: 'acc_ount',
-            region: 'sub-domain',
+            region: 'sub-domain.aws',
           }
       },
       {
@@ -1206,14 +1294,51 @@ describe('ConnectionConfig: basic', function () {
             region: 'region.region2.region3',
           }
       },
+      {
+        name: 'host',
+        input:
+          {
+            account: 'account',
+            username: 'username',
+            password: 'password',
+            retryTimeout: 1234,
+            host: 'host.sub-domain.snowflakecomputing.com'
+          },
+        options:
+          {
+            accessUrl: 'https://host.sub-domain.snowflakecomputing.com',
+            username: 'username',
+            password: 'password',
+            account: 'account'
+          }
+      },
+      {
+        name: 'accessUrl and host',
+        input:
+          {
+            account: 'account',
+            username: 'username',
+            password: 'password',
+            retryTimeout: 1234,
+            host: 'host.snowflakecomputing.com',
+            accessUrl: 'https://access-url.snowflakecomputing.com'
+          },
+        options:
+          {
+            accessUrl: 'https://access-url.snowflakecomputing.com',
+            username: 'username',
+            password: 'password',
+            account: 'account'
+          }
+      },
     ];
 
-  var createItCallback = function (testCase) {
+  const createItCallback = function (testCase) {
     return function () {
-      var result_options = new ConnectionConfig(testCase.input);
+      const resultOptions = new ConnectionConfig(testCase.input);
       Object.keys(testCase.options).forEach(function (key) {
-        var ref = testCase.options[key];
-        var val = result_options[key];
+        const ref = testCase.options[key];
+        const val = resultOptions[key];
         assert.strictEqual(val, ref);
       });
     };
@@ -1225,11 +1350,11 @@ describe('ConnectionConfig: basic', function () {
   }
 
   it('custom prefetch', function () {
-    var username = 'username';
-    var password = 'password';
-    var account = 'account';
+    const username = 'username';
+    const password = 'password';
+    const account = 'account';
 
-    var connectionConfig = new ConnectionConfig(
+    let connectionConfig = new ConnectionConfig(
       {
         username: username,
         password: password,
@@ -1237,10 +1362,10 @@ describe('ConnectionConfig: basic', function () {
       });
 
     // get the default value of the resultPrefetch parameter
-    var resultPrefetchDefault = connectionConfig.getResultPrefetch();
+    const resultPrefetchDefault = connectionConfig.getResultPrefetch();
 
     // create a ConnectionConfig object with a custom value for resultPrefetch
-    var resultPrefetchCustom = resultPrefetchDefault + 1;
+    const resultPrefetchCustom = resultPrefetchDefault + 1;
     connectionConfig = new ConnectionConfig(
       {
         username: username,

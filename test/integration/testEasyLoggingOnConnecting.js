@@ -9,23 +9,20 @@ const path = require('path');
 const os = require('os');
 const fsPromises = require('fs/promises');
 const assert = require('assert');
-const logLevelBefore = Logger.getInstance().getLevel();
 const { codes } = require('./../../lib/errors');
 const errorMessages = require('./../../lib/constants/error_messages');
+const { configureLogger } = require('../configureLogger');
 let tempDir = null;
 
-describe.skip('Easy logging tests', function () {
+describe('Easy logging tests', function () {
 
   before(async function () {
     tempDir = await fsPromises.mkdtemp(path.join(os.tmpdir(), 'easy_logging_connect_tests_'));
   });
 
   after(async function () {
-    Logger.getInstance().configure({
-      level: logLevelBefore,
-      filePath: 'snowflake.log'
-    });
-    await fsPromises.rm(tempDir, { recursive: true, force: true });
+    configureLogger();
+    await fsPromises.rm(tempDir, { recursive: true, force: true, maxRetries: 3 });
   });
 
   afterEach(function () {
@@ -33,7 +30,7 @@ describe.skip('Easy logging tests', function () {
   });
 
   it('Should apply easy logging config when connection is being opened with callback', function (done) {
-    const logLevel = 'ERROR';
+    const logLevel = 'INFO';
     createConfigFile(logLevel).then((configFilePath) => {
       const configParameters = createConfigParameters(configFilePath);
       const connection = snowflake.createConnection(configParameters);
@@ -41,7 +38,9 @@ describe.skip('Easy logging tests', function () {
         if (err) {
           done(err);
         } else {
+          Logger.getInstance().info('Logging something');
           assert.strictEqual(Logger.getInstance().getLevelTag(), logLevel);
+          assert.strictEqual(Logger.getInstance().getTransportLabels().toString(), ['File'].toString());
           done();
         }
       });
@@ -91,14 +90,14 @@ describe.skip('Easy logging tests', function () {
     const connection = snowflake.createConnection(configParameters);
 
     // expect
-    await connection.connectAsync(err => {
-      if (err) {
+    await assert.rejects(
+      async () => await connection.connectAsync(),
+      (err) => {
         assert.strictEqual(err.message, errorMessages[codes.ERR_CONN_CONNECT_INVALID_CLIENT_CONFIG]);
         assert.strictEqual(err.code, codes.ERR_CONN_CONNECT_INVALID_CLIENT_CONFIG);
-      } else {
-        assert.fail('Error should be thrown');
+        return true;
       }
-    });
+    );
   });
 
   function createConfigParameters(clientConfigFile) {

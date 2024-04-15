@@ -5,7 +5,7 @@ const connOption = require('./connectionOptions');
 const testUtil = require('./testUtil');
 const Logger = require('../../lib/logger');
 
-if (process.env.RUN_MANUAL_TESTS_ONLY == 'true') {
+if (process.env.RUN_MANUAL_TESTS_ONLY === 'true') {
   describe.only('Run manual tests', function () {
     describe('Connection test - external browser', function () {
       it('Simple Connect', function (done) {
@@ -16,7 +16,7 @@ if (process.env.RUN_MANUAL_TESTS_ONLY == 'true') {
         connection.connectAsync(function (err, connection) {
           try {
             assert.ok(connection.isUp(), 'not active');
-            testUtil.destroyConnection(connection, function (err, r) {
+            testUtil.destroyConnection(connection, function () {
               try {
                 assert.ok(!connection.isUp(), 'not active');
                 done();
@@ -316,7 +316,7 @@ if (process.env.RUN_MANUAL_TESTS_ONLY == 'true') {
     });
 
     function executeSingleQuery() {
-      return new Promise((resolve, reject) => {
+      return new Promise((resolve) => {
         const start = Date.now();
         connection.execute({
           sqlText: `SELECT VALUE
@@ -330,10 +330,10 @@ if (process.env.RUN_MANUAL_TESTS_ONLY == 'true') {
                 .on('error', function (err) {
                   throw err;
                 })
-                .on('data', function (row) {
+                .on('data', function () {
                   return;
                 })
-                .on('end', function (row) {
+                .on('end', function () {
                   const end = Date.now();
                   const time = end - start;
                   resolve(time);

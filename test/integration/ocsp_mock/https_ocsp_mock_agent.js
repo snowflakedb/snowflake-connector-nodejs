@@ -13,7 +13,7 @@ const ErrorCodes = Errors.codes;
  * @constructor
  */
 function HttpsMockAgentOcspRevoked(options) {
-  var agent = HttpsAgent.apply(this, arguments);
+  const agent = HttpsAgent.apply(this, [options]);
   agent.createConnection = function (options) {
     const socket = HttpsAgent.prototype.createConnection.apply(this, arguments);
     return SocketUtil.secureSocket(socket, options.host, null, {
@@ -31,7 +31,7 @@ function HttpsMockAgentOcspRevoked(options) {
  * @constructor
  */
 function HttpsMockAgentOcspUnkwown(options) {
-  var agent = HttpsAgent.apply(this, arguments);
+  const agent = HttpsAgent.apply(this, [options]);
   agent.createConnection = function (options) {
     const socket = HttpsAgent.prototype.createConnection.apply(this, arguments);
     return SocketUtil.secureSocket(socket, options.host, null, {
@@ -49,7 +49,7 @@ function HttpsMockAgentOcspUnkwown(options) {
  * @constructor
  */
 function HttpsMockAgentOcspInvalid(options) {
-  var agent = HttpsAgent.apply(this, arguments);
+  const agent = HttpsAgent.apply(this, [options]);
   agent.createConnection = function (options) {
     const socket = HttpsAgent.prototype.createConnection.apply(this, arguments);
     return SocketUtil.secureSocket(socket, options.host, null, {

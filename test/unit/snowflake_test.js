@@ -2,32 +2,32 @@
  * Copyright (c) 2015 Snowflake Computing Inc. All rights reserved.
  */
 
-var Util = require('./../../lib/util');
-var ErrorCodes = require('./../../lib/errors').codes;
-var MockTestUtil = require('./mock/mock_test_util');
+const Util = require('./../../lib/util');
+const ErrorCodes = require('./../../lib/errors').codes;
+const MockTestUtil = require('./mock/mock_test_util');
 const QueryStatus = require('./../../lib/constants/query_status').code;
-var assert = require('assert');
-var async = require('async');
+const assert = require('assert');
+const async = require('async');
 const { connectAsync, destroyConnectionAsync } = require('../integration/testUtil');
 
 // get a mock snowflake instance
-var snowflake = MockTestUtil.snowflake;
+const snowflake = MockTestUtil.snowflake;
 
 // get connection options to connect to this mock snowflake instance
-var mockConnectionOptions = MockTestUtil.connectionOptions;
-var connectionOptions = mockConnectionOptions.default;
-var connectionOptionsDeserialize = mockConnectionOptions.deserialize;
-var connectionOptionsServiceName = mockConnectionOptions.serviceName;
-var connectionOptionsClientSessionKeepAlive = mockConnectionOptions.clientSessionKeepAlive;
-var connectionOptionsForSessionGone = mockConnectionOptions.sessionGone;
-var connectionOptionsForSessionExpired = mockConnectionOptions.sessionExpired;
-var connectionOptionsExternalBrowser = mockConnectionOptions.authExternalBrowser;
-var connectionOptionsOkta = mockConnectionOptions.authOkta;
+const mockConnectionOptions = MockTestUtil.connectionOptions;
+const connectionOptions = mockConnectionOptions.default;
+const connectionOptionsDeserialize = mockConnectionOptions.deserialize;
+const connectionOptionsServiceName = mockConnectionOptions.serviceName;
+const connectionOptionsClientSessionKeepAlive = mockConnectionOptions.clientSessionKeepAlive;
+const connectionOptionsForSessionGone = mockConnectionOptions.sessionGone;
+const connectionOptionsForSessionExpired = mockConnectionOptions.sessionExpired;
+const connectionOptionsExternalBrowser = mockConnectionOptions.authExternalBrowser;
+const connectionOptionsOkta = mockConnectionOptions.authOkta;
 const connectionOptionsFor504 = mockConnectionOptions.http504;
 const connectionOptionsTreatIntegerAsBigInt = mockConnectionOptions.treatIntAsBigInt;
 
 describe('snowflake.createConnection() synchronous errors', function () {
-  var testCases =
+  const testCases =
     [
       {
         name: 'missing options',
@@ -279,9 +279,9 @@ describe('snowflake.createConnection() synchronous errors', function () {
       }
     ];
 
-  var createItCallback = function (testCase) {
+  const createItCallback = function (testCase) {
     return function () {
-      var error = null;
+      let error = null;
 
       try {
         snowflake.createConnection(testCase.options);
@@ -294,7 +294,7 @@ describe('snowflake.createConnection() synchronous errors', function () {
     };
   };
 
-  var index, length, testCase;
+  let index, length, testCase;
   for (index = 0, length = testCases.length; index < length; index++) {
     testCase = testCases[index];
     it(testCase.name, createItCallback(testCase));
@@ -303,14 +303,14 @@ describe('snowflake.createConnection() synchronous errors', function () {
 
 describe('snowflake.createConnection() success', function () {
   it('createConnection() returns connection', function () {
-    var connection = snowflake.createConnection(connectionOptions);
+    const connection = snowflake.createConnection(connectionOptions);
     assert.ok(connection);
   });
 });
 
 describe('connection.connect() synchronous errors', function () {
   it('connect() with invalid callback', function () {
-    var error = null;
+    let error = null;
 
     try {
       snowflake.createConnection(connectionOptions).connect('invalid');
@@ -326,8 +326,8 @@ describe('connection.connect() synchronous errors', function () {
 
 describe('connection.connect() success', function () {
   it('connect() success', function (done) {
-    var connection = snowflake.createConnection(connectionOptions);
-    var ret = connection.connect(function (err, conn) {
+    const connection = snowflake.createConnection(connectionOptions);
+    const ret = connection.connect(function (err, conn) {
       assert.ok(!err, 'there should be no error');
       assert.strictEqual(conn, connection,
         'the connect() callback should be invoked with the connection');
@@ -346,7 +346,7 @@ describe('connection.connect() asynchronous errors', function () {
   // and we get an error on the second attempt "already connected" instead of "connection already in progress".
   xit('connect() while already connecting', function (done) {
     // create a connection and connect
-    var connection = snowflake.createConnection(connectionOptions).connect();
+    const connection = snowflake.createConnection(connectionOptions).connect();
 
     // try to connect again
     setTimeout(() => {
@@ -362,7 +362,7 @@ describe('connection.connect() asynchronous errors', function () {
   });
 
   it('connect() while already connected', function (done) {
-    var connection = snowflake.createConnection(connectionOptions);
+    const connection = snowflake.createConnection(connectionOptions);
 
     async.series(
       [
@@ -393,7 +393,7 @@ describe('connection.connect() asynchronous errors', function () {
   });
 
   it('connect() while fatally disconnected', function (done) {
-    var connection = snowflake.createConnection(connectionOptions);
+    const connection = snowflake.createConnection(connectionOptions);
 
     async.series(
       [
@@ -433,7 +433,7 @@ describe('connection.connect() asynchronous errors', function () {
 
   it('connect() with external browser authenticator', function (done) {
     // create a connection and connect with external browser
-    var connection = snowflake.createConnection(connectionOptionsExternalBrowser);
+    const connection = snowflake.createConnection(connectionOptionsExternalBrowser);
 
     // try to connect
     try {
@@ -448,7 +448,7 @@ describe('connection.connect() asynchronous errors', function () {
 
   it('connect() with okta authenticator', function (done) {
     // create a connection and connect with okta
-    var connection = snowflake.createConnection(connectionOptionsOkta);
+    const connection = snowflake.createConnection(connectionOptionsOkta);
 
     // try to connect
     try {
@@ -463,9 +463,9 @@ describe('connection.connect() asynchronous errors', function () {
 });
 
 describe('connection.execute() synchronous errors', function () {
-  var connection = snowflake.createConnection(connectionOptions);
+  const connection = snowflake.createConnection(connectionOptions);
 
-  var testCases =
+  const testCases =
     [
       {
         name: 'missing options',
@@ -581,9 +581,9 @@ describe('connection.execute() synchronous errors', function () {
       }
     ];
 
-  var createItCallback = function (testCase) {
+  const createItCallback = function (testCase) {
     return function () {
-      var error = null;
+      let error = null;
 
       try {
         connection.execute(testCase.options);
@@ -596,7 +596,7 @@ describe('connection.execute() synchronous errors', function () {
     };
   };
 
-  var index, length, testCase;
+  let index, length, testCase;
   for (index = 0, length = testCases.length; index < length; index++) {
     testCase = testCases[index];
     it(testCase.name, createItCallback(testCase));
@@ -604,7 +604,7 @@ describe('connection.execute() synchronous errors', function () {
 });
 
 function testStatementFetchRows(statement) {
-  var testCases =
+  const testCases =
     [
       {
         name: 'fetchRows() missing options',
@@ -675,7 +675,7 @@ function testStatementFetchRows(statement) {
       }
     ];
 
-  var index, length, testCase, error;
+  let index, length, testCase, error;
   for (index = 0, length = testCases.length; index < length; index++) {
     testCase = testCases[index];
 
@@ -693,12 +693,12 @@ function testStatementFetchRows(statement) {
 }
 
 describe('connection.execute() statement successful', function () {
-  var connection = snowflake.createConnection(connectionOptions);
-  var sqlText = 'select 1 as "c1";';
-  var requestId = 'foobar';
+  const connection = snowflake.createConnection(connectionOptions);
+  const sqlText = 'select 1 as "c1";';
+  const requestId = 'foobar';
 
   it('statement api', function (done) {
-    var statement;
+    let statement;
 
     async.series(
       [
@@ -722,7 +722,7 @@ describe('connection.execute() statement successful', function () {
                   'the execute() callback should be invoked with the statement');
 
                 // we should only have one column c1
-                var columns = statement.getColumns();
+                const columns = statement.getColumns();
                 assert.ok(Util.isArray(columns));
                 assert.strictEqual(columns.length, 1);
                 assert.ok(Util.isObject(columns[0]));
@@ -756,7 +756,7 @@ describe('connection.execute() statement successful', function () {
           assert.strictEqual(statement.getQueryId(), undefined);
         },
         function (callback) {
-          var rows = [];
+          const rows = [];
           statement.fetchRows(
             {
               each: function (row) {
@@ -783,12 +783,12 @@ describe('connection.execute() statement successful', function () {
 });
 
 describe('connection.execute() statement failure', function () {
-  var connection = snowflake.createConnection(connectionOptions);
-  var sqlText = 'select;';
-  var requestId = 'foobar';
+  const connection = snowflake.createConnection(connectionOptions);
+  const sqlText = 'select;';
+  const requestId = 'foobar';
 
   it('statement api', function (done) {
-    var statement;
+    let statement;
 
     async.series(
       [
@@ -929,9 +929,9 @@ describe('connection.execute() with requestId', function () {
 
 describe('too many concurrent requests', function () {
   it('too many concurrent requests per user', function (done) {
-    var connection = snowflake.createConnection(connectionOptions);
-    var sqlText = 'select \'too many concurrent queries\';';
-    var requestId = 'foobar';
+    const connection = snowflake.createConnection(connectionOptions);
+    const sqlText = 'select \'too many concurrent queries\';';
+    const requestId = 'foobar';
 
     async.series(
       [
@@ -949,7 +949,7 @@ describe('too many concurrent requests', function () {
             {
               sqlText: sqlText,
               requestId: requestId,
-              complete: function (err, statement) {
+              complete: function (err) {
                 assert.ok(err, 'there should be an error');
                 assert.strictEqual(err.code, '000610');
 
@@ -965,9 +965,9 @@ describe('too many concurrent requests', function () {
 });
 
 describe('connection.fetchResult() synchronous errors', function () {
-  var connection = snowflake.createConnection(connectionOptions);
+  const connection = snowflake.createConnection(connectionOptions);
 
-  var testCases =
+  const testCases =
     [
       {
         name: 'missing options',
@@ -1055,9 +1055,9 @@ describe('connection.fetchResult() synchronous errors', function () {
       }
     ];
 
-  var createItCallback = function (testCase) {
+  const createItCallback = function (testCase) {
     return function () {
-      var error = null;
+      let error = null;
 
       try {
         connection.fetchResult(testCase.options);
@@ -1070,7 +1070,7 @@ describe('connection.fetchResult() synchronous errors', function () {
     };
   };
 
-  var index, length, testCase;
+  let index, length, testCase;
   for (index = 0, length = testCases.length; index < length; index++) {
     testCase = testCases[index];
     it(testCase.name, createItCallback(testCase));
@@ -1078,11 +1078,11 @@ describe('connection.fetchResult() synchronous errors', function () {
 });
 
 describe('connection.fetchResult() statement successful', function () {
-  var connection = snowflake.createConnection(connectionOptions);
-  var queryId = 'df2852ef-e082-4bb3-94a4-e540bf0e70c6';
+  const connection = snowflake.createConnection(connectionOptions);
+  const queryId = 'df2852ef-e082-4bb3-94a4-e540bf0e70c6';
 
   it('statement api', function (done) {
-    var statement;
+    let statement;
 
     async.series(
       [
@@ -1105,7 +1105,7 @@ describe('connection.fetchResult() statement successful', function () {
                   'the fetchRow() callback should be invoked with the statement');
 
                 // we should only have one column c1
-                var columns = statement.getColumns();
+                const columns = statement.getColumns();
                 assert.ok(Util.isArray(columns));
                 assert.strictEqual(columns.length, 1);
                 assert.ok(Util.isObject(columns[0]));
@@ -1138,7 +1138,7 @@ describe('connection.fetchResult() statement successful', function () {
           assert.strictEqual(statement.getSessionState(), undefined);
         },
         function (callback) {
-          var rows = [];
+          const rows = [];
           statement.fetchRows(
             {
               each: function (row) {
@@ -1165,11 +1165,11 @@ describe('connection.fetchResult() statement successful', function () {
 });
 
 describe('connection.fetchResult() statement failure', function () {
-  var connection = snowflake.createConnection(connectionOptions);
-  var queryId = '13f12818-de4c-41d2-bf19-f115ee8a5cc1';
+  const connection = snowflake.createConnection(connectionOptions);
+  const queryId = '13f12818-de4c-41d2-bf19-f115ee8a5cc1';
 
   it('statement api', function (done) {
-    var statement;
+    let statement;
 
     async.series(
       [
@@ -1244,8 +1244,8 @@ describe('connection.fetchResult() statement failure', function () {
 
 describe('statement.cancel()', function () {
   it('cancel a statement before it has been executed', function (done) {
-    var connection = snowflake.createConnection(connectionOptions);
-    var statement = connection.execute(
+    const connection = snowflake.createConnection(connectionOptions);
+    const statement = connection.execute(
       {
         sqlText: 'select 1 as "c1";',
         requestId: 'foobar'
@@ -1260,15 +1260,15 @@ describe('statement.cancel()', function () {
   });
 
   it('cancel a running statement', function (done) {
-    var connection = snowflake.createConnection(connectionOptions);
-    connection.connect(function (err, conn) {
+    const connection = snowflake.createConnection(connectionOptions);
+    connection.connect(function (err) {
       assert.ok(!err, 'should not get an error');
 
-      var statement = connection.execute(
+      const statement = connection.execute(
         {
           sqlText: 'select count(*) from table(generator(timelimit=>10));',
           requestId: 'b97fee20-a805-11e5-a0ab-ddd3321ed586',
-          complete: function (err, stmt) {
+          complete: function (err) {
             assert.ok(err, 'there should be an error');
             assert.strictEqual(err.sqlState, '57014',
               'the error should have the right sql state');
@@ -1280,7 +1280,7 @@ describe('statement.cancel()', function () {
           }
         });
 
-      var context =
+      const context =
         {
           completed: false,
           canceled: false
@@ -1302,8 +1302,8 @@ describe('statement.cancel()', function () {
   });
 
   it('cancel a statement that doesn\'t exist', function (done) {
-    var connection = snowflake.createConnection(connectionOptions);
-    var statement = connection.fetchResult(
+    const connection = snowflake.createConnection(connectionOptions);
+    const statement = connection.fetchResult(
       {
         queryId: 'foobar'
       });
@@ -1317,8 +1317,8 @@ describe('statement.cancel()', function () {
   });
 
   it('cancel a successful statement', function (done) {
-    var connection = snowflake.createConnection(connectionOptions);
-    var statement = connection.fetchResult(
+    const connection = snowflake.createConnection(connectionOptions);
+    const statement = connection.fetchResult(
       {
         queryId: 'df2852ef-e082-4bb3-94a4-e540bf0e70c6'
       });
@@ -1332,8 +1332,8 @@ describe('statement.cancel()', function () {
   });
 
   it('cancel a failed statement', function (done) {
-    var connection = snowflake.createConnection(connectionOptions);
-    var statement = connection.fetchResult(
+    const connection = snowflake.createConnection(connectionOptions);
+    const statement = connection.fetchResult(
       {
         queryId: '13f12818-de4c-41d2-bf19-f115ee8a5cc1'
       });
@@ -1659,7 +1659,7 @@ describe('snowflake.isAnError()', function () {
 
 describe('connection.destroy()', function () {
   it('destroy without connecting', function (done) {
-    var connection = snowflake.createConnection(connectionOptions);
+    const connection = snowflake.createConnection(connectionOptions);
     connection.destroy(function (err, conn) {
       assert.ok(err);
       assert.strictEqual(
@@ -1671,9 +1671,9 @@ describe('connection.destroy()', function () {
   });
 
   it('destroy while connecting', function (done) {
-    var connection = snowflake.createConnection(connectionOptions);
+    const connection = snowflake.createConnection(connectionOptions);
 
-    var context =
+    const context =
       {
         connectcomplete: false,
         destroycomplete: false
@@ -1704,7 +1704,7 @@ describe('connection.destroy()', function () {
   });
 
   it('destroy after connected', function (done) {
-    var connection = snowflake.createConnection(connectionOptions);
+    const connection = snowflake.createConnection(connectionOptions);
 
     async.series(
       [
@@ -1731,7 +1731,7 @@ describe('connection.destroy()', function () {
   });
 
   it('destroy while disconnected', function (done) {
-    var connection = snowflake.createConnection(connectionOptions);
+    const connection = snowflake.createConnection(connectionOptions);
 
     async.series(
       [
@@ -1772,25 +1772,25 @@ describe('connection.destroy()', function () {
 
 describe('serialize connection', function () {
   it('serialize before connecting', function (done) {
-    var connection = snowflake.createConnection(connectionOptions);
-    var serializedConnection = connection.serialize();
+    const connection = snowflake.createConnection(connectionOptions);
+    const serializedConnection = connection.serialize();
 
     assert.ok(serializedConnection);
     done();
   });
 
   it('serialize when connected', function (done) {
-    var connection = snowflake.createConnection(connectionOptions);
-    var statementFirst;
-    var statementSecond;
+    const connection = snowflake.createConnection(connectionOptions);
+    let statementFirst;
+    let statementSecond;
 
     async.series(
       [
         function (callback) {
-          var sqlText = 'select 1 as "c1";';
-          var requestId = 'foobar';
+          const sqlText = 'select 1 as "c1";';
+          const requestId = 'foobar';
 
-          connection.connect(function (err, conn) {
+          connection.connect(function (err) {
             assert.ok(!err);
 
             statementFirst = connection.execute(
@@ -1811,7 +1811,7 @@ describe('serialize connection', function () {
         function (callback) {
           // serialize the connection and then deserialize it to get a copy of
           // the original connection
-          var connectionCopy = snowflake.deserializeConnection(
+          const connectionCopy = snowflake.deserializeConnection(
             connectionOptionsDeserialize,
             snowflake.serializeConnection(connection));
 
@@ -1837,7 +1837,7 @@ describe('serialize connection', function () {
 });
 
 describe('deserialize connection synchronous errors', function () {
-  var testCases =
+  const testCases =
     [
       {
         name: 'missing serializedConnection',
@@ -1870,9 +1870,9 @@ describe('deserialize connection synchronous errors', function () {
       }
     ];
 
-  var createItCallback = function (testCase) {
+  const createItCallback = function (testCase) {
     return function () {
-      var error = null;
+      let error = null;
 
       try {
         snowflake.deserializeConnection(
@@ -1886,7 +1886,7 @@ describe('deserialize connection synchronous errors', function () {
     };
   };
 
-  var index, length, testCase;
+  let index, length, testCase;
   for (index = 0, length = testCases.length; index < length; index++) {
     testCase = testCases[index];
     it(testCase.name, createItCallback(testCase));
@@ -1895,7 +1895,7 @@ describe('deserialize connection synchronous errors', function () {
 
 describe('snowflake.createConnection() SERVICE_NAME', function () {
   it('createConnection() returns connection including SERVICE_NAME', function (done) {
-    var connection = snowflake.createConnection(connectionOptionsServiceName);
+    const connection = snowflake.createConnection(connectionOptionsServiceName);
     async.series([
       function (callback) {
         connection.connect(function (err) {
@@ -1914,7 +1914,7 @@ describe('snowflake.createConnection() SERVICE_NAME', function () {
           {
             sqlText: 'select * from faketable',
             requestId: 'foobar',
-            complete: function (err, stmt) {
+            complete: function (err) {
               assert.ok(!err, JSON.stringify(err));
               callback();
             }
@@ -1933,7 +1933,7 @@ describe('snowflake.createConnection() SERVICE_NAME', function () {
 
 describe('snowflake.createConnection() CLIENT_SESSION_KEEP_ALIVE', function () {
   it('createConnection() returns connection including CLIENT_SESSION_KEEP_ALIVE', function (done) {
-    var connection = snowflake.createConnection(connectionOptionsClientSessionKeepAlive);
+    const connection = snowflake.createConnection(connectionOptionsClientSessionKeepAlive);
     async.series([
       function (callback) {
         connection.connect(function (err) {
@@ -1960,7 +1960,7 @@ describe('snowflake.createConnection() CLIENT_SESSION_KEEP_ALIVE', function () {
 
 describe('snowflake.createConnection() JS_TREAT_INTEGER_AS_BIGINT', function () {
   it('createConnection() returns connection including JS_TREAT_INTEGER_AS_BIGINT', function (done) {
-    var connection = snowflake.createConnection(connectionOptionsTreatIntegerAsBigInt);
+    const connection = snowflake.createConnection(connectionOptionsTreatIntegerAsBigInt);
     async.series([
       function (callback) {
         connection.connect(function (err) {
@@ -2009,7 +2009,7 @@ describe('snowflake.connect() with 504', function () {
    * The connection is retired three times and get success.
    */
   it('retry 504', function (done) {
-    var connection = snowflake.createConnection(connectionOptionsFor504);
+    const connection = snowflake.createConnection(connectionOptionsFor504);
     async.series([
       function (callback) {
         connection.connect(function (err) {
@@ -2018,7 +2018,7 @@ describe('snowflake.connect() with 504', function () {
         });
       },
       function (callback) {
-        connection.destroy(function (err, con) {
+        connection.destroy(function (err) {
           assert.ok(!err, JSON.stringify(err));
           callback();
         });

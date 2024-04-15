@@ -5,11 +5,13 @@ const os = require('os');
 const path = require('path');
 const assert = require('assert');
 const mock = require('mock-require');
-const { Levels, ClientConfig, ClientLoggingConfig, ConfigurationUtil } = require('./../../../lib/configuration/client_configuration');
+const { Levels, ConfigurationUtil } = require('./../../../lib/configuration/client_configuration');
+const { getDriverDirectory } = require('./../../../lib/util');
 const defaultConfigName = 'sf_client_config.json';
-const configInDriverDirectory = path.join('.', defaultConfigName);
+const badPermissionsConfig = 'bad_perm_config.json';
+const driverDirectory = getDriverDirectory();
+const configInDriverDirectory = path.join(driverDirectory, defaultConfigName);
 const configInHomeDirectory = path.join(os.homedir(), defaultConfigName);
-const configInTempDirectory = path.join(os.tmpdir(), defaultConfigName);
 const configFromEnvVariable = 'env_config.json';
 const configFromConnectionString = 'conn_config.json';
 const logLevel = Levels.Info;
@@ -29,19 +31,27 @@ const clientConfig = {
 
 describe('Configuration finding tests', function () {
 
+  after(() => {
+    if (!driverDirectory) {
+      assert.fail('driver directory not set');
+    }
+    mock.stop('fs/promises');
+    mock.stop('process');
+  });
+
   it('should take config from connection string', async function () {
     // given
     const fsMock = new FsMock()
       .mockFile(configFromConnectionString, fileContent)
       .mockFile(configFromEnvVariable, 'random content')
       .mockFile(configInDriverDirectory, 'random content')
-      .mockFile(configInHomeDirectory, 'random content')
-      .mockFile(configInTempDirectory, 'random content');
+      .mockFile(configInHomeDirectory, 'random content');
     mockFiles(fsMock);
     mockClientConfigFileEnvVariable(configFromEnvVariable);
     const fsPromises = require('fs/promises');
     const process = require('process');
     const configUtil = new ConfigurationUtil(fsPromises, process);
+    clientConfig.configPath = 'conn_config.json';
 
     // when
     const configFound = await configUtil.getClientConfig(configFromConnectionString);
@@ -55,13 +65,13 @@ describe('Configuration finding tests', function () {
     const fsMock = new FsMock()
       .mockFile(configFromEnvVariable, fileContent)
       .mockFile(configInDriverDirectory, 'random content')
-      .mockFile(configInHomeDirectory, 'random content')
-      .mockFile(configInTempDirectory, 'random content');
+      .mockFile(configInHomeDirectory, 'random content');
     mockFiles(fsMock);
     mockClientConfigFileEnvVariable(configFromEnvVariable);
     const fsPromises = require('fs/promises');
     const process = require('process');
     const configUtil = new ConfigurationUtil(fsPromises, process);
+    clientConfig.configPath = 'env_config.json';
 
     // when
     const configFound = await configUtil.getClientConfig(null);
@@ -74,13 +84,13 @@ describe('Configuration finding tests', function () {
     // given
     const fsMock = new FsMock()
       .mockFile(configInDriverDirectory, fileContent)
-      .mockFile(configInHomeDirectory, 'random content')
-      .mockFile(configInTempDirectory, 'random content');
+      .mockFile(configInHomeDirectory, 'random content');
     mockFiles(fsMock);
     mockClientConfigFileEnvVariable(undefined);
     const fsPromises = require('fs/promises');
     const process = require('process');
     const configUtil = new ConfigurationUtil(fsPromises, process);
+    clientConfig.configPath = configInDriverDirectory;
 
     // when
     const configFound = await configUtil.getClientConfig(null);
@@ -92,30 +102,13 @@ describe('Configuration finding tests', function () {
   it('should take config from home directory if no input nor environmental variable nor in driver directory present', async function () {
     // given
     const fsMock = new FsMock()
-      .mockFile(configInHomeDirectory, fileContent)
-      .mockFile(configInTempDirectory, 'random content');
+      .mockFile(configInHomeDirectory, fileContent);
     mockFiles(fsMock);
     mockClientConfigFileEnvVariable(undefined);
     const fsPromises = require('fs/promises');
     const process = require('process');
     const configUtil = new ConfigurationUtil(fsPromises, process);
-
-    // when
-    const configFound = await configUtil.getClientConfig(null);
-
-    // then
-    assert.deepEqual(configFound, clientConfig);
-  });
-
-  it('should take config from temp directory if no other location possible', async function () {
-    // given
-    const fsMock = new FsMock()
-      .mockFile(configInTempDirectory, fileContent);
-    mockFiles(fsMock);
-    mockClientConfigFileEnvVariable(undefined);
-    const fsPromises = require('fs/promises');
-    const process = require('process');
-    const configUtil = new ConfigurationUtil(fsPromises, process);
+    clientConfig.configPath = path.join(os.homedir(), 'sf_client_config.json');
 
     // when
     const configFound = await configUtil.getClientConfig(null);
@@ -139,6 +132,31 @@ describe('Configuration finding tests', function () {
     // then
     assert.strictEqual(configFound, null);
   });
+
+  if (os.platform() !== 'win32') {
+    it('should fail to open config when file has bad permissions', async function () {
+      // given
+      const fsMock = new FsMock()
+        .mockFile(badPermissionsConfig, 'gibberish');
+      mockFiles(fsMock);
+      const fsPromises = require('fs/promises');
+      const process = require('process');
+      const configUtil = new ConfigurationUtil(fsPromises, process);
+
+      // when
+      const config = configUtil.getClientConfig(badPermissionsConfig);
+
+      //then
+      await assert.rejects(
+        async () => await config,
+        (err) => {
+          assert.strictEqual(err.name, 'ConfigurationError');
+          assert.strictEqual(err.message, `Configuration file: ${badPermissionsConfig} can be modified by group or others`);
+          assert.strictEqual(err.cause, 'IncorrectPerms');
+          return true;
+        });
+    });
+  }
 });
 
 function mockFiles(fsMock) {
@@ -148,6 +166,9 @@ function mockFiles(fsMock) {
     },
     readFile: async function (path){
       return fsMock.readFile(path);
+    },
+    stat: async function (path) {
+      return fsMock.stat(path);
     }
   });
 }
@@ -181,5 +202,20 @@ class FsMock {
       throw new Error('File does not exist');
     }
     return this.existingFiles.get(filePath);
+  }
+
+  async stat(filePath) {
+    if (!this.existingFiles.has(filePath)) {
+      throw new Error('File does not exist');
+    }
+    if (filePath === badPermissionsConfig) {
+      return {
+        mode: 0o40777,
+      };
+    }
+
+    return {
+      mode: 0o40700,
+    };
   }
 }

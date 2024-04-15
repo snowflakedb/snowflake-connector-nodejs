@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2021 Snowflake Computing Inc. All rights reserved.
+ * Copyright (c) 2015-2024 Snowflake Computing Inc. All rights reserved.
  */
 
 const assert = require('assert');
@@ -8,9 +8,9 @@ const connOption = require('./connectionOptions');
 const fileCompressionType = require('./../../lib/file_transfer_agent/file_compression_type');
 const fs = require('fs');
 const testUtil = require('./testUtil');
-const tmp = require('tmp');
 const os = require('os');
 const path = require('path');
+const crypto = require('crypto');
 const zlib = require('zlib');
 const { randomizeName } = require('./testUtil');
 
@@ -38,13 +38,13 @@ const ROW_DATA_OVERWRITE = COL3_DATA + ',' + COL1_DATA + ',' + COL2_DATA + '\n';
 const ROW_DATA_OVERWRITE_SIZE = 19;
 
 function getPlatformTmpPath(tmpPath) {
-  let path = `file://${tmpPath}`;
+  let location = `file://${tmpPath}`;
   // Windows user contains a '~' in the path which causes an error
-  if (process.platform == 'win32') {
-    const fileName = tmpPath.substring(tmpPath.lastIndexOf('\\'));
-    path = `file://${process.env.USERPROFILE}\\AppData\\Local\\Temp\\${fileName}`;
+  if (process.platform === 'win32') {
+    const fileName = path.basename(tmpPath);
+    location = `file://${process.env.USERPROFILE}\\AppData\\Local\\Temp\\${fileName}`;
   }
-  return path;
+  return location;
 }
 
 function executePutCmd(connection, putQuery, callback, results) {
@@ -72,7 +72,6 @@ function executePutCmd(connection, putQuery, callback, results) {
 
 describe('PUT GET test', function () {
   this.retries(3); // this test suit are considered as flaky test
-
   let connection;
   let tmpFile;
   const TEMP_TABLE_NAME = randomizeName('TEMP_TABLE');
@@ -137,15 +136,14 @@ describe('PUT GET test', function () {
   const createItCallback = function (testCase) {
     return function (done) {
       {
-        // Create a temp file with specified file extension
-        tmpFile = tmp.fileSync({ postfix: testCase.encoding['file_extension'] });
-        // Write row data to temp file
-        fs.writeFileSync(tmpFile.name, ROW_DATA);
+        // Create a temp file with specified file extension and Write row data to temp file
+        tmpFile = testUtil.createTempFile(os.tmpdir(), 
+          testUtil.createRandomFileName( { postfix: testCase.encoding['file_extension'] }), ROW_DATA);
 
-        let putQuery = `PUT file://${tmpFile.name} @${DATABASE_NAME}.${SCHEMA_NAME}.%${TEMP_TABLE_NAME}`;
+        let putQuery = `PUT file://${tmpFile} @${DATABASE_NAME}.${SCHEMA_NAME}.%${TEMP_TABLE_NAME}`;
         // Windows user contains a '~' in the path which causes an error
-        if (process.platform == 'win32') {
-          const fileName = tmpFile.name.substring(tmpFile.name.lastIndexOf('\\'));
+        if (process.platform === 'win32') {
+          const fileName = path.basename(tmpFile);
           putQuery = `PUT file://${process.env.USERPROFILE}\\AppData\\Local\\Temp\\${fileName} @${DATABASE_NAME}.${SCHEMA_NAME}.%${TEMP_TABLE_NAME}`;
         }
 
@@ -155,7 +153,7 @@ describe('PUT GET test', function () {
 
         let getQuery = `GET @${DATABASE_NAME}.${SCHEMA_NAME}.%${TEMP_TABLE_NAME} file://${tmpDir}`;
         // Windows user contains a '~' in the path which causes an error
-        if (process.platform == 'win32') {
+        if (process.platform === 'win32') {
           const dirName = tmpDir.substring(tmpDir.lastIndexOf('\\') + 1);
           getQuery = `GET @${DATABASE_NAME}.${SCHEMA_NAME}.%${TEMP_TABLE_NAME} file://${process.env.USERPROFILE}\\AppData\\Local\\Temp\\${dirName}`;
         }
@@ -298,10 +296,9 @@ describe('PUT GET overwrite test', function () {
   const removeFile = `REMOVE @${DATABASE_NAME}.${SCHEMA_NAME}.%${TEMP_TABLE_NAME}`;
   const dropTable = `DROP TABLE IF EXISTS ${TEMP_TABLE_NAME}`;
 
-  // Create a temp file without specified file extension
-  const tmpFile = tmp.fileSync();
-  // Write row data to temp file
-  fs.writeFileSync(tmpFile.name, ROW_DATA);
+  // Create a temp file without specified file extension and wwrite row data to temp file.
+
+  const tmpFile = testUtil.createTempFile(os.tmpdir(), testUtil.createRandomFileName(), ROW_DATA);
 
   before(async () => {
     connection = testUtil.createConnection();
@@ -318,10 +315,11 @@ describe('PUT GET overwrite test', function () {
   });
 
   let putQuery = `
-    PUT file://${tmpFile.name} @${DATABASE_NAME}.${SCHEMA_NAME}.%${TEMP_TABLE_NAME} AUTO_COMPRESS=FALSE`;
+    PUT file://${tmpFile} @${DATABASE_NAME}.${SCHEMA_NAME}.%${TEMP_TABLE_NAME} AUTO_COMPRESS=FALSE`;
   // Windows user contains a '~' in the path which causes an error
-  if (process.platform == 'win32') {
-    const fileName = tmpFile.name.substring(tmpFile.name.lastIndexOf('\\'));
+  if (process.platform === 'win32') {
+    // const fileName = tmpFile.name.substring(tmpFile.name.lastIndexOf('\\'));
+    const fileName = path.basename(tmpFile);
     putQuery = `
       PUT file://${process.env.USERPROFILE}\\AppData\\Local\\Temp\\${fileName} @${DATABASE_NAME}.${SCHEMA_NAME}.%${TEMP_TABLE_NAME} AUTO_COMPRESS=FALSE`;
   }
@@ -386,7 +384,7 @@ describe('PUT GET overwrite test', function () {
               });
             },
             function (callback) {
-              fs.writeFileSync(tmpFile.name, ROW_DATA_OVERWRITE);
+              fs.writeFileSync(tmpFile, ROW_DATA_OVERWRITE);
               putQuery += ' OVERWRITE=TRUE';
 
               connection.execute({
@@ -504,15 +502,13 @@ describe('PUT GET test with GCS_USE_DOWNSCOPED_CREDENTIAL', function () {
 
   it('testUploadDownload', function (done) {
 
-    // Create a temp file with specified file extension
-    tmpFile = tmp.fileSync({ postfix: 'gz' });
-    // Write row data to temp file
-    fs.writeFileSync(tmpFile.name, ROW_DATA);
+    // Create a temp file with specified file extension and write row data to temp file
+    tmpFile = testUtil.createTempFile(os.tmpdir(), testUtil.createRandomFileName( { postfix: 'gz' } ), ROW_DATA);
 
-    let putQuery = `PUT file://${tmpFile.name} @${DATABASE_NAME}.${SCHEMA_NAME}.%${TEMP_TABLE_NAME}`;
+    let putQuery = `PUT file://${tmpFile} @${DATABASE_NAME}.${SCHEMA_NAME}.%${TEMP_TABLE_NAME}`;
     // Windows user contains a '~' in the path which causes an error
-    if (process.platform == 'win32') {
-      const fileName = tmpFile.name.substring(tmpFile.name.lastIndexOf('\\'));
+    if (process.platform === 'win32') {
+      const fileName = path.basename(tmpFile);
       putQuery = `PUT file://${process.env.USERPROFILE}\\AppData\\Local\\Temp\\${fileName} @${DATABASE_NAME}.${SCHEMA_NAME}.%${TEMP_TABLE_NAME}`;
     }
 
@@ -522,7 +518,7 @@ describe('PUT GET test with GCS_USE_DOWNSCOPED_CREDENTIAL', function () {
 
     let getQuery = `GET @${DATABASE_NAME}.${SCHEMA_NAME}.%${TEMP_TABLE_NAME} file://${tmpDir}`;
     // Windows user contains a '~' in the path which causes an error
-    if (process.platform == 'win32') {
+    if (process.platform === 'win32') {
       const dirName = tmpDir.substring(tmpDir.lastIndexOf('\\') + 1);
       getQuery = `GET @${DATABASE_NAME}.${SCHEMA_NAME}.%${TEMP_TABLE_NAME} file://${process.env.USERPROFILE}\\AppData\\Local\\Temp\\${dirName}`;
     }
@@ -654,7 +650,7 @@ describe('PUT GET test with multiple files', function () {
   const TEMP_TABLE_NAME = randomizeName('TEMP_TABLE');
   const stage = `@${DATABASE_NAME}.${SCHEMA_NAME}.%${TEMP_TABLE_NAME}`;
   const removeFile = `REMOVE ${stage}`;
-  let tmpFiles; // FileSyncObject[]
+  let tmpFiles;
 
   before(async () => {
     connection = testUtil.createConnection({
@@ -686,17 +682,13 @@ describe('PUT GET test with multiple files', function () {
   });
 
   it('testDownloadMultifiles', function (done) {
-    // Create two temp file with specified file extension
-    const tmpFile1 = tmp.fileSync({ postfix: 'gz' });
-    const tmpFile2 = tmp.fileSync({ postfix: 'gz' });
+    // Create two temp file with specified file extension and write row data to temp file
+    const tmpFile1 = testUtil.createTempFile(os.tmpdir(), testUtil.createRandomFileName( { postfix: 'gz' } ), ROW_DATA);
+    const tmpFile2 = testUtil.createTempFile(os.tmpdir(), testUtil.createRandomFileName( { postfix: 'gz' } ), ROW_DATA);
     tmpFiles = [tmpFile1, tmpFile2];
 
-    // Write row data to temp file
-    fs.writeFileSync(tmpFile1.name, ROW_DATA);
-    fs.writeFileSync(tmpFile2.name, ROW_DATA);
-
-    const tmpfilePath1 = getPlatformTmpPath(tmpFile1.name);
-    const tmpfilePath2 = getPlatformTmpPath(tmpFile2.name);
+    const tmpfilePath1 = getPlatformTmpPath(tmpFile1);
+    const tmpfilePath2 = getPlatformTmpPath(tmpFile2);
 
     const putQuery1 = `PUT ${tmpfilePath1} ${stage}`;
     const putQuery2 = `PUT ${tmpfilePath2} ${stage}`;
@@ -769,19 +761,18 @@ describe('PUT GET test with multiple files', function () {
     const results = {};
     const tmpdirPath = getPlatformTmpPath(tmpDir);
     const getQuery = `GET ${stage} ${tmpdirPath}`;
-
+    const testId = crypto.randomUUID();
     // Create temp files with specified prefix
     tmpFiles = [];
     for (let i = 0; i < count; i++) {
-      const tmpFile = tmp.fileSync({ prefix: 'testUploadDownloadMultifiles' });
-      fs.writeFileSync(tmpFile.name, ROW_DATA);
+      const tmpFile = testUtil.createTempFile(os.tmpdir(), testUtil.createRandomFileName( { prefix: `testUploadDownloadMultifiles-${testId}` } ), ROW_DATA);
       tmpFiles.push(tmpFile);
     }
 
-    let putQuery = `PUT file://${os.tmpdir()}/testUploadDownloadMultifiles* ${stage}`;
+    let putQuery = `PUT file://${os.tmpdir()}/testUploadDownloadMultifiles-${testId}* ${stage}`;
     // Windows user contains a '~' in the path which causes an error
-    if (process.platform == 'win32') {
-      putQuery = `PUT file://${process.env.USERPROFILE}\\AppData\\Local\\Temp\\testUploadDownloadMultifiles* ${stage}`;
+    if (process.platform === 'win32') {
+      putQuery = `PUT file://${process.env.USERPROFILE}\\AppData\\Local\\Temp\\testUploadDownloadMultifiles-${testId}* ${stage}`;
     }
 
     const testResult = [];
@@ -879,13 +870,12 @@ describe('PUT GET test without compress', function () {
   let getQuery = '';
 
   before(async () => {
-    // Create a temp file without specified file extension
-    tmpFile = tmp.fileSync();
-    // Write row data to temp file
-    fs.writeFileSync(tmpFile.name, ROW_DATA);  
+    // Create a temp file without specified file extension and Write row data to temp file
+    tmpFile = testUtil.createTempFile(os.tmpdir(), testUtil.createRandomFileName(), ROW_DATA);
+
     // Create a tmp folder for downloaded files
     tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'get'));
-    tmpfilePath = getPlatformTmpPath(tmpFile.name);
+    tmpfilePath = getPlatformTmpPath(tmpFile);
     putQuery = `PUT ${tmpfilePath} ${stage} AUTO_COMPRESS=FALSE`;
     tmpdirPath = getPlatformTmpPath(tmpDir);
     getQuery = `GET ${stage} ${tmpdirPath}`;
@@ -979,17 +969,17 @@ describe('PUT GET test with different size', function () {
 
   before(async () => {
     // Create a temp file without specified file extension
-    zeroByteFile = tmp.fileSync();
-    largeFile = tmp.fileSync(); 
+    zeroByteFile = testUtil.createTempFile(os.tmpdir(), testUtil.createRandomFileName());
+    largeFile = testUtil.createTempFile(os.tmpdir(), testUtil.createRandomFileName()); 
     // Create a tmp folder for downloaded files
     tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'get'));
     // Create a file of 100 MB
-    const fh = fs.openSync(largeFile.name, 'w');
+    const fh = fs.openSync(largeFile, 'w');
     fs.writeSync(fh, 'ok', Math.max(0, 100 * 1024 * 1024 - 2));
     fs.closeSync(fh);
 
-    zeroByteFilePath = getPlatformTmpPath(zeroByteFile.name);
-    largeFilePath = getPlatformTmpPath(largeFile.name);
+    zeroByteFilePath = getPlatformTmpPath(zeroByteFile);
+    largeFilePath = getPlatformTmpPath(largeFile);
     tmpdirPath = getPlatformTmpPath(tmpDir);
     getQuery = `GET ${stage} ${tmpdirPath}`;
 
@@ -1099,19 +1089,18 @@ describe('PUT GET test with error', function () {
   let connection;
   const TEMP_TABLE_NAME = randomizeName('TEMP_TABLE');
   const stage = `@${DATABASE_NAME}.${SCHEMA_NAME}.%${TEMP_TABLE_NAME}`;
-  const stage_not_exist = `@${DATABASE_NAME}.${SCHEMA_NAME}.%NONEXISTTABLE`;
+  const stageNotExist = `@${DATABASE_NAME}.${SCHEMA_NAME}.%NONEXISTTABLE`;
   const createTable = `create or replace table ${TEMP_TABLE_NAME} (${COL1} STRING, ${COL2} STRING, ${COL3} STRING)`;
   const removeFile = `REMOVE ${stage}`;
   const dropTable = `DROP TABLE IF EXISTS ${TEMP_TABLE_NAME}`;
 
   let tmpFile = null; 
   let tmpfilePath = null;
-  const testCases = null;
 
   before(async () => {
     // Create a temp file without specified file extension
-    tmpFile = tmp.fileSync(); 
-    tmpfilePath = getPlatformTmpPath(tmpFile.name);
+    tmpFile = testUtil.createTempFile(os.tmpdir(), testUtil.createRandomFileName());
+    tmpfilePath = getPlatformTmpPath(tmpFile);
     
     connection = testUtil.createConnection();
     await testUtil.connectAsync(connection);
@@ -1152,7 +1141,7 @@ describe('PUT GET test with error', function () {
     async.series(
       [
         function (callback) {
-          verifyCompilationError(`PUT ${tmpfilePath} ${stage_not_exist}`, callback);
+          verifyCompilationError(`PUT ${tmpfilePath} ${stageNotExist}`, callback);
         }
       ],
       done

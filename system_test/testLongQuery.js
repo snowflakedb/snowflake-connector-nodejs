@@ -1,20 +1,20 @@
 /*
  * Copyright (c) 2015-2019 Snowflake Computing Inc. All rights reserved.
  */
-var snowflake = require('./../lib/snowflake');
-var connOption = require('../test/integration/connectionOptions');
-var testUtil = require('../test/integration/testUtil');
-var async = require('async');
+const snowflake = require('./../lib/snowflake');
+const connOption = require('../test/integration/connectionOptions');
+const testUtil = require('../test/integration/testUtil');
+const async = require('async');
 
 // This test can run only if Snowflake account is available.
-var canRunTest = connOption.snowflakeAccount !== undefined;
+const canRunTest = connOption.snowflakeAccount !== undefined;
 
 describe('testPingPong', function () {
   before(function (done) {
     if (!canRunTest) {
       done();
     }
-    var connectionToSnowflake = snowflake.createConnection(connOption.snowflakeAccount);
+    const connectionToSnowflake = snowflake.createConnection(connOption.snowflakeAccount);
     async.series(
       [
         function (callback) {
@@ -40,7 +40,7 @@ describe('testPingPong', function () {
       done();
       return;
     }
-    var connectionToSnowflake = snowflake.createConnection(connOption.snowflakeAccount);
+    const connectionToSnowflake = snowflake.createConnection(connOption.snowflakeAccount);
     async.series(
       [
         function (callback) {
@@ -67,7 +67,7 @@ describe('testPingPong', function () {
       done();
       return;
     }
-    var connection = testUtil.createConnection();
+    const connection = testUtil.createConnection();
     async.series(
       [
         function (callback) {

@@ -17,7 +17,7 @@ const snowflake = require('../../../lib/snowflake');
 const GlobalConfig = require('../../../lib/global_config');
 
 
-describe('Json credential manager test', function () {
+describe.only('Json credential manager test', function () {
   const credentialManager = new JsonCredentialManager();
 
   it('test - initiate credential manager', function () {
@@ -37,6 +37,7 @@ describe('Json credential manager test', function () {
   it('test - delete the mock credential with the credential manager', function () {
     credentialManager.remove(key);
     const result = credentialManager.read(key);
+    console.log(result);
     assert.ok(result === null);
   });
 

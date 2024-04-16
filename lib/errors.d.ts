@@ -166,7 +166,6 @@ declare enum ErrorCode {
 }
 
 declare module 'snowflake-sdk' {
-
     interface SnowflakeErrorExternal extends Error {
         name: any,
         message: any,
@@ -179,6 +178,7 @@ declare module 'snowflake-sdk' {
         isFatal?: any,
         stack?: any
     }
+
     export interface SnowflakeError extends Error {
         code?: ErrorCode,
         sqlState?: string,

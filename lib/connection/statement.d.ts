@@ -17,13 +17,12 @@ export enum StatementStatus {
     Fetching = "fetching",
     Complete = "complete",
 }
-declare module 'snowflake-sdk' {
 
+declare module 'snowflake-sdk' {
     type Bind = string | number;
     type InsertBinds = Bind[][];
     type Binds = Bind[] | InsertBinds;
     type StatementCallback = (err: SnowflakeError | undefined, stmt: RowStatement | FileAndStageBindStatement, rows: any[] | undefined) => void;
-
 
     interface StreamOptions {
         start?: number;

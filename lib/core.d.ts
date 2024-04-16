@@ -16,10 +16,7 @@ declare enum LogLevel {
     TRACE = 'TRACE',
 }
 declare module 'snowflake-sdk' {
-
     export type CustomParser = (rawColumnValue: string) => any;
-
-
 
     export interface ConfigureOptions {
         /**

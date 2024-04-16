@@ -9,7 +9,6 @@ import { OcspModes } from "./lib/core";
  * @see [source](https://docs.snowflake.com/en/developer-guide/node-js/nodejs-driver)
  */
 declare module 'snowflake-sdk' {
-
     /**
      * Online Certificate Status Protocol (OCSP), detailed information: https://docs.snowflake.com/en/user-guide/ocsp.
      */

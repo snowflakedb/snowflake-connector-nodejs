@@ -1,17 +1,16 @@
 /*
  * Copyright (c) 2015-2024 Snowflake Computing Inc. All rights reserved.
  */
+import { DataType } from "./statement";
+
+export declare enum RowMode {
+    ARRAY = 'array',
+    OBJECT = 'object',
+    OBJECT_WITH_RENAMED_DUPLICATED_COLUMNS = 'object_with_renamed_duplicated_columns',
+}
 
 declare module 'snowflake-sdk' {
-    import { DataType } from "./statement";
-
-    declare enum RowMode {
-        ARRAY = 'array',
-        OBJECT = 'object',
-        OBJECT_WITH_RENAMED_DUPLICATED_COLUMNS = 'object_with_renamed_duplicated_columns',
-    }
-
-    export type ConnectionOptions {
+    export interface ConnectionOptions {
         //Detail information: https://docs.snowflake.com/en/developer-guide/node-js/nodejs-driver-options
 
         /**

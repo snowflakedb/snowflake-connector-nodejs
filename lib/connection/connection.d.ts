@@ -17,8 +17,8 @@ export enum QueryStatus {
     BLOCKED = 'BLOCKED',
     NO_DATA = 'NO_DATA',
 }
-declare module 'snowflake-sdk' {
 
+declare module 'snowflake-sdk' {
     type ConnectionCallback = (err: SnowflakeError | undefined, conn: Connection) => void
 
     export interface Connection {

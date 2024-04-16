@@ -2,7 +2,7 @@
  * Copyright (c) 2015-2024 Snowflake Computing Inc. All rights reserved.
  */
 
-export enum ErrorCode {
+declare enum ErrorCode {
     // 400001
     ERR_INTERNAL_ASSERT_FAILED = 400001,
     ERR_UNSUPPORTED_NODE_JS_VERSION = 400002,
@@ -165,27 +165,28 @@ export enum ErrorCode {
     ERR_GET_RESULTS_QUERY_ID_NOT_SUCCESS_STATUS = 460003,
 }
 
-interface SnowflakeErrorExternal extends Error {
-    name: any,
-    message: any,
-    code?: any,
-    sqlState?: any,
-    data?: any,
-    response?: any,
-    responseBody?: any,
-    cause?: any,
-    isFatal?: any,
-    stack?: any
-}
+declare module 'snowflake-sdk' {
 
-export interface SnowflakeError extends Error {
-    code?: ErrorCode,
-    sqlState?: string,
-    data?: Record<string, any>,
-    response?: Record<string, any>,
-    responseBody?: string,
-    cause?: Error,
-    isFatal?: boolean,
-    externalize?: () => SnowflakeErrorExternal | undefined,
+    interface SnowflakeErrorExternal extends Error {
+        name: any,
+        message: any,
+        code?: any,
+        sqlState?: any,
+        data?: any,
+        response?: any,
+        responseBody?: any,
+        cause?: any,
+        isFatal?: any,
+        stack?: any
+    }
+    export interface SnowflakeError extends Error {
+        code?: ErrorCode,
+        sqlState?: string,
+        data?: Record<string, any>,
+        response?: Record<string, any>,
+        responseBody?: string,
+        cause?: Error,
+        isFatal?: boolean,
+        externalize?: () => SnowflakeErrorExternal | undefined,
+    }
 }
-

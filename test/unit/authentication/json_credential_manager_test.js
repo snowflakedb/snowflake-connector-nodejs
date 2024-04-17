@@ -13,8 +13,6 @@ const credType = 'mock_cred';
 const key = Util.buildCredentialCacheKey(host, user, credType);
 const randomPassword = randomUUID();
 const os = require('os');
-const snowflake = require('../../../lib/snowflake');
-const GlobalConfig = require('../../../lib/global_config');
 const currentNodeVersion = parseInt(process.version.slice(1), 10);
 
 if (!(currentNodeVersion <= 14 && (os.platform() === 'win32'))) {
@@ -42,10 +40,7 @@ if (!(currentNodeVersion <= 14 && (os.platform() === 'win32'))) {
     });
 
     it('test - token saving location when the user sets credentialCacheDir value', function () {
-      snowflake.configure({
-        credentialCacheDir: os.tmpdir(),
-      });
-      const credManager = GlobalConfig.getCredentialManager();
+      const credManager = new JsonCredentialManager(os.tmpdir());
       assert.strictEqual(credManager.tokenDir, path.join(os.tmpdir(), 'temporary_credential.json'));
     });
 

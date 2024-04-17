@@ -17,7 +17,7 @@ const snowflake = require('../../../lib/snowflake');
 const GlobalConfig = require('../../../lib/global_config');
 const currentNodeVersion = parseInt(process.version.slice(1), 10);
 
-if (currentNodeVersion > 14){
+if (!(currentNodeVersion <= 14 && (os.platform() === 'win32'))) {
   describe('Json credential manager test', function () {
     const credentialManager = new JsonCredentialManager();
 

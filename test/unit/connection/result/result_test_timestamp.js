@@ -159,18 +159,6 @@ describe('Result: test timestamp', function () {
     }
   );
 
-  it('select dateadd(ms,999, to_timestamp_ntz(\'2024-04-16T14:57:58\', \'YYYY-MM-DD"T"HH24:MI:SS\')) AS C1;',
-    function (done) {
-      checkSingleTimestamp(
-        '1713279478.999',
-        'YYYY-MM-DD HH24:MI:SS.FF3',
-        3,
-        '2024-04-16 14:57:58.999',
-        done
-      );
-    }
-  );
-
   it('select to_timestamp_ntz(\'2024-04-16T14:57:58:999\', \'YYYY-MM-DD"T"HH24:MI:SS:FF3\') AS C1;',
     function (done) {
       checkSingleTimestamp(
@@ -183,7 +171,7 @@ describe('Result: test timestamp', function () {
     }
   );
 
-  it('select dateadd(ms,1, to_timestamp_ntz(\'2024-04-16T14:57:58\', \'YYYY-MM-DD"T"HH24:MI:SS\')) AS C1;',
+  it('select to_timestamp_ntz(\'2024-04-16T14:57:58:001\', \'YYYY-MM-DD"T"HH24:MI:SS:FF3\') AS C1;',
     function (done) {
       checkSingleTimestamp(
         '1713279478.001',
@@ -195,18 +183,6 @@ describe('Result: test timestamp', function () {
     }
   );
   
-  it('select dateadd(ns,999999999, to_timestamp_ntz(\'2024-04-16T14:57:58\', \'YYYY-MM-DD"T"HH24:MI:SS\')) AS C1;',
-    function (done) {
-      checkSingleTimestamp(
-        '1713279478.999999999',
-        'YYYY-MM-DD HH24:MI:SS.FF9',
-        9,
-        '2024-04-16 14:57:58.999999999',
-        done
-      );
-    }
-  );
-
   it('select to_timestamp_ntz(\'2024-04-16T14:57:58:999999999\', \'YYYY-MM-DD"T"HH24:MI:SS:FF9\') AS C1;',
     function (done) {
       checkSingleTimestamp(
@@ -219,7 +195,7 @@ describe('Result: test timestamp', function () {
     }
   );
 
-  it('select dateadd(ns,1, to_timestamp_ntz(\'2024-04-16T14:57:58\', \'YYYY-MM-DD"T"HH24:MI:SS\')) AS C1;',
+  it('select to_timestamp_ntz(\'2024-04-16T14:57:58:000000001\', \'YYYY-MM-DD"T"HH24:MI:SS:FF9\')) AS C1;',
     function (done) {
       checkSingleTimestamp(
         '1713279478.000000001',

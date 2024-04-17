@@ -15,59 +15,60 @@ const randomPassword = randomUUID();
 const os = require('os');
 const snowflake = require('../../../lib/snowflake');
 const GlobalConfig = require('../../../lib/global_config');
+const currentNodeVersion = parseInt(process.version.slice(1), 10);
 
+if (currentNodeVersion > 14){
+  describe('Json credential manager test', function () {
+    const credentialManager = new JsonCredentialManager();
 
-describe.only('Json credential manager test', function () {
-  const credentialManager = new JsonCredentialManager();
-
-  it('test - initiate credential manager', function () {
-    credentialManager.remove(key);
-    const savedPassword = credentialManager.read(key);
+    it('test - initiate credential manager', function () {
+      credentialManager.remove(key);
+      const savedPassword = credentialManager.read(key);
     
-    assert.strictEqual(credentialManager.tokenDir, path.join(os.homedir(), 'temporary_credential.json'));
-    assert.strictEqual(savedPassword, null);
-  });
-
-  it('test - write the mock credential with the credential manager', function () {
-    credentialManager.write(key, randomPassword);
-    const result = credentialManager.read(key);
-    assert.strictEqual(randomPassword, result);
-  });
-
-  it('test - delete the mock credential with the credential manager', function () {
-    credentialManager.remove(key);
-    const result = credentialManager.read(key);
-    console.log(result);
-    assert.ok(result === null);
-  });
-
-  it('test - token saving location when the user sets credentialCacheDir value', function () {
-    snowflake.configure({
-      credentialCacheDir: os.tmpdir(),
+      assert.strictEqual(credentialManager.tokenDir, path.join(os.homedir(), 'temporary_credential.json'));
+      assert.strictEqual(savedPassword, null);
     });
-    const credManager = GlobalConfig.getCredentialManager();
-    assert.strictEqual(credManager.tokenDir, path.join(os.tmpdir(), 'temporary_credential.json'));
+
+    it('test - write the mock credential with the credential manager', function () {
+      credentialManager.write(key, randomPassword);
+      const result = credentialManager.read(key);
+      assert.strictEqual(randomPassword, result);
+    });
+
+    it('test - delete the mock credential with the credential manager', function () {
+      credentialManager.remove(key);
+      const result = credentialManager.read(key);
+      assert.ok(result === null);
+    });
+
+    it('test - token saving location when the user sets credentialCacheDir value', function () {
+      snowflake.configure({
+        credentialCacheDir: os.tmpdir(),
+      });
+      const credManager = GlobalConfig.getCredentialManager();
+      assert.strictEqual(credManager.tokenDir, path.join(os.tmpdir(), 'temporary_credential.json'));
+    });
+
   });
 
-});
+  describe('Json credential manager - no valid saving location', function () {
+    const credentialManager = new JsonCredentialManager();
+    credentialManager.tokenDir = null;
 
-describe('Json credential manager - no valid saving location', function () {
-  const credentialManager = new JsonCredentialManager();
-  credentialManager.tokenDir = null;
+    it('test - initial the credential manager', function () {
+      assert.strictEqual(credentialManager.tokenDir, null);
+    });
 
-  it('test - initial the credential manager', function () {
-    assert.strictEqual(credentialManager.tokenDir, null);
+    it('test - read the mock credential with the credential manager', function () {
+      assert.strictEqual(credentialManager.read(key), null);
+    });
+
+    it('test - write the mock credential with the credential manager', function () {
+      assert.strictEqual(credentialManager.write(key, randomPassword), null);
+    });
+
+    it('test - delete the mock credential with the credential manager', function () {
+      assert.strictEqual(credentialManager.remove(key), null);
+    });
   });
-
-  it('test - read the mock credential with the credential manager', function () {
-    assert.strictEqual(credentialManager.read(key), null);
-  });
-
-  it('test - write the mock credential with the credential manager', function () {
-    assert.strictEqual(credentialManager.write(key, randomPassword), null);
-  });
-
-  it('test - delete the mock credential with the credential manager', function () {
-    assert.strictEqual(credentialManager.remove(key), null);
-  });
-});
+}

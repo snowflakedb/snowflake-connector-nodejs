@@ -727,6 +727,43 @@ describe('Util', function () {
     }
   });
 
+  describe("Util.constructHostname", () => {
+    it("works with undefined region", () => {
+      assert.strictEqual(
+        Util.constructHostname(undefined, "abc123"),
+        "abc123.snowflakecomputing.com"
+      );
+    });
+
+    it("adds region to the account", () => {
+      assert.strictEqual(
+        Util.constructHostname("us-west-1", "abc123"),
+        "abc123.us-west-1.snowflakecomputing.com"
+      );
+    });
+
+    it("Skips region when it is us-west-2", () => {
+      assert.strictEqual(
+        Util.constructHostname("us-west-2", "abc123"),
+        "abc123.snowflakecomputing.com"
+      );
+    });
+
+    it("Ignores the account region when a different region is specified", () => {
+      assert.strictEqual(
+        Util.constructHostname("us-east-2", "abc123.us-east-1"),
+        "abc123.us-east-2.snowflakecomputing.com"
+      );
+    });
+
+    it("Uses account region when there is no other region specified", () => {
+      assert.strictEqual(
+        Util.constructHostname(undefined, "abc123.us-east-1"),
+        "abc123.us-east-1.snowflakecomputing.com"
+      );
+    });
+  });
+
   describe('Okta Authentication Retry Condition', () => {
     const testCases =
     [

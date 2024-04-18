@@ -218,7 +218,7 @@ declare module 'snowflake-sdk' {
         ERR_GET_RESULTS_QUERY_ID_NOT_SUCCESS_STATUS = 460003,
     }
 
-    declare namespace snowflake {
+    namespace snowflake {
 
         export type CustomParser = (rawColumnValue: string) => any;
         export type Bind = string | number;
@@ -728,7 +728,7 @@ declare module 'snowflake-sdk' {
 
         export interface OcspModes {
             FAIL_CLOSED: string,
-            FAIL_OPEN: stirng,
+            FAIL_OPEN: string,
             INSECURE: string,
         }
 
@@ -770,7 +770,7 @@ declare module 'snowflake-sdk' {
         /**
          * Online Certificate Status Protocol (OCSP), detailed information: https://docs.snowflake.com/en/user-guide/ocsp.
          */
-        declare const ocspModes: OcspModes;
+        const ocspModes: OcspModes;
 
         /**
          * Creates a connection object that can be used to communicate with Snowflake.

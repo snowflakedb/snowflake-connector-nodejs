@@ -218,590 +218,586 @@ declare module 'snowflake-sdk' {
         ERR_GET_RESULTS_QUERY_ID_NOT_SUCCESS_STATUS = 460003,
     }
 
-    namespace snowflake {
 
-        export type CustomParser = (rawColumnValue: string) => any;
-        export type Bind = string | number;
-        export type InsertBinds = Bind[][];
-        export type Binds = Bind[] | InsertBinds;
-        export type StatementCallback = (err: SnowflakeError | undefined, stmt: RowStatement | FileAndStageBindStatement, rows: any[] | undefined) => void;
-        export type ConnectionCallback = (err: SnowflakeError | undefined, conn: Connection) => void
-
-        export interface ConfigureOptions {
-            /**
-             * Set the logLevel and logFilePath,
-             * https://docs.snowflake.com/en/developer-guide/node-js/nodejs-driver-logs.
-             */
-            logLevel?: LogLevel | undefined;
-            logFilePath?: string | undefined;
-
-            /**
-             * Check the ocsp checking is off.
-             */
-            insecureConnect?: boolean | undefined;
-
-            /**
-             * The default value is true.
-             * Detailed information: https://docs.snowflake.com/en/user-guide/ocsp.
-             */
-            ocspFailOpen?: boolean | undefined;
-
-            /**
-             * The Snowflake Node.js driver provides the following default parsers for processing JSON and XML data in result sets.
-             * Detailed information: https://docs.snowflake.com/en/developer-guide/node-js/nodejs-driver-consume.
-             */
-            jsonColumnVariantParser?: CustomParser;
-            xmlColumnVariantParser?: CustomParser;
-
-            /**
-             * Specifies whether to enable keep-alive functionality on the socket immediately after receiving a new connection request.
-             */
-            keepAlive?: boolean,
-        }
-
-        export interface ConnectionOptions {
-            //Detail information: https://docs.snowflake.com/en/developer-guide/node-js/nodejs-driver-options
-
-            /**
-             * Your account identifier.
-             */
-            account: string;
-
-            /**
-             * Specifies the name of the client application connecting to Snowflake.
-             */
-            application?: string;
-
-            /**
-             * @deprecated
-             * The ID for the region where your account is located.
-             */
-            region?: string;
-
-            /**
-             * Host address to which the driver should connect.
-             */
-            host?: string;
-
-            /**
-             * Specifies a fully-qualified endpoint for connecting to Snowflake.
-             */
-            accessUrl?: string;
-
-            /**
-             * The login name for your Snowflake user or your Identity Provider (e.g. your login name for Okta).
-             */
-            username?: string;
-
-            /**
-             * Password for the user.
-             */
-            password?: string;
-
-            /**
-             * Specifies the authenticator to use for verifying user login credentials.
-             */
-            authenticator?: string;
-
-            /**
-             * Specifies the hostname of an authenticated proxy server.
-             */
-            proxyHost?: string;
-
-            /**
-             * Specifies the password for the user specified by proxyUser.
-             */
-            proxyPort?: number;
-
-            /**
-             * Specifies the serviceName.
-             */
-            serviceName?: string;
-
-            /**
-             * Specifies the private key (in PEM format) for key pair authentication.
-             */
-            privateKey?: string;
-
-            /**
-             * Specifies the local path to the private key file (e.g. rsa_key.p8)
-             */
-            privateKeyPath?: string;
-
-            /**
-             * Specifies the passcode to decrypt the private key file, if the file is encrypted.
-             */
-            privateKeyPass?: string;
-
-            /**
-             * Specifies the OAuth token to use for authentication. Set this option if you set the authenticator option to OAUTH.
-             */
-            token?: string;
-
-            /**
-             * The default virtual warehouse to use for the session after connecting. Used for performing queries, loading data, etc.
-             */
-            warehouse?: string;
-
-            /**
-             * The default database to use for the session after connecting.
-             */
-            database?: string;
-
-            /**
-             * The default schema to use for the session after connecting.
-             */
-            schema?: string;
-
-            /**
-             * The default security role to use for the session after connecting.
-             */
-            role?: string;
-
-            /**
-             * Returns the rowMode string value ('array', 'object' or 'object_with_renamed_duplicated_columns'). Could be null or undefined.
-             *
-             */
-            rowMode?: RowMode;
-
-            /**
-             * Enabling this parameter causes the method to return a Node.js Readable stream, which you can use to consume rows as they are received.
-             */
-            streamResult?: boolean;
-
-            /**
-             * return the following data types as strings: Boolean, Number, Date, Buffer, and JSON.
-             */
-            fetchAsString?: DataType[] | undefined;
-
-            /**
-             * By default, client connections typically time out approximately 3-4 hours after the most recent query was executed.
-             */
-            clientSessionKeepAlive?: boolean;
-
-            /**
-             * Sets the frequency (interval in seconds) between heartbeat messages.
-             */
-            clientSessionKeepAliveHeartbeatFrequency?: number;
-
-            /**
-             * To convert Snowflake INTEGER columns to JavaScript Bigint, which can store larger values than JavaScript Number
-             */
-            jsTreatIntegerAsBigInt?: boolean;
-
-            /**
-             * Sets the maximum number of binds the driver uses in a bulk insert operation. The default value is 100000 (100K).
-             */
-            arrayBindingThreshold?: number;
-
-            /**
-             * Set whether the retry reason is included or not in the retry url.
-             */
-            includeRetryReason?: boolean;
-
-            /**
-             * The max login timeout value. This value is either 0 or over 300.
-             */
-            retryTimeout?: number;
-
-            /**
-             * The option to use https request only for the snowflake server if other GCP metadata or configuration is already set on the machine.
-             * The default value is false.
-             */
-            forceGCPUseDownscopedCredential?: boolean
-        }
-
-        export interface Connection {
-            /**
-             * Returns true if the connection is active otherwise false.
-             */
-            isUp(): boolean;
-
-            /**
-             * Returns the connection id.
-             */
-            getId(): string;
-
-            /**
-             * Returns true if the connection is good to send a query otherwise false.
-             */
-            isValidAsync(): Promise<boolean>;
-
-            /**
-             * Set the private link as the OCSP cache server's URL.
-             *
-             */
-            setupOcspPrivateLink(host: string): void;
-
-            /**
-             * Establishes a connection if not in a fatal state.
-             *
-             */
-            connect(callback: ConnectionCallback): void;
-
-            /**
-             * Establishes a connection if not in a fatal state.
-             *
-             * If you do not set the authenticator option to `EXTERNALBROWSER` (in order to use browser-based SSO) or
-             * `https://<okta_account_name>.okta.com` (in order to use native SSO through Okta), call the {@link connect}
-             * method.
-             */
-            connectAsync(callback: ConnectionCallback): Promise<void>;
-
-            /**
-             * Executes a statement.
-             */
-            execute(options: StatementOption): RowStatement | FileAndStageBindStatement;
-
-            /**
-             * Fetches the result of a previously issued statement.
-             */
-            fetchResult(options: StatementOption): RowStatement | FileAndStageBindStatement;
-
-            /**
-             * Immediately terminates the connection without waiting for currently executing statements to complete.
-             */
-            destroy(fn: ConnectionCallback): void;
-
-            /**
-             * Gets the status of the query based on queryId.
-             */
-            getQueryStatus(queryId: string): string;
-
-            /**
-             * Gets the status of the query based on queryId and throws if there's an error.
-             */
-            getQueryStatusThrowIfError(queryId: string): string;
-
-            /**
-             *  Gets the results from a previously ran query based on queryId.
-             */
-            getResultsFromQueryId(options: StatementOption): RowStatement | FileAndStageBindStatement;
-
-            /**
-             * Checks whether the given status is currently running.
-             */
-            isStillRunning(status: QueryStatus): boolean;
-
-            /**
-             * Checks whether the given status means that there has been an error.
-             */
-            isAnError(): boolean;
-        }
-
-        export interface StatementOption {
-            sqlText: string;
-            complete: StatementCallback,
-
-            /**
-             * The requestId is for resubmitting requests.
-             * Detailed Information: https://docs.snowflake.com/en/developer-guide/node-js/nodejs-driver-execute.
-             */
-            requestId?: string;
-
-            /**
-             * Use different rest endpoints based on whether the query id is available.
-             */
-            queryId?: string;
-
-            /**
-             * You can also consume a result as a stream of rows by setting the streamResult connection parameter to true in connection.execute
-             * when calling the statement.streamRows() method.
-             * Detailed Information: https://docs.snowflake.com/en/developer-guide/node-js/nodejs-driver-consume.
-             */
-            streamResult?: boolean;
-
-            /**
-             * Find information: https://docs.snowflake.com/en/developer-guide/node-js/nodejs-driver-execute.
-             */
-            binds?: Binds;
-
-            /**
-             * The fetchAsString option is to return the following data types as strings: Boolean, Number, Date, Buffer, and JSON.
-             * Detailed information: https://docs.snowflake.com/en/developer-guide/node-js/nodejs-driver-consume.
-             */
-            fetchAsString?: DataType[];
-
-            /**
-             * Detailed information: https://docs.snowflake.com/en/developer-guide/node-js/nodejs-driver-execute.
-             */
-            parameters?: Record<string, any>;
-        }
-
-        export interface RowStatement {
-            /**
-             * Returns this statement's SQL text.
-             */
-            getSqlText(): string;
-
-            /**
-             * Returns the current status of this statement.
-             */
-            getStatus(): StatementStatus;
-
-            /**
-             * Returns the columns produced by this statement.
-             */
-            getColumns(): Column[];
-
-            /**
-             * Given a column identifier, returns the corresponding column.
-             * The column identifier can be either the column name (String) or the column index(Number).
-             * If a column is specified and there is more than one column with that name,
-             * the first column with the specified name will be returned.
-             */
-            getColumn(columnIdentifier: string | number): Column;
-
-            /**
-             * Returns the number of rows returned by this statement.
-             */
-            getNumRows(): number;
-
-            /**
-             * Returns the number of rows updated by this statement.
-             *
-             */
-            getNumUpdatedRows(): number | undefined;
-
-            /**
-             * Returns an object that contains information about the values of
-             * the current warehouse, current database, etc.,
-             * when this statement finished executing.
-             */
-            getSessionState(): object | undefined;
-
-            /**
-             * Returns the request id that was used when the statement was issued.
-             */
-            getRequestId(): string;
-
-            /**
-             * Returns the query id generated by the server for this statement.
-             * If the statement is still executing, and we don't know the query id yet,
-             * this method will return undefined.
-             *
-             * Should use getQueryId instead.
-             * @deprecated
-             * @returns {String}
-             */
-            getStatementId(): string
-
-            /**
-             * Returns the query id generated by the server for this statement.
-             * If the statement is still executing, and we don't know the query id
-             * yet, this method will return undefined.
-             *
-             */
-            getQueryId(): string;
-
-            /**
-             * Streams the rows in this statement's result. If start and end values are
-             * specified, only rows in the specified range are streamed.
-             *
-             * @param {Object} options
-             */
-            streamRows(options?: StreamOptions): Readable;
-
-            /**
-             * Fetches the rows in this statement's result and invokes each()
-             * callback on each row. If start and end values are specified each()
-             * callback will only be invoked on rows in the specified range.
-             *
-             * @param {Object} options
-             */
-            fetchRows(options?: StreamOptions): Readable;
-        }
-
-        export interface Column {
-            /**
-             * Returns the name of this column.
-             */
-            getName(): string;
-
-            /**
-             * Returns the index of this column.
-             */
-            getIndex(): number;
-
-            /**
-             * Returns the id of this column.
-             */
-            getId(): number;
-
-            /**
-             * Determines if this column is nullable.
-             */
-            isNullable(): boolean;
-
-            /**
-             * Returns the scale associated with this column.
-             */
-            getScale(): number;
-
-            /**
-             * Returns the type associated with this column.
-             */
-            getType(): string;
-
-            /**
-             * Returns the precision associated with this column
-             *
-             */
-            getPrecision(): number;
-
-            /**
-             * Returns true if this column is type STRING.
-             */
-            isString(): boolean;
-
-            /**
-             * Returns true if this column is type BINARY.
-             */
-            isBinary(): boolean;
-
-            /**
-             * Returns true if this column is type NUMBER.
-             */
-            isNumber(): boolean;
-
-            /**
-             * Returns true if this column is type BOOLEAN.
-             */
-            isBoolean(): boolean;
-
-            /**
-             * Returns true if this column is type DATE.
-             */
-            isDate(): boolean;
-
-            /**
-             * Returns true if this column is type TIME.
-             */
-            isTime(): boolean;
-
-            /**
-             * Returns true if this column is type TIMESTAMP.
-             */
-            isTimestamp(): boolean;
-
-            /**
-             * Returns true if this column is type TIMESTAMP_LTZ.
-             */
-            isTimestampLtz(): boolean;
-
-            /**
-             * Returns true if this column is type TIMESTAMP_NTZ.
-             */
-            isTimestampNtz(): boolean;
-
-            /**
-             * Returns true if this column is type TIMESTAMP_TZ.
-             */
-            isTimestampTz(): boolean;
-
-            /**
-             * Returns true if this column is type VARIANT.
-             */
-            isVariant(): boolean;
-
-            /**
-             * Returns true if this column is type OBJECT.
-             */
-            isObject(): boolean;
-
-            /**
-             * Returns true if this column is type ARRAY.
-             */
-            isArray(): boolean;
-
-            /**
-             * Returns the value of this column in a row.
-             */
-            getRowValue(row: object): any;
-
-            /**
-             * Returns the value of this in a row as a String.
-             */
-            getRowValueAsString(row: object): string;
-        }
-
-
-        export interface OcspModes {
-            FAIL_CLOSED: string,
-            FAIL_OPEN: string,
-            INSECURE: string,
-        }
-
-        export interface FileAndStageBindStatement extends RowStatement {
-            hasNext(): () => boolean;
-            NextResult(): () => void;
-        }
-
-        export interface SnowflakeErrorExternal extends Error {
-            name: any,
-            message: any,
-            code?: any,
-            sqlState?: any,
-            data?: any,
-            response?: any,
-            responseBody?: any,
-            cause?: any,
-            isFatal?: any,
-            stack?: any
-        }
-
-        export interface SnowflakeError extends Error {
-            code?: ErrorCode,
-            sqlState?: string,
-            data?: Record<string, any>,
-            response?: Record<string, any>,
-            responseBody?: string,
-            cause?: Error,
-            isFatal?: boolean,
-            externalize?: () => SnowflakeErrorExternal | undefined,
-        }
-
-        export interface StreamOptions {
-            start?: number;
-            end?: number;
-            fetchAsString?: DataType[] | undefined;
-        }
+    export type CustomParser = (rawColumnValue: string) => any;
+    export type Bind = string | number;
+    export type InsertBinds = Bind[][];
+    export type Binds = Bind[] | InsertBinds;
+    export type StatementCallback = (err: SnowflakeError | undefined, stmt: RowStatement | FileAndStageBindStatement, rows: any[] | undefined) => void;
+    export type ConnectionCallback = (err: SnowflakeError | undefined, conn: Connection) => void
+
+    export interface ConfigureOptions {
+        /**
+         * Set the logLevel and logFilePath,
+         * https://docs.snowflake.com/en/developer-guide/node-js/nodejs-driver-logs.
+         */
+        logLevel?: LogLevel | undefined;
+        logFilePath?: string | undefined;
 
         /**
-         * Online Certificate Status Protocol (OCSP), detailed information: https://docs.snowflake.com/en/user-guide/ocsp.
+         * Check the ocsp checking is off.
          */
-        const ocspModes: OcspModes;
+        insecureConnect?: boolean | undefined;
 
         /**
-         * Creates a connection object that can be used to communicate with Snowflake.
+         * The default value is true.
+         * Detailed information: https://docs.snowflake.com/en/user-guide/ocsp.
          */
-        export function createConnection(options: ConnectionOptions): Connection;
+        ocspFailOpen?: boolean | undefined;
 
         /**
-         * Deserializes a serialized connection.
+         * The Snowflake Node.js driver provides the following default parsers for processing JSON and XML data in result sets.
+         * Detailed information: https://docs.snowflake.com/en/developer-guide/node-js/nodejs-driver-consume.
          */
-        export function deserializeConnection(options: ConnectionOptions, serializedConnection: string): Connection;
+        jsonColumnVariantParser?: CustomParser;
+        xmlColumnVariantParser?: CustomParser;
 
         /**
-         * Serializes a given connection.
+         * Specifies whether to enable keep-alive functionality on the socket immediately after receiving a new connection request.
          */
-        export function serializeConnection(connection: Connection): string;
-
-        /**
-         * Configures this instance of the Snowflake core module.
-         */
-        export function configure(options?: ConfigureOptions): void;
-
-        /**
-         * Creates a connection pool for Snowflake connections.
-         */
-        export function createPool(options: ConnectionOptions, poolOptions?: PoolOptions): Pool<Connection>;
-
-
+        keepAlive?: boolean,
     }
 
-    export = snowflake
+    export interface ConnectionOptions {
+        //Detail information: https://docs.snowflake.com/en/developer-guide/node-js/nodejs-driver-options
+
+        /**
+         * Your account identifier.
+         */
+        account: string;
+
+        /**
+         * Specifies the name of the client application connecting to Snowflake.
+         */
+        application?: string;
+
+        /**
+         * @deprecated
+         * The ID for the region where your account is located.
+         */
+        region?: string;
+
+        /**
+         * Host address to which the driver should connect.
+         */
+        host?: string;
+
+        /**
+         * Specifies a fully-qualified endpoint for connecting to Snowflake.
+         */
+        accessUrl?: string;
+
+        /**
+         * The login name for your Snowflake user or your Identity Provider (e.g. your login name for Okta).
+         */
+        username?: string;
+
+        /**
+         * Password for the user.
+         */
+        password?: string;
+
+        /**
+         * Specifies the authenticator to use for verifying user login credentials.
+         */
+        authenticator?: string;
+
+        /**
+         * Specifies the hostname of an authenticated proxy server.
+         */
+        proxyHost?: string;
+
+        /**
+         * Specifies the password for the user specified by proxyUser.
+         */
+        proxyPort?: number;
+
+        /**
+         * Specifies the serviceName.
+         */
+        serviceName?: string;
+
+        /**
+         * Specifies the private key (in PEM format) for key pair authentication.
+         */
+        privateKey?: string;
+
+        /**
+         * Specifies the local path to the private key file (e.g. rsa_key.p8)
+         */
+        privateKeyPath?: string;
+
+        /**
+         * Specifies the passcode to decrypt the private key file, if the file is encrypted.
+         */
+        privateKeyPass?: string;
+
+        /**
+         * Specifies the OAuth token to use for authentication. Set this option if you set the authenticator option to OAUTH.
+         */
+        token?: string;
+
+        /**
+         * The default virtual warehouse to use for the session after connecting. Used for performing queries, loading data, etc.
+         */
+        warehouse?: string;
+
+        /**
+         * The default database to use for the session after connecting.
+         */
+        database?: string;
+
+        /**
+         * The default schema to use for the session after connecting.
+         */
+        schema?: string;
+
+        /**
+         * The default security role to use for the session after connecting.
+         */
+        role?: string;
+
+        /**
+         * Returns the rowMode string value ('array', 'object' or 'object_with_renamed_duplicated_columns'). Could be null or undefined.
+         *
+         */
+        rowMode?: RowMode;
+
+        /**
+         * Enabling this parameter causes the method to return a Node.js Readable stream, which you can use to consume rows as they are received.
+         */
+        streamResult?: boolean;
+
+        /**
+         * return the following data types as strings: Boolean, Number, Date, Buffer, and JSON.
+         */
+        fetchAsString?: DataType[] | undefined;
+
+        /**
+         * By default, client connections typically time out approximately 3-4 hours after the most recent query was executed.
+         */
+        clientSessionKeepAlive?: boolean;
+
+        /**
+         * Sets the frequency (interval in seconds) between heartbeat messages.
+         */
+        clientSessionKeepAliveHeartbeatFrequency?: number;
+
+        /**
+         * To convert Snowflake INTEGER columns to JavaScript Bigint, which can store larger values than JavaScript Number
+         */
+        jsTreatIntegerAsBigInt?: boolean;
+
+        /**
+         * Sets the maximum number of binds the driver uses in a bulk insert operation. The default value is 100000 (100K).
+         */
+        arrayBindingThreshold?: number;
+
+        /**
+         * Set whether the retry reason is included or not in the retry url.
+         */
+        includeRetryReason?: boolean;
+
+        /**
+         * The max login timeout value. This value is either 0 or over 300.
+         */
+        retryTimeout?: number;
+
+        /**
+         * The option to use https request only for the snowflake server if other GCP metadata or configuration is already set on the machine.
+         * The default value is false.
+         */
+        forceGCPUseDownscopedCredential?: boolean
+    }
+
+    export interface Connection {
+        /**
+         * Returns true if the connection is active otherwise false.
+         */
+        isUp(): boolean;
+
+        /**
+         * Returns the connection id.
+         */
+        getId(): string;
+
+        /**
+         * Returns true if the connection is good to send a query otherwise false.
+         */
+        isValidAsync(): Promise<boolean>;
+
+        /**
+         * Set the private link as the OCSP cache server's URL.
+         *
+         */
+        setupOcspPrivateLink(host: string): void;
+
+        /**
+         * Establishes a connection if not in a fatal state.
+         *
+         */
+        connect(callback: ConnectionCallback): void;
+
+        /**
+         * Establishes a connection if not in a fatal state.
+         *
+         * If you do not set the authenticator option to `EXTERNALBROWSER` (in order to use browser-based SSO) or
+         * `https://<okta_account_name>.okta.com` (in order to use native SSO through Okta), call the {@link connect}
+         * method.
+         */
+        connectAsync(callback: ConnectionCallback): Promise<void>;
+
+        /**
+         * Executes a statement.
+         */
+        execute(options: StatementOption): RowStatement | FileAndStageBindStatement;
+
+        /**
+         * Fetches the result of a previously issued statement.
+         */
+        fetchResult(options: StatementOption): RowStatement | FileAndStageBindStatement;
+
+        /**
+         * Immediately terminates the connection without waiting for currently executing statements to complete.
+         */
+        destroy(fn: ConnectionCallback): void;
+
+        /**
+         * Gets the status of the query based on queryId.
+         */
+        getQueryStatus(queryId: string): string;
+
+        /**
+         * Gets the status of the query based on queryId and throws if there's an error.
+         */
+        getQueryStatusThrowIfError(queryId: string): string;
+
+        /**
+         *  Gets the results from a previously ran query based on queryId.
+         */
+        getResultsFromQueryId(options: StatementOption): RowStatement | FileAndStageBindStatement;
+
+        /**
+         * Checks whether the given status is currently running.
+         */
+        isStillRunning(status: QueryStatus): boolean;
+
+        /**
+         * Checks whether the given status means that there has been an error.
+         */
+        isAnError(): boolean;
+    }
+
+    export interface StatementOption {
+        sqlText: string;
+        complete: StatementCallback,
+
+        /**
+         * The requestId is for resubmitting requests.
+         * Detailed Information: https://docs.snowflake.com/en/developer-guide/node-js/nodejs-driver-execute.
+         */
+        requestId?: string;
+
+        /**
+         * Use different rest endpoints based on whether the query id is available.
+         */
+        queryId?: string;
+
+        /**
+         * You can also consume a result as a stream of rows by setting the streamResult connection parameter to true in connection.execute
+         * when calling the statement.streamRows() method.
+         * Detailed Information: https://docs.snowflake.com/en/developer-guide/node-js/nodejs-driver-consume.
+         */
+        streamResult?: boolean;
+
+        /**
+         * Find information: https://docs.snowflake.com/en/developer-guide/node-js/nodejs-driver-execute.
+         */
+        binds?: Binds;
+
+        /**
+         * The fetchAsString option is to return the following data types as strings: Boolean, Number, Date, Buffer, and JSON.
+         * Detailed information: https://docs.snowflake.com/en/developer-guide/node-js/nodejs-driver-consume.
+         */
+        fetchAsString?: DataType[];
+
+        /**
+         * Detailed information: https://docs.snowflake.com/en/developer-guide/node-js/nodejs-driver-execute.
+         */
+        parameters?: Record<string, any>;
+    }
+
+    export interface RowStatement {
+        /**
+         * Returns this statement's SQL text.
+         */
+        getSqlText(): string;
+
+        /**
+         * Returns the current status of this statement.
+         */
+        getStatus(): StatementStatus;
+
+        /**
+         * Returns the columns produced by this statement.
+         */
+        getColumns(): Column[];
+
+        /**
+         * Given a column identifier, returns the corresponding column.
+         * The column identifier can be either the column name (String) or the column index(Number).
+         * If a column is specified and there is more than one column with that name,
+         * the first column with the specified name will be returned.
+         */
+        getColumn(columnIdentifier: string | number): Column;
+
+        /**
+         * Returns the number of rows returned by this statement.
+         */
+        getNumRows(): number;
+
+        /**
+         * Returns the number of rows updated by this statement.
+         *
+         */
+        getNumUpdatedRows(): number | undefined;
+
+        /**
+         * Returns an object that contains information about the values of
+         * the current warehouse, current database, etc.,
+         * when this statement finished executing.
+         */
+        getSessionState(): object | undefined;
+
+        /**
+         * Returns the request id that was used when the statement was issued.
+         */
+        getRequestId(): string;
+
+        /**
+         * Returns the query id generated by the server for this statement.
+         * If the statement is still executing, and we don't know the query id yet,
+         * this method will return undefined.
+         *
+         * Should use getQueryId instead.
+         * @deprecated
+         * @returns {String}
+         */
+        getStatementId(): string
+
+        /**
+         * Returns the query id generated by the server for this statement.
+         * If the statement is still executing, and we don't know the query id
+         * yet, this method will return undefined.
+         *
+         */
+        getQueryId(): string;
+
+        /**
+         * Streams the rows in this statement's result. If start and end values are
+         * specified, only rows in the specified range are streamed.
+         *
+         * @param {Object} options
+         */
+        streamRows(options?: StreamOptions): Readable;
+
+        /**
+         * Fetches the rows in this statement's result and invokes each()
+         * callback on each row. If start and end values are specified each()
+         * callback will only be invoked on rows in the specified range.
+         *
+         * @param {Object} options
+         */
+        fetchRows(options?: StreamOptions): Readable;
+    }
+
+    export interface Column {
+        /**
+         * Returns the name of this column.
+         */
+        getName(): string;
+
+        /**
+         * Returns the index of this column.
+         */
+        getIndex(): number;
+
+        /**
+         * Returns the id of this column.
+         */
+        getId(): number;
+
+        /**
+         * Determines if this column is nullable.
+         */
+        isNullable(): boolean;
+
+        /**
+         * Returns the scale associated with this column.
+         */
+        getScale(): number;
+
+        /**
+         * Returns the type associated with this column.
+         */
+        getType(): string;
+
+        /**
+         * Returns the precision associated with this column
+         *
+         */
+        getPrecision(): number;
+
+        /**
+         * Returns true if this column is type STRING.
+         */
+        isString(): boolean;
+
+        /**
+         * Returns true if this column is type BINARY.
+         */
+        isBinary(): boolean;
+
+        /**
+         * Returns true if this column is type NUMBER.
+         */
+        isNumber(): boolean;
+
+        /**
+         * Returns true if this column is type BOOLEAN.
+         */
+        isBoolean(): boolean;
+
+        /**
+         * Returns true if this column is type DATE.
+         */
+        isDate(): boolean;
+
+        /**
+         * Returns true if this column is type TIME.
+         */
+        isTime(): boolean;
+
+        /**
+         * Returns true if this column is type TIMESTAMP.
+         */
+        isTimestamp(): boolean;
+
+        /**
+         * Returns true if this column is type TIMESTAMP_LTZ.
+         */
+        isTimestampLtz(): boolean;
+
+        /**
+         * Returns true if this column is type TIMESTAMP_NTZ.
+         */
+        isTimestampNtz(): boolean;
+
+        /**
+         * Returns true if this column is type TIMESTAMP_TZ.
+         */
+        isTimestampTz(): boolean;
+
+        /**
+         * Returns true if this column is type VARIANT.
+         */
+        isVariant(): boolean;
+
+        /**
+         * Returns true if this column is type OBJECT.
+         */
+        isObject(): boolean;
+
+        /**
+         * Returns true if this column is type ARRAY.
+         */
+        isArray(): boolean;
+
+        /**
+         * Returns the value of this column in a row.
+         */
+        getRowValue(row: object): any;
+
+        /**
+         * Returns the value of this in a row as a String.
+         */
+        getRowValueAsString(row: object): string;
+    }
+
+
+    export interface OcspModes {
+        FAIL_CLOSED: string,
+        FAIL_OPEN: string,
+        INSECURE: string,
+    }
+
+    export interface FileAndStageBindStatement extends RowStatement {
+        hasNext(): () => boolean;
+        NextResult(): () => void;
+    }
+
+    export interface SnowflakeErrorExternal extends Error {
+        name: any,
+        message: any,
+        code?: any,
+        sqlState?: any,
+        data?: any,
+        response?: any,
+        responseBody?: any,
+        cause?: any,
+        isFatal?: any,
+        stack?: any
+    }
+
+    export interface SnowflakeError extends Error {
+        code?: ErrorCode,
+        sqlState?: string,
+        data?: Record<string, any>,
+        response?: Record<string, any>,
+        responseBody?: string,
+        cause?: Error,
+        isFatal?: boolean,
+        externalize?: () => SnowflakeErrorExternal | undefined,
+    }
+
+    export interface StreamOptions {
+        start?: number;
+        end?: number;
+        fetchAsString?: DataType[] | undefined;
+    }
+
+    /**
+     * Online Certificate Status Protocol (OCSP), detailed information: https://docs.snowflake.com/en/user-guide/ocsp.
+     */
+    const ocspModes: OcspModes;
+
+    /**
+     * Creates a connection object that can be used to communicate with Snowflake.
+     */
+    export function createConnection(options: ConnectionOptions): Connection;
+
+    /**
+     * Deserializes a serialized connection.
+     */
+    export function deserializeConnection(options: ConnectionOptions, serializedConnection: string): Connection;
+
+    /**
+     * Serializes a given connection.
+     */
+    export function serializeConnection(connection: Connection): string;
+
+    /**
+     * Configures this instance of the Snowflake core module.
+     */
+    export function configure(options?: ConfigureOptions): void;
+
+    /**
+     * Creates a connection pool for Snowflake connections.
+     */
+    export function createPool(options: ConnectionOptions, poolOptions?: PoolOptions): Pool<Connection>;
+
 
 }
+
 
 

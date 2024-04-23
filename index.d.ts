@@ -2,9 +2,6 @@
  * Copyright (c) 2015-2024 Snowflake Computing Inc. All rights reserved.
  */
 
-import { Readable } from 'stream';
-import { Options as PoolOptions, Pool } from "generic-pool";
-
 /**
  * The snowflake-sdk module provides an instance to connect to the Snowflake server
  * @see [source](https://docs.snowflake.com/en/developer-guide/node-js/nodejs-driver)
@@ -217,13 +214,15 @@ declare enum ErrorCode {
     ERR_GET_RESULTS_QUERY_ID_NOT_SUCCESS_STATUS = 460003,
 }
 
-
 export type CustomParser = (rawColumnValue: string) => any;
 export type Bind = string | number;
 export type InsertBinds = Bind[][];
 export type Binds = Bind[] | InsertBinds;
 export type StatementCallback = (err: SnowflakeError | undefined, stmt: RowStatement | FileAndStageBindStatement, rows?: Array<any> | undefined) => void;
 export type ConnectionCallback = (err: SnowflakeError | undefined, conn: Connection) => void
+type PoolOptions = import('generic-pool').Options;
+type Readable = import('stream').Readable;
+type Pool<T> = import('generic-pool').Pool<T>;
 
 export interface ConfigureOptions {
     /**

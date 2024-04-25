@@ -49,7 +49,7 @@ jobs:
             fail-fast: false
             matrix:
                 cloud: [ 'AWS', 'AZURE', 'GCP' ]
-                nodeVersion: ['16.x', '18.x', '20.x']
+                nodeVersion: [ '14.x', '16.x', '18.x', '20.x']
         steps:
             - uses: actions/checkout@v4
             - uses: actions/setup-node@v3
@@ -57,7 +57,7 @@ jobs:
                 node-version: ${{ matrix.nodeVersion }}
             - uses: actions/setup-python@v4
               with:
-                python-version: '3.7'
+                python-version: '3.13'
             - name: Download Build Artifacts
               uses: actions/download-artifact@v3
               with:

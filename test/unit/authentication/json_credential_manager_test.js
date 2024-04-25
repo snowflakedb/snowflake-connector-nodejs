@@ -20,7 +20,7 @@ if (!(currentNodeVersion <= 14 && (os.platform() === 'win32'))) {
     const credentialManager = new JsonCredentialManager();
 
     it('test - initiate credential manager', async function () {
-      if(await credentialManager.read(key) !== null) {
+      if (await credentialManager.read(key) !== null) {
         await credentialManager.remove(key);
       }
       const savedPassword = await credentialManager.read(key);

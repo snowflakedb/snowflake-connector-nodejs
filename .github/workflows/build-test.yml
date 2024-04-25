@@ -49,7 +49,7 @@ jobs:
             fail-fast: false
             matrix:
                 cloud: [ 'AWS', 'AZURE', 'GCP' ]
-                nodeVersion: [ '14.x', '16.x', '18.x', '20.x']
+                nodeVersion: ['16.x', '18.x', '20.x']
         steps:
             - uses: actions/checkout@v4
             - uses: actions/setup-node@v3

@@ -202,7 +202,6 @@ function verifyOnlyBooleanConverted(rows) {
   verifyBooleanConverted(row);
   verifyDateNotConverted(row);
   verifyNULLNotConverted(row);
-
 }
 
 function verifyOnlyDateConverted(rows) {
@@ -264,5 +263,3 @@ function verifyDateConverted(row) {
 function verifyNULLConverted(row) {
   assert.strictEqual(row.nullData, nullAsString);
 }
-
-

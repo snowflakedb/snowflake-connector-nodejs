@@ -75,8 +75,7 @@ if (process.env.RUN_MANUAL_TESTS_ONLY === 'true') {
     });
 
     describe('Connection - ID Token authenticator', async function (done) {
-      const connectionOption = connOption.externalBrowser;
-      connectionOption.clientStoreTemporaryCredential = true;
+      const connectionOption = { ...connOption.externalBrowser, clientStoreTemporaryCredential: true };
       const key = Util.buildCredentialCacheKey(connectionOption.host, connectionOption.username, 'ID_TOKEN');
       await GlobalConfig.getCredentialManager().remove(key);
 

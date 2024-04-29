@@ -13,7 +13,7 @@ const connOpts = MockTestUtil.connectionOptions.default;
 
 const stmtOpts =
   {
-    sqlText: 'select to_boolean(:1) as "boolean", to_date(:2) as "date", 1.123456789123456789 as "number"',
+    sqlText: 'select to_boolean(:1) as "boolean", to_date(:2) as "date", 1.123456789123456789 as "number", null as "nullData"',
     binds: ['false', '1967-06-23'],
     requestId: 'foobar'
   };
@@ -21,24 +21,29 @@ const stmtOpts =
 const numberAsString = '1.123456789123456789';
 const booleanAsString = 'FALSE';
 const dateAsString = '1967-06-23';
+const nullAsString = 'NULL';
 
 const typesBoolean = [snowflake.BOOLEAN];
 const typesNumber = [snowflake.NUMBER];
 const typesDate = [snowflake.DATE];
+const typesNull = [snowflake.NULL];
 
 const connOptsNone = Util.apply({}, connOpts);
 const connOptsBoolean = Util.apply({ fetchAsString: typesBoolean }, connOpts);
 const connOptsNumber = Util.apply({ fetchAsString: typesNumber }, connOpts);
 const connOptsDate = Util.apply({ fetchAsString: typesDate }, connOpts);
+const connOptsNull = Util.apply({ fetchAsString: typesNull }, connOpts);
 
 const stmtOptsNone = Util.apply({}, stmtOpts);
 const stmtOptsBoolean = Util.apply({ fetchAsString: typesBoolean }, stmtOpts);
 const stmtOptsNumber = Util.apply({ fetchAsString: typesNumber }, stmtOpts);
+const stmtOptsNull = Util.apply({ fetchAsString: typesNull }, stmtOpts);
 
 const strmOptsNone = {};
 const strmOptsNumber = { fetchAsString: typesNumber };
 const strmOptsBoolean = { fetchAsString: typesBoolean };
 const strmOptsDate = { fetchAsString: typesDate };
+const strmOptsNull = { fetchAsString: typesNull };
 
 describe('Statement - fetch as string', function () {
   const testCases =
@@ -98,6 +103,34 @@ describe('Statement - fetch as string', function () {
         stmtOpts: stmtOptsNone,
         strmOpts: strmOptsNone,
         verifyFn: verifyOnlyNumberConverted
+      },
+      {
+        name: 'connection = none, statement = null, stream = none',
+        connOpts: connOptsNone,
+        stmtOpts: stmtOptsNull,
+        strmOpts: strmOptsNone,
+        verifyFn: verifyOnlyNullConverted
+      },
+      {
+        name: 'connection = null, statement = none, stream = none',
+        connOpts: connOptsNull,
+        stmtOpts: stmtOptsNone,
+        strmOpts: strmOptsNone,
+        verifyFn: verifyOnlyNullConverted
+      },
+      {
+        name: 'connection = none, statement = none, stream = null',
+        connOpts: connOptsNone,
+        stmtOpts: stmtOptsNone,
+        strmOpts: strmOptsNull,
+        verifyFn: verifyOnlyNullConverted
+      },
+      {
+        name: 'connection = number, statement = boolean, stream = null',
+        connOpts: connOptsNumber,
+        stmtOpts: stmtOptsBoolean,
+        strmOpts: strmOptsNull,
+        verifyFn: verifyOnlyNullConverted
       }
     ];
 
@@ -157,6 +190,7 @@ function verifyOnlyNumberConverted(rows) {
   verifyNumberConverted(row);
   verifyBooleanNotConverted(row);
   verifyDateNotConverted(row);
+  verifyNULLNotConverted(row);
 }
 
 function verifyOnlyBooleanConverted(rows) {
@@ -167,6 +201,8 @@ function verifyOnlyBooleanConverted(rows) {
   verifyNumberNotConverted(row);
   verifyBooleanConverted(row);
   verifyDateNotConverted(row);
+  verifyNULLNotConverted(row);
+
 }
 
 function verifyOnlyDateConverted(rows) {
@@ -177,9 +213,22 @@ function verifyOnlyDateConverted(rows) {
   verifyNumberNotConverted(row);
   verifyBooleanNotConverted(row);
   verifyDateConverted(row);
+  verifyNULLNotConverted(row);
+}
+
+function verifyOnlyNullConverted(rows) {
+  verifyRows(rows);
+
+  const row = rows[0];
+
+  verifyNumberNotConverted(row);
+  verifyBooleanNotConverted(row);
+  verifyDateNotConverted(row);
+  verifyNULLConverted(row);
 }
 
 function verifyRows(rows) {
+  console.log(rows);
   assert.ok(Util.isArray(rows));
   assert.strictEqual(rows.length, 1);
 }
@@ -197,6 +246,10 @@ function verifyDateNotConverted(row) {
   assert.strictEqual(row.date.toJSON(), dateAsString);
 }
 
+function verifyNULLNotConverted(row) {
+  assert.strictEqual(row.nullData, null);
+}
+
 function verifyNumberConverted(row) {
   assert.strictEqual(row.number, numberAsString);
 }
@@ -208,3 +261,9 @@ function verifyBooleanConverted(row) {
 function verifyDateConverted(row) {
   assert.strictEqual(row.date, dateAsString);
 }
+
+function verifyNULLConverted(row) {
+  assert.strictEqual(row.nullData, nullAsString);
+}
+
+

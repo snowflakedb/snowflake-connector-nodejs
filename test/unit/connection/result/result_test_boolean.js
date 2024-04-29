@@ -62,7 +62,7 @@ describe('Result: test boolean', function () {
 
         // null
         assert.strictEqual(row.getColumnValue('C3'), null);
-        assert.strictEqual(row.getColumnValueAsString('C3'), 'NULL');
+        assert.strictEqual(row.getColumnValueAsString('C3'), null);
       },
       function () {
         done();
@@ -127,7 +127,7 @@ describe('Result: test boolean', function () {
 
         // null
         assert.strictEqual(row.getColumnValue('C3'), null);
-        assert.strictEqual(row.getColumnValueAsString('C3'), 'NULL');
+        assert.strictEqual(row.getColumnValueAsString('C3'), null);
       },
       function () {
         done();

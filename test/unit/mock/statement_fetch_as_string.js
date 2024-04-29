@@ -228,7 +228,6 @@ function verifyOnlyNullConverted(rows) {
 }
 
 function verifyRows(rows) {
-  console.log(rows);
   assert.ok(Util.isArray(rows));
   assert.strictEqual(rows.length, 1);
 }

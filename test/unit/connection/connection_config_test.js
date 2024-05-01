@@ -686,7 +686,7 @@ describe('ConnectionConfig: basic', function () {
           account: 'account',
           username: 'username',
           password: 'password',
-          retryTimeout: 'invalud'
+          retryTimeout: 'invalid'
         },
         errorCode: ErrorCodes.ERR_CONN_CREATE_INVALID_MAX_LOGIN_TIMEOUT
       },
@@ -696,7 +696,7 @@ describe('ConnectionConfig: basic', function () {
           account: 'account',
           username: 'username',
           password: 'password',
-          disableConsoleLogin: 'invalud'
+          disableConsoleLogin: 'invalid'
         },
         errorCode: ErrorCodes.ERR_CONN_CREATE_INVALID_DISABLE_CONSOLE_LOGIN
       },
@@ -706,7 +706,7 @@ describe('ConnectionConfig: basic', function () {
           account: 'account',
           username: 'username',
           password: 'password',
-          forceGCPUseDownscopedCredential: 'invalud'
+          forceGCPUseDownscopedCredential: 'invalid'
         },
         errorCode: ErrorCodes.ERR_CONN_CREATE_INVALID_FORCE_GCP_USE_DOWNSCOPED_CREDENTIAL
       },

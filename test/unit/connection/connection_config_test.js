@@ -710,6 +710,16 @@ describe('ConnectionConfig: basic', function () {
         },
         errorCode: ErrorCodes.ERR_CONN_CREATE_INVALID_FORCE_GCP_USE_DOWNSCOPED_CREDENTIAL
       },
+      {
+        name: 'invalid disableSamlUrlCheck',
+        options: {
+          account: 'account',
+          username: 'username',
+          password: 'password',
+          disableSamlUrlCheck: 'invalid'
+        },
+        errorCode: ErrorCodes.ERR_CONN_CREATE_INVALID_DISABLE_SAML_URL
+      },
     ];
 
   const createNegativeITCallback = function (testCase) {

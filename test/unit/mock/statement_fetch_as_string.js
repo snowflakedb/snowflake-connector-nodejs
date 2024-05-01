@@ -32,7 +32,8 @@ const connOptsNone = Util.apply({}, connOpts);
 const connOptsBoolean = Util.apply({ fetchAsString: typesBoolean }, connOpts);
 const connOptsNumber = Util.apply({ fetchAsString: typesNumber }, connOpts);
 const connOptsDate = Util.apply({ fetchAsString: typesDate }, connOpts);
-const connOptsNull = Util.apply({ fetchAsString: typesNull }, connOpts);
+const connOptsFetchNull = Util.apply({ nullStringWithFetchAsString: true }, connOpts);
+const connOptsNull = Util.apply({ fetchAsString: typesNull, nullStringWithFetchAsString: true }, connOpts);
 
 const stmtOptsNone = Util.apply({}, stmtOpts);
 const stmtOptsBoolean = Util.apply({ fetchAsString: typesBoolean }, stmtOpts);
@@ -106,7 +107,7 @@ describe('Statement - fetch as string', function () {
       },
       {
         name: 'connection = none, statement = null, stream = none',
-        connOpts: connOptsNone,
+        connOpts: connOptsFetchNull,
         stmtOpts: stmtOptsNull,
         strmOpts: strmOptsNone,
         verifyFn: verifyOnlyNullConverted
@@ -120,14 +121,14 @@ describe('Statement - fetch as string', function () {
       },
       {
         name: 'connection = none, statement = none, stream = null',
-        connOpts: connOptsNone,
+        connOpts: connOptsFetchNull,
         stmtOpts: stmtOptsNone,
         strmOpts: strmOptsNull,
         verifyFn: verifyOnlyNullConverted
       },
       {
         name: 'connection = number, statement = boolean, stream = null',
-        connOpts: connOptsNumber,
+        connOpts: { ...connOptsNumber, nullStringWithFetchAsString: true },
         stmtOpts: stmtOptsBoolean,
         strmOpts: strmOptsNull,
         verifyFn: verifyOnlyNullConverted

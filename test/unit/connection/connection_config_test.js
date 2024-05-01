@@ -710,6 +710,16 @@ describe('ConnectionConfig: basic', function () {
         },
         errorCode: ErrorCodes.ERR_CONN_CREATE_INVALID_FORCE_GCP_USE_DOWNSCOPED_CREDENTIAL
       },
+      {
+        name: 'invalid nullStringWithFetchAsString',
+        options: {
+          account: 'account',
+          username: 'username',
+          password: 'password',
+          nullStringWithFetchAsString: 'invalid'
+        },
+        errorCode: ErrorCodes.ERR_CONN_CREATE_INVALID_NULL_STRING_WITH_FETCH_AS_STRING
+      },
     ];
 
   const createNegativeITCallback = function (testCase) {

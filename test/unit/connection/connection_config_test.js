@@ -1379,4 +1379,33 @@ describe('ConnectionConfig: basic', function () {
     assert.strictEqual(
       connectionConfig.getResultPrefetch(), resultPrefetchCustom);
   });
+
+  describe('test options and getter', function () {
+    const mandatoryOption = {
+      username: 'username',
+      password: 'password',
+      account: 'account'
+    };
+     
+    const testCases =
+    [
+      {
+        name: 'disableSamlUrlCheck',
+        input: {
+          ...mandatoryOption,
+          disableSamlUrlCheck: true,
+        },
+        result: true,
+        getter: 'getDisableSamlUrlCheck',
+      },
+    ];
+
+    testCases.forEach(({ name, input, result, getter }) => {
+      it(name, function (){
+        const connectionConfig = new ConnectionConfig(input);
+        assert.strictEqual(connectionConfig[getter](), result);
+      });
+    });
+  });
 });
+

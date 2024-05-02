@@ -9,7 +9,7 @@ const async = require('async');
 
 // get a mock snowflake instance and an options object to connect to it
 const snowflake = MockTestUtil.snowflake;
-const connOpts = { ...MockTestUtil.connectionOptions.default, originalNullValueByDefault: true };
+const connOpts = MockTestUtil.connectionOptions.default;
 
 const stmtOpts =
   {

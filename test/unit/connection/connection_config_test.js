@@ -718,7 +718,7 @@ describe('ConnectionConfig: basic', function () {
           password: 'password',
           disableSamlUrlCheck: 'invalid'
         },
-        errorCode: ErrorCodes.ERR_CONN_CREATE_INVALID_DISABLE_SAML_URL
+        errorCode: ErrorCodes.ERR_CONN_CREATE_INVALID_DISABLE_SAML_URL_CHECK
       },
     ];
 

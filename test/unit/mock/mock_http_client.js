@@ -564,7 +564,7 @@ function buildRequestOutputMappings(clientInfo) {
           json:
             {
               disableOfflineChunks: false,
-              sqlText: 'select to_boolean(:1) as "boolean", to_date(:2) as "date", 1.123456789123456789 as "number", null as "nullData"',
+              sqlText: 'select to_boolean(:1) as "boolean", to_date(:2) as "date", 1.123456789123456789 as "number"',
               bindings:
                 {
                   '1': { type: 'TEXT', value: 'false' },
@@ -650,17 +650,8 @@ function buildRequestOutputMappings(clientInfo) {
                       'scale': 18,
                       'length': null,
                       'type': 'fixed'
-                    },
-                    {
-                      'name': 'nullData',
-                      'byteLength': null,
-                      'nullable': false,
-                      'precision': 19,
-                      'scale': 18,
-                      'length': null,
-                      'type': 'text'
                     }],
-                    'rowset': [['0', '-923', '1.123456789123456789', null]],
+                    'rowset': [['0', '-923', '1.123456789123456789']],
                     'total': 1,
                     'returned': 1,
                     'queryId': 'd4dfd395-c2ef-4b2e-afe6-84864d93347b',

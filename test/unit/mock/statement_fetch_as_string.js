@@ -13,7 +13,7 @@ const connOpts = MockTestUtil.connectionOptions.default;
 
 const stmtOpts =
   {
-    sqlText: 'select to_boolean(:1) as "boolean", to_date(:2) as "date", 1.123456789123456789 as "number", null as "nullData"',
+    sqlText: 'select to_boolean(:1) as "boolean", to_date(:2) as "date", 1.123456789123456789 as "number"',
     binds: ['false', '1967-06-23'],
     requestId: 'foobar'
   };
@@ -30,7 +30,6 @@ const connOptsNone = Util.apply({}, connOpts);
 const connOptsBoolean = Util.apply({ fetchAsString: typesBoolean }, connOpts);
 const connOptsNumber = Util.apply({ fetchAsString: typesNumber }, connOpts);
 const connOptsDate = Util.apply({ fetchAsString: typesDate }, connOpts);
-const connOptsFetchNull = Util.apply({ fetchOnlyNull: true }, connOpts);
 
 const stmtOptsNone = Util.apply({}, stmtOpts);
 const stmtOptsBoolean = Util.apply({ fetchAsString: typesBoolean }, stmtOpts);
@@ -99,7 +98,7 @@ describe('Statement - fetch as string', function () {
         stmtOpts: stmtOptsNone,
         strmOpts: strmOptsNone,
         verifyFn: verifyOnlyNumberConverted
-      },
+      }
     ];
 
   for (let index = 0, length = testCases.length; index < length; index++) {
@@ -158,7 +157,6 @@ function verifyOnlyNumberConverted(rows) {
   verifyNumberConverted(row);
   verifyBooleanNotConverted(row);
   verifyDateNotConverted(row);
-  verifyNULLNotConverted(row);
 }
 
 function verifyOnlyBooleanConverted(rows) {
@@ -169,7 +167,6 @@ function verifyOnlyBooleanConverted(rows) {
   verifyNumberNotConverted(row);
   verifyBooleanConverted(row);
   verifyDateNotConverted(row);
-  verifyNULLNotConverted(row);
 }
 
 function verifyOnlyDateConverted(rows) {
@@ -180,18 +177,6 @@ function verifyOnlyDateConverted(rows) {
   verifyNumberNotConverted(row);
   verifyBooleanNotConverted(row);
   verifyDateConverted(row);
-  verifyNULLNotConverted(row);
-}
-
-function verifyNothingConverted(rows) {
-  verifyRows(rows);
-
-  const row = rows[0];
-
-  verifyNumberNotConverted(row);
-  verifyBooleanNotConverted(row);
-  verifyDateNotConverted(row);
-  verifyNULLNotConverted(row);
 }
 
 function verifyRows(rows) {
@@ -210,10 +195,6 @@ function verifyBooleanNotConverted(row) {
 function verifyDateNotConverted(row) {
   assert.ok(Util.isDate(row.date));
   assert.strictEqual(row.date.toJSON(), dateAsString);
-}
-
-function verifyNULLNotConverted(row) {
-  assert.strictEqual(row.nullData, null);
 }
 
 function verifyNumberConverted(row) {

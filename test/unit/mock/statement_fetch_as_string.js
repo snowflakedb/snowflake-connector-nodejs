@@ -21,30 +21,25 @@ const stmtOpts =
 const numberAsString = '1.123456789123456789';
 const booleanAsString = 'FALSE';
 const dateAsString = '1967-06-23';
-const nullAsString = 'NULL';
 
 const typesBoolean = [snowflake.BOOLEAN];
 const typesNumber = [snowflake.NUMBER];
 const typesDate = [snowflake.DATE];
-const typesNull = [snowflake.NULL];
 
 const connOptsNone = Util.apply({}, connOpts);
 const connOptsBoolean = Util.apply({ fetchAsString: typesBoolean }, connOpts);
 const connOptsNumber = Util.apply({ fetchAsString: typesNumber }, connOpts);
 const connOptsDate = Util.apply({ fetchAsString: typesDate }, connOpts);
-const connOptsFetchNull = Util.apply({ nullStringWithFetchAsString: true }, connOpts);
-const connOptsNull = Util.apply({ fetchAsString: typesNull, nullStringWithFetchAsString: true }, connOpts);
+const connOptsFetchNull = Util.apply({ fetchOnlyNull: true }, connOpts);
 
 const stmtOptsNone = Util.apply({}, stmtOpts);
 const stmtOptsBoolean = Util.apply({ fetchAsString: typesBoolean }, stmtOpts);
 const stmtOptsNumber = Util.apply({ fetchAsString: typesNumber }, stmtOpts);
-const stmtOptsNull = Util.apply({ fetchAsString: typesNull }, stmtOpts);
 
 const strmOptsNone = {};
 const strmOptsNumber = { fetchAsString: typesNumber };
 const strmOptsBoolean = { fetchAsString: typesBoolean };
 const strmOptsDate = { fetchAsString: typesDate };
-const strmOptsNull = { fetchAsString: typesNull };
 
 describe('Statement - fetch as string', function () {
   const testCases =
@@ -105,34 +100,6 @@ describe('Statement - fetch as string', function () {
         strmOpts: strmOptsNone,
         verifyFn: verifyOnlyNumberConverted
       },
-      {
-        name: 'connection = none, statement = null, stream = none',
-        connOpts: connOptsFetchNull,
-        stmtOpts: stmtOptsNull,
-        strmOpts: strmOptsNone,
-        verifyFn: verifyOnlyNullConverted
-      },
-      {
-        name: 'connection = null, statement = none, stream = none',
-        connOpts: connOptsNull,
-        stmtOpts: stmtOptsNone,
-        strmOpts: strmOptsNone,
-        verifyFn: verifyOnlyNullConverted
-      },
-      {
-        name: 'connection = none, statement = none, stream = null',
-        connOpts: connOptsFetchNull,
-        stmtOpts: stmtOptsNone,
-        strmOpts: strmOptsNull,
-        verifyFn: verifyOnlyNullConverted
-      },
-      {
-        name: 'connection = number, statement = boolean, stream = null',
-        connOpts: { ...connOptsNumber, nullStringWithFetchAsString: true },
-        stmtOpts: stmtOptsBoolean,
-        strmOpts: strmOptsNull,
-        verifyFn: verifyOnlyNullConverted
-      }
     ];
 
   for (let index = 0, length = testCases.length; index < length; index++) {
@@ -216,7 +183,7 @@ function verifyOnlyDateConverted(rows) {
   verifyNULLNotConverted(row);
 }
 
-function verifyOnlyNullConverted(rows) {
+function verifyNothingConverted(rows) {
   verifyRows(rows);
 
   const row = rows[0];
@@ -224,7 +191,7 @@ function verifyOnlyNullConverted(rows) {
   verifyNumberNotConverted(row);
   verifyBooleanNotConverted(row);
   verifyDateNotConverted(row);
-  verifyNULLConverted(row);
+  verifyNULLNotConverted(row);
 }
 
 function verifyRows(rows) {
@@ -259,8 +226,4 @@ function verifyBooleanConverted(row) {
 
 function verifyDateConverted(row) {
   assert.strictEqual(row.date, dateAsString);
-}
-
-function verifyNULLConverted(row) {
-  assert.strictEqual(row.nullData, nullAsString);
 }

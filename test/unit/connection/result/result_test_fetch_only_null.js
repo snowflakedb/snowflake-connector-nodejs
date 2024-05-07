@@ -61,52 +61,50 @@ describe('Result', function () {
   it('fetch only null result', function (done) {
     const rows = [];
     ResultTestCommon.testResult(
-      ResultTestCommon.createResultOptions(response, { fetchOnlyNull: true }),
+      ResultTestCommon.createResultOptions(response, { treatNullAsNull: true }),
       function (row) {
         rows.push(row);
       },
       function () {
-        let rowIndex, rowsLength, row;
-        for (rowIndex = 0, rowsLength = rows.length; rowIndex < rowsLength;
-          rowIndex++) {
-          row = rows[rowIndex];
-          if (rowIndex % 2 === 0){
-            assert.strictEqual(row.getColumnValue('C1'), 0);
-            assert.strictEqual(row.getColumnValueAsString('C1'), '0');
-  
-            assert.strictEqual(row.getColumnValue('C2'), 'a');
-            assert.strictEqual(row.getColumnValueAsString('C2'), 'a');
-
-            assert.ok(Util.isDate(row.getColumnValue('C3')));
-            assert.strictEqual(row.getColumnValueAsString('C3'), '2016-01-21');
-
-            const buffer = Buffer.from('0123456789ABCDEF', 'hex');
-            assert.ok(row.getColumnValue('C4').equals(buffer));
-            assert.strictEqual(row.getColumnValueAsString('C4'), 'ASNFZ4mrze8=');
-
-            assert.strictEqual(row.getColumnValue('C5'), true);
-            assert.strictEqual(row.getColumnValueAsString('C5'), 'TRUE');
-
-          } else {
-            assert.strictEqual(row.getColumnValue('C1'), null);
-            assert.strictEqual(row.getColumnValueAsString('C1'), null);
-
-            // false
-            assert.strictEqual(row.getColumnValue('C2'), null);
-            assert.strictEqual(row.getColumnValueAsString('C2'), null);
-
-            assert.strictEqual(row.getColumnValue('C3'), null);
-            assert.strictEqual(row.getColumnValueAsString('C3'), null);
-
-            assert.strictEqual(row.getColumnValue('C4'), null);
-            assert.strictEqual(row.getColumnValueAsString('C4'), null);
-
-            assert.strictEqual(row.getColumnValue('C5'), null);
-            assert.strictEqual(row.getColumnValueAsString('C5'), null);
-          }
-        }
+        testNotNullData(rows[0]);
+        testNullData(rows[1]);
         done();
       },
     );
   });
 });
+
+function testNotNullData(row) {
+  assert.strictEqual(row.getColumnValue('C1'), 0);
+  assert.strictEqual(row.getColumnValueAsString('C1'), '0');
+
+  assert.strictEqual(row.getColumnValue('C2'), 'a');
+  assert.strictEqual(row.getColumnValueAsString('C2'), 'a');
+
+  assert.ok(Util.isDate(row.getColumnValue('C3')));
+  assert.strictEqual(row.getColumnValueAsString('C3'), '2016-01-21');
+
+  const buffer = Buffer.from('0123456789ABCDEF', 'hex');
+  assert.ok(row.getColumnValue('C4').equals(buffer));
+  assert.strictEqual(row.getColumnValueAsString('C4'), 'ASNFZ4mrze8=');
+
+  assert.strictEqual(row.getColumnValue('C5'), true);
+  assert.strictEqual(row.getColumnValueAsString('C5'), 'TRUE');
+}
+
+function testNullData(row) {
+  assert.strictEqual(row.getColumnValue('C1'), null);
+  assert.strictEqual(row.getColumnValueAsString('C1'), null);
+
+  assert.strictEqual(row.getColumnValue('C2'), null);
+  assert.strictEqual(row.getColumnValueAsString('C2'), null);
+
+  assert.strictEqual(row.getColumnValue('C3'), null);
+  assert.strictEqual(row.getColumnValueAsString('C3'), null);
+
+  assert.strictEqual(row.getColumnValue('C4'), null);
+  assert.strictEqual(row.getColumnValueAsString('C4'), null);
+
+  assert.strictEqual(row.getColumnValue('C5'), null);
+  assert.strictEqual(row.getColumnValueAsString('C5'), null);
+}

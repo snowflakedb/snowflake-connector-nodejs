@@ -711,14 +711,14 @@ describe('ConnectionConfig: basic', function () {
         errorCode: ErrorCodes.ERR_CONN_CREATE_INVALID_FORCE_GCP_USE_DOWNSCOPED_CREDENTIAL
       },
       {
-        name: 'invalid fetchOnlyNull',
+        name: 'invalid treatNullAsNull',
         options: {
           account: 'account',
           username: 'username',
           password: 'password',
-          fetchOnlyNull: 'invalid'
+          treatNullAsNull: 'invalid'
         },
-        errorCode: ErrorCodes.ERR_CONN_CREATE_INVALID_FETCH_ONLY_NULL
+        errorCode: ErrorCodes.ERR_CONN_CREATE_INVALID_TREAT_NULL_AS_NULL
       },
     ];
 

@@ -712,7 +712,7 @@ describe('ConnectionConfig: basic', function () {
       },
       {
         name: 'invalid treatNullAsNull',
-         options: {
+        options: {
           account: 'account',
           username: 'username',
           password: 'password',
@@ -726,7 +726,7 @@ describe('ConnectionConfig: basic', function () {
           account: 'account',
           username: 'username',
           password: 'password',
-        disableSamlUrlCheck: 'invalid'
+          disableSamlUrlCheck: 'invalid'
         },    
         errorCode: ErrorCodes.ERR_CONN_CREATE_INVALID_DISABLE_SAML_URL_CHECK
       },

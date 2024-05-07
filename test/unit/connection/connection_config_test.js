@@ -712,13 +712,23 @@ describe('ConnectionConfig: basic', function () {
       },
       {
         name: 'invalid treatNullAsNull',
-        options: {
+         options: {
           account: 'account',
           username: 'username',
           password: 'password',
           treatNullAsNull: 'invalid'
         },
         errorCode: ErrorCodes.ERR_CONN_CREATE_INVALID_TREAT_NULL_AS_NULL
+      },
+      {
+        name: 'invalid disableSamlUrlCheck',
+        options: {
+          account: 'account',
+          username: 'username',
+          password: 'password',
+        disableSamlUrlCheck: 'invalid'
+        },    
+        errorCode: ErrorCodes.ERR_CONN_CREATE_INVALID_DISABLE_SAML_URL_CHECK
       },
     ];
 
@@ -1379,4 +1389,33 @@ describe('ConnectionConfig: basic', function () {
     assert.strictEqual(
       connectionConfig.getResultPrefetch(), resultPrefetchCustom);
   });
+
+  describe('test options and getter', function () {
+    const mandatoryOption = {
+      username: 'username',
+      password: 'password',
+      account: 'account'
+    };
+     
+    const testCases =
+    [
+      {
+        name: 'disableSamlUrlCheck',
+        input: {
+          ...mandatoryOption,
+          disableSamlUrlCheck: true,
+        },
+        result: true,
+        getter: 'getDisableSamlUrlCheck',
+      },
+    ];
+
+    testCases.forEach(({ name, input, result, getter }) => {
+      it(name, function (){
+        const connectionConfig = new ConnectionConfig(input);
+        assert.strictEqual(connectionConfig[getter](), result);
+      });
+    });
+  });
 });
+

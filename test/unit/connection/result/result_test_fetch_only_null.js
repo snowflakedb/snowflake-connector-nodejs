@@ -4,7 +4,6 @@
 
 const Util = require('../../../../lib/util');
 const assert = require('assert');
-
 const ResultTestCommon = require('./result_test_common');
 
 describe('Result', function () {

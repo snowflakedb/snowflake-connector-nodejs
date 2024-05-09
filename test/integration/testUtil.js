@@ -1,6 +1,7 @@
 /*
  * Copyright (c) 2015-2024 Snowflake Computing Inc. All rights reserved.
  */
+
 const snowflake = require('./../../lib/snowflake');
 const connOptions = require('./connectionOptions');
 const assert = require('assert');

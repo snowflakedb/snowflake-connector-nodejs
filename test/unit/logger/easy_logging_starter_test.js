@@ -1,6 +1,7 @@
 /*
- * Copyright (c) 2023 Snowflake Computing Inc. All rights reserved.
+ * Copyright (c) 2015-2024 Snowflake Computing Inc. All rights reserved.
  */
+
 const { init, reset: resetEasyLoggingModule } = require('../../../lib/logger/easy_logging_starter');
 
 const assert = require('assert');

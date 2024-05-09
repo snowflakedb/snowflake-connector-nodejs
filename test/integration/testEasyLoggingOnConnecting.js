@@ -1,6 +1,7 @@
 /*
- * Copyright (c) 2023 Snowflake Computing Inc. All rights reserved.
+ * Copyright (c) 2015-2024 Snowflake Computing Inc. All rights reserved.
  */
+
 const snowflake = require('./../../lib/snowflake');
 const connOption = require('./connectionOptions');
 const Logger = require('./../../lib/logger');

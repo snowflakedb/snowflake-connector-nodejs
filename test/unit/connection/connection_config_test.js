@@ -718,7 +718,7 @@ describe('ConnectionConfig: basic', function () {
           password: 'password',
           representNullAsStringNull: 'invalid'
         },
-        errorCode: ErrorCodes.ERR_CONN_CREATE_INVALID_TREAT_NULL_AS_NULL
+        errorCode: ErrorCodes.ERR_CONN_CREATE_INVALID_REPRESENT_NULL_AS_STRING_NULL
       },
       {
         name: 'invalid disableSamlUrlCheck',

@@ -1390,13 +1390,13 @@ describe('ConnectionConfig: basic', function () {
     const testCases =
     [
       {
-        name: 'disableSamlUrlCheck',
+        name: 'disableSamlURLCheck',
         input: {
           ...mandatoryOption,
-          disableSamlUrlCheck: true,
+          disableSamlURLCheck: true,
         },
         result: true,
-        getter: 'getDisableSamlUrlCheck',
+        getter: 'getDisableSamlURLCheck',
       },
     ];
 

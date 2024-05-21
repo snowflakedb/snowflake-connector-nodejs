@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2019 Snowflake Computing Inc. All rights reserved.
+ * Copyright (c) 2015-2024 Snowflake Computing Inc. All rights reserved.
  */
 
 const Core = require('./../../../lib/core');
@@ -147,6 +147,7 @@ const connectionOptionsOkta =
   getTimeout: () => 90,
   getRetryTimeout: () => 300,
   getRetrySfMaxLoginRetries: () => 7,
+  getDisableSamlURLCheck: () => false
 };
 
 exports.connectionOptions =

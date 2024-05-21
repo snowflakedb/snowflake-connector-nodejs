@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 Snowflake Computing Inc. All rights reserved.
+ * Copyright (c) 2015-2024 Snowflake Computing Inc. All rights reserved.
  */
 
 const ConnectionConfig = require('./../../../lib/connection/connection_config');
@@ -710,6 +710,16 @@ describe('ConnectionConfig: basic', function () {
         },
         errorCode: ErrorCodes.ERR_CONN_CREATE_INVALID_FORCE_GCP_USE_DOWNSCOPED_CREDENTIAL
       },
+      {
+        name: 'invalid disableSamlURLCheck',
+        options: {
+          account: 'account',
+          username: 'username',
+          password: 'password',
+          disableSamlURLCheck: 'invalid'
+        },
+        errorCode: ErrorCodes.ERR_CONN_CREATE_INVALID_DISABLE_SAML_URL_CHECK
+      },
     ];
 
   const createNegativeITCallback = function (testCase) {
@@ -1369,4 +1379,33 @@ describe('ConnectionConfig: basic', function () {
     assert.strictEqual(
       connectionConfig.getResultPrefetch(), resultPrefetchCustom);
   });
+
+  describe('test options and getter', function () {
+    const mandatoryOption = {
+      username: 'username',
+      password: 'password',
+      account: 'account'
+    };
+     
+    const testCases =
+    [
+      {
+        name: 'disableSamlURLCheck',
+        input: {
+          ...mandatoryOption,
+          disableSamlURLCheck: true,
+        },
+        result: true,
+        getter: 'getDisableSamlURLCheck',
+      },
+    ];
+
+    testCases.forEach(({ name, input, result, getter }) => {
+      it(name, function (){
+        const connectionConfig = new ConnectionConfig(input);
+        assert.strictEqual(connectionConfig[getter](), result);
+      });
+    });
+  });
 });
+

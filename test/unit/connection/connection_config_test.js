@@ -711,6 +711,7 @@ describe('ConnectionConfig: basic', function () {
         errorCode: ErrorCodes.ERR_CONN_CREATE_INVALID_FORCE_GCP_USE_DOWNSCOPED_CREDENTIAL
       },
       {
+
         name: 'invalid representNullAsStringNull',
         options: {
           account: 'account',
@@ -721,13 +722,14 @@ describe('ConnectionConfig: basic', function () {
         errorCode: ErrorCodes.ERR_CONN_CREATE_INVALID_REPRESENT_NULL_AS_STRING_NULL
       },
       {
-        name: 'invalid disableSamlUrlCheck',
+        name: 'invalid disableSamlURLCheck',
+
         options: {
           account: 'account',
           username: 'username',
           password: 'password',
-          disableSamlUrlCheck: 'invalid'
-        },    
+          disableSamlURLCheck: 'invalid'
+        },
         errorCode: ErrorCodes.ERR_CONN_CREATE_INVALID_DISABLE_SAML_URL_CHECK
       },
     ];
@@ -1400,13 +1402,13 @@ describe('ConnectionConfig: basic', function () {
     const testCases =
     [
       {
-        name: 'disableSamlUrlCheck',
+        name: 'disableSamlURLCheck',
         input: {
           ...mandatoryOption,
-          disableSamlUrlCheck: true,
+          disableSamlURLCheck: true,
         },
         result: true,
-        getter: 'getDisableSamlUrlCheck',
+        getter: 'getDisableSamlURLCheck',
       },
     ];
 

@@ -52,6 +52,7 @@
     "type": "git",
     "url": "https://github.com/snowflakedb/snowflake-connector-nodejs"
   },
+  "typings": "./index.d.ts",
   "scripts": {
     "lint:check": "eslint",
     "lint:check:all": "eslint lib samples system_test test",

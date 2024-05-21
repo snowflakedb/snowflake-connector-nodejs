@@ -711,7 +711,19 @@ describe('ConnectionConfig: basic', function () {
         errorCode: ErrorCodes.ERR_CONN_CREATE_INVALID_FORCE_GCP_USE_DOWNSCOPED_CREDENTIAL
       },
       {
+
+        name: 'invalid representNullAsStringNull',
+        options: {
+          account: 'account',
+          username: 'username',
+          password: 'password',
+          representNullAsStringNull: 'invalid'
+        },
+        errorCode: ErrorCodes.ERR_CONN_CREATE_INVALID_REPRESENT_NULL_AS_STRING_NULL
+      },
+      {
         name: 'invalid disableSamlURLCheck',
+
         options: {
           account: 'account',
           username: 'username',

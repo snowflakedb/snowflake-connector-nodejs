@@ -934,7 +934,7 @@ describe('ConnectionConfig: basic', function () {
           },
         options:
           {
-            accessUrl: 'https://account-123xyz.us-west-2.snowflakecomputing.com',
+            accessUrl: 'https://account-123xyz.snowflakecomputing.com',
             username: 'username',
             password: 'password',
             account: 'account-123xyz'

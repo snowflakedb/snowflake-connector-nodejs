@@ -372,6 +372,11 @@ declare module 'snowflake-sdk' {
         fetchAsString?: DataType[] | undefined;
 
         /**
+         * Path to the client configuration file associated with the easy logging feature.
+         */
+        clientConfigFile?: string;
+
+        /**
          * By default, client connections typically time out approximately 3-4 hours after the most recent query was executed.
          */
         clientSessionKeepAlive?: boolean;

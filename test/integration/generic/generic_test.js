@@ -10,12 +10,13 @@ describe.only('test generic binding', () => {
     assert.equal(generic.getApiName(), 'C API');
   });
 
-  it('should return error when connect without parameters', () => {
-    assert.equal(generic.connect(), 240016);
-  });
-
-  it('should return error when connect without parameters', () => {
-    // const connectionParams = { user: process.env.SNOWFLAKE_TEST_USER, password: process.env.SNOWFLAKE_TEST_PASSWORD };
-    assert.equal(generic.connectUserPassword(process.env.SNOWFLAKE_TEST_USER, process.env.SNOWFLAKE_TEST_PASSWORD), 0);
+  it('should connect to snowflake', () => {
+    const connectionParams = {
+      user: process.env.SNOWFLAKE_TEST_USER,
+      password: process.env.SNOWFLAKE_TEST_PASSWORD,
+      account: process.env.SNOWFLAKE_TEST_ACCOUNT,
+      database: process.env.SNOWFLAKE_TEST_DATABASE,
+    };
+    assert.equal(generic.connectUserPassword(connectionParams), 0);
   });
 });

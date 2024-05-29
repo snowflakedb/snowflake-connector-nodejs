@@ -29,7 +29,14 @@ void Connect(const FunctionCallbackInfo<Value>& args) {
   args.GetReturnValue().Set(status);
 }
 
-std::string readArg(const FunctionCallbackInfo<Value>& args, int i) {
+std::string localStringToStdString(Isolate* isolate, Local<String> s) {
+      String::Utf8Value str(isolate, s);
+      std::string cppStr(*str);
+      const char* value = cppStr.c_str();
+      return cppStr;
+}
+
+std::string readStringArg(const FunctionCallbackInfo<Value>& args, int i) {
     Isolate* isolate = args.GetIsolate();
       String::Utf8Value str(isolate, args[i]);
       std::string cppStr(*str);
@@ -39,22 +46,39 @@ std::string readArg(const FunctionCallbackInfo<Value>& args, int i) {
 }
 
 void ConnectUserPassword(const FunctionCallbackInfo<Value>& args) {
-  printf("Args length: %d\n", args.Length());
+//  printf("Args length: %d\n", args.Length());
   Isolate* isolate = args.GetIsolate();
-  String::Utf8Value str(isolate, args[0]);
-  std::string cppStr(*str);
-  printf("Param 0: %s\n", cppStr.c_str());
-  printf("Param 0: %s\n", readArg(args, 0).c_str());
-  printf("Param 1: %s\n", readArg(args, 1).c_str());
-//  printf("Param 0: %s %s\n", args[0].As<String>(), *(args[0].As<String>()));
-//  printf("Param 1: %s %s\n", args[1].As<String>(), *(args[1].As<String>()));
-//  printf("Param 2: %s %s\n", args[2].As<String>(), *(args[2].As<String>()));
+  Local<v8::Context> context = v8::Context::New(isolate);
+//  printf("Object keys number: %d\n", (*(args[0].As<Object>()->GetPropertyNames(context).ToLocalChecked()))->Length());
+  Local<String> userPropertyName = String::NewFromUtf8Literal(isolate, "user");
+//  printf("User name: %s\n", localStringToStdString(isolate, (args[0].As<Object>()->Get(context, userPropertyName).ToLocalChecked().As<String>())).c_str());
+  Local<String> passwordPropertyName = String::NewFromUtf8Literal(isolate, "password");
+//  printf("Password: %s\n", localStringToStdString(isolate, (args[0].As<Object>()->Get(context, passwordPropertyName).ToLocalChecked().As<String>())).c_str());
+  Local<String> accountPropertyName = String::NewFromUtf8Literal(isolate, "account");
+  Local<String> databasePropertyName = String::NewFromUtf8Literal(isolate, "database");
+//  printf("Account: %s\n", localStringToStdString(isolate, (args[0].As<Object>()->Get(context, accountPropertyName).ToLocalChecked().As<String>())).c_str());
   SF_CONNECT *sf = snowflake_init();
-//  snowflake_set_attribute(sf, SF_CON_USER, *(args[0].As<String>()));
-//  snowflake_set_attribute(sf, SF_CON_PASSWORD, *(args[1].As<String>()));
+  snowflake_set_attribute(sf, SF_CON_ACCOUNT, localStringToStdString(isolate, (args[0].As<Object>()->Get(context, accountPropertyName).ToLocalChecked().As<String>())).c_str());
+  snowflake_set_attribute(sf, SF_CON_USER, localStringToStdString(isolate, (args[0].As<Object>()->Get(context, userPropertyName).ToLocalChecked().As<String>())).c_str());
+  snowflake_set_attribute(sf, SF_CON_PASSWORD, localStringToStdString(isolate, (args[0].As<Object>()->Get(context, passwordPropertyName).ToLocalChecked().As<String>())).c_str());
+  snowflake_set_attribute(sf, SF_CON_DATABASE, localStringToStdString(isolate, (args[0].As<Object>()->Get(context, databasePropertyName).ToLocalChecked().As<String>())).c_str());
 //  printf("%s %s\n", *(args[0].As<String>()), *(args[1].As<String>()));
   SF_STATUS status = snowflake_connect(sf);
-  args.GetReturnValue().Set(status);
+  printf("Connect status is %d\n", status);
+  SF_STMT* statement = snowflake_stmt(sf);
+  status = snowflake_query(statement, "alter session set C_API_QUERY_RESULT_FORMAT=ARROW_FORCE", 0);
+  printf("Change to arrow status is %d\n", status);
+  status = snowflake_query(statement, "select 78", 0);
+  printf("Simple query status is %d\n", status);
+  while ((status = snowflake_fetch(statement)) == SF_STATUS_SUCCESS) {
+    int32 out;
+    snowflake_column_as_int32(statement, 1, &out);
+    printf("Selected %d\n", out);
+  }
+  snowflake_stmt_term(statement);
+  status = snowflake_term(sf);
+  printf("Connect term status is %d\n", status);
+  args.GetReturnValue().Set(0);
 }
 
 

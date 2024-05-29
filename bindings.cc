@@ -96,17 +96,27 @@ void ExecuteQuery(const FunctionCallbackInfo<Value>& args) {
   printf("Query to run: %s\n", query.c_str());
   status = snowflake_query(statement, query.c_str(), 0);
   printf("Simple query status is %d\n", status);
-  printf("Statement metadata - first column c_type: %d and expected type is %d\n", statement->desc[0].c_type, SF_C_TYPE_INT64);
+  printf("Statement metadata - first column type: %d, c_type: %d and expected type is %d\n", statement->desc[0].type, statement->desc[0].c_type, SF_C_TYPE_INT64);
+  printf("Statement metadata - first column type: %d, c_type: %d and expected type is %d\n", statement->desc[1].type, statement->desc[1].c_type, SF_C_TYPE_STRING);
+  printf("Statement metadata - first column type: %d, c_type: %d and expected type is %d\n", statement->desc[2].type, statement->desc[2].c_type, SF_C_TYPE_FLOAT64);
+  Local<v8::Array> array = v8::Array::New(isolate, 3);
   int32 out;
   while ((status = snowflake_fetch(statement)) == SF_STATUS_SUCCESS) {
     // TODO should return more than one int
     snowflake_column_as_int32(statement, 1, &out);
-    printf("Selected %d\n", out);
+    const char* buffer = (char*) malloc(255 * sizeof(char));
+    snowflake_column_as_const_str(statement, 2, &buffer);
+    double outDouble;
+    snowflake_column_as_float64(statement, 3, &outDouble);
+    printf("Selected %d %s %g\n", out, buffer, outDouble);
+    array->Set(context, 0, v8::Integer::New(isolate, out));
+    array->Set(context, 1, String::NewFromUtf8(isolate, buffer).ToLocalChecked());
+    array->Set(context, 2, Number::New(isolate, outDouble));
   }
   snowflake_stmt_term(statement);
   status = snowflake_term(sf);
   printf("Connect term status is %d\n", status);
-  args.GetReturnValue().Set(out);
+  args.GetReturnValue().Set(array);
 }
 
 void Initialize(Local<Object> exports) {

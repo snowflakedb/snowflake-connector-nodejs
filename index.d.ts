@@ -467,6 +467,11 @@ declare module 'snowflake-sdk' {
         queryId?: string;
 
         /**
+         * Returns the rowMode string value ('array', 'object' or 'object_with_renamed_duplicated_columns'). Could be null or undefined.
+         */
+        rowMode?: RowMode;
+
+        /**
          * You can also consume a result as a stream of rows by setting the streamResult connection parameter to true in connection.execute
          * when calling the statement.streamRows() method.
          * Detailed Information: https://docs.snowflake.com/en/developer-guide/node-js/nodejs-driver-consume.

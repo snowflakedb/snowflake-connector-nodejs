@@ -405,7 +405,7 @@ declare module 'snowflake-sdk' {
          * The option to disable the query context cache.
          * 
          */
-        disableQueryContextCache: boolean,
+        disableQueryContextCache?: boolean,
 
         /**
          * The max login timeout value. This value is either 0 or over 300.
@@ -416,7 +416,7 @@ declare module 'snowflake-sdk' {
          * The option to disable the web authentication console login.
          * 
          */
-        disableConsoleLogin: boolean
+        disableConsoleLogin?: boolean
 
         /**
          * The option to use https request only for the snowflake server if other GCP metadata or configuration is already set on the machine.
@@ -427,12 +427,12 @@ declare module 'snowflake-sdk' {
         /**
           * The option to skip the SAML URL check in the Okta authentication
           */
-        disableSamlUrlCheck: boolean,
+        disableSamlUrlCheck?: boolean,
 
         /**
           * The option to fetch all the null values in the columns as the string null.
           */
-        representNullAsStringNull: boolean,
+        representNullAsStringNull?: boolean,
     }
 
     export interface Connection {

@@ -618,7 +618,7 @@ declare module 'snowflake-sdk' {
          *  Cancels this statement if possible.
          *  @param {Function} [callback]
          */
-        cancel(): void;
+        cancel(callback: StatementCallback): void;
 
         /**
          * Streams the rows in this statement's result. If start and end values are

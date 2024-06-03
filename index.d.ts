@@ -402,15 +402,37 @@ declare module 'snowflake-sdk' {
         includeRetryReason?: boolean;
 
         /**
+         * The option to disable the query context cache.
+         * 
+         */
+        disableQueryContextCache: boolean,
+
+        /**
          * The max login timeout value. This value is either 0 or over 300.
          */
         retryTimeout?: number;
 
         /**
+         * The option to disable the web authentication console login.
+         * 
+         */
+        disableConsoleLogin: boolean
+
+        /**
          * The option to use https request only for the snowflake server if other GCP metadata or configuration is already set on the machine.
          * The default value is false.
          */
-        forceGCPUseDownscopedCredential?: boolean
+        forceGCPUseDownscopedCredential?: boolean,
+
+        /**
+          * The option to skip the SAML URL check in the Okta authentication
+          */
+        disableSamlUrlCheck: boolean,
+
+        /**
+          * The option to fetch all the null values in the columns as the string null.
+          */
+        representNullAsStringNull: boolean,
     }
 
     export interface Connection {
@@ -590,6 +612,13 @@ declare module 'snowflake-sdk' {
          * yet, this method will return undefined.
          */
         getQueryId(): string;
+
+        /**
+         * 
+         *  Cancels this statement if possible.
+         *  @param {Function} [callback]
+         */
+        cancel(): void;
 
         /**
          * Streams the rows in this statement's result. If start and end values are

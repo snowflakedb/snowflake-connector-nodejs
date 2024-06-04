@@ -7,13 +7,13 @@
  * @see [source] {@link https://docs.snowflake.com/en/developer-guide/node-js/nodejs-driver}
  */
 declare module 'snowflake-sdk' {
-    export const enum RowMode {
+    export enum RowMode {
         ARRAY = 'array',
         OBJECT = 'object',
         OBJECT_WITH_RENAMED_DUPLICATED_COLUMNS = 'object_with_renamed_duplicated_columns',
     }
 
-    export const enum LogLevel {
+    export enum LogLevel {
         ERROR = 'ERROR',
         WARN = 'WARN',
         INFO = 'INFO',
@@ -21,7 +21,7 @@ declare module 'snowflake-sdk' {
         TRACE = 'TRACE',
     }
 
-    export const enum DataType {
+    export enum DataType {
         String = 'String',
         Boolean = 'Boolean',
         Number = 'Number',

@@ -18,9 +18,8 @@ describe.only('test generic binding', () => {
       database: process.env.SNOWFLAKE_TEST_DATABASE,
     };
     const connectionId = generic.connectUserPassword(connectionParams);
-    const result = generic.executeQuery(connectionId, 'select 42, \'bla\', 1.56;');
-    // TODO test null
-    assert.deepEqual(result, [[42, 'bla', 1.56]]);
+    const result = generic.executeQuery(connectionId, 'select 42, \'bla\', 1.56, \'\', null;');
+    assert.deepEqual(result, [[42, 'bla', 1.56, '', null]]);
   });
 
   it('should return null when connect failed', () => {

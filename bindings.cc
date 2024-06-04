@@ -90,15 +90,16 @@ void ExecuteQuery(const FunctionCallbackInfo<Value>& args) {
 
   SF_CONNECT* sf = connections[cacheKey];
   SF_STMT* statement = snowflake_stmt(sf);
+  SF_STATUS status;
   // TODO arrow format should be optional
-  SF_STATUS status = snowflake_query(statement, "alter session set C_API_QUERY_RESULT_FORMAT=ARROW_FORCE", 0);
+  status = snowflake_query(statement, "alter session set C_API_QUERY_RESULT_FORMAT=ARROW_FORCE", 0);
   printf("Change to arrow status is %d\n", status);
   printf("Query to run: %s\n", query.c_str());
   status = snowflake_query(statement, query.c_str(), 0);
-  printf("Simple query status is %d\n", status);
+  printf("Query status is %d\n", status);
 //  printf("Statement metadata - first column type: %d, c_type: %d and expected type is %d\n", statement->desc[0].type, statement->desc[0].c_type, SF_C_TYPE_INT64);
 //  printf("Statement metadata - first column type: %d, c_type: %d and expected type is %d\n", statement->desc[1].type, statement->desc[1].c_type, SF_C_TYPE_STRING);
-//  printf("Statement metadata - first column type: %d, c_type: %d and expected type is %d\n", statement->desc[2].type, statement->desc[2].c_type, SF_C_TYPE_FLOAT64);
+//  printf("Statement metadata - first column type: %d, c_type: %d and expected type is %d\n", statement->desc[3].type, statement->desc[3].c_type, SF_C_TYPE_STRING);
 //  printf("Fetched rows %d\n", statement->total_rowcount);
 //  printf("Fetched columns per row %d\n", statement->total_fieldcount);
   Local<v8::Array> result = v8::Array::New(isolate, statement->total_rowcount);
@@ -107,6 +108,12 @@ void ExecuteQuery(const FunctionCallbackInfo<Value>& args) {
     Local<v8::Array> array = v8::Array::New(isolate, statement->total_fieldcount);
     for(int64 column_idx = 0; column_idx < statement->total_fieldcount; ++column_idx) {
         int64 result_set_column_idx = column_idx + 1;
+        sf_bool is_null = SF_BOOLEAN_FALSE;
+        snowflake_column_is_null(statement, result_set_column_idx, &is_null);
+        if (is_null) {
+            array->Set(context, column_idx, v8::Null(isolate));
+            continue;
+        }
         switch (statement->desc[column_idx].c_type) {
             case SF_C_TYPE_INT64:
                 int32 out;

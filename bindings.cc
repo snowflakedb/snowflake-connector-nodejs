@@ -67,12 +67,6 @@ void GetApiName(const FunctionCallbackInfo<Value>& args) {
   args.GetReturnValue().Set(String::NewFromUtf8(isolate, SF_API_NAME).ToLocalChecked());
 }
 
-void Connect(const FunctionCallbackInfo<Value>& args) {
-  SF_CONNECT *sf = NULL;
-  SF_STATUS status = snowflake_connect(sf);
-  args.GetReturnValue().Set(status);
-}
-
 void ConnectUserPassword(const FunctionCallbackInfo<Value>& args) {
 //  GENERIC_LOG_TRACE("Args length: %d", args.Length());
   Isolate* isolate = args.GetIsolate();
@@ -183,7 +177,6 @@ void CloseConnection(const FunctionCallbackInfo<Value>& args) {
 void Initialize(Local<Object> exports) {
   NODE_SET_METHOD(exports, "getVersion", GetVersion);
   NODE_SET_METHOD(exports, "getApiName", GetApiName);
-  NODE_SET_METHOD(exports, "connect", Connect);
   NODE_SET_METHOD(exports, "connectUserPassword", ConnectUserPassword);
   NODE_SET_METHOD(exports, "executeQuery", ExecuteQuery);
   NODE_SET_METHOD(exports, "init", Init);

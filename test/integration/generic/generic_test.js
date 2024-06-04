@@ -1,5 +1,5 @@
 const assert = require('assert');
-const generic = require('../../../build/Release/generic_driver');
+const generic = require('../../../lib/generic');
 
 describe.only('test generic binding', () => {
   before(() => {

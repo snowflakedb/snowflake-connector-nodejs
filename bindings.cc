@@ -1,5 +1,6 @@
 #include <node.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <map>
 #include "snowflake/version.h"
 #include "snowflake/client.h"
@@ -92,31 +93,50 @@ void ExecuteQuery(const FunctionCallbackInfo<Value>& args) {
   // TODO arrow format should be optional
   SF_STATUS status = snowflake_query(statement, "alter session set C_API_QUERY_RESULT_FORMAT=ARROW_FORCE", 0);
   printf("Change to arrow status is %d\n", status);
-//  char* query2 = "select 78;";
   printf("Query to run: %s\n", query.c_str());
   status = snowflake_query(statement, query.c_str(), 0);
   printf("Simple query status is %d\n", status);
-  printf("Statement metadata - first column type: %d, c_type: %d and expected type is %d\n", statement->desc[0].type, statement->desc[0].c_type, SF_C_TYPE_INT64);
-  printf("Statement metadata - first column type: %d, c_type: %d and expected type is %d\n", statement->desc[1].type, statement->desc[1].c_type, SF_C_TYPE_STRING);
-  printf("Statement metadata - first column type: %d, c_type: %d and expected type is %d\n", statement->desc[2].type, statement->desc[2].c_type, SF_C_TYPE_FLOAT64);
-  Local<v8::Array> array = v8::Array::New(isolate, 3);
-  int32 out;
+//  printf("Statement metadata - first column type: %d, c_type: %d and expected type is %d\n", statement->desc[0].type, statement->desc[0].c_type, SF_C_TYPE_INT64);
+//  printf("Statement metadata - first column type: %d, c_type: %d and expected type is %d\n", statement->desc[1].type, statement->desc[1].c_type, SF_C_TYPE_STRING);
+//  printf("Statement metadata - first column type: %d, c_type: %d and expected type is %d\n", statement->desc[2].type, statement->desc[2].c_type, SF_C_TYPE_FLOAT64);
+//  printf("Fetched rows %d\n", statement->total_rowcount);
+//  printf("Fetched columns per row %d\n", statement->total_fieldcount);
+  Local<v8::Array> result = v8::Array::New(isolate, statement->total_rowcount);
+  long row_idx = 0;
   while ((status = snowflake_fetch(statement)) == SF_STATUS_SUCCESS) {
-    // TODO should return more than one int
-    snowflake_column_as_int32(statement, 1, &out);
-    const char* buffer = (char*) malloc(255 * sizeof(char));
-    snowflake_column_as_const_str(statement, 2, &buffer);
-    double outDouble;
-    snowflake_column_as_float64(statement, 3, &outDouble);
-    printf("Selected %d %s %g\n", out, buffer, outDouble);
-    array->Set(context, 0, v8::Integer::New(isolate, out));
-    array->Set(context, 1, String::NewFromUtf8(isolate, buffer).ToLocalChecked());
-    array->Set(context, 2, Number::New(isolate, outDouble));
+    Local<v8::Array> array = v8::Array::New(isolate, statement->total_fieldcount);
+    for(int64 column_idx = 0; column_idx < statement->total_fieldcount; ++column_idx) {
+        int64 result_set_column_idx = column_idx + 1;
+        switch (statement->desc[column_idx].c_type) {
+            case SF_C_TYPE_INT64:
+                int32 out;
+                snowflake_column_as_int32(statement, result_set_column_idx, &out);
+                array->Set(context, column_idx, v8::Integer::New(isolate, out));
+                break;
+            case SF_C_TYPE_FLOAT64:
+                double outDouble;
+                snowflake_column_as_float64(statement, result_set_column_idx, &outDouble);
+                array->Set(context, column_idx, Number::New(isolate, outDouble));
+                break;
+            case SF_C_TYPE_STRING: {
+                const char* buffer = (char*) malloc(statement->desc[column_idx].byte_size * sizeof(char));
+                snowflake_column_as_const_str(statement, result_set_column_idx, &buffer);
+                array->Set(context, column_idx, String::NewFromUtf8(isolate, buffer).ToLocalChecked());
+                // TODO should we call free
+                break;
+                }
+            default:
+                // TODO handle unknown type
+                printf("Unknown column type: %d\n", statement->desc[result_set_column_idx].c_type);
+                break;
+        }
+    }
+    result->Set(context, row_idx++, array);
   }
   snowflake_stmt_term(statement);
   status = snowflake_term(sf);
   printf("Connect term status is %d\n", status);
-  args.GetReturnValue().Set(array);
+  args.GetReturnValue().Set(result);
 }
 
 void Initialize(Local<Object> exports) {

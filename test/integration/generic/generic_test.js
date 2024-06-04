@@ -24,6 +24,7 @@ describe.only('test generic binding', () => {
     const connectionId = generic.connectUserPassword(connectionParams);
     const result = generic.executeQuery(connectionId, 'select 42, \'bla\', 1.56, \'\', null;');
     assert.deepEqual(result, [[42, 'bla', 1.56, '', null]]);
+    generic.closeConnection(connectionId);
   });
 
   it('should return null when connect failed', () => {
@@ -53,5 +54,6 @@ describe.only('test generic binding', () => {
       assert.equal(row.length, 1);
       assert.ok(row[0]);
     });
+    generic.closeConnection(connectionId);
   });
 });

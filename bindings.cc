@@ -166,9 +166,18 @@ void ExecuteQuery(const FunctionCallbackInfo<Value>& args) {
     result->Set(context, row_idx++, array);
   }
   snowflake_stmt_term(statement);
-  status = snowflake_term(sf);
-  GENERIC_LOG_TRACE("Connect term status is %d", status); // TODO terminate in a separate methods
   args.GetReturnValue().Set(result);
+}
+
+void CloseConnection(const FunctionCallbackInfo<Value>& args) {
+//  GENERIC_LOG_TRACE("Args length: %d", args.Length());
+  Isolate* isolate = args.GetIsolate();
+  Local<v8::Context> context = v8::Context::New(isolate);
+  std::string cacheKey = readStringArg(args, 0);
+
+  SF_CONNECT* sf = connections[cacheKey];
+  SF_STATUS status = snowflake_term(sf);
+  GENERIC_LOG_TRACE("Connect term status is %d", status);
 }
 
 void Initialize(Local<Object> exports) {
@@ -178,6 +187,7 @@ void Initialize(Local<Object> exports) {
   NODE_SET_METHOD(exports, "connectUserPassword", ConnectUserPassword);
   NODE_SET_METHOD(exports, "executeQuery", ExecuteQuery);
   NODE_SET_METHOD(exports, "init", Init);
+  NODE_SET_METHOD(exports, "closeConnection", CloseConnection);
 }
 
 NODE_MODULE(NODE_GYP_MODULE_NAME, Initialize)

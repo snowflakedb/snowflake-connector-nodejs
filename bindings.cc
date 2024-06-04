@@ -17,6 +17,41 @@ using v8::Number;
 
 std::map<std::string, SF_CONNECT*> connections;
 
+std::string localStringToStdString(Isolate* isolate, Local<String> s) {
+      String::Utf8Value str(isolate, s);
+      std::string cppStr(*str);
+      return cppStr;
+}
+
+std::string readStringArg(const FunctionCallbackInfo<Value>& args, int i) {
+    Isolate* isolate = args.GetIsolate();
+      String::Utf8Value str(isolate, args[i]);
+      std::string cppStr(*str);
+      return cppStr;
+}
+
+void Init(const FunctionCallbackInfo<Value>& args) {
+    std::string string_log_level = readStringArg(args, 0);
+    SF_LOG_LEVEL log_level;
+    if (string_log_level == "TRACE") {
+      log_level = SF_LOG_TRACE;
+    } else if (string_log_level == "DEBUG") {
+      log_level = SF_LOG_DEBUG;
+    } else if (string_log_level == "INFO") {
+      log_level = SF_LOG_INFO;
+    } else if (string_log_level == "WARN") {
+      log_level = SF_LOG_WARN;
+    } else if (string_log_level == "ERROR") {
+      log_level = SF_LOG_ERROR;
+    } else {
+      log_level = SF_LOG_FATAL;
+    }
+//    printf("Setting log level to %s (%d)\n", string_log_level.c_str(), log_level);
+//    snowflake_global_set_attribute(SF_GLOBAL_DEBUG, "TRUE");
+//    snowflake_global_init(NULL, log_level, NULL); // TODO setting log level force logging to file in ./logs/*
+//    snowflake_global_init("/tmp", log_level, NULL);
+}
+
 void GetVersion(const FunctionCallbackInfo<Value>& args) {
   Isolate* isolate = args.GetIsolate();
   args.GetReturnValue().Set(String::NewFromUtf8(isolate, SF_API_VERSION).ToLocalChecked());
@@ -31,21 +66,6 @@ void Connect(const FunctionCallbackInfo<Value>& args) {
   SF_CONNECT *sf = NULL;
   SF_STATUS status = snowflake_connect(sf);
   args.GetReturnValue().Set(status);
-}
-
-std::string localStringToStdString(Isolate* isolate, Local<String> s) {
-      String::Utf8Value str(isolate, s);
-      std::string cppStr(*str);
-      return cppStr;
-}
-
-std::string readStringArg(const FunctionCallbackInfo<Value>& args, int i) {
-    Isolate* isolate = args.GetIsolate();
-      String::Utf8Value str(isolate, args[i]);
-      std::string cppStr(*str);
-      const char* value = cppStr.c_str();
-//      printf("In function: %d %s\n", i, value);
-      return cppStr;
 }
 
 void ConnectUserPassword(const FunctionCallbackInfo<Value>& args) {
@@ -152,6 +172,7 @@ void Initialize(Local<Object> exports) {
   NODE_SET_METHOD(exports, "connect", Connect);
   NODE_SET_METHOD(exports, "connectUserPassword", ConnectUserPassword);
   NODE_SET_METHOD(exports, "executeQuery", ExecuteQuery);
+  NODE_SET_METHOD(exports, "init", Init);
 }
 
 NODE_MODULE(NODE_GYP_MODULE_NAME, Initialize)

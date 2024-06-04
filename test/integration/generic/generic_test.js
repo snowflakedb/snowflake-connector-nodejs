@@ -2,6 +2,10 @@ const assert = require('assert');
 const generic = require('../../../build/Release/generic_driver');
 
 describe.only('test generic binding', () => {
+  before(() => {
+    generic.init('TRACE');
+  });
+
   it('should get libsfclient version', () => {
     assert.equal(generic.getVersion(), '1.0.9');
   });

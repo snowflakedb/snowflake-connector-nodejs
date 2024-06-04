@@ -4,6 +4,11 @@
 #include <map>
 #include "snowflake/version.h"
 #include "snowflake/client.h"
+#include "snowflake/logger.h"
+
+#define GENERIC_NAME "GENERIC"
+#define GENERIC_LOG_TRACE(...) sf_log_trace(GENERIC_NAME, __VA_ARGS__)
+#define GENERIC_LOG_ERROR(...) sf_log_error(GENERIC_NAME, __VA_ARGS__)
 
 namespace demo {
 
@@ -46,7 +51,7 @@ void Init(const FunctionCallbackInfo<Value>& args) {
     } else {
       log_level = SF_LOG_FATAL;
     }
-//    printf("Setting log level to %s (%d)\n", string_log_level.c_str(), log_level);
+//    GENERIC_LOG_TRACE("Setting log level to %s (%d)", string_log_level.c_str(), log_level);
 //    snowflake_global_set_attribute(SF_GLOBAL_DEBUG, "TRUE");
 //    snowflake_global_init(NULL, log_level, NULL); // TODO setting log level force logging to file in ./logs/*
 //    snowflake_global_init("/tmp", log_level, NULL);
@@ -69,26 +74,26 @@ void Connect(const FunctionCallbackInfo<Value>& args) {
 }
 
 void ConnectUserPassword(const FunctionCallbackInfo<Value>& args) {
-//  printf("Args length: %d\n", args.Length());
+//  GENERIC_LOG_TRACE("Args length: %d", args.Length());
   Isolate* isolate = args.GetIsolate();
   Local<v8::Context> context = v8::Context::New(isolate);
   // TODO refactor parameter reading
-//  printf("Object keys number: %d\n", (*(args[0].As<Object>()->GetPropertyNames(context).ToLocalChecked()))->Length());
+//  GENERIC_LOG_TRACE("Object keys number: %d", (*(args[0].As<Object>()->GetPropertyNames(context).ToLocalChecked()))->Length());
   Local<String> userPropertyName = String::NewFromUtf8Literal(isolate, "user");
-//  printf("User name: %s\n", localStringToStdString(isolate, (args[0].As<Object>()->Get(context, userPropertyName).ToLocalChecked().As<String>())).c_str());
+//  GENERIC_LOG_TRACE("User name: %s", localStringToStdString(isolate, (args[0].As<Object>()->Get(context, userPropertyName).ToLocalChecked().As<String>())).c_str());
   Local<String> passwordPropertyName = String::NewFromUtf8Literal(isolate, "password");
-//  printf("Password: %s\n", localStringToStdString(isolate, (args[0].As<Object>()->Get(context, passwordPropertyName).ToLocalChecked().As<String>())).c_str());
+//  GENERIC_LOG_TRACE("Password: %s", localStringToStdString(isolate, (args[0].As<Object>()->Get(context, passwordPropertyName).ToLocalChecked().As<String>())).c_str());
   Local<String> accountPropertyName = String::NewFromUtf8Literal(isolate, "account");
   Local<String> databasePropertyName = String::NewFromUtf8Literal(isolate, "database");
-//  printf("Account: %s\n", localStringToStdString(isolate, (args[0].As<Object>()->Get(context, accountPropertyName).ToLocalChecked().As<String>())).c_str());
+//  GENERIC_LOG_TRACE("Account: %s", localStringToStdString(isolate, (args[0].As<Object>()->Get(context, accountPropertyName).ToLocalChecked().As<String>())).c_str());
   SF_CONNECT *sf = snowflake_init();
   snowflake_set_attribute(sf, SF_CON_ACCOUNT, localStringToStdString(isolate, (args[0].As<Object>()->Get(context, accountPropertyName).ToLocalChecked().As<String>())).c_str());
   snowflake_set_attribute(sf, SF_CON_USER, localStringToStdString(isolate, (args[0].As<Object>()->Get(context, userPropertyName).ToLocalChecked().As<String>())).c_str());
   snowflake_set_attribute(sf, SF_CON_PASSWORD, localStringToStdString(isolate, (args[0].As<Object>()->Get(context, passwordPropertyName).ToLocalChecked().As<String>())).c_str());
   snowflake_set_attribute(sf, SF_CON_DATABASE, localStringToStdString(isolate, (args[0].As<Object>()->Get(context, databasePropertyName).ToLocalChecked().As<String>())).c_str());
-//  printf("%s %s\n", *(args[0].As<String>()), *(args[1].As<String>()));
+//  GENERIC_LOG_TRACE("%s %s", *(args[0].As<String>()), *(args[1].As<String>()));
   SF_STATUS status = snowflake_connect(sf);
-  printf("Connect status is %d\n", status);
+  GENERIC_LOG_TRACE("Connect status is %d", status);
   if (status == SF_STATUS_SUCCESS) {
     // TODO key should be uuid
     std::string cacheKey = "bla";
@@ -102,7 +107,7 @@ void ConnectUserPassword(const FunctionCallbackInfo<Value>& args) {
 }
 
 void ExecuteQuery(const FunctionCallbackInfo<Value>& args) {
-//  printf("Args length: %d\n", args.Length());
+//  GENERIC_LOG_TRACE("Args length: %d", args.Length());
   Isolate* isolate = args.GetIsolate();
   Local<v8::Context> context = v8::Context::New(isolate);
   std::string cacheKey = readStringArg(args, 0);
@@ -113,15 +118,15 @@ void ExecuteQuery(const FunctionCallbackInfo<Value>& args) {
   SF_STATUS status;
   // TODO arrow format should be optional
   status = snowflake_query(statement, "alter session set C_API_QUERY_RESULT_FORMAT=ARROW_FORCE", 0);
-  printf("Change to arrow status is %d\n", status);
-  printf("Query to run: %s\n", query.c_str());
+  GENERIC_LOG_TRACE("Change to arrow status is %d", status);
+  GENERIC_LOG_TRACE("Query to run: %s", query.c_str());
   status = snowflake_query(statement, query.c_str(), 0);
-  printf("Query status is %d\n", status);
-//  printf("Statement metadata - first column type: %d, c_type: %d and expected type is %d\n", statement->desc[0].type, statement->desc[0].c_type, SF_C_TYPE_INT64);
-//  printf("Statement metadata - first column type: %d, c_type: %d and expected type is %d\n", statement->desc[1].type, statement->desc[1].c_type, SF_C_TYPE_STRING);
-//  printf("Statement metadata - first column type: %d, c_type: %d and expected type is %d\n", statement->desc[3].type, statement->desc[3].c_type, SF_C_TYPE_STRING);
-//  printf("Fetched rows %d\n", statement->total_rowcount);
-//  printf("Fetched columns per row %d\n", statement->total_fieldcount);
+  GENERIC_LOG_TRACE("Query status is %d", status);
+//  GENERIC_LOG_TRACE("Statement metadata - first column type: %d, c_type: %d and expected type is %d", statement->desc[0].type, statement->desc[0].c_type, SF_C_TYPE_INT64);
+//  GENERIC_LOG_TRACE("Statement metadata - first column type: %d, c_type: %d and expected type is %d", statement->desc[1].type, statement->desc[1].c_type, SF_C_TYPE_STRING);
+//  GENERIC_LOG_TRACE("Statement metadata - first column type: %d, c_type: %d and expected type is %d", statement->desc[3].type, statement->desc[3].c_type, SF_C_TYPE_STRING);
+//  GENERIC_LOG_TRACE("Fetched rows %d", statement->total_rowcount);
+//  GENERIC_LOG_TRACE("Fetched columns per row %d", statement->total_fieldcount);
   Local<v8::Array> result = v8::Array::New(isolate, statement->total_rowcount);
   long row_idx = 0;
   while ((status = snowflake_fetch(statement)) == SF_STATUS_SUCCESS) {
@@ -154,7 +159,7 @@ void ExecuteQuery(const FunctionCallbackInfo<Value>& args) {
                 }
             default:
                 // TODO handle unknown type
-                printf("Unknown column type: %d\n", statement->desc[result_set_column_idx].c_type);
+                GENERIC_LOG_ERROR("Unknown column type: %d", statement->desc[result_set_column_idx].c_type);
                 break;
         }
     }
@@ -162,7 +167,7 @@ void ExecuteQuery(const FunctionCallbackInfo<Value>& args) {
   }
   snowflake_stmt_term(statement);
   status = snowflake_term(sf);
-  printf("Connect term status is %d\n", status);
+  GENERIC_LOG_TRACE("Connect term status is %d", status); // TODO terminate in a separate methods
   args.GetReturnValue().Set(result);
 }
 

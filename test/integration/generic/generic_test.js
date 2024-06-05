@@ -3,7 +3,7 @@ const generic = require('../../../lib/generic');
 
 describe.only('test generic binding', () => {
   before(() => {
-    generic.init('TRACE');
+    generic.init('INFO');
   });
 
   it('should get libsfclient version', () => {

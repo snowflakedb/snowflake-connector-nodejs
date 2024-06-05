@@ -51,9 +51,10 @@ void Init(const FunctionCallbackInfo<Value>& args) {
     } else {
       log_level = SF_LOG_FATAL;
     }
+    log_set_level(log_level);
 //    GENERIC_LOG_TRACE("Setting log level to %s (%d)", string_log_level.c_str(), log_level);
 //    snowflake_global_set_attribute(SF_GLOBAL_DEBUG, "TRUE");
-//    snowflake_global_init(NULL, log_level, NULL); // TODO setting log level force logging to file in ./logs/*
+//    snowflake_global_init(NULL, log_level, NULL); // TODO setting log level here force logging to file in ./logs/*
 //    snowflake_global_init("/tmp", log_level, NULL);
 }
 

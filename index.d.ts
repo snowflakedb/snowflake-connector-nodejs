@@ -123,6 +123,9 @@ declare module 'snowflake-sdk' {
         ERR_CONN_CREATE_INVALID_ACCOUNT_REGEX = 404045,
         ERR_CONN_CREATE_INVALID_REGION_REGEX = 404046,
         ERR_CONN_CREATE_INVALID_DISABLE_CONSOLE_LOGIN = 404047,
+        ERR_CONN_CREATE_INVALID_FORCE_GCP_USE_DOWNSCOPED_CREDENTIAL = 404048,
+        ERR_CONN_CREATE_INVALID_REPRESENT_NULL_AS_STRING_NULL = 404050,
+        ERR_CONN_CREATE_INVALID_DISABLE_SAML_URL_CHECK = 404051,
 
         // 405001
         ERR_CONN_CONNECT_INVALID_CALLBACK = 405001,
@@ -281,6 +284,8 @@ declare module 'snowflake-sdk' {
          */
         host?: string;
 
+        // keepAlive?: string;
+
         /**
          * Specifies a fully-qualified endpoint for connecting to Snowflake.
          */
@@ -302,14 +307,40 @@ declare module 'snowflake-sdk' {
         authenticator?: string;
 
         /**
+         * Specifies the timeout, in milliseconds, for browser activities related to SSO authentication. The default value is 120000 (milliseconds).
+         */
+        browserActionTimeout?: number;
+
+        /**
+         * Specifies the lists of hosts that the driver should connect to directly, bypassing the proxy server (e.g. *.amazonaws.com to bypass Amazon S3 access). For multiple hosts, separate the hostnames with a pipe symbol (|). 
+         * You can also use an asterisk as a wild card. For example: noProxy: "*.amazonaws.com|*.my_company.com"
+         */
+        noProxy?: string;
+
+        /**
          * Specifies the hostname of an authenticated proxy server.
          */
         proxyHost?: string;
 
         /**
+         * Specifies the username used to connect to an authenticated proxy server.
+         */
+        proxyUser?: string;
+
+        /**
          * Specifies the password for the user specified by proxyUser.
          */
+        proxyPassword?: string;
+
+        /**
+         * Specifies the port of an authenticated proxy server.
+         */
         proxyPort?: number;
+
+        /**
+         * Specifies the protocol used to connect to the authenticated proxy server. Use this property to specify the HTTP protocol: http or https.
+         */
+        proxyProtocol?: string;
 
         /**
          * Specifies the serviceName.
@@ -350,6 +381,11 @@ declare module 'snowflake-sdk' {
          * The default schema to use for the session after connecting.
          */
         schema?: string;
+
+        /**
+         * Number of milliseconds to keep the connection alive with no response. Default: 90000 (1 minute 30 seconds).
+         */
+        timeout?: number;
 
         /**
          * The default security role to use for the session after connecting.
@@ -397,42 +433,64 @@ declare module 'snowflake-sdk' {
         arrayBindingThreshold?: number;
 
         /**
-         * Set whether the retry reason is included or not in the retry url.
-         */
-        includeRetryReason?: boolean;
-
-        /**
-         * The option to disable the query context cache.
-         * 
-         */
-        disableQueryContextCache?: boolean,
-
-        /**
          * The max login timeout value. This value is either 0 or over 300.
          */
         retryTimeout?: number;
 
         /**
-         * The option to disable the web authentication console login.
-         * 
+          * The option to skip the SAML URL check in the Okta authentication
+          */
+        disableSamlUrlCheck?: boolean;
+
+        /**
+          * The option to fetch all the null values in the columns as the string null.
+          */
+        representNullAsStringNull?: boolean;
+
+        /**
+         * Number of threads for clients to use to prefetch large result sets. Valid values: 1-10.
          */
-        disableConsoleLogin?: boolean
+        resultPrefetch?: number;
+
+
+        //Connection options Options but not on the web document.
+        /**
+         * Set whether the retry reason is included or not in the retry url.
+         */
+        includeRetryReason?: boolean;
+
+        /**
+         * Number of retries for the login request.
+         */
+        sfRetryMaxLoginRetries?: number,
+
+        forceStageBindError
+
+        /**
+         * The option to disable the query context cache.
+         */
+        disableQueryContextCache?: boolean;
+
+        /**
+         * The option to disable GCS_USE_DOWNSCOPED_CREDENTIAL session parameter
+         */
+        gcsUseDownscopedCredential?: boolean;
 
         /**
          * The option to use https request only for the snowflake server if other GCP metadata or configuration is already set on the machine.
          * The default value is false.
          */
-        forceGCPUseDownscopedCredential?: boolean,
+        forceGCPUseDownscopedCredential?: boolean;
 
         /**
-          * The option to skip the SAML URL check in the Okta authentication
-          */
-        disableSamlUrlCheck?: boolean,
+         * The option to disable the web authentication console login.
+         */
+        disableConsoleLogin?: boolean;
 
         /**
-          * The option to fetch all the null values in the columns as the string null.
-          */
-        representNullAsStringNull?: boolean,
+         *  Turn on the validation function which checks whether all the connection configuration from users are valid or not. 
+         */
+        validateDefaultParameters?: boolean;
     }
 
     export interface Connection {
@@ -509,6 +567,11 @@ declare module 'snowflake-sdk' {
          * Checks whether the given status means that there has been an error.
          */
         isAnError(): boolean;
+
+        /*
+         * Returns a serialized version of this connection.
+         */
+        serialize(): String;
     }
 
     export interface StatementOption {
@@ -614,17 +677,13 @@ declare module 'snowflake-sdk' {
         getQueryId(): string;
 
         /**
-         * 
          *  Cancels this statement if possible.
-         *  @param {Function} [callback]
          */
-        cancel(callback: StatementCallback): void;
+        cancel(callback?: StatementCallback): void;
 
         /**
          * Streams the rows in this statement's result. If start and end values are
          * specified, only rows in the specified range are streamed.
-         *
-         * @param {Object} options
          */
         streamRows(options?: StreamOptions): Readable;
 
@@ -632,8 +691,6 @@ declare module 'snowflake-sdk' {
          * Fetches the rows in this statement's result and invokes each()
          * callback on each row. If start and end values are specified each()
          * callback will only be invoked on rows in the specified range.
-         *
-         * @param {Object} options
          */
         fetchRows(options?: StreamOptions): Readable;
     }

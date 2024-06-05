@@ -74,18 +74,24 @@ void ConnectUserPassword(const FunctionCallbackInfo<Value>& args) {
   Local<v8::Context> context = v8::Context::New(isolate);
   // TODO refactor parameter reading
 //  GENERIC_LOG_TRACE("Object keys number: %d", (*(args[0].As<Object>()->GetPropertyNames(context).ToLocalChecked()))->Length());
-  Local<String> userPropertyName = String::NewFromUtf8Literal(isolate, "user");
-//  GENERIC_LOG_TRACE("User name: %s", localStringToStdString(isolate, (args[0].As<Object>()->Get(context, userPropertyName).ToLocalChecked().As<String>())).c_str());
+  Local<String> usernamePropertyName = String::NewFromUtf8Literal(isolate, "username");
   Local<String> passwordPropertyName = String::NewFromUtf8Literal(isolate, "password");
-//  GENERIC_LOG_TRACE("Password: %s", localStringToStdString(isolate, (args[0].As<Object>()->Get(context, passwordPropertyName).ToLocalChecked().As<String>())).c_str());
   Local<String> accountPropertyName = String::NewFromUtf8Literal(isolate, "account");
   Local<String> databasePropertyName = String::NewFromUtf8Literal(isolate, "database");
+  Local<String> schemaPropertyName = String::NewFromUtf8Literal(isolate, "schema");
+  Local<String> warehousePropertyName = String::NewFromUtf8Literal(isolate, "warehouse");
+//  GENERIC_LOG_TRACE("Username: %s", localStringToStdString(isolate, (args[0].As<Object>()->Get(context, usernamePropertyName).ToLocalChecked().As<String>())).c_str());
 //  GENERIC_LOG_TRACE("Account: %s", localStringToStdString(isolate, (args[0].As<Object>()->Get(context, accountPropertyName).ToLocalChecked().As<String>())).c_str());
+//  GENERIC_LOG_TRACE("Database: %s", localStringToStdString(isolate, (args[0].As<Object>()->Get(context, databasePropertyName).ToLocalChecked().As<String>())).c_str());
+//  GENERIC_LOG_TRACE("Schema: %s", localStringToStdString(isolate, (args[0].As<Object>()->Get(context, schemaPropertyName).ToLocalChecked().As<String>())).c_str());
+//  GENERIC_LOG_TRACE("Warehouse: %s", localStringToStdString(isolate, (args[0].As<Object>()->Get(context, warehousePropertyName).ToLocalChecked().As<String>())).c_str());
   SF_CONNECT *sf = snowflake_init();
   snowflake_set_attribute(sf, SF_CON_ACCOUNT, localStringToStdString(isolate, (args[0].As<Object>()->Get(context, accountPropertyName).ToLocalChecked().As<String>())).c_str());
-  snowflake_set_attribute(sf, SF_CON_USER, localStringToStdString(isolate, (args[0].As<Object>()->Get(context, userPropertyName).ToLocalChecked().As<String>())).c_str());
+  snowflake_set_attribute(sf, SF_CON_USER, localStringToStdString(isolate, (args[0].As<Object>()->Get(context, usernamePropertyName).ToLocalChecked().As<String>())).c_str());
   snowflake_set_attribute(sf, SF_CON_PASSWORD, localStringToStdString(isolate, (args[0].As<Object>()->Get(context, passwordPropertyName).ToLocalChecked().As<String>())).c_str());
   snowflake_set_attribute(sf, SF_CON_DATABASE, localStringToStdString(isolate, (args[0].As<Object>()->Get(context, databasePropertyName).ToLocalChecked().As<String>())).c_str());
+  snowflake_set_attribute(sf, SF_CON_SCHEMA, localStringToStdString(isolate, (args[0].As<Object>()->Get(context, schemaPropertyName).ToLocalChecked().As<String>())).c_str());
+  snowflake_set_attribute(sf, SF_CON_WAREHOUSE, localStringToStdString(isolate, (args[0].As<Object>()->Get(context, warehousePropertyName).ToLocalChecked().As<String>())).c_str());
 //  GENERIC_LOG_TRACE("%s %s", *(args[0].As<String>()), *(args[1].As<String>()));
   SF_STATUS status = snowflake_connect(sf);
   GENERIC_LOG_TRACE("Connect status is %d", status);

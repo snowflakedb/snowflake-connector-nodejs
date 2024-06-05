@@ -22,7 +22,20 @@ using v8::String;
 using v8::Value;
 using v8::Number;
 
+struct RunningStatement {
+    std::string connectionId;
+    std::string statementId;
+};
+
+bool operator< ( RunningStatement a, RunningStatement b ) { return std::make_pair(a.connectionId,a.statementId) < std::make_pair(b.connectionId,b.statementId) ; }
+
+//auto runningStatementComparator = [](const RunningStatement& rs1, const RunningStatement& rs2){
+//    return rs1.connectionId < rs2.connectionId || (rs1.connectionId == rs2.connectionId && rs1.statementId < rs2.statementId);
+//};
+
 std::map<std::string, SF_CONNECT*> connections;
+//std::map<RunningStatement, SF_STMT*, decltype(runningStatementComparator)> streamingStatements(runningStatementComparator);
+std::map<RunningStatement, SF_STMT*> streamingStatements;
 
 std::string localStringToStdString(Isolate* isolate, Local<String> s) {
       String::Utf8Value str(isolate, s);
@@ -35,6 +48,11 @@ std::string readStringArg(const FunctionCallbackInfo<Value>& args, int i) {
       String::Utf8Value str(isolate, args[i]);
       std::string cppStr(*str);
       return cppStr;
+}
+
+int64_t readLongArg(const FunctionCallbackInfo<Value>& args, int i) {
+    Isolate* isolate = args.GetIsolate();
+    return args[i].As<v8::Integer>()->Value();
 }
 
 void Init(const FunctionCallbackInfo<Value>& args) {
@@ -132,7 +150,7 @@ void ExecuteQuery(const FunctionCallbackInfo<Value>& args) {
 //  GENERIC_LOG_TRACE("Args length: %d", args.Length());
   Isolate* isolate = args.GetIsolate();
   Local<v8::Context> context = v8::Context::New(isolate);
-  std::string cacheKey = readStringArg(args, 0);
+  std::string connectionId = readStringArg(args, 0);
   std::string query = readStringArg(args, 1);
   std::string resultFormat = "JSON";
   if (args.Length() > 2) {
@@ -141,7 +159,7 @@ void ExecuteQuery(const FunctionCallbackInfo<Value>& args) {
     resultFormat = readStringObjectProperty(isolate, context, options, "resultFormat");
   }
 
-  SF_CONNECT* sf = connections[cacheKey];
+  SF_CONNECT* sf = connections[connectionId];
   SF_STMT* statement = snowflake_stmt(sf);
   SF_STATUS status;
   if (resultFormat == "ARROW") {
@@ -200,6 +218,121 @@ void ExecuteQuery(const FunctionCallbackInfo<Value>& args) {
   args.GetReturnValue().Set(result);
 }
 
+void ExecuteQueryStreaming(const FunctionCallbackInfo<Value>& args) {
+//  GENERIC_LOG_TRACE("Args length: %d", args.Length());
+  Isolate* isolate = args.GetIsolate();
+  Local<v8::Context> context = v8::Context::New(isolate);
+  std::string connectionId = readStringArg(args, 0);
+  std::string query = readStringArg(args, 1);
+  std::string resultFormat = "JSON";
+  if (args.Length() > 2) {
+    // third parameter is option object
+    Local<Object> options = args[2].As<Object>();
+    resultFormat = readStringObjectProperty(isolate, context, options, "resultFormat");
+  }
+
+  SF_CONNECT* sf = connections[connectionId];
+  SF_STMT* statement = snowflake_stmt(sf);
+  SF_STATUS status;
+  if (resultFormat == "ARROW") {
+    status = snowflake_query(statement, "alter session set C_API_QUERY_RESULT_FORMAT=ARROW_FORCE", 0);
+    GENERIC_LOG_TRACE("Change to arrow status is %d", status);
+  } else {
+    status = snowflake_query(statement, "alter session set C_API_QUERY_RESULT_FORMAT=JSON", 0);
+    GENERIC_LOG_TRACE("Change to json status is %d", status);
+  }
+  GENERIC_LOG_TRACE("Query to run: %s", query.c_str());
+  status = snowflake_query(statement, query.c_str(), 0);
+  GENERIC_LOG_TRACE("Query status is %d", status);
+//  GENERIC_LOG_TRACE("Statement metadata - first column type: %d, c_type: %d and expected type is %d", statement->desc[0].type, statement->desc[0].c_type, SF_C_TYPE_INT64);
+//  GENERIC_LOG_TRACE("Statement metadata - first column type: %d, c_type: %d and expected type is %d", statement->desc[1].type, statement->desc[1].c_type, SF_C_TYPE_STRING);
+//  GENERIC_LOG_TRACE("Statement metadata - first column type: %d, c_type: %d and expected type is %d", statement->desc[3].type, statement->desc[3].c_type, SF_C_TYPE_STRING);
+//  GENERIC_LOG_TRACE("Fetched rows %d", statement->total_rowcount);
+//  GENERIC_LOG_TRACE("Fetched columns per row %d", statement->total_fieldcount);
+  if (status == SF_STATUS_SUCCESS) {
+      std::string statementId = gen_random_string(20); // TODO use uuid or session id
+      RunningStatement cacheKey = { .connectionId = connectionId, .statementId = statementId };
+      streamingStatements[cacheKey] = statement;
+      args.GetReturnValue().Set(String::NewFromUtf8(isolate, statementId.c_str()).ToLocalChecked());
+      // TODO return object
+    } else {
+      args.GetReturnValue().SetNull();
+      // TODO return error
+    }
+}
+
+void FetchNextRows(const FunctionCallbackInfo<Value>& args) {
+//  GENERIC_LOG_TRACE("Args length: %d", args.Length());
+  Isolate* isolate = args.GetIsolate();
+  Local<v8::Context> context = v8::Context::New(isolate);
+  std::string connectionId = readStringArg(args, 0);
+  std::string statementId = readStringArg(args, 1);
+  int64_t rowsToFetch = readLongArg(args, 2);
+
+  GENERIC_LOG_TRACE("Reading from statement %s/%s: %d rows", connectionId.c_str(), statementId.c_str(), rowsToFetch);
+
+  RunningStatement cacheKey = { .connectionId = connectionId, .statementId = statementId };
+
+  SF_STMT* statement = streamingStatements[cacheKey];
+  Local<v8::Array> result = v8::Array::New(isolate, rowsToFetch); // TODO check how many rows should there be
+  SF_STATUS status;
+  long row_idx = 0;
+  while (row_idx < rowsToFetch && (status = snowflake_fetch(statement)) == SF_STATUS_SUCCESS) {
+    Local<v8::Array> array = v8::Array::New(isolate, statement->total_fieldcount);
+    for(int64 column_idx = 0; column_idx < statement->total_fieldcount; ++column_idx) {
+        int64 result_set_column_idx = column_idx + 1;
+        sf_bool is_null = SF_BOOLEAN_FALSE;
+        snowflake_column_is_null(statement, result_set_column_idx, &is_null);
+        if (is_null) {
+            array->Set(context, column_idx, v8::Null(isolate));
+            continue;
+        }
+        switch (statement->desc[column_idx].c_type) {
+            case SF_C_TYPE_INT64:
+                int32 out;
+                snowflake_column_as_int32(statement, result_set_column_idx, &out);
+                array->Set(context, column_idx, v8::Integer::New(isolate, out));
+                break;
+            case SF_C_TYPE_FLOAT64:
+                double outDouble;
+                snowflake_column_as_float64(statement, result_set_column_idx, &outDouble);
+                array->Set(context, column_idx, Number::New(isolate, outDouble));
+                break;
+            case SF_C_TYPE_STRING: {
+                const char* buffer = NULL;
+                snowflake_column_as_const_str(statement, result_set_column_idx, &buffer);
+                array->Set(context, column_idx, String::NewFromUtf8(isolate, buffer).ToLocalChecked());
+                break;
+                }
+            default:
+                // TODO handle unknown type
+                GENERIC_LOG_ERROR("Unknown column type: %d", statement->desc[result_set_column_idx].c_type);
+                break;
+        }
+    }
+    result->Set(context, row_idx++, array);
+  }
+  if (status != SF_STATUS_SUCCESS) {
+    snowflake_stmt_term(statement);
+    streamingStatements.erase(cacheKey);
+  }
+  if(result->Length() > row_idx) {
+    // shrinking result array
+    Local<v8::Array> result2 = v8::Array::New(isolate, row_idx);
+    long idx;
+    for(idx = 0; idx < row_idx; ++idx) {
+        result2->Set(context, idx, result->Get(context, idx).ToLocalChecked());
+    }
+    result = result2;
+  }
+
+  Local<Object> returnObject = Object::New(isolate);
+  returnObject->Set(context, String::NewFromUtf8Literal(isolate, "rows"), result);
+  returnObject->Set(context, String::NewFromUtf8Literal(isolate, "end"), v8::Boolean::New(isolate, status != SF_STATUS_SUCCESS));
+  // TODO optimize when number of rows % fetch size == 0 to not return empty array at the end
+  args.GetReturnValue().Set(returnObject);
+}
+
 void CloseConnection(const FunctionCallbackInfo<Value>& args) {
 //  GENERIC_LOG_TRACE("Args length: %d", args.Length());
   Isolate* isolate = args.GetIsolate();
@@ -219,6 +352,8 @@ void Initialize(Local<Object> exports) {
   NODE_SET_METHOD(exports, "executeQuery", ExecuteQuery);
   NODE_SET_METHOD(exports, "init", Init);
   NODE_SET_METHOD(exports, "closeConnection", CloseConnection);
+  NODE_SET_METHOD(exports, "executeQueryStreaming", ExecuteQueryStreaming);
+  NODE_SET_METHOD(exports, "fetchNextRows", FetchNextRows);
 }
 
 NODE_MODULE(NODE_GYP_MODULE_NAME, Initialize)

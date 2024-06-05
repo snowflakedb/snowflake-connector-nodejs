@@ -1,5 +1,6 @@
 const assert = require('assert');
 const generic = require('../../../lib/generic');
+const { setTimestampOutputFormat } = require('../sharedStatements');
 
 describe.only('test generic binding', () => {
   const connectionParams = {
@@ -12,7 +13,7 @@ describe.only('test generic binding', () => {
   };
 
   before(() => {
-    generic.init('INFO');
+    generic.init('FATAL');
   });
 
   it('should get libsfclient version', () => {
@@ -35,7 +36,7 @@ describe.only('test generic binding', () => {
     assert.equal(connectionId, null);
   });
 
-  [10, 10000, 1000000].forEach(sourceRowCount => {
+  [10, 10000, 1000000, 10000000].forEach(sourceRowCount => {
     ['JSON', 'ARROW'].forEach(resultFormat => {
       it(`should select ${sourceRowCount} rows in ${resultFormat}`, () => {
         const connectionId = generic.connectUserPassword(connectionParams);
@@ -51,7 +52,32 @@ describe.only('test generic binding', () => {
         });
         generic.closeConnection(connectionId);
       });
+
+      it(`should select ${sourceRowCount} rows in ${resultFormat} with streaming`, () => {
+        const streamRowsSize = 1000;
+        const connectionId = generic.connectUserPassword(connectionParams);
+        const statementId = generic.executeQueryStreaming(connectionId,
+          `select randstr(10, random())
+           from table (generator(rowcount =>${sourceRowCount}))`,
+          { resultFormat });
+        assert.ok(statementId);
+        let fetchedRows = 0;
+        // eslint-disable-next-line no-constant-condition
+        while (true) {
+          const { rows, end } = generic.fetchNextRows(connectionId, statementId, streamRowsSize);
+          rows.forEach(row => {
+            assert.ok(row);
+            assert.equal(row.length, 1);
+            assert.ok(row[0]);
+            ++fetchedRows;
+          });
+          if (end) {
+            break;
+          }
+        }
+        assert.equal(fetchedRows, sourceRowCount);
+        generic.closeConnection(connectionId);
+      });
     });
   });
-
 });

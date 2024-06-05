@@ -12,7 +12,7 @@ describe.only('test generic binding', () => {
   };
 
   before(() => {
-    generic.init('TRACE');
+    generic.init('INFO');
   });
 
   it('should get libsfclient version', () => {
@@ -35,17 +35,23 @@ describe.only('test generic binding', () => {
     assert.equal(connectionId, null);
   });
 
-  it('should select multiple rows', () => {
-    const connectionId = generic.connectUserPassword(connectionParams);
-    const sourceRowCount = 10;
-    const result = generic.executeQuery(connectionId, `select randstr(10, random())
-                                                       from table (generator(rowcount =>${sourceRowCount}))`);
-    assert.equal(result.length, sourceRowCount);
-    result.forEach(row => {
-      assert.ok(row);
-      assert.equal(row.length, 1);
-      assert.ok(row[0]);
+  [10, 10000, 1000000].forEach(sourceRowCount => {
+    ['JSON', 'ARROW'].forEach(resultFormat => {
+      it(`should select ${sourceRowCount} rows in ${resultFormat}`, () => {
+        const connectionId = generic.connectUserPassword(connectionParams);
+        const result = generic.executeQuery(connectionId,
+          `select randstr(10, random())
+           from table (generator(rowcount =>${sourceRowCount}))`,
+          { resultFormat });
+        assert.equal(result.length, sourceRowCount);
+        result.forEach(row => {
+          assert.ok(row);
+          assert.equal(row.length, 1);
+          assert.ok(row[0]);
+        });
+        generic.closeConnection(connectionId);
+      });
     });
-    generic.closeConnection(connectionId);
   });
+
 });

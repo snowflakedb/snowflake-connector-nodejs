@@ -2,6 +2,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <map>
+#include <ctime>
+#include <unistd.h>
 #include "snowflake/version.h"
 #include "snowflake/client.h"
 #include "snowflake/logger.h"
@@ -68,9 +70,26 @@ void GetApiName(const FunctionCallbackInfo<Value>& args) {
   args.GetReturnValue().Set(String::NewFromUtf8(isolate, SF_API_NAME).ToLocalChecked());
 }
 
-std::string readConnectionParameter(Isolate* isolate, Local<v8::Context> context, Local<Object> connectionParameters, char* name) {
+std::string readStringObjectProperty(Isolate* isolate, Local<v8::Context> context, Local<Object> connectionParameters, char* name) {
     Local<String> propertyName = String::NewFromUtf8(isolate, name).ToLocalChecked();
     return localStringToStdString(isolate, connectionParameters->Get(context, propertyName).ToLocalChecked().As<String>());
+}
+
+std::string gen_random_string(const int len) {
+    // https://stackoverflow.com/questions/440133/how-do-i-create-a-random-alpha-numeric-string-in-c
+    srand((unsigned)time(NULL) * getpid());
+    static const char alphanum[] =
+        "0123456789"
+        "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+        "abcdefghijklmnopqrstuvwxyz";
+    std::string tmp_s;
+    tmp_s.reserve(len);
+
+    for (int i = 0; i < len; ++i) {
+        tmp_s += alphanum[rand() % (sizeof(alphanum) - 1)];
+    }
+
+    return tmp_s;
 }
 
 void ConnectUserPassword(const FunctionCallbackInfo<Value>& args) {
@@ -78,12 +97,12 @@ void ConnectUserPassword(const FunctionCallbackInfo<Value>& args) {
   Isolate* isolate = args.GetIsolate();
   Local<v8::Context> context = v8::Context::New(isolate);
   Local<Object> connectionParameters = args[0].As<Object>();
-  std::string username = readConnectionParameter(isolate, context, connectionParameters, "username");
-  std::string password = readConnectionParameter(isolate, context, connectionParameters, "password");
-  std::string account = readConnectionParameter(isolate, context, connectionParameters, "account");
-  std::string database = readConnectionParameter(isolate, context, connectionParameters, "database");
-  std::string schema = readConnectionParameter(isolate, context, connectionParameters, "schema");
-  std::string warehouse = readConnectionParameter(isolate, context, connectionParameters, "warehouse");
+  std::string username = readStringObjectProperty(isolate, context, connectionParameters, "username");
+  std::string password = readStringObjectProperty(isolate, context, connectionParameters, "password");
+  std::string account = readStringObjectProperty(isolate, context, connectionParameters, "account");
+  std::string database = readStringObjectProperty(isolate, context, connectionParameters, "database");
+  std::string schema = readStringObjectProperty(isolate, context, connectionParameters, "schema");
+  std::string warehouse = readStringObjectProperty(isolate, context, connectionParameters, "warehouse");
   GENERIC_LOG_TRACE("Account: %s", account.c_str());
   GENERIC_LOG_TRACE("Username: %s", username.c_str());
   GENERIC_LOG_TRACE("Database: %s", database.c_str());
@@ -99,8 +118,7 @@ void ConnectUserPassword(const FunctionCallbackInfo<Value>& args) {
   SF_STATUS status = snowflake_connect(sf);
   GENERIC_LOG_TRACE("Connect status is %d", status);
   if (status == SF_STATUS_SUCCESS) {
-    // TODO key should be uuid
-    std::string cacheKey = "bla";
+    std::string cacheKey = gen_random_string(20); // TODO use uuid or session id
     connections[cacheKey] = sf;
     args.GetReturnValue().Set(String::NewFromUtf8(isolate, cacheKey.c_str()).ToLocalChecked());
     // TODO return object
@@ -116,13 +134,23 @@ void ExecuteQuery(const FunctionCallbackInfo<Value>& args) {
   Local<v8::Context> context = v8::Context::New(isolate);
   std::string cacheKey = readStringArg(args, 0);
   std::string query = readStringArg(args, 1);
+  std::string resultFormat = "JSON";
+  if (args.Length() > 2) {
+    // third parameter is option object
+    Local<Object> options = args[2].As<Object>();
+    resultFormat = readStringObjectProperty(isolate, context, options, "resultFormat");
+  }
 
   SF_CONNECT* sf = connections[cacheKey];
   SF_STMT* statement = snowflake_stmt(sf);
   SF_STATUS status;
-  // TODO arrow format should be optional
-  status = snowflake_query(statement, "alter session set C_API_QUERY_RESULT_FORMAT=ARROW_FORCE", 0);
-  GENERIC_LOG_TRACE("Change to arrow status is %d", status);
+  if (resultFormat == "ARROW") {
+    status = snowflake_query(statement, "alter session set C_API_QUERY_RESULT_FORMAT=ARROW_FORCE", 0);
+    GENERIC_LOG_TRACE("Change to arrow status is %d", status);
+  } else {
+    status = snowflake_query(statement, "alter session set C_API_QUERY_RESULT_FORMAT=JSON", 0);
+    GENERIC_LOG_TRACE("Change to json status is %d", status);
+  }
   GENERIC_LOG_TRACE("Query to run: %s", query.c_str());
   status = snowflake_query(statement, query.c_str(), 0);
   GENERIC_LOG_TRACE("Query status is %d", status);
@@ -182,6 +210,7 @@ void CloseConnection(const FunctionCallbackInfo<Value>& args) {
   SF_CONNECT* sf = connections[cacheKey];
   SF_STATUS status = snowflake_term(sf);
   GENERIC_LOG_TRACE("Connect term status is %d", status);
+  connections.erase(cacheKey);
 }
 
 void Initialize(Local<Object> exports) {

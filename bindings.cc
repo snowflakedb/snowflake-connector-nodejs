@@ -183,10 +183,9 @@ void ExecuteQuery(const FunctionCallbackInfo<Value>& args) {
                 array->Set(context, column_idx, Number::New(isolate, outDouble));
                 break;
             case SF_C_TYPE_STRING: {
-                const char* buffer = (char*) malloc(statement->desc[column_idx].byte_size * sizeof(char));
+                const char* buffer = NULL;
                 snowflake_column_as_const_str(statement, result_set_column_idx, &buffer);
                 array->Set(context, column_idx, String::NewFromUtf8(isolate, buffer).ToLocalChecked());
-                // TODO should we call free
                 break;
                 }
             default:

@@ -30,12 +30,7 @@ declare module 'snowflake-sdk' {
         Buffer: 'Buffer',
     } as const;
 
-    const StatementStatus = {
-        Fetching: "fetching",
-        Complete: "complete",
-    } as const
-
-    const QueryStatus = {
+    export const QueryStatus = {
         RUNNING: 'RUNNING',
         ABORTING: 'ABORTING',
         SUCCESS: 'SUCCESS',
@@ -50,7 +45,12 @@ declare module 'snowflake-sdk' {
         RESTARTED: 'RESTARTED',
         BLOCKED: 'BLOCKED',
         NO_DATA: 'NO_DATA',
-    } as const
+    } as const;
+
+    const StatementStatus = {
+        Fetching: "fetching",
+        Complete: "complete",
+    } as const;
 
     const ErrorCode = {
         // 400001
@@ -213,7 +213,7 @@ declare module 'snowflake-sdk' {
         ERR_GET_RESPONSE_QUERY_INVALID_UUID: 460001,
         ERR_GET_RESULTS_QUERY_ID_NO_DATA: 460002,
         ERR_GET_RESULTS_QUERY_ID_NOT_SUCCESS_STATUS: 460003,
-    } as const
+    } as const;
 
     export type CustomParser = (rawColumnValue: string) => any;
     export type Bind = string | number;
@@ -224,10 +224,11 @@ declare module 'snowflake-sdk' {
     export type RowModeType = typeof RowMode[keyof typeof RowMode];
     export type LogLevelType = typeof LogLevel[keyof typeof LogLevel];
     export type DataType = typeof Data[keyof typeof Data];
+    export type QueryStatusType = typeof QueryStatus[keyof typeof QueryStatus];
+
     type ErrorCodeType = typeof ErrorCode[keyof typeof ErrorCode];
     type StatementStatusType = typeof StatementStatus[keyof typeof StatementStatus];
-    type QueryStatusType = typeof QueryStatus[keyof typeof QueryStatus];
-    
+
     type PoolOptions = import('generic-pool').Options;
     type Readable = import('stream').Readable;
     type Pool<T> = import('generic-pool').Pool<T>;
@@ -488,7 +489,7 @@ declare module 'snowflake-sdk' {
         /**
          * Checks whether the given status is currently running.
          */
-        isStillRunning(status: QueryStatus): boolean;
+        isStillRunning(status: QueryStatusType): boolean;
 
         /**
          * Checks whether the given status means that there has been an error.
@@ -544,7 +545,7 @@ declare module 'snowflake-sdk' {
         /**
          * Returns the current status of this statement.
          */
-        getStatus(): StatementStatus;
+        getStatus(): StatementStatusType;
 
         /**
          * Returns the columns produced by this statement.
@@ -753,7 +754,7 @@ declare module 'snowflake-sdk' {
     }
 
     export interface SnowflakeError extends Error {
-        code?: ErrorCode,
+        code?: ErrorCodeType,
         sqlState?: string,
         data?: Record<string, any>,
         response?: Record<string, any>,

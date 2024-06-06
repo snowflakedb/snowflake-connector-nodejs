@@ -21,6 +21,7 @@
               "<(module_root_dir)/libsfclient/deps-build/darwin/aws/lib/libaws-cpp-sdk-core.a",
               "<(module_root_dir)/libsfclient/deps-build/darwin/aws/lib/libaws-cpp-sdk-s3.a",
               "<(module_root_dir)/libsfclient/deps-build/darwin/azure/lib/libazure-storage-lite.a",
+              "<(module_root_dir)/libsfclient/deps-build/darwin/boost/lib/libboost_atomic.a",
               "<(module_root_dir)/libsfclient/deps-build/darwin/boost/lib/libboost_filesystem.a",
               "<(module_root_dir)/libsfclient/deps-build/darwin/boost/lib/libboost_regex.a",
               "<(module_root_dir)/libsfclient/deps-build/darwin/boost/lib/libboost_system.a",

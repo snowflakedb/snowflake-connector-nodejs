@@ -16,7 +16,7 @@ describe.only('test generic binding', () => {
   });
 
   it('should get libsfclient version', () => {
-    assert.equal(generic.getVersion(), '1.0.9');
+    assert.equal(generic.getVersion(), '1.0.11');
   });
 
   it('should get api name', () => {

@@ -14,9 +14,15 @@
 
 namespace demo {
 
+using std::make_pair;
+using std::map;
+using std::string;
+using v8::Array;
+using v8::Boolean;
 using v8::Context;
 using v8::Function;
 using v8::FunctionCallbackInfo;
+using v8::Integer;
 using v8::Isolate;
 using v8::Local;
 using v8::MaybeLocal;
@@ -26,40 +32,40 @@ using v8::String;
 using v8::Value;
 
 struct RunningStatement {
-    std::string connectionId;
-    std::string statementId;
+    string connectionId;
+    string statementId;
 };
 
-bool operator< ( RunningStatement a, RunningStatement b ) { return std::make_pair(a.connectionId,a.statementId) < std::make_pair(b.connectionId,b.statementId) ; }
+bool operator< ( RunningStatement a, RunningStatement b ) { return make_pair(a.connectionId,a.statementId) < make_pair(b.connectionId,b.statementId) ; }
 
 //auto runningStatementComparator = [](const RunningStatement& rs1, const RunningStatement& rs2){
 //    return rs1.connectionId < rs2.connectionId || (rs1.connectionId == rs2.connectionId && rs1.statementId < rs2.statementId);
 //};
 
-std::map<std::string, SF_CONNECT*> connections;
-//std::map<RunningStatement, SF_STMT*, decltype(runningStatementComparator)> streamingStatements(runningStatementComparator);
-std::map<RunningStatement, SF_STMT*> runningStatements;
+map<string, SF_CONNECT*> connections;
+//map<RunningStatement, SF_STMT*, decltype(runningStatementComparator)> streamingStatements(runningStatementComparator);
+map<RunningStatement, SF_STMT*> runningStatements;
 
-std::string localStringToStdString(Isolate* isolate, Local<String> s) {
+string localStringToStdString(Isolate* isolate, Local<String> s) {
       String::Utf8Value str(isolate, s);
-      std::string cppStr(*str);
+      string cppStr(*str);
       return cppStr;
 }
 
-std::string readStringArg(const FunctionCallbackInfo<Value>& args, int i) {
+string readStringArg(const FunctionCallbackInfo<Value>& args, int i) {
     Isolate* isolate = args.GetIsolate();
       String::Utf8Value str(isolate, args[i]);
-      std::string cppStr(*str);
+      string cppStr(*str);
       return cppStr;
 }
 
 int64_t readLongArg(const FunctionCallbackInfo<Value>& args, int i) {
     Isolate* isolate = args.GetIsolate();
-    return args[i].As<v8::Integer>()->Value();
+    return args[i].As<Integer>()->Value();
 }
 
 void Init(const FunctionCallbackInfo<Value>& args) {
-    std::string string_log_level = readStringArg(args, 0);
+    string string_log_level = readStringArg(args, 0);
     SF_LOG_LEVEL log_level;
     if (string_log_level == "TRACE") {
       log_level = SF_LOG_TRACE;
@@ -91,7 +97,7 @@ void GetApiName(const FunctionCallbackInfo<Value>& args) {
   args.GetReturnValue().Set(String::NewFromUtf8(isolate, SF_API_NAME).ToLocalChecked());
 }
 
-std::string readStringObjectProperty(Isolate* isolate, Local<v8::Context> context, Local<Object> connectionParameters, char* name) {
+string readStringObjectProperty(Isolate* isolate, Local<Context> context, Local<Object> connectionParameters, char* name) {
     Local<String> propertyName = String::NewFromUtf8(isolate, name).ToLocalChecked();
     return localStringToStdString(isolate, connectionParameters->Get(context, propertyName).ToLocalChecked().As<String>());
 }
@@ -101,14 +107,14 @@ Local<Value> readValueObjectProperty(Isolate* isolate, Local<Context> context, L
     return parameters->Get(context, propertyName).ToLocalChecked();
 }
 
-std::string gen_random_string(const int len) {
+string gen_random_string(const int len) {
     // https://stackoverflow.com/questions/440133/how-do-i-create-a-random-alpha-numeric-string-in-c
     srand((unsigned)time(NULL) * getpid());
     static const char alphanum[] =
         "0123456789"
         "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
         "abcdefghijklmnopqrstuvwxyz";
-    std::string tmp_s;
+    string tmp_s;
     tmp_s.reserve(len);
 
     for (int i = 0; i < len; ++i) {
@@ -121,14 +127,14 @@ std::string gen_random_string(const int len) {
 void ConnectUserPassword(const FunctionCallbackInfo<Value>& args) {
 //  GENERIC_LOG_TRACE("Args length: %d", args.Length());
   Isolate* isolate = args.GetIsolate();
-  Local<v8::Context> context = v8::Context::New(isolate);
+  Local<Context> context = Context::New(isolate);
   Local<Object> connectionParameters = args[0].As<Object>();
-  std::string username = readStringObjectProperty(isolate, context, connectionParameters, "username");
-  std::string password = readStringObjectProperty(isolate, context, connectionParameters, "password");
-  std::string account = readStringObjectProperty(isolate, context, connectionParameters, "account");
-  std::string database = readStringObjectProperty(isolate, context, connectionParameters, "database");
-  std::string schema = readStringObjectProperty(isolate, context, connectionParameters, "schema");
-  std::string warehouse = readStringObjectProperty(isolate, context, connectionParameters, "warehouse");
+  string username = readStringObjectProperty(isolate, context, connectionParameters, "username");
+  string password = readStringObjectProperty(isolate, context, connectionParameters, "password");
+  string account = readStringObjectProperty(isolate, context, connectionParameters, "account");
+  string database = readStringObjectProperty(isolate, context, connectionParameters, "database");
+  string schema = readStringObjectProperty(isolate, context, connectionParameters, "schema");
+  string warehouse = readStringObjectProperty(isolate, context, connectionParameters, "warehouse");
   GENERIC_LOG_TRACE("Account: %s", account.c_str());
   GENERIC_LOG_TRACE("Username: %s", username.c_str());
   GENERIC_LOG_TRACE("Database: %s", database.c_str());
@@ -144,7 +150,7 @@ void ConnectUserPassword(const FunctionCallbackInfo<Value>& args) {
   SF_STATUS status = snowflake_connect(sf);
   GENERIC_LOG_TRACE("Connect status is %d", status);
   if (status == SF_STATUS_SUCCESS) {
-    std::string cacheKey = gen_random_string(20); // TODO use uuid or session id
+    string cacheKey = gen_random_string(20); // TODO use uuid or session id
     connections[cacheKey] = sf;
     args.GetReturnValue().Set(String::NewFromUtf8(isolate, cacheKey.c_str()).ToLocalChecked());
     // TODO return object
@@ -157,10 +163,10 @@ void ConnectUserPassword(const FunctionCallbackInfo<Value>& args) {
 void ExecuteQuery(const FunctionCallbackInfo<Value>& args) {
 //  GENERIC_LOG_TRACE("Args length: %d", args.Length());
   Isolate* isolate = args.GetIsolate();
-  Local<v8::Context> context = v8::Context::New(isolate);
-  std::string connectionId = readStringArg(args, 0);
-  std::string query = readStringArg(args, 1);
-  std::string resultFormat = "JSON";
+  Local<Context> context = Context::New(isolate);
+  string connectionId = readStringArg(args, 0);
+  string query = readStringArg(args, 1);
+  string resultFormat = "JSON";
   MaybeLocal<Function> maybeHandleRow;
   if (args.Length() > 2) {
     // third parameter is option object
@@ -192,23 +198,23 @@ void ExecuteQuery(const FunctionCallbackInfo<Value>& args) {
 //  GENERIC_LOG_TRACE("Fetched rows %d", statement->total_rowcount);
 //  GENERIC_LOG_TRACE("Fetched columns per row %d", statement->total_fieldcount);
   int64 row_count = maybeHandleRow.IsEmpty() ? statement->total_rowcount : 0;
-  Local<v8::Array> result = v8::Array::New(isolate, row_count);
+  Local<Array> result = Array::New(isolate, row_count);
   long row_idx = 0;
   while ((status = snowflake_fetch(statement)) == SF_STATUS_SUCCESS) {
-    Local<v8::Array> array = v8::Array::New(isolate, statement->total_fieldcount);
+    Local<Array> array = Array::New(isolate, statement->total_fieldcount);
     for(int64 column_idx = 0; column_idx < statement->total_fieldcount; ++column_idx) {
         int64 result_set_column_idx = column_idx + 1;
         sf_bool is_null = SF_BOOLEAN_FALSE;
         snowflake_column_is_null(statement, result_set_column_idx, &is_null);
         if (is_null) {
-            array->Set(context, column_idx, v8::Null(isolate));
+            array->Set(context, column_idx, Null(isolate));
             continue;
         }
         switch (statement->desc[column_idx].c_type) {
             case SF_C_TYPE_INT64:
                 int32 out;
                 snowflake_column_as_int32(statement, result_set_column_idx, &out);
-                array->Set(context, column_idx, v8::Integer::New(isolate, out));
+                array->Set(context, column_idx, Integer::New(isolate, out));
                 break;
             case SF_C_TYPE_FLOAT64:
                 double outDouble;
@@ -242,10 +248,10 @@ void ExecuteQuery(const FunctionCallbackInfo<Value>& args) {
 void ExecuteQueryWithoutFetchingRows(const FunctionCallbackInfo<Value>& args) {
 //  GENERIC_LOG_TRACE("Args length: %d", args.Length());
   Isolate* isolate = args.GetIsolate();
-  Local<v8::Context> context = v8::Context::New(isolate);
-  std::string connectionId = readStringArg(args, 0);
-  std::string query = readStringArg(args, 1);
-  std::string resultFormat = "JSON";
+  Local<Context> context = Context::New(isolate);
+  string connectionId = readStringArg(args, 0);
+  string query = readStringArg(args, 1);
+  string resultFormat = "JSON";
   if (args.Length() > 2) {
     // third parameter is option object
     Local<Object> options = args[2].As<Object>();
@@ -271,7 +277,7 @@ void ExecuteQueryWithoutFetchingRows(const FunctionCallbackInfo<Value>& args) {
 //  GENERIC_LOG_TRACE("Fetched rows %d", statement->total_rowcount);
 //  GENERIC_LOG_TRACE("Fetched columns per row %d", statement->total_fieldcount);
   if (status == SF_STATUS_SUCCESS) {
-      std::string statementId = gen_random_string(20); // TODO use uuid or session id
+      string statementId = gen_random_string(20); // TODO use uuid or session id
       RunningStatement cacheKey = { .connectionId = connectionId, .statementId = statementId };
       runningStatements[cacheKey] = statement;
       args.GetReturnValue().Set(String::NewFromUtf8(isolate, statementId.c_str()).ToLocalChecked());
@@ -285,9 +291,9 @@ void ExecuteQueryWithoutFetchingRows(const FunctionCallbackInfo<Value>& args) {
 void FetchNextRows(const FunctionCallbackInfo<Value>& args) {
 //  GENERIC_LOG_TRACE("Args length: %d", args.Length());
   Isolate* isolate = args.GetIsolate();
-  Local<v8::Context> context = v8::Context::New(isolate);
-  std::string connectionId = readStringArg(args, 0);
-  std::string statementId = readStringArg(args, 1);
+  Local<Context> context = Context::New(isolate);
+  string connectionId = readStringArg(args, 0);
+  string statementId = readStringArg(args, 1);
   int64_t rowsToFetch = readLongArg(args, 2);
 
   GENERIC_LOG_TRACE("Reading from statement %s/%s: %d rows", connectionId.c_str(), statementId.c_str(), rowsToFetch);
@@ -295,24 +301,24 @@ void FetchNextRows(const FunctionCallbackInfo<Value>& args) {
   RunningStatement cacheKey = { .connectionId = connectionId, .statementId = statementId };
 
   SF_STMT* statement = runningStatements[cacheKey];
-  Local<v8::Array> result = v8::Array::New(isolate, rowsToFetch); // TODO check how many rows should there be
+  Local<Array> result = Array::New(isolate, rowsToFetch); // TODO check how many rows should there be
   SF_STATUS status;
   long row_idx = 0;
   while (row_idx < rowsToFetch && (status = snowflake_fetch(statement)) == SF_STATUS_SUCCESS) {
-    Local<v8::Array> array = v8::Array::New(isolate, statement->total_fieldcount);
+    Local<Array> array = Array::New(isolate, statement->total_fieldcount);
     for(int64 column_idx = 0; column_idx < statement->total_fieldcount; ++column_idx) {
         int64 result_set_column_idx = column_idx + 1;
         sf_bool is_null = SF_BOOLEAN_FALSE;
         snowflake_column_is_null(statement, result_set_column_idx, &is_null);
         if (is_null) {
-            array->Set(context, column_idx, v8::Null(isolate));
+            array->Set(context, column_idx, Null(isolate));
             continue;
         }
         switch (statement->desc[column_idx].c_type) {
             case SF_C_TYPE_INT64:
                 int32 out;
                 snowflake_column_as_int32(statement, result_set_column_idx, &out);
-                array->Set(context, column_idx, v8::Integer::New(isolate, out));
+                array->Set(context, column_idx, Integer::New(isolate, out));
                 break;
             case SF_C_TYPE_FLOAT64:
                 double outDouble;
@@ -340,7 +346,7 @@ void FetchNextRows(const FunctionCallbackInfo<Value>& args) {
   if(result->Length() > row_idx) {
     // shrinking result array
     // TODO may be optimize on upper level
-    Local<v8::Array> result2 = v8::Array::New(isolate, row_idx);
+    Local<Array> result2 = Array::New(isolate, row_idx);
     long idx;
     for(idx = 0; idx < row_idx; ++idx) {
         result2->Set(context, idx, result->Get(context, idx).ToLocalChecked());
@@ -350,7 +356,7 @@ void FetchNextRows(const FunctionCallbackInfo<Value>& args) {
 
   Local<Object> returnObject = Object::New(isolate);
   returnObject->Set(context, String::NewFromUtf8Literal(isolate, "rows"), result);
-  returnObject->Set(context, String::NewFromUtf8Literal(isolate, "end"), v8::Boolean::New(isolate, status != SF_STATUS_SUCCESS));
+  returnObject->Set(context, String::NewFromUtf8Literal(isolate, "end"), Boolean::New(isolate, status != SF_STATUS_SUCCESS));
   // TODO optimize when number of rows % fetch size == 0 to not return empty array at the end
   args.GetReturnValue().Set(returnObject);
 }
@@ -358,8 +364,8 @@ void FetchNextRows(const FunctionCallbackInfo<Value>& args) {
 void CloseConnection(const FunctionCallbackInfo<Value>& args) {
 //  GENERIC_LOG_TRACE("Args length: %d", args.Length());
   Isolate* isolate = args.GetIsolate();
-  Local<v8::Context> context = v8::Context::New(isolate);
-  std::string cacheKey = readStringArg(args, 0);
+  Local<Context> context = Context::New(isolate);
+  string cacheKey = readStringArg(args, 0);
 
   SF_CONNECT* sf = connections[cacheKey];
   SF_STATUS status = snowflake_term(sf);

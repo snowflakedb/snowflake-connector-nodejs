@@ -27,7 +27,9 @@ using v8::Isolate;
 using v8::Local;
 using v8::MaybeLocal;
 using v8::Number;
+using v8::Null;
 using v8::Object;
+using v8::Primitive;
 using v8::String;
 using v8::Value;
 
@@ -168,6 +170,8 @@ void ExecuteQuery(const FunctionCallbackInfo<Value>& args) {
   string query = readStringArg(args, 1);
   string resultFormat = "JSON";
   MaybeLocal<Function> maybeHandleRow;
+  Local<Primitive> _null = Null(isolate);
+  const unsigned callbackFunctionArguments = 1;
   if (args.Length() > 2) {
     // third parameter is option object
     Local<Object> options = args[2].As<Object>();
@@ -204,10 +208,10 @@ void ExecuteQuery(const FunctionCallbackInfo<Value>& args) {
     Local<Array> array = Array::New(isolate, statement->total_fieldcount);
     for(int64 column_idx = 0; column_idx < statement->total_fieldcount; ++column_idx) {
         int64 result_set_column_idx = column_idx + 1;
-        sf_bool is_null = SF_BOOLEAN_FALSE;
+        sf_bool is_null;
         snowflake_column_is_null(statement, result_set_column_idx, &is_null);
         if (is_null) {
-            array->Set(context, column_idx, Null(isolate));
+            array->Set(context, column_idx, _null);
             continue;
         }
         switch (statement->desc[column_idx].c_type) {
@@ -236,9 +240,8 @@ void ExecuteQuery(const FunctionCallbackInfo<Value>& args) {
     if (maybeHandleRow.IsEmpty()){
       result->Set(context, row_idx++, array);
     } else {
-      const unsigned argc = 1;
-      Local<Value> argv[argc] = { array };
-      maybeHandleRow.ToLocalChecked()->Call(context, Null(isolate), argc, argv);
+      Local<Value> argv[callbackFunctionArguments] = { array };
+      maybeHandleRow.ToLocalChecked()->Call(context, _null, callbackFunctionArguments, argv);
     }
   }
   snowflake_stmt_term(statement);

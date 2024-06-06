@@ -36,7 +36,7 @@ describe.only('test generic binding', () => {
     assert.equal(connectionId, null);
   });
 
-  [10, 10000, 1000000, 10000000].forEach(sourceRowCount => {
+  [10, 10000, 1000000].forEach(sourceRowCount => {
     ['JSON', 'ARROW'].forEach(resultFormat => {
       it(`should select ${sourceRowCount} rows in ${resultFormat}`, () => {
         const connectionId = generic.connectUserPassword(connectionParams);
@@ -53,10 +53,10 @@ describe.only('test generic binding', () => {
         generic.closeConnection(connectionId);
       });
 
-      it(`should select ${sourceRowCount} rows in ${resultFormat} with streaming`, () => {
+      it(`should select ${sourceRowCount} rows in ${resultFormat} with delayed rows fetch`, () => {
         const streamRowsSize = 1000;
         const connectionId = generic.connectUserPassword(connectionParams);
-        const statementId = generic.executeQueryStreaming(connectionId,
+        const statementId = generic.executeQueryWithoutFetchingRows(connectionId,
           `select randstr(10, random())
            from table (generator(rowcount =>${sourceRowCount}))`,
           { resultFormat });

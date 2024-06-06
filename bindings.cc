@@ -35,7 +35,7 @@ bool operator< ( RunningStatement a, RunningStatement b ) { return std::make_pai
 
 std::map<std::string, SF_CONNECT*> connections;
 //std::map<RunningStatement, SF_STMT*, decltype(runningStatementComparator)> streamingStatements(runningStatementComparator);
-std::map<RunningStatement, SF_STMT*> streamingStatements;
+std::map<RunningStatement, SF_STMT*> runningStatements;
 
 std::string localStringToStdString(Isolate* isolate, Local<String> s) {
       String::Utf8Value str(isolate, s);
@@ -218,7 +218,7 @@ void ExecuteQuery(const FunctionCallbackInfo<Value>& args) {
   args.GetReturnValue().Set(result);
 }
 
-void ExecuteQueryStreaming(const FunctionCallbackInfo<Value>& args) {
+void ExecuteQueryWithoutFetchingRows(const FunctionCallbackInfo<Value>& args) {
 //  GENERIC_LOG_TRACE("Args length: %d", args.Length());
   Isolate* isolate = args.GetIsolate();
   Local<v8::Context> context = v8::Context::New(isolate);
@@ -252,7 +252,7 @@ void ExecuteQueryStreaming(const FunctionCallbackInfo<Value>& args) {
   if (status == SF_STATUS_SUCCESS) {
       std::string statementId = gen_random_string(20); // TODO use uuid or session id
       RunningStatement cacheKey = { .connectionId = connectionId, .statementId = statementId };
-      streamingStatements[cacheKey] = statement;
+      runningStatements[cacheKey] = statement;
       args.GetReturnValue().Set(String::NewFromUtf8(isolate, statementId.c_str()).ToLocalChecked());
       // TODO return object
     } else {
@@ -273,7 +273,7 @@ void FetchNextRows(const FunctionCallbackInfo<Value>& args) {
 
   RunningStatement cacheKey = { .connectionId = connectionId, .statementId = statementId };
 
-  SF_STMT* statement = streamingStatements[cacheKey];
+  SF_STMT* statement = runningStatements[cacheKey];
   Local<v8::Array> result = v8::Array::New(isolate, rowsToFetch); // TODO check how many rows should there be
   SF_STATUS status;
   long row_idx = 0;
@@ -314,10 +314,11 @@ void FetchNextRows(const FunctionCallbackInfo<Value>& args) {
   }
   if (status != SF_STATUS_SUCCESS) {
     snowflake_stmt_term(statement);
-    streamingStatements.erase(cacheKey);
+    runningStatements.erase(cacheKey);
   }
   if(result->Length() > row_idx) {
     // shrinking result array
+    // TODO may be optimize on upper level
     Local<v8::Array> result2 = v8::Array::New(isolate, row_idx);
     long idx;
     for(idx = 0; idx < row_idx; ++idx) {
@@ -352,7 +353,7 @@ void Initialize(Local<Object> exports) {
   NODE_SET_METHOD(exports, "executeQuery", ExecuteQuery);
   NODE_SET_METHOD(exports, "init", Init);
   NODE_SET_METHOD(exports, "closeConnection", CloseConnection);
-  NODE_SET_METHOD(exports, "executeQueryStreaming", ExecuteQueryStreaming);
+  NODE_SET_METHOD(exports, "executeQueryWithoutFetchingRows", ExecuteQueryWithoutFetchingRows);
   NODE_SET_METHOD(exports, "fetchNextRows", FetchNextRows);
 }
 

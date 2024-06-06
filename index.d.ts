@@ -462,9 +462,12 @@ declare module 'snowflake-sdk' {
         /**
          * Number of retries for the login request.
          */
-        sfRetryMaxLoginRetries?: number,
+        sfRetryMaxLoginRetries?: number;
 
-        forceStageBindError
+        /**
+         * The option to throw an error on the bind stage if this is enabled.
+         */
+        forceStageBindError?: number;
 
         /**
          * The option to disable the query context cache.

@@ -104,3 +104,75 @@ describe.only('test generic binding', () => {
     });
   });
 });
+
+describe.only('test standard nodejs', () => {
+  const snowflake = require('../../../lib/snowflake');
+  const testUtil = require('./../testUtil');
+
+  let connectionParams = {};
+
+  before(() => {
+    connectionParams = {
+      username: process.env.SNOWFLAKE_TEST_USER,
+      password: process.env.SNOWFLAKE_TEST_PASSWORD,
+      account: process.env.SNOWFLAKE_TEST_ACCOUNT,
+      database: process.env.SNOWFLAKE_TEST_DATABASE,
+      schema: process.env.SNOWFLAKE_TEST_SCHEMA,
+      warehouse: process.env.SNOWFLAKE_TEST_WAREHOUSE,
+    };
+  });
+
+  [10, 10000, 1000000].forEach(sourceRowCount => {
+    ['JSON'].forEach(resultFormat => {
+      it(`should select ${sourceRowCount} rows in ${resultFormat}`, async () => {
+        const connection = snowflake.createConnection(connectionParams);
+        await testUtil.connectAsync(connection);
+        const result = await testUtil.executeCmdAsync(connection,
+          `select randstr(10, random()) as a
+           from table (generator(rowcount =>${sourceRowCount}))`,
+        );
+        assert.equal(result.length, sourceRowCount);
+        result.forEach(row => {
+          assert.ok(row);
+          assert.ok(row['A']);
+        });
+        await testUtil.destroyConnectionAsync(connection);
+      });
+
+      const countRows = (connection, sqlText, validateRow) => {
+        return new Promise((resolve, reject) => {
+          const stmt = connection.execute({
+            sqlText: sqlText,
+            streamResult: true,
+          });
+          const stream = stmt.streamRows();
+          let rowCount = 0;
+          stream.on('data', function (row) {
+            if (validateRow(row)) {
+              rowCount++;
+            } else {
+              reject(`Invalid row: ${row}`);
+            }
+          });
+          stream.on('error', function (err) {
+            reject(err);
+          });
+          stream.on('end', function () {
+            resolve(rowCount);
+          });
+        });
+      };
+
+      it(`should select ${sourceRowCount} rows in ${resultFormat} with streaming`, async () => {
+        const connection = snowflake.createConnection(connectionParams);
+        await testUtil.connectAsync(connection);
+        const rowLength = await countRows(connection,
+          `select randstr(10, random()) as a
+           from table (generator(rowcount =>${sourceRowCount}))`,
+          row => row && row['A']);
+        assert.equal(rowLength, sourceRowCount);
+        await testUtil.destroyConnectionAsync(connection);
+      });
+    });
+  });
+});

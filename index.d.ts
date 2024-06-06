@@ -284,8 +284,6 @@ declare module 'snowflake-sdk' {
          */
         host?: string;
 
-        // keepAlive?: string;
-
         /**
          * Specifies a fully-qualified endpoint for connecting to Snowflake.
          */
@@ -451,7 +449,6 @@ declare module 'snowflake-sdk' {
          * Number of threads for clients to use to prefetch large result sets. Valid values: 1-10.
          */
         resultPrefetch?: number;
-
 
         //Connection options Options but not on the web document.
         /**

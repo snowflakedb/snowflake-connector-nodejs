@@ -1,6 +1,5 @@
 const assert = require('assert');
 const generic = require('../../../lib/generic');
-const { setTimestampOutputFormat } = require('../sharedStatements');
 
 describe.only('test generic binding', () => {
   const connectionParams = {
@@ -75,6 +74,30 @@ describe.only('test generic binding', () => {
             break;
           }
         }
+        assert.equal(fetchedRows, sourceRowCount);
+        generic.closeConnection(connectionId);
+      });
+
+      it(`should select ${sourceRowCount} rows in ${resultFormat} with streaming`, () => {
+        const connectionId = generic.connectUserPassword(connectionParams);
+        let fetchedRows = 0;
+        let invalidRows = 0;
+        const options = {
+          resultFormat,
+          handleRow: row => {
+            if (row && row.length === 1 && row[0]) {
+              ++fetchedRows;
+            } else {
+              ++invalidRows;
+            }
+          }
+        };
+        const result = generic.executeQuery(connectionId,
+          `select randstr(10, random())
+           from table (generator(rowcount =>${sourceRowCount}))`,
+          options);
+        assert.equal(result.length, 0);
+        assert.equal(invalidRows, 0);
         assert.equal(fetchedRows, sourceRowCount);
         generic.closeConnection(connectionId);
       });

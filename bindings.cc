@@ -14,13 +14,16 @@
 
 namespace demo {
 
+using v8::Context;
+using v8::Function;
 using v8::FunctionCallbackInfo;
 using v8::Isolate;
 using v8::Local;
+using v8::MaybeLocal;
+using v8::Number;
 using v8::Object;
 using v8::String;
 using v8::Value;
-using v8::Number;
 
 struct RunningStatement {
     std::string connectionId;
@@ -93,6 +96,11 @@ std::string readStringObjectProperty(Isolate* isolate, Local<v8::Context> contex
     return localStringToStdString(isolate, connectionParameters->Get(context, propertyName).ToLocalChecked().As<String>());
 }
 
+Local<Value> readValueObjectProperty(Isolate* isolate, Local<Context> context, Local<Object> parameters, char* name) {
+    Local<String> propertyName = String::NewFromUtf8(isolate, name).ToLocalChecked();
+    return parameters->Get(context, propertyName).ToLocalChecked();
+}
+
 std::string gen_random_string(const int len) {
     // https://stackoverflow.com/questions/440133/how-do-i-create-a-random-alpha-numeric-string-in-c
     srand((unsigned)time(NULL) * getpid());
@@ -153,10 +161,16 @@ void ExecuteQuery(const FunctionCallbackInfo<Value>& args) {
   std::string connectionId = readStringArg(args, 0);
   std::string query = readStringArg(args, 1);
   std::string resultFormat = "JSON";
+  MaybeLocal<Function> maybeHandleRow;
   if (args.Length() > 2) {
     // third parameter is option object
     Local<Object> options = args[2].As<Object>();
-    resultFormat = readStringObjectProperty(isolate, context, options, "resultFormat");
+    resultFormat = readStringObjectProperty(isolate, context, options, "resultFormat"); // TODO make it optional in options object
+    Local<Value> handleRowCallback = readValueObjectProperty(isolate, context, options, "handleRow");
+    if (!handleRowCallback->IsNullOrUndefined()) {
+        GENERIC_LOG_TRACE("Using callback function to gather results");
+        maybeHandleRow = handleRowCallback.As<Function>();
+    }
   }
 
   SF_CONNECT* sf = connections[connectionId];
@@ -177,7 +191,8 @@ void ExecuteQuery(const FunctionCallbackInfo<Value>& args) {
 //  GENERIC_LOG_TRACE("Statement metadata - first column type: %d, c_type: %d and expected type is %d", statement->desc[3].type, statement->desc[3].c_type, SF_C_TYPE_STRING);
 //  GENERIC_LOG_TRACE("Fetched rows %d", statement->total_rowcount);
 //  GENERIC_LOG_TRACE("Fetched columns per row %d", statement->total_fieldcount);
-  Local<v8::Array> result = v8::Array::New(isolate, statement->total_rowcount);
+  int64 row_count = maybeHandleRow.IsEmpty() ? statement->total_rowcount : 0;
+  Local<v8::Array> result = v8::Array::New(isolate, row_count);
   long row_idx = 0;
   while ((status = snowflake_fetch(statement)) == SF_STATUS_SUCCESS) {
     Local<v8::Array> array = v8::Array::New(isolate, statement->total_fieldcount);
@@ -212,7 +227,13 @@ void ExecuteQuery(const FunctionCallbackInfo<Value>& args) {
                 break;
         }
     }
-    result->Set(context, row_idx++, array);
+    if (maybeHandleRow.IsEmpty()){
+      result->Set(context, row_idx++, array);
+    } else {
+      const unsigned argc = 1;
+      Local<Value> argv[argc] = { array };
+      maybeHandleRow.ToLocalChecked()->Call(context, Null(isolate), argc, argv);
+    }
   }
   snowflake_stmt_term(statement);
   args.GetReturnValue().Set(result);

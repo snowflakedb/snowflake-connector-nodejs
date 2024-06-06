@@ -127,7 +127,7 @@ string gen_random_string(const int len) {
 void ConnectUserPassword(const FunctionCallbackInfo<Value>& args) {
 //  GENERIC_LOG_TRACE("Args length: %d", args.Length());
   Isolate* isolate = args.GetIsolate();
-  Local<Context> context = Context::New(isolate);
+  Local<Context> context = isolate->GetCurrentContext();
   Local<Object> connectionParameters = args[0].As<Object>();
   string username = readStringObjectProperty(isolate, context, connectionParameters, "username");
   string password = readStringObjectProperty(isolate, context, connectionParameters, "password");
@@ -163,7 +163,7 @@ void ConnectUserPassword(const FunctionCallbackInfo<Value>& args) {
 void ExecuteQuery(const FunctionCallbackInfo<Value>& args) {
 //  GENERIC_LOG_TRACE("Args length: %d", args.Length());
   Isolate* isolate = args.GetIsolate();
-  Local<Context> context = Context::New(isolate);
+  Local<Context> context = isolate->GetCurrentContext();
   string connectionId = readStringArg(args, 0);
   string query = readStringArg(args, 1);
   string resultFormat = "JSON";
@@ -248,7 +248,7 @@ void ExecuteQuery(const FunctionCallbackInfo<Value>& args) {
 void ExecuteQueryWithoutFetchingRows(const FunctionCallbackInfo<Value>& args) {
 //  GENERIC_LOG_TRACE("Args length: %d", args.Length());
   Isolate* isolate = args.GetIsolate();
-  Local<Context> context = Context::New(isolate);
+  Local<Context> context = isolate->GetCurrentContext();
   string connectionId = readStringArg(args, 0);
   string query = readStringArg(args, 1);
   string resultFormat = "JSON";
@@ -291,7 +291,7 @@ void ExecuteQueryWithoutFetchingRows(const FunctionCallbackInfo<Value>& args) {
 void FetchNextRows(const FunctionCallbackInfo<Value>& args) {
 //  GENERIC_LOG_TRACE("Args length: %d", args.Length());
   Isolate* isolate = args.GetIsolate();
-  Local<Context> context = Context::New(isolate);
+  Local<Context> context = isolate->GetCurrentContext();
   string connectionId = readStringArg(args, 0);
   string statementId = readStringArg(args, 1);
   int64_t rowsToFetch = readLongArg(args, 2);
@@ -304,9 +304,10 @@ void FetchNextRows(const FunctionCallbackInfo<Value>& args) {
   Local<Array> result = Array::New(isolate, rowsToFetch); // TODO check how many rows should there be
   SF_STATUS status;
   long row_idx = 0;
+  long total_fieldcount = statement->total_fieldcount;
   while (row_idx < rowsToFetch && (status = snowflake_fetch(statement)) == SF_STATUS_SUCCESS) {
-    Local<Array> array = Array::New(isolate, statement->total_fieldcount);
-    for(int64 column_idx = 0; column_idx < statement->total_fieldcount; ++column_idx) {
+    Local<Array> array = Array::New(isolate, total_fieldcount);
+    for(int64 column_idx = 0; column_idx < total_fieldcount; ++column_idx) {
         int64 result_set_column_idx = column_idx + 1;
         sf_bool is_null = SF_BOOLEAN_FALSE;
         snowflake_column_is_null(statement, result_set_column_idx, &is_null);
@@ -364,7 +365,7 @@ void FetchNextRows(const FunctionCallbackInfo<Value>& args) {
 void CloseConnection(const FunctionCallbackInfo<Value>& args) {
 //  GENERIC_LOG_TRACE("Args length: %d", args.Length());
   Isolate* isolate = args.GetIsolate();
-  Local<Context> context = Context::New(isolate);
+  Local<Context> context = isolate->GetCurrentContext();
   string cacheKey = readStringArg(args, 0);
 
   SF_CONNECT* sf = connections[cacheKey];

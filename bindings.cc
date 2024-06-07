@@ -171,7 +171,6 @@ void ExecuteQuery(const FunctionCallbackInfo<Value>& args) {
   Local<Context> context = isolate->GetCurrentContext();
   string connectionId = readStringArg(args, 0);
   string query = readStringArg(args, 1);
-  string resultFormat = "JSON";
   MaybeLocal<Function> maybeHandleRow;
   MaybeLocal<Array> maybeBinds;
   Local<Primitive> _null = Null(isolate);
@@ -179,7 +178,6 @@ void ExecuteQuery(const FunctionCallbackInfo<Value>& args) {
   if (args.Length() > 2) {
     // third parameter is option object
     Local<Object> options = args[2].As<Object>();
-    resultFormat = readStringObjectProperty(isolate, context, options, "resultFormat"); // TODO make it optional in options object
     Local<Value> handleRowCallback = readValueObjectProperty(isolate, context, options, "handleRow");
     if (!handleRowCallback->IsNullOrUndefined()) {
         GENERIC_LOG_TRACE("Using callback function to gather results");
@@ -195,13 +193,6 @@ void ExecuteQuery(const FunctionCallbackInfo<Value>& args) {
   SF_CONNECT* sf = connections[connectionId];
   SF_STMT* statement = snowflake_stmt(sf);
   SF_STATUS status;
-  if (resultFormat == "ARROW") {
-    status = snowflake_query(statement, "alter session set C_API_QUERY_RESULT_FORMAT=ARROW_FORCE", 0);
-    GENERIC_LOG_TRACE("Change to arrow status is %d", status);
-  } else {
-    status = snowflake_query(statement, "alter session set C_API_QUERY_RESULT_FORMAT=JSON", 0);
-    GENERIC_LOG_TRACE("Change to json status is %d", status);
-  }
   GENERIC_LOG_DEBUG("Query to run: %s", query.c_str());
   if(maybeBinds.IsEmpty()){
     status = snowflake_query(statement, query.c_str(), 0);
@@ -303,24 +294,15 @@ void ExecuteQueryWithoutFetchingRows(const FunctionCallbackInfo<Value>& args) {
   Local<Context> context = isolate->GetCurrentContext();
   string connectionId = readStringArg(args, 0);
   string query = readStringArg(args, 1);
-  string resultFormat = "JSON";
   if (args.Length() > 2) {
     // third parameter is option object
     Local<Object> options = args[2].As<Object>();
-    resultFormat = readStringObjectProperty(isolate, context, options, "resultFormat");
     // TODO support binds
   }
 
   SF_CONNECT* sf = connections[connectionId];
   SF_STMT* statement = snowflake_stmt(sf);
   SF_STATUS status;
-  if (resultFormat == "ARROW") {
-    status = snowflake_query(statement, "alter session set C_API_QUERY_RESULT_FORMAT=ARROW_FORCE", 0);
-    GENERIC_LOG_TRACE("Change to arrow status is %d", status);
-  } else {
-    status = snowflake_query(statement, "alter session set C_API_QUERY_RESULT_FORMAT=JSON", 0);
-    GENERIC_LOG_TRACE("Change to json status is %d", status);
-  }
   GENERIC_LOG_TRACE("Query to run: %s", query.c_str());
   status = snowflake_query(statement, query.c_str(), 0);
   GENERIC_LOG_TRACE("Query status is %d", status);

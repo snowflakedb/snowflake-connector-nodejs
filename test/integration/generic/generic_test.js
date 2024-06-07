@@ -1,5 +1,7 @@
 const assert = require('assert');
 const generic = require('../../../lib/generic');
+const snowflake = require('../../../lib/snowflake');
+const testUtil = require('../testUtil');
 
 describe.only('test generic binding', () => {
   const connectionParams = {
@@ -23,11 +25,20 @@ describe.only('test generic binding', () => {
     assert.equal(generic.getApiName(), 'C API');
   });
 
-  it('should connect to snowflake and execute simple query', () => {
-    const connectionId = generic.connectUserPassword(connectionParams);
-    const result = generic.executeQuery(connectionId, 'select 42, \'bla\', 1.56, \'\', null;');
-    assert.deepEqual(result, [[42, 'bla', 1.56, '', null]]);
-    generic.closeConnection(connectionId);
+  const changeResultFormat = (resultFormat, connectionId) => {
+    const formatSelector = resultFormat === 'ARROW' ? 'ARROW_FORCE' : 'JSON';
+    const changeFormatResult = generic.executeQuery(connectionId, 'alter session set C_API_QUERY_RESULT_FORMAT=' + formatSelector);
+    assert.deepEqual(changeFormatResult, [['Statement executed successfully.']]);
+  };
+
+  ['JSON', 'ARROW'].forEach(resultFormat => {
+    it(`should connect to snowflake and execute simple query with result in ${resultFormat}`, () => {
+      const connectionId = generic.connectUserPassword(connectionParams);
+      changeResultFormat(resultFormat, connectionId);
+      const result = generic.executeQuery(connectionId, 'select 42, \'bla\', 1.56, \'\', null;');
+      assert.deepEqual(result, [[42, 'bla', 1.56, '', null]]);
+      generic.closeConnection(connectionId);
+    });
   });
 
   it('should return null when connect failed', () => {
@@ -35,71 +46,74 @@ describe.only('test generic binding', () => {
     assert.equal(connectionId, null);
   });
 
-  [10, 10000, 1000000].forEach(sourceRowCount => {
+  describe('Perf selects', () => {
     ['JSON', 'ARROW'].forEach(resultFormat => {
-      it(`should select ${sourceRowCount} rows in ${resultFormat}`, () => {
-        const connectionId = generic.connectUserPassword(connectionParams);
-        const result = generic.executeQuery(connectionId,
-          `select randstr(10, random())
-           from table (generator(rowcount =>${sourceRowCount}))`,
-          { resultFormat });
-        assert.equal(result.length, sourceRowCount);
-        result.forEach(row => {
-          assert.ok(row);
-          assert.equal(row.length, 1);
-          assert.ok(row[0]);
-        });
+      let connectionId;
+      before(() => {
+        connectionId = generic.connectUserPassword(connectionParams);
+        changeResultFormat(resultFormat, connectionId);
+      });
+
+      after(() => {
         generic.closeConnection(connectionId);
       });
 
-      it(`should select ${sourceRowCount} rows in ${resultFormat} with delayed rows fetch`, () => {
-        const streamRowsSize = 1000;
-        const connectionId = generic.connectUserPassword(connectionParams);
-        const statementId = generic.executeQueryWithoutFetchingRows(connectionId,
-          `select randstr(10, random())
-           from table (generator(rowcount =>${sourceRowCount}))`,
-          { resultFormat });
-        assert.ok(statementId);
-        let fetchedRows = 0;
-        // eslint-disable-next-line no-constant-condition
-        while (true) {
-          const { rows, end } = generic.fetchNextRows(connectionId, statementId, streamRowsSize);
-          rows.forEach(row => {
+      [10, 10000, 1000000].forEach(sourceRowCount => {
+        it(`should select ${sourceRowCount} rows in ${resultFormat}`, () => {
+          const result = generic.executeQuery(connectionId,
+            `select randstr(10, random())
+             from table (generator(rowcount =>${sourceRowCount}))`);
+          assert.equal(result.length, sourceRowCount);
+          result.forEach(row => {
             assert.ok(row);
             assert.equal(row.length, 1);
             assert.ok(row[0]);
-            ++fetchedRows;
           });
-          if (end) {
-            break;
-          }
-        }
-        assert.equal(fetchedRows, sourceRowCount);
-        generic.closeConnection(connectionId);
-      });
+        });
 
-      it(`should select ${sourceRowCount} rows in ${resultFormat} with streaming`, () => {
-        const connectionId = generic.connectUserPassword(connectionParams);
-        let fetchedRows = 0;
-        let invalidRows = 0;
-        const options = {
-          resultFormat,
-          handleRow: row => {
-            if (row && row.length === 1 && row[0]) {
+        it(`should select ${sourceRowCount} rows in ${resultFormat} with delayed rows fetch`, () => {
+          const streamRowsSize = 1000;
+          const statementId = generic.executeQueryWithoutFetchingRows(connectionId,
+            `select randstr(10, random())
+             from table (generator(rowcount =>${sourceRowCount}))`);
+          assert.ok(statementId);
+          let fetchedRows = 0;
+          // eslint-disable-next-line no-constant-condition
+          while (true) {
+            const { rows, end } = generic.fetchNextRows(connectionId, statementId, streamRowsSize);
+            rows.forEach(row => {
+              assert.ok(row);
+              assert.equal(row.length, 1);
+              assert.ok(row[0]);
               ++fetchedRows;
-            } else {
-              ++invalidRows;
+            });
+            if (end) {
+              break;
             }
           }
-        };
-        const result = generic.executeQuery(connectionId,
-          `select randstr(10, random())
-           from table (generator(rowcount =>${sourceRowCount}))`,
-          options);
-        assert.equal(result.length, 0);
-        assert.equal(invalidRows, 0);
-        assert.equal(fetchedRows, sourceRowCount);
-        generic.closeConnection(connectionId);
+          assert.equal(fetchedRows, sourceRowCount);
+        });
+
+        it(`should select ${sourceRowCount} rows in ${resultFormat} with streaming`, () => {
+          let fetchedRows = 0;
+          let invalidRows = 0;
+          const options = {
+            handleRow: row => {
+              if (row && row.length === 1 && row[0]) {
+                ++fetchedRows;
+              } else {
+                ++invalidRows;
+              }
+            }
+          };
+          const result = generic.executeQuery(connectionId,
+            `select randstr(10, random())
+             from table (generator(rowcount =>${sourceRowCount}))`,
+            options);
+          assert.equal(result.length, 0);
+          assert.equal(invalidRows, 0);
+          assert.equal(fetchedRows, sourceRowCount);
+        });
       });
     });
   });
@@ -120,14 +134,11 @@ describe.only('test generic binding', () => {
   });
 });
 
-describe.only('test standard nodejs', () => {
-  const snowflake = require('../../../lib/snowflake');
-  const testUtil = require('./../testUtil');
+describe.only('Perf selects standard nodejs', () => {
+  let connection;
 
-  let connectionParams = {};
-
-  before(() => {
-    connectionParams = {
+  before(async () => {
+    const connectionParams = {
       username: process.env.SNOWFLAKE_TEST_USER,
       password: process.env.SNOWFLAKE_TEST_PASSWORD,
       account: process.env.SNOWFLAKE_TEST_ACCOUNT,
@@ -135,59 +146,57 @@ describe.only('test standard nodejs', () => {
       schema: process.env.SNOWFLAKE_TEST_SCHEMA,
       warehouse: process.env.SNOWFLAKE_TEST_WAREHOUSE,
     };
+    connection = snowflake.createConnection(connectionParams);
+    await testUtil.connectAsync(connection);
+  });
+
+  after(async () => {
+    await testUtil.destroyConnectionAsync(connection);
   });
 
   [10, 10000, 1000000].forEach(sourceRowCount => {
-    ['JSON'].forEach(resultFormat => {
-      it(`should select ${sourceRowCount} rows in ${resultFormat}`, async () => {
-        const connection = snowflake.createConnection(connectionParams);
-        await testUtil.connectAsync(connection);
-        const result = await testUtil.executeCmdAsync(connection,
-          `select randstr(10, random()) as a
-           from table (generator(rowcount =>${sourceRowCount}))`,
-        );
-        assert.equal(result.length, sourceRowCount);
-        result.forEach(row => {
-          assert.ok(row);
-          assert.ok(row['A']);
-        });
-        await testUtil.destroyConnectionAsync(connection);
+    it(`should select ${sourceRowCount} rows in JSON`, async () => {
+      const result = await testUtil.executeCmdAsync(connection,
+        `select randstr(10, random()) as a
+         from table (generator(rowcount =>${sourceRowCount}))`,
+      );
+      assert.equal(result.length, sourceRowCount);
+      result.forEach(row => {
+        assert.ok(row);
+        assert.ok(row['A']);
       });
+    });
 
-      const countRows = (connection, sqlText, validateRow) => {
-        return new Promise((resolve, reject) => {
-          const stmt = connection.execute({
-            sqlText: sqlText,
-            streamResult: true,
-          });
-          const stream = stmt.streamRows();
-          let rowCount = 0;
-          stream.on('data', function (row) {
-            if (validateRow(row)) {
-              rowCount++;
-            } else {
-              reject(`Invalid row: ${row}`);
-            }
-          });
-          stream.on('error', function (err) {
-            reject(err);
-          });
-          stream.on('end', function () {
-            resolve(rowCount);
-          });
+    const countRows = (connection, sqlText, validateRow) => {
+      return new Promise((resolve, reject) => {
+        const stmt = connection.execute({
+          sqlText: sqlText,
+          streamResult: true,
         });
-      };
-
-      it(`should select ${sourceRowCount} rows in ${resultFormat} with streaming`, async () => {
-        const connection = snowflake.createConnection(connectionParams);
-        await testUtil.connectAsync(connection);
-        const rowLength = await countRows(connection,
-          `select randstr(10, random()) as a
-           from table (generator(rowcount =>${sourceRowCount}))`,
-          row => row && row['A']);
-        assert.equal(rowLength, sourceRowCount);
-        await testUtil.destroyConnectionAsync(connection);
+        const stream = stmt.streamRows();
+        let rowCount = 0;
+        stream.on('data', function (row) {
+          if (validateRow(row)) {
+            rowCount++;
+          } else {
+            reject(`Invalid row: ${row}`);
+          }
+        });
+        stream.on('error', function (err) {
+          reject(err);
+        });
+        stream.on('end', function () {
+          resolve(rowCount);
+        });
       });
+    };
+
+    it(`should select ${sourceRowCount} rows in JSON with streaming`, async () => {
+      const rowLength = await countRows(connection,
+        `select randstr(10, random()) as a
+         from table (generator(rowcount =>${sourceRowCount}))`,
+        row => row && row['A']);
+      assert.equal(rowLength, sourceRowCount);
     });
   });
 });

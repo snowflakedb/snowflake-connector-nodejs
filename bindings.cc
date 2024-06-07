@@ -10,6 +10,9 @@
 
 #define GENERIC_NAME "GENERIC"
 #define GENERIC_LOG_TRACE(...) sf_log_trace(GENERIC_NAME, __VA_ARGS__)
+#define GENERIC_LOG_DEBUG(...) sf_log_debug(GENERIC_NAME, __VA_ARGS__)
+#define GENERIC_LOG_INFO(...) sf_log_info(GENERIC_NAME, __VA_ARGS__)
+#define GENERIC_LOG_WARN(...) sf_log_warn(GENERIC_NAME, __VA_ARGS__)
 #define GENERIC_LOG_ERROR(...) sf_log_error(GENERIC_NAME, __VA_ARGS__)
 
 namespace demo {
@@ -170,6 +173,7 @@ void ExecuteQuery(const FunctionCallbackInfo<Value>& args) {
   string query = readStringArg(args, 1);
   string resultFormat = "JSON";
   MaybeLocal<Function> maybeHandleRow;
+  MaybeLocal<Array> maybeBinds;
   Local<Primitive> _null = Null(isolate);
   const unsigned callbackFunctionArguments = 1;
   if (args.Length() > 2) {
@@ -180,6 +184,11 @@ void ExecuteQuery(const FunctionCallbackInfo<Value>& args) {
     if (!handleRowCallback->IsNullOrUndefined()) {
         GENERIC_LOG_TRACE("Using callback function to gather results");
         maybeHandleRow = handleRowCallback.As<Function>();
+    }
+    Local<Value> binds = readValueObjectProperty(isolate, context, options, "binds");
+    if (!binds->IsNullOrUndefined()) {
+        GENERIC_LOG_TRACE("Using binds");
+        maybeBinds = binds.As<Array>();
     }
   }
 
@@ -193,9 +202,49 @@ void ExecuteQuery(const FunctionCallbackInfo<Value>& args) {
     status = snowflake_query(statement, "alter session set C_API_QUERY_RESULT_FORMAT=JSON", 0);
     GENERIC_LOG_TRACE("Change to json status is %d", status);
   }
-  GENERIC_LOG_TRACE("Query to run: %s", query.c_str());
-  status = snowflake_query(statement, query.c_str(), 0);
-  GENERIC_LOG_TRACE("Query status is %d", status);
+  GENERIC_LOG_DEBUG("Query to run: %s", query.c_str());
+  if(maybeBinds.IsEmpty()){
+    status = snowflake_query(statement, query.c_str(), 0);
+    GENERIC_LOG_TRACE("Query status is %d", status);
+  } else {
+    GENERIC_LOG_DEBUG("Performing query using binds");
+    status = snowflake_prepare(statement, query.c_str(), 0);
+    GENERIC_LOG_TRACE("Prepare statement status is %d", status);
+    Local<Array> binds = maybeBinds.ToLocalChecked();
+    int64 number_of_binds = binds->Length();
+    GENERIC_LOG_TRACE("Number of binds is %d", number_of_binds);
+    SF_BIND_INPUT* input_array = (SF_BIND_INPUT*) malloc(number_of_binds * sizeof (SF_BIND_INPUT));
+    int64 paramInteger;
+    char* paramString;
+    for (int64 i = 0; i < number_of_binds; ++i){
+        GENERIC_LOG_TRACE("Creating bind param %d", i);
+        snowflake_bind_input_init(&input_array[i]);
+        input_array[i].idx = i + 1; // binds are starting with 1
+        Local<Value> bindValue = binds->Get(context, i).ToLocalChecked();
+        if (bindValue->IsInt32()) { // TODO why Int32 where we need Integer?
+            paramInteger = bindValue.As<Integer>()->Value(); // TODO how to allow to borrow value in a correct way?
+            GENERIC_LOG_TRACE("Setting bind param[%d] as int64 to %d, length %d", i, paramInteger, sizeof(paramInteger));
+            input_array[i].c_type = SF_C_TYPE_INT64;
+            input_array[i].value = &paramInteger;
+            input_array[i].len = sizeof(paramInteger);
+        } else if (bindValue->IsString()) {
+            String::Utf8Value str(isolate, bindValue.As<String>());
+            string cppStr(*str);
+            paramString = (char*) cppStr.c_str(); // TODO how to allow to borrow value in a correct way?
+            GENERIC_LOG_TRACE("Setting bind param[%d] as string to %s, length %d", i, paramString, strlen(paramString));
+            input_array[i].c_type = SF_C_TYPE_STRING;
+            input_array[i].value = paramString;
+            input_array[i].len = strlen(paramString);
+        } else {
+            GENERIC_LOG_ERROR("Unknown bind parameter %s", bindValue);
+        }
+    }
+    status = snowflake_bind_param_array(statement, input_array, number_of_binds);
+    GENERIC_LOG_TRACE("Passing bind params status is %d", status);
+    status = snowflake_execute(statement);
+    GENERIC_LOG_TRACE("Execute statement status is %d", status);
+    free(input_array);
+  }
 //  GENERIC_LOG_TRACE("Statement metadata - first column type: %d, c_type: %d and expected type is %d", statement->desc[0].type, statement->desc[0].c_type, SF_C_TYPE_INT64);
 //  GENERIC_LOG_TRACE("Statement metadata - first column type: %d, c_type: %d and expected type is %d", statement->desc[1].type, statement->desc[1].c_type, SF_C_TYPE_STRING);
 //  GENERIC_LOG_TRACE("Statement metadata - first column type: %d, c_type: %d and expected type is %d", statement->desc[3].type, statement->desc[3].c_type, SF_C_TYPE_STRING);
@@ -259,6 +308,7 @@ void ExecuteQueryWithoutFetchingRows(const FunctionCallbackInfo<Value>& args) {
     // third parameter is option object
     Local<Object> options = args[2].As<Object>();
     resultFormat = readStringObjectProperty(isolate, context, options, "resultFormat");
+    // TODO support binds
   }
 
   SF_CONNECT* sf = connections[connectionId];

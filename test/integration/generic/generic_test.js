@@ -103,6 +103,21 @@ describe.only('test generic binding', () => {
       });
     });
   });
+
+  it('should insert and select with bind parameters', () => {
+    const connectionId = generic.connectUserPassword(connectionParams);
+    let result = generic.executeQuery(connectionId, 'create or replace table generic_1 (id int, data text);');
+    assert.deepEqual(result, [['Table GENERIC_1 successfully created.']]);
+    result = generic.executeQuery(connectionId, 'insert into generic_1 (id, data) values (?, ?)', {
+      binds: [1, 'test']
+    });
+    assert.deepEqual(result, [[1]]); // one inserted row
+    result = generic.executeQuery(connectionId, 'select id, data from generic_1 where id = ?', {
+      binds: [1]
+    });
+    assert.deepEqual(result, [[1, 'test']]);
+    generic.closeConnection(connectionId);
+  });
 });
 
 describe.only('test standard nodejs', () => {

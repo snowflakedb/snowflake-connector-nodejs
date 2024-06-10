@@ -65,7 +65,6 @@ string readStringArg(const FunctionCallbackInfo<Value>& args, int i) {
 }
 
 int64_t readLongArg(const FunctionCallbackInfo<Value>& args, int i) {
-    Isolate* isolate = args.GetIsolate();
     return args[i].As<Integer>()->Value();
 }
 
@@ -102,12 +101,12 @@ void GetApiName(const FunctionCallbackInfo<Value>& args) {
   args.GetReturnValue().Set(String::NewFromUtf8(isolate, SF_API_NAME).ToLocalChecked());
 }
 
-string readStringObjectProperty(Isolate* isolate, Local<Context> context, Local<Object> connectionParameters, char* name) {
+string readStringObjectProperty(Isolate* isolate, Local<Context> context, Local<Object> connectionParameters, const char* name) {
     Local<String> propertyName = String::NewFromUtf8(isolate, name).ToLocalChecked();
     return localStringToStdString(isolate, connectionParameters->Get(context, propertyName).ToLocalChecked().As<String>());
 }
 
-Local<Value> readValueObjectProperty(Isolate* isolate, Local<Context> context, Local<Object> parameters, char* name) {
+Local<Value> readValueObjectProperty(Isolate* isolate, Local<Context> context, Local<Object> parameters, const char* name) {
     Local<String> propertyName = String::NewFromUtf8(isolate, name).ToLocalChecked();
     return parameters->Get(context, propertyName).ToLocalChecked();
 }
@@ -251,24 +250,24 @@ void ExecuteQuery(const FunctionCallbackInfo<Value>& args) {
         sf_bool is_null;
         snowflake_column_is_null(statement, result_set_column_idx, &is_null);
         if (is_null) {
-            array->Set(context, column_idx, _null);
+            array->Set(context, column_idx, _null).Check();
             continue;
         }
         switch (statement->desc[column_idx].c_type) {
             case SF_C_TYPE_INT64:
                 int32 out;
                 snowflake_column_as_int32(statement, result_set_column_idx, &out);
-                array->Set(context, column_idx, Integer::New(isolate, out));
+                array->Set(context, column_idx, Integer::New(isolate, out)).Check();
                 break;
             case SF_C_TYPE_FLOAT64:
                 double outDouble;
                 snowflake_column_as_float64(statement, result_set_column_idx, &outDouble);
-                array->Set(context, column_idx, Number::New(isolate, outDouble));
+                array->Set(context, column_idx, Number::New(isolate, outDouble)).Check();
                 break;
             case SF_C_TYPE_STRING: {
                 const char* buffer = NULL;
                 snowflake_column_as_const_str(statement, result_set_column_idx, &buffer);
-                array->Set(context, column_idx, String::NewFromUtf8(isolate, buffer).ToLocalChecked());
+                array->Set(context, column_idx, String::NewFromUtf8(isolate, buffer).ToLocalChecked()).Check();
                 break;
                 }
             default:
@@ -278,7 +277,7 @@ void ExecuteQuery(const FunctionCallbackInfo<Value>& args) {
         }
     }
     if (maybeHandleRow.IsEmpty()){
-      result->Set(context, row_idx++, array);
+      result->Set(context, row_idx++, array).Check();
     } else {
       Local<Value> argv[callbackFunctionArguments] = { array };
       maybeHandleRow.ToLocalChecked()->Call(context, _null, callbackFunctionArguments, argv);
@@ -291,14 +290,9 @@ void ExecuteQuery(const FunctionCallbackInfo<Value>& args) {
 void ExecuteQueryWithoutFetchingRows(const FunctionCallbackInfo<Value>& args) {
 //  GENERIC_LOG_TRACE("Args length: %d", args.Length());
   Isolate* isolate = args.GetIsolate();
-  Local<Context> context = isolate->GetCurrentContext();
   string connectionId = readStringArg(args, 0);
   string query = readStringArg(args, 1);
-  if (args.Length() > 2) {
-    // third parameter is option object
-    Local<Object> options = args[2].As<Object>();
-    // TODO support binds
-  }
+  // TODO support binds
 
   SF_CONNECT* sf = connections[connectionId];
   SF_STMT* statement = snowflake_stmt(sf);
@@ -347,24 +341,24 @@ void FetchNextRows(const FunctionCallbackInfo<Value>& args) {
         sf_bool is_null = SF_BOOLEAN_FALSE;
         snowflake_column_is_null(statement, result_set_column_idx, &is_null);
         if (is_null) {
-            array->Set(context, column_idx, Null(isolate));
+            array->Set(context, column_idx, Null(isolate)).Check();
             continue;
         }
         switch (statement->desc[column_idx].c_type) {
             case SF_C_TYPE_INT64:
                 int32 out;
                 snowflake_column_as_int32(statement, result_set_column_idx, &out);
-                array->Set(context, column_idx, Integer::New(isolate, out));
+                array->Set(context, column_idx, Integer::New(isolate, out)).Check();
                 break;
             case SF_C_TYPE_FLOAT64:
                 double outDouble;
                 snowflake_column_as_float64(statement, result_set_column_idx, &outDouble);
-                array->Set(context, column_idx, Number::New(isolate, outDouble));
+                array->Set(context, column_idx, Number::New(isolate, outDouble)).Check();
                 break;
             case SF_C_TYPE_STRING: {
                 const char* buffer = NULL;
                 snowflake_column_as_const_str(statement, result_set_column_idx, &buffer);
-                array->Set(context, column_idx, String::NewFromUtf8(isolate, buffer).ToLocalChecked());
+                array->Set(context, column_idx, String::NewFromUtf8(isolate, buffer).ToLocalChecked()).Check();
                 break;
                 }
             default:
@@ -373,7 +367,7 @@ void FetchNextRows(const FunctionCallbackInfo<Value>& args) {
                 break;
         }
     }
-    result->Set(context, row_idx++, array);
+    result->Set(context, row_idx++, array).Check();
   }
   if (status != SF_STATUS_SUCCESS) {
     snowflake_stmt_term(statement);
@@ -385,22 +379,20 @@ void FetchNextRows(const FunctionCallbackInfo<Value>& args) {
     Local<Array> result2 = Array::New(isolate, row_idx);
     long idx;
     for(idx = 0; idx < row_idx; ++idx) {
-        result2->Set(context, idx, result->Get(context, idx).ToLocalChecked());
+        result2->Set(context, idx, result->Get(context, idx).ToLocalChecked()).Check();
     }
     result = result2;
   }
 
   Local<Object> returnObject = Object::New(isolate);
-  returnObject->Set(context, String::NewFromUtf8Literal(isolate, "rows"), result);
-  returnObject->Set(context, String::NewFromUtf8Literal(isolate, "end"), Boolean::New(isolate, status != SF_STATUS_SUCCESS));
+  returnObject->Set(context, String::NewFromUtf8Literal(isolate, "rows"), result).Check();
+  returnObject->Set(context, String::NewFromUtf8Literal(isolate, "end"), Boolean::New(isolate, status != SF_STATUS_SUCCESS)).Check();
   // TODO optimize when number of rows % fetch size == 0 to not return empty array at the end
   args.GetReturnValue().Set(returnObject);
 }
 
 void CloseConnection(const FunctionCallbackInfo<Value>& args) {
 //  GENERIC_LOG_TRACE("Args length: %d", args.Length());
-  Isolate* isolate = args.GetIsolate();
-  Local<Context> context = isolate->GetCurrentContext();
   string cacheKey = readStringArg(args, 0);
 
   SF_CONNECT* sf = connections[cacheKey];

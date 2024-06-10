@@ -35,8 +35,8 @@ describe.only('test generic binding', () => {
     it(`should connect to snowflake and execute simple query with result in ${resultFormat}`, () => {
       const connectionId = generic.connectUserPassword(connectionParams);
       changeResultFormat(resultFormat, connectionId);
-      const result = generic.executeQuery(connectionId, 'select 42, \'bla\', 1.56, \'\', null;');
-      assert.deepEqual(result, [[42, 'bla', 1.56, '', null]]);
+      const result = generic.executeQuery(connectionId, 'select 42, \'żółć\', 1.56, \'\', null;');
+      assert.deepEqual(result, [[42, 'żółć', 1.56, '', null]]);
       generic.closeConnection(connectionId);
     });
   });
@@ -118,18 +118,34 @@ describe.only('test generic binding', () => {
     });
   });
 
-  it('should insert and select with bind parameters', () => {
+  it('should execute queries with bind parameters', () => {
     const connectionId = generic.connectUserPassword(connectionParams);
     let result = generic.executeQuery(connectionId, 'create or replace table generic_1 (id int, data text);');
     assert.deepEqual(result, [['Table GENERIC_1 successfully created.']]);
     result = generic.executeQuery(connectionId, 'insert into generic_1 (id, data) values (?, ?)', {
-      binds: [1, 'test']
+      binds: [1, 'test żółć']
     });
-    assert.deepEqual(result, [[1]]); // one inserted row
+    assert.deepEqual(result, [[1]], 'insert'); // one inserted row
     result = generic.executeQuery(connectionId, 'select id, data from generic_1 where id = ?', {
       binds: [1]
     });
-    assert.deepEqual(result, [[1, 'test']]);
+    assert.deepEqual(result, [[1, 'test żółć']], 'select after insert');
+    result = generic.executeQuery(connectionId, 'update generic_1 set data = ? where id = ?', {
+      binds: ['test 2', 1]
+    });
+    assert.deepEqual(result, [[1, 0]], 'update'); // one updated row, 0 number of multi-joined rows updated
+    result = generic.executeQuery(connectionId, 'select id, data from generic_1 where id = ?', {
+      binds: [1]
+    });
+    assert.deepEqual(result, [[1, 'test 2']], 'select after update');
+    result = generic.executeQuery(connectionId, 'delete from generic_1 where id = ?', {
+      binds: [1]
+    });
+    assert.deepEqual(result, [[1]], 'delete'); // one deleted row
+    result = generic.executeQuery(connectionId, 'select id, data from generic_1 where id = ?', {
+      binds: [1]
+    });
+    assert.deepEqual(result, [], 'select after delete');
     generic.closeConnection(connectionId);
   });
 });

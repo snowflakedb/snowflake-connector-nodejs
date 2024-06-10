@@ -47,7 +47,7 @@ declare module 'snowflake-sdk' {
         NO_DATA: 'NO_DATA',
     } as const;
 
-    const StatementStatus = {
+    export const StatementStatus = {
         Fetching: "fetching",
         Complete: "complete",
     } as const;
@@ -225,10 +225,9 @@ declare module 'snowflake-sdk' {
     export type LogLevelType = typeof LogLevel[keyof typeof LogLevel];
     export type DataType = typeof Data[keyof typeof Data];
     export type QueryStatusType = typeof QueryStatus[keyof typeof QueryStatus];
+    export type StatementStatusType = typeof StatementStatus[keyof typeof StatementStatus];
 
     type ErrorCodeType = typeof ErrorCode[keyof typeof ErrorCode];
-    type StatementStatusType = typeof StatementStatus[keyof typeof StatementStatus];
-
     type PoolOptions = import('generic-pool').Options;
     type Readable = import('stream').Readable;
     type Pool<T> = import('generic-pool').Pool<T>;

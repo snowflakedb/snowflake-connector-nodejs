@@ -71,7 +71,7 @@
     "test:ci:withSystemTests": "mocha -timeout 180000 --recursive --full-trace test/**/*.js system_test/*.js",
     "test:ci:withSystemTests:coverage": "nyc npm run test:ci:withSystemTests",
     "test:manual": "mocha -timeout 180000 --full-trace --full-trace test/integration/testManualConnection.js",
-    "gyp:test": "node-gyp clean && node-gyp configure && node-gyp build && npm run test:integration"
+    "generic:test": "node-gyp clean && node-gyp configure && node-gyp build && mocha -timeout 180000 --recursive --full-trace test/integration/generic/generic_test.js"
   },
   "author": {
     "name": "Snowflake Computing, Inc.",

@@ -3,7 +3,7 @@ const generic = require('../../../lib/generic');
 const snowflake = require('../../../lib/snowflake');
 const testUtil = require('../testUtil');
 
-describe.only('test generic binding', () => {
+describe('test generic binding', () => {
   const connectionParams = {
     username: process.env.SNOWFLAKE_TEST_USER,
     password: process.env.SNOWFLAKE_TEST_PASSWORD,
@@ -150,7 +150,7 @@ describe.only('test generic binding', () => {
   });
 });
 
-describe.only('Perf selects standard nodejs', () => {
+describe('Perf selects standard nodejs', () => {
   let connection;
 
   before(async () => {

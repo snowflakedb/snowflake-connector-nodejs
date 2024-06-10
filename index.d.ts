@@ -228,24 +228,32 @@ declare module 'snowflake-sdk' {
     type Readable = import('stream').Readable;
     type Pool<T> = import('generic-pool').Pool<T>;
 
+    export interface XMlParserConfigOption {
+        ignoreAttributes?: boolean;
+        alwaysCreateTextNode?: boolean;
+        attributeNamePrefix?: string;
+        attributesGroupName?: false | null | string;
+    }
+
     export interface ConfigureOptions {
         /**
          * Set the logLevel and logFilePath,
          * https://docs.snowflake.com/en/developer-guide/node-js/nodejs-driver-logs.
          */
-        logLevel?: LogLevel | undefined;
-        logFilePath?: string | undefined;
+        logLevel?: LogLevel;
+        logFilePath?: string;
+        additionalLogToConsole?: boolean | null;
 
         /**
          * Check the ocsp checking is off.
          */
-        insecureConnect?: boolean | undefined;
+        insecureConnect?: boolean;
 
         /**
          * The default value is true.
          * Detailed information: https://docs.snowflake.com/en/user-guide/ocsp.
          */
-        ocspFailOpen?: boolean | undefined;
+        ocspFailOpen?: boolean;
 
         /**
          * The Snowflake Node.js driver provides the following default parsers for processing JSON and XML data in result sets.
@@ -254,10 +262,12 @@ declare module 'snowflake-sdk' {
         jsonColumnVariantParser?: CustomParser;
         xmlColumnVariantParser?: CustomParser;
 
+        xmlParserConfig?: XMlParserConfigOption;
+
         /**
          * Specifies whether to enable keep-alive functionality on the socket immediately after receiving a new connection request.
          */
-        keepAlive?: boolean,
+        keepAlive?: boolean;
     }
 
     export interface ConnectionOptions {
@@ -611,6 +621,11 @@ declare module 'snowflake-sdk' {
          * Detailed information: https://docs.snowflake.com/en/developer-guide/node-js/nodejs-driver-execute.
          */
         parameters?: Record<string, any>;
+
+        /**
+         * Returns the rowMode string value ('array', 'object' or 'object_with_renamed_duplicated_columns'). Could be null or undefined.
+         */
+        rowMode?: RowMode;
     }
 
     export interface RowStatement {

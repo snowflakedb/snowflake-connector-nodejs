@@ -389,7 +389,9 @@ void ExecuteQueryWithoutFetchingRows(const FunctionCallbackInfo<Value>& args) {
 //  GENERIC_LOG_TRACE("Fetched columns per row %d", statement->total_fieldcount);
   if (status == SF_STATUS_SUCCESS) {
       string statementId = gen_random_string(20); // TODO use uuid or session id
-      RunningStatement cacheKey = { .connectionId = connectionId, .statementId = statementId };
+      RunningStatement cacheKey;
+      cacheKey.connectionId = connectionId;
+      cacheKey.statementId = statementId;
       runningStatements[cacheKey] = statement;
       args.GetReturnValue().Set(String::NewFromUtf8(isolate, statementId.c_str()).ToLocalChecked());
       // TODO return object
@@ -409,7 +411,9 @@ void FetchNextRows(const FunctionCallbackInfo<Value>& args) {
 
   GENERIC_LOG_TRACE("Reading from statement %s/%s: %d rows", connectionId.c_str(), statementId.c_str(), rowsToFetch);
 
-  RunningStatement cacheKey = { .connectionId = connectionId, .statementId = statementId };
+  RunningStatement cacheKey;
+  cacheKey.connectionId = connectionId;
+  cacheKey.statementId = statementId;
 
   SF_STMT* statement = runningStatements[cacheKey];
   Local<Array> result = Array::New(isolate, rowsToFetch); // TODO check how many rows should there be

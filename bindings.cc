@@ -4,6 +4,7 @@
 #include <map>
 #include <ctime>
 #include <unistd.h>
+#include <uv.h>
 #include "snowflake/version.h"
 #include "snowflake/client.h"
 #include "snowflake/logger.h"
@@ -25,6 +26,7 @@ using v8::Boolean;
 using v8::Context;
 using v8::Function;
 using v8::FunctionCallbackInfo;
+using v8::HandleScope;
 using v8::Integer;
 using v8::Isolate;
 using v8::Local;
@@ -32,6 +34,7 @@ using v8::MaybeLocal;
 using v8::Number;
 using v8::Null;
 using v8::Object;
+using v8::Persistent;
 using v8::Primitive;
 using v8::String;
 using v8::Value;
@@ -162,6 +165,86 @@ void ConnectUserPassword(const FunctionCallbackInfo<Value>& args) {
     args.GetReturnValue().SetNull();
     // TODO return error
   }
+}
+
+typedef struct ConnectRequest {
+    SF_CONNECT* sf;
+    SF_STATUS status;
+    Persistent<Function> callback;
+    uv_work_t request;
+} ConnectRequest;
+
+void Connecting(uv_work_t* unit_of_work) {
+    GENERIC_LOG_TRACE("Connecting...");
+    ConnectRequest* request = (ConnectRequest*) unit_of_work->data;
+    GENERIC_LOG_TRACE("Request is %s", request);
+    SF_CONNECT *sf = request->sf;
+    GENERIC_LOG_TRACE("Calling snowflake_connect...");
+    SF_STATUS status = snowflake_connect(sf);
+    GENERIC_LOG_TRACE("Calling snowflake_connect ended with %d", status);
+    request->status = status;
+    GENERIC_LOG_TRACE("Connecting finished");
+}
+
+void ConnectionDone(uv_work_t* unit_of_work, int status) {
+  GENERIC_LOG_TRACE("Connecting done and about to call callback");
+  Isolate *isolate = Isolate::GetCurrent();
+  HandleScope scope(isolate);
+  Local<Context> context = isolate->GetCurrentContext();
+  ConnectRequest* request = (ConnectRequest*) unit_of_work->data;
+  Local<Function> cb = Local<Function>::New(isolate, request->callback);
+  if(request->status == SF_STATUS_SUCCESS){
+    string cacheKey = gen_random_string(20); // TODO use uuid or session id
+    connections[cacheKey] = request->sf;
+    const unsigned argc = 1;
+    Local<Value> argv[argc] = {String::NewFromUtf8(isolate, cacheKey.c_str()).ToLocalChecked()};
+    cb->Call(context, Null(isolate), argc, argv);
+  } else {
+    const unsigned argc = 2;
+    Local<Value> argv[argc] = {Null(isolate), String::NewFromUtf8Literal(isolate, "cannot connect")};
+    cb->Call(context, Null(isolate), argc, argv);
+  }
+  delete request;
+  GENERIC_LOG_TRACE("Connecting done and callback called");
+}
+
+void ConnectUserPasswordWithCallback(const FunctionCallbackInfo<Value>& args) {
+//  GENERIC_LOG_TRACE("Args length: %d", args.Length());
+  Isolate* isolate = args.GetIsolate();
+  Local<Context> context = isolate->GetCurrentContext();
+  Local<Object> connectionParameters = args[0].As<Object>();
+  Local<Function> callback = args[1].As<Function>();
+
+  string username = readStringObjectProperty(isolate, context, connectionParameters, "username");
+  string password = readStringObjectProperty(isolate, context, connectionParameters, "password");
+  string account = readStringObjectProperty(isolate, context, connectionParameters, "account");
+  string database = readStringObjectProperty(isolate, context, connectionParameters, "database");
+  string schema = readStringObjectProperty(isolate, context, connectionParameters, "schema");
+  string warehouse = readStringObjectProperty(isolate, context, connectionParameters, "warehouse");
+  GENERIC_LOG_TRACE("Account: %s", account.c_str());
+  GENERIC_LOG_TRACE("Username: %s", username.c_str());
+  GENERIC_LOG_TRACE("Database: %s", database.c_str());
+  GENERIC_LOG_TRACE("Schema: %s", schema.c_str());
+  GENERIC_LOG_TRACE("Warehouse: %s", warehouse.c_str());
+  SF_CONNECT *sf = snowflake_init();
+  snowflake_set_attribute(sf, SF_CON_ACCOUNT, account.c_str());
+  snowflake_set_attribute(sf, SF_CON_USER, username.c_str());
+  snowflake_set_attribute(sf, SF_CON_PASSWORD, password.c_str());
+  snowflake_set_attribute(sf, SF_CON_DATABASE, database.c_str());
+  snowflake_set_attribute(sf, SF_CON_SCHEMA, schema.c_str());
+  snowflake_set_attribute(sf, SF_CON_WAREHOUSE, warehouse.c_str());
+
+  ConnectRequest* connectRequest = new ConnectRequest;
+  GENERIC_LOG_TRACE("Created connect request");
+  connectRequest->sf = sf;
+  GENERIC_LOG_TRACE("- set sf");
+  connectRequest->callback.Reset(isolate, callback);
+  GENERIC_LOG_TRACE("- set callback");
+  connectRequest->request.data = connectRequest;
+
+  GENERIC_LOG_TRACE("Scheduling background connect");
+  uv_queue_work(uv_default_loop(), &connectRequest->request, (uv_work_cb)Connecting, (uv_after_work_cb)ConnectionDone);
+  GENERIC_LOG_TRACE("Scheduled background connect");
 }
 
 void ExecuteQuery(const FunctionCallbackInfo<Value>& args) {
@@ -405,6 +488,7 @@ void Initialize(Local<Object> exports) {
   NODE_SET_METHOD(exports, "getVersion", GetVersion);
   NODE_SET_METHOD(exports, "getApiName", GetApiName);
   NODE_SET_METHOD(exports, "connectUserPassword", ConnectUserPassword);
+  NODE_SET_METHOD(exports, "connectUserPasswordWithCallback", ConnectUserPasswordWithCallback);
   NODE_SET_METHOD(exports, "executeQuery", ExecuteQuery);
   NODE_SET_METHOD(exports, "init", Init);
   NODE_SET_METHOD(exports, "closeConnection", CloseConnection);

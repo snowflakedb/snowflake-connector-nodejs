@@ -41,6 +41,17 @@ describe('test generic binding', () => {
     });
   });
 
+  ['JSON', 'ARROW'].forEach(resultFormat => {
+    it(`should async connect to snowflake and execute simple query with result in ${resultFormat}`, async () => {
+      // TODO only connect is async now
+      const connectionId = await generic.connectUserPasswordAsync(connectionParams);
+      changeResultFormat(resultFormat, connectionId);
+      const result = generic.executeQuery(connectionId, 'select 42, \'żółć\', 1.56, \'\', null;');
+      assert.deepEqual(result, [[42, 'żółć', 1.56, '', null]]);
+      generic.closeConnection(connectionId);
+    });
+  });
+
   it('should return null when connect failed', () => {
     const connectionId = generic.connectUserPassword({ ...connectionParams, password: 'bla' });
     assert.equal(connectionId, null);
@@ -148,7 +159,8 @@ describe('test generic binding', () => {
     assert.deepEqual(result, [], 'select after delete');
     generic.closeConnection(connectionId);
   });
-});
+})
+;
 
 describe('Perf selects standard nodejs', () => {
   let connection;

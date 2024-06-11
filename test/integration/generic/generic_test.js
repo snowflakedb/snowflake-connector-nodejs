@@ -3,7 +3,7 @@ const generic = require('../../../lib/generic');
 const snowflake = require('../../../lib/snowflake');
 const testUtil = require('../testUtil');
 
-describe('test generic binding', () => {
+describe.only('test generic binding', () => {
   const connectionParams = {
     username: process.env.SNOWFLAKE_TEST_USER,
     password: process.env.SNOWFLAKE_TEST_PASSWORD,
@@ -14,7 +14,7 @@ describe('test generic binding', () => {
   };
 
   before(() => {
-    generic.init('FATAL');
+    generic.init('INFO');
   });
 
   it('should get libsfclient version', () => {
@@ -160,7 +160,7 @@ describe('test generic binding', () => {
 })
 ;
 
-describe('Perf selects standard nodejs', () => {
+describe.only('Perf selects standard nodejs', () => {
   let connection;
 
   before(async () => {

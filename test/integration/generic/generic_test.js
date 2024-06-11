@@ -39,9 +39,7 @@ describe('test generic binding', () => {
       assert.deepEqual(result, [[42, 'żółć', 1.56, '', null]]);
       generic.closeConnection(connectionId);
     });
-  });
 
-  ['JSON', 'ARROW'].forEach(resultFormat => {
     it(`should async connect to snowflake and execute simple query with result in ${resultFormat}`, async () => {
       // TODO only connect is async now
       const connectionId = await generic.connectUserPasswordAsync(connectionParams);

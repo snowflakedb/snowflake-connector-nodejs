@@ -3,7 +3,6 @@
 #include <stdlib.h>
 #include <map>
 #include <ctime>
-#include <unistd.h>
 #include <uv.h>
 #include "snowflake/version.h"
 #include "snowflake/client.h"
@@ -116,7 +115,7 @@ Local<Value> readValueObjectProperty(Isolate* isolate, Local<Context> context, L
 
 string gen_random_string(const int len) {
     // https://stackoverflow.com/questions/440133/how-do-i-create-a-random-alpha-numeric-string-in-c
-    srand((unsigned)time(NULL) * getpid());
+    srand((unsigned)time(NULL));
     static const char alphanum[] =
         "0123456789"
         "ABCDEFGHIJKLMNOPQRSTUVWXYZ"

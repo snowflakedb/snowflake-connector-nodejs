@@ -84,7 +84,6 @@
             "libraries": [
               "<(module_root_dir)/libsfclient/lib/linux/libsnowflakeclient.a",
               "<(module_root_dir)/libsfclient/deps-build/linux/arrow/lib/libarrow.a",
-              "<(module_root_dir)/libsfclient/deps-build/linux/arrow_deps/lib/libjemalloc.a",
               "<(module_root_dir)/libsfclient/deps-build/linux/arrow_deps/lib/libjemalloc_pic.a",
               "<(module_root_dir)/libsfclient/deps-build/linux/aws/lib64/libaws-c-auth.a",
               "<(module_root_dir)/libsfclient/deps-build/linux/aws/lib64/libaws-c-cal.a",

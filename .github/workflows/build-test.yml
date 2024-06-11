@@ -82,9 +82,8 @@ jobs:
     test-windows:
         needs: build
         name: Tests on Windows
-#        runs-on: windows-latest
-#        runs-on: windows-2022 # TODO prepare binaries for vs17
-        runs-on: windows-2019 # we have binaries for vs16
+        runs-on: windows-2022
+#        runs-on: windows-2019 # we have binaries for vs16
         strategy:
             fail-fast: false
             matrix:

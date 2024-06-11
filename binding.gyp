@@ -49,7 +49,7 @@
           "OS==\"win\"",
           {
             "libraries": [
-              "<(module_root_dir)/libsfclient/lib/win64/vs16/libsnowflakeclient.lib",
+              "<(module_root_dir)/libsfclient/lib/win64/vs16/snowflakeclient.lib",
               "<(module_root_dir)/libsfclient/deps-build/win64/vs16/arrow/lib/arrow_static.lib",
               "<(module_root_dir)/libsfclient/deps-build/win64/vs16/aws/lib/aws-c-auth.lib",
               "<(module_root_dir)/libsfclient/deps-build/win64/vs16/aws/lib/aws-c-cal.lib",
@@ -62,10 +62,10 @@
               "<(module_root_dir)/libsfclient/deps-build/win64/vs16/aws/lib/aws-c-s3.lib",
               "<(module_root_dir)/libsfclient/deps-build/win64/vs16/aws/lib/aws-c-sdkutils.lib",
               "<(module_root_dir)/libsfclient/deps-build/win64/vs16/aws/lib/aws-checksums.lib",
-              "<(module_root_dir)/libsfclient/deps-build/win64/vs16/aws/lib/libaws-cpp-sdk-core.lib",
-              "<(module_root_dir)/libsfclient/deps-build/win64/vs16/aws/lib/libaws-cpp-sdk-s3.lib",
+              "<(module_root_dir)/libsfclient/deps-build/win64/vs16/aws/lib/aws-cpp-sdk-core.lib",
+              "<(module_root_dir)/libsfclient/deps-build/win64/vs16/aws/lib/aws-cpp-sdk-s3.lib",
               "<(module_root_dir)/libsfclient/deps-build/win64/vs16/aws/lib/aws-crt-cpp.lib",
-              "<(module_root_dir)/libsfclient/deps-build/win64/vs16/azure/lib/libazure-storage-lite.lib",
+              "<(module_root_dir)/libsfclient/deps-build/win64/vs16/azure/lib/azure-storage-lite.lib",
               "<(module_root_dir)/libsfclient/deps-build/win64/vs16/boost/lib/libboost_atomic.lib",
               "<(module_root_dir)/libsfclient/deps-build/win64/vs16/boost/lib/libboost_filesystem.lib",
               "<(module_root_dir)/libsfclient/deps-build/win64/vs16/boost/lib/libboost_regex.lib",
@@ -74,7 +74,7 @@
               "<(module_root_dir)/libsfclient/deps-build/win64/vs16/oob/lib/libtelemetry_a.lib",
               "<(module_root_dir)/libsfclient/deps-build/win64/vs16/openssl/lib/libcrypto_a.lib",
               "<(module_root_dir)/libsfclient/deps-build/win64/vs16/openssl/lib/libssl_a.lib",
-              "<(module_root_dir)/libsfclient/deps-build/win64/vs16/zlib/lib/libz_a.lib"
+              "<(module_root_dir)/libsfclient/deps-build/win64/vs16/zlib/lib/zlib_a.lib"
             ]
           }
         ],

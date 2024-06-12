@@ -5,7 +5,6 @@
   "dependencies": {
     "@aws-sdk/client-s3": "^3.388.0",
     "@aws-sdk/node-http-handler": "^3.374.0",
-    //Temporary block upgrades to version newer than 2.18.x to maintain compatibility with node 14
     "@azure/storage-blob": "12.18.x",
     "@google-cloud/storage": "^7.7.0",
     "@techteamer/ocsp": "1.0.1",

@@ -288,7 +288,7 @@ void ExecuteQuery(const FunctionCallbackInfo<Value>& args) {
     GENERIC_LOG_TRACE("Number of binds is %d", number_of_binds);
     SF_BIND_INPUT* input_array = (SF_BIND_INPUT*) malloc(number_of_binds * sizeof (SF_BIND_INPUT));
     int64 paramInteger;
-    char* paramString;
+    char paramString[1024];
     for (int64 i = 0; i < number_of_binds; ++i){
         GENERIC_LOG_TRACE("Creating bind param %d", i);
         snowflake_bind_input_init(&input_array[i]);
@@ -303,7 +303,7 @@ void ExecuteQuery(const FunctionCallbackInfo<Value>& args) {
         } else if (bindValue->IsString()) {
             String::Utf8Value str(isolate, bindValue.As<String>());
             string cppStr(*str);
-            paramString = (char*) cppStr.c_str(); // TODO how to allow to borrow value in a correct way?
+            strcpy(paramString, cppStr.c_str()); // TODO how to allow to borrow value in a correct way?
             GENERIC_LOG_TRACE("Setting bind param[%d] as string to %s, length %d", i, paramString, strlen(paramString));
             input_array[i].c_type = SF_C_TYPE_STRING;
             input_array[i].value = paramString;

@@ -14,8 +14,8 @@ describe.only('test generic binding', () => {
   };
 
   before(() => {
-    if (process.platform === 'win32' || process.platform === 'linux') {
-      generic.init('TRACE');
+    if (process.platform === 'win32') {
+      generic.init('FATAL');
     } else {
       generic.init('FATAL');
     }

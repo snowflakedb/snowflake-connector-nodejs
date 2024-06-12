@@ -87,6 +87,7 @@ void Init(const FunctionCallbackInfo<Value>& args) {
       log_level = SF_LOG_FATAL;
     }
     log_set_level(log_level);
+    snowflake_global_set_attribute(SF_GLOBAL_CA_BUNDLE_FILE, getenv("SNOWFLAKE_TEST_CA_BUNDLE_FILE"));
 //    GENERIC_LOG_TRACE("Setting log level to %s (%d)", string_log_level.c_str(), log_level);
 //    snowflake_global_set_attribute(SF_GLOBAL_DEBUG, "TRUE");
 //    snowflake_global_init(NULL, log_level, NULL); // TODO setting log level here force logging to file in ./logs/*

@@ -14,6 +14,7 @@ export WORKSPACE=$GITHUB_WORKSPACE
 export SOURCE_ROOT=$GITHUB_WORKSPACE
 export SHOULD_GENERATE_COVERAGE_REPORT=1
 export SHOULD_SKIP_PROXY_TESTS=1
+export SNOWFLAKE_TEST_CA_BUNDLE_FILE=$THIS_DIR/../libsfclient/cacert.pem
 
 python3 --version
 python3 -m venv venv

@@ -7,13 +7,13 @@
  * @see [source] {@link https://docs.snowflake.com/en/developer-guide/node-js/nodejs-driver}
  */
 declare module 'snowflake-sdk' {
-    export const RowMode = {
+    export const RowModeOption = {
         ARRAY: 'array',
         OBJECT: 'object',
         OBJECT_WITH_RENAMED_DUPLICATED_COLUMNS: 'object_with_renamed_duplicated_columns',
     } as const;
 
-    export const LogLevel = {
+    export const LogLevelOption = {
         ERROR: 'ERROR',
         WARN: 'WARN',
         INFO: 'INFO',
@@ -21,7 +21,7 @@ declare module 'snowflake-sdk' {
         TRACE: 'TRACE',
     } as const;
 
-    export const Data = {
+    export const DataOption = {
         String: 'String',
         Boolean: 'Boolean',
         Number: 'Number',
@@ -30,7 +30,7 @@ declare module 'snowflake-sdk' {
         Buffer: 'Buffer',
     } as const;
 
-    export const QueryStatus = {
+    export const QueryStatusOption = {
         RUNNING: 'RUNNING',
         ABORTING: 'ABORTING',
         SUCCESS: 'SUCCESS',
@@ -47,12 +47,12 @@ declare module 'snowflake-sdk' {
         NO_DATA: 'NO_DATA',
     } as const;
 
-    export const StatementStatus = {
+    export const StatementStatusOption = {
         Fetching: "fetching",
         Complete: "complete",
     } as const;
 
-    const ErrorCode = {
+    const ErrorCodeOption = {
         // 400001
         ERR_INTERNAL_ASSERT_FAILED: 400001,
         ERR_UNSUPPORTED_NODE_JS_VERSION: 400002,
@@ -221,13 +221,13 @@ declare module 'snowflake-sdk' {
     export type Binds = Bind[] | InsertBinds;
     export type StatementCallback = (err: SnowflakeError | undefined, stmt: RowStatement | FileAndStageBindStatement, rows?: Array<any> | undefined) => void;
     export type ConnectionCallback = (err: SnowflakeError | undefined, conn: Connection) => void
-    export type RowModeType = typeof RowMode[keyof typeof RowMode];
-    export type LogLevelType = typeof LogLevel[keyof typeof LogLevel];
-    export type DataType = typeof Data[keyof typeof Data];
-    export type QueryStatusType = typeof QueryStatus[keyof typeof QueryStatus];
-    export type StatementStatusType = typeof StatementStatus[keyof typeof StatementStatus];
+    export type RowMode = typeof RowModeOption[keyof typeof RowModeOption];
+    export type LogLevel = typeof LogLevelOption[keyof typeof LogLevelOption];
+    export type DataType = typeof DataOption[keyof typeof DataOption];
+    export type QueryStatus = typeof QueryStatusOption[keyof typeof QueryStatusOption];
+    export type StatementStatus = typeof StatementStatusOption[keyof typeof StatementStatusOption];
 
-    type ErrorCodeType = typeof ErrorCode[keyof typeof ErrorCode];
+    type ErrorCode = typeof ErrorCodeOption[keyof typeof ErrorCodeOption];
     type PoolOptions = import('generic-pool').Options;
     type Readable = import('stream').Readable;
     type Pool<T> = import('generic-pool').Pool<T>;
@@ -237,7 +237,7 @@ declare module 'snowflake-sdk' {
          * Set the logLevel and logFilePath,
          * https://docs.snowflake.com/en/developer-guide/node-js/nodejs-driver-logs.
          */
-        logLevel?: LogLevelType | undefined;
+        logLevel?: LogLevel | undefined;
         logFilePath?: string | undefined;
 
         /**
@@ -366,7 +366,7 @@ declare module 'snowflake-sdk' {
         /**
          * Returns the rowMode string value ('array', 'object' or 'object_with_renamed_duplicated_columns'). Could be null or undefined.
          */
-        rowMode?: RowModeType;
+        rowMode?: RowMode;
 
         /**
          * Enabling this parameter causes the method to return a Node.js Readable stream, which you can use to consume rows as they are received.
@@ -488,7 +488,7 @@ declare module 'snowflake-sdk' {
         /**
          * Checks whether the given status is currently running.
          */
-        isStillRunning(status: QueryStatusType): boolean;
+        isStillRunning(status: QueryStatus): boolean;
 
         /**
          * Checks whether the given status means that there has been an error.
@@ -544,7 +544,7 @@ declare module 'snowflake-sdk' {
         /**
          * Returns the current status of this statement.
          */
-        getStatus(): StatementStatusType;
+        getStatus(): StatementStatus;
 
         /**
          * Returns the columns produced by this statement.
@@ -753,7 +753,7 @@ declare module 'snowflake-sdk' {
     }
 
     export interface SnowflakeError extends Error {
-        code?: ErrorCodeType,
+        code?: ErrorCode,
         sqlState?: string,
         data?: Record<string, any>,
         response?: Record<string, any>,

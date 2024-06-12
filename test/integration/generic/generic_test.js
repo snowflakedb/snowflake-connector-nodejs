@@ -14,7 +14,11 @@ describe.only('test generic binding', () => {
   };
 
   before(() => {
-    generic.init('INFO');
+    if (process.platform === 'win32' || process.platform === 'linux') {
+      generic.init('TRACE');
+    } else {
+      generic.init('FATAL');
+    }
   });
 
   it('should get libsfclient version', () => {

@@ -626,6 +626,11 @@ declare module 'snowflake-sdk' {
          * Returns the rowMode string value ('array', 'object' or 'object_with_renamed_duplicated_columns'). Could be null or undefined.
          */
         rowMode?: RowMode;
+
+        /**
+         * Enable asynchronous queries by including asyncExec: true in the connection.execute method.
+         */
+        asyncExec?: boolean;
     }
 
     export interface RowStatement {

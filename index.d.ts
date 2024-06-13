@@ -242,6 +242,10 @@ declare module 'snowflake-sdk' {
          */
         logLevel?: LogLevel;
         logFilePath?: string;
+
+        /**
+         * additionalLogToConsole is a Boolean value that indicates whether to send log messages also to the console when a filePath is specified.
+         */
         additionalLogToConsole?: boolean | null;
 
         /**
@@ -413,7 +417,7 @@ declare module 'snowflake-sdk' {
         /**
          * return the following data types as strings: Boolean, Number, Date, Buffer, and JSON.
          */
-        fetchAsString?: DataType[] | undefined;
+        fetchAsString?: DataType[];
 
         /**
          * Path to the client configuration file associated with the easy logging feature.
@@ -589,6 +593,11 @@ declare module 'snowflake-sdk' {
         complete: StatementCallback;
 
         /**
+         * Enable asynchronous queries by including asyncExec: true in the connection.execute method.
+         */
+        asyncExec?: boolean;
+
+        /**
          * The requestId is for resubmitting requests.
          * Detailed Information: https://docs.snowflake.com/en/developer-guide/node-js/nodejs-driver-execute.
          */
@@ -626,11 +635,6 @@ declare module 'snowflake-sdk' {
          * Returns the rowMode string value ('array', 'object' or 'object_with_renamed_duplicated_columns'). Could be null or undefined.
          */
         rowMode?: RowMode;
-
-        /**
-         * Enable asynchronous queries by including asyncExec: true in the connection.execute method.
-         */
-        asyncExec?: boolean;
     }
 
     export interface RowStatement {
@@ -865,7 +869,7 @@ declare module 'snowflake-sdk' {
     export interface StreamOptions {
         start?: number;
         end?: number;
-        fetchAsString?: DataType[] | undefined;
+        fetchAsString?: DataType[];
     }
 
     /**

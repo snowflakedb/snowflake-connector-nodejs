@@ -7,52 +7,8 @@
  * @see [source] {@link https://docs.snowflake.com/en/developer-guide/node-js/nodejs-driver}
  */
 declare module 'snowflake-sdk' {
-    export const enum RowMode {
-        ARRAY = 'array',
-        OBJECT = 'object',
-        OBJECT_WITH_RENAMED_DUPLICATED_COLUMNS = 'object_with_renamed_duplicated_columns',
-    }
 
-    export const enum LogLevel {
-        ERROR = 'ERROR',
-        WARN = 'WARN',
-        INFO = 'INFO',
-        DEBUG = 'DEBUG',
-        TRACE = 'TRACE',
-    }
-
-    export const enum DataType {
-        String = 'String',
-        Boolean = 'Boolean',
-        Number = 'Number',
-        Date = 'Date',
-        JSON = 'JSON',
-        Buffer = 'Buffer',
-    }
-
-    const enum StatementStatus {
-        Fetching = "fetching",
-        Complete = "complete",
-    }
-
-    const enum QueryStatus {
-        RUNNING = 'RUNNING',
-        ABORTING = 'ABORTING',
-        SUCCESS = 'SUCCESS',
-        FAILED_WITH_ERROR = 'FAILED_WITH_ERROR',
-        ABORTED = 'ABORTED',
-        QUEUED = 'QUEUED',
-        FAILED_WITH_INCIDENT = 'FAILED_WITH_INCIDENT',
-        DISCONNECTED = 'DISCONNECTED',
-        RESUMING_WAREHOUSE = 'RESUMING_WAREHOUSE',
-        // purposeful typo.Is present in QueryDTO.java
-        QUEUED_REPAIRING_WAREHOUSE = 'QUEUED_REPARING_WAREHOUSE',
-        RESTARTED = 'RESTARTED',
-        BLOCKED = 'BLOCKED',
-        NO_DATA = 'NO_DATA',
-    }
-
-    const enum ErrorCode {
+    enum ErrorCode {
         // 400001
         ERR_INTERNAL_ASSERT_FAILED = 400001,
         ERR_UNSUPPORTED_NODE_JS_VERSION = 400002,
@@ -128,9 +84,9 @@ declare module 'snowflake-sdk' {
         ERR_CONN_CONNECT_INVALID_CALLBACK = 405001,
 
         // 405501
-        ERR_CONN_CONNECT_STATUS_CONNECTING = 405501, // sql state: 08002
-        ERR_CONN_CONNECT_STATUS_CONNECTED = 405502, // sql state: 08002
-        ERR_CONN_CONNECT_STATUS_DISCONNECTED = 405503, // sql state: 08002
+        ERR_CONN_CONNECT_STATUS_CONNECTING = 405501, // sql state= 08002
+        ERR_CONN_CONNECT_STATUS_CONNECTED = 405502, // sql state= 08002
+        ERR_CONN_CONNECT_STATUS_DISCONNECTED = 405503, // sql state= 08002
         ERR_CONN_CREATE_INVALID_AUTH_CONNECT = 405504,
         ERR_CONN_CONNECT_INVALID_CLIENT_CONFIG = 405505,
 
@@ -142,8 +98,8 @@ declare module 'snowflake-sdk' {
         ERR_CONN_DESTROY_STATUS_DISCONNECTED = 406502,
 
         // 407001
-        ERR_CONN_REQUEST_STATUS_PRISTINE = 407001, // sql state: 08003
-        ERR_CONN_REQUEST_STATUS_DISCONNECTED = 407002, // sql state: 08003
+        ERR_CONN_REQUEST_STATUS_PRISTINE = 407001, // sql state= 08003
+        ERR_CONN_REQUEST_STATUS_DISCONNECTED = 407002, // sql state= 08003
 
         // 408001
         ERR_CONN_DESERIALIZE_MISSING_CONFIG = 408001,
@@ -212,7 +168,7 @@ declare module 'snowflake-sdk' {
         // 460001
         ERR_GET_RESPONSE_QUERY_INVALID_UUID = 460001,
         ERR_GET_RESULTS_QUERY_ID_NO_DATA = 460002,
-        ERR_GET_RESULTS_QUERY_ID_NOT_SUCCESS_STATUS = 460003,
+        ERR_GET_RESULTS_QUERY_ID_NOT_SUCCESS_STATUS = 460003
     }
 
     export type CustomParser = (rawColumnValue: string) => any;
@@ -220,7 +176,13 @@ declare module 'snowflake-sdk' {
     export type InsertBinds = Bind[][];
     export type Binds = Bind[] | InsertBinds;
     export type StatementCallback = (err: SnowflakeError | undefined, stmt: RowStatement | FileAndStageBindStatement, rows?: Array<any> | undefined) => void;
-    export type ConnectionCallback = (err: SnowflakeError | undefined, conn: Connection) => void
+    export type ConnectionCallback = (err: SnowflakeError | undefined, conn: Connection) => void;
+    export type RowMode = "object" | "array" | "object_with_renamed_duplicated_columns";
+    export type LogLevel = "ERROR" | "WARN" | "INFO" | "DEBUG" | "TRACE";
+    export type DataType = "String" | "Boolean" | "Number" | "Date" | "JSON" | "Buffer";
+    export type QueryStatus = "RUNNING" | "ABORTING" | "SUCCESS" | "FAILED_WITH_ERROR" | "ABORTED" | "QUEUED" | "FAILED_WITH_INCIDENT" | "DISCONNECTED" | "RESUMING_WAREHOUSE" | "QUEUED_REPARING_WAREHOUSE" | "RESTARTED" | "BLOCKED" | "NO_DATA";
+    export type StatementStatus = "fetching" | "complete";
+
     type PoolOptions = import('generic-pool').Options;
     type Readable = import('stream').Readable;
     type Pool<T> = import('generic-pool').Pool<T>;

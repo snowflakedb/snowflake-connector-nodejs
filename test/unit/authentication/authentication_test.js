@@ -198,19 +198,19 @@ describe('key-pair authentication', function () {
         assert.strictEqual(options.key, mockPrivateKeyFile);
 
         if (options.passphrase) {
-          assert.strictEqual(options.passphrase, connectionOptionsKeyPairPath.privateKeyPass);
+          assert.strictEqual(options.passphrase, connectionOptionsKeyPairPath.getPrivateKeyPass());
         }
 
         function privKeyObject() {
           this.export = function () {
-            return connectionOptionsKeyPair.privateKey;
+            return connectionOptionsKeyPair.getPrivateKey();
           };
         }
 
         return new privKeyObject;
       },
       createPublicKey: function (options) {
-        assert.strictEqual(options.key, connectionOptionsKeyPair.privateKey);
+        assert.strictEqual(options.key, connectionOptionsKeyPair.getPrivateKey());
 
         function pubKeyObject() {
           this.export = function () {
@@ -250,9 +250,7 @@ describe('key-pair authentication', function () {
   });
 
   it('key-pair - authenticate method is thenable', done => {
-    const auth = new AuthKeypair(connectionOptionsKeyPair.privateKey,
-      connectionOptionsKeyPair.privateKeyPath,
-      connectionOptionsKeyPair.privateKeyPass,
+    const auth = new AuthKeypair(connectionOptionsKeyPair,
       cryptomod, jwtmod, filesystem);
 
     auth.authenticate(connectionOptionsKeyPair.authenticator, '', connectionOptionsKeyPair.account, connectionOptionsKeyPair.username)
@@ -261,9 +259,7 @@ describe('key-pair authentication', function () {
   });
 
   it('key-pair - get token with private key', function () {
-    const auth = new AuthKeypair(connectionOptionsKeyPair.privateKey,
-      connectionOptionsKeyPair.privateKeyPath,
-      connectionOptionsKeyPair.privateKeyPass,
+    const auth = new AuthKeypair(connectionOptionsKeyPair,
       cryptomod, jwtmod, filesystem);
 
     auth.authenticate(connectionOptionsKeyPair.authenticator, '', connectionOptionsKeyPair.account, connectionOptionsKeyPair.username);
@@ -275,10 +271,19 @@ describe('key-pair authentication', function () {
       body['data']['TOKEN'], mockToken, 'Token should be equal');
   });
 
+  it('key-pair - get token with private key by reauthentication', async function () {
+    const auth = new AuthKeypair(connectionOptionsKeyPair,
+      cryptomod, jwtmod, filesystem);
+
+    const body = { data: { 'TOKEN': 'wrongToken' } };
+    await auth.reauthenticate(body);
+
+    assert.strictEqual(
+      body['data']['TOKEN'], mockToken, 'Token should be equal');
+  });
+
   it('key-pair - get token with private key path with passphrase', function () {
-    const auth = new AuthKeypair(connectionOptionsKeyPairPath.privateKey,
-      connectionOptionsKeyPairPath.privateKeyPath,
-      connectionOptionsKeyPairPath.privateKeyPass,
+    const auth = new AuthKeypair(connectionOptionsKeyPairPath,
       cryptomod, jwtmod, filesystem);
 
     auth.authenticate(connectionOptionsKeyPairPath.authenticator, '',
@@ -293,9 +298,7 @@ describe('key-pair authentication', function () {
   });
 
   it('key-pair - get token with private key path without passphrase', function () {
-    const auth = new AuthKeypair(connectionOptionsKeyPairPath.privateKey,
-      connectionOptionsKeyPairPath.privateKeyPath,
-      '',
+    const auth = new AuthKeypair(connectionOptionsKeyPairPath,
       cryptomod, jwtmod, filesystem);
 
     auth.authenticate(connectionOptionsKeyPairPath.authenticator, '',

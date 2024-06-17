@@ -141,7 +141,7 @@ describe('Encryption util', function () {
   });
 
   it('encrypt file with AES-256', async function () {
-    encryptionMaterial.queryStageMasterKey ='QUJDREFCQ0RBQkNEQUJDREFCQ0RBQkNEQUJDREFCQ0Q=';
+    encryptionMaterial.queryStageMasterKey = 'QUJDREFCQ0RBQkNEQUJDREFCQ0RBQkNEQUJDREFCQ0Q=';
     await runEncryptionTest();
   });
 });

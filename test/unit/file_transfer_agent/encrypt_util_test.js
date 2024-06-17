@@ -6,6 +6,19 @@ const assert = require('assert');
 const mock = require('mock-require');
 const SnowflakeEncryptionUtil = require('./../../../lib/file_transfer_agent/encrypt_util').EncryptUtil;
 
+function readKeyLength(algorithmName) {
+  switch (algorithmName) {
+  case 'aes-128-cbc':
+  case 'aes-128-ecb':
+    return 128;
+  case 'aes-256-cbc':
+  case 'aes-256-ecb':
+    return 256;
+  default:
+    throw new Error('Algorithm was not recognized!');
+  }
+}
+
 describe('Encryption util', function () {
   let encryptionMaterial;
   const mockData = 'mockData';
@@ -27,10 +40,20 @@ describe('Encryption util', function () {
     };
 
     mock('encrypt', {
-      randomBytes: function () {
-        return Buffer.from(mockRandomBytes);
+      randomBytes: function (byteLength) {
+        let randomString = '';
+        while (mockRandomBytes.length < byteLength) {
+          randomString = randomString + mockRandomBytes;
+          byteLength = byteLength - mockRandomBytes.length;
+        }
+        randomString = randomString + mockRandomBytes.substring(0, byteLength);
+        return Buffer.from(randomString);
       },
-      createCipheriv: function () {
+      createCipheriv: function (algorithm, key) {
+        const expectedKeyLength = readKeyLength(algorithm);
+        if (key.length * 8 !== expectedKeyLength) {
+          throw new Error('Invalid key length!');
+        }
         function createCipheriv() {
           this.update = function (data) {
             function update() {
@@ -93,7 +116,7 @@ describe('Encryption util', function () {
     EncryptionUtil = new SnowflakeEncryptionUtil(encrypt, filestream, temp);
   });
 
-  it('encrypt file', async function () {
+  async function runEncryptionTest() {
     const result = await EncryptionUtil.encryptFile(encryptionMaterial, mockFileName, mockTmpDir);
 
     const decodedKey = Buffer.from(encryptionMaterial['queryStageMasterKey'], 'base64');
@@ -109,7 +132,16 @@ describe('Encryption util', function () {
     matDesc = JSON.stringify(matDesc);
 
     assert.strictEqual(result.encryptionMetadata.key, Buffer.from(mockData).toString('base64'));
-    assert.strictEqual(result.encryptionMetadata.iv, Buffer.from(mockRandomBytes).toString('base64'));
+    assert.strictEqual(result.encryptionMetadata.iv, encrypt.randomBytes(16).toString('base64'));
     assert.strictEqual(result.encryptionMetadata.matDesc, matDesc);
+  }
+
+  it('encrypt file with AES-128', async function () {
+    await runEncryptionTest();
+  });
+
+  it('encrypt file with AES-256', async function () {
+    encryptionMaterial.queryStageMasterKey ='QUJDREFCQ0RBQkNEQUJDREFCQ0RBQkNEQUJDREFCQ0Q=';
+    await runEncryptionTest();
   });
 });

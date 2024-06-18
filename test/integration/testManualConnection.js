@@ -333,7 +333,7 @@ if (process.env.RUN_MANUAL_TESTS_ONLY === 'true') {
   });
 
 
-// Before run below tests you should prepare files connections.toml and token
+  // Before run below tests you should prepare files connections.toml and token
   describe('Connection file configuration test', function () {
     afterEach(async function () {
       delete process.env.SNOWFLAKE_HOME;

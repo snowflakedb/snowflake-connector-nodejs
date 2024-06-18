@@ -109,7 +109,11 @@ const connectionOptionsKeyPair =
   accessUrl: 'http://fakeaccount.snowflakecomputing.com',
   username: 'fakeusername',
   account: 'fakeaccount',
-  privateKey: 'fakeprivatekey',
+  getPrivateKey: () => 'fakeprivatekey',
+  getPrivateKeyPath: () => '',
+  getPrivateKeyPass: () => '',
+  getAuthenticator: () => 'SNOWFLAKE_JWT',
+  getServiceName: () => '',
   authenticator: 'SNOWFLAKE_JWT'
 };
 
@@ -118,8 +122,9 @@ const connectionOptionsKeyPairPath =
   accessUrl: 'http://fakeaccount.snowflakecomputing.com',
   username: 'fakeusername',
   account: 'fakeaccount',
-  privateKeyPath: 'fakeprivatekeypath',
-  privateKeyPass: 'fakeprivatekeypass',
+  getPrivateKey: () => '',
+  getPrivateKeyPath: () => 'fakeprivatekeypath',
+  getPrivateKeyPass: () => 'fakeprivatekeypass',
   authenticator: 'SNOWFLAKE_JWT'
 };
 

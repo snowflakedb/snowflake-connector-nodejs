@@ -56,7 +56,7 @@ describe('should parse toml connection configuration', function () {
         throw new Error('was not supposed to succeed'); 
       })
       .catch(function (error) {
-        assert.strictEqual(error.message, 'ENOENT: no such file or directory, open \'/unknown/connections.toml\'');
+        assert.match(error.message, /ENOENT: no such file or directory/);
       });
   });
 

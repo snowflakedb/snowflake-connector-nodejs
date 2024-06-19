@@ -62,7 +62,7 @@
     "lint:fix": "eslint --fix",
     "test": "mocha -timeout 180000 --recursive --full-trace test/unit/**/*.js test/unit/*.js",
     "test:integration": "mocha -timeout 360000 --recursive --full-trace test/integration/**/*.js test/integration/*.js",
-    "test:single": "mocha -timeout 180000 --full-trace",
+    "test:single": "mocha -timeout 180001 --full-trace",
     "test:system": "mocha -timeout 180000 --recursive --full-trace system_test/*.js",
     "test:unit": "mocha -timeout 180000 --recursive --full-trace test/unit/**/*.js test/unit/*.js",
     "test:unit:coverage": "nyc npm run test:unit",

@@ -1409,7 +1409,7 @@ describe('ConnectionConfig: basic', function () {
       password: 'password',
       account: 'account'
     };
-     
+
     const testCases =
     [
       {

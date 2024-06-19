@@ -79,6 +79,9 @@ declare module 'snowflake-sdk' {
         ERR_CONN_CREATE_INVALID_ACCOUNT_REGEX = 404045,
         ERR_CONN_CREATE_INVALID_REGION_REGEX = 404046,
         ERR_CONN_CREATE_INVALID_DISABLE_CONSOLE_LOGIN = 404047,
+        ERR_CONN_CREATE_INVALID_FORCE_GCP_USE_DOWNSCOPED_CREDENTIAL = 404048,
+        ERR_CONN_CREATE_INVALID_REPRESENT_NULL_AS_STRING_NULL = 404050,
+        ERR_CONN_CREATE_INVALID_DISABLE_SAML_URL_CHECK = 404051,
 
         // 405001
         ERR_CONN_CONNECT_INVALID_CALLBACK = 405001,
@@ -187,24 +190,36 @@ declare module 'snowflake-sdk' {
     type Readable = import('stream').Readable;
     type Pool<T> = import('generic-pool').Pool<T>;
 
+    export interface XMlParserConfigOption {
+        ignoreAttributes?: boolean;
+        alwaysCreateTextNode?: boolean;
+        attributeNamePrefix?: string;
+        attributesGroupName?: false | null | string;
+    }
+
     export interface ConfigureOptions {
         /**
          * Set the logLevel and logFilePath,
          * https://docs.snowflake.com/en/developer-guide/node-js/nodejs-driver-logs.
          */
-        logLevel?: LogLevel | undefined;
-        logFilePath?: string | undefined;
+        logLevel?: LogLevel;
+        logFilePath?: string;
+
+        /**
+         * additionalLogToConsole is a Boolean value that indicates whether to send log messages also to the console when a filePath is specified.
+         */
+        additionalLogToConsole?: boolean | null;
 
         /**
          * Check the ocsp checking is off.
          */
-        insecureConnect?: boolean | undefined;
+        insecureConnect?: boolean;
 
         /**
          * The default value is true.
          * Detailed information: https://docs.snowflake.com/en/user-guide/ocsp.
          */
-        ocspFailOpen?: boolean | undefined;
+        ocspFailOpen?: boolean;
 
         /**
          * The Snowflake Node.js driver provides the following default parsers for processing JSON and XML data in result sets.
@@ -213,10 +228,12 @@ declare module 'snowflake-sdk' {
         jsonColumnVariantParser?: CustomParser;
         xmlColumnVariantParser?: CustomParser;
 
+        xmlParserConfig?: XMlParserConfigOption;
+
         /**
          * Specifies whether to enable keep-alive functionality on the socket immediately after receiving a new connection request.
          */
-        keepAlive?: boolean,
+        keepAlive?: boolean;
     }
 
     export interface ConnectionOptions {
@@ -264,14 +281,40 @@ declare module 'snowflake-sdk' {
         authenticator?: string;
 
         /**
+         * Specifies the timeout, in milliseconds, for browser activities related to SSO authentication. The default value is 120000 (milliseconds).
+         */
+        browserActionTimeout?: number;
+
+        /**
+         * Specifies the lists of hosts that the driver should connect to directly, bypassing the proxy server (e.g. *.amazonaws.com to bypass Amazon S3 access). For multiple hosts, separate the hostnames with a pipe symbol (|). 
+         * You can also use an asterisk as a wild card. For example: noProxy: "*.amazonaws.com|*.my_company.com"
+         */
+        noProxy?: string;
+
+        /**
          * Specifies the hostname of an authenticated proxy server.
          */
         proxyHost?: string;
 
         /**
+         * Specifies the username used to connect to an authenticated proxy server.
+         */
+        proxyUser?: string;
+
+        /**
          * Specifies the password for the user specified by proxyUser.
          */
+        proxyPassword?: string;
+
+        /**
+         * Specifies the port of an authenticated proxy server.
+         */
         proxyPort?: number;
+
+        /**
+         * Specifies the protocol used to connect to the authenticated proxy server. Use this property to specify the HTTP protocol: http or https.
+         */
+        proxyProtocol?: string;
 
         /**
          * Specifies the serviceName.
@@ -314,6 +357,11 @@ declare module 'snowflake-sdk' {
         schema?: string;
 
         /**
+         * Number of milliseconds to keep the connection alive with no response. Default: 90000 (1 minute 30 seconds).
+         */
+        timeout?: number;
+
+        /**
          * The default security role to use for the session after connecting.
          */
         role?: string;
@@ -331,7 +379,7 @@ declare module 'snowflake-sdk' {
         /**
          * return the following data types as strings: Boolean, Number, Date, Buffer, and JSON.
          */
-        fetchAsString?: DataType[] | undefined;
+        fetchAsString?: DataType[];
 
         /**
          * Path to the client configuration file associated with the easy logging feature.
@@ -359,20 +407,66 @@ declare module 'snowflake-sdk' {
         arrayBindingThreshold?: number;
 
         /**
-         * Set whether the retry reason is included or not in the retry url.
-         */
-        includeRetryReason?: boolean;
-
-        /**
          * The max login timeout value. This value is either 0 or over 300.
          */
         retryTimeout?: number;
 
         /**
+          * The option to skip the SAML URL check in the Okta authentication
+          */
+        disableSamlUrlCheck?: boolean;
+
+        /**
+          * The option to fetch all the null values in the columns as the string null.
+          */
+        representNullAsStringNull?: boolean;
+
+        /**
+         * Number of threads for clients to use to prefetch large result sets. Valid values: 1-10.
+         */
+        resultPrefetch?: number;
+
+        //Connection options Options but not on the web document.
+        /**
+         * Set whether the retry reason is included or not in the retry url.
+         */
+        includeRetryReason?: boolean;
+
+        /**
+         * Number of retries for the login request.
+         */
+        sfRetryMaxLoginRetries?: number;
+
+        /**
+         * The option to throw an error on the bind stage if this is enabled.
+         */
+        forceStageBindError?: number;
+
+        /**
+         * The option to disable the query context cache.
+         */
+        disableQueryContextCache?: boolean;
+
+        /**
+         * The option to disable GCS_USE_DOWNSCOPED_CREDENTIAL session parameter
+         */
+        gcsUseDownscopedCredential?: boolean;
+
+        /**
          * The option to use https request only for the snowflake server if other GCP metadata or configuration is already set on the machine.
          * The default value is false.
          */
-        forceGCPUseDownscopedCredential?: boolean
+        forceGCPUseDownscopedCredential?: boolean;
+
+        /**
+         * The option to disable the web authentication console login.
+         */
+        disableConsoleLogin?: boolean;
+
+        /**
+         *  Turn on the validation function which checks whether all the connection configuration from users are valid or not. 
+         */
+        validateDefaultParameters?: boolean;
     }
 
     export interface Connection {
@@ -449,11 +543,21 @@ declare module 'snowflake-sdk' {
          * Checks whether the given status means that there has been an error.
          */
         isAnError(): boolean;
+
+        /*
+         * Returns a serialized version of this connection.
+         */
+        serialize(): String;
     }
 
     export interface StatementOption {
         sqlText: string;
         complete: StatementCallback;
+
+        /**
+         * Enable asynchronous queries by including asyncExec: true in the connection.execute method.
+         */
+        asyncExec?: boolean;
 
         /**
          * The requestId is for resubmitting requests.
@@ -488,6 +592,11 @@ declare module 'snowflake-sdk' {
          * Detailed information: https://docs.snowflake.com/en/developer-guide/node-js/nodejs-driver-execute.
          */
         parameters?: Record<string, any>;
+
+        /**
+         * Returns the rowMode string value ('array', 'object' or 'object_with_renamed_duplicated_columns'). Could be null or undefined.
+         */
+        rowMode?: RowMode;
     }
 
     export interface RowStatement {
@@ -554,10 +663,13 @@ declare module 'snowflake-sdk' {
         getQueryId(): string;
 
         /**
+         *  Cancels this statement if possible.
+         */
+        cancel(callback?: StatementCallback): void;
+
+        /**
          * Streams the rows in this statement's result. If start and end values are
          * specified, only rows in the specified range are streamed.
-         *
-         * @param {Object} options
          */
         streamRows(options?: StreamOptions): Readable;
 
@@ -565,8 +677,6 @@ declare module 'snowflake-sdk' {
          * Fetches the rows in this statement's result and invokes each()
          * callback on each row. If start and end values are specified each()
          * callback will only be invoked on rows in the specified range.
-         *
-         * @param {Object} options
          */
         fetchRows(options?: StreamOptions): Readable;
     }
@@ -721,7 +831,7 @@ declare module 'snowflake-sdk' {
     export interface StreamOptions {
         start?: number;
         end?: number;
-        fetchAsString?: DataType[] | undefined;
+        fetchAsString?: DataType[];
     }
 
     /**

@@ -9,7 +9,6 @@ const connOption = require('./connectionOptions');
 const testUtil = require('./testUtil');
 const Logger = require('../../lib/logger');
 const Util = require('../../lib/util');
-const GlobalConfig = require('../../lib/global_config');
 const JsonCredentialManager = require('../../lib/authentication/secure_storage/json_credential_manager');
 
 if (process.env.RUN_MANUAL_TESTS_ONLY === 'true') {
@@ -83,6 +82,7 @@ if (process.env.RUN_MANUAL_TESTS_ONLY === 'true') {
       const connectionOption = { ...connOption.externalBrowser, clientStoreTemporaryCredential: true };
       const key = Util.buildCredentialCacheKey(connectionOption.host, connectionOption.username, 'ID_TOKEN');
       const defaultCredentialManager = new JsonCredentialManager();
+      let oldToken;
       before( async () => {
         await defaultCredentialManager.remove(key);
       });
@@ -90,13 +90,23 @@ if (process.env.RUN_MANUAL_TESTS_ONLY === 'true') {
       it('test - obtain the id token from the server and save it on the local storage', function (done) {
         const connection = snowflake.createConnection(connectionOption);
         connection.connectAsync(function (err) {
-          assert.ok(!err);
-          GlobalConfig.getCredentialManager().read(key).then((idToken) => {
-            assert.ok( idToken !== null);
+          try {
+            assert.ok(!err);
             done();
-          });
+          } catch (err){
+            done(err);
+          }
         });
       });
+
+      it('test - the token is saved in the credential manager correctly', function (done) {
+        defaultCredentialManager.read(key).then((idToken) => {
+          oldToken = idToken;
+          assert.notStrictEqual(idToken, null);
+          done();
+        });
+      });
+
 
       // Web Browser should not be open.
       it('test - id token authentication',  function (done) {
@@ -107,7 +117,7 @@ if (process.env.RUN_MANUAL_TESTS_ONLY === 'true') {
         });
       });
 
-      //Web Browser should be open.
+      // Web Browser should be open.
       it('test - id token reauthentication', function (done) {
         defaultCredentialManager.write(key, '1234').then(() => {
           const wrongTokenConnection = snowflake.createConnection(connectionOption);
@@ -115,6 +125,14 @@ if (process.env.RUN_MANUAL_TESTS_ONLY === 'true') {
             assert.ok(!err);
             done();
           });
+        });
+      });
+
+      //Compare two idToken. Those two should be different.
+      it('test - the token is refreshed', function (done) {
+        defaultCredentialManager.read(key).then((idToken) => {
+          assert.notStrictEqual(idToken, oldToken);
+          done();
         });
       });
     });

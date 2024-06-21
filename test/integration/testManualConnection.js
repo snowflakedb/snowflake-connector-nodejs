@@ -9,7 +9,7 @@ const connOption = require('./connectionOptions');
 const testUtil = require('./testUtil');
 const Logger = require('../../lib/logger');
 const Util = require('../../lib/util');
-const GlobalConfig = require('../../lib/global_config');
+const JsonCredentialManager = require('../../lib/authentication/secure_storage/json_credential_manager');
 
 if (process.env.RUN_MANUAL_TESTS_ONLY === 'true') {
   describe.only('Run manual tests', function () {
@@ -267,38 +267,60 @@ if (process.env.RUN_MANUAL_TESTS_ONLY === 'true') {
     });
   });
 
-  describe('Connection - MFA authenticator', async function (done) {
-    const connectionOption = connOption.valid;
-    connectionOption.clientRequestMFAToken = true;
-    const connection = snowflake.createConnection(connectionOption);
+  describe('Connection - MFA authenticator', function () {
+    const connectionOption = { ...connOption.valid, clientRequestMFAToken: true };
     const key = Util.buildCredentialCacheKey(connectionOption.host, connectionOption.username, 'USERNAME_PASSWORD_MFA');
+    const defaultCredentialManager = new JsonCredentialManager();
+    let oldToken;
 
-    it('test - obtain MFA token from the server and save it on the local storage', async function () {
-      GlobalConfig.getCredentialManager().remove(key);
-      await connection.connectAsync(function (err) {
-        assert.ok(!err);
-        const mfaToken = GlobalConfig.getCredentialManager().read(key);
-        assert.ok( mfaToken !== null);
+    it('test - obtain the id token from the server and save it on the local storage', function (done) {
+      const connection = snowflake.createConnection(connectionOption);
+      connection.connectAsync(function (err) {
+        try {
+          assert.ok(!err);
+          done();
+        } catch (err){
+          done(err);
+        }
       });
-      await testUtil.destroyConnectionAsync(connection);
-    });
-    
-    it('test - mfa token connection', async function () {
-      const mfaTokenConnection = snowflake.createConnection(connectionOption);
-      mfaTokenConnection.connectAsync(function (err) {
-        assert.ok(!err);
-      });
-      await testUtil.destroyConnectionAsync(mfaTokenConnection);
     });
 
-    it('test - mfa reauthentication', async function () {
-      await GlobalConfig.getCredentialManager().write(key, '1234');
-      const wrongTokenConnection = testUtil.connectAsync(connOption);
-      await wrongTokenConnection.connectAsync(function (err) {
+    it('test - the token is saved in the credential manager correctly', function (done) {
+      defaultCredentialManager.read(key).then((mfaToken) => {
+        oldToken = mfaToken;
+        assert.notStrictEqual(mfaToken, null);
+        done();
+      });
+    });
+
+
+    // Skip the Duo authentication.
+    it('test - id token authentication',  function (done) {
+      const idTokenConnection = snowflake.createConnection(connectionOption);
+      idTokenConnection.connectAsync(function (err) {
         assert.ok(!err);
         done();
       });
-    }); 
+    });
+
+    // Duo authentication should be executed again.
+    it('test - id token reauthentication', function (done) {
+      defaultCredentialManager.write(key, '1234').then(() => {
+        const wrongTokenConnection = snowflake.createConnection(connectionOption);
+        wrongTokenConnection.connectAsync(function (err) {
+          assert.ok(!err);
+          done();
+        });
+      });
+    });
+
+    //Compare two mfaToken. Those two should be different.
+    it('test - the token is refreshed', function (done) {
+      defaultCredentialManager.read(key).then((mfaToken) => {
+        assert.notStrictEqual(mfaToken, oldToken);
+        done();
+      });
+    });
   });
 
   describe.only('keepAlive test', function () {

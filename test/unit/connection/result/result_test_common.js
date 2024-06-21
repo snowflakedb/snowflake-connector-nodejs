@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2019 Snowflake Computing Inc. All rights reserved.
+ * Copyright (c) 2015-2024 Snowflake Computing Inc. All rights reserved.
  */
 
 const Result = require('./../../../../lib/connection/result/result');
@@ -188,7 +188,7 @@ describe('Result: synchronous errors', function () {
   }
 });
 
-exports.createResultOptions = function (response) {
+exports.createResultOptions = function (response, connectionConfigOption = {}) {
   return {
     response: response,
     statement: {},
@@ -198,7 +198,8 @@ exports.createResultOptions = function (response) {
         username: 'username',
         password: 'password',
         account: 'account',
-        accessUrl: 'accessUrl'
+        accessUrl: 'accessUrl',
+        ...connectionConfigOption
       })
   };
 };

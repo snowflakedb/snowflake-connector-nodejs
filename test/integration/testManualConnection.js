@@ -8,10 +8,10 @@ const assert = require('assert');
 const connOption = require('./connectionOptions');
 const testUtil = require('./testUtil');
 const Logger = require('../../lib/logger');
-const { laodConnectionConfiguration } = require('../../lib/configuration/connection_configuration');
+const { loadConnectionConfiguration } = require('../../lib/configuration/connection_configuration');
 
 if (process.env.RUN_MANUAL_TESTS_ONLY === 'true') {
-  describe('Run manual tests', function () {
+  describe.only('Run manual tests', function () {
     describe('Connection test - external browser', function () {
       it('Simple Connect', function (done) {
         const connection = snowflake.createConnection(
@@ -266,7 +266,7 @@ if (process.env.RUN_MANUAL_TESTS_ONLY === 'true') {
     });
   });
 
-  describe.only('keepAlive test', function () {
+  describe('keepAlive test', function () {
     let connection;
     const loopCount = 10;
     const rowCount = 10;
@@ -334,24 +334,24 @@ if (process.env.RUN_MANUAL_TESTS_ONLY === 'true') {
 
 
   // Before run below tests you should prepare files connections.toml and token
-  describe('Connection file configuration test', function () {
-    afterEach(async function () {
+  describe.only('Connection file configuration test', function () {
+    afterEach( function () {
       delete process.env.SNOWFLAKE_HOME;
       delete process.env.SNOWFLAKE_DEFAULT_CONNECTION_NAME;
     });
 
     it('test simple connection', async function () {
-      const configuration = await laodConnectionConfiguration();
+      const configuration = await loadConnectionConfiguration();
       await verifyConnectionWorks(configuration);
     });
     it('test connection with token', async function () {
       process.env.SNOWFLAKE_DEFAULT_CONNECTION_NAME = 'aws-oauth';
-      const configuration = await laodConnectionConfiguration();
+      const configuration = await loadConnectionConfiguration();
       await verifyConnectionWorks(configuration);
     });
     it('test connection with token from file', async function () {
       process.env.SNOWFLAKE_DEFAULT_CONNECTION_NAME = 'aws-oauth-file';
-      const configuration = await laodConnectionConfiguration();
+      const configuration = await loadConnectionConfiguration();
       await verifyConnectionWorks(configuration);
     });
 
@@ -359,6 +359,9 @@ if (process.env.RUN_MANUAL_TESTS_ONLY === 'true') {
       const connection = snowflake.createConnection(configuration);
       await testUtil.connectAsync(connection);
       assert.ok(connection.isUp(), 'not active');
+      await testUtil.executeCmdAsync(connection, 'Select 1');
+      await testUtil.destroyConnectionAsync(connection);
     }
   });
+
 }

@@ -49,27 +49,28 @@ describe('should parse toml connection configuration', function () {
     assert.strictEqual(configuration['authenticator'], 'oauth');
   });
 
-  it('should throw error toml when file does not exist', async function () {
+  it('should throw error toml when file does not exist',  function (done) {
     process.env.SNOWFLAKE_HOME = '/unknown/';
-    return loadConnectionConfiguration()
-      .then(function () {
-        throw new Error('was not supposed to succeed'); 
-      })
-      .catch(function (error) {
-        assert.match(error.message, /ENOENT: no such file or directory/);
-      });
+    try {
+      loadConnectionConfiguration();
+      assert.fail();
+    } catch (error) {
+      assert.match(error.message, /ENOENT: no such file or directory/);
+      done();
+    }
   });
 
-  it('should throw exception if configuration does not exists', async function () {
+  it('should throw exception if configuration does not exists', function (done) {
     process.env.SNOWFLAKE_DEFAULT_CONNECTION_NAME = 'unknown';
     process.env.SNOWFLAKE_HOME = process.cwd() + '/test/';
-    return loadConnectionConfiguration()
-      .then(function () {
-        throw new Error('was not supposed to succeed');
-      })
-      .catch(function (error) {
-        assert.strictEqual(error.message, 'Connection configuration with name unknown does not exist');
-      });
+
+    try {
+      loadConnectionConfiguration();
+      assert.fail();
+    } catch (error) {
+      assert.strictEqual(error.message, 'Connection configuration with name unknown does not exist');
+      done();
+    }
   });
 });
 

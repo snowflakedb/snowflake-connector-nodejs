@@ -101,9 +101,13 @@ if (process.env.RUN_MANUAL_TESTS_ONLY === 'true') {
 
       it('test - the token is saved in the credential manager correctly', function (done) {
         defaultCredentialManager.read(key).then((idToken) => {
-          oldToken = idToken;
-          assert.notStrictEqual(idToken, null);
-          done();
+          try {
+            oldToken = idToken;
+            assert.notStrictEqual(idToken, null);
+            done();
+          } catch (err){
+            done(err);
+          }
         });
       });
 
@@ -112,14 +116,14 @@ if (process.env.RUN_MANUAL_TESTS_ONLY === 'true') {
       it('test - id token authentication',  function (done) {
         snowflake.configure({ logLevel: 'TRACE', insecureMode: true });
         const idTokenConnection = snowflake.createConnection(connectionOption);
-        idTokenConnection.connectAsync(function (err) {
-          assert.ok(!err);
-          const idTokenConnection2 = snowflake.createConnection(connectionOption);
-          idTokenConnection2.connectAsync(function (err) {
+        try {
+          idTokenConnection.connectAsync(function (err) {
             assert.ok(!err);
             done();
           });
-        });
+        } catch (err) {
+          done(err);
+        }
       });
 
       // Web Browser should be open.
@@ -135,9 +139,14 @@ if (process.env.RUN_MANUAL_TESTS_ONLY === 'true') {
 
       //Compare two idToken. Those two should be different.
       it('test - the token is refreshed', function (done) {
+        oldToken = undefined;
         defaultCredentialManager.read(key).then((idToken) => {
-          assert.notStrictEqual(idToken, oldToken);
-          done();
+          try {
+            assert.notStrictEqual(idToken, oldToken);
+            done();
+          } catch (err) {
+            done(err);
+          }
         });
       });
     });

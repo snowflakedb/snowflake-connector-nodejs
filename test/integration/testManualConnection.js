@@ -110,10 +110,15 @@ if (process.env.RUN_MANUAL_TESTS_ONLY === 'true') {
 
       // Web Browser should not be open.
       it('test - id token authentication',  function (done) {
+        snowflake.configure({ logLevel: 'TRACE', insecureMode: true });
         const idTokenConnection = snowflake.createConnection(connectionOption);
         idTokenConnection.connectAsync(function (err) {
           assert.ok(!err);
-          done();
+          const idTokenConnection2 = snowflake.createConnection(connectionOption);
+          idTokenConnection2.connectAsync(function (err) {
+            assert.ok(!err);
+            done();
+          });
         });
       });
 

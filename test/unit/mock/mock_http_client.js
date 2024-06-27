@@ -1224,8 +1224,7 @@ function buildRequestOutputMappings(clientInfo) {
                   CLIENT_APP_VERSION: clientInfo.version,
                   CLIENT_ENVIRONMENT: clientInfo.environment,
                   SESSION_PARAMETERS: {
-                    
-                    _MFA_TOKEN: false,
+                    CLIENT_REQUEST_MFA_TOKEN: false,
                     CLIENT_STORE_TEMPORARY_CREDENTIAL: false,
                   }
                 }

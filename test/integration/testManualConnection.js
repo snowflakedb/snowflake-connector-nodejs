@@ -8,10 +8,12 @@ const assert = require('assert');
 const connOption = require('./connectionOptions');
 const testUtil = require('./testUtil');
 const Logger = require('../../lib/logger');
+const Util = require('../../lib/util');
+const JsonCredentialManager = require('../../lib/authentication/secure_storage/json_credential_manager');
 const { loadConnectionConfiguration } = require('../../lib/configuration/connection_configuration');
 
 if (process.env.RUN_MANUAL_TESTS_ONLY === 'true') {
-  describe.only('Run manual tests', function () {
+  describe('Run manual tests', function () {
     describe('Connection test - external browser', function () {
       it('Simple Connect', function (done) {
         const connection = snowflake.createConnection(
@@ -69,6 +71,79 @@ if (process.env.RUN_MANUAL_TESTS_ONLY === 'true') {
               'The user you were trying to authenticate as differs from the user currently logged in at the IDP.',
               err['message']
             );
+            done();
+          } catch (err) {
+            done(err);
+          }
+        });
+      });
+    });
+
+    describe('Connection - ID Token authenticator', function () {
+      const connectionOption = { ...connOption.externalBrowser, clientStoreTemporaryCredential: true };
+      const key = Util.buildCredentialCacheKey(connectionOption.host, connectionOption.username, 'ID_TOKEN');
+      const defaultCredentialManager = new JsonCredentialManager();
+      let oldToken;
+      before( async () => {
+        await defaultCredentialManager.remove(key);
+      });
+
+      it('test - obtain the id token from the server and save it on the local storage', function (done) {
+        const connection = snowflake.createConnection(connectionOption);
+        connection.connectAsync(function (err) {
+          try {
+            assert.ok(!err);
+            done();
+          } catch (err){
+            done(err);
+          }
+        });
+      });
+
+      it('test - the token is saved in the credential manager correctly', function (done) {
+        defaultCredentialManager.read(key).then((idToken) => {
+          try {
+            oldToken = idToken;
+            assert.notStrictEqual(idToken, null);
+            done();
+          } catch (err){
+            done(err);
+          }
+        });
+      });
+
+
+      // Web Browser should not be open.
+      it('test - id token authentication',  function (done) {
+        snowflake.configure({ logLevel: 'TRACE', insecureMode: true });
+        const idTokenConnection = snowflake.createConnection(connectionOption);
+        try {
+          idTokenConnection.connectAsync(function (err) {
+            assert.ok(!err);
+            done();
+          });
+        } catch (err) {
+          done(err);
+        }
+      });
+
+      // Web Browser should be open.
+      it('test - id token reauthentication', function (done) {
+        defaultCredentialManager.write(key, '1234').then(() => {
+          const wrongTokenConnection = snowflake.createConnection(connectionOption);
+          wrongTokenConnection.connectAsync(function (err) {
+            assert.ok(!err);
+            done();
+          });
+        });
+      });
+
+      //Compare two idToken. Those two should be different.
+      it('test - the token is refreshed', function (done) {
+        oldToken = undefined;
+        defaultCredentialManager.read(key).then((idToken) => {
+          try {
+            assert.notStrictEqual(idToken, oldToken);
             done();
           } catch (err) {
             done(err);

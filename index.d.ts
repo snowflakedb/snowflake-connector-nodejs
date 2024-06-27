@@ -552,7 +552,7 @@ declare module 'snowflake-sdk' {
 
     export interface StatementOption {
         sqlText: string;
-        complete: StatementCallback;
+        complete?: StatementCallback;
 
         /**
          * Enable asynchronous queries by including asyncExec: true in the connection.execute method.

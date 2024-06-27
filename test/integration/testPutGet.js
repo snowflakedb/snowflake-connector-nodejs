@@ -47,6 +47,15 @@ function getPlatformTmpPath(tmpPath) {
   return location;
 }
 
+function getRelativePlatformTmpFilePath(tmpPath) {
+  const fileName = path.basename(tmpPath);
+  let location = `file://./${fileName}`;
+  if (process.platform === 'win32') {
+    location = `file://.\\${fileName}`;
+  }
+  return location;
+}
+
 function executePutCmd(connection, putQuery, callback, results) {
   // Upload file
   connection.execute({
@@ -1084,6 +1093,126 @@ describe('PUT GET test with different size', function () {
     });
   }
 });
+
+
+describe('PUT GET test with relative path and current working directory', function () {
+  let connection;
+  const TEMP_TABLE_NAME = randomizeName('TEMP_TABLE');
+  const stage = `@${DATABASE_NAME}.${SCHEMA_NAME}.%${TEMP_TABLE_NAME}`;
+  const createTable = `create or replace table ${TEMP_TABLE_NAME} (${COL1} STRING, ${COL2} STRING, ${COL3} STRING)`;
+  const removeFile = `REMOVE ${stage}`;
+  const dropTable = `DROP TABLE IF EXISTS ${TEMP_TABLE_NAME}`;
+
+  let tmpFile = null; 
+  let tmpDir = null;
+  let tmpFileDir = '';
+  let relativeTmpFilePath = '';
+  let getQuery = '';
+
+  before(async () => {
+    // Create a temp file without specified file extension
+    tmpFile = testUtil.createTempFile(os.tmpdir(), testUtil.createRandomFileName()); 
+    // Obtain the directory path for this tmp file, which will be passed as cwd to execute command
+    tmpFileDir = path.dirname(tmpFile);
+    // Create a tmp folder for downloaded files
+    tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'get'));
+    // Create a file of 10 B
+    const fh = fs.openSync(tmpFile, 'w');
+    fs.writeSync(fh, 'ok', Math.max(0, 10 * 1024 - 2));
+    fs.closeSync(fh);
+
+    // This is the relative path used in the PUT query
+    relativeTmpFilePath = getRelativePlatformTmpFilePath(tmpFile);
+    // Note that the GET query uses a relative path as well
+    getQuery = `GET ${stage} file://.`;
+
+    connection = testUtil.createConnection();
+    await testUtil.connectAsync(connection);
+    await testUtil.executeCmdAsync(connection, createTable);
+  });
+
+  afterEach(async () => {
+    await testUtil.executeCmdAsync(connection, removeFile);
+  });
+
+  after(async () => {
+    testUtil.deleteFileSyncIgnoringErrors(tmpFile);
+    testUtil.deleteFolderSyncIgnoringErrors(tmpDir);
+    await testUtil.executeCmdAsync(connection, dropTable);
+    await testUtil.destroyConnectionAsync(connection);
+  });
+
+
+  it('uses the provided context for current working directory when SQL text uses relative path', function (done) {
+    async.series(
+      [
+        function (callback) {
+          executePutWithCwd(
+            `PUT ${relativeTmpFilePath} ${stage} AUTO_COMPRESS=FALSE`,
+            10 * 1024,
+            callback);
+        },
+        function (callback) {
+          executeGetWithCwd(getQuery, 10 * 1024, callback);
+        }
+      ],
+      done
+    );
+  });
+
+  function executePutWithCwd(putQuery, fileSize, callback) {
+    connection.execute({
+      cwd: tmpFileDir,
+      sqlText: putQuery,
+      complete: function (err, stmt) {
+        if (err) {
+          callback(err);
+        } else {
+          const stream = stmt.streamRows();
+          stream.on('error', function (err) {
+            callback(err);
+          });
+          stream.on('data', function (row) {
+            // Check the file is correctly uploaded
+            assert.strictEqual(row['status'], UPLOADED);
+            assert.strictEqual(row.targetSize, fileSize);
+          });
+          stream.on('end', function () {
+            callback();
+          });
+        }
+      }
+    });
+  }
+
+  function executeGetWithCwd(getQuery, fileSize, callback) {
+    connection.execute({
+      cwd: tmpDir,
+      sqlText: getQuery,
+      complete: function (err, stmt) {
+        if (err) {
+          callback(err);
+        } else {
+          const stream = stmt.streamRows();
+          stream.on('error', function (err) {
+            callback(err);
+          });
+          stream.on('data', function (row) {
+            assert.strictEqual(row['status'], DOWNLOADED);
+            // Verify the size of the file
+            const file = path.join(tmpDir, row.file);
+            const size = fs.statSync(file).size;
+            assert.strictEqual(size, fileSize);
+          });
+          stream.on('end', function () {
+            callback();
+          });
+        }
+      }
+    });
+  }
+});
+
 
 describe('PUT GET test with error', function () {
   let connection;

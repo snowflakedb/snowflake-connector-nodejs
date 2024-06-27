@@ -99,6 +99,7 @@ const externalBrowser =
   database: snowflakeTestDatabase,
   schema: snowflakeTestSchema,
   role: snowflakeTestRole,
+  host: snowflakeTestHost,
   authenticator: 'EXTERNALBROWSER'
 };
 

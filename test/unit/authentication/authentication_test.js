@@ -13,6 +13,7 @@ const AuthKeypair = require('./../../../lib/authentication/auth_keypair');
 const AuthOauth = require('./../../../lib/authentication/auth_oauth');
 const AuthOkta = require('./../../../lib/authentication/auth_okta');
 const AuthMFAToken = require('../../../lib/authentication/auth_mfatoken');
+const AuthIDToken = require('./../../../lib/authentication/auth_idtoken');
 const authenticationTypes = require('./../../../lib/authentication/authentication').authenticationTypes;
 const MockTestUtil = require('./../mock/mock_test_util');
 
@@ -25,6 +26,7 @@ const connectionOptionsKeyPair = mockConnectionOptions.authKeyPair;
 const connectionOptionsKeyPairPath = mockConnectionOptions.authKeyPairPath;
 const connectionOptionsOauth = mockConnectionOptions.authOauth;
 const connectionOptionsOkta = mockConnectionOptions.authOkta;
+const connectionOptionsIdToken = mockConnectionOptions.authIdToken;
 
 describe('default authentication', function () {
 
@@ -180,6 +182,17 @@ describe('external browser authentication', function () {
 
     assert.strictEqual(
       body['data']['AUTHENTICATOR'], authenticationTypes.EXTERNAL_BROWSER_AUTHENTICATOR, 'Authenticator should be EXTERNALBROWSER');
+  });
+
+  it('external browser - id token', async function () {
+    const auth = new AuthIDToken(connectionOptionsIdToken, httpclient);
+    await auth.authenticate(credentials.authenticator, '', credentials.account, credentials.username, credentials.host);
+
+    const body = { data: {} };
+    auth.updateBody(body);
+
+    assert.strictEqual(body['data']['TOKEN'], connectionOptionsIdToken.idToken);
+    assert.strictEqual(body['data']['AUTHENTICATOR'], authenticationTypes.ID_TOKEN_AUTHENTICATOR);
   });
 });
 
@@ -607,11 +620,12 @@ describe('okta authentication', function () {
     [
       { name: 'default', providedAuth: authenticationTypes.DEFAULT_AUTHENTICATOR, expectedAuth: 'AuthDefault' },
       { name: 'external browser', providedAuth: authenticationTypes.EXTERNAL_BROWSER_AUTHENTICATOR, expectedAuth: 'AuthWeb' },
+      { name: 'id token', providedAuth: authenticationTypes.EXTERNAL_BROWSER_AUTHENTICATOR, expectedAuth: 'AuthIDToken', idToken: 'idToken' },
       { name: 'key pair', providedAuth: authenticationTypes.KEY_PAIR_AUTHENTICATOR, expectedAuth: 'AuthKeypair' },
       { name: 'oauth', providedAuth: authenticationTypes.OAUTH_AUTHENTICATOR, expectedAuth: 'AuthOauth' },
       { name: 'okta', providedAuth: 'https://mycustom.okta.com:8443', expectedAuth: 'AuthOkta' },
       { name: 'unknown', providedAuth: 'unknown', expectedAuth: 'AuthDefault' }
-    ].forEach(({ name, providedAuth, expectedAuth }) => {
+    ].forEach(({ name, providedAuth, expectedAuth, idToken }) => {
       it(`${name}`, () => {
         const connectionConfig = {
           getBrowserActionTimeout: () => 100,
@@ -625,6 +639,8 @@ describe('okta authentication', function () {
           getToken: () => '',
           getClientType: () => '',
           getClientVersion: () => '',
+          getClientStoreTemporaryCredential: () => true,
+          idToken: idToken || null,
           host: 'host',
         };
 

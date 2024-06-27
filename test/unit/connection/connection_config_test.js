@@ -671,6 +671,17 @@ describe('ConnectionConfig: basic', function () {
         errorCode: ErrorCodes.ERR_CONN_CREATE_INVALID_INCLUDE_RETRY_REASON,
       },
       {
+        name: 'invalid clientStoreTemporaryCredential',
+        options:
+        {
+          username: 'username',
+          password: 'password',
+          account: 'account',
+          clientStoreTemporaryCredential: 'invalid'
+        },
+        errorCode: ErrorCodes.ERR_CONN_CREATE_INVALID_CLIENT_STORE_TEMPORARY_CREDENTIAL,
+      },
+      {
         name: 'invalid clientConfigFile',
         options: {
           account: 'account',
@@ -1408,7 +1419,7 @@ describe('ConnectionConfig: basic', function () {
       password: 'password',
       account: 'account'
     };
-     
+
     const testCases =
     [
       {

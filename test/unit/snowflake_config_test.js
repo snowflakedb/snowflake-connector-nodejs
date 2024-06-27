@@ -7,7 +7,6 @@ const snowflake = require('./../../lib/snowflake');
 const ErrorCodes = require('./../../lib/errors').codes;
 const Logger = require('./../../lib/logger');
 const GlobalConfig = require('./../../lib/global_config');
-
 const LOG_LEVEL_TAGS = require('./../../lib/logger/core').LOG_LEVEL_TAGS;
 
 describe('Snowflake Configure Tests', function () {
@@ -60,7 +59,12 @@ describe('Snowflake Configure Tests', function () {
           name: 'invalid keep alive',
           options: { keepAlive: 'unsupported' },
           errorCode: ErrorCodes.ERR_GLOBAL_CONFIGURE_INVALID_KEEP_ALIVE
-        }
+        },
+        {
+          name: 'invalid customCredentialManager',
+          options: { customCredentialManager: 'unsupported' },
+          errorCode: ErrorCodes.ERR_GLOBAL_CONFIGURE_INVALID_CUSTOM_CREDENTIAL_MANAGER
+        },
       ];
 
     negativeTestCases.forEach(testCase => {

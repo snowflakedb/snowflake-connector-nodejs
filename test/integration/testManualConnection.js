@@ -10,6 +10,7 @@ const testUtil = require('./testUtil');
 const Logger = require('../../lib/logger');
 const Util = require('../../lib/util');
 const JsonCredentialManager = require('../../lib/authentication/secure_storage/json_credential_manager');
+const { loadConnectionConfiguration } = require('../../lib/configuration/connection_configuration');
 
 if (process.env.RUN_MANUAL_TESTS_ONLY === 'true') {
   describe('Run manual tests', function () {
@@ -405,4 +406,37 @@ if (process.env.RUN_MANUAL_TESTS_ONLY === 'true') {
       assert.ok(sumWithoutKeepAlive * 0.66 > sumWithKeepAlive, 'With keep alive the queries should work faster');
     });
   });
+
+
+  // Before run below tests you should prepare files connections.toml and token
+  describe('Connection file configuration test', function () {
+    afterEach( function () {
+      delete process.env.SNOWFLAKE_HOME;
+      delete process.env.SNOWFLAKE_DEFAULT_CONNECTION_NAME;
+    });
+
+    it('test simple connection', async function () {
+      const configuration = await loadConnectionConfiguration();
+      await verifyConnectionWorks(configuration);
+    });
+    it('test connection with token', async function () {
+      process.env.SNOWFLAKE_DEFAULT_CONNECTION_NAME = 'aws-oauth';
+      const configuration = await loadConnectionConfiguration();
+      await verifyConnectionWorks(configuration);
+    });
+    it('test connection with token from file', async function () {
+      process.env.SNOWFLAKE_DEFAULT_CONNECTION_NAME = 'aws-oauth-file';
+      const configuration = await loadConnectionConfiguration();
+      await verifyConnectionWorks(configuration);
+    });
+
+    async function verifyConnectionWorks(configuration) {
+      const connection = snowflake.createConnection(configuration);
+      await testUtil.connectAsync(connection);
+      assert.ok(connection.isUp(), 'not active');
+      await testUtil.executeCmdAsync(connection, 'Select 1');
+      await testUtil.destroyConnectionAsync(connection);
+    }
+  });
+
 }

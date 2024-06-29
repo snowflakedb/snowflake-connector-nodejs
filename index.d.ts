@@ -552,7 +552,7 @@ declare module 'snowflake-sdk' {
 
     export interface StatementOption {
         sqlText: string;
-        complete: StatementCallback;
+        complete?: StatementCallback;
 
         /**
          * Enable asynchronous queries by including asyncExec: true in the connection.execute method.
@@ -597,6 +597,12 @@ declare module 'snowflake-sdk' {
          * Returns the rowMode string value ('array', 'object' or 'object_with_renamed_duplicated_columns'). Could be null or undefined.
          */
         rowMode?: RowMode;
+
+        /**
+         * Current working directory to use for GET/PUT execution using relative paths from a client location
+         * that is different from the connector directory.
+         */
+        cwd?: string;
     }
 
     export interface RowStatement {

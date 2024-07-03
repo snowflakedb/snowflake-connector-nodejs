@@ -243,7 +243,7 @@ if (process.env.RUN_MANUAL_TESTS_ONLY === 'true'){
     });
 
     describe('test increased max LOB size parameter switch', function () {
-      before(async function () {
+      before(async () => {
         connection = testUtil.createConnection();
         await testUtil.connectAsync(connection);
         await testUtil.executeCmdAsync(connection, 'alter session set FEATURE_INCREASED_MAX_LOB_SIZE_IN_MEMORY=\'ENABLED\'');

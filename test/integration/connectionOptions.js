@@ -60,7 +60,8 @@ const valid =
     warehouse: snowflakeTestWarehouse,
     database: snowflakeTestDatabase,
     schema: snowflakeTestSchema,
-    role: snowflakeTestRole
+    role: snowflakeTestRole,
+    host: snowflakeTestHost,
   };
 
 const snowflakeAccount = snowflakeTestAdminUser !== undefined ?

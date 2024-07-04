@@ -204,6 +204,7 @@ function buildRequestOutputMappings(clientInfo) {
                   CLIENT_APP_VERSION: clientInfo.version,
                   CLIENT_ENVIRONMENT: clientInfo.environment,
                   SESSION_PARAMETERS: {
+                    CLIENT_REQUEST_MFA_TOKEN: false,
                     CLIENT_STORE_TEMPORARY_CREDENTIAL: false,
                   }
                 }
@@ -1223,6 +1224,7 @@ function buildRequestOutputMappings(clientInfo) {
                   CLIENT_APP_VERSION: clientInfo.version,
                   CLIENT_ENVIRONMENT: clientInfo.environment,
                   SESSION_PARAMETERS: {
+                    CLIENT_REQUEST_MFA_TOKEN: false,
                     CLIENT_STORE_TEMPORARY_CREDENTIAL: false,
                   }
                 }
@@ -1444,6 +1446,7 @@ function buildRequestOutputMappings(clientInfo) {
                   SESSION_PARAMETERS: {
                     CLIENT_SESSION_KEEP_ALIVE: true,
                     CLIENT_SESSION_KEEP_ALIVE_HEARTBEAT_FREQUENCY: 1800,
+                    CLIENT_REQUEST_MFA_TOKEN: false,
                     CLIENT_STORE_TEMPORARY_CREDENTIAL: false,
                   }
                 }
@@ -1551,6 +1554,7 @@ function buildRequestOutputMappings(clientInfo) {
                   CLIENT_ENVIRONMENT: clientInfo.environment,
                   SESSION_PARAMETERS: {
                     JS_TREAT_INTEGER_AS_BIGINT: true,
+                    CLIENT_REQUEST_MFA_TOKEN: false,                 
                     CLIENT_STORE_TEMPORARY_CREDENTIAL: false,
                   }
                 }
@@ -1658,6 +1662,7 @@ function buildRequestOutputMappings(clientInfo) {
                   CLIENT_APP_VERSION: clientInfo.version,
                   CLIENT_ENVIRONMENT: clientInfo.environment,
                   SESSION_PARAMETERS: {
+                    CLIENT_REQUEST_MFA_TOKEN: false,
                     CLIENT_STORE_TEMPORARY_CREDENTIAL: false,
                   }
                 }
@@ -1750,6 +1755,7 @@ function buildRequestOutputMappings(clientInfo) {
                   CLIENT_APP_VERSION: clientInfo.version,
                   CLIENT_ENVIRONMENT: clientInfo.environment,
                   SESSION_PARAMETERS: {
+                    CLIENT_REQUEST_MFA_TOKEN: false,
                     CLIENT_STORE_TEMPORARY_CREDENTIAL: false,
                   }
                 }
@@ -1841,6 +1847,7 @@ function buildRequestOutputMappings(clientInfo) {
                   CLIENT_APP_VERSION: clientInfo.version,
                   CLIENT_ENVIRONMENT: clientInfo.environment,
                   SESSION_PARAMETERS: {
+                    CLIENT_REQUEST_MFA_TOKEN: false,
                     CLIENT_STORE_TEMPORARY_CREDENTIAL: false,
                   }
                 }
@@ -1882,6 +1889,7 @@ function buildRequestOutputMappings(clientInfo) {
                   CLIENT_APP_VERSION: clientInfo.version,
                   CLIENT_ENVIRONMENT: clientInfo.environment,
                   SESSION_PARAMETERS: {
+                    CLIENT_REQUEST_MFA_TOKEN: false,
                     CLIENT_STORE_TEMPORARY_CREDENTIAL: false,
                   }
                 }
@@ -1922,6 +1930,7 @@ function buildRequestOutputMappings(clientInfo) {
                   CLIENT_APP_VERSION: clientInfo.version,
                   CLIENT_ENVIRONMENT: clientInfo.environment,
                   SESSION_PARAMETERS: {
+                    CLIENT_REQUEST_MFA_TOKEN: false,
                     CLIENT_STORE_TEMPORARY_CREDENTIAL: false,
                   }
                 }

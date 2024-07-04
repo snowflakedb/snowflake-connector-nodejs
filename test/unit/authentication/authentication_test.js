@@ -12,9 +12,9 @@ const AuthWeb = require('./../../../lib/authentication/auth_web');
 const AuthKeypair = require('./../../../lib/authentication/auth_keypair');
 const AuthOauth = require('./../../../lib/authentication/auth_oauth');
 const AuthOkta = require('./../../../lib/authentication/auth_okta');
+const AuthMFAToken = require('../../../lib/authentication/auth_mfatoken');
 const AuthIDToken = require('./../../../lib/authentication/auth_idtoken');
 const authenticationTypes = require('./../../../lib/authentication/authentication').authenticationTypes;
-
 const MockTestUtil = require('./../mock/mock_test_util');
 
 // get connection options to connect to this mock snowflake instance
@@ -648,4 +648,38 @@ describe('okta authentication', function () {
       });
     });
   });
+});
+
+describe('MFA authentication', async function () {
+  const mfaTokenOption = { ...connectionOptionsDefault, authenticator: authenticationTypes.MFA_TOKEN_AUTHENTICATOR };
+
+  it('test - no mfa token is saved on the secure storage', function () {
+    const auth = new AuthMFAToken(mfaTokenOption);
+    const body = authenticator.formAuthJSON(mfaTokenOption.authenticator,
+      mfaTokenOption.account,
+      mfaTokenOption.username,
+      {}, {}, {});
+
+    auth.updateBody(body);
+
+    assert.strictEqual(body['data']['AUTHENTICATOR'], 'USERNAME_PASSWORD_MFA');
+    assert.strictEqual(body['data']['PASSWORD'], mfaTokenOption.password);
+    assert.strictEqual(body['data']['TOKEN'], undefined);
+  });
+
+  it('test - mfa token is saved on the secure storage', function () {
+    mfaTokenOption.mfaToken =  'mock_token';
+    const auth = new AuthMFAToken(mfaTokenOption);
+    const body = authenticator.formAuthJSON(mfaTokenOption.authenticator,
+      mfaTokenOption.account,
+      mfaTokenOption.username,
+      {}, {}, {});
+
+    auth.updateBody(body);
+
+    assert.strictEqual(body['data']['AUTHENTICATOR'], 'USERNAME_PASSWORD_MFA');
+    assert.strictEqual(body['data']['PASSWORD'], mfaTokenOption.password);
+    assert.strictEqual(body['data']['TOKEN'], mfaTokenOption.mfaToken);
+  });
+
 });

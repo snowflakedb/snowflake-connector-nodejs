@@ -12,7 +12,6 @@ const path = require('path');
 const Util = require('../../../lib/util');
 let tempDir = null;
 
-
 describe('should parse toml connection configuration', function () {
 
   afterEach( function () {

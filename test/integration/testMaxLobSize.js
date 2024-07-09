@@ -128,7 +128,7 @@ if (process.env.RUN_MANUAL_TESTS_ONLY === 'true'){
             // Upload file
             connection.execute({
               sqlText: putQuery,
-              complete: function (err, _, rows) {
+              complete: function (err) {
                 if (err) {
                   callback(err);
                 }

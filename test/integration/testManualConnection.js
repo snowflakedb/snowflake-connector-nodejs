@@ -10,7 +10,6 @@ const testUtil = require('./testUtil');
 const Logger = require('../../lib/logger');
 const Util = require('../../lib/util');
 const JsonCredentialManager = require('../../lib/authentication/secure_storage/json_credential_manager');
-const { loadConnectionConfiguration } = require('../../lib/configuration/connection_configuration');
 
 if (process.env.RUN_MANUAL_TESTS_ONLY === 'true') {
   describe('Run manual tests', function () {
@@ -477,18 +476,31 @@ if (process.env.RUN_MANUAL_TESTS_ONLY === 'true') {
     });
 
     it('test simple connection', async function () {
-      const configuration = await loadConnectionConfiguration();
-      await verifyConnectionWorks(configuration);
+      await verifyConnectionWorks();
     });
+
     it('test connection with token', async function () {
       process.env.SNOWFLAKE_DEFAULT_CONNECTION_NAME = 'aws-oauth';
-      const configuration = await loadConnectionConfiguration();
-      await verifyConnectionWorks(configuration);
+      await verifyConnectionWorks();
     });
+
     it('test connection with token from file', async function () {
       process.env.SNOWFLAKE_DEFAULT_CONNECTION_NAME = 'aws-oauth-file';
-      const configuration = await loadConnectionConfiguration();
-      await verifyConnectionWorks(configuration);
+      await verifyConnectionWorks();
+    });
+
+    it('test pool simple connection', async function () {
+      await verifyPoolConnectionWorks();
+    });
+
+    it('test pool connection with token', async function () {
+      process.env.SNOWFLAKE_DEFAULT_CONNECTION_NAME = 'aws-oauth';
+      await verifyPoolConnectionWorks();
+    });
+
+    it('test pool connection with token from file', async function () {
+      process.env.SNOWFLAKE_DEFAULT_CONNECTION_NAME = 'aws-oauth-file';
+      await verifyPoolConnectionWorks();
     });
 
     async function verifyConnectionWorks(configuration) {
@@ -497,6 +509,25 @@ if (process.env.RUN_MANUAL_TESTS_ONLY === 'true') {
       assert.ok(connection.isUp(), 'not active');
       await testUtil.executeCmdAsync(connection, 'Select 1');
       await testUtil.destroyConnectionAsync(connection);
+    }
+    async function verifyPoolConnectionWorks() {
+      const connectionPool = snowflake.createPool(null, {
+        max: 10,
+        min: 2,
+      });
+      await connectionPool.use(async (clientConnection) => {
+        return new Promise((resolve, reject) => {
+          clientConnection.execute({
+            sqlText: 'select 1;',
+            complete: function (err) {
+              if (err) {
+                reject(err);
+              }
+              resolve();
+            }
+          });
+        });
+      });
     }
   });
 

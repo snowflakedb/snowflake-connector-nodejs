@@ -20,7 +20,7 @@ describe('should parse toml connection configuration', function () {
   });
 
   it('should parse toml with connection configuration: ', async function () {
-    process.env.SNOWFLAKE_HOME = process.cwd() + '/test/';
+    process.env.SNOWFLAKE_HOME = process.cwd() + '/test';
     const configuration = await loadConnectionConfiguration();
     assert.strictEqual(configuration['account'], 'snowdriverswarsaw.us-west-2.aws');
     assert.strictEqual(configuration['username'], 'test_user');

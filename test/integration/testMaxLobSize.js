@@ -99,7 +99,7 @@ if (process.env.RUN_MANUAL_TESTS_ONLY === 'true'){
     });
 
     describe('test put get max LOB size', function () {
-      before(async function () {
+      before(async () => {
         connection = testUtil.createConnection();
         await testUtil.connectAsync(connection);
         await testUtil.executeCmdAsync(connection, createTable);
@@ -131,14 +131,25 @@ if (process.env.RUN_MANUAL_TESTS_ONLY === 'true'){
               complete: function (err) {
                 if (err) {
                   callback(err);
+                } else {
+                  callback();
                 }
-                callback();
               }
             });
           },
           function (callback) {
             // Copy into temp table
-            testUtil.executeCmd(connection, copyIntoTable, callback);
+            connection.execute({
+              sqlText: copyIntoTable,
+              complete: function (err, _, rows) {
+                if (err) {
+                  callback(err);
+                } else {
+                  assert.equal(rows[0].status, 'LOADED');
+                  callback();
+                }
+              }
+            });
           }
         ], done);
       });

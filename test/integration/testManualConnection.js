@@ -114,7 +114,6 @@ if (process.env.RUN_MANUAL_TESTS_ONLY === 'true') {
 
       // Web Browser should not be open.
       it('test - id token authentication',  function (done) {
-        snowflake.configure({ logLevel: 'TRACE', insecureMode: true });
         const idTokenConnection = snowflake.createConnection(connectionOption);
         try {
           idTokenConnection.connectAsync(function (err) {
@@ -474,6 +473,9 @@ if (process.env.RUN_MANUAL_TESTS_ONLY === 'true') {
       delete process.env.SNOWFLAKE_HOME;
       delete process.env.SNOWFLAKE_DEFAULT_CONNECTION_NAME;
     });
+    beforeEach( function () {
+      snowflake.configure({ logLevel: 'TRACE' });
+    });
 
     it('test simple connection', async function () {
       await verifyConnectionWorks();
@@ -481,6 +483,11 @@ if (process.env.RUN_MANUAL_TESTS_ONLY === 'true') {
 
     it('test connection with token', async function () {
       process.env.SNOWFLAKE_DEFAULT_CONNECTION_NAME = 'aws-oauth';
+      await verifyConnectionWorks();
+    });
+
+    it('test connection with token using accessUrl', async function () {
+      process.env.SNOWFLAKE_DEFAULT_CONNECTION_NAME = 'aws-oauth-accessUrl';
       await verifyConnectionWorks();
     });
 
@@ -495,6 +502,11 @@ if (process.env.RUN_MANUAL_TESTS_ONLY === 'true') {
 
     it('test pool connection with token', async function () {
       process.env.SNOWFLAKE_DEFAULT_CONNECTION_NAME = 'aws-oauth';
+      await verifyPoolConnectionWorks();
+    });
+
+    it('test pool connection with token using accessUrl', async function () {
+      process.env.SNOWFLAKE_DEFAULT_CONNECTION_NAME = 'aws-oauth-accessUrl';
       await verifyPoolConnectionWorks();
     });
 

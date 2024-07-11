@@ -1365,6 +1365,43 @@ describe('ConnectionConfig: basic', function () {
             account: 'account'
           }
       },
+      {
+        name: 'host and port',
+        input:
+          {
+            account: 'account',
+            username: 'username',
+            password: 'password',
+            host: 'host.snowflakecomputing.com',
+            port: 444
+          },
+        options:
+          {
+            accessUrl: 'https://host.snowflakecomputing.com:444',
+            username: 'username',
+            password: 'password',
+            account: 'account'
+          }
+      },
+      {
+        name: 'protocol, host and port',
+        input:
+          {
+            account: 'account',
+            username: 'username',
+            password: 'password',
+            host: 'host.snowflakecomputing.com',
+            port: 8082,
+            protocol: 'http'
+          },
+        options:
+          {
+            accessUrl: 'http://host.snowflakecomputing.com:8082',
+            username: 'username',
+            password: 'password',
+            account: 'account'
+          }
+      },
     ];
 
   const createItCallback = function (testCase) {

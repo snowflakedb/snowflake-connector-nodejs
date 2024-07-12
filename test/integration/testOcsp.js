@@ -300,12 +300,40 @@ describe('OCSP privatelink', function () {
     }
   };
 
-  const host = Util.constructHostname(connOption.privatelink.region, connOption.privatelink.account);
-  const ocspResponseCacheServerUrl = `http://ocsp.${host}/ocsp_response_cache.json`;
-  const ocspResponderUrl = `http://ocsp.${host}/retry/${mockParsedUrl.hostname}/${mockDataBuf.toString('base64')}`;
+
 
   it('Account with privatelink', function (done) {
-    const connection = snowflake.createConnection(connOption.privatelink);
+    //connOption.privatelink contains inconsistent accessUrl and host so the connect works using accessUrl
+    // and setting ocsp according to host
+    const host = Util.constructHostname(connOption.privatelink.region, connOption.privatelink.account);
+    const ocspResponseCacheServerUrl = `http://ocsp.${host}/ocsp_response_cache.json`;
+    const ocspResponderUrl = `http://ocsp.${host}/retry/${mockParsedUrl.hostname}/${mockDataBuf.toString('base64')}`;
+
+    const connection = snowflake.createConnection({ ...connOption.privatelink, ...{ host: host } });
+
+    connection.connect(function (err) {
+      assert.ok(!err, JSON.stringify(err));
+
+      Check(null, mockFunc, mockReq);
+
+      assert.strictEqual(process.env.SF_OCSP_RESPONSE_CACHE_SERVER_URL, ocspResponseCacheServerUrl);
+      assert.strictEqual(process.env.SF_OCSP_RESPONDER_URL, ocspResponderUrl);
+
+      delete process.env['SF_OCSP_RESPONSE_CACHE_SERVER_URL'];
+      delete process.env['SF_OCSP_RESPONDER_URL'];
+
+      done();
+    });
+  });
+
+  it('Account with privatelink cn', function (done) {
+    //connOption.privatelink contains inconsistent accessUrl and host so the connect works using accessUrl
+    // and setting ocsp according to host
+    const host = Util.constructHostname('cn-northwest-1.privatelink', connOption.privatelink.account);
+    const ocspResponseCacheServerUrl = `http://ocsp.${host}/ocsp_response_cache.json`;
+    const ocspResponderUrl = `http://ocsp.${host}/retry/${mockParsedUrl.hostname}/${mockDataBuf.toString('base64')}`;
+
+    const connection = snowflake.createConnection({ ...connOption.privatelink, ...{ host: host } });
 
     connection.connect(function (err) {
       assert.ok(!err, JSON.stringify(err));
@@ -333,6 +361,29 @@ describe('OCSP privatelink', function () {
       assert.strictEqual(process.env.SF_OCSP_RESPONDER_URL, undefined);
 
       done();
+    });
+  });
+});
+
+describe('Test setup ocsp server url', () => {
+  [
+    {
+      name: 'test',
+      host: 'acc.privatelink.snowflakecomputin.com',
+      expected: 'http://ocsp.acc.privatelink.snowflakecomputin.com/ocsp_response_cache.json'
+    },
+    {
+      name: 'test',
+      host: 'acc.privatelink.snowflakecomputin.cn',
+      expected: 'http://ocsp.acc.privatelink.snowflakecomputin.cn/ocsp_response_cache.json'
+    }
+  ].forEach(({ name, host, expected }) => {
+    it(`${name} is valid`, () => {
+      const connection = snowflake.createConnection({ host: host, username: 'user', password: 'pass' });
+      connection.setupOcspPrivateLink(host);
+      assert.strictEqual(process.env.SF_OCSP_RESPONSE_CACHE_SERVER_URL, expected);
+
+      delete process.env['SF_OCSP_RESPONSE_CACHE_SERVER_URL'];
     });
   });
 });

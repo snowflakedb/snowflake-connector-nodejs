@@ -985,6 +985,24 @@ describe('ConnectionConfig: basic', function () {
           }
       },
       {
+        name: 'china url with account and cn region upper case',
+        input:
+          {
+            username: 'username',
+            password: 'password',
+            account: 'account-123xyz',
+            region: 'CN-NORTH-1'
+          },
+        options:
+          {
+            accessUrl: 'https://account-123xyz.CN-NORTH-1.snowflakecomputing.cn',
+            username: 'username',
+            password: 'password',
+            account: 'account-123xyz',
+            region: 'CN-NORTH-1'
+          }
+      },
+      {
         name: 'china url with accessUrl only',
         input:
           {

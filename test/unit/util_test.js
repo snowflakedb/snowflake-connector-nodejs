@@ -853,6 +853,45 @@ describe('Util', function () {
     });
   });
 
+  describe('isPrivateLink', () => {
+    [
+      {
+        name: 'private link',
+        host: 'account.privatelink.snowflakecomputing.com',
+        result: true
+      },
+      {
+        name: 'private link upper case letters',
+        host: 'ACCOUNT.PRIVATELINK.SNOWFLAKECOMPUTING.COM',
+        result: true
+      },
+      {
+        name: 'private link mixed case letters',
+        host: 'account.privateLINK.snowflakecomputING.com',
+        result: true
+      },
+      {
+        name: 'no private link',
+        host: 'account.snowflakecomputing.com',
+        result: false
+      },
+      {
+        name: 'private link cn',
+        host: 'account.privatelink.snowflakecomputing.cn',
+        result: true
+      },
+      {
+        name: 'no private link cn',
+        host: 'account.snowflakecomputing.cn',
+        result: false
+      }
+    ].forEach(({ name, host, result }) => {
+      it(`${name} is valid`, () => {
+        assert.equal(Util.isPrivateLink(host), result);
+      });
+    });
+  });
+
   describe('Util Test - handling circular reference in isValidAsync exception handling', () => {
     const shouldMatchNonCircular = '{"one":1,"two":2}';
     const shouldMatchCircular = '{"one":1,"two":2,"myself":"[Circular]"}';

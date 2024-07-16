@@ -35,8 +35,8 @@ describe('ConnectionConfig: basic', function () {
       },
       {
         name: 'missing username with SNOWFLAKE authenticator',
-        options: 
-          { 
+        options:
+          {
             authenticator: 'SNOWFLAKE'
           },
         errorCode: ErrorCodes.ERR_CONN_CREATE_MISSING_USERNAME
@@ -54,8 +54,8 @@ describe('ConnectionConfig: basic', function () {
       },
       {
         name: 'missing username with SNOWFLAKE_JWT authenticator',
-        options: 
-          { 
+        options:
+          {
             authenticator: 'SNOWFLAKE_JWT'
           },
         errorCode: ErrorCodes.ERR_CONN_CREATE_MISSING_USERNAME
@@ -944,7 +944,7 @@ describe('ConnectionConfig: basic', function () {
           },
         options:
           {
-            accessUrl: 'https://account-123xyz.us-west-2.snowflakecomputing.com',
+            accessUrl: 'https://account-123xyz.snowflakecomputing.com',
             username: 'username',
             password: 'password',
             account: 'account-123xyz'
@@ -964,6 +964,95 @@ describe('ConnectionConfig: basic', function () {
             username: 'username',
             password: 'password',
             account: 'account'
+          }
+      },
+      {
+        name: 'china url with account and cn region',
+        input:
+          {
+            username: 'username',
+            password: 'password',
+            account: 'account-123xyz',
+            region: 'cn-north-1'
+          },
+        options:
+          {
+            accessUrl: 'https://account-123xyz.cn-north-1.snowflakecomputing.cn',
+            username: 'username',
+            password: 'password',
+            account: 'account-123xyz',
+            region: 'cn-north-1'
+          }
+      },
+      {
+        name: 'china url with account and cn region upper case',
+        input:
+          {
+            username: 'username',
+            password: 'password',
+            account: 'account-123xyz',
+            region: 'CN-NORTH-1'
+          },
+        options:
+          {
+            accessUrl: 'https://account-123xyz.CN-NORTH-1.snowflakecomputing.cn',
+            username: 'username',
+            password: 'password',
+            account: 'account-123xyz',
+            region: 'CN-NORTH-1'
+          }
+      },
+      {
+        name: 'china url with accessUrl only',
+        input:
+          {
+            accessUrl: 'https://account-123xyz.cn-north-1.snowflakecomputing.cn',
+            username: 'username',
+            password: 'password',
+          },
+        options:
+          {
+            accessUrl: 'https://account-123xyz.cn-north-1.snowflakecomputing.cn',
+            username: 'username',
+            password: 'password',
+            account: 'account-123xyz',
+          }
+      },
+
+      {
+        name: 'china url with account contains region',
+        input:
+          {
+            username: 'username',
+            password: 'password',
+            account: 'account-123xyz.cn-north-1',
+          },
+        options:
+          {
+            accessUrl: 'https://account-123xyz.cn-north-1.snowflakecomputing.cn',
+            username: 'username',
+            password: 'password',
+            account: 'account-123xyz',
+            region: 'cn-north-1'
+          }
+      },
+      {
+        name: 'china url using host',
+        input:
+          {
+            host: 'account-123xyz.cn-north-1.snowflakecomputing.cn',
+            username: 'username',
+            password: 'password',
+            account: 'account-123',
+            region: 'ca-central-1'
+          },
+        options:
+          {
+            accessUrl: 'https://account-123xyz.cn-north-1.snowflakecomputing.cn',
+            username: 'username',
+            password: 'password',
+            account: 'account-123',
+            region: 'ca-central-1'
           }
       },
       {
@@ -1363,6 +1452,42 @@ describe('ConnectionConfig: basic', function () {
             username: 'username',
             password: 'password',
             account: 'account'
+          }
+      },
+      {
+        name: 'accessUrl and host no account',
+        input:
+          {
+            username: 'username',
+            password: 'password',
+            retryTimeout: 1234,
+            host: 'host.snowflakecomputing.com',
+            accessUrl: 'https://access-url.snowflakecomputing.com'
+          },
+        options:
+          {
+            accessUrl: 'https://access-url.snowflakecomputing.com',
+            username: 'username',
+            password: 'password',
+            account: 'access-url'
+          }
+      },
+      {
+        name: 'host no account',
+        input:
+          {
+            username: 'username',
+            password: 'password',
+            retryTimeout: 1234,
+            host: 'host.snowflakecomputing.com',
+          },
+        options:
+          {
+            accessUrl: 'https://host.snowflakecomputing.com',
+            username: 'username',
+            password: 'password',
+            host: 'host.snowflakecomputing.com',
+            account: 'host'
           }
       },
       {

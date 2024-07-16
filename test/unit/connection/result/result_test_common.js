@@ -198,7 +198,7 @@ exports.createResultOptions = function (response, connectionConfigOption = {}) {
         username: 'username',
         password: 'password',
         account: 'account',
-        accessUrl: 'accessUrl',
+        accessUrl: 'http://account.snowflake.com',
         ...connectionConfigOption
       })
   };

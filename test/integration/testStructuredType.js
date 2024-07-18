@@ -319,6 +319,76 @@ describe('Test Structured types', function () {
       done
       );
     });
+
+    it('test object all types fetch as string', function (done) {
+      const selectObject = 'select {\'string\': \'a\'' +
+        ', \'b\': 1, ' +
+        '\'s\': 2, ' +
+        '\'i\': 3, ' +
+        '\'l\': 4,' +
+        ' \'f\': 1.1,' +
+        ' \'d\': 2.2,' +
+        ' \'bd\': 3.3, ' +
+        '\'bool\': true, ' +
+        '\'timestamp_ltz\': \'2021-12-22 09:43:44\'::TIMESTAMP_LTZ,' +
+        ' \'timestamp_ntz\': \'2021-12-23 09:44:44\'::TIMESTAMP_NTZ, ' +
+        '\'timestamp_tz\': \'2021-12-24 09:45:45 -0800\'::TIMESTAMP_TZ,' +
+        ' \'date\': \'2023-12-24\'::DATE, ' +
+        '\'time\': \'12:34:56\'::TIME, ' +
+        '\'binary\': TO_BINARY(\'616263\', \'HEX\') ' +
+        '}' +
+        '::OBJECT(string VARCHAR' +
+        ', b TINYINT, ' +
+        's SMALLINT, ' +
+        'i INTEGER, ' +
+        'l BIGINT, ' +
+        'f FLOAT, ' +
+        'd DOUBLE, ' +
+        'bd DOUBLE, ' +
+        'bool BOOLEAN,' +
+        'timestamp_ltz TIMESTAMP_LTZ,' +
+        'timestamp_ntz TIMESTAMP_NTZ, ' +
+        'timestamp_tz TIMESTAMP_TZ, ' +
+        'date DATE, time TIME, ' +
+        'binary BINARY' +
+        ') AS RESULT';
+
+      const expected = {
+        "RESULT": "{\"string\":\"a\",\"b\":1,\"s\":2,\"i\":3,\"l\":4,\"f\":1.1,\"d\":2.2,\"bd\":3.3,\"bool\":true,\"timestamp_ltz\":\"2021-12-22 09:43:44.000 -0800\",\"timestamp_ntz\":\"2021-12-23 09:44:44.000\",\"timestamp_tz\":\"2021-12-24 09:45:45.000 -0800\",\"date\":\"2023-12-23\",\"time\":\"03:34:56\",\"binary\":[97,98,99]}"
+      }
+
+      async.series([
+        function (callback) {
+          testUtil.executeCmd(connection, sharedStatement.setTimezoneAndTimestamps, callback);
+        },
+        function (callback) {
+          const executeOptions = {};
+          executeOptions.sqlText = selectObject;
+          executeOptions.fetchAsString = [snowflake.OBJECT];
+          executeOptions.complete = function (err, stmt) {
+            assert.ok(!err, JSON.stringify(err));
+            let rowCount = 0;
+            const stream = stmt.streamRows();
+            stream.on('readable', function () {
+              let row;
+              while ((row = stream.read()) !== null) {
+                assert.deepStrictEqual(row, expected);
+                rowCount++;
+              }
+            });
+            stream.on('error', function (err) {
+              assert.ok(!err, JSON.stringify(err));
+            });
+            stream.on('end', function () {
+              assert.strictEqual(rowCount, 1);
+              callback();
+            });
+          };
+          connection.execute(executeOptions);
+        }],
+      done
+      );
+    });
   });
 
 });

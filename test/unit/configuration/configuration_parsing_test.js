@@ -9,8 +9,6 @@ const getClientConfig = new ConfigurationUtil().getClientConfig;
 const fsPromises = require('fs/promises');
 const os = require('os');
 const path = require('path');
-const Util = require('../../../lib/util');
-const fs = require('fs');
 let tempDir = null;
 
 describe('should parse toml connection configuration', function () {

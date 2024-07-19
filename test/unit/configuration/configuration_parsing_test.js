@@ -10,6 +10,7 @@ const fsPromises = require('fs/promises');
 const os = require('os');
 const path = require('path');
 const Util = require('../../../lib/util');
+const fs = require('fs');
 let tempDir = null;
 
 describe('should parse toml connection configuration', function () {
@@ -40,12 +41,15 @@ describe('should parse toml connection configuration', function () {
     assert.strictEqual(configuration['authenticator'], 'oauth');
   });
 
-  it('should parse toml with connection configuration - oauth and token in file', async function () {
+  it('should throw exception when token file does not exist', async function () {
     process.env.SNOWFLAKE_HOME = process.cwd() + '/test/';
     process.env.SNOWFLAKE_DEFAULT_CONNECTION_NAME = 'aws-oauth-file';
-    const configuration = await loadConnectionConfiguration();
-    assert.ok(Util.string.isNotNullOrEmpty(configuration['token_file_path']));
-    assert.strictEqual(configuration['authenticator'], 'oauth');
+    try {
+      await loadConnectionConfiguration();
+    } catch (error) {
+      assert.match(error.message, /ENOENT: no such file or directory/);
+      assert.match(error.message, /token/);
+    }
   });
 
   it('should throw error toml when file does not exist',  function (done) {

@@ -26,7 +26,7 @@ function TestingQCC() {
   this.expectedPriority;
   
   this.initCache = function () {
-    this.qcc = new QueryContextCache(MAX_CAPACITY);
+    this.qcc = new QueryContextCache(MAX_CAPACITY, 0);
   };
   
   this.initCacheWithData = function () {
@@ -34,7 +34,7 @@ function TestingQCC() {
   };
   
   this.initCacheWithDataWithContext = function (Context) {
-    this.qcc = new QueryContextCache(MAX_CAPACITY);
+    this.qcc = new QueryContextCache(MAX_CAPACITY, 0);
     this.expectedIDs = [];
     this.expectedReadTimestamp = [];
     this.expectedPriority = [];
@@ -47,7 +47,7 @@ function TestingQCC() {
   };
     
   this.initCacheWithDataInRandomOrder = function () {
-    this.qcc = new QueryContextCache(MAX_CAPACITY);
+    this.qcc = new QueryContextCache(MAX_CAPACITY, 0);
     this.expectedIDs = [];
     this.expectedReadTimestamp = [];
     this.expectedPriority = [];

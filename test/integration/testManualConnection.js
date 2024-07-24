@@ -231,7 +231,7 @@ if (process.env.RUN_MANUAL_TESTS_ONLY === 'true') {
       });
     });
 
-    describe.only('Connection - MFA authenticator', function () {
+    describe('Connection - MFA authenticator', function () {
       const connectionOption = { ...connOption.valid, authenticator: 'USERNAME_PASSWORD_MFA', clientRequestMFAToken: true };
       const key = Util.buildCredentialCacheKey(connectionOption.host, connectionOption.username, 'USERNAME_PASSWORD_MFA');
       const defaultCredentialManager = new JsonCredentialManager();
@@ -474,7 +474,7 @@ if (process.env.RUN_MANUAL_TESTS_ONLY === 'true') {
       delete process.env.SNOWFLAKE_DEFAULT_CONNECTION_NAME;
     });
     beforeEach( function () {
-      snowflake.configure({ logLevel: 'TRACE' });
+      snowflake.configure({ logLevel: 'DEBUG' });
     });
 
     it('test simple connection', async function () {

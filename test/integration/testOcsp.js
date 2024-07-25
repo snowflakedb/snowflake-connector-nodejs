@@ -19,7 +19,7 @@ const Logger = require('./../../lib/logger');
 Logger.getInstance().setLogger(sharedLogger.logger);
 
 
-describe('OCSP validation', function () {
+describe.only('OCSP validation', function () {
   it('OCSP validation with server reusing SSL sessions', function (done) {
     const connection = snowflake.createConnection(connOption.valid);
 
@@ -145,6 +145,8 @@ describe('OCSP validation', function () {
 
   function connectToHttpsEndpoint(testOptions, i, connection, done) {
     connection.connect(function (err) {
+      console.log(`I VALUE: ${i}`);
+      console.log(JSON.stringify(err));
       assert.ok(err);
       if (err) {
         if (!Object.prototype.hasOwnProperty.call(err, 'code')) {
@@ -154,8 +156,10 @@ describe('OCSP validation', function () {
       }
 
       if (i === testOptions.length - 1) {
+        console.log(`testOptions.length ${testOptions.length} === ${i}`);
         done();
       } else {
+        console.log(`NOT testOptions.length ${testOptions.length} === ${i}`);
         testOptions(i + 1);
       }
     });

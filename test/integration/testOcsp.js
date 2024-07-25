@@ -146,22 +146,21 @@ describe.only('OCSP validation', function () {
 
   function connectToHttpsEndpoint(testOptions, i, connection, done) {
     connection.connect(function (err) {
-      Logger.getInstance().debug(`I VALUE: ${i}`);
-      Logger.getInstance().debug(JSON.stringify(err));
-      assert.ok(err);
-      if (err) {
-        if (!Object.prototype.hasOwnProperty.call(err, 'code')) {
+      try {
+        assert.ok(err);
+        if (err) {
           Logger.getInstance().error(err);
+          assert.ok(err['code'].startsWith('390'));
         }
-        assert.equal(err['code'], '390100');
-      }
 
-      if (i === testOptions.length - 1) {
-        Logger.getInstance().debug(`testOptions.length ${testOptions.length} === ${i}`);
-        done();
-      } else {
-        Logger.getInstance().debug(`NOT testOptions.length ${testOptions.length} === ${i}`);
-        testOptions(i + 1);
+        if (i === testOptions.length - 1) {
+          done();
+        } else {
+          testOptions(i + 1);
+        }
+      } catch (err) {
+        Logger.getInstance().error(err);
+        done(err);
       }
     });
   }

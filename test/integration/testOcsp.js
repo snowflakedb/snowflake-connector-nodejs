@@ -20,7 +20,6 @@ Logger.getInstance().setLogger(sharedLogger.logger);
 
 
 describe.only('OCSP validation', function () {
-  snowflake.configure({ logLevel: 'TRACE' });
   it('OCSP validation with server reusing SSL sessions', function (done) {
     const connection = snowflake.createConnection(connOption.valid);
 
@@ -175,7 +174,6 @@ describe.only('OCSP validation', function () {
   });
 
   it('Test Ocsp with different endpoints - force to download cache', function (done) {
-    snowflake.configure({ logLevel: 'TRACE' });
     deleteCache();
     SocketUtil.variables.OCSP_RESPONSE_CACHE = undefined;
 
@@ -191,7 +189,6 @@ describe.only('OCSP validation', function () {
   });
 
   it('Test Ocsp with different endpoints - download cache in FAIL_CLOSED', function (done) {
-    snowflake.configure({ logLevel: 'TRACE' });
     deleteCache();
     SocketUtil.variables.OCSP_RESPONSE_CACHE = undefined;
 
@@ -209,7 +206,6 @@ describe.only('OCSP validation', function () {
   });
 
   it('Test Ocsp with different endpoints - no cache server in FAIL_CLOSED', function (done) {
-    snowflake.configure({ logLevel: 'TRACE' });
     deleteCache();
     SocketUtil.variables.OCSP_RESPONSE_CACHE = undefined;
     SocketUtil.variables.SF_OCSP_RESPONSE_CACHE_SERVER_ENABLED = false;

@@ -19,7 +19,7 @@ const Logger = require('./../../lib/logger');
 Logger.getInstance().setLogger(sharedLogger.logger);
 
 
-describe.only('OCSP validation', function () {
+describe('OCSP validation', function () {
   it('OCSP validation with server reusing SSL sessions', function (done) {
     const connection = snowflake.createConnection(connOption.valid);
 

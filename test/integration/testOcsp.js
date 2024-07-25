@@ -20,6 +20,7 @@ Logger.getInstance().setLogger(sharedLogger.logger);
 
 
 describe.only('OCSP validation', function () {
+  snowflake.configure({ logLevel: 'TRACE' });
   it('OCSP validation with server reusing SSL sessions', function (done) {
     const connection = snowflake.createConnection(connOption.valid);
 
@@ -145,8 +146,8 @@ describe.only('OCSP validation', function () {
 
   function connectToHttpsEndpoint(testOptions, i, connection, done) {
     connection.connect(function (err) {
-      console.log(`I VALUE: ${i}`);
-      console.log(JSON.stringify(err));
+      Logger.getInstance().debug(`I VALUE: ${i}`);
+      Logger.getInstance().debug(JSON.stringify(err));
       assert.ok(err);
       if (err) {
         if (!Object.prototype.hasOwnProperty.call(err, 'code')) {
@@ -156,10 +157,10 @@ describe.only('OCSP validation', function () {
       }
 
       if (i === testOptions.length - 1) {
-        console.log(`testOptions.length ${testOptions.length} === ${i}`);
+        Logger.getInstance().debug(`testOptions.length ${testOptions.length} === ${i}`);
         done();
       } else {
-        console.log(`NOT testOptions.length ${testOptions.length} === ${i}`);
+        Logger.getInstance().debug(`NOT testOptions.length ${testOptions.length} === ${i}`);
         testOptions(i + 1);
       }
     });
@@ -175,6 +176,7 @@ describe.only('OCSP validation', function () {
   });
 
   it('Test Ocsp with different endpoints - force to download cache', function (done) {
+    snowflake.configure({ logLevel: 'TRACE' });
     deleteCache();
     SocketUtil.variables.OCSP_RESPONSE_CACHE = undefined;
 
@@ -190,6 +192,7 @@ describe.only('OCSP validation', function () {
   });
 
   it('Test Ocsp with different endpoints - download cache in FAIL_CLOSED', function (done) {
+    snowflake.configure({ logLevel: 'TRACE' });
     deleteCache();
     SocketUtil.variables.OCSP_RESPONSE_CACHE = undefined;
 
@@ -207,6 +210,7 @@ describe.only('OCSP validation', function () {
   });
 
   it('Test Ocsp with different endpoints - no cache server in FAIL_CLOSED', function (done) {
+    snowflake.configure({ logLevel: 'TRACE' });
     deleteCache();
     SocketUtil.variables.OCSP_RESPONSE_CACHE = undefined;
     SocketUtil.variables.SF_OCSP_RESPONSE_CACHE_SERVER_ENABLED = false;

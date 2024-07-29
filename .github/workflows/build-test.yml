@@ -57,7 +57,7 @@ jobs:
                 node-version: ${{ matrix.nodeVersion }}
             - uses: actions/setup-python@v4
               with:
-                python-version: '3.7'
+                python-version: '3.11'
             - name: Download Build Artifacts
               uses: actions/download-artifact@v3
               with:
@@ -96,7 +96,7 @@ jobs:
                 node-version: ${{ matrix.nodeVersion }}
             - uses: actions/setup-python@v4
               with:
-                python-version: '3.7'
+                python-version: '3.11'
                 architecture: 'x64'
             - name: Download Build Artifacts
               uses: actions/download-artifact@v3

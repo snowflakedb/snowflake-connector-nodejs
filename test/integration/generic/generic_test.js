@@ -2,8 +2,24 @@ const assert = require('assert');
 const generic = require('../../../lib/generic');
 const snowflake = require('../../../lib/snowflake');
 const testUtil = require('../testUtil');
+const { performance } = require('perf_hooks');
 
 const repeatTimesPerfRun = 5;
+const runDroppingMinAndMax = async fn => {
+  const results = [];
+  for (let i = 0; i < repeatTimesPerfRun; i++) {
+    const start = performance.now();
+    await fn();
+    const end = performance.now();
+    results.push(end - start);
+  }
+  results.sort((a, b) => a - b);
+  let avg = 0;
+  for (let i = 1; i < repeatTimesPerfRun - 1; i++) {
+    avg += results[i];
+  }
+  console.log(`Average time is ${avg / (repeatTimesPerfRun - 2)}ms`);
+};
 
 describe.only('test generic binding', () => {
   const connectionParams = {
@@ -101,8 +117,8 @@ describe.only('test generic binding', () => {
       });
 
       [10, 10000, 1000000].forEach(sourceRowCount => {
-        it(`GENERIC|${sourceRowCount}|${resultFormat}|ROWS|${repeatTimesPerfRun}`, () => {
-          for (let i = 0; i < repeatTimesPerfRun; i++) {
+        it(`GENERIC|${sourceRowCount}|${resultFormat}|ROWS|${repeatTimesPerfRun}`, async () => {
+          await runDroppingMinAndMax(() => {
             const result = generic.executeQuery(connectionId,
               `select randstr(10, random())
                from table (generator(rowcount =>${sourceRowCount}))`);
@@ -112,11 +128,11 @@ describe.only('test generic binding', () => {
               assert.equal(row.length, 1);
               assert.ok(row[0]);
             });
-          }
+          });
         });
 
-        it(`GENERIC|${sourceRowCount}|${resultFormat}|DELAYED|${repeatTimesPerfRun}`, () => {
-          for (let i = 0; i < repeatTimesPerfRun; i++) {
+        it(`GENERIC|${sourceRowCount}|${resultFormat}|DELAYED|${repeatTimesPerfRun}`, async () => {
+          await runDroppingMinAndMax(() => {
             const streamRowsSize = 1000;
             const statementId = generic.executeQueryWithoutFetchingRows(connectionId,
               `select randstr(10, random())
@@ -137,11 +153,11 @@ describe.only('test generic binding', () => {
               }
             }
             assert.equal(fetchedRows, sourceRowCount);
-          }
+          });
         });
 
-        it(`GENERIC|${sourceRowCount}|${resultFormat}|STREAM|${repeatTimesPerfRun}`, () => {
-          for (let i = 0; i < repeatTimesPerfRun; i++) {
+        it(`GENERIC|${sourceRowCount}|${resultFormat}|STREAM|${repeatTimesPerfRun}`, async () => {
+          await runDroppingMinAndMax(() => {
             let fetchedRows = 0;
             let invalidRows = 0;
             const options = {
@@ -160,7 +176,7 @@ describe.only('test generic binding', () => {
             assert.equal(result.length, 0);
             assert.equal(invalidRows, 0);
             assert.equal(fetchedRows, sourceRowCount);
-          }
+          });
         });
       });
     });
@@ -192,7 +208,7 @@ describe.only('Perf selects standard nodejs', () => {
     const resultFormat = 'JSON';
 
     it(`NODEJS|${sourceRowCount}|${resultFormat}|ROWS|${repeatTimesPerfRun}`, async () => {
-      for (let i = 0; i < repeatTimesPerfRun; i++) {
+      await runDroppingMinAndMax(async () => {
         const result = await testUtil.executeCmdAsync(connection,
           `select randstr(10, random()) as a
            from table (generator(rowcount =>${sourceRowCount}))`,
@@ -202,7 +218,7 @@ describe.only('Perf selects standard nodejs', () => {
           assert.ok(row);
           assert.ok(row['A']);
         });
-      }
+      });
     });
 
     const countRows = (connection, sqlText, validateRow) => {
@@ -230,13 +246,13 @@ describe.only('Perf selects standard nodejs', () => {
     };
 
     it(`NODEJS|${sourceRowCount}|${resultFormat}|STREAM|${repeatTimesPerfRun}`, async () => {
-      for (let i = 0; i < repeatTimesPerfRun; i++) {
+      await runDroppingMinAndMax(async () => {
         const rowLength = await countRows(connection,
           `select randstr(10, random()) as a
            from table (generator(rowcount =>${sourceRowCount}))`,
           row => row && row['A']);
         assert.equal(rowLength, sourceRowCount);
-      }
+      });
     });
   });
 });

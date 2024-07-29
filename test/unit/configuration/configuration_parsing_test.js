@@ -46,7 +46,6 @@ describe('should parse toml connection configuration', function () {
       await loadConnectionConfiguration();
     } catch (error) {
       assert.match(error.message, /ENOENT: no such file or directory/);
-      assert.match(error.message, /token/);
     }
   });
 

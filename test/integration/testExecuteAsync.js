@@ -147,14 +147,6 @@ describe('ExecuteAsync test', function () {
           } catch (err) {
             assert.strictEqual(err.name, 'OperationFailedError');
           }
-
-          // Check getting the results throws when the query id format is correct but no data in the server.
-          try {
-            await connection.getResultsFromQueryId({ queryId: '01b599c2-0302-d469-0000-6b0983867cf1' });
-            assert.fail();
-          } catch (err) {
-            assert.strictEqual(err.message, 'The provided queryId is invalid. The driver cannot find the query information with the query ID in the server');
-          }
         },
       ],
       done

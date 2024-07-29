@@ -55,78 +55,6 @@ describe.only('test generic binding', () => {
     assert.equal(connectionId, null);
   });
 
-  describe('Perf selects', () => {
-    ['JSON', 'ARROW'].forEach(resultFormat => {
-      let connectionId;
-      before(() => {
-        connectionId = generic.connectUserPassword(connectionParams);
-        changeResultFormat(resultFormat, connectionId);
-      });
-
-      after(() => {
-        generic.closeConnection(connectionId);
-      });
-
-      [10, 10000, 1000000].forEach(sourceRowCount => {
-        it(`should select ${sourceRowCount} rows in ${resultFormat}`, () => {
-          const result = generic.executeQuery(connectionId,
-            `select randstr(10, random())
-             from table (generator(rowcount =>${sourceRowCount}))`);
-          assert.equal(result.length, sourceRowCount);
-          result.forEach(row => {
-            assert.ok(row);
-            assert.equal(row.length, 1);
-            assert.ok(row[0]);
-          });
-        });
-
-        it(`should select ${sourceRowCount} rows in ${resultFormat} with delayed rows fetch`, () => {
-          const streamRowsSize = 1000;
-          const statementId = generic.executeQueryWithoutFetchingRows(connectionId,
-            `select randstr(10, random())
-             from table (generator(rowcount =>${sourceRowCount}))`);
-          assert.ok(statementId);
-          let fetchedRows = 0;
-          // eslint-disable-next-line no-constant-condition
-          while (true) {
-            const { rows, end } = generic.fetchNextRows(connectionId, statementId, streamRowsSize);
-            rows.forEach(row => {
-              assert.ok(row);
-              assert.equal(row.length, 1);
-              assert.ok(row[0]);
-              ++fetchedRows;
-            });
-            if (end) {
-              break;
-            }
-          }
-          assert.equal(fetchedRows, sourceRowCount);
-        });
-
-        it(`should select ${sourceRowCount} rows in ${resultFormat} with streaming`, () => {
-          let fetchedRows = 0;
-          let invalidRows = 0;
-          const options = {
-            handleRow: row => {
-              if (row && row.length === 1 && row[0]) {
-                ++fetchedRows;
-              } else {
-                ++invalidRows;
-              }
-            }
-          };
-          const result = generic.executeQuery(connectionId,
-            `select randstr(10, random())
-             from table (generator(rowcount =>${sourceRowCount}))`,
-            options);
-          assert.equal(result.length, 0);
-          assert.equal(invalidRows, 0);
-          assert.equal(fetchedRows, sourceRowCount);
-        });
-      });
-    });
-  });
-
   it('should execute queries with bind parameters', () => {
     const connectionId = generic.connectUserPassword(connectionParams);
     let result = generic.executeQuery(connectionId, 'create or replace table generic_1 (id int, data text);');
@@ -157,6 +85,78 @@ describe.only('test generic binding', () => {
     assert.deepEqual(result, [], 'select after delete');
     generic.closeConnection(connectionId);
   });
+
+  describe('Perf selects', () => {
+    ['JSON', 'ARROW'].forEach(resultFormat => {
+      let connectionId;
+      before(() => {
+        connectionId = generic.connectUserPassword(connectionParams);
+        changeResultFormat(resultFormat, connectionId);
+      });
+
+      after(() => {
+        generic.closeConnection(connectionId);
+      });
+
+      [10, 10000, 1000000].forEach(sourceRowCount => {
+        it(`GENERIC|${sourceRowCount}|${resultFormat}|ROWS`, () => {
+          const result = generic.executeQuery(connectionId,
+            `select randstr(10, random())
+             from table (generator(rowcount =>${sourceRowCount}))`);
+          assert.equal(result.length, sourceRowCount);
+          result.forEach(row => {
+            assert.ok(row);
+            assert.equal(row.length, 1);
+            assert.ok(row[0]);
+          });
+        });
+
+        it(`GENERIC|${sourceRowCount}|${resultFormat}|DELAYED`, () => {
+          const streamRowsSize = 1000;
+          const statementId = generic.executeQueryWithoutFetchingRows(connectionId,
+            `select randstr(10, random())
+             from table (generator(rowcount =>${sourceRowCount}))`);
+          assert.ok(statementId);
+          let fetchedRows = 0;
+          // eslint-disable-next-line no-constant-condition
+          while (true) {
+            const { rows, end } = generic.fetchNextRows(connectionId, statementId, streamRowsSize);
+            rows.forEach(row => {
+              assert.ok(row);
+              assert.equal(row.length, 1);
+              assert.ok(row[0]);
+              ++fetchedRows;
+            });
+            if (end) {
+              break;
+            }
+          }
+          assert.equal(fetchedRows, sourceRowCount);
+        });
+
+        it(`GENERIC|${sourceRowCount}|${resultFormat}|STREAM`, () => {
+          let fetchedRows = 0;
+          let invalidRows = 0;
+          const options = {
+            handleRow: row => {
+              if (row && row.length === 1 && row[0]) {
+                ++fetchedRows;
+              } else {
+                ++invalidRows;
+              }
+            }
+          };
+          const result = generic.executeQuery(connectionId,
+            `select randstr(10, random())
+             from table (generator(rowcount =>${sourceRowCount}))`,
+            options);
+          assert.equal(result.length, 0);
+          assert.equal(invalidRows, 0);
+          assert.equal(fetchedRows, sourceRowCount);
+        });
+      });
+    });
+  });
 })
 ;
 
@@ -181,7 +181,9 @@ describe.only('Perf selects standard nodejs', () => {
   });
 
   [10, 10000, 1000000].forEach(sourceRowCount => {
-    it(`should select ${sourceRowCount} rows in JSON`, async () => {
+    const resultFormat = 'JSON';
+
+    it(`NODEJS|${sourceRowCount}|${resultFormat}|ROWS`, async () => {
       const result = await testUtil.executeCmdAsync(connection,
         `select randstr(10, random()) as a
          from table (generator(rowcount =>${sourceRowCount}))`,
@@ -217,7 +219,7 @@ describe.only('Perf selects standard nodejs', () => {
       });
     };
 
-    it(`should select ${sourceRowCount} rows in JSON with streaming`, async () => {
+    it(`NODEJS|${sourceRowCount}|${resultFormat}|STREAM`, async () => {
       const rowLength = await countRows(connection,
         `select randstr(10, random()) as a
          from table (generator(rowcount =>${sourceRowCount}))`,

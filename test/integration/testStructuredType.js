@@ -8,6 +8,24 @@ const testUtil = require('./testUtil');
 const sharedStatement = require('./sharedStatements');
 const assert = require('assert');
 
+function normalize(source) {
+  let result = {};
+  if (typeof source === 'object' && source !== null) {
+    Object.keys(source).forEach((key) => {
+      if (typeof source[key] === 'object' && source[key] !== null) {
+        source[key] = testUtil.normalizeRowObject(source[key]);
+        result[key] = normalize(source[key]);
+      } else {
+        result = source;
+      }
+    });
+  } else {
+    result = source;
+  }
+  return result;
+}
+
+
 describe('Test Structured types', function () {
   let connection;
 
@@ -389,5 +407,225 @@ describe('Test Structured types', function () {
       done
       );
     });
+
+    it('test nested object', function (done) {
+      const selectObject = 'select {\'inside\': {\'string\':\'a\', \'int\':\'2\', \'timestamp\': \'2021-12-22 09:43:44\'::TIMESTAMP_LTZ}}' +
+        '::OBJECT(inside OBJECT(string VARCHAR, int INTEGER, timestamp TIMESTAMP_LTZ)) as result';
+      const expected = { RESULT: { 'inside': { 'string': 'a', 'int': 2, 'timestamp': '2021-12-22 09:43:44.000 -0800' } } };
+      async.series([
+        function (callback) {
+          testUtil.executeCmd(connection, sharedStatement.setTimezoneAndTimestamps, callback);
+        },
+        function (callback) {
+          connection.execute({
+            sqlText: selectObject,
+            complete: function (err, stmt, rows) {
+              testUtil.checkError(err);
+              const row = rows[0];
+              const narmalizedRow = normalize(row);
+              assert.deepStrictEqual(narmalizedRow, expected);
+              callback();
+            }
+          });
+        },
+      ],
+      done
+      );
+    });
+
+    it('test nested object - deeper hierarchy', function (done) {
+      const selectObject = 'select {\'inside\': {\'string2\':\'level2\', \'inside2\': {\'string3\':\'a\', \'int\':\'2\', \'timestamp\': \'2021-12-22 09:43:44\'::TIMESTAMP_LTZ}}}' +
+        '::OBJECT(inside OBJECT(string2 VARCHAR, inside2 OBJECT(string3 VARCHAR, int INTEGER, timestamp TIMESTAMP_LTZ))) as result';
+      const expected = {
+        RESULT: {
+          'inside': {
+            'string2': 'level2',
+            'inside2': { 'string3': 'a', 'int': 2, 'timestamp': '2021-12-22 09:43:44.000 -0800' }
+          }
+        }
+      };
+      async.series([
+        function (callback) {
+          testUtil.executeCmd(connection, sharedStatement.setTimezoneAndTimestamps, callback);
+        },
+        function (callback) {
+          connection.execute({
+            sqlText: selectObject,
+            complete: function (err, stmt, rows) {
+              testUtil.checkError(err);
+              const row = rows[0];
+              const narmalizedRow = normalize(row);
+              assert.deepStrictEqual(narmalizedRow, expected);
+              callback();
+            }
+          });
+        },
+      ],
+      done
+      );
+    });
+
+    it('test object all types', function (done) {
+      const selectObject = 'select {\'string\': \'a\'' +
+        ', \'b\': 1, ' +
+        '\'s\': 2, ' +
+        '\'i\': 3, ' +
+        '\'l\': 4,' +
+        ' \'f\': 1.1,' +
+        ' \'d\': 2.2,' +
+        ' \'bd\': 3.3, ' +
+        '\'bool\': true, ' +
+        '\'timestamp_ltz\': \'2021-12-22 09:43:44\'::TIMESTAMP_LTZ,' +
+        ' \'timestamp_ntz\': \'2021-12-23 09:44:44\'::TIMESTAMP_NTZ, ' +
+        '\'timestamp_tz\': \'2021-12-24 09:45:45 -0800\'::TIMESTAMP_TZ,' +
+        ' \'date\': \'2023-12-24\'::DATE, ' +
+        '\'time\': \'12:34:56\'::TIME, ' +
+        '\'binary\': TO_BINARY(\'616263\', \'HEX\') ' +
+        '}' +
+        '::OBJECT(string VARCHAR' +
+        ', b TINYINT, ' +
+        's SMALLINT, ' +
+        'i INTEGER, ' +
+        'l BIGINT, ' +
+        'f FLOAT, ' +
+        'd DOUBLE, ' +
+        'bd DOUBLE, ' +
+        'bool BOOLEAN,' +
+        'timestamp_ltz TIMESTAMP_LTZ,' +
+        'timestamp_ntz TIMESTAMP_NTZ, ' +
+        'timestamp_tz TIMESTAMP_TZ, ' +
+        'date DATE, time TIME, ' +
+        'binary BINARY' +
+        ') AS RESULT';
+
+      const expected = {
+        RESULT: {
+          string: 'a',
+          b: 1,
+          s: 2,
+          i: 3,
+          l: 4,
+          f: 1.1,
+          d: 2.2,
+          bd: 3.3,
+          bool: true,
+          timestamp_ltz: '2021-12-22 09:43:44.000 -0800',
+          timestamp_ntz: '2021-12-23 09:44:44.000',
+          timestamp_tz: '2021-12-24 09:45:45.000 -0800',
+          date: '2023-12-23',
+          time: '12:34:56',
+          binary: [97, 98, 99]
+        }
+      };
+
+      async.series([
+        function (callback) {
+          testUtil.executeCmd(connection, sharedStatement.setTimezoneAndTimestamps, callback);
+        },
+        function (callback) {
+          connection.execute({
+            sqlText: selectObject,
+            complete: function (err, stmt, rows) {
+              testUtil.checkError(err);
+              const row = rows[0];
+              const narmalizedRow = {};
+              Object.keys(row).forEach((key) => {
+                narmalizedRow[key] = testUtil.normalizeRowObject(row[key]);
+              });
+              assert.deepStrictEqual(narmalizedRow, expected);
+              callback();
+            }
+          });
+        },
+      ],
+      done
+      );
+    });
+  });
+
+  describe('test array', function () {
+
+    it('test simple array of varchar', function (done) {
+      const selectObject = 'SELECT ARRAY_CONSTRUCT(\'one\', \'two\', \'three\')::ARRAY(VARCHAR) AS RESULT';
+
+      async.series([
+        function (callback) {
+          testUtil.executeQueryAndVerify(
+            connection,
+            selectObject,
+            [{ RESULT: ['one', 'two', 'three'] }],
+            callback
+          );
+        }],
+      done
+      );
+    });
+
+    it('test simple array of integer', function (done) {
+      const selectObject = 'SELECT ARRAY_CONSTRUCT(1, 2, 3)::ARRAY(INTEGER) AS RESULT';
+
+      async.series([
+        function (callback) {
+          testUtil.executeQueryAndVerify(
+            connection,
+            selectObject,
+            [{ RESULT: [1, 2, 3] }],
+            callback
+          );
+        }],
+      done
+      );
+    });
+
+    it('test simple array of timestamp_ltz', function (done) {
+      const selectObject = 'SELECT ARRAY_CONSTRUCT(\'2021-12-22 09:43:44.123456\', \'2021-12-22 09:43:45.123456\')::ARRAY(TIMESTAMP_LTZ) AS kaka';
+
+      const expected = ['2021-12-22 09:43:44.000 -0800', '2021-12-22 09:43:45.000 -0800'];
+      async.series([
+        function (callback) {
+          connection.execute({
+            sqlText: selectObject,
+            complete: function (err, stmt, rows) {
+              testUtil.checkError(err);
+              const row = rows[0];
+              const narmalizedArray = [];
+              row.KAKA.forEach((value) => {
+                narmalizedArray.push(testUtil.normalizeValue(value));
+              });
+              assert.deepStrictEqual(narmalizedArray, expected);
+              callback();
+            }
+          });
+        }
+      ],
+      done
+      );
+    });
+
+    it('test simple array of timestamp_ntz', function (done) {
+      const selectObject = 'SELECT ARRAY_CONSTRUCT(\'2021-12-22 09:43:44\', \'2021-12-22 09:43:45\')::ARRAY(TIMESTAMP_NTZ) AS result';
+
+      const expected = ['2021-12-22 09:43:44.000', '2021-12-22 09:43:45.000'];
+      async.series([
+        function (callback) {
+          connection.execute({
+            sqlText: selectObject,
+            complete: function (err, stmt, rows) {
+              testUtil.checkError(err);
+              const row = rows[0];
+              const narmalizedArray = [];
+              row.RESULT.forEach((value) => {
+                narmalizedArray.push(testUtil.normalizeValue(value));
+              });
+              assert.deepStrictEqual(narmalizedArray, expected);
+              callback();
+            }
+          });
+        }
+      ],
+      done
+      );
+    });
+
   });
 });

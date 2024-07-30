@@ -201,22 +201,27 @@ module.exports.executeQueryAndVerifyUsePool = function (connectionPool, sql, exp
   });
 };
 
+function normalizeValue(value) {
+  const convertToString = (value !== null) && (value !== undefined)
+    && (typeof value.toJSON === 'function');
+  const convertToJSNumber = (value !== null) && (value !== undefined)
+    && (typeof value.toJSNumber === 'function');
+  // If this is a bigInt type then convert to JS Number instead of string JSON representation
+  if (convertToJSNumber) {
+    return value.toJSNumber();
+  } else if (convertToString) {
+    return  value.toJSON();
+  } else {
+    return value;
+  }
+}
+
 function normalizeRowObject(row) {
   const normalizedRow = {};
   for (const key in row) {
     if (Object.prototype.hasOwnProperty.call(row, key)) {
-      const convertToString = (row[key] !== null) && (row[key] !== undefined)
-        && (typeof row[key].toJSON === 'function');
-      const convertToJSNumber = (row[key] !== null) && (row[key] !== undefined)
-        && (typeof row[key].toJSNumber === 'function');
-      // If this is a bigInt type then convert to JS Number instead of string JSON representation
-      if (convertToJSNumber) {
-        normalizedRow[key] = row[key].toJSNumber();
-      } else if (convertToString) {
-        normalizedRow[key] = row[key].toJSON();
-      } else {
-        normalizedRow[key] = row[key];
-      }
+      const value = row[key];
+      normalizedRow[key] = normalizeValue(value, normalizedRow, key);
     }
   }
   return normalizedRow;
@@ -315,3 +320,4 @@ module.exports.createRandomFileName = function ( option = { prefix: '', postfix:
 };
 
 module.exports.normalizeRowObject = normalizeRowObject;
+module.exports.normalizeValue = normalizeValue;

@@ -80,7 +80,7 @@ describe('Test Structured types', function () {
         '}' +
         '::OBJECT(timestamp_ltz TIMESTAMP_LTZ) As RESULT';
       const expected = '{"timestamp_ltz":"2021-12-22 09:43:44.000 -0800"}';
-      
+
       async.series([
         function (callback) {
           connection.execute({
@@ -109,7 +109,7 @@ describe('Test Structured types', function () {
         '}' +
         '::OBJECT(timestamp_ntz TIMESTAMP_NTZ) AS RESULT';
       const expected = { timestamp_ntz: '2021-12-22 09:43:44.000' };
-      
+
       async.series([
         function (callback) {
           connection.execute({
@@ -149,11 +149,11 @@ describe('Test Structured types', function () {
             complete: function (err, stmt, rows) {
               testUtil.checkError(err);
               const row = rows[0];
-              const narmalizedRow = {};
+              const normalizedRow = {};
               Object.keys(row).forEach((key) => {
-                narmalizedRow[key] = testUtil.normalizeRowObject(row[key]);
+                normalizedRow[key] = testUtil.normalizeRowObject(row[key]);
               });
-              assert.deepStrictEqual(narmalizedRow.RESULT, expected);
+              assert.deepStrictEqual(normalizedRow.RESULT, expected);
               callback();
             }
           });
@@ -169,9 +169,9 @@ describe('Test Structured types', function () {
         '\'binary\': TO_BINARY(\'616263\', \'HEX\')' +
         '}' +
         '::OBJECT(binary BINARY) As RESULT';
-      
+
       const expected = { RESULT: { 'binary': [97, 98, 99] } };
-      
+
       async.series([
         function (callback) {
           connection.execute({

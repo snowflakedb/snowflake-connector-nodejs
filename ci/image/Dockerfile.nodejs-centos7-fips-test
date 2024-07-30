@@ -42,6 +42,7 @@ ENV LD_LIBRARY_PATH "${LD_LIBRARY_PATH}:/usr/local/lib64"
 ENV OPENSSL_CONF /usr/local/ssl/openssl.cnf
 ENV FIPSCONF /usr/local/ssl/fipsmodule.cnf
 ENV OPENSSL_MODULES=/usr/local/lib64/ossl-modules
+ENV NODE_OPTIONS = "--openssl-legacy-provider"
 
 # Install OpenSSL
 RUN cd $HOME

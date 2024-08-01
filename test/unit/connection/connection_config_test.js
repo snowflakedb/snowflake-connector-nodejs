@@ -1636,5 +1636,3 @@ describe('ConnectionConfig: basic', function () {
     });
   });
 });
-
-

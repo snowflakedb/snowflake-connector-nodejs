@@ -1272,22 +1272,22 @@ describe('ConnectionConfig: basic', function () {
             account: 'a',
           }
       },
-        {
-            name: 'two letter account',
-            input:
+      {
+        name: 'two letter account',
+        input:
                 {
-                    username: 'username',
-                    password: 'password',
-                    account: 'pm'
+                  username: 'username',
+                  password: 'password',
+                  account: 'pm'
                 },
-            options:
+        options:
                 {
-                    accessUrl: 'https://pm.snowflakecomputing.com',
-                    username: 'username',
-                    password: 'password',
-                    account: 'pm'
+                  accessUrl: 'https://pm.snowflakecomputing.com',
+                  username: 'username',
+                  password: 'password',
+                  account: 'pm'
                 }
-        },
+      },
       {
         name: 'only one letter account and subdomain',
         input:
@@ -1306,23 +1306,23 @@ describe('ConnectionConfig: basic', function () {
             region: 'b'
           }
       },
-        {
-            name: 'two letter account and subdomain',
-            input:
+      {
+        name: 'two letter account and subdomain',
+        input:
                 {
-                    username: 'username',
-                    password: 'password',
-                    account: 'pm.ab'
+                  username: 'username',
+                  password: 'password',
+                  account: 'pm.ab'
                 },
-            options:
+        options:
                 {
-                    accessUrl: 'https://pm.ab.snowflakecomputing.com',
-                    username: 'username',
-                    password: 'password',
-                    account: 'pm',
-                    region: 'ab'
+                  accessUrl: 'https://pm.ab.snowflakecomputing.com',
+                  username: 'username',
+                  password: 'password',
+                  account: 'pm',
+                  region: 'ab'
                 }
-        },
+      },
       {
         name: 'account with [-] in the middle',
         input:
@@ -1636,4 +1636,5 @@ describe('ConnectionConfig: basic', function () {
     });
   });
 });
+
 

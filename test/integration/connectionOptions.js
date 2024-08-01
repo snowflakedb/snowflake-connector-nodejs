@@ -85,7 +85,7 @@ const wrongPwd =
   {
 
     accessUrl: accessUrl,
-    username: 'nodejs',
+    username: snowflakeTestAccount,
     password: '',
     account: snowflakeTestAccount
   };
@@ -111,7 +111,7 @@ const externalBrowserWithShortTimeout = {
 const externalBrowserMismatchUser =
 {
   accessUrl: accessUrl,
-  username: 'node',
+  username: snowflakeTestAccount,
   account: snowflakeTestAccount,
   authenticator: 'EXTERNALBROWSER'
 };

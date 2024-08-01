@@ -46,7 +46,7 @@ describe('Connection test', function () {
     assert.ok(!connection.isUp(), 'still active');
   });
 
-  it.skip('Wrong Username', function (done) {
+  it('Wrong Username', function (done) {
     const connection = snowflake.createConnection(connOption.wrongUserName);
     connection.connect(function (err) {
       assert.ok(err, 'Username is an empty string');
@@ -58,7 +58,7 @@ describe('Connection test', function () {
     });
   });
 
-  it.skip('Wrong Password', function (done) {
+  it('Wrong Password', function (done) {
     const connection = snowflake.createConnection(connOption.wrongPwd);
     connection.connect(function (err) {
       assert.ok(err, 'Password is an empty string');
@@ -684,7 +684,7 @@ describe('Connection test - connection pool', function () {
       });
   });
 
-  it.skip('wrong password - use', async function () {
+  it('wrong password - use', async function () {
     const connectionPool = snowflake.createPool(connOption.wrongPwd, {
       max: 10,
       min: 1,
@@ -708,7 +708,7 @@ describe('Connection test - connection pool', function () {
     }
   });
 
-  it.skip('wrong password - acquire', async function () {
+  it('wrong password - acquire', async function () {
     const connectionPool = snowflake.createPool(connOption.wrongPwd, {
       max: 10,
       min: 1,

@@ -52,7 +52,7 @@ describe('matching files by wildcard', function () {
 });
 
 
-describe('varify only user read/write permission', function () {
+describe('verify only user read/write permission', function () {
   let testFilePath;
 
   before( async function () {

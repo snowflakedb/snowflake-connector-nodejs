@@ -66,36 +66,36 @@ describe('verify only user read/write permission', function () {
   [
     {
       permission: '600',
-      testResult: true
+      expectedResult: true
     },
     {
       permission: '100600',
-      testResult: true
+      expectedResult: true
     },
     {
       permission: '700',
-      testResult: false
+      expectedResult: false
     },
     {
       permission: '640',
-      testResult: false
+      expectedResult: false
     },
     {
       permission: '100777',
-      testResult: false
+      expectedResult: false
     },
     {
       permission: '444',
-      testResult: false
+      expectedResult: false
     },
     {
       permission: '12477',
-      testResult: false
+      expectedResult: false
     }
-  ].forEach(({ permission, testResult }) => {
+  ].forEach(({ permission, expectedResult }) => {
     it('verify permission', async function () {
       await fsPromises.chmod(testFilePath, permission);
-      if (!testResult) {
+      if (!expectedResult) {
         assert.throws(() => validateOnlyUserReadWritePermission(testFilePath));
       } else {
         assert.doesNotThrow(() => validateOnlyUserReadWritePermission(testFilePath));

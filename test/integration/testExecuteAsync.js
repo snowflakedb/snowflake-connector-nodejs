@@ -147,7 +147,7 @@ describe('ExecuteAsync test', function () {
           } catch (err) {
             assert.strictEqual(err.name, 'OperationFailedError');
           }
-        },
+        }
       ],
       done
     );

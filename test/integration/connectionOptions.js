@@ -76,7 +76,7 @@ const wrongUserName =
   {
 
     accessUrl: accessUrl,
-    username: 'node',
+    username: snowflakeTestUser,
     password: 'test',
     account: snowflakeTestAccount
   };
@@ -85,7 +85,7 @@ const wrongPwd =
   {
 
     accessUrl: accessUrl,
-    username: 'nodejs',
+    username: snowflakeTestUser,
     password: '',
     account: snowflakeTestAccount
   };

@@ -30,6 +30,9 @@ describe.only('Test Structured types', function () {
       },
       function (callback) {
         testUtil.executeCmd(connection, sharedStatement.setTimestampOutputFormat, callback);
+      },
+      function (callback) {
+        testUtil.executeCmd(connection, sharedStatement.setTimestampNTZOutputFormat, callback);
       }],
     done
     );
@@ -113,7 +116,7 @@ describe.only('Test Structured types', function () {
         '\'timestampntz\': \'2021-12-22 09:43:44\'::TIMESTAMP_NTZ' +
         '}' +
         '::OBJECT(timestampntz TIMESTAMP_NTZ) AS RESULT';
-      const expected = { timestampntz: '2021-12-22 09:43:44.000 +0000' };
+      const expected = { timestampntz: '2021-12-22 09:43:44.000' };
 
       async.series([
         function (callback) {

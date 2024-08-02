@@ -8,7 +8,7 @@ const testUtil = require('./testUtil');
 const sharedStatement = require('./sharedStatements');
 const assert = require('assert');
 
-describe.only('Test Structured types', function () {
+describe('Test Structured types', function () {
   let connection;
 
   before(function (done) {

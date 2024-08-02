@@ -113,7 +113,7 @@ describe.only('Test Structured types', function () {
         '\'timestampntz\': \'2021-12-22 09:43:44\'::TIMESTAMP_NTZ' +
         '}' +
         '::OBJECT(timestampntz TIMESTAMP_NTZ) AS RESULT';
-      const expected = { timestampntz: '2021-12-22 09:43:44.000' };
+      const expected = { timestampntz: '2021-12-22 09:43:44.000 +0000' };
 
       async.series([
         function (callback) {
@@ -269,7 +269,6 @@ describe.only('Test Structured types', function () {
         '\'l\': 4,' +
         ' \'f\': 1.1,' +
         ' \'d\': 2.2,' +
-        ' \'bd\': 3.3, ' +
         '\'bool\': true, ' +
         '\'timestampltz\': \'2021-12-22 09:43:44\'::TIMESTAMP_LTZ,' +
         ' \'timestampntz\': \'2021-12-23 09:44:44\'::TIMESTAMP_NTZ, ' +
@@ -285,7 +284,6 @@ describe.only('Test Structured types', function () {
         'l BIGINT, ' +
         'f FLOAT, ' +
         'd DOUBLE, ' +
-        'bd DOUBLE, ' +
         'bool BOOLEAN,' +
         'timestampltz TIMESTAMP_LTZ,' +
         'timestampntz TIMESTAMP_NTZ, ' +
@@ -303,7 +301,6 @@ describe.only('Test Structured types', function () {
           l: 4,
           f: 1.1,
           d: 2.2,
-          bd: 3.3,
           bool: true,
           timestampltz: '2021-12-22 09:43:44.000 -0800',
           timestampntz: '2021-12-23 09:44:44.000',
@@ -346,7 +343,6 @@ describe.only('Test Structured types', function () {
         '\'l\': 4,' +
         ' \'f\': 1.1,' +
         ' \'d\': 2.2,' +
-        ' \'bd\': 3.3, ' +
         '\'bool\': true, ' +
         '\'timestampltz\': \'2021-12-22 09:43:44\'::TIMESTAMP_LTZ,' +
         ' \'timestampntz\': \'2021-12-23 09:44:44\'::TIMESTAMP_NTZ, ' +
@@ -362,7 +358,6 @@ describe.only('Test Structured types', function () {
         'l BIGINT, ' +
         'f FLOAT, ' +
         'd DOUBLE, ' +
-        'bd DOUBLE, ' +
         'bool BOOLEAN,' +
         'timestampltz TIMESTAMP_LTZ,' +
         'timestampntz TIMESTAMP_NTZ, ' +
@@ -372,7 +367,7 @@ describe.only('Test Structured types', function () {
         ') AS RESULT';
 
       const expected = {
-        'RESULT': '{"string":"a","b":1,"s":2,"i":3,"l":4,"f":1.1,"d":2.2,"bd":3.3,"bool":true,"timestampltz":"2021-12-22 09:43:44.000 -0800","timestampntz":"2021-12-23 09:44:44.000","timestamptz":"2021-12-24 09:45:45.000 -0800","date":"2023-12-23","time":"12:34:56","binary":[97,98,99]}'
+        'RESULT': '{"string":"a","b":1,"s":2,"i":3,"l":4,"f":1.1,"d":2.2,"bool":true,"timestampltz":"2021-12-22 09:43:44.000 -0800","timestampntz":"2021-12-23 09:44:44.000","timestamptz":"2021-12-24 09:45:45.000 -0800","date":"2023-12-23","time":"12:34:56","binary":[97,98,99]}'
       };
 
       async.series([

@@ -227,7 +227,7 @@ describe('ExecuteAsync test', function () {
 
     // Get the query status using an unknown query id
     const status = await connection.getQueryStatus(unknownQueryId);
-    assert.strictEqual(QueryStatus[status], QueryStatus.NO_DATA);
+    assert.strictEqual(QueryStatus[status], QueryStatus.NO_QUERY_DATA);
   });
 
   // The test retries until it reaches the max retry count and sometimes it fails due to timeout

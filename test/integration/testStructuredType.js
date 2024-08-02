@@ -13,11 +13,13 @@ describe.only('Test Structured types', function () {
   let connection;
 
   before(function (done) {
-    connection = testUtil.createConnection({ 'proxyHost': '127.0.0.1', 'proxyPort': 8080 });
+    connection = testUtil.createConnection(
+      // { 'proxyHost': '127.0.0.1', 'proxyPort': 8080 }
+    );
     async.series([
       function (callback) {
-        snowflake.configure({ 'insecureConnect': true });
-        GlobalConfig.setInsecureConnect(true);
+        // snowflake.configure({ 'insecureConnect': true });
+        // GlobalConfig.setInsecureConnect(true);
         testUtil.connect(connection, callback);
       },
       function (callback) {

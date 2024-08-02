@@ -3,7 +3,6 @@
  */
 
 const async = require('async');
-const GlobalConfig = require('./../../lib/global_config');
 const snowflake = require('./../../lib/snowflake');
 const testUtil = require('./testUtil');
 const sharedStatement = require('./sharedStatements');
@@ -14,12 +13,9 @@ describe.only('Test Structured types', function () {
 
   before(function (done) {
     connection = testUtil.createConnection(
-      // { 'proxyHost': '127.0.0.1', 'proxyPort': 8080 }
     );
     async.series([
       function (callback) {
-        // snowflake.configure({ 'insecureConnect': true });
-        // GlobalConfig.setInsecureConnect(true);
         testUtil.connect(connection, callback);
       },
       function (callback) {

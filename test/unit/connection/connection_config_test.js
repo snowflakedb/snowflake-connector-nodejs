@@ -1273,6 +1273,22 @@ describe('ConnectionConfig: basic', function () {
           }
       },
       {
+        name: 'two letter account',
+        input:
+                {
+                  username: 'username',
+                  password: 'password',
+                  account: 'pm'
+                },
+        options:
+                {
+                  accessUrl: 'https://pm.snowflakecomputing.com',
+                  username: 'username',
+                  password: 'password',
+                  account: 'pm'
+                }
+      },
+      {
         name: 'only one letter account and subdomain',
         input:
           {
@@ -1289,6 +1305,23 @@ describe('ConnectionConfig: basic', function () {
             account: 'a',
             region: 'b'
           }
+      },
+      {
+        name: 'two letter account and subdomain',
+        input:
+                {
+                  username: 'username',
+                  password: 'password',
+                  account: 'pm.ab'
+                },
+        options:
+                {
+                  accessUrl: 'https://pm.ab.snowflakecomputing.com',
+                  username: 'username',
+                  password: 'password',
+                  account: 'pm',
+                  region: 'ab'
+                }
       },
       {
         name: 'account with [-] in the middle',
@@ -1603,4 +1636,3 @@ describe('ConnectionConfig: basic', function () {
     });
   });
 });
-

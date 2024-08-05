@@ -57,7 +57,7 @@ jobs:
                 node-version: ${{ matrix.nodeVersion }}
             - uses: actions/setup-python@v4
               with:
-                python-version: '3.7'
+                python-version: '3.11'
             - name: Download Build Artifacts
               uses: actions/download-artifact@v3
               with:
@@ -82,7 +82,8 @@ jobs:
     test-windows:
         needs: build
         name: Tests on Windows
-        runs-on: windows-latest
+        runs-on: windows-2022
+#        runs-on: windows-2019 # we have binaries for vs16
         strategy:
             fail-fast: false
             matrix:
@@ -95,7 +96,7 @@ jobs:
                 node-version: ${{ matrix.nodeVersion }}
             - uses: actions/setup-python@v4
               with:
-                python-version: '3.7'
+                python-version: '3.11'
                 architecture: 'x64'
             - name: Download Build Artifacts
               uses: actions/download-artifact@v3

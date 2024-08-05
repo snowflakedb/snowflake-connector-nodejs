@@ -3,3 +3,4 @@
  */
 
 module.exports = require('./lib/snowflake');
+module.exports.generic = require('./lib/generic');

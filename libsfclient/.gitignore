@@ -1,0 +1,5 @@
+build
+**/*.o
+deps/curl-7.54.1/**/*.o
+deps/curl-7.54.1/**/.dirstamp
+cmake-build

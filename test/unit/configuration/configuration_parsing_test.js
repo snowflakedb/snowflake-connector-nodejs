@@ -13,13 +13,18 @@ let tempDir = null;
 
 describe('should parse toml connection configuration', function () {
 
+  beforeEach( async function () {
+    process.env.SNOWFLAKE_HOME = process.cwd() + '/test';
+    const configurationPath = path.join(process.env.SNOWFLAKE_HOME, 'connections.toml');
+    await fsPromises.chmod(configurationPath, '600');
+  });
+
   afterEach( function () {
     delete process.env.SNOWFLAKE_HOME;
     delete process.env.SNOWFLAKE_DEFAULT_CONNECTION_NAME;
   });
 
   it('should parse toml with connection configuration: ', async function () {
-    process.env.SNOWFLAKE_HOME = process.cwd() + '/test';
     const configuration = await loadConnectionConfiguration();
     assert.strictEqual(configuration['account'], 'snowdriverswarsaw.us-west-2.aws');
     assert.strictEqual(configuration['username'], 'test_user');
@@ -32,7 +37,6 @@ describe('should parse toml connection configuration', function () {
   });
 
   it('should parse toml with connection configuration - oauth', async function () {
-    process.env.SNOWFLAKE_HOME = process.cwd() + '/test/';
     process.env.SNOWFLAKE_DEFAULT_CONNECTION_NAME = 'aws-oauth';
     const configuration = await loadConnectionConfiguration();
     assert.strictEqual(configuration['token'], 'token_value');
@@ -40,7 +44,6 @@ describe('should parse toml connection configuration', function () {
   });
 
   it('should throw exception when token file does not exist', async function () {
-    process.env.SNOWFLAKE_HOME = process.cwd() + '/test/';
     process.env.SNOWFLAKE_DEFAULT_CONNECTION_NAME = 'aws-oauth-file';
     try {
       await loadConnectionConfiguration();
@@ -62,8 +65,6 @@ describe('should parse toml connection configuration', function () {
 
   it('should throw exception if configuration does not exists', function (done) {
     process.env.SNOWFLAKE_DEFAULT_CONNECTION_NAME = 'unknown';
-    process.env.SNOWFLAKE_HOME = process.cwd() + '/test/';
-
     try {
       loadConnectionConfiguration();
       assert.fail();

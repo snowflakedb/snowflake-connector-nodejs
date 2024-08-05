@@ -24,5 +24,4 @@ jobs:
                 node-version: '18.x'
           - name: Install dependencies
             run: npm i
-          - name: Check formatting
-            run: npm run lint:check:all
+

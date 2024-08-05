@@ -74,18 +74,16 @@ const snowflakeAccount = snowflakeTestAdminUser !== undefined ?
 
 const wrongUserName =
   {
-
     accessUrl: accessUrl,
-    username: 'node',
-    password: 'test',
+    username: snowflakeTestUser,
+    password: 'testWrongPass',
     account: snowflakeTestAccount
   };
 
 const wrongPwd =
   {
-
     accessUrl: accessUrl,
-    username: 'nodejs',
+    username: snowflakeTestUser,
     password: '',
     account: snowflakeTestAccount
   };

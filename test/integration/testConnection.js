@@ -13,7 +13,7 @@ const { stdout } = require('test-console');
 const { assertLogMessage } = require('./testUtil');
 const { configureLogger } = require('../configureLogger');
 
-describe('Connection test', function () {
+describe.only('Connection test', function () {
   it('return tokens in qaMode', function () {
     const coreInst = Core({
       qaMode: true,

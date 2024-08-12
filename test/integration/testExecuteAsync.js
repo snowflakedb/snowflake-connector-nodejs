@@ -230,8 +230,7 @@ describe('ExecuteAsync test', function () {
     assert.strictEqual(QueryStatus[status], QueryStatus.NO_QUERY_DATA);
   });
 
-  // The test retries until it reaches the max retry count and sometimes it fails due to timeout
-  it.skip('testGetResultsOfUnknownQueryId', async function () {
+  it('testGetResultsOfUnknownQueryId', async function () {
     const unknownQueryId = '12345678-1234-4123-A123-123456789012';
 
     // Get the query results using an unknown query id

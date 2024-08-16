@@ -7,7 +7,7 @@ const testUtil = require('../../integration/testUtil');
 const os = require('os');
 const fsPromises = require('fs').promises;
 const crypto = require('crypto');
-const getMatchingFilePaths = require('../../../lib/file_transfer_agent/file_util').getMatchingFilePaths;
+const { getMatchingFilePaths, validateOnlyUserReadWritePermission } = require('../../../lib/file_transfer_agent/file_util');
 
 
 describe('matching files by wildcard', function () {
@@ -50,3 +50,57 @@ describe('matching files by wildcard', function () {
   });
 
 });
+
+if (os.platform() !== 'win32') {
+  describe('verify only user read/write permission', function () {
+    let testFilePath;
+
+    before(async function () {
+      testFilePath = await testUtil.createTempFileAsync(os.tmpdir(), testUtil.createRandomFileName());
+    });
+
+    after(async function () {
+      await fsPromises.rm(testFilePath);
+    });
+
+    [
+      {
+        permission: '600',
+        expectedResult: true
+      },
+      {
+        permission: '100600',
+        expectedResult: true
+      },
+      {
+        permission: '700',
+        expectedResult: false
+      },
+      {
+        permission: '640',
+        expectedResult: false
+      },
+      {
+        permission: '100777',
+        expectedResult: false
+      },
+      {
+        permission: '444',
+        expectedResult: false
+      },
+      {
+        permission: '12477',
+        expectedResult: false
+      }
+    ].forEach(({ permission, expectedResult }) => {
+      it('verify permission', async function () {
+        await fsPromises.chmod(testFilePath, permission);
+        if (!expectedResult) {
+          assert.throws(() => validateOnlyUserReadWritePermission(testFilePath));
+        } else {
+          assert.doesNotThrow(() => validateOnlyUserReadWritePermission(testFilePath));
+        }
+      });
+    });
+  });
+}

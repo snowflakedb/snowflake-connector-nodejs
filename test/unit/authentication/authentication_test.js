@@ -27,6 +27,7 @@ const connectionOptionsKeyPairPath = mockConnectionOptions.authKeyPairPath;
 const connectionOptionsOauth = mockConnectionOptions.authOauth;
 const connectionOptionsOkta = mockConnectionOptions.authOkta;
 const connectionOptionsIdToken = mockConnectionOptions.authIdToken;
+const connectionMFA = mockConnectionOptions.authMFA;
 
 describe('default authentication', function () {
 
@@ -651,7 +652,7 @@ describe('okta authentication', function () {
 });
 
 describe('MFA authentication', async function () {
-  const mfaTokenOption = { ...connectionOptionsDefault, authenticator: authenticationTypes.MFA_TOKEN_AUTHENTICATOR };
+  const mfaTokenOption = connectionMFA;
 
   it('test - no mfa token is saved on the secure storage', function () {
     const auth = new AuthMFAToken(mfaTokenOption);

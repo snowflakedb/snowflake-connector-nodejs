@@ -164,6 +164,18 @@ const connectionOptionsOkta =
   getDisableSamlURLCheck: () => false
 };
 
+
+const connectionOptionsMFA =
+{
+  accessUrl: 'http://fakeaccount.snowflakecomputing.com',
+  username: 'fakeusername',
+  password: 'fakepassword',
+  account: 'fakeaccount',
+  authenticator: 'USERNAME_PASSWORD_MFA', 
+  getPasscode: () => '123456',
+  getPasscodeInPassword: () => true
+};
+
 exports.connectionOptions =
   {
     default: connectionOptions,
@@ -181,4 +193,5 @@ exports.connectionOptions =
     authOauth: connectionOptionsOauth,
     authOkta: connectionOptionsOkta,
     authIdToken: connectionOptionsidToken,
+    authMFA: connectionOptionsMFA,
   };

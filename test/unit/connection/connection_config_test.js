@@ -1648,6 +1648,24 @@ describe('ConnectionConfig: basic', function () {
         result: true,
         getter: 'getDisableSamlURLCheck',
       },
+      {
+        name: 'passcodeInPassword',
+        input: {
+          ...mandatoryOption,
+          passcodeInPassword: true,
+        },
+        result: true,
+        getter: 'getPasscodeInPassword',
+      },
+      {
+        name: 'passcode',
+        input: {
+          ...mandatoryOption,
+          passcode: '123456',
+        },
+        result: '123456',
+        getter: 'getPasscode',
+      },
     ];
 
     testCases.forEach(({ name, input, result, getter }) => {

@@ -2,6 +2,8 @@
  * Copyright (c) 2015-2024 Snowflake Computing Inc. All rights reserved.
  */
 
+const { connectionOptions } = require('../unit/mock/mock_test_util');
+
 let snowflakeTestProtocol = process.env.SNOWFLAKE_TEST_PROTOCOL;
 let snowflakeTestHost = process.env.SNOWFLAKE_TEST_HOST;
 let snowflakeTestPort = process.env.SNOWFLAKE_TEST_PORT;
@@ -27,6 +29,7 @@ const snowflakeTestToken = process.env.SNOWFLAKE_TEST_OAUTH_TOKEN;
 const snowflakeTestOktaUser = process.env.SNOWFLAKE_TEST_OKTA_USER;
 const snowflakeTestOktaPass = process.env.SNOWFLAKE_TEST_OKTA_PASS;
 const snowflakeTestOktaAuth = process.env.SNOWFLAKE_TEST_OKTA_AUTH;
+const snowflakeTestPasscode = process.env.SNOWFLAKE_TEST_PASSCODE;
 
 if (snowflakeTestProtocol === undefined) {
   snowflakeTestProtocol = 'https';
@@ -163,6 +166,12 @@ const keypairWrongToken =
   authenticator: 'SNOWFLAKE_JWT'
 };
 
+const MFA = {
+  ...connectionOptions.valid,
+  passcode: snowflakeTestPasscode,
+  authenticator: 'USERNAME_PASSWORD_MFA'
+};
+
 const oauth =
 {
   accessUrl: accessUrl,
@@ -238,3 +247,4 @@ exports.oauthMismatchUser = oauthMismatchUser;
 exports.okta = okta;
 exports.privatelink = privatelink;
 exports.connectionWithProxy = connectionWithProxy;
+exports.MFA = MFA;

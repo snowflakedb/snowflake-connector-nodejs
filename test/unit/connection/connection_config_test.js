@@ -753,6 +753,28 @@ describe('ConnectionConfig: basic', function () {
         },
         errorCode: ErrorCodes.ERR_CONN_CREATE_INVALID_DISABLE_SAML_URL_CHECK
       },
+      {
+        name: 'invalid passcodeInPassword',
+
+        options: {
+          account: 'account',
+          username: 'username',
+          password: 'password',
+          passcodeInPassword: 'invalid'
+        },
+        errorCode: ErrorCodes.ERR_CONN_CREATE_INVALID_PASSCODE_IN_PASSWORD
+      },
+      {
+        name: 'invalid passcode',
+
+        options: {
+          account: 'account',
+          username: 'username',
+          password: 'password',
+          passcode: 123456
+        },
+        errorCode: ErrorCodes.ERR_CONN_CREATE_INVALID_PASSCODE
+      },
     ];
 
   const createNegativeITCallback = function (testCase) {

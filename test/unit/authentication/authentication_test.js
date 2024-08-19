@@ -654,8 +654,8 @@ describe('okta authentication', function () {
 describe('MFA authentication', async function () {
   const mfaTokenOption = connectionMFA;
 
-  it('test - no mfa token is saved on the secure storage', function () {
-    const auth = new AuthMFAToken(mfaTokenOption);
+  it('test - passcode is only configured', function () {
+    const auth = new AuthMFAToken({ ...mfaTokenOption, getPasscode: () => 'mockPasscode' });
     const body = authenticator.formAuthJSON(mfaTokenOption.authenticator,
       mfaTokenOption.account,
       mfaTokenOption.username,
@@ -666,6 +666,24 @@ describe('MFA authentication', async function () {
     assert.strictEqual(body['data']['AUTHENTICATOR'], 'USERNAME_PASSWORD_MFA');
     assert.strictEqual(body['data']['PASSWORD'], mfaTokenOption.password);
     assert.strictEqual(body['data']['TOKEN'], undefined);
+    assert.strictEqual(body['data']['PASSCODE'], 'mockPasscode');
+    assert.strictEqual(body['data']['EXT_AUTHN_DUO_METHOD'], 'passcode');
+  });
+
+  it('test - passcodeInPassword option is enabled', function () {
+    const auth = new AuthMFAToken({ ...mfaTokenOption, getPasscodeInPassword: () => true });
+    const body = authenticator.formAuthJSON(mfaTokenOption.authenticator,
+      mfaTokenOption.account,
+      mfaTokenOption.username,
+      {}, {}, {});
+
+    auth.updateBody(body);
+
+    assert.strictEqual(body['data']['AUTHENTICATOR'], 'USERNAME_PASSWORD_MFA');
+    assert.strictEqual(body['data']['PASSWORD'], mfaTokenOption.password);
+    assert.strictEqual(body['data']['TOKEN'], undefined);
+    assert.strictEqual(body['data']['PASSCODE'], undefined);
+    assert.strictEqual(body['data']['EXT_AUTHN_DUO_METHOD'], 'passcode');
   });
 
   it('test - mfa token is saved on the secure storage', function () {
@@ -679,6 +697,7 @@ describe('MFA authentication', async function () {
     auth.updateBody(body);
 
     assert.strictEqual(body['data']['AUTHENTICATOR'], 'USERNAME_PASSWORD_MFA');
+    assert.strictEqual(body['data']['EXT_AUTHN_DUO_METHOD'], 'push');
     assert.strictEqual(body['data']['PASSWORD'], mfaTokenOption.password);
     assert.strictEqual(body['data']['TOKEN'], mfaTokenOption.mfaToken);
   });

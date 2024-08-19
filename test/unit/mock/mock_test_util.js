@@ -172,8 +172,8 @@ const connectionOptionsMFA =
   password: 'fakepassword',
   account: 'fakeaccount',
   authenticator: 'USERNAME_PASSWORD_MFA', 
-  getPasscode: () => '123456',
-  getPasscodeInPassword: () => true
+  getPasscodeInPassword: () => false,
+  getPasscode: () => null,
 };
 
 exports.connectionOptions =

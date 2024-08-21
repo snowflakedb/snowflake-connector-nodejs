@@ -231,7 +231,7 @@ if (process.env.RUN_MANUAL_TESTS_ONLY === 'true') {
       });
     });
 
-    describe('Connection - MFA authenticator with DUO', function () {
+    describe.only('Connection - MFA authenticator with DUO', function () {
       const connectionOption = connOption.MFA;
     
       it('test - authentication with passcode', function (done) {

@@ -28,7 +28,10 @@ const connectionOptions =
     accessUrl: 'http://fakeaccount.snowflakecomputing.com',
     username: 'fakeusername',
     password: 'fakepassword',
-    account: 'fakeaccount'
+    account: 'fakeaccount',
+    getPasscodeInPassword: () => false,
+    getPasscode: () => null,  
+    authenticator: 'SNOWFLAKE'
   };
 
 const connectionOptionsDeserialize =
@@ -164,18 +167,6 @@ const connectionOptionsOkta =
   getDisableSamlURLCheck: () => false
 };
 
-
-const connectionOptionsMFA =
-{
-  accessUrl: 'http://fakeaccount.snowflakecomputing.com',
-  username: 'fakeusername',
-  password: 'fakepassword',
-  account: 'fakeaccount',
-  authenticator: 'USERNAME_PASSWORD_MFA', 
-  getPasscodeInPassword: () => false,
-  getPasscode: () => null,
-};
-
 exports.connectionOptions =
   {
     default: connectionOptions,
@@ -193,5 +184,4 @@ exports.connectionOptions =
     authOauth: connectionOptionsOauth,
     authOkta: connectionOptionsOkta,
     authIdToken: connectionOptionsidToken,
-    authMFA: connectionOptionsMFA,
   };

@@ -169,7 +169,6 @@ const keypairWrongToken =
 const MFA = {
   ...connectionOptions.valid,
   passcode: snowflakeTestPasscode,
-  authenticator: 'USERNAME_PASSWORD_MFA'
 };
 
 const oauth =

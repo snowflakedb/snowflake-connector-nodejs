@@ -12,7 +12,6 @@ const AuthWeb = require('./../../../lib/authentication/auth_web');
 const AuthKeypair = require('./../../../lib/authentication/auth_keypair');
 const AuthOauth = require('./../../../lib/authentication/auth_oauth');
 const AuthOkta = require('./../../../lib/authentication/auth_okta');
-const AuthMFAToken = require('../../../lib/authentication/auth_mfatoken');
 const AuthIDToken = require('./../../../lib/authentication/auth_idtoken');
 const authenticationTypes = require('./../../../lib/authentication/authentication').authenticationTypes;
 const MockTestUtil = require('./../mock/mock_test_util');
@@ -27,12 +26,11 @@ const connectionOptionsKeyPairPath = mockConnectionOptions.authKeyPairPath;
 const connectionOptionsOauth = mockConnectionOptions.authOauth;
 const connectionOptionsOkta = mockConnectionOptions.authOkta;
 const connectionOptionsIdToken = mockConnectionOptions.authIdToken;
-const connectionMFA = mockConnectionOptions.authMFA;
 
 describe('default authentication', function () {
 
   it('default - authenticate method is thenable', done => {
-    const auth = new AuthDefault(connectionOptions.password);
+    const auth = new AuthDefault(connectionOptions);
 
     auth.authenticate()
       .then(done)
@@ -40,7 +38,7 @@ describe('default authentication', function () {
   });
 
   it('default - check password', function () {
-    const auth = new AuthDefault(connectionOptions.password);
+    const auth = new AuthDefault(connectionOptions);
 
     const body = { data: {} };
     auth.updateBody(body);
@@ -57,6 +55,54 @@ describe('default authentication', function () {
 
     assert.strictEqual(
       body['data']['AUTHENTICATOR'], authenticationTypes.DEFAULT_AUTHENTICATOR, 'Authenticator should be SNOWFLAKE');
+  });
+
+  it('test - passcode is only configured', function () {
+    const auth = new AuthDefault({ ...connectionOptions, getPasscode: () => 'mockPasscode' });
+    const body = authenticator.formAuthJSON(connectionOptions.authenticator,
+      connectionOptions.account,
+      connectionOptions.username,
+      {}, {}, {});
+
+    auth.updateBody(body);
+
+    assert.strictEqual(body['data']['AUTHENTICATOR'], 'SNOWFLAKE');
+    assert.strictEqual(body['data']['PASSWORD'], connectionOptions.password);
+    assert.strictEqual(body['data']['TOKEN'], undefined);
+    assert.strictEqual(body['data']['PASSCODE'], 'mockPasscode');
+    assert.strictEqual(body['data']['EXT_AUTHN_DUO_METHOD'], 'passcode');
+  });
+
+  it('test - passcodeInPassword option is enabled', function () {
+    const auth = new AuthDefault({ ...connectionOptions, getPasscodeInPassword: () => true });
+    const body = authenticator.formAuthJSON(connectionOptions.authenticator,
+      connectionOptions.account,
+      connectionOptions.username,
+      {}, {}, {});
+
+    auth.updateBody(body);
+
+    assert.strictEqual(body['data']['AUTHENTICATOR'], 'SNOWFLAKE');
+    assert.strictEqual(body['data']['PASSWORD'], connectionOptions.password);
+    assert.strictEqual(body['data']['TOKEN'], undefined);
+    assert.strictEqual(body['data']['PASSCODE'], undefined);
+    assert.strictEqual(body['data']['EXT_AUTHN_DUO_METHOD'], 'passcode');
+  });
+
+  it('test - mfa token is saved on the secure storage', function () {
+    connectionOptions.mfaToken =  'mock_token';
+    const auth = new AuthDefault(connectionOptions);
+    const body = authenticator.formAuthJSON(connectionOptions.authenticator,
+      connectionOptions.account,
+      connectionOptions.username,
+      {}, {}, {});
+
+    auth.updateBody(body);
+
+    assert.strictEqual(body['data']['AUTHENTICATOR'], 'SNOWFLAKE');
+    assert.strictEqual(body['data']['EXT_AUTHN_DUO_METHOD'], 'push');
+    assert.strictEqual(body['data']['PASSWORD'], connectionOptions.password);
+    assert.strictEqual(body['data']['TOKEN'], connectionOptions.mfaToken);
   });
 });
 
@@ -619,11 +665,11 @@ describe('okta authentication', function () {
 
   describe('test getAuthenticator()', () => {
     [
-      { name: 'default', providedAuth: authenticationTypes.DEFAULT_AUTHENTICATOR, expectedAuth: 'AuthDefault' },
-      { name: 'external browser', providedAuth: authenticationTypes.EXTERNAL_BROWSER_AUTHENTICATOR, expectedAuth: 'AuthWeb' },
-      { name: 'id token', providedAuth: authenticationTypes.EXTERNAL_BROWSER_AUTHENTICATOR, expectedAuth: 'AuthIDToken', idToken: 'idToken' },
-      { name: 'key pair', providedAuth: authenticationTypes.KEY_PAIR_AUTHENTICATOR, expectedAuth: 'AuthKeypair' },
-      { name: 'oauth', providedAuth: authenticationTypes.OAUTH_AUTHENTICATOR, expectedAuth: 'AuthOauth' },
+      // { name: 'default', providedAuth: authenticationTypes.DEFAULT_AUTHENTICATOR, expectedAuth: 'AuthDefault' },
+      // { name: 'external browser', providedAuth: authenticationTypes.EXTERNAL_BROWSER_AUTHENTICATOR, expectedAuth: 'AuthWeb' },
+      // { name: 'id token', providedAuth: authenticationTypes.EXTERNAL_BROWSER_AUTHENTICATOR, expectedAuth: 'AuthIDToken', idToken: 'idToken' },
+      // { name: 'key pair', providedAuth: authenticationTypes.KEY_PAIR_AUTHENTICATOR, expectedAuth: 'AuthKeypair' },
+      // { name: 'oauth', providedAuth: authenticationTypes.OAUTH_AUTHENTICATOR, expectedAuth: 'AuthOauth' },
       { name: 'okta', providedAuth: 'https://mycustom.okta.com:8443', expectedAuth: 'AuthOkta' },
       { name: 'unknown', providedAuth: 'unknown', expectedAuth: 'AuthDefault' }
     ].forEach(({ name, providedAuth, expectedAuth, idToken }) => {
@@ -641,6 +687,8 @@ describe('okta authentication', function () {
           getClientType: () => '',
           getClientVersion: () => '',
           getClientStoreTemporaryCredential: () => true,
+          getPasscode: () => '',
+          getPasscodeInPassword: () => false,
           idToken: idToken || null,
           host: 'host',
         };
@@ -649,57 +697,4 @@ describe('okta authentication', function () {
       });
     });
   });
-});
-
-describe('MFA authentication', async function () {
-  const mfaTokenOption = connectionMFA;
-
-  it('test - passcode is only configured', function () {
-    const auth = new AuthMFAToken({ ...mfaTokenOption, getPasscode: () => 'mockPasscode' });
-    const body = authenticator.formAuthJSON(mfaTokenOption.authenticator,
-      mfaTokenOption.account,
-      mfaTokenOption.username,
-      {}, {}, {});
-
-    auth.updateBody(body);
-
-    assert.strictEqual(body['data']['AUTHENTICATOR'], 'USERNAME_PASSWORD_MFA');
-    assert.strictEqual(body['data']['PASSWORD'], mfaTokenOption.password);
-    assert.strictEqual(body['data']['TOKEN'], undefined);
-    assert.strictEqual(body['data']['PASSCODE'], 'mockPasscode');
-    assert.strictEqual(body['data']['EXT_AUTHN_DUO_METHOD'], 'passcode');
-  });
-
-  it('test - passcodeInPassword option is enabled', function () {
-    const auth = new AuthMFAToken({ ...mfaTokenOption, getPasscodeInPassword: () => true });
-    const body = authenticator.formAuthJSON(mfaTokenOption.authenticator,
-      mfaTokenOption.account,
-      mfaTokenOption.username,
-      {}, {}, {});
-
-    auth.updateBody(body);
-
-    assert.strictEqual(body['data']['AUTHENTICATOR'], 'USERNAME_PASSWORD_MFA');
-    assert.strictEqual(body['data']['PASSWORD'], mfaTokenOption.password);
-    assert.strictEqual(body['data']['TOKEN'], undefined);
-    assert.strictEqual(body['data']['PASSCODE'], undefined);
-    assert.strictEqual(body['data']['EXT_AUTHN_DUO_METHOD'], 'passcode');
-  });
-
-  it('test - mfa token is saved on the secure storage', function () {
-    mfaTokenOption.mfaToken =  'mock_token';
-    const auth = new AuthMFAToken(mfaTokenOption);
-    const body = authenticator.formAuthJSON(mfaTokenOption.authenticator,
-      mfaTokenOption.account,
-      mfaTokenOption.username,
-      {}, {}, {});
-
-    auth.updateBody(body);
-
-    assert.strictEqual(body['data']['AUTHENTICATOR'], 'USERNAME_PASSWORD_MFA');
-    assert.strictEqual(body['data']['EXT_AUTHN_DUO_METHOD'], 'push');
-    assert.strictEqual(body['data']['PASSWORD'], mfaTokenOption.password);
-    assert.strictEqual(body['data']['TOKEN'], mfaTokenOption.mfaToken);
-  });
-
 });

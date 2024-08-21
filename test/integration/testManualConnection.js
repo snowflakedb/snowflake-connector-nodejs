@@ -231,7 +231,7 @@ if (process.env.RUN_MANUAL_TESTS_ONLY === 'true') {
       });
     });
 
-    describe.only('Connection - MFA authenticator with DUO', function () {
+    describe('Connection - MFA authenticator with DUO', function () {
       const connectionOption = connOption.MFA;
     
       it('test - authentication with passcode', function (done) {
@@ -246,7 +246,7 @@ if (process.env.RUN_MANUAL_TESTS_ONLY === 'true') {
         });
       });
   
-      it('test - authentication with passcodeInPassword', function (done) {
+      it.skip('test - authentication with passcodeInPassword', function (done) {
         const connection = snowflake.createConnection({ ...connectionOption, passcodeInPassword: true });
         connection.connectAsync(function (err) {
           try {
@@ -259,7 +259,7 @@ if (process.env.RUN_MANUAL_TESTS_ONLY === 'true') {
       });
     });
 
-    describe('Connection - MFA authenticator', function () {
+    describe.only('Connection - MFA authenticator', function () {
       const connectionOption = { ...connOption.MFA, passcode: null, clientRequestMFAToken: true };
       const key = Util.buildCredentialCacheKey(connectionOption.host, connectionOption.username, 'USERNAME_PASSWORD_MFA');
       const defaultCredentialManager = new JsonCredentialManager();

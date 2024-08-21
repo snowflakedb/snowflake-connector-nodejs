@@ -665,11 +665,11 @@ describe('okta authentication', function () {
 
   describe('test getAuthenticator()', () => {
     [
-      // { name: 'default', providedAuth: authenticationTypes.DEFAULT_AUTHENTICATOR, expectedAuth: 'AuthDefault' },
-      // { name: 'external browser', providedAuth: authenticationTypes.EXTERNAL_BROWSER_AUTHENTICATOR, expectedAuth: 'AuthWeb' },
-      // { name: 'id token', providedAuth: authenticationTypes.EXTERNAL_BROWSER_AUTHENTICATOR, expectedAuth: 'AuthIDToken', idToken: 'idToken' },
-      // { name: 'key pair', providedAuth: authenticationTypes.KEY_PAIR_AUTHENTICATOR, expectedAuth: 'AuthKeypair' },
-      // { name: 'oauth', providedAuth: authenticationTypes.OAUTH_AUTHENTICATOR, expectedAuth: 'AuthOauth' },
+      { name: 'default', providedAuth: authenticationTypes.DEFAULT_AUTHENTICATOR, expectedAuth: 'AuthDefault' },
+      { name: 'external browser', providedAuth: authenticationTypes.EXTERNAL_BROWSER_AUTHENTICATOR, expectedAuth: 'AuthWeb' },
+      { name: 'id token', providedAuth: authenticationTypes.EXTERNAL_BROWSER_AUTHENTICATOR, expectedAuth: 'AuthIDToken', idToken: 'idToken' },
+      { name: 'key pair', providedAuth: authenticationTypes.KEY_PAIR_AUTHENTICATOR, expectedAuth: 'AuthKeypair' },
+      { name: 'oauth', providedAuth: authenticationTypes.OAUTH_AUTHENTICATOR, expectedAuth: 'AuthOauth' },
       { name: 'okta', providedAuth: 'https://mycustom.okta.com:8443', expectedAuth: 'AuthOkta' },
       { name: 'unknown', providedAuth: 'unknown', expectedAuth: 'AuthDefault' }
     ].forEach(({ name, providedAuth, expectedAuth, idToken }) => {

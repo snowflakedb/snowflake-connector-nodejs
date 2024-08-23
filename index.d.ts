@@ -240,8 +240,11 @@ declare module 'snowflake-sdk' {
          */
         keepAlive?: boolean;
 
+        /**
+         * If the user wants to use their own credential manager for SSO or MFA token caching,
+         * pass the custom credential manager to this option.
+         */
         customCredentialManager?: object;
-
     }
 
     export interface ConnectionOptions {

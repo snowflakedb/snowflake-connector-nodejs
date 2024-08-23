@@ -110,6 +110,29 @@ describe('Connection test', function () {
 
     timeout();
   });
+
+  it('Failed connections returns sanitized error', function (done) {
+    const somePassword = '______FffU@xEH!q7FrGM9xd*rPM______';
+    const connection = snowflake.createConnection({
+      account: 'some-account',
+      username: 'some-account',
+      password: somePassword,
+      sfRetryMaxLoginRetries: 1,
+    });
+
+    connection.connect(
+      function (err) {
+        try {
+          assert.ok(err);
+          assert.equal(err.name, 'RequestFailedError');
+          err = JSON.stringify(err, Util.getCircularReplacer());
+          assert.strictEqual(err.includes(somePassword), false);
+          done();
+        } catch (err) {
+          done(err);
+        }
+      });
+  });
 });
 
 describe('Connection test - validate default parameters', function () {

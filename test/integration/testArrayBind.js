@@ -1,6 +1,7 @@
 /*
- * Copyright (c) 2015-2019 Snowflake Computing Inc. All rights reserved.
+ * Copyright (c) 2015-2024 Snowflake Computing Inc. All rights reserved.
  */
+
 const snowflake = require('./../../lib/snowflake');
 const async = require('async');
 const assert = require('assert');
@@ -11,15 +12,16 @@ const Logger = require('../../lib/logger');
 describe('Test Array Bind', function () {
   this.timeout(300000);
   let connection;
-  const createABTable = 'create or replace table testAB(colA string, colB number, colC date, colD time, colE TIMESTAMP_NTZ, colF TIMESTAMP_TZ)';
-  const insertAB = 'insert into testAB values(?, ?, ?, ?, ?, ?)';
+  const createABTable = 'create or replace table testAB(colA string, colB number, colC date, colD time, colE TIMESTAMP_NTZ, colF TIMESTAMP_TZ, bi binary(5), bool boolean)';
+  const insertAB = 'insert into testAB values(?, ?, ?, ?, ?, ?, ?, ?)';
   const selectAB = 'select * from testAB where colB = 1';
-  const createNABTable = 'create or replace table testNAB(colA string, colB number, colC date, colD time, colE TIMESTAMP_NTZ, colF TIMESTAMP_TZ)';
-  const insertNAB = 'insert into testNAB values(?, ?, ?, ?, ?, ?)';
+  const createNABTable = 'create or replace table testNAB(colA string, colB number, colC date, colD time, colE TIMESTAMP_NTZ, colF TIMESTAMP_TZ, bi binary(5), bool boolean)';
+  const insertNAB = 'insert into testNAB values(?, ?, ?, ?, ?, ?, ?, ?)';
   const selectNAB = 'select * from testNAB where colB = 1';
-  const createNullTable = 'create or replace table testNullTB(colA string, colB number, colC date, colD time, colE TIMESTAMP_NTZ, colF TIMESTAMP_TZ)';
-  const insertNull = 'insert into testNullTB values(?, ?, ?, ?, ?, ?)';
+  const createNullTable = 'create or replace table testNullTB(colA string, colB number, colC date, colD time, colE TIMESTAMP_NTZ, colF TIMESTAMP_TZ, bi binary(5), bool boolean)';
+  const insertNull = 'insert into testNullTB values(?, ?, ?, ?, ?, ?, ?, ?)';
   const selectNull = 'select * from testNullTB where colB = 1';
+  const binaryData = (0xffff00).toString(16);
 
   const usedTableNames = [
     'testAB', 'testNAB', 'testNullTB',
@@ -61,9 +63,9 @@ describe('Test Array Bind', function () {
           const arrBind = [];
           const count = 100;
           for (let i = 0; i < count; i++) {
-            arrBind.push(['string' + i, i, '2020-05-11', '12:35:41.3333333', '2022-04-01 23:59:59', '2022-07-08 12:05:30.9999999']);
+            arrBind.push(['string' + i, i, '2020-05-11', '12:35:41.3333333', new Date('2022-04-01 23:59:59'), new Date('2022-07-08 12:05:30.9999999'), binaryData, true]);
           }
-          
+
           const insertABStmt = connection.execute({
             sqlText: insertAB,
             binds: arrBind,
@@ -89,7 +91,7 @@ describe('Test Array Bind', function () {
           const arrBind = [];
           const count = 2;
           for (let i = 0; i < count; i++) {
-            arrBind.push(['string' + i, i, '2020-05-11', '12:35:41.3333333', '2022-04-01 23:59:59', '2022-07-08 12:05:30.9999999']);
+            arrBind.push(['string' + i, i, '2020-05-11', '12:35:41.3333333', new Date('2022-04-01 23:59:59'), new Date('2022-07-08 12:05:30.9999999'), binaryData, true]);
           }
           connection.execute({
             sqlText: insertNAB,
@@ -133,6 +135,9 @@ describe('Test Array Bind', function () {
               assert.equal(ABDataD.toString(), NABDataD.toString());
               assert.equal(ABDataE.toString(), NABDataE.toString());
               assert.equal(ABDataF.toString(), NABDataF.toString());
+
+              assert.equal(ABData['BOOL'], true);
+              assert.equal(Buffer.from(ABData['BI']).toString('hex'), binaryData);
               callback();
             }
           });
@@ -158,7 +163,7 @@ describe('Test Array Bind', function () {
           const arrBind = [];
           const count = 100;
           for (let i = 0; i < count; i++) {
-            arrBind.push([null, i, '2020-05-11', '12:35:41.3333333', '2022-04-01 23:59:59', '2022-07-08 12:05:30.9999999']);
+            arrBind.push([null, i, '2020-05-11', '12:35:41.3333333', '2022-04-01 23:59:59', '2022-07-08 12:05:30.9999999', binaryData, true]);
           }
           
           connection.execute({
@@ -187,7 +192,7 @@ describe('Test Array Bind', function () {
           const arrBind = [];
           const count = 2;
           for (let i = 0; i < count; i++) {
-            arrBind.push(['string' + i, i, '2020-05-11', '12:35:41.3333333', '2022-04-01 23:59:59', '2022-07-08 12:05:30.9999999']);
+            arrBind.push(['string' + i, i, '2020-05-11', '12:35:41.3333333', '2022-04-01 23:59:59', '2022-07-08 12:05:30.9999999', binaryData, true]);
           }
           connection.execute({
             sqlText: insertNAB,

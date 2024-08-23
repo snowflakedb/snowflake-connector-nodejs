@@ -44,7 +44,7 @@ jobs:
     test-mac:
         needs: build
         name: Tests on Mac
-        runs-on: macos-latest
+        runs-on: macos-13
         strategy:
             fail-fast: false
             matrix:
@@ -73,7 +73,7 @@ jobs:
                 CLOUD_PROVIDER: ${{ matrix.cloud }}
               run: /usr/local/bin/bash ./ci/test_mac.sh
             - name: Upload coverage reports to Codecov
-              uses: codecov/codecov-action@v3
+              uses: codecov/codecov-action@v4
               with:
                 # without the token code cov may fail because of Github limits https://github.com/codecov/codecov-action/issues/557
                 token: ${{ secrets.CODE_COV_UPLOAD_TOKEN }}

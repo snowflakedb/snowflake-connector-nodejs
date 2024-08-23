@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 Snowflake Computing Inc. All rights reserved.
+ * Copyright (c) 2015-2024 Snowflake Computing Inc. All rights reserved.
  */
 
 const Util = require('./../../lib/util');
@@ -853,6 +853,45 @@ describe('Util', function () {
     });
   });
 
+  describe('isPrivateLink', () => {
+    [
+      {
+        name: 'private link',
+        host: 'account.privatelink.snowflakecomputing.com',
+        result: true
+      },
+      {
+        name: 'private link upper case letters',
+        host: 'ACCOUNT.PRIVATELINK.SNOWFLAKECOMPUTING.COM',
+        result: true
+      },
+      {
+        name: 'private link mixed case letters',
+        host: 'account.privateLINK.snowflakecomputING.com',
+        result: true
+      },
+      {
+        name: 'no private link',
+        host: 'account.snowflakecomputing.com',
+        result: false
+      },
+      {
+        name: 'private link cn',
+        host: 'account.privatelink.snowflakecomputing.cn',
+        result: true
+      },
+      {
+        name: 'no private link cn',
+        host: 'account.snowflakecomputing.cn',
+        result: false
+      }
+    ].forEach(({ name, host, result }) => {
+      it(`${name} is valid`, () => {
+        assert.equal(Util.isPrivateLink(host), result);
+      });
+    });
+  });
+
   describe('Util Test - handling circular reference in isValidAsync exception handling', () => {
     const shouldMatchNonCircular = '{"one":1,"two":2}';
     const shouldMatchCircular = '{"one":1,"two":2,"myself":"[Circular]"}';
@@ -970,6 +1009,162 @@ describe('Util', function () {
           assert.deepEqual(compareAndLogEnvAndAgentProxies.warnings, shouldLog, 'expected warning message does not match!');
         }
       });
+    });
+
+    describe('Util test - custom credential manager util functions', function () {
+      const mockUser = 'mockUser';
+      const mockHost = 'mockHost';
+      const mockCred = 'mockCred';
+
+      describe('test function build credential key', function () {
+        const testCases = [
+          {
+            name: 'when all the parameters are null',
+            user: null,
+            host: null,
+            cred: null,
+            result: null
+          },
+          {
+            name: 'when two parameters are null or undefined',
+            user: mockUser,
+            host: null,
+            cred: undefined,
+            result: null
+          },
+          {
+            name: 'when one parameter is null',
+            user: mockUser,
+            host: mockHost,
+            cred: undefined,
+            result: null
+          },
+          {
+            name: 'when one parameter is undefined',
+            user: mockUser,
+            host: undefined,
+            cred: mockCred,
+            result: null
+          },
+          {
+            name: 'when all the parameters are valid',
+            user: mockUser,
+            host: mockHost,
+            cred: mockCred,
+            result: '{mockHost}:{mockUser}:{SF_NODE_JS_DRIVER}:{mockCred}}'
+          },
+        ];
+        testCases.forEach((name, user, host, cred, result) => {
+          it(`${name}`, function () {
+            if (!result) {
+              assert.strictEqual(Util.buildCredentialCacheKey(host, user, cred), null);
+            } else {
+              assert.strictEqual(Util.buildCredentialCacheKey(host, user, cred), result);
+            }
+          });
+        });
+      });
+    });
+
+    describe('test valid custom credential manager', function () {
+      
+      function sampleManager() {
+        this.read = function () {};
+    
+        this.write = function () {};
+    
+        this.remove = function () {};
+      }
+    
+      const testCases = [
+        {
+          name: 'credential manager is an int',
+          credentialManager: 123,
+          result: false,
+        },
+        {
+          name: 'credential manager is a string',
+          credentialManager: 'credential manager',
+          result: false,
+        },
+        {
+          name: 'credential manager is an array',
+          credentialManager: ['write', 'read', 'remove'],
+          result: false,
+        },
+        {
+          name: 'credential manager is an empty obejct',
+          credentialManager: {},
+          result: false,
+        },
+        {
+          name: 'credential manager has property, but invalid types',
+          credentialManager: {
+            read: 'read',
+            write: 1234,
+            remove: []
+          },
+          result: false,
+        },
+        {
+          name: 'credential manager has property, but invalid types',
+          credentialManager: {
+            read: 'read',
+            write: 1234,
+            remove: []
+          },
+          result: false,
+        },
+        {
+          name: 'credential manager has two valid properties, but miss one',
+          credentialManager: {
+            read: function () {
+
+            },
+            write: function () {
+
+            }
+          },
+          result: false,
+        },
+        {
+          name: 'credential manager has two valid properties, but miss one',
+          credentialManager: new sampleManager(),
+          result: true,
+        },
+      ];
+
+      for (const { name, credentialManager, result } of testCases) {
+        it(name, function () {
+          assert.strictEqual(Util.checkValidCustomCredentialManager(credentialManager), result);
+        });
+      }
+    });
+
+    describe('checkParametersDefined function Test', function () {
+      const testCases = [
+        {
+          name: 'all the parameters are null or undefined',
+          parameters: [null, undefined, null, null],
+          result: false
+        },
+        {
+          name: 'one parameter is null',
+          parameters: ['a', 2, true, null],
+          result: false
+        },
+        {
+          name: 'all the parameter are existing',
+          parameters: ['a', 123, ['testing'], {}],
+          result: true
+        },
+      ];
+  
+      for (const { name, parameters, result } of testCases) {
+        it(name, function () {
+          assert.strictEqual(Util.checkParametersDefined(...parameters), result);
+        });
+      }
     });
   });
 

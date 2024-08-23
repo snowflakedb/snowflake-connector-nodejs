@@ -1,6 +1,7 @@
 /*
- * Copyright (c) 2015-2019 Snowflake Computing Inc. All rights reserved.
+ * Copyright (c) 2015-2024 Snowflake Computing Inc. All rights reserved.
  */
+
 let snowflakeTestProtocol = process.env.SNOWFLAKE_TEST_PROTOCOL;
 let snowflakeTestHost = process.env.SNOWFLAKE_TEST_HOST;
 let snowflakeTestPort = process.env.SNOWFLAKE_TEST_PORT;
@@ -59,7 +60,8 @@ const valid =
     warehouse: snowflakeTestWarehouse,
     database: snowflakeTestDatabase,
     schema: snowflakeTestSchema,
-    role: snowflakeTestRole
+    role: snowflakeTestRole,
+    host: snowflakeTestHost,
   };
 
 const snowflakeAccount = snowflakeTestAdminUser !== undefined ?
@@ -72,18 +74,16 @@ const snowflakeAccount = snowflakeTestAdminUser !== undefined ?
 
 const wrongUserName =
   {
-
     accessUrl: accessUrl,
-    username: 'node',
-    password: 'test',
+    username: snowflakeTestUser,
+    password: 'testWrongPass',
     account: snowflakeTestAccount
   };
 
 const wrongPwd =
   {
-
     accessUrl: accessUrl,
-    username: 'nodejs',
+    username: snowflakeTestUser,
     password: '',
     account: snowflakeTestAccount
   };
@@ -97,6 +97,7 @@ const externalBrowser =
   database: snowflakeTestDatabase,
   schema: snowflakeTestSchema,
   role: snowflakeTestRole,
+  host: snowflakeTestHost,
   authenticator: 'EXTERNALBROWSER'
 };
 

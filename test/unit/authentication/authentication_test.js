@@ -440,7 +440,7 @@ describe('okta authentication', function () {
         RAW_SAML_RESPONSE: 'WRONG SAML'
       } 
     };
-    const sameAuth = authenticator.getCurrentAuth();
+    const sameAuth = authenticator.getAuthenticator(connectionOptionsOkta, httpclient);
     assert.strictEqual(auth, sameAuth);
 
     sameAuth.reauthenticate(body, {

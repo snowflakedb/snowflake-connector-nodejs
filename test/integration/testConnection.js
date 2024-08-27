@@ -12,6 +12,7 @@ const Core = require('./../../lib/core');
 const { stdout } = require('test-console');
 const { assertLogMessage } = require('./testUtil');
 const { configureLogger } = require('../configureLogger');
+const { v4: uuidv4 } = require('uuid');
 
 describe('Connection test', function () {
   it('return tokens in qaMode', function () {
@@ -112,11 +113,12 @@ describe('Connection test', function () {
   });
 
   it('Failed connections returns sanitized error', function (done) {
-    const somePassword = '______FffU@xEH!q7FrGM9xd*rPM______';
+    const randomId = uuidv4();
+    const randomId2 = uuidv4();
     const connection = snowflake.createConnection({
       account: 'some-account',
-      username: 'some-account',
-      password: somePassword,
+      username: randomId,
+      password: randomId2,
       sfRetryMaxLoginRetries: 1,
     });
 
@@ -126,7 +128,8 @@ describe('Connection test', function () {
           assert.ok(err);
           assert.equal(err.name, 'RequestFailedError');
           err = JSON.stringify(err, Util.getCircularReplacer());
-          assert.strictEqual(err.includes(somePassword), false);
+          assert.strictEqual(err.includes(randomId), false);
+          assert.strictEqual(err.includes(randomId2), false);
           done();
         } catch (err) {
           done(err);

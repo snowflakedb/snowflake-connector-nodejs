@@ -547,7 +547,7 @@ declare module 'snowflake-sdk' {
         /*
          * Returns a serialized version of this connection.
          */
-        serialize(): String;
+        serialize(): string;
     }
 
     export interface StatementOption {

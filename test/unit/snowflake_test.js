@@ -815,8 +815,8 @@ describe('connection.execute() statement failure', function () {
                 assert.strictEqual(statement.getNumRows(), undefined);
                 assert.strictEqual(statement.getSessionState(), undefined);
 
-                assert.ok(Util.string.isNotNullOrEmpty(statement.getStatementId()));
-                assert.ok(Util.string.isNotNullOrEmpty(statement.getQueryId()));
+                assert.strictEqual(statement.getStatementId(), null);
+                assert.strictEqual(statement.getQueryId(), null);
 
                 callback();
               }

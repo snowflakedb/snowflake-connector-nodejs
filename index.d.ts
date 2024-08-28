@@ -548,17 +548,17 @@ declare module 'snowflake-sdk' {
         /**
          * Gets the status of the query based on queryId.
          */
-        getQueryStatus(queryId: string): string;
+        getQueryStatus(queryId: string): Promise<string>;
 
         /**
          * Gets the status of the query based on queryId and throws if there's an error.
          */
-        getQueryStatusThrowIfError(queryId: string): string;
+        getQueryStatusThrowIfError(queryId: string): Promise<string>;
 
         /**
          *  Gets the results from a previously ran query based on queryId.
          */
-        getResultsFromQueryId(options: StatementOption): RowStatement | FileAndStageBindStatement;
+        getResultsFromQueryId(options: StatementOption): Promise<RowStatement | FileAndStageBindStatement>;
 
         /**
          * Checks whether the given status is currently running.

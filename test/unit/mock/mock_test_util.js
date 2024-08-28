@@ -31,7 +31,8 @@ const connectionOptions =
     account: 'fakeaccount',
     getPasscodeInPassword: () => false,
     getPasscode: () => null,  
-    authenticator: 'SNOWFLAKE'
+    authenticator: 'SNOWFLAKE',
+    getAuthenticator: () => 'SNOWFLAKE',
   };
 
 const connectionOptionsDeserialize =

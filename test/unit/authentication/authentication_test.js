@@ -66,7 +66,7 @@ describe('default authentication', function () {
 
     auth.updateBody(body);
 
-    assert.strictEqual(body['data']['AUTHENTICATOR'], 'SNOWFLAKE');
+    assert.strictEqual(body['data']['AUTHENTICATOR'], 'USERNAME_PASSWORD_MFA');
     assert.strictEqual(body['data']['PASSWORD'], connectionOptions.password);
     assert.strictEqual(body['data']['TOKEN'], undefined);
     assert.strictEqual(body['data']['PASSCODE'], 'mockPasscode');
@@ -82,7 +82,7 @@ describe('default authentication', function () {
 
     auth.updateBody(body);
 
-    assert.strictEqual(body['data']['AUTHENTICATOR'], 'SNOWFLAKE');
+    assert.strictEqual(body['data']['AUTHENTICATOR'], 'USERNAME_PASSWORD_MFA');
     assert.strictEqual(body['data']['PASSWORD'], connectionOptions.password);
     assert.strictEqual(body['data']['TOKEN'], undefined);
     assert.strictEqual(body['data']['PASSCODE'], undefined);
@@ -99,7 +99,7 @@ describe('default authentication', function () {
 
     auth.updateBody(body);
 
-    assert.strictEqual(body['data']['AUTHENTICATOR'], 'SNOWFLAKE');
+    assert.strictEqual(body['data']['AUTHENTICATOR'], 'USERNAME_PASSWORD_MFA');
     assert.strictEqual(body['data']['EXT_AUTHN_DUO_METHOD'], 'push');
     assert.strictEqual(body['data']['PASSWORD'], connectionOptions.password);
     assert.strictEqual(body['data']['TOKEN'], connectionOptions.mfaToken);

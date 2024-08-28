@@ -259,7 +259,7 @@ if (process.env.RUN_MANUAL_TESTS_ONLY === 'true') {
       });
     });
 
-    describe.only('Connection - MFA authenticator', function () {
+    describe('Connection - MFA authenticator', function () {
       const connectionOption = { ...connOption.MFA, passcode: null, clientRequestMFAToken: true };
       const key = Util.buildCredentialCacheKey(connectionOption.host, connectionOption.username, 'USERNAME_PASSWORD_MFA');
       const defaultCredentialManager = new JsonCredentialManager();

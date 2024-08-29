@@ -166,6 +166,7 @@ const keypairWrongToken =
 
 const MFA = {
   ...valid,
+  authenticator: 'USER_PWD_MFA_AUTHENTICATOR',
   passcode: snowflakeTestPasscode,
 };
 

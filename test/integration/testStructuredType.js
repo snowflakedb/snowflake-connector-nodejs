@@ -389,21 +389,5 @@ describe('Test Structured types', function () {
       done
       );
     });
-
-    // it('test nested object', function (done) {
-    //   const selectObject = 'select {\'inside\': {\'string\':\'a\'}}::OBJECT(inside OBJECT(string VARCHAR)) as result';
-    //
-    //   async.series([
-    //     function (callback) {
-    //       testUtil.executeQueryAndVerify(
-    //         connection,
-    //         selectObject,
-    //         [{ RESULT: { 'string': 'a' } }],
-    //         callback
-    //       );
-    //     }],
-    //   done
-    //   );
-    // });
   });
 });

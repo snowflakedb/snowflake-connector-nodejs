@@ -47,7 +47,7 @@ describe('Connection test', function () {
     assert.ok(!connection.isUp(), 'still active');
   });
 
-  it.skip('Wrong Username', function (done) {
+  it('Wrong Username', function (done) {
     const connection = snowflake.createConnection(connOption.wrongUserName);
     connection.connect(function (err) {
       assert.ok(err, 'Username is an empty string');

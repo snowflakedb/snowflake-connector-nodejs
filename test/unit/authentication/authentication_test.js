@@ -13,7 +13,7 @@ const AuthKeypair = require('./../../../lib/authentication/auth_keypair');
 const AuthOauth = require('./../../../lib/authentication/auth_oauth');
 const AuthOkta = require('./../../../lib/authentication/auth_okta');
 const AuthIDToken = require('./../../../lib/authentication/auth_idtoken');
-const authenticationTypes = require('./../../../lib/authentication/authentication').authenticationTypes;
+const AuthenticationTypes = require('./../../../lib/authentication/authentication_types');
 const MockTestUtil = require('./../mock/mock_test_util');
 
 // get connection options to connect to this mock snowflake instance
@@ -54,7 +54,7 @@ describe('default authentication', function () {
       {}, {}, {});
 
     assert.strictEqual(
-      body['data']['AUTHENTICATOR'], authenticationTypes.DEFAULT_AUTHENTICATOR, 'Authenticator should be SNOWFLAKE');
+      body['data']['AUTHENTICATOR'], AuthenticationTypes.DEFAULT_AUTHENTICATOR, 'Authenticator should be SNOWFLAKE');
   });
 
   it('test - passcode is only configured', function () {
@@ -228,7 +228,7 @@ describe('external browser authentication', function () {
       {}, {}, {});
 
     assert.strictEqual(
-      body['data']['AUTHENTICATOR'], authenticationTypes.EXTERNAL_BROWSER_AUTHENTICATOR, 'Authenticator should be EXTERNALBROWSER');
+      body['data']['AUTHENTICATOR'], AuthenticationTypes.EXTERNAL_BROWSER_AUTHENTICATOR, 'Authenticator should be EXTERNALBROWSER');
   });
 
   it('external browser - id token', async function () {
@@ -239,7 +239,7 @@ describe('external browser authentication', function () {
     auth.updateBody(body);
 
     assert.strictEqual(body['data']['TOKEN'], connectionOptionsIdToken.idToken);
-    assert.strictEqual(body['data']['AUTHENTICATOR'], authenticationTypes.ID_TOKEN_AUTHENTICATOR);
+    assert.strictEqual(body['data']['AUTHENTICATOR'], AuthenticationTypes.ID_TOKEN_AUTHENTICATOR);
   });
 });
 
@@ -379,7 +379,7 @@ describe('key-pair authentication', function () {
       {}, {}, {});
 
     assert.strictEqual(
-      body['data']['AUTHENTICATOR'], authenticationTypes.KEY_PAIR_AUTHENTICATOR, 'Authenticator should be SNOWFLAKE_JWT');
+      body['data']['AUTHENTICATOR'], AuthenticationTypes.KEY_PAIR_AUTHENTICATOR, 'Authenticator should be SNOWFLAKE_JWT');
   });
 });
 
@@ -409,7 +409,7 @@ describe('oauth authentication', function () {
       {}, {}, {});
 
     assert.strictEqual(
-      body['data']['AUTHENTICATOR'], authenticationTypes.OAUTH_AUTHENTICATOR, 'Authenticator should be OAUTH');
+      body['data']['AUTHENTICATOR'], AuthenticationTypes.OAUTH_AUTHENTICATOR, 'Authenticator should be OAUTH');
   });
 });
 
@@ -663,11 +663,11 @@ describe('okta authentication', function () {
 
   describe('test getAuthenticator()', () => {
     [
-      { name: 'default', providedAuth: authenticationTypes.DEFAULT_AUTHENTICATOR, expectedAuth: 'AuthDefault' },
-      { name: 'external browser', providedAuth: authenticationTypes.EXTERNAL_BROWSER_AUTHENTICATOR, expectedAuth: 'AuthWeb' },
-      { name: 'id token', providedAuth: authenticationTypes.EXTERNAL_BROWSER_AUTHENTICATOR, expectedAuth: 'AuthIDToken', idToken: 'idToken' },
-      { name: 'key pair', providedAuth: authenticationTypes.KEY_PAIR_AUTHENTICATOR, expectedAuth: 'AuthKeypair' },
-      { name: 'oauth', providedAuth: authenticationTypes.OAUTH_AUTHENTICATOR, expectedAuth: 'AuthOauth' },
+      { name: 'default', providedAuth: AuthenticationTypes.DEFAULT_AUTHENTICATOR, expectedAuth: 'AuthDefault' },
+      { name: 'external browser', providedAuth: AuthenticationTypes.EXTERNAL_BROWSER_AUTHENTICATOR, expectedAuth: 'AuthWeb' },
+      { name: 'id token', providedAuth: AuthenticationTypes.EXTERNAL_BROWSER_AUTHENTICATOR, expectedAuth: 'AuthIDToken', idToken: 'idToken' },
+      { name: 'key pair', providedAuth: AuthenticationTypes.KEY_PAIR_AUTHENTICATOR, expectedAuth: 'AuthKeypair' },
+      { name: 'oauth', providedAuth: AuthenticationTypes.OAUTH_AUTHENTICATOR, expectedAuth: 'AuthOauth' },
       { name: 'okta', providedAuth: 'https://mycustom.okta.com:8443', expectedAuth: 'AuthOkta' },
       { name: 'unknown', providedAuth: 'unknown', expectedAuth: 'AuthDefault' }
     ].forEach(({ name, providedAuth, expectedAuth, idToken }) => {

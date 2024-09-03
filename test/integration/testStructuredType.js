@@ -64,11 +64,11 @@ describe('Test Structured types', function () {
             complete: function (err, stmt, rows) {
               testUtil.checkError(err);
               const row = rows[0];
-              const narmalizedRow = {};
+              const normalizedRow = {};
               Object.keys(row).forEach((key) => {
-                narmalizedRow[key] = testUtil.normalizeRowObject(row[key]);
+                normalizedRow[key] = testUtil.normalizeRowObject(row[key]);
               });
-              assert.deepStrictEqual(narmalizedRow.RESULT, expected);
+              assert.deepStrictEqual(normalizedRow.RESULT, expected);
               callback();
             }
           });
@@ -93,9 +93,9 @@ describe('Test Structured types', function () {
             complete: function (err, stmt, rows) {
               testUtil.checkError(err);
               const row = rows[0];
-              const narmalizedRow = {};
+              const normalizedRow = {};
               Object.keys(row).forEach((key) => {
-                narmalizedRow[key] = testUtil.normalizeRowObject(row[key]);
+                normalizedRow[key] = testUtil.normalizeRowObject(row[key]);
               });
               assert.deepStrictEqual(row.RESULT, expected);
               callback();
@@ -121,11 +121,11 @@ describe('Test Structured types', function () {
             complete: function (err, stmt, rows) {
               testUtil.checkError(err);
               const row = rows[0];
-              const narmalizedRow = {};
+              const normalizedRow = {};
               Object.keys(row).forEach((key) => {
-                narmalizedRow[key] = testUtil.normalizeRowObject(row[key]);
+                normalizedRow[key] = testUtil.normalizeRowObject(row[key]);
               });
-              assert.deepStrictEqual(narmalizedRow.RESULT, expected);
+              assert.deepStrictEqual(normalizedRow.RESULT, expected);
               callback();
             }
           });
@@ -247,11 +247,11 @@ describe('Test Structured types', function () {
             complete: function (err, stmt, rows) {
               testUtil.checkError(err);
               const row = rows[0];
-              const narmalizedRow = {};
+              const normalizedRow = {};
               Object.keys(row).forEach((key) => {
-                narmalizedRow[key] = testUtil.normalizeRowObject(row[key]);
+                normalizedRow[key] = testUtil.normalizeRowObject(row[key]);
               });
-              assert.deepStrictEqual(narmalizedRow, expected);
+              assert.deepStrictEqual(normalizedRow, expected);
               callback();
             }
           });
@@ -320,11 +320,11 @@ describe('Test Structured types', function () {
             complete: function (err, stmt, rows) {
               testUtil.checkError(err);
               const row = rows[0];
-              const narmalizedRow = {};
+              const normalizedRow = {};
               Object.keys(row).forEach((key) => {
-                narmalizedRow[key] = testUtil.normalizeRowObject(row[key]);
+                normalizedRow[key] = testUtil.normalizeRowObject(row[key]);
               });
-              assert.deepStrictEqual(narmalizedRow, expected);
+              assert.deepStrictEqual(normalizedRow, expected);
               callback();
             }
           });

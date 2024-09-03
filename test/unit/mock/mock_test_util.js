@@ -28,7 +28,11 @@ const connectionOptions =
     accessUrl: 'http://fakeaccount.snowflakecomputing.com',
     username: 'fakeusername',
     password: 'fakepassword',
-    account: 'fakeaccount'
+    account: 'fakeaccount',
+    getPasscodeInPassword: () => false,
+    getPasscode: () => null,  
+    authenticator: 'SNOWFLAKE',
+    getAuthenticator: () => 'SNOWFLAKE',
   };
 
 const connectionOptionsDeserialize =

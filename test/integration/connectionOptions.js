@@ -27,6 +27,7 @@ const snowflakeTestToken = process.env.SNOWFLAKE_TEST_OAUTH_TOKEN;
 const snowflakeTestOktaUser = process.env.SNOWFLAKE_TEST_OKTA_USER;
 const snowflakeTestOktaPass = process.env.SNOWFLAKE_TEST_OKTA_PASS;
 const snowflakeTestOktaAuth = process.env.SNOWFLAKE_TEST_OKTA_AUTH;
+const snowflakeTestPasscode = process.env.SNOWFLAKE_TEST_PASSCODE;
 
 if (snowflakeTestProtocol === undefined) {
   snowflakeTestProtocol = 'https';
@@ -163,6 +164,12 @@ const keypairWrongToken =
   authenticator: 'SNOWFLAKE_JWT'
 };
 
+const MFA = {
+  ...valid,
+  authenticator: 'USER_PWD_MFA_AUTHENTICATOR',
+  passcode: snowflakeTestPasscode,
+};
+
 const oauth =
 {
   accessUrl: accessUrl,
@@ -238,3 +245,4 @@ exports.oauthMismatchUser = oauthMismatchUser;
 exports.okta = okta;
 exports.privatelink = privatelink;
 exports.connectionWithProxy = connectionWithProxy;
+exports.MFA = MFA;

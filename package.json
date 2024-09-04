@@ -1,6 +1,6 @@
 {
   "name": "snowflake-sdk",
-  "version": "1.13.0",
+  "version": "1.13.1",
   "description": "Node.js driver for Snowflake",
   "dependencies": {
     "@aws-sdk/client-s3": "^3.388.0",

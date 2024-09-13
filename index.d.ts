@@ -82,6 +82,11 @@ declare module 'snowflake-sdk' {
         ERR_CONN_CREATE_INVALID_FORCE_GCP_USE_DOWNSCOPED_CREDENTIAL = 404048,
         ERR_CONN_CREATE_INVALID_REPRESENT_NULL_AS_STRING_NULL = 404050,
         ERR_CONN_CREATE_INVALID_DISABLE_SAML_URL_CHECK = 404051,
+        ERR_CONN_CREATE_INVALID_CLIENT_REQUEST_MFA_TOKEN = 404052,
+        ERR_CONN_CREATE_MISSING_HOST = 404053,
+        ERR_CONN_CREATE_INVALID_HOST = 404054,
+        ERR_CONN_CREATE_INVALID_PASSCODE_IN_PASSWORD = 404055,
+        ERR_CONN_CREATE_INVALID_PASSCODE = 404056,
 
         // 405001
         ERR_CONN_CONNECT_INVALID_CALLBACK = 405001,
@@ -234,6 +239,12 @@ declare module 'snowflake-sdk' {
          * Specifies whether to enable keep-alive functionality on the socket immediately after receiving a new connection request.
          */
         keepAlive?: boolean;
+
+        /**
+         * If the user wants to use their own credential manager for SSO or MFA token caching,
+         * pass the custom credential manager to this option.
+         */
+        customCredentialManager?: object;
     }
 
     export interface ConnectionOptions {
@@ -426,7 +437,6 @@ declare module 'snowflake-sdk' {
          */
         resultPrefetch?: number;
 
-        //Connection options Options but not on the web document.
         /**
          * Set whether the retry reason is included or not in the retry url.
          */
@@ -467,6 +477,22 @@ declare module 'snowflake-sdk' {
          *  Turn on the validation function which checks whether all the connection configuration from users are valid or not. 
          */
         validateDefaultParameters?: boolean;
+
+        /**
+         *  The option to set the location where the token will be saved for the token authentication (MFA and SSO).
+         *  The path must include the folder path only.
+         */
+        credentialCacheDir?: string;
+
+        /**
+         *  The option to include the passcode from DUO into the password.
+         */
+        passcodeInPassword?: boolean;
+
+        /**
+         *  The option to pass passcode from DUO.
+         */
+        passcode?: string
     }
 
     export interface Connection {
@@ -522,17 +548,17 @@ declare module 'snowflake-sdk' {
         /**
          * Gets the status of the query based on queryId.
          */
-        getQueryStatus(queryId: string): string;
+        getQueryStatus(queryId: string): Promise<string>;
 
         /**
          * Gets the status of the query based on queryId and throws if there's an error.
          */
-        getQueryStatusThrowIfError(queryId: string): string;
+        getQueryStatusThrowIfError(queryId: string): Promise<string>;
 
         /**
          *  Gets the results from a previously ran query based on queryId.
          */
-        getResultsFromQueryId(options: StatementOption): RowStatement | FileAndStageBindStatement;
+        getResultsFromQueryId(options: StatementOption): Promise<RowStatement | FileAndStageBindStatement>;
 
         /**
          * Checks whether the given status is currently running.
@@ -547,7 +573,7 @@ declare module 'snowflake-sdk' {
         /*
          * Returns a serialized version of this connection.
          */
-        serialize(): String;
+        serialize(): string;
     }
 
     export interface StatementOption {

@@ -231,8 +231,36 @@ if (process.env.RUN_MANUAL_TESTS_ONLY === 'true') {
       });
     });
 
+    describe('Connection - MFA authenticator with DUO', function () {
+      const connectionOption = connOption.MFA;
+    
+      it('test - authentication with passcode', function (done) {
+        const connection = snowflake.createConnection(connectionOption);
+        connection.connectAsync(function (err) {
+          try {
+            assert.ok(!err);
+            done();
+          } catch (err){
+            done(err);
+          }
+        });
+      });
+  
+      it.skip('test - authentication with passcodeInPassword', function (done) {
+        const connection = snowflake.createConnection({ ...connectionOption, passcodeInPassword: true });
+        connection.connectAsync(function (err) {
+          try {
+            assert.ok(!err);
+            done();
+          } catch (err){
+            done(err);
+          }
+        });
+      });
+    });
+
     describe('Connection - MFA authenticator', function () {
-      const connectionOption = { ...connOption.valid, authenticator: 'USERNAME_PASSWORD_MFA', clientRequestMFAToken: true };
+      const connectionOption = { ...connOption.MFA, passcode: null, clientRequestMFAToken: true };
       const key = Util.buildCredentialCacheKey(connectionOption.host, connectionOption.username, 'USERNAME_PASSWORD_MFA');
       const defaultCredentialManager = new JsonCredentialManager();
       let oldToken;
@@ -241,7 +269,7 @@ if (process.env.RUN_MANUAL_TESTS_ONLY === 'true') {
         defaultCredentialManager.remove(key);
       });
   
-      it('test - obtain the id token from the server and save it on the local storage', function (done) {
+      it('test - obtain the MFA token from the server and save it on the local storage', function (done) {
         const connection = snowflake.createConnection(connectionOption);
         connection.connectAsync(function (err) {
           try {
@@ -264,7 +292,7 @@ if (process.env.RUN_MANUAL_TESTS_ONLY === 'true') {
   
       // Skip the Duo authentication.
   
-      it('test - id token authentication',  function (done) {
+      it('test - MFA token authentication',  function (done) {
         const idTokenConnection = snowflake.createConnection(connectionOption);
         idTokenConnection.connectAsync(function (err) {
           assert.ok(!err);
@@ -273,7 +301,7 @@ if (process.env.RUN_MANUAL_TESTS_ONLY === 'true') {
       });
   
       // Duo authentication should be executed again.
-      it('test - id token reauthentication', function (done) {
+      it('test - MFA token reauthentication', function (done) {
         defaultCredentialManager.write(key, '1234').then(() => {
           const wrongTokenConnection = snowflake.createConnection(connectionOption);
           wrongTokenConnection.connectAsync(function (err) {

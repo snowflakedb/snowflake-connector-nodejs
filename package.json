@@ -1,6 +1,6 @@
 {
   "name": "snowflake-sdk",
-  "version": "1.12.0",
+  "version": "1.13.1",
   "description": "Node.js driver for Snowflake",
   "dependencies": {
     "@aws-sdk/client-s3": "^3.388.0",
@@ -37,6 +37,7 @@
   "devDependencies": {
     "@aws-sdk/types": "^3.387.0",
     "async": "^3.2.3",
+    "check-dts": "^0.8.2",
     "eslint": "^8.41.0",
     "mocha": "^10.2.0",
     "mock-require": "^3.0.3",
@@ -55,8 +56,8 @@
   },
   "typings": "./index.d.ts",
   "scripts": {
-    "lint:check": "eslint",
-    "lint:check:all": "eslint lib samples system_test test",
+    "lint:check": "eslint && check-dts index.d.ts",
+    "lint:check:all": "eslint lib samples system_test test && check-dts index.d.ts",
     "lint:check:all:errorsOnly": "npm run lint:check:all -- --quiet",
     "lint:fix": "eslint --fix",
     "test": "mocha -timeout 180000 --recursive --full-trace test/unit/**/*.js test/unit/*.js",

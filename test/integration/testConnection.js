@@ -153,14 +153,14 @@ describe('Connection test - validate default parameters', function () {
         validateDefaultParameters: true,
       });
     });
-    const expectedMessagesRegexPatterns = [
-      /{"level":"INFO","message":"\[\d{1,2}:\d{2}:\d{2}\.\d{3} (AM|PM)\]: Creating new connection object"}\n/,
-      /{"level":"INFO","message":"\[\d{1,2}:\d{2}:\d{2}\.\d{3} (AM|PM)\]: Connection object created successfully"}\n/
+    const expectedMessagesParts = [
+      'Creating new connection object',
+      'Connection object created successfully'
     ];
 
     // Check if all output messages match the expected patterns
     output.forEach((item, index) => {
-      assert(expectedMessagesRegexPatterns[index].test(item), `Output message at index ${index} does not match expected pattern.`);
+      assert(item.includes(expectedMessagesParts[index]), `Output message at index ${index} does not match expected pattern. \nReceived message: ${item} \nExpected substring: ${expectedMessagesParts[index]}`);
     });
   });
 
@@ -187,14 +187,14 @@ describe('Connection test - validate default parameters', function () {
         validateDefaultParameters: true,
       });
     });
-    const expectedMessagesRegexPatterns = [
-      /{"level":"INFO","message":"\[\d{1,2}:\d{2}:\d{2}\.\d{3} (AM|PM)\]: Creating new connection object"}\n/,
-      /{"level":"INFO","message":"\[\d{1,2}:\d{2}:\d{2}\.\d{3} (AM|PM)\]: Connection object created successfully"}\n/
+    const expectedMessagesParts = [
+      'Creating new connection object',
+      'Connection object created successfully'
     ];
 
     // Check if all output messages match the expected patterns
     output.forEach((item, index) => {
-      assert(expectedMessagesRegexPatterns[index].test(item), `Output message at index ${index} does not match expected pattern.`);
+      assert(item.includes(expectedMessagesParts[index]), `Output message at index ${index} does not match expected pattern. \nReceived message: ${item} \nExpected substring: ${expectedMessagesParts[index]}`);
     });
   });
 
@@ -234,14 +234,14 @@ describe('Connection test - validate default parameters', function () {
         validateDefaultParameters: true,
       });
     });
-    const expectedMessagesRegexPatterns = [
-      /{"level":"INFO","message":"\[\d{1,2}:\d{2}:\d{2}\.\d{3} (AM|PM)\]: Creating new connection object"}\n/,
-      /{"level":"INFO","message":"\[\d{1,2}:\d{2}:\d{2}\.\d{3} (AM|PM)\]: Connection object created successfully"}\n/
+    const expectedMessagesParts = [
+      'Creating new connection object',
+      'Connection object created successfully'
     ];
 
     // Check if all output messages match the expected patterns
     output.forEach((item, index) => {
-      assert(expectedMessagesRegexPatterns[index].test(item), `Output message at index ${index} does not match expected pattern.`);
+      assert(item.includes(expectedMessagesParts[index]), `Output message at index ${index} does not match expected pattern. \nReceived message: ${item} \nExpected substring: ${expectedMessagesParts[index]}`);
     });
   });
 

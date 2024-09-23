@@ -545,7 +545,7 @@ describe('Test Structured types', function () {
 
   describe('test array', function () {
 
-    it('test simple array of varchar', function (done) {
+    it('test array of varchar', function (done) {
       const selectObject = 'SELECT ARRAY_CONSTRUCT(\'one\', \'two\', \'three\')::ARRAY(VARCHAR) AS RESULT';
 
       async.series([
@@ -561,7 +561,7 @@ describe('Test Structured types', function () {
       );
     });
 
-    it('test simple array of integer', function (done) {
+    it('test array of integer', function (done) {
       const selectObject = 'SELECT ARRAY_CONSTRUCT(1, 2, 3)::ARRAY(INTEGER) AS RESULT';
 
       async.series([
@@ -577,7 +577,7 @@ describe('Test Structured types', function () {
       );
     });
 
-    it('test simple array of timestamp_ltz', function (done) {
+    it('test array of timestamp_ltz', function (done) {
       const selectObject = 'SELECT ARRAY_CONSTRUCT(\'2021-12-22 09:43:44.123456\', \'2021-12-22 09:43:45.123456\')::ARRAY(TIMESTAMP_LTZ) AS kaka';
 
       const expected = ['2021-12-22 09:43:44.000 -0800', '2021-12-22 09:43:45.000 -0800'];
@@ -602,7 +602,7 @@ describe('Test Structured types', function () {
       );
     });
 
-    it('test simple array of timestamp_ntz', function (done) {
+    it('test array of timestamp_ntz', function (done) {
       const selectObject = 'SELECT ARRAY_CONSTRUCT(\'2021-12-22 09:43:44\', \'2021-12-22 09:43:45\')::ARRAY(TIMESTAMP_NTZ) AS result';
 
       const expected = ['2021-12-22 09:43:44.000', '2021-12-22 09:43:45.000'];
@@ -618,6 +618,281 @@ describe('Test Structured types', function () {
                 narmalizedArray.push(testUtil.normalizeValue(value));
               });
               assert.deepStrictEqual(narmalizedArray, expected);
+              callback();
+            }
+          });
+        }
+      ],
+      done
+      );
+    });
+
+  });
+
+  describe('test map', function () {
+
+    it('test simple map of varchar', function (done) {
+      const selectObject = 'SELECT {\'x\':\'one\', \'y\':\'two\'}::MAP(VARCHAR, VARCHAR) AS RESULT';
+
+      async.series([
+        function (callback) {
+          const map = new Map([
+            ['x', 'one'],
+            ['y', 'two'],
+          ]);
+          testUtil.executeQueryAndVerify(
+            connection,
+            selectObject,
+            [{ RESULT: map }],
+            callback
+          );
+        }],
+      done
+      );
+    });
+
+    it('test map of integer', function (done) {
+      const selectObject = 'SELECT {\'1\':\'1\', \'2\':\'2\'}::MAP(INTEGER, INTEGER) AS RESULT';
+
+      async.series([
+        function (callback) {
+          const map = new Map([
+            [1, 1],
+            [2, 2],
+          ]);
+          testUtil.executeQueryAndVerify(
+            connection,
+            selectObject,
+            [{ RESULT: map }],
+            callback
+          );
+        }],
+      done
+      );
+    });
+
+    it('test map of timestamp_ltz', function (done) {
+      const selectObject = 'SELECT { \'1\':\'2021-12-22 09:43:44.123456\', \'2\':\'2021-12-22 09:43:45.123456\'}::MAP(INTEGER, TIMESTAMP_LTZ) AS result';
+
+      const expected = new Map;
+      expected.set(1, '2021-12-22 09:43:44.000 -0800');
+      expected.set(2, '2021-12-22 09:43:45.000 -0800');
+      async.series([
+        function (callback) {
+          connection.execute({
+            sqlText: selectObject,
+            complete: function (err, stmt, rows) {
+              testUtil.checkError(err);
+              const row = rows[0];
+              const narmalizedMap = new Map;
+              row['RESULT'].forEach((value, key) => {
+                narmalizedMap.set(key, testUtil.normalizeValue(value));
+              });
+              assert.deepStrictEqual(narmalizedMap, expected);
+              callback();
+            }
+          });
+        }
+      ],
+      done
+      );
+    });
+
+    it('test map of timestamp_ntz', function (done) {
+
+      const selectObject = 'SELECT { \'1\':\'2021-12-22 09:43:44\', \'2\':\'2021-12-22 09:43:45\'}::MAP(INTEGER, TIMESTAMP_NTZ) AS result';
+
+      const expected = new Map;
+      expected.set(1, '2021-12-22 09:43:44.000');
+      expected.set(2, '2021-12-22 09:43:45.000');
+      async.series([
+        function (callback) {
+          connection.execute({
+            sqlText: selectObject,
+            complete: function (err, stmt, rows) {
+              testUtil.checkError(err);
+              const row = rows[0];
+              const narmalizedMap = new Map;
+              row['RESULT'].forEach((value, key) => {
+                narmalizedMap.set(key, testUtil.normalizeValue(value));
+              });
+              assert.deepStrictEqual(narmalizedMap, expected);
+              callback();
+            }
+          });
+        }
+      ],
+      done
+      );
+    });
+
+  });
+
+  describe('test nested structures', function () {
+
+    it('test array of objects', function (done) {
+
+      const selectObject = 'SELECT ARRAY_CONSTRUCT({\'string\':\'a\', \'int\':\'1\', \'timestamp\': \'2021-12-22 09:43:44\'::TIMESTAMP_LTZ},' +
+         '{\'string\':\'b\', \'int\':\'2\', \'timestamp\': \'2021-12-22 09:43:44\'::TIMESTAMP_LTZ}) ' +
+      ':: ARRAY(OBJECT(string VARCHAR, int INTEGER, timestamp TIMESTAMP_LTZ)) AS RESULT';
+
+      const expected = [{ 'string': 'a', 'int': 1, 'timestamp': '2021-12-22 09:43:44.000 -0800' },
+          { 'string': 'b', 'int': 2, 'timestamp': '2021-12-22 09:43:44.000 -0800' }];
+
+      async.series([
+        function (callback) {
+          connection.execute({
+            sqlText: selectObject,
+            complete: function (err, stmt, rows) {
+              testUtil.checkError(err);
+              const row = rows[0];
+              const narmalizedArray = [];
+              row.RESULT.forEach((value) => {
+                narmalizedArray.push(testUtil.normalizeRowObject(value));
+              });
+              assert.deepStrictEqual(narmalizedArray, expected);
+              callback();
+            }
+          });
+        }
+      ],
+      done
+      );
+    });
+
+    it('test array of arrays', function (done) {
+
+      const selectObject = 'SELECT ARRAY_CONSTRUCT(ARRAY_CONSTRUCT(\'one\', \'two\', \'three\'), ' +
+        'ARRAY_CONSTRUCT(\'one\', \'two\', \'three\')) ' +
+      ':: ARRAY(ARRAY(VARCHAR)) AS RESULT';
+
+      const expected = [['one', 'two', 'three'], ['one', 'two', 'three']];
+
+      async.series([
+        function (callback) {
+          connection.execute({
+            sqlText: selectObject,
+            complete: function (err, stmt, rows) {
+              testUtil.checkError(err);
+              const row = rows[0];
+              assert.deepStrictEqual(row.RESULT, expected);
+              callback();
+            }
+          });
+        }
+      ],
+      done
+      );
+    });
+
+    it('test array of maps', function (done) {
+
+      const selectObject = 'SELECT ARRAY_CONSTRUCT({\'x\':\'one\', \'y\':\'two\'}, ' +
+        '{\'x\':\'one\', \'y\':\'two\'}) ' +
+      ':: ARRAY(MAP(VARCHAR, VARCHAR)) AS RESULT';
+
+      const map = new Map([
+        ['x', 'one'],
+        ['y', 'two'],
+      ]);
+      const expected = [map, map];
+
+      async.series([
+        function (callback) {
+          connection.execute({
+            sqlText: selectObject,
+            complete: function (err, stmt, rows) {
+              testUtil.checkError(err);
+              const row = rows[0];
+              assert.deepStrictEqual(row.RESULT, expected);
+              callback();
+            }
+          });
+        }
+      ],
+      done
+      );
+    });
+
+    it('test map of objects', function (done) {
+
+      const selectObject = 'SELECT {\'x\': {\'string\':\'a\', \'int\':\'1\', \'timestamp\': \'2021-12-22 09:43:44\'::TIMESTAMP_LTZ},' +
+        ' \'y\': {\'string\':\'b\', \'int\':\'2\', \'timestamp\': \'2021-12-22 09:43:44\'::TIMESTAMP_LTZ}} ::MAP(VARCHAR, OBJECT(string VARCHAR, int INTEGER, timestamp TIMESTAMP_LTZ)) AS RESULT';
+
+      const expected = new Map([
+        ['x', { 'string': 'a', 'int': 1, 'timestamp': '2021-12-22 09:43:44.000 -0800' }],
+        ['y', { 'string': 'b', 'int': 2, 'timestamp': '2021-12-22 09:43:44.000 -0800' }],
+      ]);
+
+      async.series([
+        function (callback) {
+          connection.execute({
+            sqlText: selectObject,
+            complete: function (err, stmt, rows) {
+              testUtil.checkError(err);
+              const row = rows[0];
+              const narmalizedMap = new Map;
+              row['RESULT'].forEach((value, key) => {
+                narmalizedMap.set(key, testUtil.normalizeRowObject(value));
+              });
+              assert.deepStrictEqual(narmalizedMap, expected);
+              callback();
+            }
+          });
+        }
+      ],
+      done
+      );
+    });
+
+    it('test map of arrays', function (done) {
+
+      const selectObject = 'SELECT {\'x\': ARRAY_CONSTRUCT(\'one\', \'two\', \'three\'), ' +
+        ' \'y\': ARRAY_CONSTRUCT(\'one\', \'two\')} ::MAP(VARCHAR, ARRAY(VARCHAR)) AS RESULT';
+
+      const expected = new Map([
+        ['x', ['one', 'two', 'three']],
+        ['y', ['one', 'two']],
+      ]);
+
+      async.series([
+        function (callback) {
+          connection.execute({
+            sqlText: selectObject,
+            complete: function (err, stmt, rows) {
+              testUtil.checkError(err);
+              const row = rows[0];
+              assert.deepStrictEqual(row['RESULT'], expected);
+              callback();
+            }
+          });
+        }
+      ],
+      done
+      );
+    });
+
+    it('test map of maps', function (done) {
+
+      const selectObject = 'SELECT {\'1\': {\'x\':\'one\', \'y\':\'two\'}, ' +
+        ' \'2\': {\'x\':\'one\', \'y\':\'two\'}} ::MAP(INTEGER, MAP(VARCHAR, VARCHAR)) AS RESULT';
+
+      const map = new Map([
+        ['x', 'one'],
+        ['y', 'two'],
+      ]);
+      const expected = new Map();
+      expected.set(1, map);
+      expected.set(2, map);
+
+      async.series([
+        function (callback) {
+          connection.execute({
+            sqlText: selectObject,
+            complete: function (err, stmt, rows) {
+              testUtil.checkError(err);
+              const row = rows[0];
+              assert.deepStrictEqual(row['RESULT'], expected);
               callback();
             }
           });

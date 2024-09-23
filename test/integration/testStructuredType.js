@@ -30,10 +30,11 @@ describe('Test Structured types', function () {
   let connection;
 
   before(function (done) {
-    connection = testUtil.createConnection(
-    );
+    connection = testUtil.createConnection();
     async.series([
       function (callback) {
+        // snowflake.configure({ 'insecureConnect': true });
+        // GlobalConfig.setInsecureConnect(true);
         testUtil.connect(connection, callback);
       },
       function (callback) {
@@ -475,9 +476,9 @@ describe('Test Structured types', function () {
         ' \'d\': 2.2,' +
         ' \'bd\': 3.3, ' +
         '\'bool\': true, ' +
-        '\'timestamp_ltz\': \'2021-12-22 09:43:44\'::TIMESTAMP_LTZ,' +
-        ' \'timestamp_ntz\': \'2021-12-23 09:44:44\'::TIMESTAMP_NTZ, ' +
-        '\'timestamp_tz\': \'2021-12-24 09:45:45 -0800\'::TIMESTAMP_TZ,' +
+        '\'timestampLtz\': \'2021-12-22 09:43:44\'::TIMESTAMP_LTZ,' +
+        ' \'timestampNtz\': \'2021-12-23 09:44:44\'::TIMESTAMP_NTZ, ' +
+        '\'timestampTz\': \'2021-12-24 09:45:45 -0800\'::TIMESTAMP_TZ,' +
         ' \'date\': \'2023-12-24\'::DATE, ' +
         '\'time\': \'12:34:56\'::TIME, ' +
         '\'binary\': TO_BINARY(\'616263\', \'HEX\') ' +
@@ -491,9 +492,9 @@ describe('Test Structured types', function () {
         'd DOUBLE, ' +
         'bd DOUBLE, ' +
         'bool BOOLEAN,' +
-        'timestamp_ltz TIMESTAMP_LTZ,' +
-        'timestamp_ntz TIMESTAMP_NTZ, ' +
-        'timestamp_tz TIMESTAMP_TZ, ' +
+        'timestampLtz TIMESTAMP_LTZ,' +
+        'timestampNtz TIMESTAMP_NTZ, ' +
+        'timestampTz TIMESTAMP_TZ, ' +
         'date DATE, time TIME, ' +
         'binary BINARY' +
         ') AS RESULT';
@@ -509,9 +510,9 @@ describe('Test Structured types', function () {
           d: 2.2,
           bd: 3.3,
           bool: true,
-          timestamp_ltz: '2021-12-22 09:43:44.000 -0800',
-          timestamp_ntz: '2021-12-23 09:44:44.000',
-          timestamp_tz: '2021-12-24 09:45:45.000 -0800',
+          timestampLtz: '2021-12-22 09:43:44.000 -0800',
+          timestampNtz: '2021-12-23 09:44:44.000',
+          timestampTz: '2021-12-24 09:45:45.000 -0800',
           date: '2023-12-23',
           time: '12:34:56',
           binary: [97, 98, 99]
@@ -577,7 +578,7 @@ describe('Test Structured types', function () {
       );
     });
 
-    it('test array of timestamp_ltz', function (done) {
+    it('test array of timestampLtz', function (done) {
       const selectObject = 'SELECT ARRAY_CONSTRUCT(\'2021-12-22 09:43:44.123456\', \'2021-12-22 09:43:45.123456\')::ARRAY(TIMESTAMP_LTZ) AS kaka';
 
       const expected = ['2021-12-22 09:43:44.000 -0800', '2021-12-22 09:43:45.000 -0800'];
@@ -602,7 +603,7 @@ describe('Test Structured types', function () {
       );
     });
 
-    it('test array of timestamp_ntz', function (done) {
+    it('test array of timestampNtz', function (done) {
       const selectObject = 'SELECT ARRAY_CONSTRUCT(\'2021-12-22 09:43:44\', \'2021-12-22 09:43:45\')::ARRAY(TIMESTAMP_NTZ) AS result';
 
       const expected = ['2021-12-22 09:43:44.000', '2021-12-22 09:43:45.000'];
@@ -671,7 +672,7 @@ describe('Test Structured types', function () {
       );
     });
 
-    it('test map of timestamp_ltz', function (done) {
+    it('test map of timestampLtz', function (done) {
       const selectObject = 'SELECT { \'1\':\'2021-12-22 09:43:44.123456\', \'2\':\'2021-12-22 09:43:45.123456\'}::MAP(INTEGER, TIMESTAMP_LTZ) AS result';
 
       const expected = new Map;
@@ -698,7 +699,7 @@ describe('Test Structured types', function () {
       );
     });
 
-    it('test map of timestamp_ntz', function (done) {
+    it('test map of timestampNtz', function (done) {
 
       const selectObject = 'SELECT { \'1\':\'2021-12-22 09:43:44\', \'2\':\'2021-12-22 09:43:45\'}::MAP(INTEGER, TIMESTAMP_NTZ) AS result';
 
@@ -737,7 +738,7 @@ describe('Test Structured types', function () {
       ':: ARRAY(OBJECT(string VARCHAR, int INTEGER, timestamp TIMESTAMP_LTZ)) AS RESULT';
 
       const expected = [{ 'string': 'a', 'int': 1, 'timestamp': '2021-12-22 09:43:44.000 -0800' },
-          { 'string': 'b', 'int': 2, 'timestamp': '2021-12-22 09:43:44.000 -0800' }];
+        { 'string': 'b', 'int': 2, 'timestamp': '2021-12-22 09:43:44.000 -0800' }];
 
       async.series([
         function (callback) {

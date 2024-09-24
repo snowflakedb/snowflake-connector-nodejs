@@ -322,5 +322,11 @@ describe('Secret Detector', function () {
     assert.strictEqual(result.masked, true);
     assert.strictEqual(result.maskedtxt, 'pin=****');
     assert.strictEqual(result.errstr, null);
+
+    const otacWithSpaces = 'otac=  4321';
+    result = SecretDetector.maskSecrets(otacWithSpaces);
+    assert.strictEqual(result.masked, true);
+    assert.strictEqual(result.maskedtxt, 'otac=****');
+    assert.strictEqual(result.errstr, null);
   });
 });

@@ -297,4 +297,30 @@ describe('Secret Detector', function () {
       assert.strictEqual(err.toString(), 'Error: The customPatterns object must have equal length for both \'regex\' and \'mask\'');
     }
   });
+
+  it('test - passcode masking', async function () {
+    const fourDigitPasscode = 'passcode=1234';
+    let result = SecretDetector.maskSecrets(fourDigitPasscode);
+    assert.strictEqual(result.masked, true);
+    assert.strictEqual(result.maskedtxt, 'passcode=****');
+    assert.strictEqual(result.errstr, null);
+
+    const sixDigitPasscode = 'passcode=654321';
+    result = SecretDetector.maskSecrets(sixDigitPasscode);
+    assert.strictEqual(result.masked, true);
+    assert.strictEqual(result.maskedtxt, 'passcode=****');
+    assert.strictEqual(result.errstr, null);
+
+    const passcodeWithColon = 'otp: 987654';
+    result = SecretDetector.maskSecrets(passcodeWithColon);
+    assert.strictEqual(result.masked, true);
+    assert.strictEqual(result.maskedtxt, 'otp:****');
+    assert.strictEqual(result.errstr, null);
+
+    const pinWithSpaces = 'pin =    4321';
+    result = SecretDetector.maskSecrets(pinWithSpaces);
+    assert.strictEqual(result.masked, true);
+    assert.strictEqual(result.maskedtxt, 'pin=****');
+    assert.strictEqual(result.errstr, null);
+  });
 });

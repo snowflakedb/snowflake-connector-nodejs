@@ -186,7 +186,7 @@ declare module 'snowflake-sdk' {
     export type StatementCallback = (err: SnowflakeError | undefined, stmt: RowStatement | FileAndStageBindStatement, rows?: Array<any> | undefined) => void;
     export type ConnectionCallback = (err: SnowflakeError | undefined, conn: Connection) => void;
     export type RowMode = "object" | "array" | "object_with_renamed_duplicated_columns";
-    export type LogLevel = "ERROR" | "WARN" | "INFO" | "DEBUG" | "TRACE";
+    export type LogLevel = "ERROR" | "WARN" | "INFO" | "DEBUG" | "TRACE" | "OFF";
     export type DataType = "String" | "Boolean" | "Number" | "Date" | "JSON" | "Buffer";
     export type QueryStatus = "RUNNING" | "ABORTING" | "SUCCESS" | "FAILED_WITH_ERROR" | "ABORTED" | "QUEUED" | "FAILED_WITH_INCIDENT" | "DISCONNECTED" | "RESUMING_WAREHOUSE" | "QUEUED_REPARING_WAREHOUSE" | "RESTARTED" | "BLOCKED" | "NO_DATA";
     export type StatementStatus = "fetching" | "complete";

@@ -153,7 +153,16 @@ describe('Connection test - validate default parameters', function () {
         validateDefaultParameters: true,
       });
     });
-    assert.deepEqual(output, []);
+    const expectedMessagesParts = [
+      'Creating new connection object',
+      'Creating connection with host:',
+      'Connection object created successfully'
+    ];
+
+    // Check if all output messages match the expected patterns
+    output.forEach((item, index) => {
+      assert(item.includes(expectedMessagesParts[index]), `Output message at index ${index} does not match expected pattern. \nReceived message: ${item} \nExpected substring: ${expectedMessagesParts[index]}`);
+    });
   });
 
   it('Invalid "warehouse" parameter', function () {
@@ -166,7 +175,7 @@ describe('Connection test - validate default parameters', function () {
         validateDefaultParameters: true,
       });
     });
-    assertLogMessage('ERROR', '\'waerhouse\' is an unknown connection parameter. Did you mean \'warehouse\'?', output[0]);
+    assertLogMessage('ERROR', '\'waerhouse\' is an unknown connection parameter. Did you mean \'warehouse\'?', output[1]);
   });
 
   it('Valid "database" parameter', function () {
@@ -179,7 +188,16 @@ describe('Connection test - validate default parameters', function () {
         validateDefaultParameters: true,
       });
     });
-    assert.deepEqual(output, []);
+    const expectedMessagesParts = [
+      'Creating new connection object',
+      'Creating connection with host:',
+      'Connection object created successfully'
+    ];
+
+    // Check if all output messages match the expected patterns
+    output.forEach((item, index) => {
+      assert(item.includes(expectedMessagesParts[index]), `Output message at index ${index} does not match expected pattern. \nReceived message: ${item} \nExpected substring: ${expectedMessagesParts[index]}`);
+    });
   });
 
   it('Invalid "db" parameter', function () {
@@ -192,7 +210,7 @@ describe('Connection test - validate default parameters', function () {
         validateDefaultParameters: true,
       });
     });
-    assertLogMessage('ERROR', '\'db\' is an unknown connection parameter. Did you mean \'host\'?', output[0]);
+    assertLogMessage('ERROR', '\'db\' is an unknown connection parameter. Did you mean \'host\'?', output[1]);
   });
 
   it('Invalid "database" parameter', function () {
@@ -205,7 +223,7 @@ describe('Connection test - validate default parameters', function () {
         validateDefaultParameters: true,
       });
     });
-    assertLogMessage('ERROR', '\'datbse\' is an unknown connection parameter. Did you mean \'database\'?', output[0]);
+    assertLogMessage('ERROR', '\'datbse\' is an unknown connection parameter. Did you mean \'database\'?', output[1]);
   });
 
   it('Valid "schema" parameter', function () {
@@ -218,7 +236,16 @@ describe('Connection test - validate default parameters', function () {
         validateDefaultParameters: true,
       });
     });
-    assert.deepEqual(output, []);
+    const expectedMessagesParts = [
+      'Creating new connection object',
+      'Creating connection with host:',
+      'Connection object created successfully'
+    ];
+
+    // Check if all output messages match the expected patterns
+    output.forEach((item, index) => {
+      assert(item.includes(expectedMessagesParts[index]), `Output message at index ${index} does not match expected pattern. \nReceived message: ${item} \nExpected substring: ${expectedMessagesParts[index]}`);
+    });
   });
 
   it('Invalid "schema" parameter', function () {
@@ -231,7 +258,7 @@ describe('Connection test - validate default parameters', function () {
         validateDefaultParameters: true,
       });
     });
-    assertLogMessage('ERROR', '\'shcema\' is an unknown connection parameter. Did you mean \'schema\'?', output[0]);
+    assertLogMessage('ERROR', '\'shcema\' is an unknown connection parameter. Did you mean \'schema\'?', output[1]);
   });
 });
 

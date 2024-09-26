@@ -479,6 +479,11 @@ declare module 'snowflake-sdk' {
         validateDefaultParameters?: boolean;
 
         /**
+         *  The option to enable connection caching. Should be used along with `credentialCacheDir`
+         */
+        clientStoreTemporaryCredential?: boolean;
+
+        /**
          *  The option to set the location where the token will be saved for the token authentication (MFA and SSO).
          *  The path must include the folder path only.
          */

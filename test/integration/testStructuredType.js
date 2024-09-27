@@ -192,7 +192,7 @@ describe('Test Structured types', function () {
         '\'date\': to_date(\'2023-12-24\')::DATE' +
         '}' +
         '::OBJECT(date DATE) AS RESULT';
-      const expected = { date: '2023-12-23' };
+      const expected = { date: '2023-12-24' };
 
       async.series([
         function (callback) {
@@ -323,7 +323,7 @@ describe('Test Structured types', function () {
           timestampltz: '2021-12-22 09:43:44.000 -0800',
           timestampntz: '2021-12-23 09:44:44.000',
           timestamptz: '2021-12-24 09:45:45.000 -0800',
-          date: '2023-12-23',
+          date: '2023-12-24',
           time: '12:34:56',
           binary: [97, 98, 99]
         }
@@ -385,7 +385,7 @@ describe('Test Structured types', function () {
         ') AS RESULT';
 
       const expected = {
-        'RESULT': '{"string":"a","b":1,"s":2,"i":3,"l":4,"f":1.1,"d":2.2,"bool":true,"timestampltz":"2021-12-22 09:43:44.000 -0800","timestampntz":"2021-12-23 09:44:44.000","timestamptz":"2021-12-24 09:45:45.000 -0800","date":"2023-12-23","time":"12:34:56","binary":[97,98,99]}'
+        'RESULT': '{"string":"a","b":1,"s":2,"i":3,"l":4,"f":1.1,"d":2.2,"bool":true,"timestampltz":"2021-12-22 09:43:44.000 -0800","timestampntz":"2021-12-23 09:44:44.000","timestamptz":"2021-12-24 09:45:45.000 -0800","date":"2023-12-24","time":"12:34:56","binary":[97,98,99]}'
       };
 
       async.series([
@@ -513,7 +513,7 @@ describe('Test Structured types', function () {
           timestampLtz: '2021-12-22 09:43:44.000 -0800',
           timestampNtz: '2021-12-23 09:44:44.000',
           timestampTz: '2021-12-24 09:45:45.000 -0800',
-          date: '2023-12-23',
+          date: '2023-12-24',
           time: '12:34:56',
           binary: [97, 98, 99]
         }

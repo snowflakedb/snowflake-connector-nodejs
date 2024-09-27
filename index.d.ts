@@ -485,12 +485,12 @@ declare module 'snowflake-sdk' {
         credentialCacheDir?: string;
 
         /**
-         * The option to enable the MFA token from the server. The default value is false.
+         * The option to enable the MFA token. The default value is false.
          */
         clientRequestMFAToken?: boolean;
 
         /**
-         * The option to enable the SSO token from the server. The default value is false.
+         * The option to enable the SSO token. The default value is false.
          */
         clientStoreTemporaryCredential?: boolean;
 

@@ -78,7 +78,7 @@ if (process.env.RUN_MANUAL_TESTS_ONLY === 'true') {
       });
     });
 
-    describe.only('Connection - ID Token authenticator', function () {
+    describe('Connection - ID Token authenticator', function () {
       const connectionOption = { ...connOption.externalBrowser, clientStoreTemporaryCredential: true };
       const key = Util.buildCredentialCacheKey(connectionOption.host, connectionOption.username, 'ID_TOKEN');
       const defaultCredentialManager = new JsonCredentialManager();

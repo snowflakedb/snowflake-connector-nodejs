@@ -26,7 +26,7 @@ function normalize(source) {
 }
 
 
-describe('Test Structured types', function () {
+describe.only('Test Structured types', function () {
   let connection;
 
   before(function (done) {
@@ -44,10 +44,7 @@ describe('Test Structured types', function () {
         testUtil.executeCmd(connection, 'alter session set IGNORE_CLIENT_VESRION_IN_STRUCTURED_TYPES_RESPONSE = true', callback);
       },
       function (callback) {
-        testUtil.executeCmd(connection, sharedStatement.setTimestampOutputFormat, callback);
-      },
-      function (callback) {
-        testUtil.executeCmd(connection, sharedStatement.setTimestampNTZOutputFormat, callback);
+        testUtil.executeCmd(connection, sharedStatement.setTimezoneAndTimestamps, callback);
       }],
     done
     );

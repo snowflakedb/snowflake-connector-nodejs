@@ -26,7 +26,7 @@ function normalize(source) {
 }
 
 
-describe.only('Test Structured types', function () {
+describe('Test Structured types', function () {
   let connection;
 
   before(function (done) {

@@ -571,7 +571,7 @@ declare module 'snowflake-sdk' {
         getResultsFromQueryId(options: StatementOption): Promise<RowStatement | FileAndStageBindStatement>;
 
         /**
-         * Gets the results from a previously ran query based on queryId and throws if there's an error.
+         * Returns the value of the SERVICE_NAME parameter
          */
         getServiceName(): string;
 

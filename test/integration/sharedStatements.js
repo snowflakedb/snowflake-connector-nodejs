@@ -8,6 +8,8 @@ const setTimestampNTZOutputFormat = 'alter session set TIMESTAMP_NTZ_OUTPUT_FORM
 const setTimezoneAndTimestamps =
   'alter session set TIMEZONE=\'America/Los_Angeles\', ' +
   'TIMESTAMP_OUTPUT_FORMAT=\'YYYY-MM-DD HH24:MI:SS.FF3 TZHTZM\', ' +
+  'TIMESTAMP_LTZ_OUTPUT_FORMAT=\'YYYY-MM-DD HH24:MI:SS.FF3 TZHTZM\', ' +
+  'TIMESTAMP_TZ_OUTPUT_FORMAT=\'YYYY-MM-DD HH24:MI:SS.FF3 TZHTZM\', ' +
   'TIMESTAMP_NTZ_OUTPUT_FORMAT=\'YYYY-MM-DD HH24:MI:SS.FF3\'';
 
 exports.setTimezoneToPST = setTimezoneToPST;

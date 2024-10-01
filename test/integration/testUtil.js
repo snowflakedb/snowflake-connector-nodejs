@@ -313,3 +313,5 @@ module.exports.createRandomFileName = function ( option = { prefix: '', postfix:
   const fileName = `${option.prefix || ''}${randomName}${option.postfix || ''}${option.extension || ''}`;
   return fileName;
 };
+
+module.exports.normalizeRowObject = normalizeRowObject;

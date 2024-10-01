@@ -485,6 +485,16 @@ declare module 'snowflake-sdk' {
         credentialCacheDir?: string;
 
         /**
+         * The option to enable the MFA token. The default value is false.
+         */
+        clientRequestMFAToken?: boolean;
+
+        /**
+         * The option to enable the SSO token. The default value is false.
+         */
+        clientStoreTemporaryCredential?: boolean;
+
+        /**
          *  The option to include the passcode from DUO into the password.
          */
         passcodeInPassword?: boolean;
@@ -492,7 +502,7 @@ declare module 'snowflake-sdk' {
         /**
          *  The option to pass passcode from DUO.
          */
-        passcode?: string
+        passcode?: string;
     }
 
     export interface Connection {

@@ -825,6 +825,11 @@ declare module 'snowflake-sdk' {
         isArray(): boolean;
 
         /**
+         * Returns true if this column is type MAP.
+         */
+        isMap(): boolean;
+
+        /**
          * Returns the value of this column in a row.
          */
         getRowValue(row: object): any;

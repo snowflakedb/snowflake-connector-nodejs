@@ -3,9 +3,9 @@
   "version": "1.14.0",
   "description": "Node.js driver for Snowflake",
   "dependencies": {
-    "@aws-sdk/client-s3": "^3.388.0",
-    "@aws-sdk/node-http-handler": "^3.374.0",
-    "@azure/storage-blob": "12.18.x",
+    "@aws-sdk/client-s3": "^3.663.0",
+    "@smithy/node-http-handler": "^3.2.4",
+    "@azure/storage-blob": "^12.25.0",
     "@google-cloud/storage": "^7.7.0",
     "@techteamer/ocsp": "1.0.1",
     "asn1.js-rfc2560": "^5.0.0",

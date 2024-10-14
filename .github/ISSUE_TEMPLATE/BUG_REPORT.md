@@ -5,11 +5,8 @@ labels: bug
 ---
 
 
-<!--
-If you need urgent assistance then file the issue using the support process: 
-https://community.snowflake.com/s/article/How-To-Submit-a-Support-Case-in-Snowflake-Lodge 
-otherwise continue here. 
--->
+If you need **urgent assistance** then [file a case with Snowflake Support](https://community.snowflake.com/s/article/How-To-Submit-a-Support-Case-in-Snowflake-Lodge). 
+Otherwise continue here. 
 
 
 Please answer these questions before submitting your issue. 
@@ -24,28 +21,27 @@ In order to accurately debug the issue this information is required. Thanks!
 3. What version of NodeJS are you using?
 (`node --version` and `npm --version`)
 
+
 4. What are the component versions in the environment (`npm list`)?
 
-5.Server version:* E.g. 1.90.1
-You may get the server version by running a query:
-```
-SELECT CURRENT_VERSION();
-```
-6. What did you do?
+
+5. What did you do?
 
    If possible, provide a recipe for reproducing the error.
-   A complete runnable program is good.
+   A complete runnable program would be the most helpful.
 
-7. What did you expect to see?
+
+6. What did you expect to see?
 
    What should have happened and what happened instead?
 
-8. Can you set logging to DEBUG and collect the logs?
+
+7. Can you collect debug logs?
 
    https://community.snowflake.com/s/article/How-to-generate-log-file-on-Snowflake-connectors
 
   e.g
-  Add this to get standard output.
+  Add this to get TRACE logs sent to standard output.
 
 ```
 var snowflake = require('snowflake-sdk');
@@ -54,5 +50,6 @@ snowflake.configure(
   logLevel: 'trace'
 });
 ```
-   
-9. What is your Snowflake account identifier, if any? (Optional)
+
+:warning: Before sharing any data, please be sure to review the log and remove any sensitive
+information.

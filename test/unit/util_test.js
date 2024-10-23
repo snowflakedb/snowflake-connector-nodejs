@@ -1324,12 +1324,12 @@ describe('Util', function () {
       process.env.NO_PROXY = '*.amazonaws.com,*.my_company.com';
     });
 
-    after(()=>{
+    after(() => {
       process.env.NO_PROXY = original;
-    })
+    });
 
-    it('test noProxy convertion', function (){
-      assert.strictEqual(Util.getNoProxyEnv(), '*.amazonaws.com|*.my_company.com')
-    })
+    it('test noProxy conversion', function (){
+      assert.strictEqual(Util.getNoProxyEnv(), '*.amazonaws.com|*.my_company.com');
+    });
   });
 });

@@ -8,6 +8,7 @@ const assert = require('assert');
 const connOption = require('./connectionOptions');
 const testUtil = require('./testUtil');
 const Util = require('./../../lib/util');
+const nodeUtil = require('util');
 const Core = require('./../../lib/core');
 const { stdout } = require('test-console');
 const { assertLogMessage } = require('./testUtil');
@@ -38,6 +39,7 @@ describe('Connection test', function () {
     const connection = snowflake.createConnection(connOption.valid);
     assert.deepEqual(connection.getTokens(), {});
   });
+
   it('Simple Connect', async function () {
     const connection = snowflake.createConnection(connOption.valid);
 
@@ -46,6 +48,7 @@ describe('Connection test', function () {
     await testUtil.destroyConnectionAsync(connection);
     assert.ok(!connection.isUp(), 'still active');
   });
+
 
   it('Wrong Username', function (done) {
     const connection = snowflake.createConnection(connOption.wrongUserName);
@@ -810,4 +813,84 @@ describe('Connection Test - isValid', () => {
   });
 
   // there is no way to test heartbeat fail to running instance of snowflake
+});
+
+
+it('Connect async with keep alive interval created', async function () {
+  const connection = snowflake.createConnection(connOption.validWithKeepAlive);
+
+  await testUtil.connectAsync(connection);
+  assert.ok(connection.isUp(), 'not active');
+  await testUtil.destroyConnectionAsync(connection);
+  assert.ok(!connection.isUp(), 'still active');
+});
+
+it('Connect async with original callback', async function () {
+  const connection = snowflake.createConnection(connOption.valid);
+
+  await testUtil.connectAsyncWithOriginalCallback(connection, () => {});
+  assert.ok(connection.isUp(), 'not active');
+  await testUtil.destroyConnectionAsync(connection);
+  assert.ok(!connection.isUp(), 'still active');
+});
+
+it('Connect async with undefined callback', async function () {
+  const connection = snowflake.createConnection(connOption.valid);
+
+  await testUtil.connectAsyncWithOriginalCallback(connection, undefined);
+  assert.ok(connection.isUp(), 'not active');
+  await testUtil.destroyConnectionAsync(connection);
+  assert.ok(!connection.isUp(), 'still active');
+});
+
+it('Connect async with null callback', async function () {
+  const connection = snowflake.createConnection(connOption.valid);
+
+  await testUtil.connectAsyncWithOriginalCallback(connection, null);
+  assert.ok(connection.isUp(), 'not active');
+  await testUtil.destroyConnectionAsync(connection);
+  assert.ok(!connection.isUp(), 'still active');
+});
+
+it('Connect async within the strict mode', async function () {
+  "use strict";
+  const connection = snowflake.createConnection(connOption.valid);
+
+  await testUtil.connectAsync(connection);
+  assert.ok(connection.isUp(), 'not active');
+  await testUtil.destroyConnectionAsync(connection);
+  assert.ok(!connection.isUp(), 'still active');
+});
+
+it('Simple Connect promisify properly called with call', async function () {
+  const connection = snowflake.createConnection(connOption.valid);
+  await nodeUtil.promisify(connection.connect).call(connection);
+  assert.ok(connection.isUp(), 'not active');
+  await testUtil.destroyConnectionAsync(connection);
+  assert.ok(!connection.isUp(), 'still active');
+});
+
+it('Simple Connect promisify properly called with bind', async function () {
+  const connection = snowflake.createConnection(connOption.valid);
+  await nodeUtil.promisify(connection.connect.bind(connection))();
+  assert.ok(connection.isUp(), 'not active');
+  await testUtil.destroyConnectionAsync(connection);
+  assert.ok(!connection.isUp(), 'still active');
+});
+
+
+it('Connection callback not called in the heartbeat', async function () {
+  let callbackCallCount = 0;
+  const connection = snowflake.createConnection(connOption.validWithKeepAlive);
+  await testUtil.connectAsyncWithOriginalCallback(connection,
+    function (){
+      callbackCallCount++;
+    });
+
+  const msForCallbackToRun = connection.getClientSessionKeepAliveHeartbeatFrequency();
+  await testUtil.sleepAsync(msForCallbackToRun);
+  assert.ok(connection.isUp(), 'not active');
+  assert.equal(callbackCallCount, 1, 'Connect callback called more than once or never');
+  await testUtil.destroyConnectionAsync(connection);
+  assert.ok(!connection.isUp(), 'still active');
 });

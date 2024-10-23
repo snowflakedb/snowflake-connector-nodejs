@@ -11,6 +11,7 @@ const crypto = require('crypto');
 const Logger = require('../../lib/logger');
 const path = require('path');
 const os = require('os');
+const Util = require('../../lib/util');
 
 module.exports.createConnection = function (validConnectionOptionsOverride = {}) {
   return snowflake.createConnection({
@@ -38,6 +39,12 @@ module.exports.connectAsync = function (connection) {
   return new Promise((resolve, reject) => {
     connection.connect(err => err ? reject(err) : resolve());
   });
+};
+
+// Other connect-related methods form testUtil do not allow to pass the custom callback from tests
+// This should be used when it is important to execute exactly the specified callback - with no wrapper
+module.exports.connectAsyncWithOriginalCallback = function (connection, callback) {
+  return connection.connectAsync(callback);
 };
 
 module.exports.destroyConnection = function (connection, callback) {
@@ -317,6 +324,10 @@ module.exports.createRandomFileName = function ( option = { prefix: '', postfix:
   const randomName = crypto.randomUUID();
   const fileName = `${option.prefix || ''}${randomName}${option.postfix || ''}${option.extension || ''}`;
   return fileName;
+};
+
+module.exports.sleepAsync = function (ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
 };
 
 module.exports.normalizeRowObject = normalizeRowObject;

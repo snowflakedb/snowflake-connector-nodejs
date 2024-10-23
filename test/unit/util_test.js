@@ -1312,6 +1312,7 @@ describe('Util', function () {
         process.env[name] = value;
         assert.strictEqual(Util.getEnvVar('snowflake_env_test'), value);
         assert.strictEqual(Util.getEnvVar('SNOWFLAKE_ENV_TEST'), value);
+        delete process.env[name];
       });
     }
   });

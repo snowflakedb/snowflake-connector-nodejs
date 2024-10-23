@@ -1294,4 +1294,42 @@ describe('Util', function () {
       });
     });
   });
+
+  describe('getEnvVar function Test', function () {
+    const testCases = [
+      {
+        name: 'snowflake_env_test',
+        value: 'mock_value',
+      },
+      {
+        name: 'SNOWFLAKE_ENV_TEST',
+        value: 'MOCK_VALUE',
+      },
+    ];
+
+    for (const { name, value, } of testCases) {
+      it(name, function () {
+        process.env[name] = value;
+        assert.strictEqual(Util.getEnvVar('snowflake_env_test'), value);
+        assert.strictEqual(Util.getEnvVar('SNOWFLAKE_ENV_TEST'), value);
+      });
+    }
+  });
+
+  describe('getNoProxyEnv function Test', function () {
+    let original = null;
+
+    before( function (){
+      original = process.env.NO_PROXY; 
+      process.env.NO_PROXY = '*.amazonaws.com,*.my_company.com';
+    });
+
+    after(()=>{
+      process.env.NO_PROXY = original;
+    })
+
+    it('test noProxy convertion', function (){
+      assert.strictEqual(Util.getNoProxyEnv(), '*.amazonaws.com|*.my_company.com')
+    })
+  });
 });

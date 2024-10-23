@@ -30,6 +30,8 @@ declare module 'snowflake-sdk' {
         ERR_GLOBAL_CONFIGURE_INVALID_JSON_PARSER = 403004,
         ERR_GLOBAL_CONFIGURE_INVALID_XML_PARSER = 403005,
         ERR_GLOBAL_CONFIGURE_INVALID_KEEP_ALIVE = 403006,
+        ERR_GLOBAL_CONFIGURE_INVALID_CUSTOM_CREDENTIAL_MANAGER = 403007,
+        ERR_GLOBAL_CONFIGURE_INVALID_PROXY = 403008,
 
         // 404001
         ERR_CONN_CREATE_MISSING_OPTIONS = 404001,
@@ -245,6 +247,12 @@ declare module 'snowflake-sdk' {
          * pass the custom credential manager to this option.
          */
         customCredentialManager?: object;
+
+        /**
+         * The option whether the driver loads the proxy information from the environment variable or not
+         * The default value is true. If false, it does not use the proxy.
+         */
+        proxy?: boolean;
     }
 
     export interface ConnectionOptions {

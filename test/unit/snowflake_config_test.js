@@ -65,6 +65,11 @@ describe('Snowflake Configure Tests', function () {
           options: { customCredentialManager: 'unsupported' },
           errorCode: ErrorCodes.ERR_GLOBAL_CONFIGURE_INVALID_CUSTOM_CREDENTIAL_MANAGER
         },
+        {
+          name: 'invalid proxy',
+          options: { proxy: 'unsupported' },
+          errorCode: ErrorCodes.ERR_GLOBAL_CONFIGURE_INVALID_PROXY
+        },
       ];
 
     negativeTestCases.forEach(testCase => {
@@ -184,6 +189,20 @@ describe('Snowflake Configure Tests', function () {
             xmlColumnVariantParser: rawColumnValue => new (require('fast-xml-parser')).XMLParser().parse(rawColumnValue)
           }
         },
+        {
+          name: 'proxy false',
+          options:
+          {
+            proxy: false
+          }
+        },
+        {
+          name: 'proxy true',
+          options:
+          {
+            proxy: true
+          }
+        },
       ];
 
     testCases.forEach(testCase => {
@@ -200,6 +219,8 @@ describe('Snowflake Configure Tests', function () {
             val = GlobalConfig.getOcspFailOpen();
           } else if (key === 'keepAlive') {
             val = GlobalConfig.getKeepAlive();
+          } else if (key === 'proxy') {
+            val = GlobalConfig.isEnvProxyActive();
           } else {
             val = GlobalConfig[key];
           }

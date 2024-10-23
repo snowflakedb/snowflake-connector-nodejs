@@ -11,7 +11,6 @@ const crypto = require('crypto');
 const Logger = require('../../lib/logger');
 const path = require('path');
 const os = require('os');
-const Util = require('../../lib/util');
 
 module.exports.createConnection = function (validConnectionOptionsOverride = {}) {
   return snowflake.createConnection({

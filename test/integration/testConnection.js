@@ -49,7 +49,6 @@ describe('Connection test', function () {
     assert.ok(!connection.isUp(), 'still active');
   });
 
-
   it('Wrong Username', function (done) {
     const connection = snowflake.createConnection(connOption.wrongUserName);
     connection.connect(function (err) {
@@ -815,7 +814,6 @@ describe('Connection Test - isValid', () => {
   // there is no way to test heartbeat fail to running instance of snowflake
 });
 
-
 it('Connect async with keep alive interval created', async function () {
   const connection = snowflake.createConnection(connOption.validWithKeepAlive);
 
@@ -877,7 +875,6 @@ it('Simple Connect promisify properly called with bind', async function () {
   await testUtil.destroyConnectionAsync(connection);
   assert.ok(!connection.isUp(), 'still active');
 });
-
 
 it('Connection callback not called in the heartbeat', async function () {
   let callbackCallCount = 0;

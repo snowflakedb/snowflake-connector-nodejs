@@ -853,7 +853,7 @@ it('Connect async with null callback', async function () {
 });
 
 it('Connect async within the strict mode', async function () {
-  "use strict";
+  'use strict';
   const connection = snowflake.createConnection(connOption.valid);
 
   await testUtil.connectAsync(connection);

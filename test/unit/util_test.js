@@ -1317,6 +1317,108 @@ describe('Util', function () {
     }
   });
 
+  describe('getProxyEnv function test ', function () {
+    let originalHttpProxy = null;
+    let originalHttpsProxy = null;
+    let originalNoProxy = null;
+
+    before(() => {
+      originalHttpProxy = process.env.HTTP_PROXY;
+      originalHttpsProxy = process.env.HTTPS_PROXY;
+      originalNoProxy = process.env.NO_PROXY; 
+    });
+
+    beforeEach(() => {
+      delete process.env.HTTP_PROXY;
+      delete process.env.HTTPS_PROXY;
+      delete process.env.NO_PROXY;
+    });
+
+    after(() => {
+      originalHttpProxy ? process.env.HTTP_PROXY = originalHttpProxy : delete process.env.HTTP_PROXY;
+      originalHttpsProxy ? process.env.HTTPS_PROXY = originalHttpsProxy : delete process.env.HTTPS_PROXY;
+      originalNoProxy ? process.env.NO_PROXY = originalNoProxy : delete process.env.NO_PROXY; 
+    });
+
+    const testCases = [
+      {
+        name: 'HTTP PROXY without authentication and schema',
+        isHttps: false,
+        httpProxy: 'proxy.example.com:8080',
+        httpsProxy: undefined,
+        noProxy: '*.amazonaws.com',
+        result: {
+          host: 'proxy.example.com',
+          port: 8080,
+          protocol: 'http:',
+          noProxy: '*.amazonaws.com'
+        }
+      },
+      {
+        name: 'HTTP PROXY with authentication',
+        isHttps: false,
+        httpProxy: 'http://hello:world@proxy.example.com:8080',
+        httpsProxy: undefined,
+        noProxy: '*.amazonaws.com,*.my_company.com',
+        result: {
+          host: 'proxy.example.com',
+          user: 'hello',
+          password: 'world',
+          port: 8080,
+          protocol: 'http:',
+          noProxy: '*.amazonaws.com|*.my_company.com'
+        }
+      },
+      {
+        name: 'HTTPS PROXY with authentication without NO proxy',
+        isHttps: true,
+        httpsProxy: 'https://user:pass@myproxy.server.com:1234',
+        result: {
+          host: 'myproxy.server.com',
+          user: 'user',
+          password: 'pass',
+          port: 1234,
+          protocol: 'https:',
+          noProxy: undefined,
+        },
+      },
+      {
+        name: 'HTTPS PROXY with authentication without NO proxy No schema',
+        isHttps: true,
+        noProxy: '*.amazonaws.com,*.my_company.com,*.test.com',
+        httpsProxy: 'myproxy.server.com:1234',
+        result: {
+          host: 'myproxy.server.com',
+          port: 1234,
+          protocol: 'https:',
+          noProxy: '*.amazonaws.com|*.my_company.com|*.test.com',
+        },
+      }
+    ];
+
+    testCases.forEach(({ name, isHttps, httpsProxy, httpProxy, noProxy, result }) => {
+      it(name, function (){
+
+        if (httpProxy){
+          process.env.HTTP_PROXY = httpProxy;
+        }
+        if (httpsProxy) {
+          process.env.HTTPS_PROXY = httpsProxy; 
+        }
+        if (noProxy) {
+          process.env.NO_PROXY = noProxy; 
+        }
+        const proxy =  Util.getProxyEnv(isHttps);
+        const keys = Object.keys(result);
+        assert.strictEqual(keys.length, Object.keys(proxy).length);
+
+        for (const key in keys) {
+          assert.strictEqual(proxy[key], result[key]);
+        }
+      });
+    });
+  });
+
   describe('getNoProxyEnv function Test', function () {
     let original = null;
 

@@ -1393,6 +1393,18 @@ describe('Util', function () {
           protocol: 'https:',
           noProxy: '*.amazonaws.com|*.my_company.com|*.test.com',
         },
+      },
+      {
+        name: 'HTTP PROXY with https request',
+        isHttps: true,
+        noProxy: '*.amazonaws.com,*.my_company.com,*.test.com',
+        httpsProxy: 'http://myproxy.server.com:1234',
+        result: {
+          host: 'myproxy.server.com',
+          port: 1234,
+          protocol: 'http:',
+          noProxy: '*.amazonaws.com|*.my_company.com|*.test.com',
+        },
       }
     ];
 

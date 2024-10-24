@@ -297,7 +297,7 @@ declare module 'snowflake-sdk' {
         browserActionTimeout?: number;
 
         /**
-         * Specifies the lists of hosts that the driver should connect to directly, bypassing the proxy server (e.g. *.amazonaws.com to bypass Amazon S3 access). For multiple hosts, separate the hostnames with a pipe symbol (|). 
+         * Specifies the lists of hosts that the driver should connect to directly, bypassing the proxy server (e.g. *.amazonaws.com to bypass Amazon S3 access). For multiple hosts, separate the hostnames with a pipe symbol (|).
          * You can also use an asterisk as a wild card. For example: noProxy: "*.amazonaws.com|*.my_company.com"
          */
         noProxy?: string;
@@ -474,7 +474,7 @@ declare module 'snowflake-sdk' {
         disableConsoleLogin?: boolean;
 
         /**
-         *  Turn on the validation function which checks whether all the connection configuration from users are valid or not. 
+         *  Turn on the validation function which checks whether all the connection configuration from users are valid or not.
          */
         validateDefaultParameters?: boolean;
 
@@ -485,6 +485,16 @@ declare module 'snowflake-sdk' {
         credentialCacheDir?: string;
 
         /**
+         * The option to enable the MFA token. The default value is false.
+         */
+        clientRequestMFAToken?: boolean;
+
+        /**
+         * The option to enable the SSO token. The default value is false.
+         */
+        clientStoreTemporaryCredential?: boolean;
+
+        /**
          *  The option to include the passcode from DUO into the password.
          */
         passcodeInPassword?: boolean;
@@ -492,7 +502,7 @@ declare module 'snowflake-sdk' {
         /**
          *  The option to pass passcode from DUO.
          */
-        passcode?: string
+        passcode?: string;
     }
 
     export interface Connection {
@@ -559,6 +569,11 @@ declare module 'snowflake-sdk' {
          *  Gets the results from a previously ran query based on queryId.
          */
         getResultsFromQueryId(options: StatementOption): Promise<RowStatement | FileAndStageBindStatement>;
+
+        /**
+         * Returns the value of the SERVICE_NAME parameter
+         */
+        getServiceName(): string;
 
         /**
          * Checks whether the given status is currently running.
@@ -813,6 +828,11 @@ declare module 'snowflake-sdk' {
          * Returns true if this column is type ARRAY.
          */
         isArray(): boolean;
+
+        /**
+         * Returns true if this column is type MAP.
+         */
+        isMap(): boolean;
 
         /**
          * Returns the value of this column in a row.

@@ -49,7 +49,7 @@ jobs:
             fail-fast: false
             matrix:
                 cloud: [ 'AWS', 'AZURE', 'GCP' ]
-                nodeVersion: [ '14.x', '16.x', '18.x', '20.x']
+                nodeVersion: [ '14.x', '16.x', '18.x', '20.x', '22.x']
         steps:
             - uses: actions/checkout@v4
             - uses: actions/setup-node@v3
@@ -87,7 +87,7 @@ jobs:
             fail-fast: false
             matrix:
                 cloud: [ 'AWS', 'AZURE', 'GCP' ]
-                nodeVersion: [ '14.x', '16.x', '18.x', '20.x']
+                nodeVersion: [ '14.x', '16.x', '18.x', '20.x', '22.x']
         steps:
             - uses: actions/checkout@v4
             - uses: actions/setup-node@v3
@@ -116,7 +116,7 @@ jobs:
         strategy:
             fail-fast: false
             matrix:
-                image: [ 'nodejs-centos7-node14', 'nodejs-centos7-fips']
+                image: [ 'nodejs-chainguard-node18', 'nodejs-chainguard-node18-fips']
                 cloud: [ 'AWS', 'AZURE', 'GCP' ]
         steps:
             - uses: actions/checkout@v4
@@ -141,7 +141,7 @@ jobs:
         fail-fast: false
         matrix:
           cloud: [ 'AWS', 'AZURE', 'GCP' ]
-          nodeVersion: ['18.x', '20.x']
+          nodeVersion: ['18.x', '20.x', '22.x']
       steps:
         - uses: actions/checkout@v4
         - name: Download Build Artifacts

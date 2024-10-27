@@ -2004,32 +2004,32 @@ function buildRequestOutputMappings(clientInfo) {
     },
     {
       request:
-          {
-            method: 'POST',
-            url: 'http://fakeaccount.snowflakecomputing.com/session/heartbeat',
-            headers:
-                  {
-                    'Accept': 'application/json',
-                    'Authorization': 'Snowflake Token="SESSION_TOKEN"',
-                    'Content-Type': 'application/json',
-                  }
-          },
+        {
+          method: 'POST',
+          url: 'http://fakeaccount.snowflakecomputing.com/session/heartbeat',
+          headers:
+            {
+              'Accept': 'application/json',
+              'Authorization': 'Snowflake Token="SESSION_TOKEN"',
+              'Content-Type': 'application/json',
+            }
+        },
       output:
-          {
-            err: null,
-            response:
-                  {
-                    statusCode: 200,
-                    statusMessage: 'OK',
-                    body:
-                          {
-                            code: null,
-                            data: null,
-                            message: null,
-                            success: true
-                          }
-                  }
-          }
+        {
+          err: null,
+          response:
+            {
+              statusCode: 200,
+              statusMessage: 'OK',
+              body:
+                {
+                  code: null,
+                  data: null,
+                  message: null,
+                  success: true
+                }
+            }
+        }
     }
   ];
 }

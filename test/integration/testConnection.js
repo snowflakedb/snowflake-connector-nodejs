@@ -178,6 +178,7 @@ describe('Connection test', function () {
 
   it('When promisify called with call then successfully established', async function () {
     const connection = snowflake.createConnection(connOption.valid);
+
     await nodeUtil.promisify(connection.connect).call(connection);
     testUtil.assertConnectionActive(connection);
     await testUtil.destroyConnectionAsync(connection);
@@ -186,12 +187,12 @@ describe('Connection test', function () {
 
   it('When promisify called with bind then successfully established', async function () {
     const connection = snowflake.createConnection(connOption.valid);
+
     await nodeUtil.promisify(connection.connect.bind(connection))();
     testUtil.assertConnectionActive(connection);
     await testUtil.destroyConnectionAsync(connection);
     testUtil.assertConnectionInactive(connection);
   });
-
 });
 
 describe('Connection test - validate default parameters', function () {

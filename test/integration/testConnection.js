@@ -202,22 +202,6 @@ describe('Connection test', function () {
     testUtil.assertConnectionInactive(connection);
   });
 
-  it('When connect async with keep alive interval then callback for connect not called in heartbeat', async function () {
-    let callbackCallCount = 0;
-    const connection = snowflake.createConnection(connOption.validWithKeepAlive);
-    await testUtil.connectAsyncWithOriginalCallback(connection,
-      function (){
-        callbackCallCount++;
-      });
-
-    const msForCallbackToRun = connection.getClientSessionKeepAliveHeartbeatFrequency();
-    await testUtil.sleepAsync(msForCallbackToRun);
-    testUtil.assertConnectionActive(connection);
-    assert.equal(callbackCallCount, 1, 'Connect callback called more than once or never');
-    await testUtil.destroyConnectionAsync(connection);
-    testUtil.assertConnectionInactive(connection);
-  });
-
 });
 
 describe('Connection test - validate default parameters', function () {

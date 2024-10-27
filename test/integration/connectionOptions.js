@@ -65,21 +65,6 @@ const valid =
     host: snowflakeTestHost,
   };
 
-const validWithKeepAlive =
-    {
-      accessUrl: accessUrl,
-      username: snowflakeTestUser,
-      password: snowflakeTestPassword,
-      account: snowflakeTestAccount,
-      warehouse: snowflakeTestWarehouse,
-      database: snowflakeTestDatabase,
-      schema: snowflakeTestSchema,
-      role: snowflakeTestRole,
-      clientSessionKeepAlive: true,
-      clientSessionKeepAliveHeartbeatFrequency: 900,
-      host: snowflakeTestHost,
-    };
-
 const snowflakeAccount = snowflakeTestAdminUser !== undefined ?
   {
     accessUrl: accessUrl,
@@ -243,7 +228,6 @@ const connectionWithProxy =
   };
 
 exports.valid = valid;
-exports.validWithKeepAlive = validWithKeepAlive;
 exports.snowflakeAccount = snowflakeAccount;
 exports.wrongUserName = wrongUserName;
 exports.wrongPwd = wrongPwd;

@@ -1961,15 +1961,14 @@ describe('snowflake.createConnection() CLIENT_SESSION_KEEP_ALIVE', function () {
 
   if (process.env.RUN_MANUAL_TESTS_ONLY === 'true') {
     it('When connect with keep alive interval then callback for connect not called in heartbeat', function (done) {
-    // GIVEN
+      //   This test requires awaiting the whole timeout of heartbeat request, therefore it was marked as manual to avoid delaying the other tests' execution.
+      //   Value of the timeout ('frequency') is customizable, but only to the point of a minimal value (calculated based on the constant: HEARTBEAT_FREQUENCY_MASTER_VALIDITY).
       let callbackCallCount = 0;
       const SECONDS_TO_MILLISECONDS_MULTIPLIER = 1000;
-        
       function testCallbackWithCounterIncrementation(err) {
         assert.ok(!err, JSON.stringify(err));
         callbackCallCount++;
       }
-        
       const connection = snowflake.createConnection(connectionOptionsClientSessionKeepAlive);
         
       async.series([

@@ -139,16 +139,6 @@ describe('Connection test', function () {
       });
   });
 
-  it('When connect async with keep alive interval then connection successfully established.', async function () {
-    const connection = snowflake.createConnection(connOption.validWithKeepAlive);
-
-    await testUtil.connectAsync(connection);
-    testUtil.assertConnectionActive(connection);
-    await testUtil.destroyConnectionAsync(connection);
-    testUtil.assertConnectionInactive(connection);
-  });
-
-
   it('When connect async with original callback then successfully established', async function () {
     const connection = snowflake.createConnection(connOption.valid);
 

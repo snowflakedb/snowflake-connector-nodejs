@@ -1958,37 +1958,42 @@ describe('snowflake.createConnection() CLIENT_SESSION_KEEP_ALIVE', function () {
     done);
   });
 
-  it('When connect with keep alive interval then callback for connect not called in heartbeat', function (done) {
-    // GIVEN
-    let callbackCallCount = 0;
-    const SECONDS_TO_MILLISECONDS_MULTIPLIER = 1000;
-    function testCallbackWithCounterIncrementation(err){
-      assert.ok(!err, JSON.stringify(err));
-      callbackCallCount++;
-    }
-    const connection = snowflake.createConnection(connectionOptionsClientSessionKeepAlive);
 
-    async.series([
-      function (callback) {
-        connection.connect(function (err) {
-          testCallbackWithCounterIncrementation(err);
-          callback();
-        });
-      },
-      async function () {
-        const msForHeartbeatToRunTwice = connection.getClientSessionKeepAliveHeartbeatFrequency() * SECONDS_TO_MILLISECONDS_MULTIPLIER * 2;
-        await testUtil.sleepAsync(msForHeartbeatToRunTwice);
-        assert.equal(callbackCallCount, 1, 'Connect callback called more than once or never');
-      },
-      function (callback) {
-        connection.destroy(function (err) {
-          assert.ok(!err, JSON.stringify(err));
-          callback();
-        });
+  if (process.env.RUN_MANUAL_TESTS_ONLY === 'true') {
+    it('When connect with keep alive interval then callback for connect not called in heartbeat', function (done) {
+    // GIVEN
+      let callbackCallCount = 0;
+      const SECONDS_TO_MILLISECONDS_MULTIPLIER = 1000;
+        
+      function testCallbackWithCounterIncrementation(err) {
+        assert.ok(!err, JSON.stringify(err));
+        callbackCallCount++;
       }
-    ],
-    done);
-  });
+        
+      const connection = snowflake.createConnection(connectionOptionsClientSessionKeepAlive);
+        
+      async.series([
+        function (callback) {
+          connection.connect(function (err) {
+            testCallbackWithCounterIncrementation(err);
+            callback();
+          });
+        },
+        async function () {
+          const msForHeartbeatToRunTwice = connection.getClientSessionKeepAliveHeartbeatFrequency() * SECONDS_TO_MILLISECONDS_MULTIPLIER * 2;
+          await testUtil.sleepAsync(msForHeartbeatToRunTwice);
+          assert.equal(callbackCallCount, 1, 'Connect callback called more than once or never');
+        },
+        function (callback) {
+          connection.destroy(function (err) {
+            assert.ok(!err, JSON.stringify(err));
+            callback();
+          });
+        }
+      ],
+      done);
+    });
+  }
 });
 
 describe('snowflake.createConnection() JS_TREAT_INTEGER_AS_BIGINT', function () {

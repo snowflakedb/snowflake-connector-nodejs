@@ -329,5 +329,14 @@ module.exports.sleepAsync = function (ms) {
   return new Promise(resolve => setTimeout(resolve, ms));
 };
 
+module.exports.assertConnectionActive = function (connection) {
+  assert.ok(connection.isUp(), 'Connection expected to be active, but was inactive.');
+};
+
+module.exports.assertConnectionInactive = function (connection) {
+  assert.ok(!connection.isUp(), 'Connection expected to be inactive, but was active.');
+};
+
+
 module.exports.normalizeRowObject = normalizeRowObject;
 module.exports.normalizeValue = normalizeValue;

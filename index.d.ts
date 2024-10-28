@@ -129,6 +129,7 @@ declare module 'snowflake-sdk' {
         ERR_CONN_EXEC_STMT_INVALID_FETCH_AS_STRING_VALUES = 409012,
         ERR_CONN_EXEC_STMT_INVALID_REQUEST_ID = 409013,
         ERR_CONN_EXEC_STMT_INVALID_ASYNC_EXEC = 409014,
+        ERR_CONN_EXEC_STMT_INVALID_DESCRIBE_ONLY = 409015,
 
         // 410001
         ERR_CONN_FETCH_RESULT_MISSING_OPTIONS = 410001,
@@ -644,6 +645,11 @@ declare module 'snowflake-sdk' {
          * that is different from the connector directory.
          */
         cwd?: string;
+
+        /**
+         * `true` to enable a describe only query.
+         */
+        describeOnly?: boolean;
     }
 
     export interface RowStatement {

@@ -28,7 +28,7 @@ timestamps {
       string(name: 'branch', value: 'main'),
       string(name: 'client_git_commit', value: scmInfo.GIT_COMMIT),
       string(name: 'client_git_branch', value: scmInfo.GIT_BRANCH),
-      string(name: 'TARGET_DOCKER_TEST_IMAGE', value: 'nodejs-centos7-node14'),
+      string(name: 'TARGET_DOCKER_TEST_IMAGE', value: 'nodejs-chainguard-node18'),
       string(name: 'parent_job', value: env.JOB_NAME),
       string(name: 'parent_build_number', value: env.BUILD_NUMBER)
     ]

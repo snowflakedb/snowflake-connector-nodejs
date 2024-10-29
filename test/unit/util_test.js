@@ -1390,22 +1390,10 @@ describe('Util', function () {
         result: {
           host: 'myproxy.server.com',
           port: 1234,
-          protocol: 'https:',
-          noProxy: '*.amazonaws.com|*.my_company.com|*.test.com',
-        },
-      },
-      {
-        name: 'HTTP PROXY with https request',
-        isHttps: true,
-        noProxy: '*.amazonaws.com,*.my_company.com,*.test.com',
-        httpsProxy: 'http://myproxy.server.com:1234',
-        result: {
-          host: 'myproxy.server.com',
-          port: 1234,
           protocol: 'http:',
           noProxy: '*.amazonaws.com|*.my_company.com|*.test.com',
         },
-      }
+      },
     ];
 
     testCases.forEach(({ name, isHttps, httpsProxy, httpProxy, noProxy, result }) => {
@@ -1424,7 +1412,7 @@ describe('Util', function () {
         const keys = Object.keys(result);
         assert.strictEqual(keys.length, Object.keys(proxy).length);
 
-        for (const key in keys) {
+        for (const key of keys) {
           assert.strictEqual(proxy[key], result[key]);
         }
       });

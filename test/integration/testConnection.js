@@ -141,7 +141,7 @@ describe('Connection test', function () {
 
 });
 
-describe('Connection - test connecting variations for valid options', () => {
+describe('Connection tests - connecting variations for valid options', () => {
   let connection;
 
   before(async () => {

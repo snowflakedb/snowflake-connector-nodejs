@@ -337,6 +337,12 @@ module.exports.assertConnectionInactive = function (connection) {
   assert.ok(!connection.isUp(), 'Connection expected to be inactive, but was active.');
 };
 
+module.exports.assertActiveConnectionDestroyedCorrectlyAsync = async function (connection) {
+  module.exports.assertConnectionActive(connection);
+  await module.exports.destroyConnectionAsync(connection);
+  module.exports.assertConnectionInactive(connection);
+};
+
 
 module.exports.normalizeRowObject = normalizeRowObject;
 module.exports.normalizeValue = normalizeValue;

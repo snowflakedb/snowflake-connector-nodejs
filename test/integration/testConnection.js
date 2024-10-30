@@ -144,11 +144,11 @@ describe('Connection test', function () {
 describe('Connection tests - connecting variations for valid options', () => {
   let connection;
 
-  before(async () => {
+  beforeEach(async () => {
     connection = snowflake.createConnection(connOption.valid);
   });
 
-  after(async () => {
+  afterEach(async () => {
     testUtil.assertConnectionActive(connection);
     await testUtil.destroyConnectionAsync(connection);
     testUtil.assertConnectionInactive(connection);

@@ -139,59 +139,45 @@ describe('Connection test', function () {
       });
   });
 
-  it('When connect async with original callback then successfully established', async function () {
-    const connection = snowflake.createConnection(connOption.valid);
+});
 
-    await testUtil.connectAsyncWithOriginalCallback(connection, () => {});
+describe('Connection - test connecting variations for valid options', () => {
+  let connection;
+
+  before(async () => {
+    connection = snowflake.createConnection(connOption.valid);
+  });
+
+  after(async () => {
     testUtil.assertConnectionActive(connection);
     await testUtil.destroyConnectionAsync(connection);
     testUtil.assertConnectionInactive(connection);
+  });
+
+
+  it('When connect async with original callback then successfully established', async function () {
+    await testUtil.connectAsyncWithOriginalCallback(connection, () => {});
   });
 
   it('When connect async with undefined callback then successfully established', async function () {
-    const connection = snowflake.createConnection(connOption.valid);
-
     await testUtil.connectAsyncWithOriginalCallback(connection, undefined);
-    testUtil.assertConnectionActive(connection);
-    await testUtil.destroyConnectionAsync(connection);
-    testUtil.assertConnectionInactive(connection);
   });
 
   it('When connect async with null callback then successfully established', async function () {
-    const connection = snowflake.createConnection(connOption.valid);
-
     await testUtil.connectAsyncWithOriginalCallback(connection, null);
-    testUtil.assertConnectionActive(connection);
-    await testUtil.destroyConnectionAsync(connection);
-    testUtil.assertConnectionInactive(connection);
   });
 
   it('When connect async within the strict mode then successfully established', async function () {
     'use strict';
-    const connection = snowflake.createConnection(connOption.valid);
-
     await testUtil.connectAsync(connection);
-    testUtil.assertConnectionActive(connection);
-    await testUtil.destroyConnectionAsync(connection);
-    testUtil.assertConnectionInactive(connection);
   });
 
   it('When promisify called with call then successfully established', async function () {
-    const connection = snowflake.createConnection(connOption.valid);
-
     await nodeUtil.promisify(connection.connect).call(connection);
-    testUtil.assertConnectionActive(connection);
-    await testUtil.destroyConnectionAsync(connection);
-    testUtil.assertConnectionInactive(connection);
   });
 
   it('When promisify called with bind then successfully established', async function () {
-    const connection = snowflake.createConnection(connOption.valid);
-
     await nodeUtil.promisify(connection.connect.bind(connection))();
-    testUtil.assertConnectionActive(connection);
-    await testUtil.destroyConnectionAsync(connection);
-    testUtil.assertConnectionInactive(connection);
   });
 });
 

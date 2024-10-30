@@ -1408,7 +1408,7 @@ describe('Util', function () {
         if (noProxy) {
           process.env.NO_PROXY = noProxy; 
         }
-        const proxy =  Util.getProxyEnv(isHttps);
+        const proxy =  Util.getProxyFromEnv(isHttps);
         const keys = Object.keys(result);
         assert.strictEqual(keys.length, Object.keys(proxy).length);
 

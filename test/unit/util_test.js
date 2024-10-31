@@ -959,28 +959,28 @@ describe('Util', function () {
         httpproxy: '10.20.30.40:8080',
         HTTPSPROXY: '',
         agentOptions: { 'keepalive': true, 'host': '10.20.30.40', 'port': 8080 },
-        shouldLog: ' // PROXY environment variables: HTTP_PROXY: 10.20.30.40:8080 HTTPS_PROXY: <unset> NO_PROXY: <unset>. // Proxy configured in Connection: proxy=10.20.30.40:8080'
+        shouldLog: ' // PROXY environment variables: HTTP_PROXY: 10.20.30.40:8080 HTTPS_PROXY: <unset> NO_PROXY: <unset>. // Proxy configured in Agent: proxy=10.20.30.40:8080'
       }, {
         name: 'detect both http_proxy and HTTPS_PROXY envvar, agent proxy set to an unauthenticated proxy, same as the envvar',
         isWarn: false,
         httpproxy: '10.20.30.40:8080',
         HTTPSPROXY: 'http://10.20.30.40:8080',
         agentOptions: { 'keepalive': true, 'host': '10.20.30.40', 'port': 8080 },
-        shouldLog: ' // PROXY environment variables: HTTP_PROXY: 10.20.30.40:8080 HTTPS_PROXY: http://10.20.30.40:8080 NO_PROXY: <unset>. // Proxy configured in Connection: proxy=10.20.30.40:8080'
+        shouldLog: ' // PROXY environment variables: HTTP_PROXY: 10.20.30.40:8080 HTTPS_PROXY: http://10.20.30.40:8080 NO_PROXY: <unset>. // Proxy configured in Agent: proxy=10.20.30.40:8080'
       }, {
         name: 'detect both http_proxy and HTTPS_PROXY envvar, agent proxy set to an authenticated proxy, same as the envvar',
         isWarn: false,
         httpproxy: '10.20.30.40:8080',
         HTTPSPROXY: 'http://10.20.30.40:8080',
         agentOptions: { 'keepalive': true, 'host': '10.20.30.40', 'port': 8080, 'user': 'PRX', 'password': 'proxypass' },
-        shouldLog: ' // PROXY environment variables: HTTP_PROXY: 10.20.30.40:8080 HTTPS_PROXY: http://10.20.30.40:8080 NO_PROXY: <unset>. // Proxy configured in Connection: proxy=10.20.30.40:8080 user=PRX'
+        shouldLog: ' // PROXY environment variables: HTTP_PROXY: 10.20.30.40:8080 HTTPS_PROXY: http://10.20.30.40:8080 NO_PROXY: <unset>. // Proxy configured in Agent: proxy=10.20.30.40:8080 user=PRX'
       }, {
         name: 'detect both http_proxy and HTTPS_PROXY envvar, agent proxy set to an authenticated proxy, same as the envvar, with the protocol set',
         isWarn: false,
         httpproxy: '10.20.30.40:8080',
         HTTPSPROXY: 'http://10.20.30.40:8080',
         agentOptions: { 'keepalive': true, 'host': '10.20.30.40', 'port': 8080, 'user': 'PRX', 'password': 'proxypass', 'protocol': 'http' },
-        shouldLog: ' // PROXY environment variables: HTTP_PROXY: 10.20.30.40:8080 HTTPS_PROXY: http://10.20.30.40:8080 NO_PROXY: <unset>. // Proxy configured in Connection: protocol=http proxy=10.20.30.40:8080 user=PRX'
+        shouldLog: ' // PROXY environment variables: HTTP_PROXY: 10.20.30.40:8080 HTTPS_PROXY: http://10.20.30.40:8080 NO_PROXY: <unset>. // Proxy configured in Agent: protocol=http proxy=10.20.30.40:8080 user=PRX'
       }, {
       // now some WARN level messages
         name: 'detect HTTPS_PROXY envvar, agent proxy set to an unauthenticated proxy, different from the envvar',

@@ -31,7 +31,7 @@ declare module 'snowflake-sdk' {
         ERR_GLOBAL_CONFIGURE_INVALID_XML_PARSER = 403005,
         ERR_GLOBAL_CONFIGURE_INVALID_KEEP_ALIVE = 403006,
         ERR_GLOBAL_CONFIGURE_INVALID_CUSTOM_CREDENTIAL_MANAGER = 403007,
-        ERR_GLOBAL_CONFIGURE_INVALID_PROXY = 403008,
+        ERR_GLOBAL_CONFIGURE_INVALID_USE_ENV_PROXY = 403008,
 
         // 404001
         ERR_CONN_CREATE_MISSING_OPTIONS = 404001,
@@ -250,9 +250,9 @@ declare module 'snowflake-sdk' {
 
         /**
          * The option whether the driver loads the proxy information from the environment variable or not
-         * The default value is true. If false, it does not use the proxy.
+         * The default value is true. If false, the driver will not get the proxy from the environment variable.
          */
-        proxy?: boolean;
+        useEnvProxy?: boolean;
     }
 
     export interface ConnectionOptions {

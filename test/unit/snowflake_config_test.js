@@ -67,8 +67,8 @@ describe('Snowflake Configure Tests', function () {
         },
         {
           name: 'invalid proxy',
-          options: { proxy: 'unsupported' },
-          errorCode: ErrorCodes.ERR_GLOBAL_CONFIGURE_INVALID_PROXY
+          options: { useEnvProxy: 'unsupported' },
+          errorCode: ErrorCodes.ERR_GLOBAL_CONFIGURE_INVALID_USE_ENV_PROXY
         },
       ];
 
@@ -190,17 +190,17 @@ describe('Snowflake Configure Tests', function () {
           }
         },
         {
-          name: 'proxy false',
+          name: 'useEnvProxy false',
           options:
           {
-            proxy: false
+            useEnvProxy: false
           }
         },
         {
-          name: 'proxy true',
+          name: 'useEnvProxy true',
           options:
           {
-            proxy: true
+            useEnvProxy: true
           }
         },
       ];
@@ -219,7 +219,7 @@ describe('Snowflake Configure Tests', function () {
             val = GlobalConfig.getOcspFailOpen();
           } else if (key === 'keepAlive') {
             val = GlobalConfig.getKeepAlive();
-          } else if (key === 'proxy') {
+          } else if (key === 'useEnvProxy') {
             val = GlobalConfig.isEnvProxyActive();
           } else {
             val = GlobalConfig[key];

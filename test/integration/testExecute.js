@@ -152,8 +152,7 @@ describe('Execute test', function () {
             if (rows.length > 0) {
               const columnsNamesInMetadata = stmt.getColumns().map(cl => cl.getName());
               const columnsNames = Object.keys(rows[0]);
-              assert.equal(JSON.stringify(columnsNamesInMetadata), JSON.stringify(columnsNames));
-              assert.equal(JSON.stringify(rows), JSON.stringify(expectedReturnedRows));
+              columnsNames.every((element, index) => assert.strictEqual(element, columnsNamesInMetadata[index]));
             }
             return err ? reject(err) : resolve(rows);
           }

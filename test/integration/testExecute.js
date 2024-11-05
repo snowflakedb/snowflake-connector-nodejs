@@ -154,7 +154,8 @@ describe('Execute test', function () {
       });
     }
 
-    executeQueryAndVerifyResultDependOnDescribeOnly();
+    executeQueryAndVerifyResultDependOnDescribeOnly(true);
+    executeQueryAndVerifyResultDependOnDescribeOnly(false);
   });
 });
 

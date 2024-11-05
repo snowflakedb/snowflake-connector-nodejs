@@ -137,6 +137,20 @@ describe('Execute test', function () {
       done
     );
   });
+
+  it('testDescribeOnly', function (done) {
+    const selectWithDescribeOnly = 'SELECT 1.0::NUMBER(30,2) as C1, 2::NUMBER(38,0) AS C2, \'t3\' AS C3, 4.2::DOUBLE AS C4, \'abcd\'::BINARY(8388608) AS C5, true AS C6';
+    connection.execute({
+      sqlText: selectWithDescribeOnly,
+      describeOnly: true,
+      complete: (err, stmt, rows) => {
+        assert.strictEqual(stmt.getColumns().length, 6);
+        //Empty rowset in response
+        assert.strictEqual(rows.length, 0);
+        done();
+      }
+    });
+  });
 });
 
 describe('Execute test - variant', function () {

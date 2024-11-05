@@ -138,24 +138,33 @@ describe('Execute test', function () {
     );
   });
 
-  it('testDescribeOnly', function (done) {
+  it('testDescribeOnly', async function () {
     const selectWithDescribeOnly = 'SELECT 1.0::NUMBER(30,2) as C1, 2::NUMBER(38,0) AS C2, \'t3\' AS C3, 4.2::DOUBLE AS C4, \'abcd\'::BINARY(8388608) AS C5, true AS C6';
 
-    function executeQueryAndVerifyResultDependOnDescribeOnly(describeOnly) {
-      connection.execute({
-        sqlText: selectWithDescribeOnly,
-        describeOnly: describeOnly,
-        complete: (err, stmt, rows) => {
-          assert.strictEqual(stmt.getColumns().length, 6);
-          //Empty rowset in response
-          assert.strictEqual(rows.length, describeOnly ? 0 : 1);
-          done();
-        }
-      });
-    }
-
-    executeQueryAndVerifyResultDependOnDescribeOnly(true);
-    executeQueryAndVerifyResultDependOnDescribeOnly(false);
+    const executeQueryAndVerifyResultDependOnDescribeOnly = async (describeOnly, expectedReturnedRows) => {
+      return new Promise((resolve, reject) => {
+        connection.execute({
+          sqlText: selectWithDescribeOnly,
+          describeOnly: describeOnly,
+          complete: (err, stmt, rows) => {
+            assert.strictEqual(stmt.getColumns().length, 6);
+            assert.strictEqual(rows.length, expectedReturnedRows.length);
+            if (rows.length > 0) {
+              const columnsNamesInMetadata = stmt.getColumns().map(cl => cl.getName());
+              const columnsNames = Object.keys(rows[0]);
+              assert.equal(JSON.stringify(columnsNamesInMetadata), JSON.stringify(columnsNames));
+              assert.equal(JSON.stringify(rows), JSON.stringify(expectedReturnedRows));
+            }
+            return err ? reject(err) : resolve(rows);
+          }
+        });
+      }
+      );
+    };
+    const expectedRows = [{ 'C1': 1, 'C2': 2, 'C3': 't3', 'C4': 4.2, 'C5': { 'type': 'Buffer', 'data': [171, 205] }, 'C6': true }];
+    await executeQueryAndVerifyResultDependOnDescribeOnly(true, []);
+    await executeQueryAndVerifyResultDependOnDescribeOnly(false, expectedRows);
+    await executeQueryAndVerifyResultDependOnDescribeOnly(undefined, expectedRows);
   });
 });
 

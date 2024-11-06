@@ -14,6 +14,16 @@ describe('getProxtAgent', function () {
       keepAlive: true
     },
     {
+      destination: '://test.destination.com',
+      isNewAgent: true,
+      keepAlive: true
+    },
+    {
+      destination: 'This is not a URL',
+      isNewAgent: true,
+      keepAlive: true
+    },
+    {
       destination: 's3.amazonaws.com',
       isNewAgent: true,
       keepAlive: true

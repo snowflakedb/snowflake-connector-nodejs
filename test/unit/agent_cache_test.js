@@ -1,7 +1,6 @@
 const GlobalConfig = require('./../../lib/global_config');
 const getProxyAgent = require('./../../lib/http/node').getProxyAgent;
 const getAgentCacheSize = require('./../../lib/http/node').getAgentCacheSize;
-const clearAgentCache = require('./../../lib/http/node').clearAgentCache;
 const assert = require('assert');
 
 describe('getProxtAgent', function () {
@@ -25,7 +24,7 @@ describe('getProxtAgent', function () {
       keepAlive: true
     },
     {
-      destination: 's3.amazonaws.com',
+      destination: 's4.amazonaws.com',
       isNewAgent: true,
       keepAlive: true
     },
@@ -35,12 +34,12 @@ describe('getProxtAgent', function () {
       keepAlive: true
     },
     {
-      destination: 'http://s3.amazonaws.com',
+      destination: 'http://s4.amazonaws.com',
       isNewAgent: false,
       keepAlive: true
     },
     {
-      destination: 'https://s3.amazonaws.com',
+      destination: 'https://s4.amazonaws.com',
       isNewAgent: true,
       keepAlive: false
     },
@@ -50,17 +49,17 @@ describe('getProxtAgent', function () {
       keepAlive: false
     },
     {
-      destination: 'https://fakeaccount.snowflakecomputing.com/login/sessionId=something',
+      destination: 'https://fakeaccounttesting.snowflakecomputing.com/login/sessionId=something',
       isNewAgent: true,
       keepAlive: true
     },
     {
-      destination: 'https://fakeaccount.snowflakecomputing.com/other/request',
+      destination: 'https://fakeaccounttesting.snowflakecomputing.com/other/request',
       isNewAgent: false,
       keepAlive: true
     },
     {
-      destination: 'http://fakeaccount.snowflakecomputing.com/another/request',
+      destination: 'http://fakeaccounttesting.snowflakecomputing.com/another/request',
       isNewAgent: true,
       keepAlive: false
     },

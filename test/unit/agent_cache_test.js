@@ -1,6 +1,7 @@
 const GlobalConfig = require('./../../lib/global_config');
 const getProxyAgent = require('./../../lib/http/node').getProxyAgent;
 const getAgentCacheSize = require('./../../lib/http/node').getAgentCacheSize;
+const clearAgentCache = require('./../../lib/http/node').clearAgentCache;
 const assert = require('assert');
 
 describe('getProxtAgent', function () {
@@ -66,6 +67,7 @@ describe('getProxtAgent', function () {
   ];
 
   it('test http(s) agent cache', () => {
+    clearAgentCache();
     let numofAgent = 0;
     testCases.forEach(({ destination, isNewAgent, keepAlive }) => {
       GlobalConfig.setKeepAlive(keepAlive);

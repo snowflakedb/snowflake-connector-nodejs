@@ -67,8 +67,7 @@ describe('getProxtAgent', function () {
   ];
 
   it('test http(s) agent cache', () => {
-    clearAgentCache();
-    let numofAgent = 0;
+    let numofAgent = getAgentCacheSize();
     testCases.forEach(({ destination, isNewAgent, keepAlive }) => {
       GlobalConfig.setKeepAlive(keepAlive);
       getProxyAgent(mockProxy, fakeAccessUrl, destination);

@@ -138,8 +138,27 @@ describe('Execute test', function () {
     );
   });
 
-  it('testDescribeOnly', async function () {
+  describe('testDescribeOnly', async function () {
     const selectWithDescribeOnly = 'SELECT 1.0::NUMBER(30,2) as C1, 2::NUMBER(38,0) AS C2, \'t3\' AS C3, 4.2::DOUBLE AS C4, \'abcd\'::BINARY(8388608) AS C5, true AS C6';
+    const expectedRows = [{ 'C1': 1, 'C2': 2, 'C3': 't3', 'C4': 4.2, 'C5': { 'type': 'Buffer', 'data': [171, 205] }, 'C6': true }];
+    const testCases =
+      [
+        {
+          name: 'describeOnly - true',
+          describeOnly: true,
+          expectedRows: []
+        },
+        {
+          name: 'describeOnly - false',
+          describeOnly: false,
+          expectedRows: expectedRows
+        },
+        {
+          name: 'describeOnly - undefined',
+          describeOnly: undefined,
+          expectedRows: expectedRows
+        },
+      ];
 
     const executeQueryAndVerifyResultDependOnDescribeOnly = async (describeOnly, expectedReturnedRows) => {
       return new Promise((resolve, reject) => {
@@ -147,6 +166,9 @@ describe('Execute test', function () {
           sqlText: selectWithDescribeOnly,
           describeOnly: describeOnly,
           complete: (err, stmt, rows) => {
+            if (err) {
+              return reject(err);
+            }
             assert.strictEqual(stmt.getColumns().length, 6);
             assert.strictEqual(rows.length, expectedReturnedRows.length);
             if (rows.length > 0) {
@@ -154,16 +176,14 @@ describe('Execute test', function () {
               const columnsNames = Object.keys(rows[0]);
               columnsNames.every((element, index) => assert.strictEqual(element, columnsNamesInMetadata[index]));
             }
-            return err ? reject(err) : resolve(rows);
+            return resolve(rows);
           }
         });
       }
       );
     };
-    const expectedRows = [{ 'C1': 1, 'C2': 2, 'C3': 't3', 'C4': 4.2, 'C5': { 'type': 'Buffer', 'data': [171, 205] }, 'C6': true }];
-    await executeQueryAndVerifyResultDependOnDescribeOnly(true, []);
-    await executeQueryAndVerifyResultDependOnDescribeOnly(false, expectedRows);
-    await executeQueryAndVerifyResultDependOnDescribeOnly(undefined, expectedRows);
+
+    testCases.forEach(testCase => it(testCase.name, () => executeQueryAndVerifyResultDependOnDescribeOnly(testCase.describeOnly, testCase.expectedRows)));
   });
 });
 

@@ -201,7 +201,8 @@ describe('Connection test - validate default parameters', function () {
     });
     const expectedMessagesParts = [
       'Creating new connection object',
-      'Creating connection with host:',
+      'Creating Connection[id:',
+      'Connection[id:',
       'connection object created successfully'
     ];
 
@@ -236,7 +237,8 @@ describe('Connection test - validate default parameters', function () {
     });
     const expectedMessagesParts = [
       'Creating new connection object',
-      'Creating connection with host:',
+      'Creating Connection[id:',
+      'Connection[id:',
       'connection object created successfully'
     ];
 
@@ -284,7 +286,8 @@ describe('Connection test - validate default parameters', function () {
     });
     const expectedMessagesParts = [
       'Creating new connection object',
-      'Creating connection with host:',
+      'Creating Connection[id:',
+      'Connection[id:',
       'connection object created successfully'
     ];
 

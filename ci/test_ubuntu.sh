@@ -4,7 +4,7 @@
 #
 
 echo "DOWNLOADED"
-echo $(ls /Users/runner/work/snowflake-connector-nodejs/snowflake-connector-nodejs/)
+echo $(ls /Users/runner/work/snowflake-connector-nodejs-private/snowflake-connector-nodejs-private/)
 set -o pipefail
 THIS_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 source $THIS_DIR/_init.sh

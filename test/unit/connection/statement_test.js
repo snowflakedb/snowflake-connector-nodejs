@@ -205,6 +205,16 @@ describe('Statement.execute()', function () {
             connectionConfig: null
           },
         errorCode: ErrorCodes.ERR_CONN_EXEC_STMT_MISSING_SQL_TEXT
+      },
+      {
+        name: 'execute() invalid describeOnly',
+        options: {
+          statementOptions: {
+            sqlText: '',
+            describeOnly: 1,
+          },
+        },
+        errorCode: ErrorCodes.ERR_CONN_EXEC_STMT_INVALID_DESCRIBE_ONLY
       }
     ];
 

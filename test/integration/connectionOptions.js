@@ -16,7 +16,13 @@ const snowflakeTestRole = process.env.SNOWFLAKE_TEST_ROLE;
 const snowflakeTestPassword = process.env.SNOWFLAKE_TEST_PASSWORD;
 const snowflakeTestAdminUser = process.env.SNOWFLAKE_TEST_ADMIN_USER;
 const snowflakeTestAdminPassword = process.env.SNOWFLAKE_TEST_ADMIN_PASSWORD;
-const snowflakeTestBrowserUser = process.env.SNOWFLAKE_TEST_BROWSER_USER;
+
+const snowflakeAuthTestProtocol = process.env.SNOWFLAKE_AUTH_TEST_PROTOCOL;
+const snowflakeAuthTestHost = process.env.SNOWFLAKE_AUTH_TEST_HOST;
+const snowflakeAuthTestPort = process.env.SNOWFLAKE_AUTH_TEST_PORT;
+const snowflakeAuthTestAccount = process.env.SNOWFLAKE_AUTH_TEST_ACCOUNT;
+const snowflakeAuthTestRole = process.env.SNOWFLAKE_AUTH_TEST_ROLE;
+const snowflakeTestBrowserUser = process.env.SNOWFLAKE_AUTH_TEST_BROWSER_USER;
 const snowflakeTestPrivateKeyUser = process.env.SNOWFLAKE_JWT_TEST_USER;
 const snowflakeTestPrivateKey = process.env.SNOWFLAKE_TEST_PRIVATE_KEY;
 const snowflakeTestPrivateKeyPath = process.env.SNOWFLAKE_TEST_PRIVATE_KEY_PATH;
@@ -24,9 +30,9 @@ const snowflakeTestPrivateKeyPass = process.env.SNOWFLAKE_TEST_PRIVATE_KEY_PASS;
 const snowflakeTestPrivateKeyPathUnencrypted = process.env.SNOWFLAKE_TEST_PRIVATE_KEY_PATH_UNENCRYPTED;
 const snowflakeTestOauthUser = process.env.SNOWFLAKE_TEST_OAUTH_USER;
 const snowflakeTestToken = process.env.SNOWFLAKE_TEST_OAUTH_TOKEN;
-const snowflakeTestOktaUser = process.env.SNOWFLAKE_TEST_OKTA_USER;
-const snowflakeTestOktaPass = process.env.SNOWFLAKE_TEST_OKTA_PASS;
-const snowflakeTestOktaAuth = process.env.SNOWFLAKE_TEST_OKTA_AUTH;
+const snowflakeTestOktaUser = process.env.SNOWFLAKE_AUTH_TEST_OKTA_USER;
+const snowflakeTestOktaPass = process.env.SNOWFLAKE_AUTH_TEST_OKTA_PASS;
+const snowflakeTestOktaAuth = process.env.SNOWFLAKE_AUTH_TEST_OKTA_AUTH;
 const snowflakeTestPasscode = process.env.SNOWFLAKE_TEST_PASSCODE;
 
 if (snowflakeTestProtocol === undefined) {
@@ -51,6 +57,9 @@ if (snowflakeTestProxyPort === undefined) {
 
 const accessUrl = snowflakeTestProtocol + '://' + snowflakeTestHost + ':' +
   snowflakeTestPort;
+
+const accessUrlAuthTests = snowflakeAuthTestProtocol + '://' + snowflakeAuthTestHost + ':' +
+  snowflakeAuthTestPort;
 
 const valid =
   {
@@ -194,14 +203,11 @@ const oauthMismatchUser =
 
 const okta =
 {
-  accessUrl: accessUrl,
+  accessUrl: accessUrlAuthTests,
   username: snowflakeTestOktaUser,
   password: snowflakeTestOktaPass,
-  account: snowflakeTestAccount,
-  warehouse: snowflakeTestWarehouse,
-  database: snowflakeTestDatabase,
-  schema: snowflakeTestSchema,
-  role: snowflakeTestRole,
+  account: snowflakeAuthTestAccount,
+  role: snowflakeAuthTestRole,
   authenticator: snowflakeTestOktaAuth
 };
 

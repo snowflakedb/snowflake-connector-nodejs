@@ -66,7 +66,7 @@ or
 npm run test:unit
 ```
 
-To run single test file use `test:single` script, e.g. run tests in `test/unit/snowflake_test.js` only:
+To run a single test file use `test:single` script, e.g. run tests in `test/unit/snowflake_test.js` only:
 
 ```
 npm run test:single -- test/unit/snowflake_test.js

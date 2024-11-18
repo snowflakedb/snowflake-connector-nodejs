@@ -16,6 +16,13 @@ describe('Azure client', function () {
   const mockKey = 'mockKey';
   const mockIv = 'mockIv';
   const mockMatDesc = 'mockMatDesc';
+  const noProxyConnectionConfig = {
+    getProxy: function () {
+      return null;
+    },
+    accessUrl: 'http://fakeaccount.snowflakecomputing.com',
+  };
+
 
   let Azure = null;
   let client = null;
@@ -106,7 +113,7 @@ describe('Azure client', function () {
     
     client = require('client');
     filestream = require('filestream');
-    Azure = new SnowflakeAzureUtil(client, filestream);
+    Azure = new SnowflakeAzureUtil(noProxyConnectionConfig, client, filestream);
   });
 
   it('extract bucket name and path', async function () {
@@ -131,7 +138,7 @@ describe('Azure client', function () {
       }, null));
 
     client = require('client');
-    Azure = new SnowflakeAzureUtil(client);
+    Azure = new SnowflakeAzureUtil(noProxyConnectionConfig, client);
 
     await Azure.getFileHeader(meta, dataFile);
     assert.strictEqual(meta['resultStatus'], resultStatus.RENEW_TOKEN);
@@ -146,7 +153,7 @@ describe('Azure client', function () {
       }, null));
 
     client = require('client');
-    const Azure = new SnowflakeAzureUtil(client);
+    const Azure = new SnowflakeAzureUtil(noProxyConnectionConfig, client);
 
     await Azure.getFileHeader(meta, dataFile);
     assert.strictEqual(meta['resultStatus'], resultStatus.NOT_FOUND_FILE);
@@ -161,7 +168,7 @@ describe('Azure client', function () {
       }, null));
 
     client = require('client');
-    Azure = new SnowflakeAzureUtil(client);
+    Azure = new SnowflakeAzureUtil(noProxyConnectionConfig, client);
 
     await Azure.getFileHeader(meta, dataFile);
     assert.strictEqual(meta['resultStatus'], resultStatus.RENEW_TOKEN);
@@ -176,7 +183,7 @@ describe('Azure client', function () {
       }, null));
 
     client = require('client');
-    Azure = new SnowflakeAzureUtil(client);
+    Azure = new SnowflakeAzureUtil(noProxyConnectionConfig, client);
 
     await Azure.getFileHeader(meta, dataFile);
     assert.strictEqual(meta['resultStatus'], resultStatus.ERROR);
@@ -192,7 +199,7 @@ describe('Azure client', function () {
     
     client = require('client');
     filestream = require('filestream');
-    Azure = new SnowflakeAzureUtil(client, filestream);
+    Azure = new SnowflakeAzureUtil(noProxyConnectionConfig, client, filestream);
 
     await Azure.uploadFile(dataFile, meta, encryptionMetadata);
     assert.strictEqual(meta['resultStatus'], resultStatus.UPLOADED);
@@ -212,7 +219,7 @@ describe('Azure client', function () {
     
     client = require('client');
     filestream = require('filestream');
-    Azure = new SnowflakeAzureUtil(client, filestream);
+    Azure = new SnowflakeAzureUtil(noProxyConnectionConfig, client, filestream);
 
     await Azure.uploadFile(dataFile, meta, encryptionMetadata);
     assert.strictEqual(meta['resultStatus'], resultStatus.RENEW_TOKEN);
@@ -232,7 +239,7 @@ describe('Azure client', function () {
     
     client = require('client');
     filestream = require('filestream');
-    Azure = new SnowflakeAzureUtil(client, filestream);
+    Azure = new SnowflakeAzureUtil(noProxyConnectionConfig, client, filestream);
 
     await Azure.uploadFile(dataFile, meta, encryptionMetadata);
     assert.strictEqual(meta['resultStatus'], resultStatus.NEED_RETRY);

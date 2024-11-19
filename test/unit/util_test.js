@@ -910,529 +910,308 @@ describe('Util', function () {
     });
   });
 
-  describe('Util Test - removing http or https from string', () => {
-    const hostAndPortDone = 'my.pro.xy:8080';
-    const ipAndPortDone = '10.20.30.40:8080';
-    const somethingEntirelyDifferentDone = 'something ENTIRELY different';
+  describe('Util test - custom credential manager util functions', function () {
+    const mockUser = 'mockUser';
+    const mockHost = 'mockHost';
+    const mockCred = 'mockCred';
 
-    [
-      { name: 'remove http from url', text: 'http://my.pro.xy:8080', shouldMatch: hostAndPortDone },
-      { name: 'remove https from url', text: 'https://my.pro.xy:8080', shouldMatch: hostAndPortDone },
-      { name: 'remove http from ip and port', text: 'http://10.20.30.40:8080', shouldMatch: ipAndPortDone },
-      { name: 'remove https from ip and port', text: 'https://10.20.30.40:8080', shouldMatch: ipAndPortDone },
-      { name: 'dont remove http(s) from hostname and port', text: 'my.pro.xy:8080', shouldMatch: hostAndPortDone },
-      { name: 'dont remove http(s) from ip and port', text: '10.20.30.40:8080', shouldMatch: ipAndPortDone },
-      { name: 'dont remove http(s) from simple string', text: somethingEntirelyDifferentDone, shouldMatch: somethingEntirelyDifferentDone }
-    ].forEach(({ name, text, shouldMatch }) => {
-      it(`${name}`, () => {
-        assert.deepEqual(Util.removeScheme(text), shouldMatch);
+    describe('test function build credential key', function () {
+      const testCases = [
+        {
+          name: 'when all the parameters are null',
+          user: null,
+          host: null,
+          cred: null,
+          result: null
+        },
+        {
+          name: 'when two parameters are null or undefined',
+          user: mockUser,
+          host: null,
+          cred: undefined,
+          result: null
+        },
+        {
+          name: 'when one parameter is null',
+          user: mockUser,
+          host: mockHost,
+          cred: undefined,
+          result: null
+        },
+        {
+          name: 'when one parameter is undefined',
+          user: mockUser,
+          host: undefined,
+          cred: mockCred,
+          result: null
+        },
+        {
+          name: 'when all the parameters are valid',
+          user: mockUser,
+          host: mockHost,
+          cred: mockCred,
+          result: '{mockHost}:{mockUser}:{SF_NODE_JS_DRIVER}:{mockCred}}'
+        },
+      ];
+      testCases.forEach((name, user, host, cred, result) => {
+        it(`${name}`, function () {
+          if (!result) {
+            assert.strictEqual(Util.buildCredentialCacheKey(host, user, cred), null);
+          } else {
+            assert.strictEqual(Util.buildCredentialCacheKey(host, user, cred), result);
+          }
+        });
       });
     });
   });
 
-  describe('Util Test - detecting PROXY envvars and compare with the agent proxy settings', () => {
-    [
-      {
-        name: 'detect http_proxy envvar, no agent proxy',
-        isWarn: false,
-        httpproxy: '10.20.30.40:8080',
-        HTTPSPROXY: '',
-        agentOptions: { 'keepalive': true },
-        shouldLog: ' // PROXY environment variables: HTTP_PROXY: 10.20.30.40:8080 HTTPS_PROXY: <unset> NO_PROXY: <unset>.'
-      }, {
-        name: 'detect HTTPS_PROXY envvar, no agent proxy',
-        isWarn: false,
-        httpproxy: '',
-        HTTPSPROXY: 'http://pro.xy:3128',
-        agentOptions: { 'keepalive': true },
-        shouldLog: ' // PROXY environment variables: HTTP_PROXY: <unset> HTTPS_PROXY: http://pro.xy:3128 NO_PROXY: <unset>.'
-      }, {
-        name: 'detect both http_proxy and HTTPS_PROXY envvar, no agent proxy',
-        isWarn: false,
-        httpproxy: '10.20.30.40:8080',
-        HTTPSPROXY: 'http://pro.xy:3128',
-        agentOptions: { 'keepalive': true },
-        shouldLog: ' // PROXY environment variables: HTTP_PROXY: 10.20.30.40:8080 HTTPS_PROXY: http://pro.xy:3128 NO_PROXY: <unset>.'
-      }, {
-        name: 'detect http_proxy envvar, agent proxy set to an unauthenticated proxy, same as the envvar',
-        isWarn: false,
-        httpproxy: '10.20.30.40:8080',
-        HTTPSPROXY: '',
-        agentOptions: { 'keepalive': true, 'host': '10.20.30.40', 'port': 8080 },
-        shouldLog: ' // PROXY environment variables: HTTP_PROXY: 10.20.30.40:8080 HTTPS_PROXY: <unset> NO_PROXY: <unset>. // Proxy configured in Agent: proxy=10.20.30.40:8080'
-      }, {
-        name: 'detect both http_proxy and HTTPS_PROXY envvar, agent proxy set to an unauthenticated proxy, same as the envvar',
-        isWarn: false,
-        httpproxy: '10.20.30.40:8080',
-        HTTPSPROXY: 'http://10.20.30.40:8080',
-        agentOptions: { 'keepalive': true, 'host': '10.20.30.40', 'port': 8080 },
-        shouldLog: ' // PROXY environment variables: HTTP_PROXY: 10.20.30.40:8080 HTTPS_PROXY: http://10.20.30.40:8080 NO_PROXY: <unset>. // Proxy configured in Agent: proxy=10.20.30.40:8080'
-      }, {
-        name: 'detect both http_proxy and HTTPS_PROXY envvar, agent proxy set to an authenticated proxy, same as the envvar',
-        isWarn: false,
-        httpproxy: '10.20.30.40:8080',
-        HTTPSPROXY: 'http://10.20.30.40:8080',
-        agentOptions: { 'keepalive': true, 'host': '10.20.30.40', 'port': 8080, 'user': 'PRX', 'password': 'proxypass' },
-        shouldLog: ' // PROXY environment variables: HTTP_PROXY: 10.20.30.40:8080 HTTPS_PROXY: http://10.20.30.40:8080 NO_PROXY: <unset>. // Proxy configured in Agent: proxy=10.20.30.40:8080 user=PRX'
-      }, {
-        name: 'detect both http_proxy and HTTPS_PROXY envvar, agent proxy set to an authenticated proxy, same as the envvar, with the protocol set',
-        isWarn: false,
-        httpproxy: '10.20.30.40:8080',
-        HTTPSPROXY: 'http://10.20.30.40:8080',
-        agentOptions: { 'keepalive': true, 'host': '10.20.30.40', 'port': 8080, 'user': 'PRX', 'password': 'proxypass', 'protocol': 'http' },
-        shouldLog: ' // PROXY environment variables: HTTP_PROXY: 10.20.30.40:8080 HTTPS_PROXY: http://10.20.30.40:8080 NO_PROXY: <unset>. // Proxy configured in Agent: protocol=http proxy=10.20.30.40:8080 user=PRX'
-      }, {
-      // now some WARN level messages
-        name: 'detect HTTPS_PROXY envvar, agent proxy set to an unauthenticated proxy, different from the envvar',
-        isWarn: true,
-        httpproxy: '',
-        HTTPSPROXY: 'http://pro.xy:3128',
-        agentOptions: { 'keepalive': true, 'host': '10.20.30.40', 'port': 8080 },
-        shouldLog: ' Using both the HTTPS_PROXY (http://pro.xy:3128) and the proxyHost:proxyPort (10.20.30.40:8080) settings to connect, but with different values. If you experience connectivity issues, try unsetting one of them.'
-      }, {
-        name: 'detect both http_proxy and HTTPS_PROXY envvar, different from each other, agent proxy set to an unauthenticated proxy, different from the envvars',
-        isWarn: true,
-        httpproxy: '169.254.169.254:8080',
-        HTTPSPROXY: 'http://pro.xy:3128',
-        agentOptions: { 'keepalive': true, 'host': '10.20.30.40', 'port': 8080 },
-        shouldLog: ' Using both the HTTP_PROXY (169.254.169.254:8080) and the proxyHost:proxyPort (10.20.30.40:8080) settings to connect, but with different values. If you experience connectivity issues, try unsetting one of them. Using both the HTTPS_PROXY (http://pro.xy:3128) and the proxyHost:proxyPort (10.20.30.40:8080) settings to connect, but with different values. If you experience connectivity issues, try unsetting one of them.'
-      }
-    ].forEach(({ name, isWarn, httpproxy, HTTPSPROXY, agentOptions, shouldLog }) => {
-      it(`${name}`, () => {
-        process.env.HTTP_PROXY = httpproxy;
-        process.env.HTTPS_PROXY = HTTPSPROXY;
-
-        const compareAndLogEnvAndAgentProxies = Util.getCompareAndLogEnvAndAgentProxies(agentOptions);
-        if (!isWarn) {
-          assert.deepEqual(compareAndLogEnvAndAgentProxies.messages, shouldLog, 'expected log message does not match!');
-        } else {
-          assert.deepEqual(compareAndLogEnvAndAgentProxies.warnings, shouldLog, 'expected warning message does not match!');
-        }
-      });
-    });
-
-    describe('Util test - custom credential manager util functions', function () {
-      const mockUser = 'mockUser';
-      const mockHost = 'mockHost';
-      const mockCred = 'mockCred';
-
-      describe('test function build credential key', function () {
-        const testCases = [
-          {
-            name: 'when all the parameters are null',
-            user: null,
-            host: null,
-            cred: null,
-            result: null
-          },
-          {
-            name: 'when two parameters are null or undefined',
-            user: mockUser,
-            host: null,
-            cred: undefined,
-            result: null
-          },
-          {
-            name: 'when one parameter is null',
-            user: mockUser,
-            host: mockHost,
-            cred: undefined,
-            result: null
-          },
-          {
-            name: 'when one parameter is undefined',
-            user: mockUser,
-            host: undefined,
-            cred: mockCred,
-            result: null
-          },
-          {
-            name: 'when all the parameters are valid',
-            user: mockUser,
-            host: mockHost,
-            cred: mockCred,
-            result: '{mockHost}:{mockUser}:{SF_NODE_JS_DRIVER}:{mockCred}}'
-          },
-        ];
-        testCases.forEach((name, user, host, cred, result) => {
-          it(`${name}`, function () {
-            if (!result) {
-              assert.strictEqual(Util.buildCredentialCacheKey(host, user, cred), null);
-            } else {
-              assert.strictEqual(Util.buildCredentialCacheKey(host, user, cred), result);
-            }
-          });
-        });
-      });
-    });
-
-    describe('test valid custom credential manager', function () {
+  describe('test valid custom credential manager', function () {
       
-      function sampleManager() {
-        this.read = function () {};
+    function sampleManager() {
+      this.read = function () {};
     
-        this.write = function () {};
+      this.write = function () {};
     
-        this.remove = function () {};
-      }
+      this.remove = function () {};
+    }
     
-      const testCases = [
-        {
-          name: 'credential manager is an int',
-          credentialManager: 123,
-          result: false,
-        },
-        {
-          name: 'credential manager is a string',
-          credentialManager: 'credential manager',
-          result: false,
-        },
-        {
-          name: 'credential manager is an array',
-          credentialManager: ['write', 'read', 'remove'],
-          result: false,
-        },
-        {
-          name: 'credential manager is an empty obejct',
-          credentialManager: {},
-          result: false,
-        },
-        {
-          name: 'credential manager has property, but invalid types',
-          credentialManager: {
-            read: 'read',
-            write: 1234,
-            remove: []
-          },
-          result: false,
-        },
-        {
-          name: 'credential manager has property, but invalid types',
-          credentialManager: {
-            read: 'read',
-            write: 1234,
-            remove: []
-          },
-          result: false,
-        },
-        {
-          name: 'credential manager has two valid properties, but miss one',
-          credentialManager: {
-            read: function () {
-
-            },
-            write: function () {
-
-            }
-          },
-          result: false,
-        },
-        {
-          name: 'credential manager has two valid properties, but miss one',
-          credentialManager: new sampleManager(),
-          result: true,
-        },
-      ];
-
-      for (const { name, credentialManager, result } of testCases) {
-        it(name, function () {
-          assert.strictEqual(Util.checkValidCustomCredentialManager(credentialManager), result);
-        });
-      }
-    });
-
-    describe('checkParametersDefined function Test', function () {
-      const testCases = [
-        {
-          name: 'all the parameters are null or undefined',
-          parameters: [null, undefined, null, null],
-          result: false
-        },
-        {
-          name: 'one parameter is null',
-          parameters: ['a', 2, true, null],
-          result: false
-        },
-        {
-          name: 'all the parameter are existing',
-          parameters: ['a', 123, ['testing'], {}],
-          result: true
-        },
-      ];
-  
-      for (const { name, parameters, result } of testCases) {
-        it(name, function () {
-          assert.strictEqual(Util.checkParametersDefined(...parameters), result);
-        });
-      }
-    });
-  });
-
-  if (os.platform() !== 'win32') {
-    describe('Util.isFileNotWritableByGroupOrOthers()', function () {
-      let tempDir = null;
-      let oldMask = null;
-
-      before(async function () {
-        tempDir = await fsPromises.mkdtemp(path.join(os.tmpdir(), 'permission_tests'));
-        oldMask = process.umask(0o000);
-      });
-
-      after(async function () {
-        await fsPromises.rm(tempDir, { recursive: true, force: true });
-        process.umask(oldMask);
-      });
-
-      [
-        { filePerm: 0o700, isValid: true },
-        { filePerm: 0o600, isValid: true },
-        { filePerm: 0o500, isValid: true },
-        { filePerm: 0o400, isValid: true },
-        { filePerm: 0o300, isValid: true },
-        { filePerm: 0o200, isValid: true },
-        { filePerm: 0o100, isValid: true },
-        { filePerm: 0o707, isValid: false },
-        { filePerm: 0o706, isValid: false },
-        { filePerm: 0o705, isValid: true },
-        { filePerm: 0o704, isValid: true },
-        { filePerm: 0o703, isValid: false },
-        { filePerm: 0o702, isValid: false },
-        { filePerm: 0o701, isValid: true },
-        { filePerm: 0o770, isValid: false },
-        { filePerm: 0o760, isValid: false },
-        { filePerm: 0o750, isValid: true },
-        { filePerm: 0o740, isValid: true },
-        { filePerm: 0o730, isValid: false },
-        { filePerm: 0o720, isValid: false },
-        { filePerm: 0o710, isValid: true },
-      ].forEach(async function ({ filePerm, isValid }) {
-        it('File with permission: ' + filePerm.toString(8) + ' should be valid=' + isValid, async function () {
-          const filePath = path.join(tempDir, `file_${filePerm.toString()}`);
-          await writeFile(filePath, filePerm);
-          assert.strictEqual(await Util.isFileNotWritableByGroupOrOthers(filePath, fsPromises), isValid);
-        });
-      });
-
-      async function writeFile(filePath, mode) {
-        await fsPromises.writeFile(filePath, '', { encoding: 'utf8', mode: mode });
-      }
-    });
-  }
-
-  if (os.platform() !== 'win32') {
-    describe('Util.isFileModeCorrect()', function () {
-      const tempDir = path.join(os.tmpdir(), 'permission_tests');
-      let oldMask = null;
-
-      before(async function () {
-        await fsPromises.mkdir(tempDir);
-        oldMask = process.umask(0o000);
-      });
-
-      after(async function () {
-        await fsPromises.rm(tempDir, { recursive: true, force: true });
-        process.umask(oldMask);
-      });
-
-      [
-        { dirPerm: 0o700, expectedPerm: 0o700, isCorrect: true },
-        { dirPerm: 0o755, expectedPerm: 0o600, isCorrect: false },
-      ].forEach(async function ({ dirPerm, expectedPerm, isCorrect }) {
-        it('Should return ' + isCorrect + ' when directory permission ' + dirPerm.toString(8) + ' is compared to ' + expectedPerm.toString(8), async function () {
-          const dirPath = path.join(tempDir, `dir_${dirPerm.toString(8)}`);
-          await fsPromises.mkdir(dirPath, { mode: dirPerm });
-          assert.strictEqual(await Util.isFileModeCorrect(dirPath, expectedPerm, fsPromises), isCorrect);
-        });
-      });
-
-      [
-        { filePerm: 0o700, expectedPerm: 0o700, isCorrect: true },
-        { filePerm: 0o755, expectedPerm: 0o600, isCorrect: false },
-      ].forEach(async function ({ filePerm, expectedPerm, isCorrect }) {
-        it('Should return ' + isCorrect + ' when file permission ' + filePerm.toString(8) + ' is compared to ' + expectedPerm.toString(8), async function () {
-          const dirPath = path.join(tempDir, `file_${filePerm.toString(8)}`);
-          await fsPromises.appendFile(dirPath, '', { mode: filePerm });
-          assert.strictEqual(await Util.isFileModeCorrect(dirPath, expectedPerm, fsPromises), isCorrect);
-        });
-      });
-    });
-  }
-
-  describe('shouldPerformGCPBucket function test', () => {
     const testCases = [
       {
-        name: 'test - default',
-        accessToken: 'Token',
-        forceGCPUseDownscopedCredential: false,
+        name: 'credential manager is an int',
+        credentialManager: 123,
+        result: false,
+      },
+      {
+        name: 'credential manager is a string',
+        credentialManager: 'credential manager',
+        result: false,
+      },
+      {
+        name: 'credential manager is an array',
+        credentialManager: ['write', 'read', 'remove'],
+        result: false,
+      },
+      {
+        name: 'credential manager is an empty obejct',
+        credentialManager: {},
+        result: false,
+      },
+      {
+        name: 'credential manager has property, but invalid types',
+        credentialManager: {
+          read: 'read',
+          write: 1234,
+          remove: []
+        },
+        result: false,
+      },
+      {
+        name: 'credential manager has property, but invalid types',
+        credentialManager: {
+          read: 'read',
+          write: 1234,
+          remove: []
+        },
+        result: false,
+      },
+      {
+        name: 'credential manager has two valid properties, but miss one',
+        credentialManager: {
+          read: function () {
+
+          },
+          write: function () {
+
+          }
+        },
+        result: false,
+      },
+      {
+        name: 'credential manager has two valid properties, but miss one',
+        credentialManager: new sampleManager(),
         result: true,
       },
-      {
-        name: 'test - when the disableGCPTokenUplaod is enabled',
-        accessToken: 'Token',
-        forceGCPUseDownscopedCredential: true,
-        result: false,
-      },
-      {
-        name: 'test - when token is empty but the disableGCPTokenUplaod is enabled',
-        accessToken: null,
-        forceGCPUseDownscopedCredential: true,
-        result: false,
-      },
-      {
-        name: 'test - test - when token is empty but the disableGCPTokenUplaod is disabled',
-        accessToken: null,
-        forceGCPUseDownscopedCredential: false,
-        result: false,
-      },
     ];
 
-    testCases.forEach(({ name, accessToken, forceGCPUseDownscopedCredential, result }) => {
-      it(name, () => {
-        process.env.SNOWFLAKE_FORCE_GCP_USE_DOWNSCOPED_CREDENTIAL = forceGCPUseDownscopedCredential;
-        assert.strictEqual(Util.shouldPerformGCPBucket(accessToken), result);
-        delete process.env.SNOWFLAKE_FORCE_GCP_USE_DOWNSCOPED_CREDENTIAL;
-      });
-    });
-  });
-
-  describe('getEnvVar function Test', function () {
-    const testCases = [
-      {
-        name: 'snowflake_env_test',
-        value: 'mock_value',
-      },
-      {
-        name: 'SNOWFLAKE_ENV_TEST',
-        value: 'MOCK_VALUE',
-      },
-    ];
-
-    for (const { name, value, } of testCases) {
+    for (const { name, credentialManager, result } of testCases) {
       it(name, function () {
-        process.env[name] = value;
-        assert.strictEqual(Util.getEnvVar('snowflake_env_test'), value);
-        assert.strictEqual(Util.getEnvVar('SNOWFLAKE_ENV_TEST'), value);
-        delete process.env[name];
+        assert.strictEqual(Util.checkValidCustomCredentialManager(credentialManager), result);
       });
     }
   });
 
-  describe('getProxyEnv function test ', function () {
-    let originalHttpProxy = null;
-    let originalHttpsProxy = null;
-    let originalNoProxy = null;
-
-    before(() => {
-      originalHttpProxy = process.env.HTTP_PROXY;
-      originalHttpsProxy = process.env.HTTPS_PROXY;
-      originalNoProxy = process.env.NO_PROXY; 
-    });
-
-    beforeEach(() => {
-      delete process.env.HTTP_PROXY;
-      delete process.env.HTTPS_PROXY;
-      delete process.env.NO_PROXY;
-    });
-
-    after(() => {
-      originalHttpProxy ? process.env.HTTP_PROXY = originalHttpProxy : delete process.env.HTTP_PROXY;
-      originalHttpsProxy ? process.env.HTTPS_PROXY = originalHttpsProxy : delete process.env.HTTPS_PROXY;
-      originalNoProxy ? process.env.NO_PROXY = originalNoProxy : delete process.env.NO_PROXY; 
-    });
-
+  describe('checkParametersDefined function Test', function () {
     const testCases = [
       {
-        name: 'HTTP PROXY without authentication and schema',
-        isHttps: false,
-        httpProxy: 'proxy.example.com:8080',
-        httpsProxy: undefined,
-        noProxy: '*.amazonaws.com',
-        result: {
-          host: 'proxy.example.com',
-          port: 8080,
-          protocol: 'http:',
-          noProxy: '*.amazonaws.com'
-        }
+        name: 'all the parameters are null or undefined',
+        parameters: [null, undefined, null, null],
+        result: false
       },
       {
-        name: 'HTTP PROXY with authentication',
-        isHttps: false,
-        httpProxy: 'http://hello:world@proxy.example.com:8080',
-        httpsProxy: undefined,
-        noProxy: '*.amazonaws.com,*.my_company.com',
-        result: {
-          host: 'proxy.example.com',
-          user: 'hello',
-          password: 'world',
-          port: 8080,
-          protocol: 'http:',
-          noProxy: '*.amazonaws.com|*.my_company.com'
-        }
+        name: 'one parameter is null',
+        parameters: ['a', 2, true, null],
+        result: false
       },
       {
-        name: 'HTTPS PROXY with authentication without NO proxy',
-        isHttps: true,
-        httpsProxy: 'https://user:pass@myproxy.server.com:1234',
-        result: {
-          host: 'myproxy.server.com',
-          user: 'user',
-          password: 'pass',
-          port: 1234,
-          protocol: 'https:',
-          noProxy: undefined,
-        },
-      },
-      {
-        name: 'HTTPS PROXY with authentication without NO proxy No schema',
-        isHttps: true,
-        noProxy: '*.amazonaws.com,*.my_company.com,*.test.com',
-        httpsProxy: 'myproxy.server.com:1234',
-        result: {
-          host: 'myproxy.server.com',
-          port: 1234,
-          protocol: 'http:',
-          noProxy: '*.amazonaws.com|*.my_company.com|*.test.com',
-        },
+        name: 'all the parameter are existing',
+        parameters: ['a', 123, ['testing'], {}],
+        result: true
       },
     ];
+  
+    for (const { name, parameters, result } of testCases) {
+      it(name, function () {
+        assert.strictEqual(Util.checkParametersDefined(...parameters), result);
+      });
+    }
+  });
+});
 
-    testCases.forEach(({ name, isHttps, httpsProxy, httpProxy, noProxy, result }) => {
-      it(name, function (){
+if (os.platform() !== 'win32') {
+  describe('Util.isFileNotWritableByGroupOrOthers()', function () {
+    let tempDir = null;
+    let oldMask = null;
 
-        if (httpProxy){
-          process.env.HTTP_PROXY = httpProxy;
-        }
-        if (httpsProxy) {
-          process.env.HTTPS_PROXY = httpsProxy; 
-        }
-        if (noProxy) {
-          process.env.NO_PROXY = noProxy; 
-        }
-        const proxy =  Util.getProxyFromEnv(isHttps);
-        const keys = Object.keys(result);
-        assert.strictEqual(keys.length, Object.keys(proxy).length);
+    before(async function () {
+      tempDir = await fsPromises.mkdtemp(path.join(os.tmpdir(), 'permission_tests'));
+      oldMask = process.umask(0o000);
+    });
 
-        for (const key of keys) {
-          assert.strictEqual(proxy[key], result[key]);
-        }
+    after(async function () {
+      await fsPromises.rm(tempDir, { recursive: true, force: true });
+      process.umask(oldMask);
+    });
+
+    [
+      { filePerm: 0o700, isValid: true },
+      { filePerm: 0o600, isValid: true },
+      { filePerm: 0o500, isValid: true },
+      { filePerm: 0o400, isValid: true },
+      { filePerm: 0o300, isValid: true },
+      { filePerm: 0o200, isValid: true },
+      { filePerm: 0o100, isValid: true },
+      { filePerm: 0o707, isValid: false },
+      { filePerm: 0o706, isValid: false },
+      { filePerm: 0o705, isValid: true },
+      { filePerm: 0o704, isValid: true },
+      { filePerm: 0o703, isValid: false },
+      { filePerm: 0o702, isValid: false },
+      { filePerm: 0o701, isValid: true },
+      { filePerm: 0o770, isValid: false },
+      { filePerm: 0o760, isValid: false },
+      { filePerm: 0o750, isValid: true },
+      { filePerm: 0o740, isValid: true },
+      { filePerm: 0o730, isValid: false },
+      { filePerm: 0o720, isValid: false },
+      { filePerm: 0o710, isValid: true },
+    ].forEach(async function ({ filePerm, isValid }) {
+      it('File with permission: ' + filePerm.toString(8) + ' should be valid=' + isValid, async function () {
+        const filePath = path.join(tempDir, `file_${filePerm.toString()}`);
+        await writeFile(filePath, filePerm);
+        assert.strictEqual(await Util.isFileNotWritableByGroupOrOthers(filePath, fsPromises), isValid);
+      });
+    });
+
+    async function writeFile(filePath, mode) {
+      await fsPromises.writeFile(filePath, '', { encoding: 'utf8', mode: mode });
+    }
+  });
+}
+
+if (os.platform() !== 'win32') {
+  describe('Util.isFileModeCorrect()', function () {
+    const tempDir = path.join(os.tmpdir(), 'permission_tests');
+    let oldMask = null;
+
+    before(async function () {
+      await fsPromises.mkdir(tempDir);
+      oldMask = process.umask(0o000);
+    });
+
+    after(async function () {
+      await fsPromises.rm(tempDir, { recursive: true, force: true });
+      process.umask(oldMask);
+    });
+
+    [
+      { dirPerm: 0o700, expectedPerm: 0o700, isCorrect: true },
+      { dirPerm: 0o755, expectedPerm: 0o600, isCorrect: false },
+    ].forEach(async function ({ dirPerm, expectedPerm, isCorrect }) {
+      it('Should return ' + isCorrect + ' when directory permission ' + dirPerm.toString(8) + ' is compared to ' + expectedPerm.toString(8), async function () {
+        const dirPath = path.join(tempDir, `dir_${dirPerm.toString(8)}`);
+        await fsPromises.mkdir(dirPath, { mode: dirPerm });
+        assert.strictEqual(await Util.isFileModeCorrect(dirPath, expectedPerm, fsPromises), isCorrect);
+      });
+    });
+
+    [
+      { filePerm: 0o700, expectedPerm: 0o700, isCorrect: true },
+      { filePerm: 0o755, expectedPerm: 0o600, isCorrect: false },
+    ].forEach(async function ({ filePerm, expectedPerm, isCorrect }) {
+      it('Should return ' + isCorrect + ' when file permission ' + filePerm.toString(8) + ' is compared to ' + expectedPerm.toString(8), async function () {
+        const dirPath = path.join(tempDir, `file_${filePerm.toString(8)}`);
+        await fsPromises.appendFile(dirPath, '', { mode: filePerm });
+        assert.strictEqual(await Util.isFileModeCorrect(dirPath, expectedPerm, fsPromises), isCorrect);
       });
     });
   });
+}
 
-  describe('getNoProxyEnv function Test', function () {
-    let original = null;
+describe('shouldPerformGCPBucket function test', () => {
+  const testCases = [
+    {
+      name: 'test - default',
+      accessToken: 'Token',
+      forceGCPUseDownscopedCredential: false,
+      result: true,
+    },
+    {
+      name: 'test - when the disableGCPTokenUplaod is enabled',
+      accessToken: 'Token',
+      forceGCPUseDownscopedCredential: true,
+      result: false,
+    },
+    {
+      name: 'test - when token is empty but the disableGCPTokenUplaod is enabled',
+      accessToken: null,
+      forceGCPUseDownscopedCredential: true,
+      result: false,
+    },
+    {
+      name: 'test - test - when token is empty but the disableGCPTokenUplaod is disabled',
+      accessToken: null,
+      forceGCPUseDownscopedCredential: false,
+      result: false,
+    },
+  ];
 
-    before( function (){
-      original = process.env.NO_PROXY; 
-      process.env.NO_PROXY = '*.amazonaws.com,*.my_company.com';
-    });
-
-    after(() => {
-      process.env.NO_PROXY = original;
-    });
-
-    it('test noProxy conversion', function (){
-      assert.strictEqual(Util.getNoProxyEnv(), '*.amazonaws.com|*.my_company.com');
+  testCases.forEach(({ name, accessToken, forceGCPUseDownscopedCredential, result }) => {
+    it(name, () => {
+      process.env.SNOWFLAKE_FORCE_GCP_USE_DOWNSCOPED_CREDENTIAL = forceGCPUseDownscopedCredential;
+      assert.strictEqual(Util.shouldPerformGCPBucket(accessToken), result);
+      delete process.env.SNOWFLAKE_FORCE_GCP_USE_DOWNSCOPED_CREDENTIAL;
     });
   });
+});
+
+describe('getEnvVar function Test', function () {
+  const testCases = [
+    {
+      name: 'snowflake_env_test',
+      value: 'mock_value',
+    },
+    {
+      name: 'SNOWFLAKE_ENV_TEST',
+      value: 'MOCK_VALUE',
+    },
+  ];
+
+  for (const { name, value, } of testCases) {
+    it(name, function () {
+      process.env[name] = value;
+      assert.strictEqual(Util.getEnvVar('snowflake_env_test'), value);
+      assert.strictEqual(Util.getEnvVar('SNOWFLAKE_ENV_TEST'), value);
+      delete process.env[name];
+    });
+  }
 });

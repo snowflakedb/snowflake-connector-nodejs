@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2015-2024 Snowflake Computing Inc. All rights reserved.
+ */
+
 const Util = require('./../../lib/proxy_util');
 const assert = require('assert');
 

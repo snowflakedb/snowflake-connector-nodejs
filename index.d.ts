@@ -30,6 +30,8 @@ declare module 'snowflake-sdk' {
         ERR_GLOBAL_CONFIGURE_INVALID_JSON_PARSER = 403004,
         ERR_GLOBAL_CONFIGURE_INVALID_XML_PARSER = 403005,
         ERR_GLOBAL_CONFIGURE_INVALID_KEEP_ALIVE = 403006,
+        ERR_GLOBAL_CONFIGURE_INVALID_CUSTOM_CREDENTIAL_MANAGER = 403007,
+        ERR_GLOBAL_CONFIGURE_INVALID_USE_ENV_PROXY = 403008,
 
         // 404001
         ERR_CONN_CREATE_MISSING_OPTIONS = 404001,
@@ -129,6 +131,7 @@ declare module 'snowflake-sdk' {
         ERR_CONN_EXEC_STMT_INVALID_FETCH_AS_STRING_VALUES = 409012,
         ERR_CONN_EXEC_STMT_INVALID_REQUEST_ID = 409013,
         ERR_CONN_EXEC_STMT_INVALID_ASYNC_EXEC = 409014,
+        ERR_CONN_EXEC_STMT_INVALID_DESCRIBE_ONLY = 409015,
 
         // 410001
         ERR_CONN_FETCH_RESULT_MISSING_OPTIONS = 410001,
@@ -245,6 +248,12 @@ declare module 'snowflake-sdk' {
          * pass the custom credential manager to this option.
          */
         customCredentialManager?: object;
+
+        /**
+         * The option whether the driver loads the proxy information from the environment variable or not
+         * The default value is true. If false, the driver will not get the proxy from the environment variable.
+         */
+        useEnvProxy?: boolean;
     }
 
     export interface ConnectionOptions {
@@ -644,6 +653,11 @@ declare module 'snowflake-sdk' {
          * that is different from the connector directory.
          */
         cwd?: string;
+
+        /**
+         * `true` to enable a describe only query.
+         */
+        describeOnly?: boolean;
     }
 
     export interface RowStatement {

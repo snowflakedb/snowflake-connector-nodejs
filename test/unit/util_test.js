@@ -959,28 +959,28 @@ describe('Util', function () {
         httpproxy: '10.20.30.40:8080',
         HTTPSPROXY: '',
         agentOptions: { 'keepalive': true, 'host': '10.20.30.40', 'port': 8080 },
-        shouldLog: ' // PROXY environment variables: HTTP_PROXY: 10.20.30.40:8080 HTTPS_PROXY: <unset> NO_PROXY: <unset>. // Proxy configured in Connection: proxy=10.20.30.40:8080'
+        shouldLog: ' // PROXY environment variables: HTTP_PROXY: 10.20.30.40:8080 HTTPS_PROXY: <unset> NO_PROXY: <unset>. // Proxy configured in Agent: proxy=10.20.30.40:8080'
       }, {
         name: 'detect both http_proxy and HTTPS_PROXY envvar, agent proxy set to an unauthenticated proxy, same as the envvar',
         isWarn: false,
         httpproxy: '10.20.30.40:8080',
         HTTPSPROXY: 'http://10.20.30.40:8080',
         agentOptions: { 'keepalive': true, 'host': '10.20.30.40', 'port': 8080 },
-        shouldLog: ' // PROXY environment variables: HTTP_PROXY: 10.20.30.40:8080 HTTPS_PROXY: http://10.20.30.40:8080 NO_PROXY: <unset>. // Proxy configured in Connection: proxy=10.20.30.40:8080'
+        shouldLog: ' // PROXY environment variables: HTTP_PROXY: 10.20.30.40:8080 HTTPS_PROXY: http://10.20.30.40:8080 NO_PROXY: <unset>. // Proxy configured in Agent: proxy=10.20.30.40:8080'
       }, {
         name: 'detect both http_proxy and HTTPS_PROXY envvar, agent proxy set to an authenticated proxy, same as the envvar',
         isWarn: false,
         httpproxy: '10.20.30.40:8080',
         HTTPSPROXY: 'http://10.20.30.40:8080',
         agentOptions: { 'keepalive': true, 'host': '10.20.30.40', 'port': 8080, 'user': 'PRX', 'password': 'proxypass' },
-        shouldLog: ' // PROXY environment variables: HTTP_PROXY: 10.20.30.40:8080 HTTPS_PROXY: http://10.20.30.40:8080 NO_PROXY: <unset>. // Proxy configured in Connection: proxy=10.20.30.40:8080 user=PRX'
+        shouldLog: ' // PROXY environment variables: HTTP_PROXY: 10.20.30.40:8080 HTTPS_PROXY: http://10.20.30.40:8080 NO_PROXY: <unset>. // Proxy configured in Agent: proxy=10.20.30.40:8080 user=PRX'
       }, {
         name: 'detect both http_proxy and HTTPS_PROXY envvar, agent proxy set to an authenticated proxy, same as the envvar, with the protocol set',
         isWarn: false,
         httpproxy: '10.20.30.40:8080',
         HTTPSPROXY: 'http://10.20.30.40:8080',
         agentOptions: { 'keepalive': true, 'host': '10.20.30.40', 'port': 8080, 'user': 'PRX', 'password': 'proxypass', 'protocol': 'http' },
-        shouldLog: ' // PROXY environment variables: HTTP_PROXY: 10.20.30.40:8080 HTTPS_PROXY: http://10.20.30.40:8080 NO_PROXY: <unset>. // Proxy configured in Connection: protocol=http proxy=10.20.30.40:8080 user=PRX'
+        shouldLog: ' // PROXY environment variables: HTTP_PROXY: 10.20.30.40:8080 HTTPS_PROXY: http://10.20.30.40:8080 NO_PROXY: <unset>. // Proxy configured in Agent: protocol=http proxy=10.20.30.40:8080 user=PRX'
       }, {
       // now some WARN level messages
         name: 'detect HTTPS_PROXY envvar, agent proxy set to an unauthenticated proxy, different from the envvar',
@@ -1292,6 +1292,147 @@ describe('Util', function () {
         assert.strictEqual(Util.shouldPerformGCPBucket(accessToken), result);
         delete process.env.SNOWFLAKE_FORCE_GCP_USE_DOWNSCOPED_CREDENTIAL;
       });
+    });
+  });
+
+  describe('getEnvVar function Test', function () {
+    const testCases = [
+      {
+        name: 'snowflake_env_test',
+        value: 'mock_value',
+      },
+      {
+        name: 'SNOWFLAKE_ENV_TEST',
+        value: 'MOCK_VALUE',
+      },
+    ];
+
+    for (const { name, value, } of testCases) {
+      it(name, function () {
+        process.env[name] = value;
+        assert.strictEqual(Util.getEnvVar('snowflake_env_test'), value);
+        assert.strictEqual(Util.getEnvVar('SNOWFLAKE_ENV_TEST'), value);
+        delete process.env[name];
+      });
+    }
+  });
+
+  describe('getProxyEnv function test ', function () {
+    let originalHttpProxy = null;
+    let originalHttpsProxy = null;
+    let originalNoProxy = null;
+
+    before(() => {
+      originalHttpProxy = process.env.HTTP_PROXY;
+      originalHttpsProxy = process.env.HTTPS_PROXY;
+      originalNoProxy = process.env.NO_PROXY; 
+    });
+
+    beforeEach(() => {
+      delete process.env.HTTP_PROXY;
+      delete process.env.HTTPS_PROXY;
+      delete process.env.NO_PROXY;
+    });
+
+    after(() => {
+      originalHttpProxy ? process.env.HTTP_PROXY = originalHttpProxy : delete process.env.HTTP_PROXY;
+      originalHttpsProxy ? process.env.HTTPS_PROXY = originalHttpsProxy : delete process.env.HTTPS_PROXY;
+      originalNoProxy ? process.env.NO_PROXY = originalNoProxy : delete process.env.NO_PROXY; 
+    });
+
+    const testCases = [
+      {
+        name: 'HTTP PROXY without authentication and schema',
+        isHttps: false,
+        httpProxy: 'proxy.example.com:8080',
+        httpsProxy: undefined,
+        noProxy: '*.amazonaws.com',
+        result: {
+          host: 'proxy.example.com',
+          port: 8080,
+          protocol: 'http:',
+          noProxy: '*.amazonaws.com'
+        }
+      },
+      {
+        name: 'HTTP PROXY with authentication',
+        isHttps: false,
+        httpProxy: 'http://hello:world@proxy.example.com:8080',
+        httpsProxy: undefined,
+        noProxy: '*.amazonaws.com,*.my_company.com',
+        result: {
+          host: 'proxy.example.com',
+          user: 'hello',
+          password: 'world',
+          port: 8080,
+          protocol: 'http:',
+          noProxy: '*.amazonaws.com|*.my_company.com'
+        }
+      },
+      {
+        name: 'HTTPS PROXY with authentication without NO proxy',
+        isHttps: true,
+        httpsProxy: 'https://user:pass@myproxy.server.com:1234',
+        result: {
+          host: 'myproxy.server.com',
+          user: 'user',
+          password: 'pass',
+          port: 1234,
+          protocol: 'https:',
+          noProxy: undefined,
+        },
+      },
+      {
+        name: 'HTTPS PROXY with authentication without NO proxy No schema',
+        isHttps: true,
+        noProxy: '*.amazonaws.com,*.my_company.com,*.test.com',
+        httpsProxy: 'myproxy.server.com:1234',
+        result: {
+          host: 'myproxy.server.com',
+          port: 1234,
+          protocol: 'http:',
+          noProxy: '*.amazonaws.com|*.my_company.com|*.test.com',
+        },
+      },
+    ];
+
+    testCases.forEach(({ name, isHttps, httpsProxy, httpProxy, noProxy, result }) => {
+      it(name, function (){
+
+        if (httpProxy){
+          process.env.HTTP_PROXY = httpProxy;
+        }
+        if (httpsProxy) {
+          process.env.HTTPS_PROXY = httpsProxy; 
+        }
+        if (noProxy) {
+          process.env.NO_PROXY = noProxy; 
+        }
+        const proxy =  Util.getProxyFromEnv(isHttps);
+        const keys = Object.keys(result);
+        assert.strictEqual(keys.length, Object.keys(proxy).length);
+
+        for (const key of keys) {
+          assert.strictEqual(proxy[key], result[key]);
+        }
+      });
+    });
+  });
+
+  describe('getNoProxyEnv function Test', function () {
+    let original = null;
+
+    before( function (){
+      original = process.env.NO_PROXY; 
+      process.env.NO_PROXY = '*.amazonaws.com,*.my_company.com';
+    });
+
+    after(() => {
+      process.env.NO_PROXY = original;
+    });
+
+    it('test noProxy conversion', function (){
+      assert.strictEqual(Util.getNoProxyEnv(), '*.amazonaws.com|*.my_company.com');
     });
   });
 });

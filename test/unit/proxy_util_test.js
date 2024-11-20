@@ -4,6 +4,7 @@
 
 const ProxyUtil = require('./../../lib/proxy_util');
 const Util = require('./../../lib/util');
+const GlobalConfig = require('../../lib/global_config');
 
 const assert = require('assert');
 
@@ -228,7 +229,7 @@ describe('getNoProxyEnv function Test', function () {
   });
 });
 
-describe('getNoProxyEnv function Test', function () {
+describe('Proxy Util for Azure', function () {
   let originalhttpProxy = null;
   let originalhttpsProxy = null;
   let originalnoProxy = null;
@@ -237,6 +238,7 @@ describe('getNoProxyEnv function Test', function () {
   let originalNoProxy = null;
 
   before(() => {
+    GlobalConfig.setEnvProxy(false);
     originalHttpProxy = process.env.HTTP_PROXY;
     originalHttpsProxy = process.env.HTTPS_PROXY;
     originalNoProxy = process.env.NO_PROXY; 
@@ -248,6 +250,7 @@ describe('getNoProxyEnv function Test', function () {
   });
 
   after(() => {
+    GlobalConfig.setEnvProxy(true);
     originalHttpProxy ? process.env.HTTP_PROXY = originalHttpProxy : delete process.env.HTTP_PROXY;
     originalHttpsProxy ? process.env.HTTPS_PROXY = originalHttpsProxy : delete process.env.HTTPS_PROXY;
     originalNoProxy ? process.env.NO_PROXY = originalNoProxy : delete process.env.NO_PROXY; 

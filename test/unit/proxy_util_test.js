@@ -2,10 +2,12 @@
  * Copyright (c) 2015-2024 Snowflake Computing Inc. All rights reserved.
  */
 
-const Util = require('./../../lib/proxy_util');
+const ProxyUtil = require('./../../lib/proxy_util');
+const Util = require('./../../lib/util');
+
 const assert = require('assert');
 
-describe('Util Test - removing http or https from string', () => {
+describe('ProxyUtil Test - removing http or https from string', () => {
   const hostAndPortDone = 'my.pro.xy:8080';
   const ipAndPortDone = '10.20.30.40:8080';
   const somethingEntirelyDifferentDone = 'something ENTIRELY different';
@@ -20,12 +22,12 @@ describe('Util Test - removing http or https from string', () => {
     { name: 'dont remove http(s) from simple string', text: somethingEntirelyDifferentDone, shouldMatch: somethingEntirelyDifferentDone }
   ].forEach(({ name, text, shouldMatch }) => {
     it(`${name}`, () => {
-      assert.deepEqual(Util.removeScheme(text), shouldMatch);
+      assert.deepEqual(ProxyUtil.removeScheme(text), shouldMatch);
     });
   });
 });
 
-describe('Util Test - detecting PROXY envvars and compare with the agent proxy settings', () => {
+describe('ProxyUtil Test - detecting PROXY envvars and compare with the agent proxy settings', () => {
   [
     {
       name: 'detect http_proxy envvar, no agent proxy',
@@ -97,7 +99,7 @@ describe('Util Test - detecting PROXY envvars and compare with the agent proxy s
       process.env.HTTP_PROXY = httpproxy;
       process.env.HTTPS_PROXY = HTTPSPROXY;
 
-      const compareAndLogEnvAndAgentProxies = Util.getCompareAndLogEnvAndAgentProxies(agentOptions);
+      const compareAndLogEnvAndAgentProxies = ProxyUtil.getCompareAndLogEnvAndAgentProxies(agentOptions);
       if (!isWarn) {
         assert.deepEqual(compareAndLogEnvAndAgentProxies.messages, shouldLog, 'expected log message does not match!');
       } else {
@@ -105,123 +107,196 @@ describe('Util Test - detecting PROXY envvars and compare with the agent proxy s
       }
     });
   });
+});
 
-  describe('getProxyEnv function test ', function () {
-    let originalHttpProxy = null;
-    let originalHttpsProxy = null;
-    let originalNoProxy = null;
+describe('getProxyEnv function test ', function () {
+  let originalHttpProxy = null;
+  let originalHttpsProxy = null;
+  let originalNoProxy = null;
 
-    before(() => {
-      originalHttpProxy = process.env.HTTP_PROXY;
-      originalHttpsProxy = process.env.HTTPS_PROXY;
-      originalNoProxy = process.env.NO_PROXY; 
-    });
-
-    beforeEach(() => {
-      delete process.env.HTTP_PROXY;
-      delete process.env.HTTPS_PROXY;
-      delete process.env.NO_PROXY;
-    });
-
-    after(() => {
-      originalHttpProxy ? process.env.HTTP_PROXY = originalHttpProxy : delete process.env.HTTP_PROXY;
-      originalHttpsProxy ? process.env.HTTPS_PROXY = originalHttpsProxy : delete process.env.HTTPS_PROXY;
-      originalNoProxy ? process.env.NO_PROXY = originalNoProxy : delete process.env.NO_PROXY; 
-    });
-
-    const testCases = [
-      {
-        name: 'HTTP PROXY without authentication and schema',
-        isHttps: false,
-        httpProxy: 'proxy.example.com:8080',
-        httpsProxy: undefined,
-        noProxy: '*.amazonaws.com',
-        result: {
-          host: 'proxy.example.com',
-          port: 8080,
-          protocol: 'http:',
-          noProxy: '*.amazonaws.com'
-        }
-      },
-      {
-        name: 'HTTP PROXY with authentication',
-        isHttps: false,
-        httpProxy: 'http://hello:world@proxy.example.com:8080',
-        httpsProxy: undefined,
-        noProxy: '*.amazonaws.com,*.my_company.com',
-        result: {
-          host: 'proxy.example.com',
-          user: 'hello',
-          password: 'world',
-          port: 8080,
-          protocol: 'http:',
-          noProxy: '*.amazonaws.com|*.my_company.com'
-        }
-      },
-      {
-        name: 'HTTPS PROXY with authentication without NO proxy',
-        isHttps: true,
-        httpsProxy: 'https://user:pass@myproxy.server.com:1234',
-        result: {
-          host: 'myproxy.server.com',
-          user: 'user',
-          password: 'pass',
-          port: 1234,
-          protocol: 'https:',
-          noProxy: undefined,
-        },
-      },
-      {
-        name: 'HTTPS PROXY with authentication without NO proxy No schema',
-        isHttps: true,
-        noProxy: '*.amazonaws.com,*.my_company.com,*.test.com',
-        httpsProxy: 'myproxy.server.com:1234',
-        result: {
-          host: 'myproxy.server.com',
-          port: 1234,
-          protocol: 'http:',
-          noProxy: '*.amazonaws.com|*.my_company.com|*.test.com',
-        },
-      },
-    ];
-
-    testCases.forEach(({ name, isHttps, httpsProxy, httpProxy, noProxy, result }) => {
-      it(name, function (){
-
-        if (httpProxy){
-          process.env.HTTP_PROXY = httpProxy;
-        }
-        if (httpsProxy) {
-          process.env.HTTPS_PROXY = httpsProxy; 
-        }
-        if (noProxy) {
-          process.env.NO_PROXY = noProxy; 
-        }
-        const proxy =  Util.getProxyFromEnv(isHttps);
-        const keys = Object.keys(result);
-        assert.strictEqual(keys.length, Object.keys(proxy).length);
-
-        for (const key of keys) {
-          assert.strictEqual(proxy[key], result[key]);
-        }
-      });
-    });
+  before(() => {
+    originalHttpProxy = process.env.HTTP_PROXY;
+    originalHttpsProxy = process.env.HTTPS_PROXY;
+    originalNoProxy = process.env.NO_PROXY; 
   });
 
-  describe('getNoProxyEnv function Test', function () {
-    let original = null;
+  beforeEach(() => {
+    delete process.env.HTTP_PROXY;
+    delete process.env.HTTPS_PROXY;
+    delete process.env.NO_PROXY;
+  });
 
-    before( function (){
-      original = process.env.NO_PROXY; 
-      process.env.NO_PROXY = '*.amazonaws.com,*.my_company.com';
-    });
+  after(() => {
+    originalHttpProxy ? process.env.HTTP_PROXY = originalHttpProxy : delete process.env.HTTP_PROXY;
+    originalHttpsProxy ? process.env.HTTPS_PROXY = originalHttpsProxy : delete process.env.HTTPS_PROXY;
+    originalNoProxy ? process.env.NO_PROXY = originalNoProxy : delete process.env.NO_PROXY; 
+  });
 
-    after(() => {
-      process.env.NO_PROXY = original;
-    });
+  const testCases = [
+    {
+      name: 'HTTP PROXY without authentication and schema',
+      isHttps: false,
+      httpProxy: 'proxy.example.com:8080',
+      httpsProxy: undefined,
+      noProxy: '*.amazonaws.com',
+      result: {
+        host: 'proxy.example.com',
+        port: 8080,
+        protocol: 'http:',
+        noProxy: '*.amazonaws.com'
+      }
+    },
+    {
+      name: 'HTTP PROXY with authentication',
+      isHttps: false,
+      httpProxy: 'http://hello:world@proxy.example.com:8080',
+      httpsProxy: undefined,
+      noProxy: '*.amazonaws.com,*.my_company.com',
+      result: {
+        host: 'proxy.example.com',
+        user: 'hello',
+        password: 'world',
+        port: 8080,
+        protocol: 'http:',
+        noProxy: '*.amazonaws.com|*.my_company.com'
+      }
+    },
+    {
+      name: 'HTTPS PROXY with authentication without NO proxy',
+      isHttps: true,
+      httpsProxy: 'https://user:pass@myproxy.server.com:1234',
+      result: {
+        host: 'myproxy.server.com',
+        user: 'user',
+        password: 'pass',
+        port: 1234,
+        protocol: 'https:',
+        noProxy: undefined,
+      },
+    },
+    {
+      name: 'HTTPS PROXY with authentication without NO proxy No schema',
+      isHttps: true,
+      noProxy: '*.amazonaws.com,*.my_company.com,*.test.com',
+      httpsProxy: 'myproxy.server.com:1234',
+      result: {
+        host: 'myproxy.server.com',
+        port: 1234,
+        protocol: 'http:',
+        noProxy: '*.amazonaws.com|*.my_company.com|*.test.com',
+      },
+    },
+  ];
 
-    it('test noProxy conversion', function (){
-      assert.strictEqual(Util.getNoProxyEnv(), '*.amazonaws.com|*.my_company.com');
+  testCases.forEach(({ name, isHttps, httpsProxy, httpProxy, noProxy, result }) => {
+    it(name, function (){
+
+      if (httpProxy){
+        process.env.HTTP_PROXY = httpProxy;
+      }
+      if (httpsProxy) {
+        process.env.HTTPS_PROXY = httpsProxy; 
+      }
+      if (noProxy) {
+        process.env.NO_PROXY = noProxy; 
+      }
+      const proxy =  ProxyUtil.getProxyFromEnv(isHttps);
+      const keys = Object.keys(result);
+      assert.strictEqual(keys.length, Object.keys(proxy).length);
+
+      for (const key of keys) {
+        assert.strictEqual(proxy[key], result[key]);
+      }
     });
+  });
+});
+
+describe('getNoProxyEnv function Test', function () {
+  let original = null;
+
+  before( function (){
+    original = process.env.NO_PROXY; 
+    process.env.NO_PROXY = '*.amazonaws.com,*.my_company.com';
+  });
+
+  after(() => {
+    process.env.NO_PROXY = original;
+  });
+
+  it('test noProxy conversion', function (){
+    assert.strictEqual(ProxyUtil.getNoProxyEnv(), '*.amazonaws.com|*.my_company.com');
+  });
+});
+
+describe('getNoProxyEnv function Test', function () {
+  let originalhttpProxy = null;
+  let originalhttpsProxy = null;
+  let originalnoProxy = null;
+  let originalHttpProxy = null;
+  let originalHttpsProxy = null;
+  let originalNoProxy = null;
+
+  before(() => {
+    originalHttpProxy = process.env.HTTP_PROXY;
+    originalHttpsProxy = process.env.HTTPS_PROXY;
+    originalNoProxy = process.env.NO_PROXY; 
+    if (!Util.isWindows()) {
+      originalhttpProxy = process.env.http_proxy;
+      originalhttpsProxy = process.env.https_proxy;
+      originalnoProxy = process.env.no_proxy; 
+    }
+  });
+
+  after(() => {
+    originalHttpProxy ? process.env.HTTP_PROXY = originalHttpProxy : delete process.env.HTTP_PROXY;
+    originalHttpsProxy ? process.env.HTTPS_PROXY = originalHttpsProxy : delete process.env.HTTPS_PROXY;
+    originalNoProxy ? process.env.NO_PROXY = originalNoProxy : delete process.env.NO_PROXY; 
+    if (!Util.isWindows()) {
+      originalhttpProxy ? process.env['http_proxy'] = originalhttpProxy : delete process.env.http_proxy;
+      originalhttpsProxy ? process.env['https_proxy'] = originalhttpsProxy : delete process.env.https_proxy;
+      originalnoProxy ? process.env['no_proxy'] = originalnoProxy : delete process.env.no_proxy; 
+    }
+  });
+
+  
+  it('test hide and restore environment proxy', function () {
+    const testCases = 
+    {
+      httpProxy: 'https://user:pass@myproxy.server.com:1234',
+      httpsProxy: 'https://user:pass@myproxy.server.com:1234',
+      noProxy: '*.amazonaws.com,*.my_company.com',
+      HttpProxy: 'https://user:pass@myproxy2.server.com:1234',
+      HttpsProxy: 'https://user:pass@myproxy2.server.com:1234',
+      NoProxy: '*.amazonaws2.com,*.my_company2.com',
+    };
+
+    process.env.HTTP_PROXY = testCases.HttpProxy;
+    process.env.HTTPS_PROXY = testCases.HttpsProxy;
+    process.env.NO_PROXY = testCases.NoProxy; 
+    if (!Util.isWindows()) {
+      process.env['http_proxy'] = testCases.httpProxy;
+      process.env['https_proxy'] = testCases.httpsProxy;
+      process.env['no_proxy'] = testCases.noProxy;
+    }
+    
+    ProxyUtil.hideEnvironmentProxy();
+    assert.strictEqual(process.env.HTTP_PROXY, undefined);
+    assert.strictEqual(process.env.HTTPS_PROXY, undefined);
+    assert.strictEqual(process.env.NO_PROXY, undefined); 
+    if (!Util.isWindows()) {
+      assert.strictEqual(process.env['http_proxy'], undefined);
+      assert.strictEqual(process.env['https_proxy'], undefined);
+      assert.strictEqual(process.env['no_proxy'], undefined);
+    }
+
+    ProxyUtil.restoreEnvironmentProxy();
+    assert.strictEqual(process.env.HTTP_PROXY, testCases.HttpProxy);
+    assert.strictEqual(process.env.HTTPS_PROXY, testCases.HttpsProxy);
+    assert.strictEqual(process.env.NO_PROXY, testCases.NoProxy); 
+    if (!Util.isWindows()) {
+      assert.strictEqual(process.env.http_proxy, testCases.httpProxy);
+      assert.strictEqual(process.env.https_proxy, testCases.httpsProxy);
+      assert.strictEqual(process.env.no_proxy, testCases.noProxy);
+    }
   });
 });

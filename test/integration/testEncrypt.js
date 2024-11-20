@@ -4,9 +4,9 @@ const os = require('os');
 const fs = require('fs');
 const SnowflakeEncryptionUtil = require('../../lib/file_transfer_agent/encrypt_util').EncryptUtil;
 
-let encryptUtil;
-
 describe('Test Encryption/Decryption', function () {
+  let encryptUtil;
+
   before(function () {
     encryptUtil = new SnowflakeEncryptionUtil();
   });
@@ -40,7 +40,15 @@ describe('Test Encryption/Decryption', function () {
   async function encryptAndDecryptFile(encryptionTypeName, encryptAndDecrypt) {
     const data = 'abc';
     const inputFilePath = path.join(os.tmpdir(), `${encryptionTypeName}_file_encryption_test`);
-    fs.writeFileSync(inputFilePath, data);
+    await new Promise((resolve, reject) => {
+      fs.writeFile(inputFilePath, data, err => {
+        if (err) {
+          reject(err);
+        } else {
+          resolve();
+        }
+      });
+    });
 
     const encryptionMaterial = {
       'queryStageMasterKey': 'YWJjZGVmMTIzNDU2Nzg5MA==',
@@ -48,7 +56,15 @@ describe('Test Encryption/Decryption', function () {
       'smkId': '123'
     };
     const decryptedFilePath = await encryptAndDecrypt(encryptionMaterial, inputFilePath, os.tmpdir());
-    const decryptedContent = fs.readFileSync(decryptedFilePath);
+    const decryptedContent = await new Promise((resolve, reject) => {
+      fs.readFile(decryptedFilePath, (err, data) => {
+        if (err) {
+          reject(err);
+        } else {
+          resolve(data);
+        }
+      });
+    });
     assert.strictEqual(decryptedContent.toString('utf-8'), data);
   }
 });

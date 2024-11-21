@@ -4,9 +4,10 @@ const os = require('os');
 const fs = require('fs/promises');
 const SnowflakeEncryptionUtil = require('../../lib/file_transfer_agent/encrypt_util').EncryptUtil;
 
-const BASE64 = 'base64';
 
 describe('Test Encryption/Decryption', function () {
+  const BASE64 = 'base64';
+  const UTF8 = 'utf-8';
   let encryptUtil;
 
   before(function () {
@@ -19,10 +20,10 @@ describe('Test Encryption/Decryption', function () {
     const key = Buffer.from('1234567890abcdef');
 
     const encryptedData = encryptUtil.encryptGCM(data, key, iv, null);
-    assert.strictEqual(encryptedData.toString('base64'), 'iG+lT4o27hkzj3kblYRzQikLVQ==');
+    assert.strictEqual(encryptedData.toString(BASE64), 'iG+lT4o27hkzj3kblYRzQikLVQ==');
 
     const decryptedData = encryptUtil.decryptGCM(encryptedData, key, iv, null);
-    assert.strictEqual(decryptedData.toString('utf-8'), data);
+    assert.strictEqual(decryptedData.toString(UTF8), data);
   });
 
   it('GCM - Encrypt raw data based on encryption material', function () {
@@ -38,7 +39,7 @@ describe('Test Encryption/Decryption', function () {
     assert.ok(dataStream);
     assert.ok(encryptionMetadata);
 
-    const decodedKek = Buffer.from(encryptionMaterial['queryStageMasterKey'], 'base64');
+    const decodedKek = Buffer.from(encryptionMaterial['queryStageMasterKey'], BASE64);
     const keyBytes = new Buffer.from(encryptionMetadata.key, BASE64);
     const keyIvBytes = new Buffer.from(encryptionMetadata.keyIv, BASE64);
     const dataIvBytes = new Buffer.from(encryptionMetadata.iv, BASE64);
@@ -48,7 +49,7 @@ describe('Test Encryption/Decryption', function () {
     const fileKey = encryptUtil.decryptGCM(keyBytes, decodedKek, keyIvBytes, keyAadBytes);
 
     const decryptedData = encryptUtil.decryptGCM(dataStream, fileKey, dataIvBytes, dataAadBytes);
-    assert.strictEqual(decryptedData.toString('utf-8'), data);
+    assert.strictEqual(decryptedData.toString(UTF8), data);
   });
 
   it('GCM - Encrypt and decrypt file', async function () {

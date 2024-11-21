@@ -1,8 +1,10 @@
 const assert = require('assert');
 const path = require('path');
 const os = require('os');
-const fs = require('fs');
+const fs = require('fs/promises');
 const SnowflakeEncryptionUtil = require('../../lib/file_transfer_agent/encrypt_util').EncryptUtil;
+
+const BASE64 = 'base64';
 
 describe('Test Encryption/Decryption', function () {
   let encryptUtil;
@@ -23,6 +25,32 @@ describe('Test Encryption/Decryption', function () {
     assert.strictEqual(decryptedData.toString('utf-8'), data);
   });
 
+  it('GCM - Encrypt raw data based on encryption material', function () {
+    const data = 'abc';
+
+    const encryptionMaterial = {
+      'queryStageMasterKey': 'YWJjZGVmMTIzNDU2Nzg5MA==',
+      'queryId': 'unused',
+      'smkId': '123'
+    };
+
+    const { dataStream, encryptionMetadata } = encryptUtil.encryptDataGCM(encryptionMaterial, data);
+    assert.ok(dataStream);
+    assert.ok(encryptionMetadata);
+
+    const decodedKek = Buffer.from(encryptionMaterial['queryStageMasterKey'], 'base64');
+    const keyBytes = new Buffer.from(encryptionMetadata.key, BASE64);
+    const keyIvBytes = new Buffer.from(encryptionMetadata.keyIv, BASE64);
+    const dataIvBytes = new Buffer.from(encryptionMetadata.iv, BASE64);
+    const dataAadBytes = new Buffer.from(encryptionMetadata.dataAad, BASE64);
+    const keyAadBytes = new Buffer.from(encryptionMetadata.keyAad, BASE64);
+
+    const fileKey = encryptUtil.decryptGCM(keyBytes, decodedKek, keyIvBytes, keyAadBytes);
+
+    const decryptedData = encryptUtil.decryptGCM(dataStream, fileKey, dataIvBytes, dataAadBytes);
+    assert.strictEqual(decryptedData.toString('utf-8'), data);
+  });
+
   it('GCM - Encrypt and decrypt file', async function () {
     await encryptAndDecryptFile('gcm', async function (encryptionMaterial, inputFilePath) {
       const output = await encryptUtil.encryptFileGCM(encryptionMaterial, inputFilePath, os.tmpdir());
@@ -40,15 +68,7 @@ describe('Test Encryption/Decryption', function () {
   async function encryptAndDecryptFile(encryptionTypeName, encryptAndDecrypt) {
     const data = 'abc';
     const inputFilePath = path.join(os.tmpdir(), `${encryptionTypeName}_file_encryption_test`);
-    await new Promise((resolve, reject) => {
-      fs.writeFile(inputFilePath, data, err => {
-        if (err) {
-          reject(err);
-        } else {
-          resolve();
-        }
-      });
-    });
+    await fs.writeFile(inputFilePath, data);
 
     const encryptionMaterial = {
       'queryStageMasterKey': 'YWJjZGVmMTIzNDU2Nzg5MA==',
@@ -56,15 +76,7 @@ describe('Test Encryption/Decryption', function () {
       'smkId': '123'
     };
     const decryptedFilePath = await encryptAndDecrypt(encryptionMaterial, inputFilePath, os.tmpdir());
-    const decryptedContent = await new Promise((resolve, reject) => {
-      fs.readFile(decryptedFilePath, (err, data) => {
-        if (err) {
-          reject(err);
-        } else {
-          resolve(data);
-        }
-      });
-    });
+    const decryptedContent = await fs.readFile(decryptedFilePath);
     assert.strictEqual(decryptedContent.toString('utf-8'), data);
   }
 });

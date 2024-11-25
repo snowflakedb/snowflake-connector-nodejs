@@ -33,7 +33,7 @@ describe('Test Structured types', function () {
     connection = testUtil.createConnection();
     async.series([
       function (callback) {
-        // snowflake.configure({ 'insecureConnect': true });
+        // snowflake.configure({ 'disableOCSPChecks': true });
         // GlobalConfig.setInsecureConnect(true);
         testUtil.connect(connection, callback);
       },

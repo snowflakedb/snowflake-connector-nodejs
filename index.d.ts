@@ -25,7 +25,7 @@ declare module 'snowflake-sdk' {
 
         // 403001
         ERR_GLOBAL_CONFIGURE_INVALID_LOG_LEVEL = 403001,
-        ERR_GLOBAL_CONFIGURE_INVALID_INSECURE_CONNECT = 403002,
+        ERR_GLOBAL_CONFIGURE_INVALID_DISABLE_OCSP_CHECKS = 403002,
         ERR_GLOBAL_CONFIGURE_INVALID_OCSP_MODE = 403003,
         ERR_GLOBAL_CONFIGURE_INVALID_JSON_PARSER = 403004,
         ERR_GLOBAL_CONFIGURE_INVALID_XML_PARSER = 403005,
@@ -219,9 +219,15 @@ declare module 'snowflake-sdk' {
         additionalLogToConsole?: boolean | null;
 
         /**
-         * Check the ocsp checking is off.
+         * @deprecated
+         * This option will be deprecated. Use disableOCSPChecks
          */
         insecureConnect?: boolean;
+
+        /**
+         * The option to turn off the OCSP check.
+         */
+        disableOCSPChecks?: boolean;
 
         /**
          * The default value is true.

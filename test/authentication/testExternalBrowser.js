@@ -8,7 +8,7 @@ describe('External browser authentication tests', function () {
   const provideBrowserCredentialsPath = '/externalbrowser/provideBrowserCredentials.js';
   const login = connParameters.snowflakeTestBrowserUser;
   const password = connParameters.snowflakeAuthTestOktaPass;
-
+  let connection;
 
   describe('External browser tests', async () => {
     before(async () => {
@@ -17,68 +17,59 @@ describe('External browser authentication tests', function () {
 
     afterEach(async () => {
       await cleanBrowserProcesses();
+      if (connection !== undefined && connection.isUp()) {
+        await testUtil.destroyConnectionAsync(connection);
+      }
     });
 
     it('Successful connection', async () => {
       const connectionOption = { ...connParameters.externalBrowser, clientStoreTemporaryCredential: false };
-      const connection = await snowflake.createConnection(connectionOption);
-      const connectAsyncPromise = connection.connectAsync(function (err, connection) {
-        connectionHandler(err, connection);
-      });
+      connection = await snowflake.createConnection(connectionOption);
       const provideCredentialsPromise = execWithTimeout('node', [provideBrowserCredentialsPath, 'success', login, password], 15000);
-      await Promise.all([connectAsyncPromise, provideCredentialsPromise]);
+      await Promise.allSettled([connection.connectAsync(function () {}), provideCredentialsPromise]);
+      await verifyConnectionIsUp(connection);
     });
 
     it('Wrong credentials', async () => {
       const login = 'itsnotanaccount.com';
       const password = 'fakepassword';
-      const connectionOption = { ...connParameters.externalBrowser, clientStoreTemporaryCredential: false };
-      const connection = await snowflake.createConnection(connectionOption);
+      const connectionOption = { ...connParameters.externalBrowser, browserActionTimeout: 5000, clientStoreTemporaryCredential: false };
+      connection = await snowflake.createConnection(connectionOption);
 
-      connection.connectAsync(function (err, connection) {
-        connectionHandler(err, connection);
-      });
       const provideCredentialsPromise = execWithTimeout('node', [provideBrowserCredentialsPath, 'fail', login, password]);
-      await Promise.all([provideCredentialsPromise]);
-
+      await Promise.allSettled([connection.connectAsync(function () {}), provideCredentialsPromise]);
+      await verifyConnectionIsNotUp(connection);
     });
 
     it('External browser timeout', async () => {
       const connectionOption = { ...connParameters.externalBrowser, browserActionTimeout: 100, clientStoreTemporaryCredential: false };
-      const connection = await snowflake.createConnection(connectionOption);
-
-      const connectAsyncPromise = connection.connectAsync(function (err, connection) {
-        timeoutConnectionHandler(err, connection);
-      });
+      connection = await snowflake.createConnection(connectionOption);
 
       const connectToBrowserPromise = execWithTimeout('node', [provideBrowserCredentialsPath, 'timeout']);
-      await Promise.all([connectAsyncPromise, connectToBrowserPromise]);
+      await Promise.allSettled([connection.connectAsync(function () {}), connectToBrowserPromise]);
+      await verifyConnectionIsNotUp(connection);
     });
   });
 });
-
-async function timeoutConnectionHandler(err, timeout) {
-  try {
-    assert.ok(err, `Browser action timed out after ${timeout} ms.`);
-  } catch (err){
-    await assert.fail(err);
-  }
-}
 
 async function cleanBrowserProcesses() {
   exec('pkill -f chromium');
   exec('pkill -f xdg-open');
 }
 
-function connectionHandler(err, connection) {
-  assert.ok(connection.isUp(), 'Connection is not active');
-  testUtil.destroyConnection(connection, function () {
-    try {
-      assert.ok(!connection.isUp(), 'Connection is not closed');
-    } catch (err) {
-      assert.fail(err);
-    }
-  });
+async function verifyConnectionIsUp(connection) {
+  assert.ok(await connection.isValidAsync());
+  await testUtil.executeCmdAsync(connection, 'Select 1');
+}
+
+async function verifyConnectionIsNotUp(connection) {
+  try {
+    assert(!(await connection.isValidAsync()));
+    await testUtil.executeCmdAsync(connection, 'Select 1');
+    assert.fail('Expected error was not thrown');
+  } catch (error) {
+    assert.strictEqual(error.message, 'Unable to perform operation because a connection was never established.');
+  }
 }
 
 function execWithTimeout(command, args, timeout = 5000) {

@@ -36,7 +36,7 @@ jobs:
                 WHITESOURCE_API_KEY: ${{ secrets.WHITESOURCE_API_KEY }}
               run: ./ci/build.sh
             - name: Upload Build Artifact
-              uses: actions/upload-artifact@v3
+              uses: actions/upload-artifact@v4
               with:
                 name: artifacts
                 path: artifacts
@@ -52,14 +52,14 @@ jobs:
                 nodeVersion: [ '14.x', '16.x', '18.x', '20.x', '22.x']
         steps:
             - uses: actions/checkout@v4
-            - uses: actions/setup-node@v3
+            - uses: actions/setup-node@v4
               with:
                 node-version: ${{ matrix.nodeVersion }}
-            - uses: actions/setup-python@v4
+            - uses: actions/setup-python@v5
               with:
                 python-version: '3.7'
             - name: Download Build Artifacts
-              uses: actions/download-artifact@v3
+              uses: actions/download-artifact@v4
               with:
                 name: artifacts
                 path: artifacts
@@ -90,15 +90,15 @@ jobs:
                 nodeVersion: [ '14.x', '16.x', '18.x', '20.x', '22.x']
         steps:
             - uses: actions/checkout@v4
-            - uses: actions/setup-node@v3
+            - uses: actions/setup-node@v4
               with:
                 node-version: ${{ matrix.nodeVersion }}
-            - uses: actions/setup-python@v4
+            - uses: actions/setup-python@v5
               with:
                 python-version: '3.7'
                 architecture: 'x64'
             - name: Download Build Artifacts
-              uses: actions/download-artifact@v3
+              uses: actions/download-artifact@v4
               with:
                 name: artifacts
                 path: artifacts
@@ -121,7 +121,7 @@ jobs:
         steps:
             - uses: actions/checkout@v4
             - name: Download Build Artifacts
-              uses: actions/download-artifact@v3
+              uses: actions/download-artifact@v4
               with:
                 name: artifacts
                 path: artifacts
@@ -145,12 +145,12 @@ jobs:
       steps:
         - uses: actions/checkout@v4
         - name: Download Build Artifacts
-          uses: actions/download-artifact@v3
+          uses: actions/download-artifact@v4
           with:
             name: artifacts
             path: artifacts
         - name: Use Node.js
-          uses: actions/setup-node@v3
+          uses: actions/setup-node@v4
           with:
             node-version: ${{ matrix.node-version }}
         - name: Tests

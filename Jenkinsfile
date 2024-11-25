@@ -4,7 +4,6 @@ import groovy.json.JsonOutput
 timestamps {
   node('regular-memory-node') {
     stage('checkout') {
-      cleanWs()
       scmInfo = checkout scm
       println("${scmInfo}")
       env.GIT_BRANCH = scmInfo.GIT_BRANCH

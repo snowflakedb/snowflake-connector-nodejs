@@ -16,6 +16,7 @@ describe('Snowflake Configure Tests', function () {
     originalConfig = {
       logLevel: Logger.getInstance().getLevelTag(),
       disableOCSPChecks: GlobalConfig.isOCSPChecksDisabled(),
+      insecureConnect: GlobalConfig.isOCSPChecksDisabled(),
       ocspFailOpen: GlobalConfig.getOcspFailOpen(),
       keepAlive: GlobalConfig.getKeepAlive(),
       jsonColumnVariantParser: GlobalConfig.jsonColumnVariantParser,
@@ -38,6 +39,11 @@ describe('Snowflake Configure Tests', function () {
         {
           name: 'invalid disableOCSPChecks',
           options: { disableOCSPChecks: 'unsupported' },
+          errorCode: ErrorCodes.ERR_GLOBAL_CONFIGURE_INVALID_DISABLE_OCSP_CHECKS
+        },
+        {
+          name: 'invalid insecureConnect',
+          options: { insecureConnect: 'unsupported' },
           errorCode: ErrorCodes.ERR_GLOBAL_CONFIGURE_INVALID_DISABLE_OCSP_CHECKS
         },
         {
@@ -148,6 +154,20 @@ describe('Snowflake Configure Tests', function () {
           }
         },
         {
+          name: 'insecureConnect false',
+          options:
+          {
+            insecureConnect: false
+          }
+        },
+        {
+          name: 'insecureConnect true',
+          options:
+          {
+            insecureConnect: true
+          }
+        },
+        {
           name: 'ocspFailOpen false',
           options:
           {
@@ -215,7 +235,10 @@ describe('Snowflake Configure Tests', function () {
             val = Logger.getInstance().getLevelTag();
           } else if (key === 'disableOCSPChecks') {
             val = GlobalConfig.isOCSPChecksDisabled();
-          } else if (key === 'ocspFailOpen') {
+          } else if (key === 'insecureConnect') {
+            val = GlobalConfig.isOCSPChecksDisabled();
+          }
+          else if (key === 'ocspFailOpen') {
             val = GlobalConfig.getOcspFailOpen();
           } else if (key === 'keepAlive') {
             val = GlobalConfig.getKeepAlive();

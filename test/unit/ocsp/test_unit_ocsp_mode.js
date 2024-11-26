@@ -9,13 +9,13 @@ const assert = require('assert');
 describe('OCSP mode', function () {
   it('getOcspMode', function (done) {
     // insecure mode
-    GlobalConfig.isDisableOCSPChecks(true);
+    GlobalConfig.setDisableOCSPChecks(true);
     assert.equal(GlobalConfig.getOcspMode(), GlobalConfig.ocspModes.INSECURE);
 
     // insecure mode + Fail open
     GlobalConfig.setOcspFailOpen(true);
     assert.equal(GlobalConfig.getOcspMode(), GlobalConfig.ocspModes.INSECURE);
-    GlobalConfig.isDisableOCSPChecks(false);
+    GlobalConfig.setDisableOCSPChecks(false);
     assert.equal(GlobalConfig.getOcspMode(), GlobalConfig.ocspModes.FAIL_OPEN);
 
     GlobalConfig.setOcspFailOpen(false);

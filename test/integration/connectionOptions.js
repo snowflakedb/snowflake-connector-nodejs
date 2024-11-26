@@ -16,7 +16,6 @@ const snowflakeTestRole = process.env.SNOWFLAKE_TEST_ROLE;
 const snowflakeTestPassword = process.env.SNOWFLAKE_TEST_PASSWORD;
 const snowflakeTestAdminUser = process.env.SNOWFLAKE_TEST_ADMIN_USER;
 const snowflakeTestAdminPassword = process.env.SNOWFLAKE_TEST_ADMIN_PASSWORD;
-const snowflakeTestBrowserUser = process.env.SNOWFLAKE_TEST_BROWSER_USER;
 const snowflakeTestPrivateKeyUser = process.env.SNOWFLAKE_JWT_TEST_USER;
 const snowflakeTestPrivateKey = process.env.SNOWFLAKE_TEST_PRIVATE_KEY;
 const snowflakeTestPrivateKeyPath = process.env.SNOWFLAKE_TEST_PRIVATE_KEY_PATH;
@@ -88,32 +87,6 @@ const wrongPwd =
     password: '',
     account: snowflakeTestAccount
   };
-
-const externalBrowser =
-{
-  accessUrl: accessUrl,
-  username: snowflakeTestBrowserUser,
-  account: snowflakeTestAccount,
-  warehouse: snowflakeTestWarehouse,
-  database: snowflakeTestDatabase,
-  schema: snowflakeTestSchema,
-  role: snowflakeTestRole,
-  host: snowflakeTestHost,
-  authenticator: 'EXTERNALBROWSER'
-};
-
-const externalBrowserWithShortTimeout = {
-  ...externalBrowser,
-  browserActionTimeout: 100,
-};
-
-const externalBrowserMismatchUser =
-{
-  accessUrl: accessUrl,
-  username: 'node',
-  account: snowflakeTestAccount,
-  authenticator: 'EXTERNALBROWSER'
-};
 
 const keypairPrivateKey =
 {
@@ -233,9 +206,6 @@ exports.wrongUserName = wrongUserName;
 exports.wrongPwd = wrongPwd;
 exports.accessUrl = accessUrl;
 exports.account = snowflakeTestAccount;
-exports.externalBrowser = externalBrowser;
-exports.externalBrowserWithShortTimeout = externalBrowserWithShortTimeout;
-exports.externalBrowserMismatchUser = externalBrowserMismatchUser;
 exports.keypairPrivateKey = keypairPrivateKey;
 exports.keypairPathEncrypted = keypairPathEncrypted;
 exports.keypairPathUnencrypted = keypairPathUnencrypted;

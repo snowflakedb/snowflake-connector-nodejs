@@ -237,8 +237,7 @@ describe('Snowflake Configure Tests', function () {
             val = GlobalConfig.isOCSPChecksDisabled();
           } else if (key === 'insecureConnect') {
             val = GlobalConfig.isOCSPChecksDisabled();
-          }
-          else if (key === 'ocspFailOpen') {
+          } else if (key === 'ocspFailOpen') {
             val = GlobalConfig.getOcspFailOpen();
           } else if (key === 'keepAlive') {
             val = GlobalConfig.getKeepAlive();

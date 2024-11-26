@@ -140,20 +140,6 @@ describe('Snowflake Configure Tests', function () {
           }
         },
         {
-          name: 'disableOCSPChecks false',
-          options:
-          {
-            disableOCSPChecks: false
-          }
-        },
-        {
-          name: 'disableOCSPChecks true',
-          options:
-          {
-            disableOCSPChecks: true
-          }
-        },
-        {
           name: 'insecureConnect false',
           options:
           {
@@ -165,6 +151,20 @@ describe('Snowflake Configure Tests', function () {
           options:
           {
             insecureConnect: true
+          }
+        },
+        {
+          name: 'disableOCSPChecks false',
+          options:
+          {
+            disableOCSPChecks: false
+          }
+        },
+        {
+          name: 'disableOCSPChecks true',
+          options:
+          {
+            disableOCSPChecks: true
           }
         },
         {

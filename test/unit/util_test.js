@@ -1390,7 +1390,7 @@ describe('Util', function () {
         result: {
           host: 'myproxy.server.com',
           port: 1234,
-          protocol: 'https:',
+          protocol: 'http:',
           noProxy: '*.amazonaws.com|*.my_company.com|*.test.com',
         },
       },
@@ -1401,8 +1401,8 @@ describe('Util', function () {
         httpsProxy: 'myproxy.server.com',
         result: {
           host: 'myproxy.server.com',
-          port: 443,
-          protocol: 'https:',
+          port: 80,
+          protocol: 'http:',
           noProxy: '*.amazonaws.com|*.my_company.com|*.test.com',
         },
       },

@@ -2,11 +2,12 @@ const snowflake = require('../../lib/snowflake');
 const assert = require('assert');
 const testUtil = require('../integration/testUtil');
 const connParameters = require('./connectionParameters');
-const { exec, spawn } = require('child_process');
+const { spawn } = require('child_process');
 const Util = require('../../lib/util');
 const JsonCredentialManager = require('../../lib/authentication/secure_storage/json_credential_manager');
 
 describe('External browser authentication tests', function () {
+  const cleanBrowserProcessesPath = '/externalbrowser/cleanBrowserProcesses.js';
   const provideBrowserCredentialsPath = '/externalbrowser/provideBrowserCredentials.js';
   const login = connParameters.snowflakeTestBrowserUser;
   const password = connParameters.snowflakeAuthTestOktaPass;
@@ -72,12 +73,6 @@ describe('External browser authentication tests', function () {
 
     before(async () => {
       await defaultCredentialManager.remove(key);
-      await cleanBrowserProcesses();
-    });
-
-    afterEach(async () => {
-      await cleanBrowserProcesses();
-      await destroyConnection(connection);
     });
 
     it('obtains the id token from the server and saves it on the local storage', async function () {
@@ -124,12 +119,11 @@ describe('External browser authentication tests', function () {
   function verifyNoErrorWasThrown() {
     assert.equal(error, null);
   }
-});
 
-async function cleanBrowserProcesses() {
-  exec('pkill -f chromium');
-  exec('pkill -f xdg-open');
-}
+  async function cleanBrowserProcesses() {
+    await execWithTimeout('node', [cleanBrowserProcessesPath], 15000);
+  }
+});
 
 async function verifyConnectionIsUp(connection) {
   assert.ok(await connection.isValidAsync(), 'Connection is not valid');
@@ -173,7 +167,7 @@ function execWithTimeout(command, args, timeout = 5000) {
 
     child.on('close', (code) => {
       if (code !== 0) {
-        reject(new Error(`Provide browser credentials process exited with code: ${code}, error: ${stderr}`));
+        reject(new Error(`Process exited with code: ${code}, error: ${stderr}`));
       } else {
         resolve({ stdout, stderr });
       }
@@ -181,7 +175,7 @@ function execWithTimeout(command, args, timeout = 5000) {
 
     setTimeout(() => {
       child.kill();
-      reject(new Error('Provide browser credentials process timed out'));
+      reject(new Error('Process timed out'));
     }, timeout);
   });
 }

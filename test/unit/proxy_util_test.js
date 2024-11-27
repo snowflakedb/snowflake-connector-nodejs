@@ -150,7 +150,7 @@ describe('getProxyEnv function test ', function () {
     {
       name: 'HTTP PROXY with authentication',
       isHttps: false,
-      httpProxy: 'http://hello:world@proxy.example.com:8080',
+      httpProxy: 'http://hello:world@proxy.example.com:8080', //# pragma: allowlist secret
       httpsProxy: undefined,
       noProxy: '*.amazonaws.com,*.my_company.com',
       result: {
@@ -165,7 +165,7 @@ describe('getProxyEnv function test ', function () {
     {
       name: 'HTTPS PROXY with authentication without NO proxy',
       isHttps: true,
-      httpsProxy: 'https://user:pass@myproxy.server.com:1234',
+      httpsProxy: 'https://user:pass@myproxy.server.com:1234', //# pragma: allowlist secret
       result: {
         host: 'myproxy.server.com',
         user: 'user',
@@ -187,6 +187,42 @@ describe('getProxyEnv function test ', function () {
         noProxy: '*.amazonaws.com|*.my_company.com|*.test.com',
       },
     },
+    {
+      name: 'HTTPS PROXY with authentication without port and protocol',
+      isHttps: true,
+      noProxy: '*.amazonaws.com,*.my_company.com,*.test.com',
+      httpsProxy: 'myproxy.server.com',
+      result: {
+        host: 'myproxy.server.com',
+        port: 80,
+        protocol: 'http:',
+        noProxy: '*.amazonaws.com|*.my_company.com|*.test.com',
+      },
+    },
+    {
+      name: 'HTTP PROXY with authentication without port and protocol',
+      isHttps: false,
+      noProxy: '*.amazonaws.com,*.my_company.com,*.test.com',
+      httpProxy: 'myproxy.server.com',
+      result: {
+        host: 'myproxy.server.com',
+        port: 80,
+        protocol: 'http:',
+        noProxy: '*.amazonaws.com|*.my_company.com|*.test.com',
+      },
+    },
+    {
+      name: 'HTTPS PROXY with authentication without port',
+      isHttps: true,
+      noProxy: '*.amazonaws.com,*.my_company.com,*.test.com',
+      httpsProxy: 'https://myproxy.server.com',
+      result: {
+        host: 'myproxy.server.com',
+        port: 443,
+        protocol: 'https:',
+        noProxy: '*.amazonaws.com|*.my_company.com|*.test.com',
+      }
+    }
   ];
 
   testCases.forEach(({ name, isHttps, httpsProxy, httpProxy, noProxy, result }) => {
@@ -265,11 +301,11 @@ describe('Proxy Util for Azure', function () {
   it('test hide and restore environment proxy', function () {
     const testCases = 
     {
-      httpProxy: 'https://user:pass@myproxy.server.com:1234',
-      httpsProxy: 'https://user:pass@myproxy.server.com:1234',
+      httpProxy: 'https://user:pass@myproxy.server.com:1234', //# pragma: allowlist secret
+      httpsProxy: 'https://user:pass@myproxy.server.com:1234', //# pragma: allowlist secret
       noProxy: '*.amazonaws.com,*.my_company.com',
-      HttpProxy: 'https://user:pass@myproxy2.server.com:1234',
-      HttpsProxy: 'https://user:pass@myproxy2.server.com:1234',
+      HttpProxy: 'https://user:pass@myproxy2.server.com:1234', //# pragma: allowlist secret
+      HttpsProxy: 'https://user:pass@myproxy2.server.com:1234', //# pragma: allowlist secret
       NoProxy: '*.amazonaws2.com,*.my_company2.com',
     };
 

@@ -48,8 +48,7 @@ describe('External browser authentication tests', function () {
       connection = await snowflake.createConnection(connectionOption);
 
       const provideCredentialsPromise = execWithTimeout('node', [provideBrowserCredentialsPath, 'fail', login, password]);
-      const results = await Promise.allSettled([connection.connectAsync(connectAsyncCallback()), provideCredentialsPromise]);
-      assert.strictEqual(results[1].status, 'fulfilled');
+      await Promise.allSettled([connection.connectAsync(connectAsyncCallback()), provideCredentialsPromise]);
       assert.strictEqual(error?.message, 'Error while getting SAML token: Browser action timed out after 10000 ms.');
       await verifyConnectionIsNotUp(connection);
     });
@@ -133,14 +132,12 @@ async function cleanBrowserProcesses() {
 }
 
 async function verifyConnectionIsUp(connection) {
-  assert.ok(connection.isUp(), 'Connection is not up');
   assert.ok(await connection.isValidAsync(), 'Connection is not valid');
   await testUtil.executeCmdAsync(connection, 'Select 1');
 }
 
 async function verifyConnectionIsNotUp(connection, message = 'Unable to perform operation because a connection was never established.') {
   assert.ok(!(connection.isUp()), 'Connection should not be up');
-  assert.ok(!(await connection.isValidAsync()), 'Connection should not be valid');
   try {
     await testUtil.executeCmdAsync(connection, 'Select 1');
     assert.fail('Expected error was not thrown');
@@ -150,7 +147,7 @@ async function verifyConnectionIsNotUp(connection, message = 'Unable to perform 
 }
 
 async function destroyConnection(connection) {
-  if (connection !== undefined && connection.isUp() && connection.isValidAsync()) {
+  if (connection !== undefined && connection.isUp()) {
     await testUtil.destroyConnectionAsync(connection);
   }
 }

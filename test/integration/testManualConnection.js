@@ -64,6 +64,36 @@ if (process.env.RUN_MANUAL_TESTS_ONLY === 'true') {
       });
     });
 
+    describe('Connection test - okta', function () {
+      it('Simple Connect', function (done) {
+        const connection = snowflake.createConnection(connOption.okta);
+
+        async.series([
+          function (callback) {
+            connection.connectAsync(function (err) {
+              done(err);
+              assert.ok(!err, JSON.stringify(err));
+              callback();
+            });
+          },
+          function (callback) {
+            assert.ok(connection.isUp(), 'not active');
+            callback();
+          },
+          function (callback) {
+            connection.destroy(function (err) {
+              assert.ok(!err, JSON.stringify(err));
+              callback();
+            });
+          },
+          function (callback) {
+            assert.ok(!connection.isUp(), 'still active');
+            callback();
+          },
+        ]);
+      });
+    });
+
     describe('Connection - MFA authenticator with DUO', function () {
       const connectionOption = connOption.MFA;
     

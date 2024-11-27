@@ -5,10 +5,11 @@
 if [[ -z "$GITHUB_ACTIONS" ]]; then
     #
     # set Jenkins GIT parameters propagated from Build job.
-    # 
+    #
     export client_git_url=${client_git_url:-https://github.com/snowflakedb/snowflake-connector-nodejs.git}
     export client_git_branch=${client_git_branch:-origin/$(git rev-parse --abbrev-ref HEAD)}
     export client_git_commit=${client_git_commit:-$(git log --pretty=oneline | head -1 | awk '{print $1}')}
+    gpg --quiet --batch --yes --decrypt --passphrase="$PARAMETERS_SECRET" --output $THIS_DIR/../parameters_aws_auth_tests.json "$THIS_DIR/../.github/workflows/parameters_aws_auth_tests.json.gpg"
 else
     if [[ "$CLOUD_PROVIDER" == "AZURE" ]]; then
         ENCODED_PARAMETERS_FILE="$THIS_DIR/../.github/workflows/parameters_azure.json.gpg"

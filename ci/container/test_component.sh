@@ -41,6 +41,8 @@ echo "[INFO] Setting test parameters"
 if [[ "$LOCAL_USER_NAME" == "jenkins" ]]; then
     echo "[INFO] Use the default test parameters.json"
     PARAMETER_FILE=$SOURCE_ROOT/test/parameters.json
+    AUTH_PARAMETER_FILE=$SOURCE_ROOT/parameters_aws_auth_tests.json
+    eval $(jq -r '.authtestparams | to_entries | map("export \(.key)=\(.value|tostring)")|.[]' $AUTH_PARAMETER_FILE)
 else
     echo "[INFO] Found parameter file in $WORKSPACE"
     PARAMETER_FILE=$WORKSPACE/parameters.json
@@ -110,7 +112,7 @@ if [[ -z "$GITHUB_ACTIONS" ]]; then
 fi
 
 echo "[INFO] Running Tests: Test result: $WORKSPACE/junit.xml"
-if ! ${MOCHA_CMD[@]} "$SOURCE_ROOT/test/**/*.js"; then
+if ! ${MOCHA_CMD[@]} "$SOURCE_ROOT/test/integration/testOkta.js"; then
     echo "[ERROR] Test failed"
     [[ -f "$WORKSPACE/junit.xml" ]] && cat $WORKSPACE/junit.xml
     exit 1

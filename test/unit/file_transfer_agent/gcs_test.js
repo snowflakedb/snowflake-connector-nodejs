@@ -64,6 +64,39 @@ describe('GCS client', function () {
     GCS = new SnowflakeGCSUtil(httpclient, filestream);
   });
 
+  describe('AWS client endpoint testing', async function () {
+    const originalStageInfo = meta.stageInfo;
+    const testCases = [
+      {
+        name: 'when useRegionalURL is only enabled',
+        stageInfo: {
+          ...originalStageInfo,
+          useRegionalURL: true,
+        },
+        endPoint: null,
+        result: 'storage.mocklocation.rep.googleapis.com'
+      },
+      {
+        name: 'when region is me-central2',
+        stageInfo: {
+          ...originalStageInfo,
+          useRegionalURL: false,
+          endPoint: null,
+          region: 'me-central2'
+        },
+        result: 'storage.me-central2.rep.googleapis.com`'
+      },
+    ];
+
+    testCases.forEach(({ name, stageInfo, result }) => {
+      it(name, () => {
+        const client = GCS.createClient(stageInfo);
+        assert.strictEqual(client.gcsClient.apiEndPoint, result);
+      } );
+
+    });
+  });
+
   it('extract bucket name and path', async function () {
     const GCS = new SnowflakeGCSUtil();
 

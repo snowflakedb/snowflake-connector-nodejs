@@ -86,7 +86,7 @@ describe('GCS client', function () {
 
     testCases.forEach(({ name, stageInfo, result }) => {
       it(name, () => {
-        const client = GCS.createClient({ ...stageInfo, ...meta.stageInfo, creds:{ GCS_ACCESS_TOKEN: "mockToken"} });
+        const client = GCS.createClient({ ...stageInfo, ...meta.stageInfo, creds: { GCS_ACCESS_TOKEN: 'mockToken' } });
         assert.strictEqual(client.gcsClient.apiEndpoint, result);
       } );
 

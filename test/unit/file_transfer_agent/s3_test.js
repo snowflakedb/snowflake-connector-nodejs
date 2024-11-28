@@ -92,7 +92,7 @@ describe('S3 client', function () {
         stageInfo: {
           ...originalStageInfo,
           useS3RegionalUrl: true,
-        endPoint: null,
+          endPoint: null,
         },
         result: null
       },

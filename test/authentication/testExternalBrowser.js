@@ -11,7 +11,7 @@ describe('External browser authentication tests', function () {
   const provideBrowserCredentialsPath = '/externalbrowser/provideBrowserCredentials.js';
   const login = connParameters.snowflakeTestBrowserUser;
   const password = connParameters.snowflakeAuthTestOktaPass;
-  let connection, error;
+  let connection, error, callbackCompleted;
 
   before(async () => {
     await cleanBrowserProcesses();
@@ -20,6 +20,7 @@ describe('External browser authentication tests', function () {
   afterEach(async () => {
     await cleanBrowserProcesses();
     await destroyConnection(connection);
+    callbackCompleted = false;
     error = undefined;
   });
 
@@ -28,7 +29,7 @@ describe('External browser authentication tests', function () {
       const connectionOption = { ...connParameters.externalBrowser, clientStoreTemporaryCredential: false };
       connection = await snowflake.createConnection(connectionOption);
       const provideCredentialsPromise = execWithTimeout('node', [provideBrowserCredentialsPath, 'success', login, password], 15000);
-      await Promise.allSettled([connection.connectAsync(connectAsyncCallback()), provideCredentialsPromise]);
+      await connectAndProvideCredentials(connection, provideCredentialsPromise);
       verifyNoErrorWasThrown();
       await verifyConnectionIsUp(connection);
     });
@@ -37,7 +38,7 @@ describe('External browser authentication tests', function () {
       const connectionOption = { ...connParameters.externalBrowser, username: 'differentUsername', clientStoreTemporaryCredential: false };
       connection = await snowflake.createConnection(connectionOption);
       const provideCredentialsPromise = execWithTimeout('node', [provideBrowserCredentialsPath, 'success', login, password], 15000);
-      await Promise.allSettled([connection.connectAsync(connectAsyncCallback()), provideCredentialsPromise]);
+      await connectAndProvideCredentials(connection, provideCredentialsPromise);
       assert.strictEqual(error?.message, 'The user you were trying to authenticate as differs from the user currently logged in at the IDP.');
       await verifyConnectionIsNotUp(connection, 'Unable to perform operation using terminated connection.');
     });
@@ -47,9 +48,8 @@ describe('External browser authentication tests', function () {
       const password = 'fakepassword';
       const connectionOption = { ...connParameters.externalBrowser, browserActionTimeout: 10000, clientStoreTemporaryCredential: false };
       connection = await snowflake.createConnection(connectionOption);
-
       const provideCredentialsPromise = execWithTimeout('node', [provideBrowserCredentialsPath, 'fail', login, password]);
-      await Promise.allSettled([connection.connectAsync(connectAsyncCallback()), provideCredentialsPromise]);
+      await connectAndProvideCredentials(connection, provideCredentialsPromise);
       assert.strictEqual(error?.message, 'Error while getting SAML token: Browser action timed out after 10000 ms.');
       await verifyConnectionIsNotUp(connection);
     });
@@ -57,9 +57,8 @@ describe('External browser authentication tests', function () {
     it('External browser timeout', async () => {
       const connectionOption = { ...connParameters.externalBrowser, browserActionTimeout: 100, clientStoreTemporaryCredential: false };
       connection = await snowflake.createConnection(connectionOption);
-
       const connectToBrowserPromise = execWithTimeout('node', [provideBrowserCredentialsPath, 'timeout']);
-      await Promise.allSettled([connection.connectAsync(connectAsyncCallback()), connectToBrowserPromise]);
+      await connectAndProvideCredentials(connection, connectToBrowserPromise);
       assert.strictEqual(error?.message, 'Error while getting SAML token: Browser action timed out after 100 ms.');
       await verifyConnectionIsNotUp(connection);
     });
@@ -78,7 +77,7 @@ describe('External browser authentication tests', function () {
     it('obtains the id token from the server and saves it on the local storage', async function () {
       connection = snowflake.createConnection(connectionOption);
       const provideCredentialsPromise = execWithTimeout('node', [provideBrowserCredentialsPath, 'success', login, password], 15000);
-      await Promise.allSettled([connection.connectAsync(connectAsyncCallback()), provideCredentialsPromise]);
+      await connectAndProvideCredentials(connection, provideCredentialsPromise);
       verifyNoErrorWasThrown();
       await verifyConnectionIsUp(connection);
     });
@@ -99,7 +98,7 @@ describe('External browser authentication tests', function () {
       await defaultCredentialManager.write(key, '1234');
       connection = snowflake.createConnection(connectionOption);
       const provideCredentialsPromise = execWithTimeout('node', [provideBrowserCredentialsPath, 'success', login, password], 15000);
-      await Promise.allSettled([connection.connectAsync(connectAsyncCallback()), provideCredentialsPromise]);
+      await connectAndProvideCredentials(connection, provideCredentialsPromise);
       verifyNoErrorWasThrown();
       await verifyConnectionIsUp(connection);
     });
@@ -113,6 +112,7 @@ describe('External browser authentication tests', function () {
   function connectAsyncCallback() {
     return function (err) {
       error = err;
+      callbackCompleted = true;
     };
   }
 
@@ -121,7 +121,29 @@ describe('External browser authentication tests', function () {
   }
 
   async function cleanBrowserProcesses() {
-    await execWithTimeout('node', [cleanBrowserProcessesPath], 15000);
+    if (process.env.RUN_AUTH_TESTS_MANUALLY !== 'true') {
+      await execWithTimeout('node', [cleanBrowserProcessesPath], 15000);
+    }
+  }
+
+  async function connectAndProvideCredentials(connection, provideCredentialsPromise) {
+    if (process.env.RUN_AUTH_TESTS_MANUALLY === 'true') {
+      await connection.connectAsync(connectAsyncCallback());
+    } else {
+      await Promise.allSettled([connection.connectAsync(connectAsyncCallback()), provideCredentialsPromise]);
+    }
+    await waitForCallbackCompletion();
+  }
+
+  async function waitForCallbackCompletion() {
+    const timeout = Date.now() + 5000;
+    while (Date.now() < timeout) {
+      await new Promise(resolve => setTimeout(resolve, 100));
+      if (callbackCompleted) {
+        return;
+      }
+    }
+    throw new Error('Connection callback did not complete');
   }
 });
 

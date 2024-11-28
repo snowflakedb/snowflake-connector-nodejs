@@ -1,7 +1,7 @@
 *.swp
 .idea
 .git
-parameters.json
+parameters*.json
 snowflake-sdk-*.tgz
 dist
 junit*.xml

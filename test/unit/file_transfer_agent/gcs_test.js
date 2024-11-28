@@ -64,34 +64,30 @@ describe('GCS client', function () {
     GCS = new SnowflakeGCSUtil(httpclient, filestream);
   });
 
-  describe('AWS client endpoint testing', async function () {
-    const originalStageInfo = meta.stageInfo;
+  describe('GCS client endpoint testing', async function () {
     const testCases = [
       {
         name: 'when useRegionalURL is only enabled',
         stageInfo: {
-          ...originalStageInfo,
-          useRegionalURL: true,
+          useRegionalUrl: true,
+          region: 'mockLocation',
         },
-        endPoint: null,
-        result: 'storage.mocklocation.rep.googleapis.com'
+        result: 'https://storage.mocklocation.rep.googleapis.com'
       },
       {
         name: 'when region is me-central2',
         stageInfo: {
-          ...originalStageInfo,
-          useRegionalURL: false,
-          endPoint: null,
+          useRegionalUrl: false,
           region: 'me-central2'
         },
-        result: 'storage.me-central2.rep.googleapis.com`'
+        result: 'https://storage.me-central2.rep.googleapis.com'
       },
     ];
 
     testCases.forEach(({ name, stageInfo, result }) => {
       it(name, () => {
-        const client = GCS.createClient(stageInfo);
-        assert.strictEqual(client.gcsClient.apiEndPoint, result);
+        const client = GCS.createClient({ ...stageInfo, ...meta.stageInfo, creds:{ GCS_ACCESS_TOKEN: "mockToken"} });
+        assert.strictEqual(client.gcsClient.apiEndpoint, result);
       } );
 
     });

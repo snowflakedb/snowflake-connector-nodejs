@@ -3,28 +3,60 @@ const snowflakeAuthTestHost = process.env.SNOWFLAKE_AUTH_TEST_HOST;
 const snowflakeAuthTestPort = process.env.SNOWFLAKE_AUTH_TEST_PORT;
 const snowflakeAuthTestAccount = process.env.SNOWFLAKE_AUTH_TEST_ACCOUNT;
 const snowflakeAuthTestRole = process.env.SNOWFLAKE_AUTH_TEST_ROLE;
-const snowflakeTestBrowserUser = process.env.SNOWFLAKE_AUTH_TEST_BROWSER_USER;
+const snowflakeAuthTestBrowserUser = process.env.SNOWFLAKE_AUTH_TEST_BROWSER_USER;
+const snowflakeAuthTestOktaAuth = process.env.SNOWFLAKE_AUTH_TEST_OKTA_AUTH;
+const snowflakeAuthTestOktaUser = process.env.SNOWFLAKE_AUTH_TEST_OKTA_USER;
 const snowflakeAuthTestOktaPass = process.env.SNOWFLAKE_AUTH_TEST_OKTA_PASS;
+const snowflakeAuthTestOauthUrl = process.env.SNOWFLAKE_AUTH_TEST_OAUTH_URL;
+const snowflakeAuthTestOauthClientId = process.env.SNOWFLAKE_AUTH_TEST_OAUTH_CLIENT_ID;
+const snowflakeAuthTestOauthClientSecret = process.env.SNOWFLAKE_AUTH_TEST_OAUTH_CLIENT_SECRET;
 const snowflakeAuthTestDatabase = process.env.SNOWFLAKE_AUTH_TEST_DATABASE;
 const snowflakeAuthTestWarehouse = process.env.SNOWFLAKE_AUTH_TEST_WAREHOUSE;
 const snowflakeAuthTestSchema = process.env.SNOWFLAKE_AUTH_TEST_SCHEMA;
 
 const accessUrlAuthTests = snowflakeAuthTestProtocol + '://' + snowflakeAuthTestHost + ':' +
-  snowflakeAuthTestPort;
+    snowflakeAuthTestPort;
+
+const baseParameters = 
+    {
+      accessUrl: accessUrlAuthTests,
+      account: snowflakeAuthTestAccount,
+      role: snowflakeAuthTestRole,
+      host: snowflakeAuthTestHost,
+      warehouse: snowflakeAuthTestWarehouse,
+      database: snowflakeAuthTestDatabase,
+      schema: snowflakeAuthTestSchema,
+    };
 
 const externalBrowser =
-  {
-    accessUrl: accessUrlAuthTests,
-    username: snowflakeTestBrowserUser,
-    account: snowflakeAuthTestAccount,
-    role: snowflakeAuthTestRole,
-    host: snowflakeAuthTestHost,
-    warehouse: snowflakeAuthTestWarehouse,
-    database: snowflakeAuthTestDatabase,
-    schema: snowflakeAuthTestSchema,
-    authenticator: 'EXTERNALBROWSER'
-  };
+    {
+      ...baseParameters,
+      username: snowflakeAuthTestBrowserUser,
+      authenticator: 'EXTERNALBROWSER'
+    };
+
+const okta =
+    {
+      ...baseParameters,
+      username: snowflakeAuthTestOktaUser,
+      password: snowflakeAuthTestOktaPass,
+      authenticator: snowflakeAuthTestOktaAuth
+    };
+
+const oauth =
+    {
+      ...baseParameters,
+      username: snowflakeAuthTestOktaUser,
+      authenticator: 'OAUTH'
+    };
 
 exports.externalBrowser = externalBrowser;
-exports.snowflakeTestBrowserUser = snowflakeTestBrowserUser;
+exports.okta = okta;
+exports.oauth = oauth;
+exports.snowflakeTestBrowserUser = snowflakeAuthTestBrowserUser;
+exports.snowflakeAuthTestOktaUser = snowflakeAuthTestOktaUser;
 exports.snowflakeAuthTestOktaPass = snowflakeAuthTestOktaPass;
+exports.snowflakeAuthTestRole = snowflakeAuthTestRole;
+exports.snowflakeAuthTestOauthClientId = snowflakeAuthTestOauthClientId;
+exports.snowflakeAuthTestOauthClientSecret = snowflakeAuthTestOauthClientSecret;
+exports.snowflakeAuthTestOauthUrl = snowflakeAuthTestOauthUrl;

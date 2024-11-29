@@ -21,11 +21,6 @@ const snowflakeTestPrivateKey = process.env.SNOWFLAKE_TEST_PRIVATE_KEY;
 const snowflakeTestPrivateKeyPath = process.env.SNOWFLAKE_TEST_PRIVATE_KEY_PATH;
 const snowflakeTestPrivateKeyPass = process.env.SNOWFLAKE_TEST_PRIVATE_KEY_PASS;
 const snowflakeTestPrivateKeyPathUnencrypted = process.env.SNOWFLAKE_TEST_PRIVATE_KEY_PATH_UNENCRYPTED;
-const snowflakeTestOauthUser = process.env.SNOWFLAKE_TEST_OAUTH_USER;
-const snowflakeTestToken = process.env.SNOWFLAKE_TEST_OAUTH_TOKEN;
-const snowflakeTestOktaUser = process.env.SNOWFLAKE_TEST_OKTA_USER;
-const snowflakeTestOktaPass = process.env.SNOWFLAKE_TEST_OKTA_PASS;
-const snowflakeTestOktaAuth = process.env.SNOWFLAKE_TEST_OKTA_AUTH;
 const snowflakeTestPasscode = process.env.SNOWFLAKE_TEST_PASSCODE;
 
 if (snowflakeTestProtocol === undefined) {
@@ -143,41 +138,6 @@ const MFA = {
   passcode: snowflakeTestPasscode,
 };
 
-const oauth =
-{
-  accessUrl: accessUrl,
-  username: snowflakeTestOauthUser,
-  account: snowflakeTestAccount,
-  warehouse: snowflakeTestWarehouse,
-  database: snowflakeTestDatabase,
-  schema: snowflakeTestSchema,
-  role: snowflakeTestRole,
-  token: snowflakeTestToken,
-  authenticator: 'OAUTH'
-};
-
-const oauthMismatchUser =
-{
-  accessUrl: accessUrl,
-  username: 'node',
-  account: snowflakeTestAccount,
-  token: snowflakeTestToken,
-  authenticator: 'OAUTH'
-};
-
-const okta =
-{
-  accessUrl: accessUrl,
-  username: snowflakeTestOktaUser,
-  password: snowflakeTestOktaPass,
-  account: snowflakeTestAccount,
-  warehouse: snowflakeTestWarehouse,
-  database: snowflakeTestDatabase,
-  schema: snowflakeTestSchema,
-  role: snowflakeTestRole,
-  authenticator: snowflakeTestOktaAuth
-};
-
 const privatelink =
 {
   accessUrl: accessUrl,
@@ -210,9 +170,6 @@ exports.keypairPrivateKey = keypairPrivateKey;
 exports.keypairPathEncrypted = keypairPathEncrypted;
 exports.keypairPathUnencrypted = keypairPathUnencrypted;
 exports.keypairWrongToken = keypairWrongToken;
-exports.oauth = oauth;
-exports.oauthMismatchUser = oauthMismatchUser;
-exports.okta = okta;
 exports.privatelink = privatelink;
 exports.connectionWithProxy = connectionWithProxy;
 exports.MFA = MFA;

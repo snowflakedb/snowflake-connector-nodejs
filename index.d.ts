@@ -220,7 +220,7 @@ declare module 'snowflake-sdk' {
 
         /**
          * @deprecated
-         * This option was deprecated. Please use disableOCSPChecks.
+         * This option is deprecated. Please use disableOCSPChecks.
          */
         insecureConnect?: boolean;
 

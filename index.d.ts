@@ -866,8 +866,8 @@ declare module 'snowflake-sdk' {
     }
 
     export interface FileAndStageBindStatement extends RowStatement {
-        hasNext(): () => boolean;
-        NextResult(): () => void;
+        hasNext: () => boolean;
+        NextResult: () => void;
     }
 
     export interface SnowflakeErrorExternal extends Error {

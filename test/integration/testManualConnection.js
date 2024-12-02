@@ -3,7 +3,6 @@
  */
 
 const snowflake = require('./../../lib/snowflake');
-const async = require('async');
 const assert = require('assert');
 const connOption = require('./connectionOptions');
 const testUtil = require('./testUtil');

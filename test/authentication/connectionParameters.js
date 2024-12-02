@@ -1,3 +1,4 @@
+const path = require('path');
 const snowflakeAuthTestProtocol = process.env.SNOWFLAKE_AUTH_TEST_PROTOCOL;
 const snowflakeAuthTestHost = process.env.SNOWFLAKE_AUTH_TEST_HOST;
 const snowflakeAuthTestPort = process.env.SNOWFLAKE_AUTH_TEST_PORT;
@@ -13,6 +14,10 @@ const snowflakeAuthTestOauthClientSecret = process.env.SNOWFLAKE_AUTH_TEST_OAUTH
 const snowflakeAuthTestDatabase = process.env.SNOWFLAKE_AUTH_TEST_DATABASE;
 const snowflakeAuthTestWarehouse = process.env.SNOWFLAKE_AUTH_TEST_WAREHOUSE;
 const snowflakeAuthTestSchema = process.env.SNOWFLAKE_AUTH_TEST_SCHEMA;
+const snowflakeAuthTestPrivateKeyPath = process.env.SNOWFLAKE_AUTH_TEST_PRIVATE_KEY_PATH;
+const snowflakeAuthTestInvalidPrivateKeyPath = process.env.SNOWFLAKE_AUTH_TEST_INVALID_PRIVATE_KEY_PATH;
+const snowflakeAuthTestPrivateKeyPassword = process.env.SNOWFLAKE_AUTH_TEST_PRIVATE_KEY_PASSWORD;
+const snowflakeAuthTestEncryptedPrivateKeyPath = process.env.SNOWFLAKE_AUTH_TEST_ENCRYPTED_PRIVATE_KEY_PATH;
 
 const accessUrlAuthTests = snowflakeAuthTestProtocol + '://' + snowflakeAuthTestHost + ':' +
     snowflakeAuthTestPort;
@@ -50,9 +55,36 @@ const oauth =
       authenticator: 'OAUTH'
     };
 
+const keypairPrivateKey =
+    {
+      ...baseParameters,
+      username: snowflakeAuthTestOktaUser,
+      authenticator: 'SNOWFLAKE_JWT'
+    };
+
+const keypairPrivateKeyPath =
+    {
+      ...baseParameters,
+      username: snowflakeAuthTestOktaUser,
+      privateKeyPath: snowflakeAuthTestPrivateKeyPath,
+      authenticator: 'SNOWFLAKE_JWT'
+    };
+
+const keypairEncryptedPrivateKeyPath =
+    {
+      ...baseParameters,
+      username: snowflakeAuthTestOktaUser,
+      privateKeyPass: snowflakeAuthTestPrivateKeyPassword,
+      privateKeyPath: snowflakeAuthTestEncryptedPrivateKeyPath,
+      authenticator: 'SNOWFLAKE_JWT'
+    };
+
 exports.externalBrowser = externalBrowser;
 exports.okta = okta;
 exports.oauth = oauth;
+exports.keypairPrivateKey = keypairPrivateKey;
+exports.keypairPrivateKeyPath = keypairPrivateKeyPath;
+exports.keypairEncryptedPrivateKeyPath = keypairEncryptedPrivateKeyPath;
 exports.snowflakeTestBrowserUser = snowflakeAuthTestBrowserUser;
 exports.snowflakeAuthTestOktaUser = snowflakeAuthTestOktaUser;
 exports.snowflakeAuthTestOktaPass = snowflakeAuthTestOktaPass;
@@ -60,3 +92,5 @@ exports.snowflakeAuthTestRole = snowflakeAuthTestRole;
 exports.snowflakeAuthTestOauthClientId = snowflakeAuthTestOauthClientId;
 exports.snowflakeAuthTestOauthClientSecret = snowflakeAuthTestOauthClientSecret;
 exports.snowflakeAuthTestOauthUrl = snowflakeAuthTestOauthUrl;
+exports.snowflakeAuthTestPrivateKeyPath = snowflakeAuthTestPrivateKeyPath;
+exports.snowflakeAuthTestInvalidPrivateKeyPath = snowflakeAuthTestInvalidPrivateKeyPath;

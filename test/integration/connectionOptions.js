@@ -16,11 +16,6 @@ const snowflakeTestRole = process.env.SNOWFLAKE_TEST_ROLE;
 const snowflakeTestPassword = process.env.SNOWFLAKE_TEST_PASSWORD;
 const snowflakeTestAdminUser = process.env.SNOWFLAKE_TEST_ADMIN_USER;
 const snowflakeTestAdminPassword = process.env.SNOWFLAKE_TEST_ADMIN_PASSWORD;
-const snowflakeTestPrivateKeyUser = process.env.SNOWFLAKE_JWT_TEST_USER;
-const snowflakeTestPrivateKey = process.env.SNOWFLAKE_TEST_PRIVATE_KEY;
-const snowflakeTestPrivateKeyPath = process.env.SNOWFLAKE_TEST_PRIVATE_KEY_PATH;
-const snowflakeTestPrivateKeyPass = process.env.SNOWFLAKE_TEST_PRIVATE_KEY_PASS;
-const snowflakeTestPrivateKeyPathUnencrypted = process.env.SNOWFLAKE_TEST_PRIVATE_KEY_PATH_UNENCRYPTED;
 const snowflakeTestPasscode = process.env.SNOWFLAKE_TEST_PASSCODE;
 
 if (snowflakeTestProtocol === undefined) {
@@ -83,55 +78,6 @@ const wrongPwd =
     account: snowflakeTestAccount
   };
 
-const keypairPrivateKey =
-{
-  accessUrl: accessUrl,
-  username: snowflakeTestPrivateKeyUser,
-  account: snowflakeTestAccount,
-  warehouse: snowflakeTestWarehouse,
-  database: snowflakeTestDatabase,
-  schema: snowflakeTestSchema,
-  role: snowflakeTestRole,
-  privateKey: snowflakeTestPrivateKey,
-  authenticator: 'SNOWFLAKE_JWT'
-};
-
-const keypairPathEncrypted =
-{
-  accessUrl: accessUrl,
-  username: snowflakeTestPrivateKeyUser,
-  account: snowflakeTestAccount,
-  warehouse: snowflakeTestWarehouse,
-  database: snowflakeTestDatabase,
-  schema: snowflakeTestSchema,
-  role: snowflakeTestRole,
-  privateKeyPath: snowflakeTestPrivateKeyPath,
-  privateKeyPass: snowflakeTestPrivateKeyPass,
-  authenticator: 'SNOWFLAKE_JWT'
-};
-
-const keypairPathUnencrypted =
-{
-  accessUrl: accessUrl,
-  username: snowflakeTestPrivateKeyUser,
-  account: snowflakeTestAccount,
-  warehouse: snowflakeTestWarehouse,
-  database: snowflakeTestDatabase,
-  schema: snowflakeTestSchema,
-  role: snowflakeTestRole,
-  privateKeyPath: snowflakeTestPrivateKeyPathUnencrypted,
-  authenticator: 'SNOWFLAKE_JWT'
-};
-
-const keypairWrongToken =
-{
-  accessUrl: accessUrl,
-  username: 'node',
-  account: snowflakeTestAccount,
-  privateKey: snowflakeTestPrivateKey,
-  authenticator: 'SNOWFLAKE_JWT'
-};
-
 const MFA = {
   ...valid,
   authenticator: 'USER_PWD_MFA_AUTHENTICATOR',
@@ -166,10 +112,6 @@ exports.wrongUserName = wrongUserName;
 exports.wrongPwd = wrongPwd;
 exports.accessUrl = accessUrl;
 exports.account = snowflakeTestAccount;
-exports.keypairPrivateKey = keypairPrivateKey;
-exports.keypairPathEncrypted = keypairPathEncrypted;
-exports.keypairPathUnencrypted = keypairPathUnencrypted;
-exports.keypairWrongToken = keypairWrongToken;
 exports.privatelink = privatelink;
 exports.connectionWithProxy = connectionWithProxy;
 exports.MFA = MFA;

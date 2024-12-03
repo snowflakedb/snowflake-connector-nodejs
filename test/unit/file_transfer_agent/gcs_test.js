@@ -82,6 +82,14 @@ describe('GCS client', function () {
         },
         result: 'https://storage.me-central2.rep.googleapis.com'
       },
+      {
+        name: 'when region is me-central2',
+        stageInfo: {
+          useRegionalUrl: false,
+          region: 'ME-cEntRal2'
+        },
+        result: 'https://storage.me-central2.rep.googleapis.com'
+      },
     ];
 
     testCases.forEach(({ name, stageInfo, result }) => {

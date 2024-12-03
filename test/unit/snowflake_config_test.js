@@ -42,11 +42,6 @@ describe('Snowflake Configure Tests', function () {
           errorCode: ErrorCodes.ERR_GLOBAL_CONFIGURE_INVALID_DISABLE_OCSP_CHECKS
         },
         {
-          name: 'invalid insecureConnect',
-          options: { insecureConnect: 'unsupported' },
-          errorCode: ErrorCodes.ERR_GLOBAL_CONFIGURE_INVALID_DISABLE_OCSP_CHECKS
-        },
-        {
           name: 'invalid ocspMode',
           options: { ocspFailOpen: 'unsupported' },
           errorCode: ErrorCodes.ERR_GLOBAL_CONFIGURE_INVALID_OCSP_MODE

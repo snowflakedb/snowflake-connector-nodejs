@@ -329,4 +329,63 @@ describe('Secret Detector', function () {
     assert.strictEqual(result.maskedtxt, 'otac=****');
     assert.strictEqual(result.errstr, null);
   });
+
+  it('test - url token masking', async function () {
+    const TEST_TOKEN_VALUE = 'ETMsDgAAAZNi6aPlABRBRVMvQ0JDL1BLQ1M1UGFkZGluZwEAABAAEExQLlI3h9PIi9TcCRVdwlEAAABQLsgIQdJ0%2B8eQhDMjViFuY5v03Daxt235tNHYVLNoIqM70yLw4zyVdPlkEi208dS88lSqRvPdgQ/RACU7u%2Bn9gWLiTZ79dkZwl4zQactAKJgAFCUrvbxA2tnUP%2BsX6nPBNBzVWnK5';
+    const TEST_TOKEN_VERSION_PREFIX = 'ver:1';
+    const TEST_TOKEN_HINT_PREFIX = 'hint:1036';
+    const TEST_TOKEN_PREFIX = TEST_TOKEN_VERSION_PREFIX + '-' + TEST_TOKEN_HINT_PREFIX + '-';
+
+    const tokenWithVersionAndHint = 'token=' + TEST_TOKEN_PREFIX + TEST_TOKEN_VALUE;
+    let result = SecretDetector.maskSecrets(tokenWithVersionAndHint);
+    assert.strictEqual(result.masked, true);
+    assert.strictEqual(result.maskedtxt, 'token=' + '****');
+    assert.strictEqual(result.errstr, null);
+
+    const tokenWithVersionAndHintAndManyEqualsSigns = 'token=====' + TEST_TOKEN_PREFIX + TEST_TOKEN_VALUE;
+    result = SecretDetector.maskSecrets(tokenWithVersionAndHintAndManyEqualsSigns);
+    assert.strictEqual(result.masked, true);
+    assert.strictEqual(result.maskedtxt, 'token=====' + '****');
+    assert.strictEqual(result.errstr, null);
+
+    const tokenWithVersionAndHintAndColon = 'token:' + TEST_TOKEN_PREFIX + TEST_TOKEN_VALUE;
+    result = SecretDetector.maskSecrets(tokenWithVersionAndHintAndColon);
+    assert.strictEqual(result.masked, true);
+    assert.strictEqual(result.maskedtxt, 'token:' + '****');
+    assert.strictEqual(result.errstr, null);
+
+
+    const TEST_NEXT_PARAMETER_NOT_TO_BE_MASKED = 'jobID=123fdas4-2133212-12';
+    const tokenWithVersionAndHintAndAnotherParameterToIgnore = 'token=' + TEST_TOKEN_PREFIX + TEST_TOKEN_VALUE + '&' + TEST_NEXT_PARAMETER_NOT_TO_BE_MASKED;
+    result = SecretDetector.maskSecrets(tokenWithVersionAndHintAndAnotherParameterToIgnore);
+    assert.strictEqual(result.masked, true);
+    assert.strictEqual(result.maskedtxt, 'token=' + '****' + '&' + TEST_NEXT_PARAMETER_NOT_TO_BE_MASKED);
+    assert.strictEqual(result.errstr, null);
+
+
+    const tokenWithVersionAndHintAndManySpaces = 'token    =    ' + TEST_TOKEN_PREFIX + TEST_TOKEN_VALUE;
+    result = SecretDetector.maskSecrets(tokenWithVersionAndHintAndManySpaces);
+    assert.strictEqual(result.masked, true);
+    assert.strictEqual(result.maskedtxt, 'token    =    ' + '****');
+    assert.strictEqual(result.errstr, null);
+
+
+    const tokenWithVersion = 'token=' + TEST_TOKEN_VERSION_PREFIX + '-' + TEST_TOKEN_VALUE;
+    result = SecretDetector.maskSecrets(tokenWithVersion);
+    assert.strictEqual(result.masked, true);
+    assert.strictEqual(result.maskedtxt, 'token=' + '****');
+    assert.strictEqual(result.errstr, null);
+
+    const tokenWithHint = 'token=' + TEST_TOKEN_HINT_PREFIX + '-' + TEST_TOKEN_VALUE;
+    result = SecretDetector.maskSecrets(tokenWithHint);
+    assert.strictEqual(result.masked, true);
+    assert.strictEqual(result.maskedtxt, 'token=' + '****');
+    assert.strictEqual(result.errstr, null);
+
+    const longToken = 'token=' + TEST_TOKEN_VALUE;
+    result = SecretDetector.maskSecrets(longToken);
+    assert.strictEqual(result.masked, true);
+    assert.strictEqual(result.maskedtxt, 'token=****');
+    assert.strictEqual(result.errstr, null);
+  });
 });

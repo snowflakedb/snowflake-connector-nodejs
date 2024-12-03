@@ -1057,6 +1057,42 @@ describe('Util', function () {
         parameters: ['a', 123, ['testing'], {}],
         result: true
       },
+      {
+        name: 'HTTPS PROXY with authentication without port and protocol',
+        isHttps: true,
+        noProxy: '*.amazonaws.com,*.my_company.com,*.test.com',
+        httpsProxy: 'myproxy.server.com',
+        result: {
+          host: 'myproxy.server.com',
+          port: 80,
+          protocol: 'http:',
+          noProxy: '*.amazonaws.com|*.my_company.com|*.test.com',
+        },
+      },
+      {
+        name: 'HTTP PROXY with authentication without port and protocol',
+        isHttps: false,
+        noProxy: '*.amazonaws.com,*.my_company.com,*.test.com',
+        httpProxy: 'myproxy.server.com',
+        result: {
+          host: 'myproxy.server.com',
+          port: 80,
+          protocol: 'http:',
+          noProxy: '*.amazonaws.com|*.my_company.com|*.test.com',
+        },
+      },
+      {
+        name: 'HTTPS PROXY with authentication without port',
+        isHttps: true,
+        noProxy: '*.amazonaws.com,*.my_company.com,*.test.com',
+        httpsProxy: 'https://myproxy.server.com',
+        result: {
+          host: 'myproxy.server.com',
+          port: 443,
+          protocol: 'https:',
+          noProxy: '*.amazonaws.com|*.my_company.com|*.test.com',
+        },
+      },
     ];
   
     for (const { name, parameters, result } of testCases) {

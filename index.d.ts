@@ -219,12 +219,6 @@ declare module 'snowflake-sdk' {
         additionalLogToConsole?: boolean | null;
 
         /**
-         * @deprecated
-         * This option is deprecated. Please use disableOCSPChecks.
-         */
-        insecureConnect?: boolean;
-
-        /**
          * The option to turn off the OCSP check.
          */
         disableOCSPChecks?: boolean;

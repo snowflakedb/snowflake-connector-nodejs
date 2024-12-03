@@ -140,20 +140,6 @@ describe('Snowflake Configure Tests', function () {
           }
         },
         {
-          name: 'insecureConnect false',
-          options:
-          {
-            insecureConnect: false
-          }
-        },
-        {
-          name: 'insecureConnect true',
-          options:
-          {
-            insecureConnect: true
-          }
-        },
-        {
           name: 'disableOCSPChecks false',
           options:
           {
@@ -234,8 +220,6 @@ describe('Snowflake Configure Tests', function () {
           if (key === 'logLevel') {
             val = Logger.getInstance().getLevelTag();
           } else if (key === 'disableOCSPChecks') {
-            val = GlobalConfig.isOCSPChecksDisabled();
-          } else if (key === 'insecureConnect') {
             val = GlobalConfig.isOCSPChecksDisabled();
           } else if (key === 'ocspFailOpen') {
             val = GlobalConfig.getOcspFailOpen();

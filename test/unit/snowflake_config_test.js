@@ -16,7 +16,6 @@ describe('Snowflake Configure Tests', function () {
     originalConfig = {
       logLevel: Logger.getInstance().getLevelTag(),
       disableOCSPChecks: GlobalConfig.isOCSPChecksDisabled(),
-      insecureConnect: GlobalConfig.isOCSPChecksDisabled(),
       ocspFailOpen: GlobalConfig.getOcspFailOpen(),
       keepAlive: GlobalConfig.getKeepAlive(),
       jsonColumnVariantParser: GlobalConfig.jsonColumnVariantParser,

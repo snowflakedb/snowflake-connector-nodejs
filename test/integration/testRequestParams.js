@@ -62,5 +62,4 @@ describe('SF service tests', async function () {
 
     await testUtil.destroyConnectionAsync(connection);
   });
-
 });

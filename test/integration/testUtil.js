@@ -373,7 +373,6 @@ HttpClientWithInterceptors.prototype.requestAsync = async function (url, options
 HttpClientWithInterceptors.prototype.request = function (url, options) {
   this.interceptors['request']?.['args'](url, options);
   const response = NodeHttpClient.prototype.request.call(this, url, options);
-  this.interceptors['request']?.['returned'](response);
   return response;
 };
 
@@ -390,3 +389,7 @@ function getHttpClientWithInterceptorsClass(interceptors) {
 
 
 module.exports.getHttpClientWithInterceptorsClass = getHttpClientWithInterceptorsClass;
+
+module.exports.isGuidInRequestOptions = function (requestOptions) {
+  return requestOptions.url.includes('request_guid') || 'request_guid' in requestOptions.params;
+};

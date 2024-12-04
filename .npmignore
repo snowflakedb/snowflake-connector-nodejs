@@ -20,3 +20,4 @@ ci/
 .pre-commit-config.yaml
 Jenkinsfile
 whitesource.config
+build

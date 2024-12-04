@@ -11,6 +11,8 @@ const crypto = require('crypto');
 const Logger = require('../../lib/logger');
 const path = require('path');
 const os = require('os');
+const Util = require('../../lib/util');
+const { NodeHttpClient } = require('../../lib/http/node');
 
 module.exports.createConnection = function (validConnectionOptionsOverride = {}) {
   return snowflake.createConnection({
@@ -19,8 +21,11 @@ module.exports.createConnection = function (validConnectionOptionsOverride = {})
   });
 };
 
-module.exports.createProxyConnection = function () {
-  return snowflake.createConnection(connOptions.connectionWithProxy);
+module.exports.createProxyConnection = function (validConnectionOptionsOverride) {
+  return snowflake.createConnection({
+    ...connOptions.connectionWithProxy,
+    ...validConnectionOptionsOverride
+  });
 };
 
 module.exports.createConnectionPool = function () {
@@ -346,3 +351,42 @@ module.exports.assertActiveConnectionDestroyedCorrectlyAsync = async function (c
 
 module.exports.normalizeRowObject = normalizeRowObject;
 module.exports.normalizeValue = normalizeValue;
+
+
+function HttpClientWithInterceptors(connectionConfig, interceptors) {
+  this.interceptors = interceptors;
+  Logger.getInstance().trace('Initializing HttpClientWithInterceptors with Connection Config[%s]',
+    connectionConfig.describeIdentityAttributes());
+  NodeHttpClient.apply(this, [connectionConfig]);
+}
+
+Util.inherits(HttpClientWithInterceptors, NodeHttpClient);
+
+
+HttpClientWithInterceptors.prototype.requestAsync = async function (url, options) {
+  this.interceptors['requestAsync']?.['args'](url, options);
+  const response = await NodeHttpClient.prototype.requestAsync.call(this, url, options);
+  this.interceptors['requestAsync']?.['returned'](response);
+  return response;
+};
+
+HttpClientWithInterceptors.prototype.request = function (url, options) {
+  this.interceptors['request']?.['args'](url, options);
+  const response = NodeHttpClient.prototype.request.call(this, url, options);
+  this.interceptors['request']?.['returned'](response);
+  return response;
+};
+
+// Factory method for HttpClientWithInterceptors to be able to partially initialize class
+// with interceptors used in fully instantiated object.
+function getHttpClientWithInterceptorsClass(interceptors) {
+  function HttpClientWithInterceptorsWrapper(connectionConfig) {
+    HttpClientWithInterceptors.apply(this, [connectionConfig, interceptors]);
+  }
+  Util.inherits(HttpClientWithInterceptorsWrapper, HttpClientWithInterceptors);
+
+  return HttpClientWithInterceptorsWrapper;
+}
+
+
+module.exports.getHttpClientWithInterceptorsClass = getHttpClientWithInterceptorsClass;

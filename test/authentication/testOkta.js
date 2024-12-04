@@ -28,11 +28,12 @@ describe('Okta authentication', function () {
     await authTest.verifyConnectionIsNotUp();
   });
 
-  it.skip('Wrong okta url', async function () {
+  //todo SNOW-1844747 improve error message
+  it('Wrong okta url', async function () {
     const connectionOption = { ...connParameters.okta, authenticator: 'https://testinvalidaccoount.com' };
     authTest.createConnection(connectionOption);
     await authTest.connectAsync();
-    authTest.verifyErrorWasThrown('');
+    authTest.verifyErrorWasThrown('Cannot read properties of null (reading \'ssoUrl\')');
     await authTest.verifyConnectionIsNotUp();
   });
 });

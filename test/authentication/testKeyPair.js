@@ -73,6 +73,7 @@ describe('Key-pair authentication', function () {
       await authTest.verifyConnectionIsUp();
     });
 
+    //todo SNOW-1844747 improve error message
     it('Invalid private key password', async function () {
       const connectionOption = { ...connParameters.keypairEncryptedPrivateKeyPath, privateKeyPass: 'invalid' };
       authTest.createConnection(connectionOption);

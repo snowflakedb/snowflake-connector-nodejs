@@ -455,7 +455,7 @@ describe('Execute test - variant', function () {
 
     it('Do not INSERT twice when the same request id and connection', async () => {
       let requestId;
-      await testUtil.executeCmdAsyncWithAdditionalParameters(firstConnection, 'INSERT INTO test_request_id VALUES (\'testValue\');')
+      await testUtil.executeCmdAsyncWithAdditionalParameters(firstConnection, 'INSERT INTO test_request_id VALUES (\'testValue\');');
       await testUtil.executeCmdAsyncWithAdditionalParameters(firstConnection, 'INSERT INTO test_request_id VALUES (\'testValue\');')
         .then((result) => {
           requestId = result.rowStatement.getRequestId();

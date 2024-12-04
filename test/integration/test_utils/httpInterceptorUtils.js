@@ -39,8 +39,9 @@ class Interceptors {
   }
 
   intercept(methodName, hookType, ...args) {
+    // When no interceptor registered - ignores and does not raise any error
     try {
-      return this.get(methodName, hookType).execute(...args);
+      return this.get(methodName, hookType)?.execute(...args);
     } catch (e) {
       throw 'Unable to execute interceptor method in tests.  Error: ' + e;
     }

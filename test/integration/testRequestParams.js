@@ -3,23 +3,28 @@
  */
 
 const testUtil = require('./testUtil');
-const assert = require('node:assert');
-const snowflake = require('../../lib/snowflake');
-const { NodeHttpClient } = require('../../lib/http/node');
+const assert = require('assert');
 const httpInterceptorUtils = require('./test_utils/httpInterceptorUtils');
+const Core = require('../../lib/core');
+const Util = require('../../lib/util');
 
 describe('SF service tests', function () {
   const selectPiTxt = 'select PI();';
-  const interceptors = new httpInterceptorUtils.Interceptors();
+  let interceptors;
+  let coreInstance;
 
   before(async function () {
+    interceptors = new httpInterceptorUtils.Interceptors();
     const HttpClientClassWithInterceptors = httpInterceptorUtils.getHttpClientWithInterceptorsClass(interceptors);
-    snowflake.configure({ httpClientClass: HttpClientClassWithInterceptors });
-  });
-  
-  after(async function () {
-    // TODO: this may cause flaky test
-    snowflake.configure({ httpClientClass: NodeHttpClient });
+    coreInstance = Core({
+      httpClientClass: HttpClientClassWithInterceptors,
+      loggerClass: require('./../../lib/logger/node'),
+      client: {
+        version: Util.driverVersion,
+        name: Util.driverName,
+        environment: process.versions,
+      },
+    });
   });
 
   it('GUID called for all', async function () {
@@ -50,7 +55,7 @@ describe('SF service tests', function () {
     }
     interceptors.add('request', httpInterceptorUtils.HOOK_TYPE.FOR_ARGS, countCallsWithGuid);
 
-    const connection = testUtil.createConnection();
+    const connection = testUtil.createConnection({}, coreInstance);
     await testUtil.connectAsync(connection);
     await testUtil.executeCmdAsync(connection, selectPiTxt);
 
@@ -62,5 +67,6 @@ describe('SF service tests', function () {
     );
 
     await testUtil.destroyConnectionAsync(connection);
+    interceptors.clear();
   });
 });

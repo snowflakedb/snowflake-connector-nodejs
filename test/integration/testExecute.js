@@ -432,7 +432,7 @@ describe('Execute test - variant', function () {
     it(testCase.name, createItCallback(testCase, rowAsserts));
   });
 
-  describe.only( 'connection.execute() Resubmitting requests using requestId and different connections', function () {
+  describe( 'connection.execute() Resubmitting requests using requestId and different connections', function () {
     const createTable = 'create or replace table test_request_id(colA string)';
     let  firstConnection;
     let  secondConnection;
@@ -441,7 +441,6 @@ describe('Execute test - variant', function () {
       secondConnection = testUtil.createConnection();
       await testUtil.connectAsync(firstConnection);
       await testUtil.connectAsync(secondConnection);
-      await testUtil.executeCmdAsync(firstConnection, 'truncate table if exists test_request_id');
       await testUtil.executeCmdAsync(firstConnection, createTable);
     });
 
@@ -451,65 +450,48 @@ describe('Execute test - variant', function () {
 
     after(async () => {
       await testUtil.executeCmdAsync(firstConnection, 'drop table if exists test_request_id');
+      await testUtil.destroyConnectionAsync(firstConnection);
+      await testUtil.destroyConnectionAsync(secondConnection);
     });
 
     it('Do not INSERT twice when the same request id and connection', async () => {
-      let requestId;
-      await testUtil.executeCmdAsyncWithAdditionalParameters(firstConnection, 'INSERT INTO test_request_id VALUES (\'testValue\');')
-        .then((result) => {
-          requestId = result.rowStatement.getRequestId();
-        });
+      let result;
+      result = await testUtil.executeCmdAsyncWithAdditionalParameters(firstConnection, 'INSERT INTO test_request_id VALUES (\'testValue\');');
+      const requestId = result.rowStatement.getRequestId();
 
-      await testUtil.executeCmdAsyncWithAdditionalParameters(firstConnection,
+      result = await testUtil.executeCmdAsyncWithAdditionalParameters(firstConnection,
         'INSERT INTO test_request_id VALUES (\'testValue\');', 
-        { requestId: requestId })
-        .then((result) => {
-          assert.strictEqual(result.rowStatement.getRequestId(), requestId);
-        });
+        { requestId: requestId });
+      assert.strictEqual(result.rowStatement.getRequestId(), requestId);
 
-      await testUtil.executeCmdAsyncWithAdditionalParameters(firstConnection, 'SELECT * from test_request_id ;')
-        .then((result) => {
-          assert.strictEqual(result.rows.length, 1);
-        });
+      result = await testUtil.executeCmdAsyncWithAdditionalParameters(firstConnection, 'SELECT * from test_request_id ;');
+      assert.strictEqual(result.rows.length, 1);
     });
 
     it('Execute INSERT for the same request id and different connection', async () => {
-      let requestId;
-      await testUtil.executeCmdAsyncWithAdditionalParameters(firstConnection, 'INSERT INTO test_request_id VALUES (\'testValue\');')
-        .then((result) => {
-          requestId = result.rowStatement.getRequestId();
-        });
+      let result;
+      result = await testUtil.executeCmdAsyncWithAdditionalParameters(firstConnection, 'INSERT INTO test_request_id VALUES (\'testValue\');');
+      const requestId = result.rowStatement.getRequestId();
 
-      await testUtil.executeCmdAsyncWithAdditionalParameters(secondConnection, 'INSERT INTO test_request_id VALUES (\'testValue\');', { requestId: requestId })
-        .then((result) => {
-          assert.strictEqual(result.rowStatement.getRequestId(), requestId);
-        });
+      result = await testUtil.executeCmdAsyncWithAdditionalParameters(secondConnection, 'INSERT INTO test_request_id VALUES (\'testValue\');', { requestId: requestId });
+      assert.strictEqual(result.rowStatement.getRequestId(), requestId);
 
-      await testUtil.executeCmdAsyncWithAdditionalParameters(firstConnection, 'SELECT * from test_request_id ;')
-        .then((result) => {
-          assert.strictEqual(result.rows.length, 2);
-        });
+      result = await testUtil.executeCmdAsyncWithAdditionalParameters(firstConnection, 'SELECT * from test_request_id ;');
+      assert.strictEqual(result.rows.length, 2);
     });
 
     it('Execute SELECT for the same request id and different data', async () => {
-      let requestId;
       await testUtil.executeCmdAsyncWithAdditionalParameters(firstConnection, 'INSERT INTO test_request_id VALUES (\'testValue\');');
-      await testUtil.executeCmdAsyncWithAdditionalParameters(firstConnection, 'SELECT * from test_request_id;')
-        .then((result) => {
-          assert.strictEqual(result.rows.length, 1);
-          requestId = result.rowStatement.getRequestId();
-        });
+      let result = await testUtil.executeCmdAsyncWithAdditionalParameters(firstConnection, 'SELECT * from test_request_id;');
+      assert.strictEqual(result.rows.length, 1);
+      const requestId = result.rowStatement.getRequestId();
 
       await testUtil.executeCmdAsyncWithAdditionalParameters(firstConnection, 'INSERT INTO test_request_id VALUES (\'testValue\');');
-      await testUtil.executeCmdAsyncWithAdditionalParameters(firstConnection, 'SELECT * from test_request_id;', { requestId: requestId })
-        .then((result) => {
-          assert.strictEqual(result.rows.length, 1);
-        });
+      result = await testUtil.executeCmdAsyncWithAdditionalParameters(firstConnection, 'SELECT * from test_request_id;', { requestId: requestId });
+      assert.strictEqual(result.rows.length, 1);
 
-      await testUtil.executeCmdAsyncWithAdditionalParameters(firstConnection, 'SELECT * from test_request_id ;')
-        .then((result) => {
-          assert.strictEqual(result.rows.length, 2);
-        });
+      result = await testUtil.executeCmdAsyncWithAdditionalParameters(firstConnection, 'SELECT * from test_request_id ;');
+      assert.strictEqual(result.rows.length, 2);
     });
   });
 

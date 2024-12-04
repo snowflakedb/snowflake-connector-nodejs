@@ -67,28 +67,67 @@ describe('GCS client', function () {
   describe('GCS client endpoint testing', async function () {
     const testCases = [
       {
-        name: 'when useRegionalURL is only enabled',
+        name: 'when the useRegionalURL is only enabled',
         stageInfo: {
+          endPoint: null,
           useRegionalUrl: true,
           region: 'mockLocation',
         },
         result: 'https://storage.mocklocation.rep.googleapis.com'
       },
       {
-        name: 'when region is me-central2',
+        name: 'when the region is me-central2',
         stageInfo: {
+          endPoint: null,
           useRegionalUrl: false,
           region: 'me-central2'
         },
         result: 'https://storage.me-central2.rep.googleapis.com'
       },
       {
-        name: 'when region is me-central2',
+        name: 'when the region is me-central2 (mixed case)',
         stageInfo: {
+          endPoint: null,
           useRegionalUrl: false,
           region: 'ME-cEntRal2'
         },
         result: 'https://storage.me-central2.rep.googleapis.com'
+      },
+      {
+        name: 'when the region is me-central2 (uppercase)',
+        stageInfo: {
+          endPoint: null,
+          useRegionalUrl: false,
+          region: 'ME-CENTRAL2'
+        },
+        result: 'https://storage.me-central2.rep.googleapis.com'
+      },
+      {
+        name: 'when the endPoint is specified',
+        stageInfo: {
+          endPoint: 'https://storage.specialEndPoint.rep.googleapis.com',
+          useRegionalUrl: false,
+          region: 'ME-cEntRal1'
+        },
+        result: 'https://storage.specialEndPoint.rep.googleapis.com'
+      },
+      {
+        name: 'when both the endPoint and the useRegionalUrl are specified',
+        stageInfo: {
+          endPoint: 'https://storage.specialEndPoint.rep.googleapis.com',
+          useRegionalUrl: true,
+          region: 'ME-cEntRal1'
+        },
+        result: 'https://storage.specialEndPoint.rep.googleapis.com'
+      },
+      {
+        name: 'when both the endPoint is specified and the region is me-central2',
+        stageInfo: {
+          endPoint: 'https://storage.specialEndPoint.rep.googleapis.com',
+          useRegionalUrl: true,
+          region: 'ME-CENTRAL2'
+        },
+        result: 'https://storage.specialEndPoint.rep.googleapis.com'
       },
     ];
 

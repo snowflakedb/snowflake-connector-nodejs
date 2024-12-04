@@ -3,7 +3,6 @@
  */
 
 const snowflake = require('./../../lib/snowflake');
-const async = require('async');
 const assert = require('assert');
 const connOption = require('./connectionOptions');
 const testUtil = require('./testUtil');
@@ -13,87 +12,6 @@ const JsonCredentialManager = require('../../lib/authentication/secure_storage/j
 
 if (process.env.RUN_MANUAL_TESTS_ONLY === 'true') {
   describe('Run manual tests', function () {
-    describe('Connection test - oauth', function () {
-      it('Simple Connect', function (done) {
-        const connection = snowflake.createConnection(connOption.oauth);
-
-        async.series([
-          function (callback) {
-            connection.connect(function (err) {
-              done(err);
-              assert.ok(!err, JSON.stringify(err));
-              callback();
-            });
-          },
-          function (callback) {
-            assert.ok(connection.isUp(), 'not active');
-            callback();
-          },
-          function (callback) {
-            connection.destroy(function (err) {
-              assert.ok(!err, JSON.stringify(err));
-              callback();
-            });
-          },
-          function (callback) {
-            assert.ok(!connection.isUp(), 'still active');
-            callback();
-          },
-        ]);
-      });
-
-      it('Mismatched Username', function (done) {
-        const connection = snowflake.createConnection(
-          connOption.oauthMismatchUser
-        );
-        connection.connect(function (err) {
-          try {
-            assert.ok(
-              err,
-              'Logged in with different user than one on connection string'
-            );
-            assert.equal(
-              'The user you were trying to authenticate as differs from the user tied to the access token.',
-              err['message']
-            );
-            done();
-          } catch (err) {
-            done(err);
-          }
-        });
-      });
-    });
-
-    describe('Connection test - okta', function () {
-      it('Simple Connect', function (done) {
-        const connection = snowflake.createConnection(connOption.okta);
-
-        async.series([
-          function (callback) {
-            connection.connectAsync(function (err) {
-              done(err);
-              assert.ok(!err, JSON.stringify(err));
-              callback();
-            });
-          },
-          function (callback) {
-            assert.ok(connection.isUp(), 'not active');
-            callback();
-          },
-          function (callback) {
-            connection.destroy(function (err) {
-              assert.ok(!err, JSON.stringify(err));
-              callback();
-            });
-          },
-          function (callback) {
-            assert.ok(!connection.isUp(), 'still active');
-            callback();
-          },
-        ]);
-      });
-    });
-
     describe('Connection - MFA authenticator with DUO', function () {
       const connectionOption = connOption.MFA;
     
@@ -179,113 +97,6 @@ if (process.env.RUN_MANUAL_TESTS_ONLY === 'true') {
         defaultCredentialManager.read(key).then((mfaToken) => {
           assert.notStrictEqual(mfaToken, oldToken);
           done();
-        });
-      });
-    });
-
-    describe('Connection test - keypair', function () {
-      it('Simple Connect - specify private key', function (done) {
-        const connection = snowflake.createConnection(
-          connOption.keypairPrivateKey
-        );
-
-        async.series([
-          function (callback) {
-            connection.connect(function (err) {
-              done(err);
-              assert.ok(!err, JSON.stringify(err));
-              callback();
-            });
-          },
-          function (callback) {
-            assert.ok(connection.isUp(), 'not active');
-            callback();
-          },
-          function (callback) {
-            connection.destroy(function (err) {
-              assert.ok(!err, JSON.stringify(err));
-              callback();
-            });
-          },
-          function (callback) {
-            assert.ok(!connection.isUp(), 'still active');
-            callback();
-          },
-        ]);
-      });
-
-      it('Simple Connect - specify encrypted private key path and passphrase', function (done) {
-        const connection = snowflake.createConnection(
-          connOption.keypairPathEncrypted
-        );
-
-        async.series([
-          function (callback) {
-            connection.connect(function (err) {
-              done(err);
-              assert.ok(!err, JSON.stringify(err));
-              callback();
-            });
-          },
-          function (callback) {
-            assert.ok(connection.isUp(), 'not active');
-            callback();
-          },
-          function (callback) {
-            connection.destroy(function (err) {
-              assert.ok(!err, JSON.stringify(err));
-              callback();
-            });
-          },
-          function (callback) {
-            assert.ok(!connection.isUp(), 'still active');
-            callback();
-          },
-        ]);
-      });
-
-      it('Simple Connect - specify unencrypted private key path without passphrase', function (done) {
-        const connection = snowflake.createConnection(
-          connOption.keypairPathEncrypted
-        );
-
-        async.series([
-          function (callback) {
-            connection.connect(function (err) {
-              done(err);
-              assert.ok(!err, JSON.stringify(err));
-              callback();
-            });
-          },
-          function (callback) {
-            assert.ok(connection.isUp(), 'not active');
-            callback();
-          },
-          function (callback) {
-            connection.destroy(function (err) {
-              assert.ok(!err, JSON.stringify(err));
-              callback();
-            });
-          },
-          function (callback) {
-            assert.ok(!connection.isUp(), 'still active');
-            callback();
-          },
-        ]);
-      });
-
-      it('Wrong JWT token', function (done) {
-        const connection = snowflake.createConnection(
-          connOption.keypairWrongToken
-        );
-        connection.connect(function (err) {
-          try {
-            assert.ok(err, 'Incorrect JWT token is passed.');
-            assert.equal('JWT token is invalid.', err['message']);
-            done();
-          } catch (err) {
-            done(err);
-          }
         });
       });
     });

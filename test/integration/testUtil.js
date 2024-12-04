@@ -348,47 +348,8 @@ module.exports.assertActiveConnectionDestroyedCorrectlyAsync = async function (c
   module.exports.assertConnectionInactive(connection);
 };
 
-
 module.exports.normalizeRowObject = normalizeRowObject;
 module.exports.normalizeValue = normalizeValue;
-
-
-function HttpClientWithInterceptors(connectionConfig, interceptors) {
-  this.interceptors = interceptors;
-  Logger.getInstance().trace('Initializing HttpClientWithInterceptors with Connection Config[%s]',
-    connectionConfig.describeIdentityAttributes());
-  NodeHttpClient.apply(this, [connectionConfig]);
-}
-
-Util.inherits(HttpClientWithInterceptors, NodeHttpClient);
-
-
-HttpClientWithInterceptors.prototype.requestAsync = async function (url, options) {
-  this.interceptors['requestAsync']?.['args'](url, options);
-  const response = await NodeHttpClient.prototype.requestAsync.call(this, url, options);
-  this.interceptors['requestAsync']?.['returned'](response);
-  return response;
-};
-
-HttpClientWithInterceptors.prototype.request = function (url, options) {
-  this.interceptors['request']?.['args'](url, options);
-  const response = NodeHttpClient.prototype.request.call(this, url, options);
-  return response;
-};
-
-// Factory method for HttpClientWithInterceptors to be able to partially initialize class
-// with interceptors used in fully instantiated object.
-function getHttpClientWithInterceptorsClass(interceptors) {
-  function HttpClientWithInterceptorsWrapper(connectionConfig) {
-    HttpClientWithInterceptors.apply(this, [connectionConfig, interceptors]);
-  }
-  Util.inherits(HttpClientWithInterceptorsWrapper, HttpClientWithInterceptors);
-
-  return HttpClientWithInterceptorsWrapper;
-}
-
-
-module.exports.getHttpClientWithInterceptorsClass = getHttpClientWithInterceptorsClass;
 
 module.exports.isGuidInRequestOptions = function (requestOptions) {
   return requestOptions.url.includes('request_guid') || 'request_guid' in requestOptions.params;

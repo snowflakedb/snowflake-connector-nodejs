@@ -6,13 +6,14 @@ const testUtil = require('./testUtil');
 const assert = require('node:assert');
 const snowflake = require('../../lib/snowflake');
 const { NodeHttpClient } = require('../../lib/http/node');
+const httpInterceptorUtils = require('./test_utils/httpInterceptorUtils');
 
-describe('SF service tests', async function () {
+describe('SF service tests', function () {
   const selectPiTxt = 'select PI();';
-  const interceptors = {};
+  const interceptors = new httpInterceptorUtils.Interceptors();
 
   before(async function () {
-    const HttpClientClassWithInterceptors = testUtil.getHttpClientWithInterceptorsClass(interceptors);
+    const HttpClientClassWithInterceptors = httpInterceptorUtils.getHttpClientWithInterceptorsClass(interceptors);
     snowflake.configure({ httpClientClass: HttpClientClassWithInterceptors });
   });
   
@@ -47,7 +48,7 @@ describe('SF service tests', async function () {
         totalCallsWithGUIDCount++;
       }
     }
-    interceptors['request'] = { args: countCallsWithGuid };
+    interceptors.add('request', httpInterceptorUtils.HOOK_TYPE.FOR_ARGS, countCallsWithGuid);
 
     const connection = testUtil.createConnection();
     await testUtil.connectAsync(connection);

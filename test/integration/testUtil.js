@@ -96,6 +96,18 @@ const executeCmdAsync = function (connection, sqlText, binds = undefined) {
 
 module.exports.executeCmdAsync = executeCmdAsync;
 
+const executeCmdAsyncWithAdditionalParameters = function (connection, sqlText, additionalParameters) {
+  return new Promise((resolve, reject) => {
+    const executeParams = { ...{
+      sqlText: sqlText,
+      complete: (err, rowStatement, rows) =>
+        err ? reject(err) : resolve({ rowStatement: rowStatement, rows: rows })
+    }, ...additionalParameters };
+    connection.execute(executeParams);
+  });
+};
+
+module.exports.executeCmdAsyncWithAdditionalParameters = executeCmdAsyncWithAdditionalParameters;
 /**
  * Drop tables one by one if exist - any connection error is ignored
  * @param connection Connection

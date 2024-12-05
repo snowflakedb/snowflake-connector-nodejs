@@ -30,7 +30,6 @@ class Interceptors {
     if (!interceptor) {
       interceptor = new Interceptor(methodName, hookType, callback);
     }
-    // this.interceptorsMap.get(interceptor.methodName)[interceptor.hookType] = interceptor;
     this.interceptorsMap[interceptor.methodName][interceptor.hookType] = interceptor;
   }
 

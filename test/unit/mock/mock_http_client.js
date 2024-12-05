@@ -36,13 +36,13 @@ MockHttpClient.prototype.request = function (request) {
     this._mapRequestToOutput =
       buildRequestToOutputMap(buildRequestOutputMappings(this._clientInfo));
   }
-  removeTrailingParamFromRequestUrl(request, 'request_guid');
+  removeParamFromRequestUrl(request, 'request_guid');
   removeParamFromRequestParams(request, 'request_guid');
 
   // Closing a connection includes a requestID as a query parameter in the url
   // Example: http://fake504.snowflakecomputing.com/session?delete=true&requestId=a40454c6-c3bb-4824-b0f3-bae041d9d6a2
   if (request.url.includes('session?delete=true') || request.url.includes('session/heartbeat?requestId=')) {
-    removeTrailingParamFromRequestUrl(request, 'requestId');
+    removeParamFromRequestUrl(request, 'requestId');
   }
 
   // get the output of the specified request from the map
@@ -83,13 +83,13 @@ MockHttpClient.prototype.requestAsync = function (request) {
     this._mapRequestToOutput =
       buildRequestToOutputMap(buildRequestOutputMappings(this._clientInfo));
   }
-  removeTrailingParamFromRequestUrl(request, 'request_guid');
+  removeParamFromRequestUrl(request, 'request_guid');
   removeParamFromRequestParams(request, 'request_guid');
 
   // Closing a connection includes a requestID as a query parameter in the url
   // Example: http://fake504.snowflakecomputing.com/session?delete=true&requestId=a40454c6-c3bb-4824-b0f3-bae041d9d6a2
   if (request.url.includes('session?delete=true') || request.url.includes('session/heartbeat?requestId=')) {
-    removeTrailingParamFromRequestUrl(request, 'requestId');
+    removeParamFromRequestUrl(request, 'requestId');
   }
 
   // get the output of the specified request from the map
@@ -173,7 +173,7 @@ function createSortedClone(target) {
   return sortedClone;
 }
 
-function removeTrailingParamFromRequestUrl(request, paramName) {
+function removeParamFromRequestUrl(request, paramName) {
   try {
     // Use the URL constructor to parse the URL
     const urlObj = new URL(request.url);

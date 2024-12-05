@@ -44,7 +44,7 @@ describe('S3 client', function () {
 
   before(function () {
     mock('s3', {
-      S3: function () {
+      S3: function (config) {
         function S3() {
           this.getObject = function () {
             function getObject() {
@@ -57,6 +57,8 @@ describe('S3 client', function () {
 
             return new getObject;
           };
+          
+          this.config = config;
           this.putObject = function () {
             function putObject() {
               this.then = function (callback) {
@@ -81,6 +83,59 @@ describe('S3 client', function () {
 
     AWS = new SnowflakeS3Util(noProxyConnectionConfig, s3, filesystem);
   });
+
+  describe('AWS client endpoint testing', async function () {
+    const originalStageInfo = meta.stageInfo;
+    const testCases = [
+      {
+        name: 'when useS3RegionalURL is only enabled',
+        stageInfo: {
+          ...originalStageInfo,
+          useS3RegionalUrl: true,
+          endPoint: null,
+        },
+        result: null
+      },
+      {
+        name: 'when useS3RegionalURL and is enabled and domain starts with cn',
+        stageInfo: {
+          ...originalStageInfo,
+          useS3RegionalUrl: true,
+          endPoint: null,
+          region: 'cn-mockLocation'
+        },
+        result: 'https://s3.cn-mockLocation.amazonaws.com.cn'
+      },
+      {
+        name: 'when endPoint is enabled',
+        stageInfo: {
+          ...originalStageInfo,
+          endPoint: 's3.endpoint',
+          useS3RegionalUrl: false
+        },
+        result: 'https://s3.endpoint'
+      },
+      {
+        name: 'when both endPoint and useS3PReiongalUrl is valid',
+        stageInfo: {
+          ...originalStageInfo,
+          endPoint: 's3.endpoint',
+          useS3RegionalUrl: true,
+
+        },
+        result: 'https://s3.endpoint'
+      },
+    ];
+
+    testCases.forEach(({ name, stageInfo, result }) => {
+      it(name, () => {
+        const client = AWS.createClient(stageInfo);
+        assert.strictEqual(client.config.endpoint, result);
+      } );
+
+    });
+  });
+
 
   it('extract bucket name and path', async function () {
     let result = extractBucketNameAndPath('sfc-eng-regression/test_sub_dir/');

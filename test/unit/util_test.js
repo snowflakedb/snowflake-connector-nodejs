@@ -966,15 +966,15 @@ describe('Util', function () {
   });
 
   describe('test valid custom credential manager', function () {
-      
+
     function sampleManager() {
       this.read = function () {};
-    
+
       this.write = function () {};
-    
+
       this.remove = function () {};
     }
-    
+
     const testCases = [
       {
         name: 'credential manager is an int',
@@ -1065,7 +1065,6 @@ describe('Util', function () {
       });
     }
   });
-});
 
 if (os.platform() !== 'win32') {
   describe('Util.isFileNotWritableByGroupOrOthers()', function () {
@@ -1206,12 +1205,14 @@ describe('getEnvVar function Test', function () {
     },
   ];
 
-  for (const { name, value, } of testCases) {
-    it(name, function () {
-      process.env[name] = value;
-      assert.strictEqual(Util.getEnvVar('snowflake_env_test'), value);
-      assert.strictEqual(Util.getEnvVar('SNOWFLAKE_ENV_TEST'), value);
-      delete process.env[name];
-    });
-  }
+    for (const { name, value, } of testCases) {
+      it(name, function () {
+        process.env[name] = value;
+        assert.strictEqual(Util.getEnvVar('snowflake_env_test'), value);
+        assert.strictEqual(Util.getEnvVar('SNOWFLAKE_ENV_TEST'), value);
+        delete process.env[name];
+      });
+    }
+  });
+
 });

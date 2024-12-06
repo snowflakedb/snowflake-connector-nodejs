@@ -15,7 +15,7 @@ describe('Snowflake Configure Tests', function () {
   before(function () {
     originalConfig = {
       logLevel: Logger.getInstance().getLevelTag(),
-      insecureConnect: GlobalConfig.isInsecureConnect(),
+      disableOCSPChecks: GlobalConfig.isOCSPChecksDisabled(),
       ocspFailOpen: GlobalConfig.getOcspFailOpen(),
       keepAlive: GlobalConfig.getKeepAlive(),
       jsonColumnVariantParser: GlobalConfig.jsonColumnVariantParser,
@@ -36,9 +36,9 @@ describe('Snowflake Configure Tests', function () {
           errorCode: ErrorCodes.ERR_GLOBAL_CONFIGURE_INVALID_LOG_LEVEL
         },
         {
-          name: 'invalid insecureConnect',
-          options: { insecureConnect: 'unsupported' },
-          errorCode: ErrorCodes.ERR_GLOBAL_CONFIGURE_INVALID_INSECURE_CONNECT
+          name: 'invalid disableOCSPChecks',
+          options: { disableOCSPChecks: 'unsupported' },
+          errorCode: ErrorCodes.ERR_GLOBAL_CONFIGURE_INVALID_DISABLE_OCSP_CHECKS
         },
         {
           name: 'invalid ocspMode',
@@ -134,17 +134,17 @@ describe('Snowflake Configure Tests', function () {
           }
         },
         {
-          name: 'insecureConnect false',
+          name: 'disableOCSPChecks false',
           options:
           {
-            insecureConnect: false
+            disableOCSPChecks: false
           }
         },
         {
-          name: 'insecureConnect true',
+          name: 'disableOCSPChecks true',
           options:
           {
-            insecureConnect: true
+            disableOCSPChecks: true
           }
         },
         {
@@ -213,8 +213,8 @@ describe('Snowflake Configure Tests', function () {
           let val;
           if (key === 'logLevel') {
             val = Logger.getInstance().getLevelTag();
-          } else if (key === 'insecureConnect') {
-            val = GlobalConfig.isInsecureConnect();
+          } else if (key === 'disableOCSPChecks') {
+            val = GlobalConfig.isOCSPChecksDisabled();
           } else if (key === 'ocspFailOpen') {
             val = GlobalConfig.getOcspFailOpen();
           } else if (key === 'keepAlive') {

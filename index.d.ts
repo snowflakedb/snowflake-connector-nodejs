@@ -619,9 +619,9 @@ declare module 'snowflake-sdk' {
          * The request GUID is a unique identifier of an HTTP request issued to Snowflake.
          * Unlike the requestId, it is regenerated even when the request is resend with the retry mechanism.
          * If not specified, request GUIDs are attached to all requests to Snowflake for better traceability.
-         * In the majority of cases it should not be set or filled with true value.
+         * In the majority of cases it should not be set or filled with false value.
          */
-        includeGuid?: string;
+        excludeGuid?: string;
 
         /**
          * Use different rest endpoints based on whether the query id is available.

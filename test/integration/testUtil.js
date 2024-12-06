@@ -12,19 +12,31 @@ const Logger = require('../../lib/logger');
 const path = require('path');
 const os = require('os');
 
-module.exports.createConnection = function (validConnectionOptionsOverride = {}) {
-  return snowflake.createConnection({
+module.exports.createConnection = function (validConnectionOptionsOverride = {}, coreInstance) {
+  coreInstance = coreInstance ? coreInstance : snowflake;
+
+  return coreInstance.createConnection({
     ...connOptions.valid,
     ...validConnectionOptionsOverride,
   });
 };
 
-module.exports.createProxyConnection = function () {
-  return snowflake.createConnection(connOptions.connectionWithProxy);
+module.exports.createProxyConnection = function (validConnectionOptionsOverride, coreInstance) {
+  coreInstance = coreInstance ? coreInstance : snowflake;
+
+  return coreInstance.createConnection({
+    ...connOptions.connectionWithProxy,
+    ...validConnectionOptionsOverride
+  });
 };
 
-module.exports.createConnectionPool = function () {
-  return snowflake.createPool(connOptions.valid, { max: 10, min: 0, testOnBorrow: true });
+module.exports.createConnectionPool = function (validConnectionOptionsOverride, coreInstance) {
+  coreInstance = coreInstance ? coreInstance : snowflake;
+
+  return coreInstance.createPool({
+    ...connOptions.valid,
+    ...validConnectionOptionsOverride
+  }, { max: 10, min: 0, testOnBorrow: true });
 };
 
 module.exports.connect = function (connection, callback) {
@@ -355,6 +367,9 @@ module.exports.assertActiveConnectionDestroyedCorrectlyAsync = async function (c
   module.exports.assertConnectionInactive(connection);
 };
 
-
 module.exports.normalizeRowObject = normalizeRowObject;
 module.exports.normalizeValue = normalizeValue;
+
+module.exports.isGuidInRequestOptions = function (requestOptions) {
+  return requestOptions.url.includes('request_guid') || 'request_guid' in requestOptions.params;
+};

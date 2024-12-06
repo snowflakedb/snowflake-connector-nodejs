@@ -36,14 +36,13 @@ MockHttpClient.prototype.request = function (request) {
     this._mapRequestToOutput =
       buildRequestToOutputMap(buildRequestOutputMappings(this._clientInfo));
   }
+  removeParamFromRequestUrl(request, 'request_guid');
+  removeParamFromRequestParams(request, 'request_guid');
 
   // Closing a connection includes a requestID as a query parameter in the url
   // Example: http://fake504.snowflakecomputing.com/session?delete=true&requestId=a40454c6-c3bb-4824-b0f3-bae041d9d6a2
   if (request.url.includes('session?delete=true') || request.url.includes('session/heartbeat?requestId=')) {
-    // Offset for the query character preceding the 'requestId=' string in URL (either '?' or '&')
-    const PRECEDING_QUERY_CHAR_OFFSET = 1;
-    // Remove the requestID query parameter for the mock HTTP client
-    request.url = request.url.substring(0, request.url.indexOf('requestId=') - PRECEDING_QUERY_CHAR_OFFSET);
+    removeParamFromRequestUrl(request, 'requestId');
   }
 
   // get the output of the specified request from the map
@@ -84,14 +83,13 @@ MockHttpClient.prototype.requestAsync = function (request) {
     this._mapRequestToOutput =
       buildRequestToOutputMap(buildRequestOutputMappings(this._clientInfo));
   }
+  removeParamFromRequestUrl(request, 'request_guid');
+  removeParamFromRequestParams(request, 'request_guid');
 
   // Closing a connection includes a requestID as a query parameter in the url
   // Example: http://fake504.snowflakecomputing.com/session?delete=true&requestId=a40454c6-c3bb-4824-b0f3-bae041d9d6a2
   if (request.url.includes('session?delete=true') || request.url.includes('session/heartbeat?requestId=')) {
-    // Offset for the query character preceding the 'requestId=' string in URL (either '?' or '&')
-    const PRECEDING_QUERY_CHAR_OFFSET = 1;
-    // Remove the requestID query parameter for the mock HTTP client
-    request.url = request.url.substring(0, request.url.indexOf('requestId=') - PRECEDING_QUERY_CHAR_OFFSET);
+    removeParamFromRequestUrl(request, 'requestId');
   }
 
   // get the output of the specified request from the map
@@ -173,6 +171,35 @@ function createSortedClone(target) {
   }
 
   return sortedClone;
+}
+
+function removeParamFromRequestUrl(request, paramName) {
+  try {
+    // Use the URL constructor to parse the URL
+    const urlObj = new URL(request.url);
+    urlObj.searchParams.delete(paramName);
+    request.url = urlObj.toString();
+  } catch (error) {
+    // Handle invalid URLs or other errors
+    throw `Invalid URL: ${request.url} Error: ${error}`;
+  }
+}
+
+/**
+ * Removes a parameter from the params object of a request.
+ * If the params object becomes empty after the deletion, removes the params property entirely.
+ */
+function removeParamFromRequestParams(request, paramName) {
+  if (request && request.params && typeof request.params === 'object') {
+    // Delete the specified parameter
+    delete request.params[paramName];
+
+    // Check if params is now empty
+    if (Object.keys(request.params).length === 0) {
+      // Remove the entire params property
+      delete request.params;
+    }
+  }
 }
 
 /**

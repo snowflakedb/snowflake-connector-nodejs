@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2015-2024 Snowflake Computing Inc. All rights reserved.
+ */
+
 const GlobalConfig = require('./../../lib/global_config');
 const getProxyAgent = require('./../../lib/http/node').getProxyAgent;
 const getAgentCacheSize = require('./../../lib/http/node').getAgentCacheSize;

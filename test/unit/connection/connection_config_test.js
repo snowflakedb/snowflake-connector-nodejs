@@ -775,6 +775,17 @@ describe('ConnectionConfig: basic', function () {
         },
         errorCode: ErrorCodes.ERR_CONN_CREATE_INVALID_PASSCODE
       },
+      {
+        name: 'invalid overwriteEnvProxy',
+
+        options: {
+          account: 'account',
+          username: 'username',
+          password: 'password',
+          overwriteEnvProxy: 123456
+        },
+        errorCode: ErrorCodes.ERR_CONN_CREATE_INVALID_OVERWRITE_ENV_PROXY
+      },
     ];
 
   const createNegativeITCallback = function (testCase) {
@@ -1665,6 +1676,15 @@ describe('ConnectionConfig: basic', function () {
         },
         result: '123456',
         getter: 'getPasscode',
+      },
+      {
+        name: 'overwriteEnvProxy',
+        input: {
+          ...mandatoryOption,
+          overwriteEnvProxy: false,
+        },
+        result: false,
+        getter: 'getOverwriteEnvProxy',
       },
     ];
 

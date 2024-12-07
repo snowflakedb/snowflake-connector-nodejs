@@ -1177,7 +1177,7 @@ describe('Util', function () {
         result: false,
       },
       {
-        name: 'test - test - when token is empty but the disableGCPTokenUplaod is disabled',
+        name: 'test - when token is empty but the disableGCPTokenUplaod is disabled',
         accessToken: null,
         forceGCPUseDownscopedCredential: false,
         result: false,

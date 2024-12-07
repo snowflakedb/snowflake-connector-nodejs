@@ -1066,144 +1066,144 @@ describe('Util', function () {
     }
   });
 
-if (os.platform() !== 'win32') {
-  describe('Util.isFileNotWritableByGroupOrOthers()', function () {
-    let tempDir = null;
-    let oldMask = null;
+  if (os.platform() !== 'win32') {
+    describe('Util.isFileNotWritableByGroupOrOthers()', function () {
+      let tempDir = null;
+      let oldMask = null;
 
-    before(async function () {
-      tempDir = await fsPromises.mkdtemp(path.join(os.tmpdir(), 'permission_tests'));
-      oldMask = process.umask(0o000);
+      before(async function () {
+        tempDir = await fsPromises.mkdtemp(path.join(os.tmpdir(), 'permission_tests'));
+        oldMask = process.umask(0o000);
+      });
+
+      after(async function () {
+        await fsPromises.rm(tempDir, { recursive: true, force: true });
+        process.umask(oldMask);
+      });
+
+      [
+        { filePerm: 0o700, isValid: true },
+        { filePerm: 0o600, isValid: true },
+        { filePerm: 0o500, isValid: true },
+        { filePerm: 0o400, isValid: true },
+        { filePerm: 0o300, isValid: true },
+        { filePerm: 0o200, isValid: true },
+        { filePerm: 0o100, isValid: true },
+        { filePerm: 0o707, isValid: false },
+        { filePerm: 0o706, isValid: false },
+        { filePerm: 0o705, isValid: true },
+        { filePerm: 0o704, isValid: true },
+        { filePerm: 0o703, isValid: false },
+        { filePerm: 0o702, isValid: false },
+        { filePerm: 0o701, isValid: true },
+        { filePerm: 0o770, isValid: false },
+        { filePerm: 0o760, isValid: false },
+        { filePerm: 0o750, isValid: true },
+        { filePerm: 0o740, isValid: true },
+        { filePerm: 0o730, isValid: false },
+        { filePerm: 0o720, isValid: false },
+        { filePerm: 0o710, isValid: true },
+      ].forEach(async function ({ filePerm, isValid }) {
+        it('File with permission: ' + filePerm.toString(8) + ' should be valid=' + isValid, async function () {
+          const filePath = path.join(tempDir, `file_${filePerm.toString()}`);
+          await writeFile(filePath, filePerm);
+          assert.strictEqual(await Util.isFileNotWritableByGroupOrOthers(filePath, fsPromises), isValid);
+        });
+      });
+
+      async function writeFile(filePath, mode) {
+        await fsPromises.writeFile(filePath, '', { encoding: 'utf8', mode: mode });
+      }
     });
+  }
 
-    after(async function () {
-      await fsPromises.rm(tempDir, { recursive: true, force: true });
-      process.umask(oldMask);
-    });
+  if (os.platform() !== 'win32') {
+    describe('Util.isFileModeCorrect()', function () {
+      const tempDir = path.join(os.tmpdir(), 'permission_tests');
+      let oldMask = null;
 
-    [
-      { filePerm: 0o700, isValid: true },
-      { filePerm: 0o600, isValid: true },
-      { filePerm: 0o500, isValid: true },
-      { filePerm: 0o400, isValid: true },
-      { filePerm: 0o300, isValid: true },
-      { filePerm: 0o200, isValid: true },
-      { filePerm: 0o100, isValid: true },
-      { filePerm: 0o707, isValid: false },
-      { filePerm: 0o706, isValid: false },
-      { filePerm: 0o705, isValid: true },
-      { filePerm: 0o704, isValid: true },
-      { filePerm: 0o703, isValid: false },
-      { filePerm: 0o702, isValid: false },
-      { filePerm: 0o701, isValid: true },
-      { filePerm: 0o770, isValid: false },
-      { filePerm: 0o760, isValid: false },
-      { filePerm: 0o750, isValid: true },
-      { filePerm: 0o740, isValid: true },
-      { filePerm: 0o730, isValid: false },
-      { filePerm: 0o720, isValid: false },
-      { filePerm: 0o710, isValid: true },
-    ].forEach(async function ({ filePerm, isValid }) {
-      it('File with permission: ' + filePerm.toString(8) + ' should be valid=' + isValid, async function () {
-        const filePath = path.join(tempDir, `file_${filePerm.toString()}`);
-        await writeFile(filePath, filePerm);
-        assert.strictEqual(await Util.isFileNotWritableByGroupOrOthers(filePath, fsPromises), isValid);
+      before(async function () {
+        await fsPromises.mkdir(tempDir);
+        oldMask = process.umask(0o000);
+      });
+
+      after(async function () {
+        await fsPromises.rm(tempDir, { recursive: true, force: true });
+        process.umask(oldMask);
+      });
+
+      [
+        { dirPerm: 0o700, expectedPerm: 0o700, isCorrect: true },
+        { dirPerm: 0o755, expectedPerm: 0o600, isCorrect: false },
+      ].forEach(async function ({ dirPerm, expectedPerm, isCorrect }) {
+        it('Should return ' + isCorrect + ' when directory permission ' + dirPerm.toString(8) + ' is compared to ' + expectedPerm.toString(8), async function () {
+          const dirPath = path.join(tempDir, `dir_${dirPerm.toString(8)}`);
+          await fsPromises.mkdir(dirPath, { mode: dirPerm });
+          assert.strictEqual(await Util.isFileModeCorrect(dirPath, expectedPerm, fsPromises), isCorrect);
+        });
+      });
+
+      [
+        { filePerm: 0o700, expectedPerm: 0o700, isCorrect: true },
+        { filePerm: 0o755, expectedPerm: 0o600, isCorrect: false },
+      ].forEach(async function ({ filePerm, expectedPerm, isCorrect }) {
+        it('Should return ' + isCorrect + ' when file permission ' + filePerm.toString(8) + ' is compared to ' + expectedPerm.toString(8), async function () {
+          const dirPath = path.join(tempDir, `file_${filePerm.toString(8)}`);
+          await fsPromises.appendFile(dirPath, '', { mode: filePerm });
+          assert.strictEqual(await Util.isFileModeCorrect(dirPath, expectedPerm, fsPromises), isCorrect);
+        });
       });
     });
+  }
 
-    async function writeFile(filePath, mode) {
-      await fsPromises.writeFile(filePath, '', { encoding: 'utf8', mode: mode });
-    }
-  });
-}
+  describe('shouldPerformGCPBucket function test', () => {
+    const testCases = [
+      {
+        name: 'test - default',
+        accessToken: 'Token',
+        forceGCPUseDownscopedCredential: false,
+        result: true,
+      },
+      {
+        name: 'test - when the disableGCPTokenUplaod is enabled',
+        accessToken: 'Token',
+        forceGCPUseDownscopedCredential: true,
+        result: false,
+      },
+      {
+        name: 'test - when token is empty but the disableGCPTokenUplaod is enabled',
+        accessToken: null,
+        forceGCPUseDownscopedCredential: true,
+        result: false,
+      },
+      {
+        name: 'test - when token is empty but the disableGCPTokenUplaod is disabled',
+        accessToken: null,
+        forceGCPUseDownscopedCredential: false,
+        result: false,
+      },
+    ];
 
-if (os.platform() !== 'win32') {
-  describe('Util.isFileModeCorrect()', function () {
-    const tempDir = path.join(os.tmpdir(), 'permission_tests');
-    let oldMask = null;
-
-    before(async function () {
-      await fsPromises.mkdir(tempDir);
-      oldMask = process.umask(0o000);
-    });
-
-    after(async function () {
-      await fsPromises.rm(tempDir, { recursive: true, force: true });
-      process.umask(oldMask);
-    });
-
-    [
-      { dirPerm: 0o700, expectedPerm: 0o700, isCorrect: true },
-      { dirPerm: 0o755, expectedPerm: 0o600, isCorrect: false },
-    ].forEach(async function ({ dirPerm, expectedPerm, isCorrect }) {
-      it('Should return ' + isCorrect + ' when directory permission ' + dirPerm.toString(8) + ' is compared to ' + expectedPerm.toString(8), async function () {
-        const dirPath = path.join(tempDir, `dir_${dirPerm.toString(8)}`);
-        await fsPromises.mkdir(dirPath, { mode: dirPerm });
-        assert.strictEqual(await Util.isFileModeCorrect(dirPath, expectedPerm, fsPromises), isCorrect);
-      });
-    });
-
-    [
-      { filePerm: 0o700, expectedPerm: 0o700, isCorrect: true },
-      { filePerm: 0o755, expectedPerm: 0o600, isCorrect: false },
-    ].forEach(async function ({ filePerm, expectedPerm, isCorrect }) {
-      it('Should return ' + isCorrect + ' when file permission ' + filePerm.toString(8) + ' is compared to ' + expectedPerm.toString(8), async function () {
-        const dirPath = path.join(tempDir, `file_${filePerm.toString(8)}`);
-        await fsPromises.appendFile(dirPath, '', { mode: filePerm });
-        assert.strictEqual(await Util.isFileModeCorrect(dirPath, expectedPerm, fsPromises), isCorrect);
+    testCases.forEach(({ name, accessToken, forceGCPUseDownscopedCredential, result }) => {
+      it(name, () => {
+        process.env.SNOWFLAKE_FORCE_GCP_USE_DOWNSCOPED_CREDENTIAL = forceGCPUseDownscopedCredential;
+        assert.strictEqual(Util.shouldPerformGCPBucket(accessToken), result);
+        delete process.env.SNOWFLAKE_FORCE_GCP_USE_DOWNSCOPED_CREDENTIAL;
       });
     });
   });
-}
 
-describe('shouldPerformGCPBucket function test', () => {
-  const testCases = [
-    {
-      name: 'test - default',
-      accessToken: 'Token',
-      forceGCPUseDownscopedCredential: false,
-      result: true,
-    },
-    {
-      name: 'test - when the disableGCPTokenUplaod is enabled',
-      accessToken: 'Token',
-      forceGCPUseDownscopedCredential: true,
-      result: false,
-    },
-    {
-      name: 'test - when token is empty but the disableGCPTokenUplaod is enabled',
-      accessToken: null,
-      forceGCPUseDownscopedCredential: true,
-      result: false,
-    },
-    {
-      name: 'test - when token is empty but the disableGCPTokenUplaod is disabled',
-      accessToken: null,
-      forceGCPUseDownscopedCredential: false,
-      result: false,
-    },
-  ];
-
-  testCases.forEach(({ name, accessToken, forceGCPUseDownscopedCredential, result }) => {
-    it(name, () => {
-      process.env.SNOWFLAKE_FORCE_GCP_USE_DOWNSCOPED_CREDENTIAL = forceGCPUseDownscopedCredential;
-      assert.strictEqual(Util.shouldPerformGCPBucket(accessToken), result);
-      delete process.env.SNOWFLAKE_FORCE_GCP_USE_DOWNSCOPED_CREDENTIAL;
-    });
-  });
-});
-
-describe('getEnvVar function Test', function () {
-  const testCases = [
-    {
-      name: 'snowflake_env_test',
-      value: 'mock_value',
-    },
-    {
-      name: 'SNOWFLAKE_ENV_TEST',
-      value: 'MOCK_VALUE',
-    },
-  ];
+  describe('getEnvVar function Test', function () {
+    const testCases = [
+      {
+        name: 'snowflake_env_test',
+        value: 'mock_value',
+      },
+      {
+        name: 'SNOWFLAKE_ENV_TEST',
+        value: 'MOCK_VALUE',
+      },
+    ];
 
     for (const { name, value, } of testCases) {
       it(name, function () {

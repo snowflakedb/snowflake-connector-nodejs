@@ -18,6 +18,15 @@ describe('GCS client', function () {
   const mockIv = 'mockIv';
   const mockMatDesc = 'mockMatDesc';
   const mockPresignedUrl = 'mockPresignedUrl';
+  const connectionConfig = {
+    getProxy: function () {
+      return null;
+    },
+    getOverwriteEnvProxy: function () {
+      return true;
+    },
+    accessUrl: 'http://fakeaccount.snowflakecomputing.com',
+  };
 
   let GCS;
   let httpclient;
@@ -61,7 +70,7 @@ describe('GCS client', function () {
     });
     httpclient = require('httpclient');
     filestream = require('filestream');
-    GCS = new SnowflakeGCSUtil(httpclient, filestream);
+    GCS = new SnowflakeGCSUtil(connectionConfig, httpclient, filestream);
   });
 
   describe('GCS client endpoint testing', async function () {
@@ -141,7 +150,7 @@ describe('GCS client', function () {
   });
 
   it('extract bucket name and path', async function () {
-    const GCS = new SnowflakeGCSUtil();
+    const GCS = new SnowflakeGCSUtil(connectionConfig);
 
     let result = GCS.extractBucketNameAndPath('sfc-eng-regression/test_sub_dir/');
     assert.strictEqual(result.bucketName, 'sfc-eng-regression');
@@ -183,7 +192,7 @@ describe('GCS client', function () {
       }
     });
     const httpclient = require('httpclient');
-    const GCS = new SnowflakeGCSUtil(httpclient);
+    const GCS = new SnowflakeGCSUtil(connectionConfig, httpclient);
 
     await GCS.getFileHeader(meta, dataFile);
     assert.strictEqual(meta['resultStatus'], resultStatus.NOT_FOUND_FILE);
@@ -198,7 +207,7 @@ describe('GCS client', function () {
       }
     });
     const httpclient = require('httpclient');
-    const GCS = new SnowflakeGCSUtil(httpclient);
+    const GCS = new SnowflakeGCSUtil(connectionConfig, httpclient);
 
     meta.presignedUrl = '';
 
@@ -215,7 +224,7 @@ describe('GCS client', function () {
       }
     });
     const httpclient = require('httpclient');
-    const GCS = new SnowflakeGCSUtil(httpclient);
+    const GCS = new SnowflakeGCSUtil(connectionConfig, httpclient);
 
     meta.presignedUrl = '';
 
@@ -232,7 +241,7 @@ describe('GCS client', function () {
       }
     });
     const httpclient = require('httpclient');
-    const GCS = new SnowflakeGCSUtil(httpclient);
+    const GCS = new SnowflakeGCSUtil(connectionConfig, httpclient);
 
     meta.presignedUrl = '';
 
@@ -250,7 +259,7 @@ describe('GCS client', function () {
       }
     });
     const httpclient = require('httpclient');
-    const GCS = new SnowflakeGCSUtil(httpclient);
+    const GCS = new SnowflakeGCSUtil(connectionConfig, httpclient);
 
     meta.presignedUrl = '';
 
@@ -281,7 +290,7 @@ describe('GCS client', function () {
     });
     httpclient = require('httpclient');
     filestream = require('filestream');
-    const GCS = new SnowflakeGCSUtil(httpclient, filestream);
+    const GCS = new SnowflakeGCSUtil(connectionConfig, httpclient, filestream);
 
     await GCS.uploadFile(dataFile, meta, encryptionMetadata);
     assert.strictEqual(meta['resultStatus'], resultStatus.NEED_RETRY);
@@ -302,7 +311,7 @@ describe('GCS client', function () {
     });
     httpclient = require('httpclient');
     filestream = require('filestream');
-    const GCS = new SnowflakeGCSUtil(httpclient, filestream);
+    const GCS = new SnowflakeGCSUtil(connectionConfig, httpclient, filestream);
 
     meta.client = '';
     meta.lastError = { code: 0 };
@@ -344,7 +353,7 @@ describe('GCS client', function () {
     httpclient = require('httpclient');
     filestream = require('filestream');
     const gcsClient = require('gcsClient');
-    const GCS = new SnowflakeGCSUtil(httpclient, filestream);
+    const GCS = new SnowflakeGCSUtil(connectionConfig, httpclient, filestream);
 
     meta.presignedUrl = '';
     meta.client = { gcsToken: mockAccessToken, gcsClient: gcsClient };

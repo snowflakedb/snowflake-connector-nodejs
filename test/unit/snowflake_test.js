@@ -815,6 +815,10 @@ describe('connection.execute() statement failure', function () {
                 assert.strictEqual(statement.getColumns(), undefined);
                 assert.strictEqual(statement.getNumRows(), undefined);
                 assert.strictEqual(statement.getSessionState(), undefined);
+                assert.ok(Util.exists(statement.getStatementId()));
+                assert.ok(Util.isString(statement.getStatementId()));
+                assert.ok(Util.exists(statement.getQueryId()));
+                assert.ok(Util.isString(statement.getQueryId()));
 
                 callback();
               }

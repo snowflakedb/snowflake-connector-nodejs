@@ -776,15 +776,15 @@ describe('ConnectionConfig: basic', function () {
         errorCode: ErrorCodes.ERR_CONN_CREATE_INVALID_PASSCODE
       },
       {
-        name: 'invalid overwriteEnvProxy',
+        name: 'invalid overrideEnvProxy',
 
         options: {
           account: 'account',
           username: 'username',
           password: 'password',
-          overwriteEnvProxy: 123456
+          overrideEnvProxy: 123456
         },
-        errorCode: ErrorCodes.ERR_CONN_CREATE_INVALID_OVERWRITE_ENV_PROXY
+        errorCode: ErrorCodes.ERR_CONN_CREATE_INVALID_OVERRIDE_ENV_PROXY
       },
     ];
 
@@ -1678,13 +1678,13 @@ describe('ConnectionConfig: basic', function () {
         getter: 'getPasscode',
       },
       {
-        name: 'overwriteEnvProxy',
+        name: 'overrideEnvProxy',
         input: {
           ...mandatoryOption,
-          overwriteEnvProxy: false,
+          overrideEnvProxy: false,
         },
         result: false,
-        getter: 'getOverwriteEnvProxy',
+        getter: 'getOverrideEnvProxy',
       },
     ];
 

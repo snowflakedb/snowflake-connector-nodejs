@@ -1215,4 +1215,72 @@ describe('Util', function () {
     }
   });
 
+  describe('restoreEnvVar function test', function () {
+    const testCases = [
+      {
+        name: 'snowflake_restore_env_test',
+        value: 'mock_value2',
+      },
+      {
+        name: 'SNOWFLAKE_RESTORE_ENV_TEST',
+        value: 'MOCK_VALUE2',
+      },
+    ];
+
+    for (const { name, value, } of testCases) {
+      it(name, function () {
+        process.env[name] = 'wrong value';
+        Util.restoreEnvVar(name, value);
+        assert.strictEqual(Util.getEnvVar(name), value);
+        delete process.env[name];
+      });
+    }
+  });
+
+  describe('isEmptyObject function test', function () {
+    const testCases = [
+      {
+        name: 'JSON is not empty',
+        value: { 'hello': 'a' },
+        result: false
+      },
+      {
+        name: 'JSON is empty',
+        value: {},
+        result: true
+      },
+      {
+        name: 'non object(string)',
+        value: 'hello world',
+        result: false,
+      },
+      {
+        name: 'non object(int)"',
+        value: 123,
+        result: false,
+      },
+      {
+        name: 'non object(int)"',
+        value: 123,
+        result: false,
+      },
+      {
+        name: 'array"',
+        value: [1, 2, 3],
+        result: false,
+      },
+      {
+        name: 'empty array"',
+        value: [],
+        result: false,
+      },
+    ];
+
+    testCases.forEach(({ name, value, result }) => {
+      it(name, function () {        
+        assert.strictEqual(Util.isEmptyObject(value), result);
+      });
+    });      
+  });
+
 });

@@ -5,6 +5,7 @@
 const assert = require('assert');
 const mock = require('mock-require');
 const SnowflakeGCSUtil = require('./../../../lib/file_transfer_agent/gcs_util');
+const GCSUtil = require('./../../../lib/file_transfer_agent/gcs_util');
 const resultStatus = require('./../../../lib/file_transfer_agent/file_util').resultStatus;
 
 describe('GCS client', function () {
@@ -19,10 +20,11 @@ describe('GCS client', function () {
   const mockMatDesc = 'mockMatDesc';
   const mockPresignedUrl = 'mockPresignedUrl';
   const connectionConfig = {
+    proxy: {},
     getProxy: function () {
-      return null;
+      return this.proxy;
     },
-    getOverwriteEnvProxy: function () {
+    getOverrideEnvProxy: function () {
       return true;
     },
     accessUrl: 'http://fakeaccount.snowflakecomputing.com',
@@ -43,7 +45,11 @@ describe('GCS client', function () {
     meta = {
       stageInfo: {
         location: mockLocation,
-        path: mockTable + '/' + mockPath + '/'
+        region: '',
+        path: mockTable + '/' + mockPath + '/',
+        creds: {
+          GCS_ACCESS_TOKEN: 'mockToken'
+        }
       },
       presignedUrl: mockPresignedUrl,
       dstFileName: mockPresignedUrl,
@@ -142,7 +148,7 @@ describe('GCS client', function () {
 
     testCases.forEach(({ name, stageInfo, result }) => {
       it(name, () => {
-        const client = GCS.createClient({ ...stageInfo, ...meta.stageInfo, creds: { GCS_ACCESS_TOKEN: 'mockToken' } });
+        const client = GCS.createClient({ ...meta.stageInfo, ...stageInfo });
         assert.strictEqual(client.gcsClient.apiEndpoint, result);
       } );
 
@@ -360,5 +366,125 @@ describe('GCS client', function () {
 
     await GCS.uploadFile(dataFile, meta, encryptionMetadata);
     assert.strictEqual(meta['resultStatus'], resultStatus.RENEW_TOKEN);
+  });
+
+  describe('GCS proxy configuration test', async function () {
+    let originalHttpsProxy;
+    before(() => {
+      originalHttpsProxy = process.env.HTTPS_PROXY;
+    });
+
+    after(() => {
+      originalHttpsProxy ? process.env.HTTPS_PROXY = originalHttpsProxy : delete process.env.HTTPS_PROXY;
+    });
+    const testCases = [
+      {
+        name: 'when both the connection proxy and HTTPS_PROXY are not configured',
+        connectionConfig: connectionConfig,
+        HTTPS_PROXY: null,
+        isOverwriteEnvProxy: false,
+        proxyString: null,
+      },
+      {
+        name: 'when HTTPS_PROXY only exists',
+        connectionConfig: connectionConfig,
+        HTTPS_PROXY: 'https://abc:dfg@snowflake.test.com:2345',
+        isOverwriteEnvProxy: false,
+        proxyString: null,
+      },
+      {
+        name: 'when the connectionProxy is different from the Env Proxy(HTTPS_PROXY)',
+        connectionConfig: { ...connectionConfig,
+          proxy: {
+            host: 'myproxy.server.com',
+            user: 'user',
+            password: 'pass',
+            port: 1234,
+            protocol: 'https:',
+            noProxy: undefined,
+          },
+        },
+        HTTPS_PROXY: 'https://abc:dfg@snowflake.test.com:2345',
+        isOverwriteEnvProxy: true,
+        proxyString: 'https://user:pass@myproxy.server.com:1234',
+      },
+      {
+        name: 'when the connectionProxy and HTTPS_PROXY is the same.',
+        connectionConfig: { ...connectionConfig,
+          proxy: {
+            host: 'myproxy.server.com',
+            user: 'user',
+            password: 'pass',
+            port: 1234,
+            protocol: 'https:',
+            noProxy: undefined,
+          },
+        },
+        HTTPS_PROXY: 'https://user:pass@myproxy.server.com:1234',
+        isOverwriteEnvProxy: false,
+        proxyString: null,
+      },
+      {
+        name: 'when the connectionProxy and HTTPS_PROXY are different, but overrideEnvProxy is false.',
+        connectionConfig: { ...connectionConfig,
+          getOverrideEnvProxy: function () {
+            return false;
+          },
+          proxy: {
+            host: 'myproxy.server.com',
+            user: 'user',
+            password: 'pass',
+            port: 1234,
+            protocol: 'https:',
+            noProxy: undefined,
+          },
+        },
+        HTTPS_PROXY: 'https://abc:dfg@snowflake.test.com:2345',
+        isOverwriteEnvProxy: false,
+        proxyString: null,
+      },
+      {
+        name: 'when no HTTPS_PROXY, but the connection Proxy exists.',
+        connectionConfig: { ...connectionConfig,
+          proxy: {
+            host: 'myproxy.server.com',
+            user: 'user',
+            password: 'pass',
+            port: 1234,
+            protocol: 'https:',
+            noProxy: undefined,
+          },
+        },
+        HTTPS_PROXY: null,
+        isOverwriteEnvProxy: true,
+        proxyString: 'https://user:pass@myproxy.server.com:1234',
+      },
+      {
+        name: 'when the connectionProxy exists, but the noProxy is set with google storage destination.',
+        connectionConfig: { ...connectionConfig,
+          proxy: {
+            host: 'myproxy.server.com',
+            user: 'user',
+            password: 'pass',
+            port: 1234,
+            protocol: 'https:',
+            noProxy: 'storage.*.rep.googleapis.com',
+          },
+        },
+        HTTPS_PROXY: null,
+        isOverwriteEnvProxy: false,
+        proxyString: null,
+      }, 
+    ];
+
+    testCases.forEach(({ name, connectionConfig, HTTPS_PROXY, isOverwriteEnvProxy, proxyString }) => {
+      it(name, () => {
+        HTTPS_PROXY !== null ? process.env.HTTPS_PROXY = HTTPS_PROXY : delete process.env.HTTPS_PROXY; 
+        const GCS = new GCSUtil(connectionConfig);
+        GCS.createClient(meta.stageInfo);
+        assert.strictEqual(isOverwriteEnvProxy, GCS.getIsEnvProxyOverridden());
+        assert.strictEqual(proxyString, GCS.getProxyString());
+      });
+    });
   });
 });

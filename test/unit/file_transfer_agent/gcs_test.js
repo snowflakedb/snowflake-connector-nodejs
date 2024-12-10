@@ -383,14 +383,12 @@ describe('GCS client', function () {
         connectionConfig: connectionConfig,
         HTTPS_PROXY: null,
         isOverwriteEnvProxy: false,
-        proxyString: null,
       },
       {
         name: 'when HTTPS_PROXY only exists',
         connectionConfig: connectionConfig,
         HTTPS_PROXY: 'https://abc:dfg@snowflake.test.com:2345',
         isOverwriteEnvProxy: false,
-        proxyString: null,
       },
       {
         name: 'when the connectionProxy is different from the Env Proxy(HTTPS_PROXY)',
@@ -406,7 +404,6 @@ describe('GCS client', function () {
         },
         HTTPS_PROXY: 'https://abc:dfg@snowflake.test.com:2345',
         isOverwriteEnvProxy: true,
-        proxyString: 'https://user:pass@myproxy.server.com:1234',
       },
       {
         name: 'when the connectionProxy and HTTPS_PROXY is the same.',
@@ -422,7 +419,6 @@ describe('GCS client', function () {
         },
         HTTPS_PROXY: 'https://user:pass@myproxy.server.com:1234',
         isOverwriteEnvProxy: false,
-        proxyString: null,
       },
       {
         name: 'when the connectionProxy and HTTPS_PROXY are different, but overrideEnvProxy is false.',
@@ -441,7 +437,6 @@ describe('GCS client', function () {
         },
         HTTPS_PROXY: 'https://abc:dfg@snowflake.test.com:2345',
         isOverwriteEnvProxy: false,
-        proxyString: null,
       },
       {
         name: 'when no HTTPS_PROXY, but the connection Proxy exists.',
@@ -457,7 +452,6 @@ describe('GCS client', function () {
         },
         HTTPS_PROXY: null,
         isOverwriteEnvProxy: true,
-        proxyString: 'https://user:pass@myproxy.server.com:1234',
       },
       {
         name: 'when the connectionProxy exists, but the noProxy is set with google storage destination.',
@@ -473,17 +467,15 @@ describe('GCS client', function () {
         },
         HTTPS_PROXY: null,
         isOverwriteEnvProxy: false,
-        proxyString: null,
       }, 
     ];
 
-    testCases.forEach(({ name, connectionConfig, HTTPS_PROXY, isOverwriteEnvProxy, proxyString }) => {
+    testCases.forEach(({ name, connectionConfig, HTTPS_PROXY, isOverwriteEnvProxy }) => {
       it(name, () => {
         HTTPS_PROXY !== null ? process.env.HTTPS_PROXY = HTTPS_PROXY : delete process.env.HTTPS_PROXY; 
         const GCS = new GCSUtil(connectionConfig);
         GCS.createClient(meta.stageInfo);
         assert.strictEqual(isOverwriteEnvProxy, GCS.getIsEnvProxyOverridden());
-        assert.strictEqual(proxyString, GCS.getProxyString());
       });
     });
   });

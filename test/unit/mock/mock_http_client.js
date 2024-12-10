@@ -175,12 +175,10 @@ function createSortedClone(target) {
 
 function removeParamFromRequestUrl(request, paramName) {
   try {
-    // Use the URL constructor to parse the URL
     const urlObj = new URL(request.url);
     urlObj.searchParams.delete(paramName);
     request.url = urlObj.toString();
   } catch (error) {
-    // Handle invalid URLs or other errors
     throw `Invalid URL: ${request.url} Error: ${error}`;
   }
 }
@@ -191,12 +189,10 @@ function removeParamFromRequestUrl(request, paramName) {
  */
 function removeParamFromRequestParams(request, paramName) {
   if (request && request.params && typeof request.params === 'object') {
-    // Delete the specified parameter
     delete request.params[paramName];
 
-    // Check if params is now empty
     if (Object.keys(request.params).length === 0) {
-      // Remove the entire params property
+      // If params property is empty, remove it
       delete request.params;
     }
   }

@@ -26,7 +26,7 @@ at <a href="https://docs.snowflake.net/manuals/user-guide/nodejs-driver.html">No
 Note
 ----------------------------------------------------------------------
 
-This driver supporting GCS regional endpoint starting from version 2.0.0.
+This driver starts supporting the GCS regional endpoint starting from version 2.0.0.
 
 Test
 ======================================================================

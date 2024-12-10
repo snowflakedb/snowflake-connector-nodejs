@@ -1255,24 +1255,33 @@ describe('Util', function () {
         result: false,
       },
       {
-        name: 'non object(int)"',
+        name: 'non object(int)',
         value: 123,
         result: false,
       },
       {
-        name: 'non object(int)"',
+        name: 'non object(int)',
         value: 123,
         result: false,
       },
       {
-        name: 'array"',
+        name: 'array',
         value: [1, 2, 3],
         result: false,
       },
       {
-        name: 'empty array"',
+        name: 'empty array',
         value: [],
-        result: false,
+        result: true,
+      },
+      {
+        name: 'null',
+        value: null,
+        result: true,
+      }, {
+        name: 'undefined',
+        value: undefined,
+        result: true,
       },
     ];
 

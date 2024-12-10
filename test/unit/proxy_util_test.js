@@ -86,14 +86,22 @@ describe('ProxyUtil Test - detecting PROXY envvars and compare with the agent pr
       httpproxy: '',
       HTTPSPROXY: 'http://pro.xy:3128',
       agentOptions: { 'keepalive': true, 'host': '10.20.30.40', 'port': 8080 },
-      shouldLog: ' Using both the HTTPS_PROXY (http://pro.xy:3128) and the proxyHost:proxyPort (10.20.30.40:8080) settings to connect, but with different values. If you experience connectivity issues, try unsetting one of them.'
+      shouldLog: ' Using both the HTTPS_PROXY (proxyHost: pro.xy, proxyPort: 3128, proxyProtocol: http:, noProxy: undefined) and the Connection proxy (proxyHost: 10.20.30.40, proxyPort: 8080, proxyProtocol: undefined, noProxy: undefined) settings to connect, but with different values. If you experience connectivity issues, try unsetting one of them.'
     }, {
       name: 'detect both http_proxy and HTTPS_PROXY envvar, different from each other, agent proxy set to an unauthenticated proxy, different from the envvars',
       isWarn: true,
       httpproxy: '169.254.169.254:8080',
       HTTPSPROXY: 'http://pro.xy:3128',
       agentOptions: { 'keepalive': true, 'host': '10.20.30.40', 'port': 8080 },
-      shouldLog: ' Using both the HTTP_PROXY (169.254.169.254:8080) and the proxyHost:proxyPort (10.20.30.40:8080) settings to connect, but with different values. If you experience connectivity issues, try unsetting one of them. Using both the HTTPS_PROXY (http://pro.xy:3128) and the proxyHost:proxyPort (10.20.30.40:8080) settings to connect, but with different values. If you experience connectivity issues, try unsetting one of them.'
+      shouldLog: ' Using both the HTTP_PROXY (proxyHost: 169.254.169.254, proxyPort: 8080, proxyProtocol: http:, noProxy: undefined) and the Connection proxy (proxyHost: 10.20.30.40, proxyPort: 8080, proxyProtocol: undefined, noProxy: undefined), but with different values. If you experience connectivity issues, try unsetting one of them. Using both the HTTPS_PROXY (proxyHost: pro.xy, proxyPort: 3128, proxyProtocol: http:, noProxy: undefined) and the Connection proxy (proxyHost: 10.20.30.40, proxyPort: 8080, proxyProtocol: undefined, noProxy: undefined) settings to connect, but with different values. If you experience connectivity issues, try unsetting one of them.'
+    },
+    {
+      name: 'detect both http_proxy and HTTPS_PROXY envvar, different from each other, agent proxy set to an authenticated proxy, different from the envvars',
+      isWarn: true,
+      httpproxy: 'abc:def@169.254.169.254:8080',
+      HTTPSPROXY: 'http://cde:fge@pro.xy:3128',
+      agentOptions: { 'keepalive': true, 'host': '10.20.30.40', 'user': 'cde', 'password': 'fge', 'port': 8080 },
+      shouldLog: ' Using both the HTTP_PROXY (proxyHost: 169.254.169.254, proxyPort: 8080, proxyUser: abc, proxyPassword is provided, proxyProtocol: http:, noProxy: undefined) and the Connection proxy (proxyHost: 10.20.30.40, proxyPort: 8080, proxyUser: cde, proxyPassword is provided, proxyProtocol: undefined, noProxy: undefined), but with different values. If you experience connectivity issues, try unsetting one of them. Using both the HTTPS_PROXY (proxyHost: pro.xy, proxyPort: 3128, proxyUser: cde, proxyPassword is provided, proxyProtocol: http:, noProxy: undefined) and the Connection proxy (proxyHost: 10.20.30.40, proxyPort: 8080, proxyUser: cde, proxyPassword is provided, proxyProtocol: undefined, noProxy: undefined) settings to connect, but with different values. If you experience connectivity issues, try unsetting one of them.'
     }
   ].forEach(({ name, isWarn, httpproxy, HTTPSPROXY, agentOptions, shouldLog }) => {
     it(`${name}`, () => {

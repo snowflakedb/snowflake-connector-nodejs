@@ -516,7 +516,7 @@ declare module 'snowflake-sdk' {
         /**
          *  The option to override the environment proxy value (HTTPS_PROXY) if the connection proxy is configured in GCS
          */
-        overrideEnvProxy?: string;
+        overrideEnvProxy?: boolean;
     }
 
     export interface Connection {

@@ -29,6 +29,19 @@ describe('ProxyUtil Test - removing http or https from string', () => {
 });
 
 describe('ProxyUtil Test - detecting PROXY envvars and compare with the agent proxy settings', () => {
+  let originalHttpProxy = null;
+  let originalHttpsProxy = null;
+
+  before(() => {
+    originalHttpProxy = process.env.HTTP_PROXY;
+    originalHttpsProxy = process.env.HTTPS_PROXY;
+  });
+
+  after(() => {
+    originalHttpProxy ? process.env.HTTP_PROXY = originalHttpProxy : delete process.env.HTTP_PROXY;
+    originalHttpsProxy ? process.env.HTTPS_PROXY = originalHttpsProxy : delete process.env.HTTPS_PROXY;
+  });
+
   [
     {
       name: 'detect http_proxy envvar, no agent proxy',

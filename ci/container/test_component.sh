@@ -30,13 +30,6 @@ npm install
 PACKAGE_NAME=$(cd $WORKSPACE && ls snowflake-sdk*.tgz)
 npm install $WORKSPACE/${PACKAGE_NAME}
 
-# Since @azure lib has lost compatibility with node14
-#some dependencies have to be replaced by an older version
-nodeVersion=$(node -v)
-if [[ "$nodeVersion" == 'v14.'* ]]; then
-  npm install @azure/core-lro@2.6.0
-fi
-
 echo "[INFO] Setting test parameters"
 if [[ "$LOCAL_USER_NAME" == "jenkins" ]]; then
     echo "[INFO] Use the default test parameters.json"
@@ -110,7 +103,7 @@ if [[ -z "$GITHUB_ACTIONS" ]]; then
 fi
 
 echo "[INFO] Running Tests: Test result: $WORKSPACE/junit.xml"
-if ! ${MOCHA_CMD[@]} "$SOURCE_ROOT/test/**/*.js"; then
+if ! ${MOCHA_CMD[@]} 'test/{unit,integration}/**/*.js'; then
     echo "[ERROR] Test failed"
     [[ -f "$WORKSPACE/junit.xml" ]] && cat $WORKSPACE/junit.xml
     exit 1

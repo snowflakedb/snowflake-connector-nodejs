@@ -93,16 +93,13 @@ describe('Encryption util', function () {
         }
         return new createWriteStream;
       },
-      closeSync: function () {
-        return;
+      close: function (fd, callback) {
+        callback(null);
       }
     });
     mock('temp', {
-      fileSync: function () {
-        return {
-          name: mockTmpName,
-          fd: 0
-        };
+      file: function (object, callback) {
+        callback(null, mockTmpName, 0);
       },
       openSync: function () {
         return;

@@ -297,4 +297,95 @@ describe('Secret Detector', function () {
       assert.strictEqual(err.toString(), 'Error: The customPatterns object must have equal length for both \'regex\' and \'mask\'');
     }
   });
+
+  it('test - passcode masking', async function () {
+    const fourDigitPasscode = 'passcode=1234';
+    let result = SecretDetector.maskSecrets(fourDigitPasscode);
+    assert.strictEqual(result.masked, true);
+    assert.strictEqual(result.maskedtxt, 'passcode=****');
+    assert.strictEqual(result.errstr, null);
+
+    const sixDigitPasscode = 'passcode=654321';
+    result = SecretDetector.maskSecrets(sixDigitPasscode);
+    assert.strictEqual(result.masked, true);
+    assert.strictEqual(result.maskedtxt, 'passcode=****');
+    assert.strictEqual(result.errstr, null);
+
+    const passcodeWithColon = 'otp: 987654';
+    result = SecretDetector.maskSecrets(passcodeWithColon);
+    assert.strictEqual(result.masked, true);
+    assert.strictEqual(result.maskedtxt, 'otp:****');
+    assert.strictEqual(result.errstr, null);
+
+    const pinWithSpaces = 'pin =    4321';
+    result = SecretDetector.maskSecrets(pinWithSpaces);
+    assert.strictEqual(result.masked, true);
+    assert.strictEqual(result.maskedtxt, 'pin=****');
+    assert.strictEqual(result.errstr, null);
+
+    const otacWithSpaces = 'otac=  4321';
+    result = SecretDetector.maskSecrets(otacWithSpaces);
+    assert.strictEqual(result.masked, true);
+    assert.strictEqual(result.maskedtxt, 'otac=****');
+    assert.strictEqual(result.errstr, null);
+  });
+
+  it('test - url token masking', async function () {
+    const TEST_TOKEN_VALUE = 'ETMsDgAAAZNi6aPlABRBRVMvQ0JDL1BLQ1M1UGFkZGluZwEAABAAEExQLlI3h9PIi9TcCRVdwlEAAABQLsgIQdJ0%2B8eQhDMjViFuY5v03Daxt235tNHYVLNoIqM70yLw4zyVdPlkEi208dS88lSqRvPdgQ/RACU7u%2Bn9gWLiTZ79dkZwl4zQactAKJgAFCUrvbxA2tnUP%2BsX6nPBNBzVWnK5';
+    const TEST_TOKEN_VERSION_PREFIX = 'ver:1';
+    const TEST_TOKEN_HINT_PREFIX = 'hint:1036';
+    const TEST_TOKEN_PREFIX = TEST_TOKEN_VERSION_PREFIX + '-' + TEST_TOKEN_HINT_PREFIX + '-';
+
+    const tokenWithVersionAndHint = 'token=' + TEST_TOKEN_PREFIX + TEST_TOKEN_VALUE;
+    let result = SecretDetector.maskSecrets(tokenWithVersionAndHint);
+    assert.strictEqual(result.masked, true);
+    assert.strictEqual(result.maskedtxt, 'token=' + '****');
+    assert.strictEqual(result.errstr, null);
+
+    const tokenWithVersionAndHintAndManyEqualsSigns = 'token=====' + TEST_TOKEN_PREFIX + TEST_TOKEN_VALUE;
+    result = SecretDetector.maskSecrets(tokenWithVersionAndHintAndManyEqualsSigns);
+    assert.strictEqual(result.masked, true);
+    assert.strictEqual(result.maskedtxt, 'token=====' + '****');
+    assert.strictEqual(result.errstr, null);
+
+    const tokenWithVersionAndHintAndColon = 'token:' + TEST_TOKEN_PREFIX + TEST_TOKEN_VALUE;
+    result = SecretDetector.maskSecrets(tokenWithVersionAndHintAndColon);
+    assert.strictEqual(result.masked, true);
+    assert.strictEqual(result.maskedtxt, 'token:' + '****');
+    assert.strictEqual(result.errstr, null);
+
+
+    const TEST_NEXT_PARAMETER_NOT_TO_BE_MASKED = 'jobID=123fdas4-2133212-12';
+    const tokenWithVersionAndHintAndAnotherParameterToIgnore = 'token=' + TEST_TOKEN_PREFIX + TEST_TOKEN_VALUE + '&' + TEST_NEXT_PARAMETER_NOT_TO_BE_MASKED;
+    result = SecretDetector.maskSecrets(tokenWithVersionAndHintAndAnotherParameterToIgnore);
+    assert.strictEqual(result.masked, true);
+    assert.strictEqual(result.maskedtxt, 'token=' + '****' + '&' + TEST_NEXT_PARAMETER_NOT_TO_BE_MASKED);
+    assert.strictEqual(result.errstr, null);
+
+
+    const tokenWithVersionAndHintAndManySpaces = 'token    =    ' + TEST_TOKEN_PREFIX + TEST_TOKEN_VALUE;
+    result = SecretDetector.maskSecrets(tokenWithVersionAndHintAndManySpaces);
+    assert.strictEqual(result.masked, true);
+    assert.strictEqual(result.maskedtxt, 'token    =    ' + '****');
+    assert.strictEqual(result.errstr, null);
+
+
+    const tokenWithVersion = 'token=' + TEST_TOKEN_VERSION_PREFIX + '-' + TEST_TOKEN_VALUE;
+    result = SecretDetector.maskSecrets(tokenWithVersion);
+    assert.strictEqual(result.masked, true);
+    assert.strictEqual(result.maskedtxt, 'token=' + '****');
+    assert.strictEqual(result.errstr, null);
+
+    const tokenWithHint = 'token=' + TEST_TOKEN_HINT_PREFIX + '-' + TEST_TOKEN_VALUE;
+    result = SecretDetector.maskSecrets(tokenWithHint);
+    assert.strictEqual(result.masked, true);
+    assert.strictEqual(result.maskedtxt, 'token=' + '****');
+    assert.strictEqual(result.errstr, null);
+
+    const longToken = 'token=' + TEST_TOKEN_VALUE;
+    result = SecretDetector.maskSecrets(longToken);
+    assert.strictEqual(result.masked, true);
+    assert.strictEqual(result.maskedtxt, 'token=****');
+    assert.strictEqual(result.errstr, null);
+  });
 });

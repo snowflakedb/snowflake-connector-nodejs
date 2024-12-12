@@ -910,262 +910,160 @@ describe('Util', function () {
     });
   });
 
-  describe('Util Test - removing http or https from string', () => {
-    const hostAndPortDone = 'my.pro.xy:8080';
-    const ipAndPortDone = '10.20.30.40:8080';
-    const somethingEntirelyDifferentDone = 'something ENTIRELY different';
+  describe('Util test - custom credential manager util functions', function () {
+    const mockUser = 'mockUser';
+    const mockHost = 'mockHost';
+    const mockCred = 'mockCred';
 
-    [
-      { name: 'remove http from url', text: 'http://my.pro.xy:8080', shouldMatch: hostAndPortDone },
-      { name: 'remove https from url', text: 'https://my.pro.xy:8080', shouldMatch: hostAndPortDone },
-      { name: 'remove http from ip and port', text: 'http://10.20.30.40:8080', shouldMatch: ipAndPortDone },
-      { name: 'remove https from ip and port', text: 'https://10.20.30.40:8080', shouldMatch: ipAndPortDone },
-      { name: 'dont remove http(s) from hostname and port', text: 'my.pro.xy:8080', shouldMatch: hostAndPortDone },
-      { name: 'dont remove http(s) from ip and port', text: '10.20.30.40:8080', shouldMatch: ipAndPortDone },
-      { name: 'dont remove http(s) from simple string', text: somethingEntirelyDifferentDone, shouldMatch: somethingEntirelyDifferentDone }
-    ].forEach(({ name, text, shouldMatch }) => {
-      it(`${name}`, () => {
-        assert.deepEqual(Util.removeScheme(text), shouldMatch);
+    describe('test function build credential key', function () {
+      const testCases = [
+        {
+          name: 'when all the parameters are null',
+          user: null,
+          host: null,
+          cred: null,
+          result: null
+        },
+        {
+          name: 'when two parameters are null or undefined',
+          user: mockUser,
+          host: null,
+          cred: undefined,
+          result: null
+        },
+        {
+          name: 'when one parameter is null',
+          user: mockUser,
+          host: mockHost,
+          cred: undefined,
+          result: null
+        },
+        {
+          name: 'when one parameter is undefined',
+          user: mockUser,
+          host: undefined,
+          cred: mockCred,
+          result: null
+        },
+        {
+          name: 'when all the parameters are valid',
+          user: mockUser,
+          host: mockHost,
+          cred: mockCred,
+          result: '{mockHost}:{mockUser}:{SF_NODE_JS_DRIVER}:{mockCred}}'
+        },
+      ];
+      testCases.forEach((name, user, host, cred, result) => {
+        it(`${name}`, function () {
+          if (!result) {
+            assert.strictEqual(Util.buildCredentialCacheKey(host, user, cred), null);
+          } else {
+            assert.strictEqual(Util.buildCredentialCacheKey(host, user, cred), result);
+          }
+        });
       });
     });
   });
 
-  describe('Util Test - detecting PROXY envvars and compare with the agent proxy settings', () => {
-    [
+  describe('test valid custom credential manager', function () {
+
+    function sampleManager() {
+      this.read = function () {};
+
+      this.write = function () {};
+
+      this.remove = function () {};
+    }
+
+    const testCases = [
       {
-        name: 'detect http_proxy envvar, no agent proxy',
-        isWarn: false,
-        httpproxy: '10.20.30.40:8080',
-        HTTPSPROXY: '',
-        agentOptions: { 'keepalive': true },
-        shouldLog: ' // PROXY environment variables: HTTP_PROXY: 10.20.30.40:8080 HTTPS_PROXY: <unset> NO_PROXY: <unset>.'
-      }, {
-        name: 'detect HTTPS_PROXY envvar, no agent proxy',
-        isWarn: false,
-        httpproxy: '',
-        HTTPSPROXY: 'http://pro.xy:3128',
-        agentOptions: { 'keepalive': true },
-        shouldLog: ' // PROXY environment variables: HTTP_PROXY: <unset> HTTPS_PROXY: http://pro.xy:3128 NO_PROXY: <unset>.'
-      }, {
-        name: 'detect both http_proxy and HTTPS_PROXY envvar, no agent proxy',
-        isWarn: false,
-        httpproxy: '10.20.30.40:8080',
-        HTTPSPROXY: 'http://pro.xy:3128',
-        agentOptions: { 'keepalive': true },
-        shouldLog: ' // PROXY environment variables: HTTP_PROXY: 10.20.30.40:8080 HTTPS_PROXY: http://pro.xy:3128 NO_PROXY: <unset>.'
-      }, {
-        name: 'detect http_proxy envvar, agent proxy set to an unauthenticated proxy, same as the envvar',
-        isWarn: false,
-        httpproxy: '10.20.30.40:8080',
-        HTTPSPROXY: '',
-        agentOptions: { 'keepalive': true, 'host': '10.20.30.40', 'port': 8080 },
-        shouldLog: ' // PROXY environment variables: HTTP_PROXY: 10.20.30.40:8080 HTTPS_PROXY: <unset> NO_PROXY: <unset>. // Proxy configured in Agent: proxy=10.20.30.40:8080'
-      }, {
-        name: 'detect both http_proxy and HTTPS_PROXY envvar, agent proxy set to an unauthenticated proxy, same as the envvar',
-        isWarn: false,
-        httpproxy: '10.20.30.40:8080',
-        HTTPSPROXY: 'http://10.20.30.40:8080',
-        agentOptions: { 'keepalive': true, 'host': '10.20.30.40', 'port': 8080 },
-        shouldLog: ' // PROXY environment variables: HTTP_PROXY: 10.20.30.40:8080 HTTPS_PROXY: http://10.20.30.40:8080 NO_PROXY: <unset>. // Proxy configured in Agent: proxy=10.20.30.40:8080'
-      }, {
-        name: 'detect both http_proxy and HTTPS_PROXY envvar, agent proxy set to an authenticated proxy, same as the envvar',
-        isWarn: false,
-        httpproxy: '10.20.30.40:8080',
-        HTTPSPROXY: 'http://10.20.30.40:8080',
-        agentOptions: { 'keepalive': true, 'host': '10.20.30.40', 'port': 8080, 'user': 'PRX', 'password': 'proxypass' },
-        shouldLog: ' // PROXY environment variables: HTTP_PROXY: 10.20.30.40:8080 HTTPS_PROXY: http://10.20.30.40:8080 NO_PROXY: <unset>. // Proxy configured in Agent: proxy=10.20.30.40:8080 user=PRX'
-      }, {
-        name: 'detect both http_proxy and HTTPS_PROXY envvar, agent proxy set to an authenticated proxy, same as the envvar, with the protocol set',
-        isWarn: false,
-        httpproxy: '10.20.30.40:8080',
-        HTTPSPROXY: 'http://10.20.30.40:8080',
-        agentOptions: { 'keepalive': true, 'host': '10.20.30.40', 'port': 8080, 'user': 'PRX', 'password': 'proxypass', 'protocol': 'http' },
-        shouldLog: ' // PROXY environment variables: HTTP_PROXY: 10.20.30.40:8080 HTTPS_PROXY: http://10.20.30.40:8080 NO_PROXY: <unset>. // Proxy configured in Agent: protocol=http proxy=10.20.30.40:8080 user=PRX'
-      }, {
-      // now some WARN level messages
-        name: 'detect HTTPS_PROXY envvar, agent proxy set to an unauthenticated proxy, different from the envvar',
-        isWarn: true,
-        httpproxy: '',
-        HTTPSPROXY: 'http://pro.xy:3128',
-        agentOptions: { 'keepalive': true, 'host': '10.20.30.40', 'port': 8080 },
-        shouldLog: ' Using both the HTTPS_PROXY (http://pro.xy:3128) and the proxyHost:proxyPort (10.20.30.40:8080) settings to connect, but with different values. If you experience connectivity issues, try unsetting one of them.'
-      }, {
-        name: 'detect both http_proxy and HTTPS_PROXY envvar, different from each other, agent proxy set to an unauthenticated proxy, different from the envvars',
-        isWarn: true,
-        httpproxy: '169.254.169.254:8080',
-        HTTPSPROXY: 'http://pro.xy:3128',
-        agentOptions: { 'keepalive': true, 'host': '10.20.30.40', 'port': 8080 },
-        shouldLog: ' Using both the HTTP_PROXY (169.254.169.254:8080) and the proxyHost:proxyPort (10.20.30.40:8080) settings to connect, but with different values. If you experience connectivity issues, try unsetting one of them. Using both the HTTPS_PROXY (http://pro.xy:3128) and the proxyHost:proxyPort (10.20.30.40:8080) settings to connect, but with different values. If you experience connectivity issues, try unsetting one of them.'
-      }
-    ].forEach(({ name, isWarn, httpproxy, HTTPSPROXY, agentOptions, shouldLog }) => {
-      it(`${name}`, () => {
-        process.env.HTTP_PROXY = httpproxy;
-        process.env.HTTPS_PROXY = HTTPSPROXY;
+        name: 'credential manager is an int',
+        credentialManager: 123,
+        result: false,
+      },
+      {
+        name: 'credential manager is a string',
+        credentialManager: 'credential manager',
+        result: false,
+      },
+      {
+        name: 'credential manager is an array',
+        credentialManager: ['write', 'read', 'remove'],
+        result: false,
+      },
+      {
+        name: 'credential manager is an empty obejct',
+        credentialManager: {},
+        result: false,
+      },
+      {
+        name: 'credential manager has property, but invalid types',
+        credentialManager: {
+          read: 'read',
+          write: 1234,
+          remove: []
+        },
+        result: false,
+      },
+      {
+        name: 'credential manager has property, but invalid types',
+        credentialManager: {
+          read: 'read',
+          write: 1234,
+          remove: []
+        },
+        result: false,
+      },
+      {
+        name: 'credential manager has two valid properties, but miss one',
+        credentialManager: {
+          read: function () {
 
-        const compareAndLogEnvAndAgentProxies = Util.getCompareAndLogEnvAndAgentProxies(agentOptions);
-        if (!isWarn) {
-          assert.deepEqual(compareAndLogEnvAndAgentProxies.messages, shouldLog, 'expected log message does not match!');
-        } else {
-          assert.deepEqual(compareAndLogEnvAndAgentProxies.warnings, shouldLog, 'expected warning message does not match!');
-        }
+          },
+          write: function () {
+
+          }
+        },
+        result: false,
+      },
+      {
+        name: 'credential manager has two valid properties, but miss one',
+        credentialManager: new sampleManager(),
+        result: true,
+      },
+    ];
+
+    for (const { name, credentialManager, result } of testCases) {
+      it(name, function () {
+        assert.strictEqual(Util.checkValidCustomCredentialManager(credentialManager), result);
       });
-    });
+    }
+  });
 
-    describe('Util test - custom credential manager util functions', function () {
-      const mockUser = 'mockUser';
-      const mockHost = 'mockHost';
-      const mockCred = 'mockCred';
-
-      describe('test function build credential key', function () {
-        const testCases = [
-          {
-            name: 'when all the parameters are null',
-            user: null,
-            host: null,
-            cred: null,
-            result: null
-          },
-          {
-            name: 'when two parameters are null or undefined',
-            user: mockUser,
-            host: null,
-            cred: undefined,
-            result: null
-          },
-          {
-            name: 'when one parameter is null',
-            user: mockUser,
-            host: mockHost,
-            cred: undefined,
-            result: null
-          },
-          {
-            name: 'when one parameter is undefined',
-            user: mockUser,
-            host: undefined,
-            cred: mockCred,
-            result: null
-          },
-          {
-            name: 'when all the parameters are valid',
-            user: mockUser,
-            host: mockHost,
-            cred: mockCred,
-            result: '{mockHost}:{mockUser}:{SF_NODE_JS_DRIVER}:{mockCred}}'
-          },
-        ];
-        testCases.forEach((name, user, host, cred, result) => {
-          it(`${name}`, function () {
-            if (!result) {
-              assert.strictEqual(Util.buildCredentialCacheKey(host, user, cred), null);
-            } else {
-              assert.strictEqual(Util.buildCredentialCacheKey(host, user, cred), result);
-            }
-          });
-        });
-      });
-    });
-
-    describe('test valid custom credential manager', function () {
-      
-      function sampleManager() {
-        this.read = function () {};
-    
-        this.write = function () {};
-    
-        this.remove = function () {};
-      }
-    
-      const testCases = [
-        {
-          name: 'credential manager is an int',
-          credentialManager: 123,
-          result: false,
-        },
-        {
-          name: 'credential manager is a string',
-          credentialManager: 'credential manager',
-          result: false,
-        },
-        {
-          name: 'credential manager is an array',
-          credentialManager: ['write', 'read', 'remove'],
-          result: false,
-        },
-        {
-          name: 'credential manager is an empty obejct',
-          credentialManager: {},
-          result: false,
-        },
-        {
-          name: 'credential manager has property, but invalid types',
-          credentialManager: {
-            read: 'read',
-            write: 1234,
-            remove: []
-          },
-          result: false,
-        },
-        {
-          name: 'credential manager has property, but invalid types',
-          credentialManager: {
-            read: 'read',
-            write: 1234,
-            remove: []
-          },
-          result: false,
-        },
-        {
-          name: 'credential manager has two valid properties, but miss one',
-          credentialManager: {
-            read: function () {
-
-            },
-            write: function () {
-
-            }
-          },
-          result: false,
-        },
-        {
-          name: 'credential manager has two valid properties, but miss one',
-          credentialManager: new sampleManager(),
-          result: true,
-        },
-      ];
-
-      for (const { name, credentialManager, result } of testCases) {
-        it(name, function () {
-          assert.strictEqual(Util.checkValidCustomCredentialManager(credentialManager), result);
-        });
-      }
-    });
-
-    describe('checkParametersDefined function Test', function () {
-      const testCases = [
-        {
-          name: 'all the parameters are null or undefined',
-          parameters: [null, undefined, null, null],
-          result: false
-        },
-        {
-          name: 'one parameter is null',
-          parameters: ['a', 2, true, null],
-          result: false
-        },
-        {
-          name: 'all the parameter are existing',
-          parameters: ['a', 123, ['testing'], {}],
-          result: true
-        },
-      ];
+  describe('checkParametersDefined function Test', function () {
+    const testCases = [
+      {
+        name: 'all the parameters are null or undefined',
+        parameters: [null, undefined, null, null],
+        result: false
+      },
+      {
+        name: 'one parameter is null',
+        parameters: ['a', 2, true, null],
+        result: false
+      },
+      {
+        name: 'all the parameter are existing',
+        parameters: ['a', 123, ['testing'], {}],
+        result: true
+      },
+    ];
   
-      for (const { name, parameters, result } of testCases) {
-        it(name, function () {
-          assert.strictEqual(Util.checkParametersDefined(...parameters), result);
-        });
-      }
-    });
+    for (const { name, parameters, result } of testCases) {
+      it(name, function () {
+        assert.strictEqual(Util.checkParametersDefined(...parameters), result);
+      });
+    }
   });
 
   if (os.platform() !== 'win32') {
@@ -1317,122 +1215,4 @@ describe('Util', function () {
     }
   });
 
-  describe('getProxyEnv function test ', function () {
-    let originalHttpProxy = null;
-    let originalHttpsProxy = null;
-    let originalNoProxy = null;
-
-    before(() => {
-      originalHttpProxy = process.env.HTTP_PROXY;
-      originalHttpsProxy = process.env.HTTPS_PROXY;
-      originalNoProxy = process.env.NO_PROXY; 
-    });
-
-    beforeEach(() => {
-      delete process.env.HTTP_PROXY;
-      delete process.env.HTTPS_PROXY;
-      delete process.env.NO_PROXY;
-    });
-
-    after(() => {
-      originalHttpProxy ? process.env.HTTP_PROXY = originalHttpProxy : delete process.env.HTTP_PROXY;
-      originalHttpsProxy ? process.env.HTTPS_PROXY = originalHttpsProxy : delete process.env.HTTPS_PROXY;
-      originalNoProxy ? process.env.NO_PROXY = originalNoProxy : delete process.env.NO_PROXY; 
-    });
-
-    const testCases = [
-      {
-        name: 'HTTP PROXY without authentication and schema',
-        isHttps: false,
-        httpProxy: 'proxy.example.com:8080',
-        httpsProxy: undefined,
-        noProxy: '*.amazonaws.com',
-        result: {
-          host: 'proxy.example.com',
-          port: 8080,
-          protocol: 'http:',
-          noProxy: '*.amazonaws.com'
-        }
-      },
-      {
-        name: 'HTTP PROXY with authentication',
-        isHttps: false,
-        httpProxy: 'http://hello:world@proxy.example.com:8080',
-        httpsProxy: undefined,
-        noProxy: '*.amazonaws.com,*.my_company.com',
-        result: {
-          host: 'proxy.example.com',
-          user: 'hello',
-          password: 'world',
-          port: 8080,
-          protocol: 'http:',
-          noProxy: '*.amazonaws.com|*.my_company.com'
-        }
-      },
-      {
-        name: 'HTTPS PROXY with authentication without NO proxy',
-        isHttps: true,
-        httpsProxy: 'https://user:pass@myproxy.server.com:1234',
-        result: {
-          host: 'myproxy.server.com',
-          user: 'user',
-          password: 'pass',
-          port: 1234,
-          protocol: 'https:',
-          noProxy: undefined,
-        },
-      },
-      {
-        name: 'HTTPS PROXY with authentication without NO proxy No schema',
-        isHttps: true,
-        noProxy: '*.amazonaws.com,*.my_company.com,*.test.com',
-        httpsProxy: 'myproxy.server.com:1234',
-        result: {
-          host: 'myproxy.server.com',
-          port: 1234,
-          protocol: 'http:',
-          noProxy: '*.amazonaws.com|*.my_company.com|*.test.com',
-        },
-      },
-    ];
-
-    testCases.forEach(({ name, isHttps, httpsProxy, httpProxy, noProxy, result }) => {
-      it(name, function (){
-
-        if (httpProxy){
-          process.env.HTTP_PROXY = httpProxy;
-        }
-        if (httpsProxy) {
-          process.env.HTTPS_PROXY = httpsProxy; 
-        }
-        if (noProxy) {
-          process.env.NO_PROXY = noProxy; 
-        }
-        const proxy =  Util.getProxyFromEnv(isHttps);
-        const keys = Object.keys(result);
-        assert.strictEqual(keys.length, Object.keys(proxy).length);
-
-        for (const key of keys) {
-          assert.strictEqual(proxy[key], result[key]);
-        }
-      });
-    });
-  });
-
-  describe('getNoProxyEnv function Test', function () {
-    let original = null;
-
-    before( function (){
-      original = process.env.NO_PROXY; 
-      process.env.NO_PROXY = '*.amazonaws.com,*.my_company.com';
-    });
-
-    after(() => {
-      process.env.NO_PROXY = original;
-    });
-
-    it('test noProxy conversion', function (){
-      assert.strictEqual(Util.getNoProxyEnv(), '*.amazonaws.com|*.my_company.com');
-    });
-  });
 });

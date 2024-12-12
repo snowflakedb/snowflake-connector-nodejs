@@ -25,7 +25,7 @@ declare module 'snowflake-sdk' {
 
         // 403001
         ERR_GLOBAL_CONFIGURE_INVALID_LOG_LEVEL = 403001,
-        ERR_GLOBAL_CONFIGURE_INVALID_INSECURE_CONNECT = 403002,
+        ERR_GLOBAL_CONFIGURE_INVALID_DISABLE_OCSP_CHECKS = 403002,
         ERR_GLOBAL_CONFIGURE_INVALID_OCSP_MODE = 403003,
         ERR_GLOBAL_CONFIGURE_INVALID_JSON_PARSER = 403004,
         ERR_GLOBAL_CONFIGURE_INVALID_XML_PARSER = 403005,
@@ -131,6 +131,7 @@ declare module 'snowflake-sdk' {
         ERR_CONN_EXEC_STMT_INVALID_FETCH_AS_STRING_VALUES = 409012,
         ERR_CONN_EXEC_STMT_INVALID_REQUEST_ID = 409013,
         ERR_CONN_EXEC_STMT_INVALID_ASYNC_EXEC = 409014,
+        ERR_CONN_EXEC_STMT_INVALID_DESCRIBE_ONLY = 409015,
 
         // 410001
         ERR_CONN_FETCH_RESULT_MISSING_OPTIONS = 410001,
@@ -218,9 +219,9 @@ declare module 'snowflake-sdk' {
         additionalLogToConsole?: boolean | null;
 
         /**
-         * Check the ocsp checking is off.
+         * The option to turn off the OCSP check.
          */
-        insecureConnect?: boolean;
+        disableOCSPChecks?: boolean;
 
         /**
          * The default value is true.
@@ -615,6 +616,14 @@ declare module 'snowflake-sdk' {
         requestId?: string;
 
         /**
+         * The request GUID is a unique identifier of an HTTP request issued to Snowflake.
+         * Unlike the requestId, it is regenerated even when the request is resend with the retry mechanism.
+         * If not specified, request GUIDs are attached to all requests to Snowflake for better traceability.
+         * In the majority of cases it should not be set or filled with false value.
+         */
+        excludeGuid?: string;
+
+        /**
          * Use different rest endpoints based on whether the query id is available.
          */
         queryId?: string;
@@ -652,6 +661,11 @@ declare module 'snowflake-sdk' {
          * that is different from the connector directory.
          */
         cwd?: string;
+
+        /**
+         * `true` to enable a describe only query.
+         */
+        describeOnly?: boolean;
     }
 
     export interface RowStatement {

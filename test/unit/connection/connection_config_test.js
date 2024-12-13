@@ -776,15 +776,15 @@ describe('ConnectionConfig: basic', function () {
         errorCode: ErrorCodes.ERR_CONN_CREATE_INVALID_PASSCODE
       },
       {
-        name: 'invalid overrideEnvProxy',
+        name: 'invalid overrideGCSEnvProxy',
 
         options: {
           account: 'account',
           username: 'username',
           password: 'password',
-          overrideEnvProxy: 123456
+          overrideGCSEnvProxy: 123456
         },
-        errorCode: ErrorCodes.ERR_CONN_CREATE_INVALID_OVERRIDE_ENV_PROXY
+        errorCode: ErrorCodes.ERR_CONN_CREATE_INVALID_OVERRIDE_GCS_ENV_PROXY
       },
     ];
 
@@ -1678,13 +1678,13 @@ describe('ConnectionConfig: basic', function () {
         getter: 'getPasscode',
       },
       {
-        name: 'overrideEnvProxy',
+        name: 'getOverrideGCSEnvProxy',
         input: {
           ...mandatoryOption,
-          overrideEnvProxy: false,
+          overrideGCSEnvProxy: false,
         },
         result: false,
-        getter: 'getOverrideEnvProxy',
+        getter: 'getOverrideGCSEnvProxy',
       },
     ];
 

@@ -13,7 +13,7 @@ const path = require('path');
 const os = require('os');
 
 module.exports.createConnection = function (validConnectionOptionsOverride = {}, coreInstance) {
-  coreInstance = coreInstance ? coreInstance : snowflake;
+  coreInstance = coreInstance || snowflake;
 
   return coreInstance.createConnection({
     ...connOptions.valid,
@@ -22,7 +22,7 @@ module.exports.createConnection = function (validConnectionOptionsOverride = {},
 };
 
 module.exports.createProxyConnection = function (validConnectionOptionsOverride, coreInstance) {
-  coreInstance = coreInstance ? coreInstance : snowflake;
+  coreInstance = coreInstance || snowflake;
 
   return coreInstance.createConnection({
     ...connOptions.connectionWithProxy,
@@ -31,7 +31,7 @@ module.exports.createProxyConnection = function (validConnectionOptionsOverride,
 };
 
 module.exports.createConnectionPool = function (validConnectionOptionsOverride, coreInstance) {
-  coreInstance = coreInstance ? coreInstance : snowflake;
+  coreInstance = coreInstance || snowflake;
 
   return coreInstance.createPool({
     ...connOptions.valid,

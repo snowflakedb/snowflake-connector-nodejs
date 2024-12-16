@@ -35,7 +35,7 @@ class HTTPRequestHandler(BaseHTTPRequestHandler):
         elif self.path.startswith('/xml'):
             self.__respond(200, message='<error/>', content_type='application/xml')
         elif self.path.startswith('/json'):
-            self.__respond(200, message='OK', body='{"smkId": 32621973126123526, "data": {"foo":"bar"}}', content_type='application/json')
+            self.__respond(200, message='OK', body='{"smkId": 32621973126123526, "data": {"test":"data"}}', content_type='application/json')
         elif self.path.startswith('/resetCounter'):
             HTTPRequestHandler.counter = 0
             self.__respond(200, message='OK')

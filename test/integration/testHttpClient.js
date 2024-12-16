@@ -5,7 +5,7 @@ const { hangWebServerUrl } = require('../hangWebserver');
 const assert = require('assert');
 const testUtil = require('./testUtil');
 
-describe('HttpClient Specialized Tests', () => {
+describe('HttpClient Tests', () => {
   let httpClientInstance;
 
   const connectionOptions = {
@@ -70,8 +70,8 @@ describe('HttpClient Specialized Tests', () => {
     });
   });
 
-  describe('Ensuring normalizeResponse is called for requestAsync', () => {
-    it('should return a normalized response with statusCode and body', async () => {
+  describe('Normalizing Response', () => {
+    it('should return a normalized response with statusCode and body for requestAsync', async () => {
       const testUrl = hangWebServerUrl + '/json';
 
       const response = await httpClientInstance.requestAsync({
@@ -82,6 +82,32 @@ describe('HttpClient Specialized Tests', () => {
       assert.ok(response, 'Response should be defined');
       assert.ok(response.statusCode, 'Normalized response should have statusCode');
       assert.ok(response.body, 'Normalized response should have body');
+    });
+
+    it('should return a normalized response with statusCode and body for synchronous request', async () => {
+      const testUrl = hangWebServerUrl + '/json';
+      let errorRaisedInCallback;
+
+      const requestObject = httpClientInstance.request({
+        url: testUrl,
+        method: 'GET',
+        callback: (err, response) => {
+          try {
+            assert.ok(response, 'Response should be defined');
+            assert.ok(response.statusCode, 'Normalized response should have statusCode');
+            assert.ok(response.body, 'Normalized response should have body');
+          } catch (err) {
+            errorRaisedInCallback = err;
+          }
+        }
+      });
+      //Due to usage of 'nextTick' in the httpClient requestPromise may be undefined for some time, only to be set in when scheduled sending took place.
+      while (!requestObject.requestPromise) {
+        await testUtil.sleepAsync(1000);
+      }
+      await requestObject.requestPromise;
+
+      assert.ok(!errorRaisedInCallback, `Did not receive a normalized response. Error: ${errorRaisedInCallback}`);
     });
   });
 });

@@ -11,13 +11,16 @@ class HTTPRequestHandler(BaseHTTPRequestHandler):
     # counts specific calls to change behaviour after some calls
     counter = 0
 
-    def __respond(self, http_code, content_type='text/plain', body=None, ):
-        if body:
-            self.send_response(http_code, body)
+    def __respond(self, http_code, content_type='text/plain', message=None, body=None, ):
+        if message:
+            self.send_response(http_code, message)
         else:
             self.send_response(http_code)
         self.send_header('Content-Type', content_type)
         self.end_headers()
+
+        if body is not None:
+            self.wfile.write(body.encode('utf-8'))
 
     def do_POST(self):
         if self.path.startswith('/403'):
@@ -26,21 +29,23 @@ class HTTPRequestHandler(BaseHTTPRequestHandler):
             self.__respond(404)
         elif self.path.startswith('/hang'):
             time.sleep(300)
-            self.__respond(200, body='OK')
+            self.__respond(200, message='OK')
         elif self.path.startswith('/503'):
             self.__respond(503)
         elif self.path.startswith('/xml'):
-            self.__respond(200, body='<error/>', content_type='application/xml')
+            self.__respond(200, message='<error/>', content_type='application/xml')
+        elif self.path.startswith('/json'):
+            self.__respond(200, message='OK', body='{"smkId": 32621973126123526, "data": {"foo":"bar"}}', content_type='application/json')
         elif self.path.startswith('/resetCounter'):
             HTTPRequestHandler.counter = 0
-            self.__respond(200, body='OK')
+            self.__respond(200, message='OK')
         elif self.path.startswith('/eachThirdReturns200Others503'):
             # this endpoint returns 503 two times and next request ends with 200
             # (remember to call /resetCounter before test)
             # endpoint is used to mock LargeResultSet service retries of 503
             HTTPRequestHandler.counter += 12
             if HTTPRequestHandler.counter % 3 == 0:
-                self.__respond(200, body='OK')
+                self.__respond(200, message='OK')
             else:
                 self.__respond(503)
         elif self.path.startswith('/eachThirdReturns200OthersHang'):
@@ -49,12 +54,12 @@ class HTTPRequestHandler(BaseHTTPRequestHandler):
             # endpoint is used to mock LargeResultSet service retries of timeouts
             HTTPRequestHandler.counter += 1
             if HTTPRequestHandler.counter % 3 == 0:
-                self.__respond(200, body='OK')
+                self.__respond(200, message='OK')
             else:
                 time.sleep(300)
-                self.__respond(200, body='OK')
+                self.__respond(200, message='OK')
         else:
-            self.__respond(200, body='OK')
+            self.__respond(200, message='OK')
     do_GET = do_POST
 
 class ThreadedHTTPServer(ThreadingMixIn, HTTPServer):

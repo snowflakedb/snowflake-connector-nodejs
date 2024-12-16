@@ -373,3 +373,9 @@ module.exports.normalizeValue = normalizeValue;
 module.exports.isGuidInRequestOptions = function (requestOptions) {
   return requestOptions.url.includes('request_guid') || 'request_guid' in requestOptions.params;
 };
+
+module.exports.isRequestCancelledError = function (error) {
+  assert.equal(error.message, 'canceled', `Expected error message "canceled", but received ${error.message}`);
+  assert.equal(error.name, 'CanceledError', `Expected error name "canceled", but received ${error.name}`);
+  assert.equal(error.code, 'ERR_CANCELED', `Expected error code "canceled", but received ${error.code}`);
+};

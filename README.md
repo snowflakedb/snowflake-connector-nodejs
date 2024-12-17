@@ -137,4 +137,3 @@ Fix potentially fixable formatting errors and warnings of single file or directo
 ```
 npm run lint:fix -- test/unit/logger
 ```
-

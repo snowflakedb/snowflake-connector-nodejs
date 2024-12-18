@@ -349,8 +349,22 @@ module.exports.createRandomFileName = function ( option = { prefix: '', postfix:
   return fileName;
 };
 
-module.exports.sleepAsync = function (ms) {
+const sleepAsync = function (ms) {
   return new Promise(resolve => setTimeout(resolve, ms));
+};
+
+module.exports.sleepAsync = sleepAsync;
+
+module.exports.waitForCondition = async function (conditionCallable, { maxWaitTimeInMs = 20000, waitTimeBetweenChecksInMs = 1000 } = {}) {
+  let waitedTimeInMs = 0;
+  while (!conditionCallable()) {
+    await sleepAsync(waitTimeBetweenChecksInMs);
+    waitedTimeInMs += waitTimeBetweenChecksInMs;
+
+    if (waitedTimeInMs > maxWaitTimeInMs) {
+      throw Error(`Condition was not met after max wait time = ${maxWaitTimeInMs}`);
+    }
+  }
 };
 
 module.exports.assertConnectionActive = function (connection) {
@@ -372,4 +386,10 @@ module.exports.normalizeValue = normalizeValue;
 
 module.exports.isGuidInRequestOptions = function (requestOptions) {
   return requestOptions.url.includes('request_guid') || 'request_guid' in requestOptions.params;
+};
+
+module.exports.isRequestCancelledError = function (error) {
+  assert.equal(error.message, 'canceled', `Expected error message "canceled", but received ${error.message}`);
+  assert.equal(error.name, 'CanceledError', `Expected error name "CanceledError", but received ${error.name}`);
+  assert.equal(error.code, 'ERR_CANCELED', `Expected error code "ERR_CANCELED", but received ${error.code}`);
 };

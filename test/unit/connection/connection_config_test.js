@@ -775,17 +775,6 @@ describe('ConnectionConfig: basic', function () {
         },
         errorCode: ErrorCodes.ERR_CONN_CREATE_INVALID_PASSCODE
       },
-      {
-        name: 'invalid overrideGCSEnvProxy',
-
-        options: {
-          account: 'account',
-          username: 'username',
-          password: 'password',
-          overrideGCSEnvProxy: 123456
-        },
-        errorCode: ErrorCodes.ERR_CONN_CREATE_INVALID_OVERRIDE_GCS_ENV_PROXY
-      },
     ];
 
   const createNegativeITCallback = function (testCase) {
@@ -1676,15 +1665,6 @@ describe('ConnectionConfig: basic', function () {
         },
         result: '123456',
         getter: 'getPasscode',
-      },
-      {
-        name: 'getOverrideGCSEnvProxy',
-        input: {
-          ...mandatoryOption,
-          overrideGCSEnvProxy: false,
-        },
-        result: false,
-        getter: 'getOverrideGCSEnvProxy',
       },
     ];
 

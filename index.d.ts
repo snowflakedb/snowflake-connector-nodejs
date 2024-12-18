@@ -512,11 +512,6 @@ declare module 'snowflake-sdk' {
          *  The option to pass passcode from DUO.
          */
         passcode?: string;
-
-        /**
-         *  The option to override the environment proxy value (HTTPS_PROXY) if the connection proxy is configured in GCS
-         */
-        overrideGCSEnvProxy?: boolean;
     }
 
     export interface Connection {

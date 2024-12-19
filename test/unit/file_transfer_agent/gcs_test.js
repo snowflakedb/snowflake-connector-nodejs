@@ -5,7 +5,7 @@
 const assert = require('assert');
 const mock = require('mock-require');
 const SnowflakeGCSUtil = require('./../../../lib/file_transfer_agent/gcs_util');
-const resultStatus = require('./../../../lib/file_transfer_agent/file_util').resultStatus;
+const resultStatus = require('../../../lib/file_util').resultStatus;
 
 describe('GCS client', function () {
   const mockDataFile = 'mockDataFile';

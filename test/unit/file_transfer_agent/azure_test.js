@@ -5,7 +5,7 @@
 const assert = require('assert');
 const mock = require('mock-require');
 const SnowflakeAzureUtil = require('./../../../lib/file_transfer_agent/azure_util');
-const resultStatus = require('./../../../lib/file_transfer_agent/file_util').resultStatus;
+const resultStatus = require('../../../lib/file_util').resultStatus;
 
 describe('Azure client', function () {
   const mockDataFile = 'mockDataFile';

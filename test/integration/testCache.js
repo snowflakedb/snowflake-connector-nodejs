@@ -1,8 +1,10 @@
-const Util = require('../../lib/util');
 const fs = require('fs/promises');
 const path = require('path');
 const os = require('os');
 const assert = require('assert');
+const { createFsMock, wrongOwner, mockFiles } = require('../unit/mock/mock_file');
+const { validateOnlyUserReadWritePermissionAndOwner } = require('../../lib/file_util');
+const mock = require('mock-require');
 
 describe('Validate cache permissions test', async function () {
   if (os.platform() !== 'win32') {
@@ -20,11 +22,33 @@ describe('Validate cache permissions test', async function () {
     });
 
     it('should return error on insecure permissions', async function () {
-      await assert.rejects(async () => await Util.validateFilePermissions(invalidPermissionsFilePath));
+      await assert.rejects(
+        validateOnlyUserReadWritePermissionAndOwner(invalidPermissionsFilePath),
+        (err) => {
+          assert.match(err.message, /Invalid file permissions/);
+          return true;
+        },
+      );
+    });
+
+    it('should return error when system user is not a file owner', async function () {
+      const anotherFileOwnerPath = path.join(wrongOwner);
+      const fsMock = createFsMock()
+        .mockFile(anotherFileOwnerPath, 'test');
+      mockFiles(fsMock);
+      const fsPromises = require('fs/promises');
+      await assert.rejects(
+        validateOnlyUserReadWritePermissionAndOwner(anotherFileOwnerPath, fsPromises),
+        (err) => {
+          assert.match(err.message, /Invalid file owner/);
+          return true;
+        },
+      );
+      mock.stop('fs/promises');
     });
 
     it('should execute successfully on secure permissions', async function () {
-      await assert.doesNotReject(async () => await Util.validateFilePermissions(validPermissionsFilePath));
+      await assert.doesNotReject(async () => await validateOnlyUserReadWritePermissionAndOwner(validPermissionsFilePath));
     });
   }
 });

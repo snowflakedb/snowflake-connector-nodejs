@@ -7,7 +7,6 @@ const assert = require('assert');
 const path = require('path');
 const fsPromises = require('fs/promises');
 const os = require('os');
-const { lstat } = require('fs');
 
 describe('Util', function () {
   it('Util.isFunction()', function () {
@@ -1238,7 +1237,7 @@ describe('Util', function () {
       },
     ];
 
-    for (const {name, str, remove,  result } of testCases) {
+    for (const { name, str, remove,  result } of testCases) {
       it(name, function () {
         assert.strictEqual(Util.lstrip(str, remove), result);
       });

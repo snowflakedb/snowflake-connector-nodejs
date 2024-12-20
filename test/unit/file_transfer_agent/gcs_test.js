@@ -41,11 +41,10 @@ describe('GCS client', function () {
     meta = {
       stageInfo: {
         location: mockLocation,
-        region: '',
         path: mockTable + '/' + mockPath + '/',
-        creds: {
-          GCS_ACCESS_TOKEN: 'mockToken'
-        }
+        endPoint: null,
+        useRegionalUrl: false,
+        region: 'mockLocation',
       },
       presignedUrl: mockPresignedUrl,
       dstFileName: mockPresignedUrl,
@@ -144,7 +143,7 @@ describe('GCS client', function () {
 
     testCases.forEach(({ name, stageInfo, result }) => {
       it(name, () => {
-        const client = GCS.createClient({ ...meta.stageInfo, ...stageInfo });
+        const client = GCS.createClient({ ...meta.stageInfo, ...stageInfo,  creds: { GCS_ACCESS_TOKEN: 'mockToken' } });
         assert.strictEqual(client.gcsClient.apiEndpoint, result);
       } );
 

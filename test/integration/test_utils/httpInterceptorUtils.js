@@ -82,7 +82,7 @@ function HttpClientWithInterceptors(connectionConfig, initialInterceptors) {
 
 Util.inherits(HttpClientWithInterceptors, NodeHttpClient);
 
-
+//To add new methods to be intercepted wrap them here with appropriate interceptors calls
 HttpClientWithInterceptors.prototype.requestAsync = async function (url, options) {
   this.interceptors.intercept('requestAsync', HOOK_TYPE.FOR_ARGS, url, options);
   const response = await NodeHttpClient.prototype.requestAsync.call(this, url, options);

@@ -1269,33 +1269,34 @@ describe('Util', function () {
       });
     });      
 
-  describe('lstrip function Test', function () {
-    const testCases = [
-      {
-        name: 'remove consecutive characters /',
-        str: '///////////helloworld',
-        remove: '/',
-        result: 'helloworld'
-      },
-      {
-        name: 'when the first character is not matched with the remove character',
-        str: '/\\/\\helloworld',
-        remove: '\\',
-        result: '/\\/\\helloworld'
-      },
-      {
-        name: 'when the first and the third characters are matched',
-        str: '@1@12345helloworld',
-        remove: '@',
-        result: '1@12345helloworld'
-      },
-    ];
+    describe('lstrip function Test', function () {
+      const testCases = [
+        {
+          name: 'remove consecutive characters /',
+          str: '///////////helloworld',
+          remove: '/',
+          result: 'helloworld'
+        },
+        {
+          name: 'when the first character is not matched with the remove character',
+          str: '/\\/\\helloworld',
+          remove: '\\',
+          result: '/\\/\\helloworld'
+        },
+        {
+          name: 'when the first and the third characters are matched',
+          str: '@1@12345helloworld',
+          remove: '@',
+          result: '1@12345helloworld'
+        },
+      ];
 
-    for (const { name, str, remove,  result } of testCases) {
-      it(name, function () {
-        assert.strictEqual(Util.lstrip(str, remove), result);
-      });
-    }
+      for (const { name, str, remove,  result } of testCases) {
+        it(name, function () {
+          assert.strictEqual(Util.lstrip(str, remove), result);
+        });
+      }
+    });
+
   });
-
 });

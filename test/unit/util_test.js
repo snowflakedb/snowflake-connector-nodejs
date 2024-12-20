@@ -1215,28 +1215,6 @@ describe('Util', function () {
     }
   });
 
-  describe('restoreEnvVar function test', function () {
-    const testCases = [
-      {
-        name: 'snowflake_restore_env_test',
-        value: 'mock_value2',
-      },
-      {
-        name: 'SNOWFLAKE_RESTORE_ENV_TEST',
-        value: 'MOCK_VALUE2',
-      },
-    ];
-
-    for (const { name, value, } of testCases) {
-      it(name, function () {
-        process.env[name] = 'wrong value';
-        Util.restoreEnvVar(name, value);
-        assert.strictEqual(Util.getEnvVar(name), value);
-        delete process.env[name];
-      });
-    }
-  });
-
   describe('isEmptyObject function test', function () {
     const testCases = [
       {

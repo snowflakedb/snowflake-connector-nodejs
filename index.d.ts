@@ -25,7 +25,7 @@ declare module 'snowflake-sdk' {
 
         // 403001
         ERR_GLOBAL_CONFIGURE_INVALID_LOG_LEVEL = 403001,
-        ERR_GLOBAL_CONFIGURE_INVALID_INSECURE_CONNECT = 403002,
+        ERR_GLOBAL_CONFIGURE_INVALID_DISABLE_OCSP_CHECKS = 403002,
         ERR_GLOBAL_CONFIGURE_INVALID_OCSP_MODE = 403003,
         ERR_GLOBAL_CONFIGURE_INVALID_JSON_PARSER = 403004,
         ERR_GLOBAL_CONFIGURE_INVALID_XML_PARSER = 403005,
@@ -219,9 +219,9 @@ declare module 'snowflake-sdk' {
         additionalLogToConsole?: boolean | null;
 
         /**
-         * Check the ocsp checking is off.
+         * The option to turn off the OCSP check.
          */
-        insecureConnect?: boolean;
+        disableOCSPChecks?: boolean;
 
         /**
          * The default value is true.
@@ -614,6 +614,14 @@ declare module 'snowflake-sdk' {
          * Detailed Information: https://docs.snowflake.com/en/developer-guide/node-js/nodejs-driver-execute.
          */
         requestId?: string;
+
+        /**
+         * The request GUID is a unique identifier of an HTTP request issued to Snowflake.
+         * Unlike the requestId, it is regenerated even when the request is resend with the retry mechanism.
+         * If not specified, request GUIDs are attached to all requests to Snowflake for better traceability.
+         * In the majority of cases it should not be set or filled with false value.
+         */
+        excludeGuid?: string;
 
         /**
          * Use different rest endpoints based on whether the query id is available.

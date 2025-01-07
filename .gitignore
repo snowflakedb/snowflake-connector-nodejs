@@ -14,3 +14,4 @@ wss-*-agent.config
 wss-unified-agent.jar
 whitesource/
 .nyc_output
+rsa_*.p8

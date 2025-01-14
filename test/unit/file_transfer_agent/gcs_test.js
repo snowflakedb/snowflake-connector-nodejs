@@ -34,7 +34,10 @@ describe('GCS client', function () {
     meta = {
       stageInfo: {
         location: mockLocation,
-        path: mockTable + '/' + mockPath + '/'
+        path: mockTable + '/' + mockPath + '/',
+        endPoint: null,
+        useRegionalUrl: false,
+        region: 'mockLocation',
       },
       presignedUrl: mockPresignedUrl,
       dstFileName: mockPresignedUrl,
@@ -62,6 +65,82 @@ describe('GCS client', function () {
     httpclient = require('httpclient');
     filestream = require('filestream');
     GCS = new SnowflakeGCSUtil(httpclient, filestream);
+  });
+
+  describe('GCS client endpoint testing', async function () {
+    const testCases = [
+      {
+        name: 'when the useRegionalURL is only enabled',
+        stageInfo: {
+          endPoint: null,
+          useRegionalUrl: true,
+          region: 'mockLocation',
+        },
+        result: 'https://storage.mocklocation.rep.googleapis.com'
+      },
+      {
+        name: 'when the region is me-central2',
+        stageInfo: {
+          endPoint: null,
+          useRegionalUrl: false,
+          region: 'me-central2'
+        },
+        result: 'https://storage.me-central2.rep.googleapis.com'
+      },
+      {
+        name: 'when the region is me-central2 (mixed case)',
+        stageInfo: {
+          endPoint: null,
+          useRegionalUrl: false,
+          region: 'ME-cEntRal2'
+        },
+        result: 'https://storage.me-central2.rep.googleapis.com'
+      },
+      {
+        name: 'when the region is me-central2 (uppercase)',
+        stageInfo: {
+          endPoint: null,
+          useRegionalUrl: false,
+          region: 'ME-CENTRAL2'
+        },
+        result: 'https://storage.me-central2.rep.googleapis.com'
+      },
+      {
+        name: 'when the endPoint is specified',
+        stageInfo: {
+          endPoint: 'https://storage.specialEndPoint.rep.googleapis.com',
+          useRegionalUrl: false,
+          region: 'ME-cEntRal1'
+        },
+        result: 'https://storage.specialEndPoint.rep.googleapis.com'
+      },
+      {
+        name: 'when both the endPoint and the useRegionalUrl are specified',
+        stageInfo: {
+          endPoint: 'https://storage.specialEndPoint.rep.googleapis.com',
+          useRegionalUrl: true,
+          region: 'ME-cEntRal1'
+        },
+        result: 'https://storage.specialEndPoint.rep.googleapis.com'
+      },
+      {
+        name: 'when both the endPoint is specified and the region is me-central2',
+        stageInfo: {
+          endPoint: 'https://storage.specialEndPoint.rep.googleapis.com',
+          useRegionalUrl: true,
+          region: 'ME-CENTRAL2'
+        },
+        result: 'https://storage.specialEndPoint.rep.googleapis.com'
+      },
+    ];
+
+    testCases.forEach(({ name, stageInfo, result }) => {
+      it(name, () => {
+        const client = GCS.createClient({ ...meta.stageInfo, ...stageInfo,  creds: { GCS_ACCESS_TOKEN: 'mockToken' } });
+        assert.strictEqual(client.gcsClient.apiEndpoint, result);
+      } );
+
+    });
   });
 
   it('extract bucket name and path', async function () {

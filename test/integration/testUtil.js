@@ -12,19 +12,31 @@ const Logger = require('../../lib/logger');
 const path = require('path');
 const os = require('os');
 
-module.exports.createConnection = function (validConnectionOptionsOverride = {}) {
-  return snowflake.createConnection({
+module.exports.createConnection = function (validConnectionOptionsOverride = {}, coreInstance) {
+  coreInstance = coreInstance || snowflake;
+
+  return coreInstance.createConnection({
     ...connOptions.valid,
     ...validConnectionOptionsOverride,
   });
 };
 
-module.exports.createProxyConnection = function () {
-  return snowflake.createConnection(connOptions.connectionWithProxy);
+module.exports.createProxyConnection = function (validConnectionOptionsOverride, coreInstance) {
+  coreInstance = coreInstance || snowflake;
+
+  return coreInstance.createConnection({
+    ...connOptions.connectionWithProxy,
+    ...validConnectionOptionsOverride
+  });
 };
 
-module.exports.createConnectionPool = function () {
-  return snowflake.createPool(connOptions.valid, { max: 10, min: 0, testOnBorrow: true });
+module.exports.createConnectionPool = function (validConnectionOptionsOverride, coreInstance) {
+  coreInstance = coreInstance || snowflake;
+
+  return coreInstance.createPool({
+    ...connOptions.valid,
+    ...validConnectionOptionsOverride
+  }, { max: 10, min: 0, testOnBorrow: true });
 };
 
 module.exports.connect = function (connection, callback) {
@@ -96,6 +108,18 @@ const executeCmdAsync = function (connection, sqlText, binds = undefined) {
 
 module.exports.executeCmdAsync = executeCmdAsync;
 
+const executeCmdAsyncWithAdditionalParameters = function (connection, sqlText, additionalParameters) {
+  return new Promise((resolve, reject) => {
+    const executeParams = { ...{
+      sqlText: sqlText,
+      complete: (err, rowStatement, rows) =>
+        err ? reject(err) : resolve({ rowStatement: rowStatement, rows: rows })
+    }, ...additionalParameters };
+    connection.execute(executeParams);
+  });
+};
+
+module.exports.executeCmdAsyncWithAdditionalParameters = executeCmdAsyncWithAdditionalParameters;
 /**
  * Drop tables one by one if exist - any connection error is ignored
  * @param connection Connection
@@ -325,8 +349,22 @@ module.exports.createRandomFileName = function ( option = { prefix: '', postfix:
   return fileName;
 };
 
-module.exports.sleepAsync = function (ms) {
+const sleepAsync = function (ms) {
   return new Promise(resolve => setTimeout(resolve, ms));
+};
+
+module.exports.sleepAsync = sleepAsync;
+
+module.exports.waitForCondition = async function (conditionCallable, { maxWaitTimeInMs = 20000, waitTimeBetweenChecksInMs = 1000 } = {}) {
+  let waitedTimeInMs = 0;
+  while (!conditionCallable()) {
+    await sleepAsync(waitTimeBetweenChecksInMs);
+    waitedTimeInMs += waitTimeBetweenChecksInMs;
+
+    if (waitedTimeInMs > maxWaitTimeInMs) {
+      throw Error(`Condition was not met after max wait time = ${maxWaitTimeInMs}`);
+    }
+  }
 };
 
 module.exports.assertConnectionActive = function (connection) {
@@ -343,6 +381,15 @@ module.exports.assertActiveConnectionDestroyedCorrectlyAsync = async function (c
   module.exports.assertConnectionInactive(connection);
 };
 
-
 module.exports.normalizeRowObject = normalizeRowObject;
 module.exports.normalizeValue = normalizeValue;
+
+module.exports.isGuidInRequestOptions = function (requestOptions) {
+  return requestOptions.url.includes('request_guid') || 'request_guid' in requestOptions.params;
+};
+
+module.exports.isRequestCancelledError = function (error) {
+  assert.equal(error.message, 'canceled', `Expected error message "canceled", but received ${error.message}`);
+  assert.equal(error.name, 'CanceledError', `Expected error name "CanceledError", but received ${error.name}`);
+  assert.equal(error.code, 'ERR_CANCELED', `Expected error code "ERR_CANCELED", but received ${error.code}`);
+};

@@ -73,7 +73,9 @@
     "test:ci:coverage": "nyc npm run test:ci",
     "test:ci:withSystemTests": "mocha -timeout 180000 --recursive --full-trace 'test/{unit,integration}/**/*.js' system_test/*.js",
     "test:ci:withSystemTests:coverage": "nyc npm run test:ci:withSystemTests",
-    "test:manual": "mocha -timeout 180000 --full-trace --full-trace test/integration/testManualConnection.js"
+    "test:manual": "mocha -timeout 180000 --full-trace --full-trace test/integration/testManualConnection.js",
+    "serve-wiremock": "wiremock --enable-browser-proxying --proxy-pass-through  false --port 8081 ",
+    "wiremock": "npm run serve-wiremock"
   },
   "author": {
     "name": "Snowflake Computing, Inc.",

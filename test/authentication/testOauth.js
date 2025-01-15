@@ -1,11 +1,85 @@
 const assert = require('assert');
+const fs = require('fs');
+const net = require('net');
 const connParameters = require('./connectionParameters');
 const axios = require('axios');
-const { snowflakeAuthTestOktaUser, snowflakeAuthTestOktaPass, snowflakeAuthTestRole, snowflakeAuthTestOauthClientId,
+const { snowflakeAuthTestOauthClientId,
   snowflakeAuthTestOauthClientSecret, snowflakeAuthTestOauthUrl
 } = require('./connectionParameters');
 const AuthTest = require('./authTestsBaseClass');
+const WireMockRestClient =  require('wiremock-rest-client').WireMockRestClient;
+const { exec } = require('child_process');
 
+
+
+async function runWireMockAsync(port) {
+  let timeoutHandle;
+  const waitingWireMockPromise =  new Promise(async (resolve, reject) => {
+    try {
+      exec(`npx wiremock --enable-browser-proxying --proxy-pass-through  false --port ${port} `);
+      const wireMock = new WireMockRestClient(`http://localhost:${port}`);
+      const readyWireMock = await waitForWiremockStarted(wireMock);
+      resolve(readyWireMock);
+    } catch (err) {
+      reject(err);
+    }
+  });
+
+
+  const timeout = new Promise((resolve, reject) =>
+    timeoutHandle = setTimeout(
+      () => reject('Wiremock unavailable  after 6000 ms.'),
+      6000));
+  return Promise.race([waitingWireMockPromise, timeout])
+    .then(result => {
+      clearTimeout(timeoutHandle);
+      return result;
+    });
+}
+
+async function waitForWiremockStarted(wireMock) {
+  return fetch(wireMock.baseUri)
+    .then(async (resp) => {
+      if (resp.ok) {
+        return Promise.resolve(wireMock);
+      } else {
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        console.log(`Retry connection to WireMock after wrong response status: ${resp.status}`);
+        return await waitForWiremockStarted(wireMock);
+      }
+    })
+    .catch(async (err) => {
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      console.log(`Retry connection to WireMock after error: ${err}`);
+      return await waitForWiremockStarted(wireMock);
+    });
+}
+
+describe('Wiremock test', function () {
+  it('Run Wiremock instance, wait, verify connection and shutdown', async function () {
+    const wireMock = await runWireMockAsync();
+    try {
+      assert.doesNotReject(async () => await wireMock.mappings.getAllMappings());
+    } finally {
+      await wireMock.global.shutdown();
+    }
+  });
+  it('Add mappings', async function () {
+    const wireMock = await runWireMockAsync();
+    try {
+      const requests = JSON.parse(fs.readFileSync('wiremock/mappings/test.json', 'utf8'));
+      for (const mapping of  requests.mappings) {
+        await wireMock.mappings.createMapping(mapping);
+      }
+      const mappings = await wireMock.mappings.getAllMappings();
+      assert.strictEqual(mappings.mappings.length, 2);
+      const response = await axios.get('http://localhost:8081/test/authorize.html');
+      assert.strictEqual(response.status, 200);
+    } finally {
+      await wireMock.global.shutdown();
+    }
+  });
+});
 
 describe('Oauth authentication', function () {
   let authTest;
@@ -45,8 +119,59 @@ describe('Oauth authentication', function () {
   });
 });
 
+describe('Oauth PAT authentication', function () {
+  let port;
+  let authTest;
+  let wireMock;
+  before(async () => {
+    port = await getPortFree();
+    wireMock = await runWireMockAsync(port);
+  });
+  beforeEach(async () => {
+    authTest = new AuthTest();
+  });
+  afterEach(async () => {
+    wireMock.scenarios.resetAllScenarios();
+  });
+  after(async () => {
+    await wireMock.global.shutdown();
+  });
+
+
+  it('Successful flow scenario PAT as token', async function () {
+    await addWireMockMappingsFromFile('wiremock/mappings/pat/successful_flow.json');
+    const connectionOption = { ...connParameters.oauthPATOnWiremock, token: 'MOCK_TOKEN', port: port };
+    authTest.createConnection(connectionOption);
+    await authTest.connectAsync();
+    authTest.verifyNoErrorWasThrown();
+  });
+
+  it('Successful flow scenario PAT as password', async function () {
+    await addWireMockMappingsFromFile('wiremock/mappings/pat/successful_flow.json');
+    const connectionOption = { ...connParameters.oauthPATOnWiremock, password: 'MOCK_TOKEN', port: port  };
+    authTest.createConnection(connectionOption);
+    await authTest.connectAsync();
+    authTest.verifyNoErrorWasThrown();
+  });
+
+  it('Invalid token', async function () {
+    await addWireMockMappingsFromFile('wiremock/mappings/pat/invalid_pat_token.json');
+    const connectionOption = { ...connParameters.oauthPATOnWiremock, token: 'INVALID_TOKEN', port: port  };
+    authTest.createConnection(connectionOption);
+    await authTest.connectAsync();
+    authTest.verifyErrorWasThrown('Programmatic access token is invalid.');
+  });
+
+  async function addWireMockMappingsFromFile(filePath) {
+    const requests = JSON.parse(fs.readFileSync(filePath, 'utf8'));
+    for (const mapping of requests.mappings) {
+      await wireMock.mappings.createMapping(mapping);
+    }
+  }
+});
+
 async function getToken() {
-  const response =  await axios.post(snowflakeAuthTestOauthUrl, data, {
+  const response =  await axios.post(snowflakeAuthTestOauthUrl, {}, {
     headers: {
       'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8'
     },
@@ -59,9 +184,12 @@ async function getToken() {
   return response.data.access_token;
 }
 
-const data = [
-  `username=${snowflakeAuthTestOktaUser}`,
-  `password=${snowflakeAuthTestOktaPass}`,
-  'grant_type=password',
-  `scope=session:role:${snowflakeAuthTestRole.toLowerCase()}`
-].join('&');
+async function getPortFree() {
+  return new Promise( res => {
+    const srv = net.createServer();
+    srv.listen(0, () => {
+      const port = srv.address().port;
+      srv.close((err) => res(port));
+    });
+  });
+}

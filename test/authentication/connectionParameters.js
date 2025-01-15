@@ -54,6 +54,19 @@ const oauth =
       authenticator: 'OAUTH'
     };
 
+const oauthPATOnWiremock =
+    {
+      ...baseParameters,
+      accessUrl: null,
+      username: 'MOCK_USERNAME',
+      account: 'MOCK_ACCOUNT_NAME',
+      host: 'localhost',
+      protocol: 'http',
+      authenticator: 'PROGRAMMATIC_ACCESS_TOKEN',
+      // proxyHost: '127.0.0.1',
+      // proxyPort: 8080
+    };
+
 const keypairPrivateKey =
     {
       ...baseParameters,
@@ -81,6 +94,7 @@ const keypairEncryptedPrivateKeyPath =
 exports.externalBrowser = externalBrowser;
 exports.okta = okta;
 exports.oauth = oauth;
+exports.oauthPATOnWiremock = oauthPATOnWiremock;
 exports.keypairPrivateKey = keypairPrivateKey;
 exports.keypairPrivateKeyPath = keypairPrivateKeyPath;
 exports.keypairEncryptedPrivateKeyPath = keypairEncryptedPrivateKeyPath;

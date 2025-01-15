@@ -751,7 +751,7 @@ describe('Util', function () {
         result: true,
       },
       {
-        name: 'test - max retry timout is 0',
+        name: 'test - max retry timeout is 0',
         retryOption: {
           maxRetryCount: 7,
           numRetries: 1,
@@ -781,7 +781,7 @@ describe('Util', function () {
         result: false,
       },
       {
-        name: 'test - the remaining timout is 0',
+        name: 'test - the remaining timeout is 0',
         retryOption: {
           maxRetryCount: 7,
           numRetries: 8,
@@ -791,7 +791,7 @@ describe('Util', function () {
         result: false,
       },
       {
-        name: 'test - the remaining timoue is negative',
+        name: 'test - the remaining timeout is negative',
         retryOption: {
           maxRetryCount: 7,
           numRetries: 8,
@@ -992,7 +992,7 @@ describe('Util', function () {
         result: false,
       },
       {
-        name: 'credential manager is an empty obejct',
+        name: 'credential manager is an empty object',
         credentialManager: {},
         result: false,
       },
@@ -1165,19 +1165,19 @@ describe('Util', function () {
         result: true,
       },
       {
-        name: 'test - when the disableGCPTokenUplaod is enabled',
+        name: 'test - when the disableGCPTokenUpload is enabled',
         accessToken: 'Token',
         forceGCPUseDownscopedCredential: true,
         result: false,
       },
       {
-        name: 'test - when token is empty but the disableGCPTokenUplaod is enabled',
+        name: 'test - when token is empty but the disableGCPTokenUpload is enabled',
         accessToken: null,
         forceGCPUseDownscopedCredential: true,
         result: false,
       },
       {
-        name: 'test - test - when token is empty but the disableGCPTokenUplaod is disabled',
+        name: 'test - when token is empty but the disableGCPTokenUpload is disabled',
         accessToken: null,
         forceGCPUseDownscopedCredential: false,
         result: false,
@@ -1215,33 +1215,88 @@ describe('Util', function () {
     }
   });
 
-  describe('lstrip function Test', function () {
+  describe('isEmptyObject function test', function () {
     const testCases = [
       {
-        name: 'remove consecutive characters /',
-        str: '///////////helloworld',
-        remove: '/',
-        result: 'helloworld'
+        name: 'JSON is not empty',
+        value: { 'hello': 'a' },
+        result: false
       },
       {
-        name: 'when the first character is not matched with the remove character',
-        str: '/\\/\\helloworld',
-        remove: '\\',
-        result: '/\\/\\helloworld'
+        name: 'JSON is empty',
+        value: {},
+        result: true
       },
       {
-        name: 'when the first and the third characters are matched',
-        str: '@1@12345helloworld',
-        remove: '@',
-        result: '1@12345helloworld'
+        name: 'non object(string)',
+        value: 'hello world',
+        result: false,
+      },
+      {
+        name: 'non object(int)',
+        value: 123,
+        result: false,
+      },
+      {
+        name: 'non object(int)',
+        value: 123,
+        result: false,
+      },
+      {
+        name: 'array',
+        value: [1, 2, 3],
+        result: false,
+      },
+      {
+        name: 'empty array',
+        value: [],
+        result: true,
+      },
+      {
+        name: 'null',
+        value: null,
+        result: true,
+      }, {
+        name: 'undefined',
+        value: undefined,
+        result: true,
       },
     ];
 
-    for (const { name, str, remove,  result } of testCases) {
-      it(name, function () {
-        assert.strictEqual(Util.lstrip(str, remove), result);
+    testCases.forEach(({ name, value, result }) => {
+      it(name, function () {        
+        assert.strictEqual(Util.isEmptyObject(value), result);
       });
-    }
-  });
+    });      
 
+    describe('lstrip function Test', function () {
+      const testCases = [
+        {
+          name: 'remove consecutive characters /',
+          str: '///////////helloworld',
+          remove: '/',
+          result: 'helloworld'
+        },
+        {
+          name: 'when the first character is not matched with the remove character',
+          str: '/\\/\\helloworld',
+          remove: '\\',
+          result: '/\\/\\helloworld'
+        },
+        {
+          name: 'when the first and the third characters are matched',
+          str: '@1@12345helloworld',
+          remove: '@',
+          result: '1@12345helloworld'
+        },
+      ];
+
+      for (const { name, str, remove,  result } of testCases) {
+        it(name, function () {
+          assert.strictEqual(Util.lstrip(str, remove), result);
+        });
+      }
+    });
+
+  });
 });

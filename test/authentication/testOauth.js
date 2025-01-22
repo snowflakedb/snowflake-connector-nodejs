@@ -56,28 +56,26 @@ async function waitForWiremockStarted(wireMock) {
 }
 
 describe('Wiremock test', function () {
+  let port, wireMock;
+  before(async () => {
+    port = await getPortFree();
+    wireMock = await runWireMockAsync(port);
+  });
+  after(async () => {
+    await wireMock.global.shutdown();
+  });
   it('Run Wiremock instance, wait, verify connection and shutdown', async function () {
-    const wireMock = await runWireMockAsync();
-    try {
-      assert.doesNotReject(async () => await wireMock.mappings.getAllMappings());
-    } finally {
-      await wireMock.global.shutdown();
-    }
+    assert.doesNotReject(async () => await wireMock.mappings.getAllMappings());
   });
   it('Add mappings', async function () {
-    const wireMock = await runWireMockAsync();
-    try {
-      const requests = JSON.parse(fs.readFileSync('wiremock/mappings/test.json', 'utf8'));
-      for (const mapping of  requests.mappings) {
-        await wireMock.mappings.createMapping(mapping);
-      }
-      const mappings = await wireMock.mappings.getAllMappings();
-      assert.strictEqual(mappings.mappings.length, 2);
-      const response = await axios.get('http://localhost:8081/test/authorize.html');
-      assert.strictEqual(response.status, 200);
-    } finally {
-      await wireMock.global.shutdown();
+    const requests = JSON.parse(fs.readFileSync('wiremock/mappings/test.json', 'utf8'));
+    for (const mapping of  requests.mappings) {
+      await wireMock.mappings.createMapping(mapping);
     }
+    const mappings = await wireMock.mappings.getAllMappings();
+    assert.strictEqual(mappings.mappings.length, 2);
+    const response = await axios.get(`http://localhost:${port}/test/authorize.html`);
+    assert.strictEqual(response.status, 200);
   });
 });
 
@@ -148,7 +146,7 @@ describe('Oauth PAT authentication', function () {
 
   it('Successful flow scenario PAT as password', async function () {
     await addWireMockMappingsFromFile('wiremock/mappings/pat/successful_flow.json');
-    const connectionOption = { ...connParameters.oauthPATOnWiremock, password: 'MOCK_TOKEN', port: port  };
+    const connectionOption = { ...connParameters.oauthPATOnWiremock, password: 'MOCK_TOKEN', port: port };
     authTest.createConnection(connectionOption);
     await authTest.connectAsync();
     authTest.verifyNoErrorWasThrown();

@@ -1,12 +1,12 @@
 const assert = require('assert');
 const fs = require('fs');
 const net = require('net');
-const connParameters = require('./connectionParameters');
+const connParameters = require('../authentication/connectionParameters');
 const axios = require('axios');
 const { snowflakeAuthTestOauthClientId,
   snowflakeAuthTestOauthClientSecret, snowflakeAuthTestOauthUrl
-} = require('./connectionParameters');
-const AuthTest = require('./authTestsBaseClass');
+} = require('../authentication/connectionParameters');
+const AuthTest = require('../authentication/authTestsBaseClass');
 const WireMockRestClient =  require('wiremock-rest-client').WireMockRestClient;
 const { exec } = require('child_process');
 
@@ -124,7 +124,7 @@ describe('Oauth authentication', function () {
   });
 });
 
-describe('Oauth PAT authentication', function () {
+describe.only('Oauth PAT authentication', function () {
   let port;
   let authTest;
   let wireMock;

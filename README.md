@@ -114,6 +114,22 @@ npm pack
 
 Note it is not required to build a package to run tests blow.
 
+
+Verifying the package signature
+----------------------------------------------------------------------
+
+Starting from version v1.13.0 the driver package is signed with a signature allowing to verify its authenticity and integrity.
+Steps to verify the signature:
+1. Install `cosign`
+2. Download the driver package file (`tgz`) from npmjs.org, e.g.: https://registry.npmjs.org/snowflake-sdk/-/snowflake-sdk-1.13.0.tgz
+3. Download the signatures file (.sig and .pub) from the release, e.g.: https://github.com/snowflakedb/snowflake-connector-nodejs/releases/download/v1.13.0
+4. Verify the signature:
+```shell
+cosign verify-blob snowflake-sdk-1.13.0.tgz --key snowflake-connector-nodejs-v1.13.0.pub --signature resources.snowflake-sdk-1.13.0.tgz.sig
+
+Verified OK
+```
+
 Development
 ======================================================================
 

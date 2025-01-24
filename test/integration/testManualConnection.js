@@ -96,6 +96,22 @@ if (process.env.RUN_MANUAL_TESTS_ONLY === 'true') {
         });
       });
     });
+
+    describe('Connection - PROGRAMMATIC_ACCESS_TOKEN authenticator', function () {
+      const connectionOption = { ...connOption.PAT, password: 'paste PAT here' };
+
+      it('test - connect using PAT', function (done) {
+        const connection = snowflake.createConnection(connectionOption);
+        connection.connectAsync(function (err) {
+          try {
+            assert.ok(!err);
+            done();
+          } catch (err){
+            done(err);
+          }
+        });
+      });
+    });
   });
 
   describe('keepAlive test', function () {
@@ -163,7 +179,6 @@ if (process.env.RUN_MANUAL_TESTS_ONLY === 'true') {
       assert.ok(sumWithoutKeepAlive * 0.66 > sumWithKeepAlive, 'With keep alive the queries should work faster');
     });
   });
-
 
   // Before run below tests you should prepare files connections.toml and token
   describe('Connection file configuration test', function () {

@@ -15,7 +15,7 @@ fi
 export DRIVER_NAME=nodejs
 
 # Build images
-BUILD_IMAGE_VERSION=2
+BUILD_IMAGE_VERSION=1
 
 # Test Images
 TEST_IMAGE_VERSION=2

@@ -3,7 +3,7 @@ FROM $IMAGE
 
 USER root
 
-RUN apk update && apk add python3 jq aws-cli gosu
+RUN apk update && apk add python3 python3-dev py3-pip jq aws-cli gosu openjdk-17
 RUN pip install -U snowflake-connector-python
 
 # workspace

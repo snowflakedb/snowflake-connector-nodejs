@@ -39,8 +39,6 @@ echo [INFO] Schema:    %SNOWFLAKE_TEST_SCHEMA%
 echo [INFO] Warehouse: %SNOWFLAKE_TEST_WAREHOUSE%
 echo [INFO] Role:      %SNOWFLAKE_TEST_ROLE%
 
-echo [INFO] JAVA_HOME %JAVA_HOME%
-
 echo [INFO] Creating schema %SNOWFLAKE_TEST_SCHEMA%
 pushd %GITHUB_WORKSPACE%\ci\container
 python create_schema.py

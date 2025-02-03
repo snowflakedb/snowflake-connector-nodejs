@@ -1,11 +1,13 @@
 const assert = require('assert');
 const fs = require('fs');
 const net = require('net');
+const connParameters = require('../../authentication/connectionParameters');
 const axios = require('axios');
+const AuthTest = require('../../authentication/authTestsBaseClass');
 const { runWireMockAsync } = require('../../wiremockRunner');
 const os = require('os');
 
-async function getFreePort() {
+async function getPortFree() {
   return new Promise(res => {
     const srv = net.createServer();
     srv.listen(0, () => {
@@ -19,7 +21,7 @@ if (os.platform !== 'win32')  {
   describe('Wiremock test', function () {
     let port, wireMock;
     before(async () => {
-      port = await getFreePort();
+      port = await getPortFree();
       wireMock = await runWireMockAsync(port);
     });
     after(async () => {

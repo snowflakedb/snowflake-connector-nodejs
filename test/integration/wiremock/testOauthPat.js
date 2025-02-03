@@ -4,7 +4,7 @@ const net = require('net');
 const connParameters = require('../../authentication/connectionParameters');
 const axios = require('axios');
 const AuthTest = require('../../authentication/authTestsBaseClass');
-const { runWireMockAsync } = require('./wiremockRunner');
+const { runWireMockAsync } = require('../../wiremockRunner');
 
 if (true) {
   describe('Wiremock test', function () {

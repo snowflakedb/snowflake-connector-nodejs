@@ -1,6 +1,6 @@
 const WireMockRestClient =  require('wiremock-rest-client').WireMockRestClient;
 const { exec } = require('child_process');
-const Logger = require('../../../lib/logger');
+const Logger = require('../lib/logger');
 
 
 async function runWireMockAsync(port) {

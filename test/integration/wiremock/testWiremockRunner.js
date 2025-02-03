@@ -1,9 +1,7 @@
 const assert = require('assert');
 const fs = require('fs');
 const net = require('net');
-const connParameters = require('../../authentication/connectionParameters');
 const axios = require('axios');
-const AuthTest = require('../../authentication/authTestsBaseClass');
 const { runWireMockAsync } = require('../../wiremockRunner');
 const os = require('os');
 

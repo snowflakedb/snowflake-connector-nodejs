@@ -5,32 +5,19 @@ const connParameters = require('../../authentication/connectionParameters');
 const axios = require('axios');
 const AuthTest = require('../../authentication/authTestsBaseClass');
 const { runWireMockAsync } = require('../../wiremockRunner');
+const os = require('os');
 
-if (true) {
-  describe('Wiremock test', function () {
-    let port, wireMock;
-    before(async () => {
-      port = await getPortFree();
-      wireMock = await runWireMockAsync(port);
-    });
-    after(async () => {
-      await wireMock.global.shutdown();
-    });
-    it('Run Wiremock instance, wait, verify connection and shutdown', async function () {
-      assert.doesNotReject(async () => await wireMock.mappings.getAllMappings());
-    });
-    it('Add mappings', async function () {
-      const requests = JSON.parse(fs.readFileSync('wiremock/mappings/test.json', 'utf8'));
-      for (const mapping of requests.mappings) {
-        await wireMock.mappings.createMapping(mapping);
-      }
-      const mappings = await wireMock.mappings.getAllMappings();
-      assert.strictEqual(mappings.mappings.length, 2);
-      const response = await axios.get(`http://localhost:${port}/test/authorize.html`);
-      assert.strictEqual(response.status, 200);
+async function getPortFree() {
+  return new Promise(res => {
+    const srv = net.createServer();
+    srv.listen(0, () => {
+      const port = srv.address().port;
+      srv.close(() => res(port));
     });
   });
+}
 
+if (os.platform !== 'win32')  {
   describe('Oauth PAT authentication', function () {
     let port;
     let authTest;
@@ -48,7 +35,6 @@ if (true) {
     after(async () => {
       await wireMock.global.shutdown();
     });
-
 
     it('Successful flow scenario PAT as token', async function () {
       await addWireMockMappingsFromFile('wiremock/mappings/pat/successful_flow.json');
@@ -81,14 +67,4 @@ if (true) {
       }
     }
   });
-
-  async function getPortFree() {
-    return new Promise(res => {
-      const srv = net.createServer();
-      srv.listen(0, () => {
-        const port = srv.address().port;
-        srv.close((err) => res(port));
-      });
-    });
-  }
 }

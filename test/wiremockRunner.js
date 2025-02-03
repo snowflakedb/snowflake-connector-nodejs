@@ -5,11 +5,11 @@ const Logger = require('../lib/logger');
 
 async function runWireMockAsync(port) {
   let timeoutHandle;
-  const waitingWireMockPromise =  new Promise(async (resolve, reject) => {
+  const waitingWireMockPromise =  new Promise( (resolve, reject) => {
     try {
       exec(`npx wiremock --enable-browser-proxying --proxy-pass-through  false --port ${port} `);
       const wireMock = new WireMockRestClient(`http://localhost:${port}`);
-      const readyWireMock = await waitForWiremockStarted(wireMock);
+      const readyWireMock =  waitForWiremockStarted(wireMock);
       resolve(readyWireMock);
     } catch (err) {
       reject(err);
@@ -25,7 +25,7 @@ async function runWireMockAsync(port) {
       clearTimeout(timeoutHandle);
       return result;
     });
-};
+}
 
 async function waitForWiremockStarted(wireMock) {
   return fetch(wireMock.baseUri)

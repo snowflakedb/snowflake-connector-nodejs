@@ -116,6 +116,22 @@ if (process.env.RUN_MANUAL_TESTS_ONLY === 'true') {
         });
       });
     });
+
+    describe('Connection - AUTHORIZATION CODE authenticator', function () {
+      const connectionOption = { ...connOption.authorizationCode };
+
+      it('test - connect AUTHORIZATION CODE', function (done) {
+        const connection = snowflake.createConnection(connectionOption);
+        connection.connectAsync(function (err) {
+          try {
+            assert.ok(!err);
+            done();
+          } catch (err){
+            done(err);
+          }
+        });
+      });
+    });
   });
 
   describe('keepAlive test', function () {

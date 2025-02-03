@@ -35,8 +35,8 @@ async function runWireMockAsync(port) {
 
   const timeout = new Promise((resolve, reject) =>
     timeoutHandle = setTimeout(
-      () => reject('Wiremock unavailable  after 26000 ms.'),
-      26000));
+      () => reject('Wiremock unavailable  after 60000 ms.'),
+      60000));
   return Promise.race([waitingWireMockPromise, timeout])
     .then(result => {
       clearTimeout(timeoutHandle);

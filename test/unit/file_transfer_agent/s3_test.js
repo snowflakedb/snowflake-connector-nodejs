@@ -7,7 +7,7 @@ const mock = require('mock-require');
 const SnowflakeS3Util = require('./../../../lib/file_transfer_agent/s3_util').S3Util;
 const extractBucketNameAndPath = require('./../../../lib/file_transfer_agent/s3_util').extractBucketNameAndPath;
 
-const resultStatus = require('./../../../lib/file_transfer_agent/file_util').resultStatus;
+const resultStatus = require('../../../lib/file_util').resultStatus;
 
 describe('S3 client', function () {
   const mockDataFile = 'mockDataFile';

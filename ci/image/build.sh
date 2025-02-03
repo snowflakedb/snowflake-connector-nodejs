@@ -6,10 +6,8 @@ set -o pipefail
 THIS_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 source $THIS_DIR/../_init.sh
 
-echo 'INIT SH DONE'
-
 for name in "${!BUILD_IMAGE_NAMES[@]}"; do
-    docker --debug build \
+    docker build \
         --platform=linux/amd64 \
         --file $THIS_DIR/Dockerfile \
         --label snowflake \

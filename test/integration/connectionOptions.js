@@ -84,6 +84,12 @@ const MFA = {
   passcode: snowflakeTestPasscode,
 };
 
+const PAT = {
+  ...valid,
+  authenticator: 'PROGRAMMATIC_ACCESS_TOKEN',
+  role: 'ANALYST'
+};
+
 const privatelink =
 {
   accessUrl: accessUrl,
@@ -115,3 +121,4 @@ exports.account = snowflakeTestAccount;
 exports.privatelink = privatelink;
 exports.connectionWithProxy = connectionWithProxy;
 exports.MFA = MFA;
+exports.PAT = PAT;

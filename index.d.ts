@@ -433,6 +433,16 @@ declare module 'snowflake-sdk' {
         disableSamlUrlCheck?: boolean;
 
         /**
+          * Custom socket port to use for the local SAML server. Useful for SSO in containerized environments.
+          */
+        localSamlServerPort?: boolean;
+
+        /**
+          * Custom socket address to use for the local SAML server. Useful for SSO in containerized environments.
+          */
+        localSamlServerHost?: boolean;
+
+        /**
           * The option to fetch all the null values in the columns as the string null.
           */
         representNullAsStringNull?: boolean;

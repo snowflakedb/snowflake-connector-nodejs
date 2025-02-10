@@ -123,6 +123,7 @@ describe('external browser authentication', function () {
     getAuthenticator: () => credentials.authenticator,
     getServiceName: () => '',
     getDisableConsoleLogin: () => true,
+    getSamlRedirectUri: () => 'localhost:0',
     host: 'fakehost'
   };
 

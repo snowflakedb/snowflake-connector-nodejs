@@ -2,7 +2,6 @@
  * Copyright (c) 2015-2024 Snowflake Computing Inc. All rights reserved.
  */
 
-const { getPortFree } = require('../test_util');
 const Core = require('./../../../lib/core');
 const MockHttpClient = require('./mock_http_client');
 

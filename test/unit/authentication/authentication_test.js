@@ -15,6 +15,7 @@ const AuthOkta = require('./../../../lib/authentication/auth_okta');
 const AuthIDToken = require('./../../../lib/authentication/auth_idtoken');
 const AuthenticationTypes = require('./../../../lib/authentication/authentication_types');
 const MockTestUtil = require('./../mock/mock_test_util');
+const { getPortFree } = require('../test_util');
 
 // get connection options to connect to this mock snowflake instance
 const mockConnectionOptions = MockTestUtil.connectionOptions;
@@ -117,13 +118,14 @@ describe('external browser authentication', function () {
 
   const credentials = connectionOptionsExternalBrowser;
   const BROWSER_ACTION_TIMEOUT = 10000;
+
   const connectionConfig = {
     getBrowserActionTimeout: () => BROWSER_ACTION_TIMEOUT,
     getProxy: () => {},
     getAuthenticator: () => credentials.authenticator,
     getServiceName: () => '',
     getDisableConsoleLogin: () => true,
-    getSamlRedirectUri: () => credentials.samlRedirectUri,
+    getSamlRedirectUri: () => '',
     host: 'fakehost'
   };
 
@@ -166,7 +168,13 @@ describe('external browser authentication', function () {
   });
 
   it('external browser - get success', async function () {
-    const auth = new AuthWeb(connectionConfig, httpclient, webbrowser.open);
+    const availablePort = await getPortFree();
+    const localConnectionConfig = {
+      ...connectionConfig,
+      getSamlRedirectUri: () => `localhost:${availablePort}`
+    };
+    
+    const auth = new AuthWeb(localConnectionConfig, httpclient, webbrowser.open);
     await auth.authenticate(credentials.authenticator, '', credentials.account, credentials.username);
 
     const body = { data: {} };
@@ -204,6 +212,7 @@ describe('external browser authentication', function () {
 
     webbrowser = require('webbrowser');
     httpclient = require('httpclient');
+    const availablePort = await getPortFree();
 
     const fastFailConnectionConfig = {
       getBrowserActionTimeout: () => 10,
@@ -211,7 +220,7 @@ describe('external browser authentication', function () {
       getAuthenticator: () => credentials.authenticator,
       getServiceName: () => '',
       getDisableConsoleLogin: () => true,
-      getSamlRedirectUri: () => credentials.samlRedirectUri,
+      getSamlRedirectUri: () => `localhost:${availablePort}`,
       host: 'fakehost'
     };
 

@@ -119,7 +119,7 @@ describe('external browser authentication', function () {
     getAuthenticator: () => credentials.authenticator,
     getServiceName: () => '',
     getDisableConsoleLogin: () => true,
-    getSamlRedirectUri: () => 'localhost:0',
+    getSamlRedirectUri: () => credentials.samlRedirectUri,
     host: 'fakehost'
   };
 
@@ -207,6 +207,7 @@ describe('external browser authentication', function () {
       getAuthenticator: () => credentials.authenticator,
       getServiceName: () => '',
       getDisableConsoleLogin: () => true,
+      getSamlRedirectUri: () => credentials.samlRedirectUri,
       host: 'fakehost'
     };
 
@@ -695,6 +696,7 @@ describe('okta authentication', function () {
           getClientStoreTemporaryCredential: () => true,
           getPasscode: () => '',
           getPasscodeInPassword: () => false,
+          getSamlRedirectUri: () => '127.0.0.1:8080',
           idToken: idToken || null,
           host: 'host',
         };

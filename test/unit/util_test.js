@@ -1204,6 +1204,5 @@ describe('Util', function () {
         });
       }
     });
-
   });
 });

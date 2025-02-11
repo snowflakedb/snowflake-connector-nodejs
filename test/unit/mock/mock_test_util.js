@@ -105,7 +105,7 @@ const connectionOptionsExternalBrowser =
   accessUrl: 'http://fakeaccount.snowflakecomputing.com',
   username: 'fakeusername',
   account: 'fakeaccount',
-  authenticator: 'EXTERNALBROWSER'
+  authenticator: 'EXTERNALBROWSER',
 };
 
 const connectionOptionsidToken =
@@ -165,7 +165,8 @@ const connectionOptionsOkta =
   getTimeout: () => 90,
   getRetryTimeout: () => 300,
   getRetrySfMaxLoginRetries: () => 7,
-  getDisableSamlURLCheck: () => false
+  getDisableSamlURLCheck: () => false,
+  getSamlRedirectUri: () => ''
 };
 
 exports.connectionOptions =

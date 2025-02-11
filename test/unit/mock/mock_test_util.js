@@ -102,7 +102,6 @@ const connectionOptionsExternalBrowser =
   username: 'fakeusername',
   account: 'fakeaccount',
   authenticator: 'EXTERNALBROWSER',
-  samlRedirectUri: 'localhost:3000'
 };
 
 const connectionOptionsidToken =
@@ -163,7 +162,7 @@ const connectionOptionsOkta =
   getRetryTimeout: () => 300,
   getRetrySfMaxLoginRetries: () => 7,
   getDisableSamlURLCheck: () => false,
-  getSamlRedirectUri: () => 'localhost:3000'
+  getSamlRedirectUri: () => ''
 };
 
 exports.connectionOptions =

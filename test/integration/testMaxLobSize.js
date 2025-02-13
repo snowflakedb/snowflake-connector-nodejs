@@ -20,8 +20,7 @@ function generateRandomString(sizeInBytes) {
   return buffer.toString('hex').slice(0, sizeInBytes);
 }
 
-if (process.env.RUN_MANUAL_TESTS_ONLY === 'true'){
-  describe.only('Max LOB test', function () {
+  describe('Max LOB test', function () {
     let connection;
     // This size cannot be tested on our env. The snowflake team should test internally.
     const MAX_LOB_SIZE = 128 * 1024 * 1024;
@@ -345,5 +344,4 @@ if (process.env.RUN_MANUAL_TESTS_ONLY === 'true'){
       });
     });
   });
-}
 

@@ -1,7 +1,3 @@
-/*
- * Copyright (c) 2015-2024 Snowflake Computing Inc. All rights reserved.
- */
-
 const QueryContextCache = require('../../lib/queryContextCache.js');
 const assert = require('assert');
 

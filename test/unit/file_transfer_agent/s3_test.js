@@ -1,7 +1,3 @@
-/*
- * Copyright (c) 2015-2024 Snowflake Computing Inc. All rights reserved.
- */
-
 const assert = require('assert');
 const mock = require('mock-require');
 const SnowflakeS3Util = require('./../../../lib/file_transfer_agent/s3_util').S3Util;

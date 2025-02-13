@@ -1,7 +1,3 @@
-/*
- * Copyright (c) 2015-2024 Snowflake Computing Inc. All rights reserved.
- */
-
 const Logger = require('./../../../lib/logger/browser');
 const { logTagToLevel, LOG_LEVEL_TAGS } = require('./../../../lib/logger/core');
 const assert = require('assert');

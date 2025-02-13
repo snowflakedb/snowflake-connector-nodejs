@@ -1,7 +1,3 @@
-/*
- * Copyright (c) 2015-2024 Snowflake Computing Inc. All rights reserved.
- */
-
 const Os = require('os');
 const async = require('async');
 const assert = require('assert');

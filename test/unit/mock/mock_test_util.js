@@ -1,4 +1,3 @@
-const { getPortFree } = require('../test_util');
 const Core = require('./../../../lib/core');
 const MockHttpClient = require('./mock_http_client');
 

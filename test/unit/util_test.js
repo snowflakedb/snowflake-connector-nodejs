@@ -947,16 +947,12 @@ describe('Util', function () {
           user: mockUser,
           host: mockHost,
           cred: mockCred,
-          result: '{mockHost}:{mockUser}:{SF_NODE_JS_DRIVER}:{mockCred}}'
+          result: '{MOCKHOST}:{MOCKUSER}:{MOCKCRED}'
         },
       ];
-      testCases.forEach((name, user, host, cred, result) => {
+      testCases.forEach(({ name, user, host, cred, result }) => {
         it(`${name}`, function () {
-          if (!result) {
-            assert.strictEqual(Util.buildCredentialCacheKey(host, user, cred), null);
-          } else {
-            assert.strictEqual(Util.buildCredentialCacheKey(host, user, cred), result);
-          }
+          assert.strictEqual(Util.buildCredentialCacheKey(host, user, cred), result);
         });
       });
     });

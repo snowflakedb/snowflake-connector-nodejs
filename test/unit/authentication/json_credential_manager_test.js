@@ -53,9 +53,6 @@ describe('Json credential manager basic test', function () {
 });
 
 describe('Json credential manager provided path test', function () {
-  if (process.platform === 'win32') {
-    return;
-  }
   const cacheFromEnvPath = path.join(os.homedir(), 'snowflakeTests', 'cacheFromEnv');
   const XDGPath = path.join(os.homedir(), 'snowflakeTests', 'cacheFromXDG');
   const cacheFromXDGPath = path.join(XDGPath, 'snowflake');
@@ -100,9 +97,6 @@ describe('Json credential manager provided path test', function () {
 });
 
 describe('Json credential manager locks', function () {
-  if (process.platform === 'win32') {
-    return;
-  }
   const cacheDirPath = path.join(os.homedir(), ...pathFromHome());
   const lockPath = path.join(cacheDirPath, 'credential_cache_v1.json.lck');
   it('test - file locked failure', async function () {
@@ -120,9 +114,6 @@ describe('Json credential manager locks', function () {
 });
 
 describe('Json credential format', function () {
-  if (process.platform === 'win32') {
-    return;
-  }
   const cacheDirPath = path.join(os.homedir(), ...pathFromHome());
   it('test - json format', async function () {
     const credentialManager = new JsonCredentialManager();

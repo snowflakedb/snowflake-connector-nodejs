@@ -1,6 +1,3 @@
-/*
- * Copyright (c) 2015-2019 Snowflake Computing Inc. All rights reserved.
- */
 const externalAccount =
   {
     accessUrl: 'http://externalaccount.reg.local.snowflakecomputing.com:8082',

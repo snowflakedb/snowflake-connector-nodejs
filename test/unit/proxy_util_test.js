@@ -1,7 +1,3 @@
-/*
- * Copyright (c) 2015-2024 Snowflake Computing Inc. All rights reserved.
- */
-
 const ProxyUtil = require('./../../lib/proxy_util');
 const Util = require('./../../lib/util');
 const GlobalConfig = require('../../lib/global_config');

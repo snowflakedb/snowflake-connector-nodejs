@@ -609,3 +609,258 @@ describe('Test Bind Varible', function () {
     );
   });
 });
+
+describe.only('Verify stage binding and array binding', () => {
+
+  function generateDate(year, month, day, hour, minute, second, millis) {
+    if (year < 10) {
+      year = '000' + year;
+    } else if (year < 100) {
+      year = '00' + year;
+    } else if (year < 1000) {
+      year = '0' + year;
+    }
+
+    if (month < 10) {
+      month = '0' + month;
+    } 
+
+    if (day < 10) {
+      day = '0' + day;
+    } 
+
+    const date = new Date(`${year}-${month}-${day}`);
+    date.setHours(hour);
+    date.setMinutes(minute);
+    date.setSeconds(second);
+    date.setMilliseconds(millis);
+
+    return date;
+  }
+
+  function validateTimeValues(actual, expected) {
+    assert.strictEqual(actual.length, expected.length);
+
+    for (let i = 0; i < actual.length; i++) {
+      assert.strictEqual(Object.keys(actual[i]).length, Object.keys(expected[i]).length);
+      Object.keys(actual[i]).forEach((key) => key === 'C1' ? assert.strictEqual(actual[i][key], expected[i][key]) : assert.strictEqual(actual[i][key].toJSON(), expected[i][key]));
+    }
+  }
+
+  let connection;
+  const currentTimeZone = process.env.TZ;
+  process.env.TZ = 'UTC';
+  const columns = '(c1 int,c2 timestamp_ntz ,c3 timestamp_ltz,c4 timestamp_tz);';
+  const arrayBindingTable = 'arrBinding';
+  const stageBindingTable = 'stageBinding';
+  const alterTimeZoneQuery = (timeZone) => `alter session set TIMEZONE = '${timeZone}'`;
+  const getCreateTableQuery = (tableName) => `Create or Replace table ${tableName} ${columns}`;
+  const getInsertQuery = (tableName) => `insert into ${tableName} values (?, ?, ?, ?)`;
+  const dropTableQuery = (tableName) => `Drop table if exists ${tableName}`;
+  const selectQuery = (tableName) => `SELECT * FROM ${tableName} order by c1`;
+
+  const timeTestingValues = [
+    generateDate(1, 1, 1, 23, 24, 25, 987),
+    generateDate(9999, 12, 30, 23, 24, 25, 987),
+    generateDate(2025, 2, 18, 11, 37, 25, 326),
+    //SummerTime
+    generateDate(2024, 6, 22, 23, 37, 25, 520),
+  ];
+
+  const binding = [];
+  timeTestingValues.forEach((value, i) => binding.push([i, value, value, value]));
+
+  const testCases = [
+    {
+      timeZone: 'Europe/Warsaw',
+      result:
+        [
+          {
+            C1: 0,
+            C2: '0001-01-01 23:24:25.987',
+            //Javascript Timezone limitation
+            C3: '0001-01-02 00:48:25.987 +0124',
+            C4: '0001-01-01 23:24:25.987 +0000'
+          },
+          {
+            C1: 1,
+            C2: '9999-12-30 23:24:25.987',
+            C3: '9999-12-31 00:24:25.987 +0100',
+            C4: '9999-12-30 23:24:25.987 +0000'
+          },
+          {
+            C1: 2,
+            C2: '2025-02-18 11:37:25.326',
+            C3: '2025-02-18 12:37:25.326 +0100',
+            C4: '2025-02-18 11:37:25.326 +0000',
+          },
+          {
+            C1: 3,
+            C2: '2024-06-22 23:37:25.520',
+            C3: '2024-06-23 01:37:25.520 +0200',
+            C4: '2024-06-22 23:37:25.520 +0000',
+          },
+        ],
+    },
+    {
+      timeZone: 'Asia/Tokyo',
+      result: 
+      [
+        {
+          C1: 0,
+          C2: '0001-01-01 23:24:25.987',
+          //Javascript Timezone limitation
+          C3: '0001-01-02 08:43:24.987 +0918',
+          C4: '0001-01-01 23:24:25.987 +0000'
+        },
+        {
+          C1: 1,
+          C2: '9999-12-30 23:24:25.987',
+          C3: '9999-12-31 08:24:25.987 +0900',
+          C4: '9999-12-30 23:24:25.987 +0000'
+        },
+        {
+          C1: 2,
+          C2: '2025-02-18 11:37:25.326',
+          C3: '2025-02-18 20:37:25.326 +0900',
+          C4: '2025-02-18 11:37:25.326 +0000',
+        },
+        {
+          C1: 3,
+          C2: '2024-06-22 23:37:25.520',
+          //Tokyo does not have Summer time
+          C3: '2024-06-23 08:37:25.520 +0900',
+          C4: '2024-06-22 23:37:25.520 +0000',
+        },
+      ]
+    }, 
+    {
+      timeZone: 'America/Los_Angeles',
+      result: 
+      [
+        {
+          C1: 0,
+          C2: '0001-01-01 23:24:25.987',
+          //Javascript Timezone limitation
+          C3: '0001-01-01 15:31:27.987 -0752',
+          C4: '0001-01-01 23:24:25.987 +0000'
+        },
+        {
+          C1: 1,
+          C2: '9999-12-30 23:24:25.987',
+          C3: '9999-12-30 15:24:25.987 -0800',
+          C4: '9999-12-30 23:24:25.987 +0000'
+        },
+        {
+          C1: 2,
+          C2: '2025-02-18 11:37:25.326',
+          C3: '2025-02-18 03:37:25.326 -0800',
+          C4: '2025-02-18 11:37:25.326 +0000',
+        },
+        {
+          C1: 3,
+          C2: '2024-06-22 23:37:25.520',
+          C3: '2024-06-22 16:37:25.520 -0700',
+          C4: '2024-06-22 23:37:25.520 +0000',
+        },
+      ]
+    },
+  ];
+
+  beforeEach(function (done) {
+    connection = testUtil.createConnection();
+    async.series(
+      [
+        function (callback) {
+          testUtil.connect(connection, callback);
+        },
+        function (callback) {
+          testUtil.executeCmd(connection, getCreateTableQuery(arrayBindingTable), callback);
+        },
+        function (callback) {
+          testUtil.executeCmd(connection, getCreateTableQuery(stageBindingTable), callback);
+        },
+      ],
+      done
+    );
+  });
+
+
+  afterEach(function (done) {
+    async.series(
+      [
+        function (callback) {
+          testUtil.executeCmd(connection, dropTableQuery(arrayBindingTable), callback);
+        },
+        function (callback) {
+          testUtil.executeCmd(connection, dropTableQuery(stageBindingTable), callback);
+        },
+        function (callback) {
+          testUtil.destroyConnection(connection, callback);
+        }
+      ],
+      done
+    );
+  });
+
+  after(() => {
+    process.env.TZ = currentTimeZone;
+  });
+
+  testCases.forEach(({ timeZone, result }) => {
+    it(`test binding values with timezone ${timeZone}`, function (done) {
+      async.series(
+        [
+          function (callback) {
+            testUtil.executeCmd(connection, alterTimeZoneQuery(timeZone), callback);
+          },
+          function (callback) {
+            testUtil.executeCmd(connection, getInsertQuery(arrayBindingTable), callback, binding);
+          },
+          function (callback) {
+            testUtil.destroyConnection(connection, callback);
+          },
+          function (callback) {
+            connection = testUtil.createConnection({
+              arrayBindingThreshold: 3
+            });
+            testUtil.connect(connection, callback);
+          },
+          function (callback) {
+            testUtil.executeCmd(connection, alterTimeZoneQuery(timeZone), callback);
+          },
+          function (callback) {
+            testUtil.executeCmd(connection, getInsertQuery(stageBindingTable), callback, binding);
+          },
+          function (callback) {
+            connection.execute({
+              sqlText: selectQuery(arrayBindingTable),
+              complete: function (err, stmt, rows) {
+                if (err) {
+                  callback(err); 
+                } else {
+                  validateTimeValues(rows, result);
+                  callback();
+                }
+              }
+            });
+          },
+          function (callback) {
+            connection.execute({
+              sqlText: selectQuery(stageBindingTable),
+              complete: function (err, stmt, rows) {
+                if (err) {
+                  callback(err); 
+                } else {
+                  validateTimeValues(rows, result);
+                  callback();
+                }
+              }
+            });
+          }
+        ],
+        done
+      );
+    });
+  });
+});

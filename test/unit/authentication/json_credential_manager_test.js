@@ -54,11 +54,12 @@ describe('Json credential manager basic test', function () {
 
 describe('Json credential manager provided path test', function () {
   const cacheFromEnvPath = path.join(os.homedir(), 'snowflakeTests', 'cacheFromEnv');
-  const cacheFromXDGPath = path.join(os.homedir(), 'snowflakeTests', 'cacheFromXDG');
+  const XDGPath = path.join(os.homedir(), 'snowflakeTests', 'cacheFromXDG');
+  const cacheFromXDGPath = path.join(XDGPath, 'snowflake');
   const cacheFromUserPath = path.join(os.homedir(), 'snowflakeTests', 'user');
   const credentialManager = new JsonCredentialManager(cacheFromUserPath);
   process.env['SF_TEMPORARY_CREDENTIAL_CACHE_DIR'] = cacheFromEnvPath;
-  process.env['XDG_CACHE_HOME'] = cacheFromXDGPath;
+  process.env['XDG_CACHE_HOME'] = XDGPath;
   it('test - user cache', async function () {
     await fs.mkdir(cacheFromUserPath, { recursive: true, mode: 0o700 });
     assert.strictEqual(await credentialManager.getTokenFile(), path.join(cacheFromUserPath, 'credential_cache_v1.json'));

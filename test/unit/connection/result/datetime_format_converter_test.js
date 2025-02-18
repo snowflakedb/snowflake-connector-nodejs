@@ -1,7 +1,3 @@
-/*
- * Copyright (c) 2015-2024 Snowflake Computing Inc. All rights reserved.
- */
-
 const assert = require('assert');
 const { convertSnowflakeFormatToMomentFormat } = require('../../../../lib/connection/result/datetime_format_converter');
 

@@ -1,7 +1,3 @@
-/*
- * Copyright (c) 2015-2024 Snowflake Computing Inc. All rights reserved.
- */
-
 const GlobalConfig = require('../../../lib/global_config');
 const SocketUtil = require('../../../lib/agent/socket_util');
 const Errors = require('../../../lib/errors');

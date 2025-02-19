@@ -1,7 +1,3 @@
-/*
- * Copyright (c) 2015-2024 Snowflake Computing Inc. All rights reserved.
- */
-
 const Util = require('../../../lib/util');
 const Errors = require('../../../lib/errors');
 const Logger = require('../../../lib/logger');

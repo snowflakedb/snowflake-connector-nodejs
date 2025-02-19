@@ -1,7 +1,3 @@
-/*
- * Copyright (c) 2015-2024 Snowflake Computing Inc. All rights reserved.
- */
-
 const testUtil = require('./testUtil');
 const assert = require('assert');
 const httpInterceptorUtils = require('./test_utils/httpInterceptorUtils');

@@ -849,7 +849,7 @@ describe('Verify stage binding and array binding', () => {
       await testUtil.executeCmdAsync(connection, alterTimeZoneQuery(timeZone));
       await testUtil.executeCmdAsync(connection, getInsertQuery(arrayBindingTable), binding);
       await testUtil.destroyConnectionAsync(connection, arrayBindingTable);
-      connection = testUtil.createConnection({arrayBindingThreshold: 3 });
+      connection = testUtil.createConnection({ arrayBindingThreshold: 3 });
       await testUtil.connectAsync(connection);
       await testUtil.executeCmdAsync(connection, alterTimeZoneQuery(timeZone));
       await testUtil.executeCmdAsync(connection, getInsertQuery(stageBindingTable), binding);

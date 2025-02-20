@@ -1,6 +1,3 @@
-/*
- * Copyright (c) 2015-2019 Snowflake Computing Inc. All rights reserved.
- */
 const snowflake = require('./../lib/snowflake');
 const connOption = require('../test/integration/connectionOptions');
 const testUtil = require('../test/integration/testUtil');

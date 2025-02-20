@@ -1,7 +1,3 @@
-/*
- * Copyright (c) 2015-2019 Snowflake Computing Inc. All rights reserved.
- */
-
 /**
  * These tests are currently run as part of RT-LanguageN, but should be
  * moved into a different suite at some point because they really test GS

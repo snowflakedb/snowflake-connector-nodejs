@@ -646,7 +646,6 @@ describe('Verify stage binding and array binding', () => {
     //SummerTime
     generateDate(2024, 6, 22, 23, 37, 25, 520),
     new Date(2000, 0, 1)
-
   ];
 
   const binding = [];
@@ -832,7 +831,6 @@ describe('Verify stage binding and array binding', () => {
     await  testUtil.executeCmdAsync(connection, getCreateTableQuery(arrayBindingTable));
     await testUtil.executeCmdAsync(connection, getCreateTableQuery(stageBindingTable));
   });
-
 
   afterEach(async () => {
     await testUtil.dropTablesIgnoringErrorsAsync(connection, arrayBindingTable);

@@ -411,3 +411,20 @@ describe('Statement.fetchResult()', function () {
     it(testCase.name, createItCallback(testCase));
   }
 });
+
+it('Statement file transfer error', async function () {
+  const mockFta = {
+    execute: async function () {
+      return null;
+    },
+    result: function () {
+      throw new Error('some file transfer error');
+    }
+  };
+  const context = {};
+  const body = {
+    'data': {},
+  };
+  await Statement.executeFileTransferRequest(context, body, mockFta);
+  assert.strictEqual(context.resultError.message, 'some file transfer error');
+});

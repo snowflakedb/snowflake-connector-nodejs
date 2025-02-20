@@ -21,7 +21,7 @@ const fs = require('node:fs/promises');
 const pathFromHome = function () {
   switch (process.platform) {
   case 'win32':
-    return ['AppFata', 'Local', 'Snowflake', 'Caches'];
+    return ['AppData', 'Local', 'Snowflake', 'Caches'];
   case 'linux':
     return ['.cache', 'snowflake'];
   case 'darwin':

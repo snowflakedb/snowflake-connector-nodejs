@@ -1,7 +1,3 @@
-/*
- * Copyright (c) 2015-2024 Snowflake Computing Inc. All rights reserved.
- */
-
 /**
  * The snowflake-sdk module provides an instance to connect to the Snowflake server
  * @see [source] {@link https://docs.snowflake.com/en/developer-guide/node-js/nodejs-driver}

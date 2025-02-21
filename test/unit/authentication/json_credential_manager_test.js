@@ -17,7 +17,6 @@ const randomPassword = randomUUID();
 const randomPassword2 = randomUUID();
 const os = require('os');
 const fs = require('node:fs/promises');
-const Logger = require('../../../lib/logger');
 
 const pathFromHome = function () {
   switch (process.platform) {
@@ -130,7 +129,8 @@ describe('Json credential remove stale lock', function () {
   const lockPath = path.join(cacheDirPath, 'credential_cache_v1.json.lck');
   it('test - stale lock', async function () {
     await fs.mkdir(lockPath, { recursive: true, mode: 0o700 });
-    const credentialManager = new JsonCredentialManager(null, 0);
+    //Set timeout to negative because birthtime is a few ms of on Windows for some reason
+    const credentialManager = new JsonCredentialManager(null, -100);
     await credentialManager.write(key, randomPassword);
     await fs.rm(cacheDirPath, { recursive: true });
   });
@@ -141,11 +141,8 @@ describe('Json credential format', function () {
   it('test - json format', async function () {
     const credentialManager = new JsonCredentialManager();
     await credentialManager.write(key, randomPassword);
-    let credentials = JSON.parse(await fs.readFile(path.join(cacheDirPath, 'credential_cache_v1.json'), 'utf8'));
-    Logger.getInstance().info(`Credentials are ${JSON.stringify(credentials)}`);
     await credentialManager.write(key2, randomPassword2);
-    credentials = JSON.parse(await fs.readFile(path.join(cacheDirPath, 'credential_cache_v1.json'), 'utf8'));
-    Logger.getInstance().info(`Credentials are ${JSON.stringify(credentials)}`);
+    const credentials = JSON.parse(await fs.readFile(path.join(cacheDirPath, 'credential_cache_v1.json'), 'utf8'));
     assert.strictEqual(Util.exists(credentials), true);
     assert.strictEqual(Util.exists(credentials['tokens']), true);
     assert.strictEqual(credentials['tokens'][key], randomPassword);

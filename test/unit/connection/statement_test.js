@@ -425,6 +425,6 @@ it('Statement file transfer error', async function () {
   const body = {
     'data': {},
   };
-  await Statement.executeFileTransferRequest(context, body, mockFta);
+  await Statement.executeFileTransferRequest(context, body, null, mockFta);
   assert.strictEqual(context.resultError.message, 'some file transfer error');
 });

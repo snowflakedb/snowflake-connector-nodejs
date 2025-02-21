@@ -106,7 +106,7 @@ describe('Json credential manager provided path test', function () {
 describe('Json credential locked file failure', function () {
   const cacheDirPath = path.join(os.homedir(), ...pathFromHome());
   const lockPath = path.join(cacheDirPath, 'credential_cache_v1.json.lck');
-  it('test - stale lock', async function () {
+  it('test - fail on locked file', async function () {
     await fs.mkdir(lockPath, { recursive: true, mode: 0o700 });
     const credentialManager = new JsonCredentialManager();
     await assert.rejects(async () => {

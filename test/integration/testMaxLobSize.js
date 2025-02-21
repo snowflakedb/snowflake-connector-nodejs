@@ -16,8 +16,7 @@ function generateRandomString(sizeInBytes) {
   return buffer.toString('hex').slice(0, sizeInBytes);
 }
 
-if (process.env.RUN_MANUAL_TESTS_ONLY === 'true'){
-  describe.only('Max LOB test', function () {
+  describe('Max LOB test', function () {
     let connection;
     // This size cannot be tested on our env. The snowflake team should test internally.
     const MAX_LOB_SIZE = 128 * 1024 * 1024;
@@ -27,7 +26,7 @@ if (process.env.RUN_MANUAL_TESTS_ONLY === 'true'){
     const SMALL_SIZE = 16;
 
     const tableName = 'my_lob_test';
-    const createTable = `create or replace table ${tableName} (c1 varchar, c2 varchar, c3 int)`;
+    const createTable = `create or replace table ${tableName} (c1 varchar(134217728), c2 varchar(134217728), c3 int)`;
     const allowLobExternalScan = 'alter session set ALLOW_LARGE_LOBS_IN_EXTERNAL_SCAN = true';
     const stageName = `@${DATABASE_NAME}.${SCHEMA_NAME}.%${tableName}`;
     const copyIntoTable = `copy into ${tableName}`;
@@ -341,5 +340,4 @@ if (process.env.RUN_MANUAL_TESTS_ONLY === 'true'){
       });
     });
   });
-}
 

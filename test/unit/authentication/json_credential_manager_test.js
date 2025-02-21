@@ -103,21 +103,27 @@ describe('Json credential manager provided path test', function () {
   });
 });
 
-describe('Json credential manager locks', function () {
+describe('Json credential locked file failure', function () {
   const cacheDirPath = path.join(os.homedir(), ...pathFromHome());
   const lockPath = path.join(cacheDirPath, 'credential_cache_v1.json.lck');
-  it('test - file locked failure', async function () {
+  it('test - stale lock', async function () {
     await fs.mkdir(lockPath, { recursive: true, mode: 0o700 });
     const credentialManager = new JsonCredentialManager();
-    assert.rejects(async () => {
+    await assert.rejects(async () => {
       await credentialManager.write(key, randomPassword);
-    }, 'Could not acquire lock on cache file');
+    }, { message: 'Could not acquire lock on cache file' });
+    await fs.rm(lockPath, { recursive: true });
   });
+});
+
+describe('Json credential remove stale lock', function () {
+  const cacheDirPath = path.join(os.homedir(), ...pathFromHome());
+  const lockPath = path.join(cacheDirPath, 'credential_cache_v1.json.lck');
   it('test - stale lock', async function () {
     await fs.mkdir(lockPath, { recursive: true, mode: 0o700 });
     const credentialManager = new JsonCredentialManager(null, 0);
     await credentialManager.write(key, randomPassword);
-    await fs.rm(cacheDirPath, { recursive: true, mode: 0o700 });
+    await fs.rm(cacheDirPath, { recursive: true });
   });
 });
 
@@ -135,7 +141,7 @@ describe('Json credential format', function () {
     assert.strictEqual(Util.exists(credentials['tokens']), true);
     assert.strictEqual(credentials['tokens'][key], randomPassword);
     assert.strictEqual(credentials['tokens'][key2], randomPassword2);
-    await fs.rm(cacheDirPath, { recursive: true, mode: 0o700 });
+    await fs.rm(cacheDirPath, { recursive: true });
   });
 });
 

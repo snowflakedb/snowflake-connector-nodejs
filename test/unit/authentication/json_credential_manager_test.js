@@ -17,6 +17,7 @@ const randomPassword = randomUUID();
 const randomPassword2 = randomUUID();
 const os = require('os');
 const fs = require('node:fs/promises');
+const Logger = require('../../../lib/logger');
 
 const pathFromHome = function () {
   switch (process.platform) {
@@ -118,8 +119,11 @@ describe('Json credential format', function () {
   it('test - json format', async function () {
     const credentialManager = new JsonCredentialManager();
     await credentialManager.write(key, randomPassword);
+    let credentials = JSON.parse(await fs.readFile(path.join(cacheDirPath, 'credential_cache_v1.json'), 'utf8'));
+    Logger.getInstance().info(`Credentials are ${JSON.stringify(credentials)}`);
     await credentialManager.write(key2, randomPassword2);
-    const credentials = JSON.parse(await fs.readFile(path.join(cacheDirPath, 'credential_cache_v1.json'), 'utf8'));
+    credentials = JSON.parse(await fs.readFile(path.join(cacheDirPath, 'credential_cache_v1.json'), 'utf8'));
+    Logger.getInstance().info(`Credentials are ${JSON.stringify(credentials)}`);
     assert.strictEqual(Util.exists(credentials), true);
     assert.strictEqual(Util.exists(credentials['tokens']), true);
     assert.strictEqual(credentials['tokens'][key], randomPassword);

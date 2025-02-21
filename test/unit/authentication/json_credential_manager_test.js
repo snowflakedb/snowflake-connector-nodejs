@@ -98,8 +98,17 @@ describe('Json credential manager provided path test', function () {
     });
   }
   after(() => {
-    process.env['SF_TEMPORARY_CREDENTIAL_CACHE_DIR'] = sftccd;
-    process.env['XDG_CACHE_HOME'] = xdgch;
+    if (Util.exists(sftccd)) {
+      process.env['SF_TEMPORARY_CREDENTIAL_CACHE_DIR'] = sftccd;
+    } else {
+      delete process.env['SF_TEMPORARY_CREDENTIAL_CACHE_DIR'];
+    }
+    if (Util.exists(xdgch)) {
+      process.env['XDG_CACHE_HOME'] = xdgch;
+    } else {
+      delete process.env['XDG_CACHE_HOME'];
+    }
+
   });
 });
 

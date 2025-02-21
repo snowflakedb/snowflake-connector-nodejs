@@ -59,6 +59,8 @@ describe('Json credential manager provided path test', function () {
   const cacheFromXDGPath = path.join(XDGPath, 'snowflake');
   const cacheFromUserPath = path.join(os.homedir(), 'snowflakeTests', 'user');
   const credentialManager = new JsonCredentialManager(cacheFromUserPath);
+  const sftccd = process.env['SF_TEMPORARY_CREDENTIAL_CACHE_DIR'];
+  const xdgch = process.env['XDG_CACHE_HOME'];
   process.env['SF_TEMPORARY_CREDENTIAL_CACHE_DIR'] = cacheFromEnvPath;
   process.env['XDG_CACHE_HOME'] = XDGPath;
   it('test - user cache', async function () {
@@ -95,6 +97,8 @@ describe('Json credential manager provided path test', function () {
       await fs.rm(cacheFromXDGPath, { recursive: true });
     });
   }
+  process.env['SF_TEMPORARY_CREDENTIAL_CACHE_DIR'] = sftccd;
+  process.env['XDG_CACHE_HOME'] = xdgch;
 });
 
 describe('Json credential manager locks', function () {
@@ -111,6 +115,7 @@ describe('Json credential manager locks', function () {
     await fs.mkdir(lockPath, { recursive: true, mode: 0o700 });
     const credentialManager = new JsonCredentialManager(null, 0);
     await credentialManager.write(key, randomPassword);
+    await fs.rm(cacheDirPath, { recursive: true, mode: 0o700 });
   });
 });
 
@@ -128,6 +133,7 @@ describe('Json credential format', function () {
     assert.strictEqual(Util.exists(credentials['tokens']), true);
     assert.strictEqual(credentials['tokens'][key], randomPassword);
     assert.strictEqual(credentials['tokens'][key2], randomPassword2);
+    await fs.rm(cacheDirPath, { recursive: true, mode: 0o700 });
   });
 });
 

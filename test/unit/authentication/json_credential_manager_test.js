@@ -97,8 +97,10 @@ describe('Json credential manager provided path test', function () {
       await fs.rm(cacheFromXDGPath, { recursive: true });
     });
   }
-  process.env['SF_TEMPORARY_CREDENTIAL_CACHE_DIR'] = sftccd;
-  process.env['XDG_CACHE_HOME'] = xdgch;
+  after(() => {
+    process.env['SF_TEMPORARY_CREDENTIAL_CACHE_DIR'] = sftccd;
+    process.env['XDG_CACHE_HOME'] = xdgch;
+  });
 });
 
 describe('Json credential manager locks', function () {

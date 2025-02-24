@@ -2,8 +2,6 @@
  * Copyright (c) 2015-2024 Snowflake Computing Inc. All rights reserved.
  */
 
-const snowflake = require('./../../lib/snowflake');
-const { v4: uuidv4 } = require('uuid');
 const { runWireMockAsync, addWireMockMappingsFromFile  } = require('../wiremockRunner');
 const connParameters = require('../authentication/connectionParameters');
 const AuthTest = require('../authentication/authTestsBaseClass');
@@ -15,11 +13,6 @@ describe('Connection test', function () {
   let wireMock;
 
   this.timeout(180000);
-
-  snowflake.configure({
-    logLevel: "DEBUG",
-    disableOCSPChecks: true
-  });
 
   before(async () => {
     port = await testUtil.getFreePort();

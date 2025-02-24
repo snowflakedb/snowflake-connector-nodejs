@@ -80,13 +80,13 @@ const keypairEncryptedPrivateKeyPath =
 
 const wiremock =
   {
-        ...baseParameters,
-        accessUrl: null,
-        username: 'MOCK_USERNAME',
-        account: 'MOCK_ACCOUNT_NAME',
-        host: 'localhost',
-        protocol: 'http',
-        authenticator: 'OAUTH',
+    ...baseParameters,
+    accessUrl: null,
+    username: 'MOCK_USERNAME',
+    account: 'MOCK_ACCOUNT_NAME',
+    host: 'localhost',
+    protocol: 'http',
+    authenticator: 'OAUTH',
   };
 
 exports.externalBrowser = externalBrowser;

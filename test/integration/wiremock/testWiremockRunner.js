@@ -1,6 +1,5 @@
 const assert = require('assert');
 const fs = require('fs');
-const net = require('net');
 const axios = require('axios');
 const { runWireMockAsync } = require('../../wiremockRunner');
 const os = require('os');

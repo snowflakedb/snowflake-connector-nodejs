@@ -400,4 +400,4 @@ module.exports.getFreePort = async function () {
       srv.close(() => res(port));
     });
   });
-}
+};

@@ -4,22 +4,13 @@ const net = require('net');
 const axios = require('axios');
 const { runWireMockAsync } = require('../../wiremockRunner');
 const os = require('os');
-
-async function getFreePort() {
-  return new Promise(res => {
-    const srv = net.createServer();
-    srv.listen(0, () => {
-      const port = srv.address().port;
-      srv.close(() => res(port));
-    });
-  });
-}
+const testUtil = require('../testUtil');
 
 if (os.platform !== 'win32')  {
   describe('Wiremock test', function () {
     let port, wireMock;
     before(async () => {
-      port = await getFreePort();
+      port = await testUtil.getFreePort();
       wireMock = await runWireMockAsync(port);
     });
     after(async () => {

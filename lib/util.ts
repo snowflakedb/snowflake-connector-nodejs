@@ -380,7 +380,11 @@ export function isRetryableHttpError(response: any, retry403: boolean) {
       (response.statusCode === 429));
 };
 
-export function validateClientSessionKeepAliveHeartbeatFrequency(input: number, masterValidity: number) {
+exports.isNetworkError = function (err) {
+  return err.code === Errors.codes.ERR_SF_NETWORK_COULD_NOT_CONNECT
+};
+
+exports.validateClientSessionKeepAliveHeartbeatFrequency = function (input, masterValidity) {
   let heartbeatFrequency = input;
   const realMax = Math.floor(masterValidity / 4);
   const realMin = Math.floor(realMax / 4);

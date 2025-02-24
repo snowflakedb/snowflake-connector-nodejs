@@ -381,7 +381,7 @@ export function isRetryableHttpError(response: any, retry403: boolean) {
 };
 
 exports.isNetworkError = function (err) {
-  return err.code === Errors.codes.ERR_SF_NETWORK_COULD_NOT_CONNECT
+  return err.code === Errors.codes.ERR_SF_NETWORK_COULD_NOT_CONNECT;
 };
 
 exports.validateClientSessionKeepAliveHeartbeatFrequency = function (input, masterValidity) {

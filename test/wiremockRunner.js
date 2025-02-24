@@ -9,7 +9,7 @@ async function runWireMockAsync(port) {
   const waitingWireMockPromise =  new Promise( (resolve, reject) => {
     try {
       exec(`npx wiremock --enable-browser-proxying --proxy-pass-through  false --port ${port} `);
-      const wireMock = new WireMockRestClient(`http://localhost:${port}`, { logLevel: 'trace' });
+      const wireMock = new WireMockRestClient(`http://localhost:${port}`, { logLevel: 'debug' });
       const readyWireMock =  waitForWiremockStarted(wireMock);
       resolve(readyWireMock);
     } catch (err) {

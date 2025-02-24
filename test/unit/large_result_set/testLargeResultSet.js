@@ -1,7 +1,3 @@
-/*
- * Copyright (c) 2015-2024 Snowflake Computing Inc. All rights reserved.
- */
-
 const connOptions = require('../../integration/connectionOptions');
 const LargeResultSetService = require('../../../lib/services/large_result_set');
 

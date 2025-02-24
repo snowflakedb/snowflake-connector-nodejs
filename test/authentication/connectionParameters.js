@@ -78,6 +78,17 @@ const keypairEncryptedPrivateKeyPath =
       authenticator: 'SNOWFLAKE_JWT'
     };
 
+const wiremock =
+  {
+        ...baseParameters,
+        accessUrl: null,
+        username: 'MOCK_USERNAME',
+        account: 'MOCK_ACCOUNT_NAME',
+        host: 'localhost',
+        protocol: 'http',
+        authenticator: 'OAUTH',
+  };
+
 exports.externalBrowser = externalBrowser;
 exports.okta = okta;
 exports.oauth = oauth;
@@ -93,3 +104,4 @@ exports.snowflakeAuthTestOauthClientSecret = snowflakeAuthTestOauthClientSecret;
 exports.snowflakeAuthTestOauthUrl = snowflakeAuthTestOauthUrl;
 exports.snowflakeAuthTestPrivateKeyPath = snowflakeAuthTestPrivateKeyPath;
 exports.snowflakeAuthTestInvalidPrivateKeyPath = snowflakeAuthTestInvalidPrivateKeyPath;
+exports.wiremock = wiremock;

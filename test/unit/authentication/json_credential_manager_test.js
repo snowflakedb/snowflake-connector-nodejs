@@ -147,7 +147,7 @@ describe('Json credential format', function () {
     assert.strictEqual(Util.exists(credentials['tokens']), true);
     assert.strictEqual(credentials['tokens'][hashedKey1], randomPassword);
     assert.strictEqual(credentials['tokens'][hashedKey2], randomPassword2);
-    await fs.rm(cacheFilePath, { recursive: true });
+    await fs.rm(cacheFilePath);
   });
 });
 

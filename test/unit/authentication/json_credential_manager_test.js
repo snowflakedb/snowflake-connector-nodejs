@@ -33,7 +33,7 @@ describe('Json credential manager basic test', function () {
       await credentialManager.remove(key);
     }
     const savedPassword = await credentialManager.read(key);
-    assert.strictEqual(await credentialManager.getTokenFile(), path.join(os.homedir(), ...pathFromHome(), 'credential_cache_v1.json'));
+    assert.strictEqual((await credentialManager.getTokenFile())[1], path.join(os.homedir(), ...pathFromHome(), 'credential_cache_v1.json'));
     assert.strictEqual(savedPassword, null);
   });
   it('test - write the mock credential with the credential manager', async function () {
@@ -60,34 +60,34 @@ describe('Json credential manager provided path test', function () {
   process.env['XDG_CACHE_HOME'] = XDGPath;
   it('test - user cache', async function () {
     await fs.mkdir(cacheFromUserPath, { recursive: true, mode: 0o700 });
-    assert.strictEqual(await credentialManager.getTokenFile(), path.join(cacheFromUserPath, 'credential_cache_v1.json'));
+    assert.strictEqual((await credentialManager.getTokenFile())[1], path.join(cacheFromUserPath, 'credential_cache_v1.json'));
     await fs.rm(cacheFromUserPath, { recursive: true });
   });
   it('test - env variable cache', async function () {
     await fs.mkdir(cacheFromEnvPath, { recursive: true, mode: 0o700 });
-    assert.strictEqual(await credentialManager.getTokenFile(), path.join(cacheFromEnvPath, 'credential_cache_v1.json'));
+    assert.strictEqual((await credentialManager.getTokenFile())[1], path.join(cacheFromEnvPath, 'credential_cache_v1.json'));
     await fs.rm(cacheFromEnvPath, { recursive: true });
   });
   it('test - user cache over env variable cache', async function () {
     await fs.mkdir(cacheFromUserPath, { recursive: true, mode: 0o700 });
     await fs.mkdir(cacheFromEnvPath, { recursive: true, mode: 0o700 });
-    assert.strictEqual(await credentialManager.getTokenFile(), path.join(cacheFromUserPath, 'credential_cache_v1.json'));
+    assert.strictEqual((await credentialManager.getTokenFile())[1], path.join(cacheFromUserPath, 'credential_cache_v1.json'));
     await fs.rm(cacheFromUserPath, { recursive: true });
     await fs.rm(cacheFromEnvPath, { recursive: true });
   });
   it('test - defaults to home', async function () {
-    assert.strictEqual(await credentialManager.getTokenFile(), path.join(os.homedir(), ...pathFromHome(), 'credential_cache_v1.json'));
+    assert.strictEqual((await credentialManager.getTokenFile())[1], path.join(os.homedir(), ...pathFromHome(), 'credential_cache_v1.json'));
   });
   if (process.platform === 'linux') {
     it('test - xdg variable cache', async function () {
       await fs.mkdir(cacheFromXDGPath, { recursive: true, mode: 0o700 });
-      assert.strictEqual(await credentialManager.getTokenFile(), path.join(cacheFromXDGPath, 'credential_cache_v1.json'));
+      assert.strictEqual((await credentialManager.getTokenFile())[1], path.join(cacheFromXDGPath, 'credential_cache_v1.json'));
       await fs.rm(cacheFromXDGPath, { recursive: true });
     });
     it('test - env variable cache over xdg cache', async function () {
       await fs.mkdir(cacheFromEnvPath, { recursive: true, mode: 0o700 });
       await fs.mkdir(cacheFromXDGPath, { recursive: true, mode: 0o700 });
-      assert.strictEqual(await credentialManager.getTokenFile(), path.join(cacheFromEnvPath, 'credential_cache_v1.json'));
+      assert.strictEqual((await credentialManager.getTokenFile())[1], path.join(cacheFromEnvPath, 'credential_cache_v1.json'));
       await fs.rm(cacheFromEnvPath, { recursive: true });
       await fs.rm(cacheFromXDGPath, { recursive: true });
     });
@@ -122,30 +122,32 @@ describe('Json credential locked file failure', function () {
 
 describe('Json credential remove stale lock', function () {
   const cacheDirPath = path.join(os.homedir(), ...pathFromHome());
+  const cacheFilePath = path.join(cacheDirPath, 'credential_cache_v1.json');
   const lockPath = path.join(cacheDirPath, 'credential_cache_v1.json.lck');
   it('test - stale lock', async function () {
     await fs.mkdir(lockPath, { recursive: true, mode: 0o700 });
     //Set timeout to negative because birthtime is a few ms of on Windows for some reason
     const credentialManager = new JsonCredentialManager(null, -100);
     await credentialManager.write(key, randomPassword);
-    await fs.rm(cacheDirPath, { recursive: true });
+    await fs.rm(cacheFilePath);
   });
 });
 
 describe('Json credential format', function () {
   const cacheDirPath = path.join(os.homedir(), ...pathFromHome());
+  const cacheFilePath = path.join(cacheDirPath, 'credential_cache_v1.json');
   it('test - json format', async function () {
     const credentialManager = new JsonCredentialManager();
     await credentialManager.write(key, randomPassword);
     await credentialManager.write(key2, randomPassword2);
     const hashedKey1 = createHash('sha256').update(key).digest('hex');
     const hashedKey2 = createHash('sha256').update(key2).digest('hex');
-    const credentials = JSON.parse(await fs.readFile(path.join(cacheDirPath, 'credential_cache_v1.json'), 'utf8'));
+    const credentials = JSON.parse(await fs.readFile(cacheFilePath, 'utf8'));
     assert.strictEqual(Util.exists(credentials), true);
     assert.strictEqual(Util.exists(credentials['tokens']), true);
     assert.strictEqual(credentials['tokens'][hashedKey1], randomPassword);
     assert.strictEqual(credentials['tokens'][hashedKey2], randomPassword2);
-    await fs.rm(cacheDirPath, { recursive: true });
+    await fs.rm(cacheFilePath, { recursive: true });
   });
 });
 

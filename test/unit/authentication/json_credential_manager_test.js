@@ -1,8 +1,10 @@
 const assert = require('assert');
 const JsonCredentialManager = require('../../../lib/authentication/secure_storage/json_credential_manager');
 const Util = require('../../../lib/util');
-const { randomUUID } = require('crypto');
+const { randomUUID, createHash } = require('crypto');
 const path = require('path');
+const os = require('os');
+const fs = require('node:fs/promises');
 const host = 'mock_host';
 const user = 'mock_user';
 const credType = 'mock_cred';
@@ -11,8 +13,6 @@ const key = Util.buildCredentialCacheKey(host, user, credType);
 const key2 = Util.buildCredentialCacheKey(host, user, credType2);
 const randomPassword = randomUUID();
 const randomPassword2 = randomUUID();
-const os = require('os');
-const fs = require('node:fs/promises');
 
 const pathFromHome = function () {
   switch (process.platform) {
@@ -138,11 +138,13 @@ describe('Json credential format', function () {
     const credentialManager = new JsonCredentialManager();
     await credentialManager.write(key, randomPassword);
     await credentialManager.write(key2, randomPassword2);
+    const hashedKey1 = createHash('sha256').update(key).digest('hex');
+    const hashedKey2 = createHash('sha256').update(key2).digest('hex');
     const credentials = JSON.parse(await fs.readFile(path.join(cacheDirPath, 'credential_cache_v1.json'), 'utf8'));
     assert.strictEqual(Util.exists(credentials), true);
     assert.strictEqual(Util.exists(credentials['tokens']), true);
-    assert.strictEqual(credentials['tokens'][key], randomPassword);
-    assert.strictEqual(credentials['tokens'][key2], randomPassword2);
+    assert.strictEqual(credentials['tokens'][hashedKey1], randomPassword);
+    assert.strictEqual(credentials['tokens'][hashedKey2], randomPassword2);
     await fs.rm(cacheDirPath, { recursive: true });
   });
 });

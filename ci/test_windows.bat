@@ -46,7 +46,7 @@ popd
 
 echo [INFO] Installing Test package
 copy %GITHUB_WORKSPACE%\ci\container\package.json .
-cmd /c npm install
+cmd /c npm install --save-dev
 if %ERRORLEVEL% NEQ 0 (
     echo [ERROR] failed to install test packages
     exit /b 1

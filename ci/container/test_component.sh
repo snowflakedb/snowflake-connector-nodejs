@@ -26,14 +26,8 @@ else
 fi
 cp $SOURCE_ROOT/ci/container/package.json .
 
-echo "[INFO] #######################"
-echo "[INFO] #######################"
-echo "[INFO] #######################"
-echo "[INFO] #######################"
 cat $SOURCE_ROOT/ci/container/package.json
 npm install
-
-cat $SOURCE_ROOT/ci/container/package-lock.json
 
 PACKAGE_NAME=$(cd $WORKSPACE && ls snowflake-sdk*.tgz)
 npm install $WORKSPACE/${PACKAGE_NAME}

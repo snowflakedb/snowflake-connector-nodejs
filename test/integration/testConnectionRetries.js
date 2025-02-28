@@ -4,52 +4,60 @@
 
 const { runWireMockAsync, addWireMockMappingsFromFile  } = require('../wiremockRunner');
 const connParameters = require('../authentication/connectionParameters');
-const AuthTest = require('../authentication/authTestsBaseClass');
 const testUtil = require('../integration/testUtil');
+const snowflake = require('../../lib/snowflake');
+const assert = require('assert');
 
 describe('Connection test', function () {
+  this.timeout(500000);
   let port;
-  let authTest;
   let wireMock;
-
-  this.timeout(180000);
 
   before(async () => {
     port = await testUtil.getFreePort();
     wireMock = await runWireMockAsync(port);
+    snowflake.configure({
+      logLevel: 'DEBUG',
+      disableOCSPChecks: true
+    });
   });
-  beforeEach(async () => {
-    authTest = new AuthTest();
-  });
+
   afterEach(async () => {
     wireMock.scenarios.resetAllScenarios();
   });
+
   after(async () => {
     await wireMock.global.shutdown();
   });
-  it('Test retries - Connection reset', async function () {
-    // snowflake.configure({
-    //   logLevel: "DEBUG",
-    //   disableOCSPChecks: true
-    // });
+
+  it('Test retries after connection reset - success', async function () {
     await addWireMockMappingsFromFile(wireMock, 'wiremock/mappings/six_reset_connection_and_correct_response.json');
-    const connectionOption = { ...connParameters.wiremock, password: 'MOCK_TOKEN', port: port };
-    authTest.createConnection(connectionOption);
-    await authTest.connectAsync();
-    authTest.verifyNoErrorWasThrown();
-    await authTest.verifyConnectionIsUp();
+    const connectionOption = { ...connParameters.wiremock, password: 'MOCK_TOKEN', port: port, sfRetryMaxSleepTime: 2 };
+    const connection = testUtil.createConnection(connectionOption);
+    await testUtil.connectAsync(connection);
+    await assert.doesNotReject(async () => await testUtil.executeCmdAsync(connection, ' Select 1'));
   });
-  it('Test retries - Malformed response', async function () {
-    // snowflake.configure({
-    //   logLevel: "DEBUG",
-    //   disableOCSPChecks: true
-    // });
+
+  it('Test retries after alformed response', async function () {
     await addWireMockMappingsFromFile(wireMock, 'wiremock/mappings/six_malformed_and_correct.json');
-    const connectionOption = { ...connParameters.wiremock, password: 'MOCK_TOKEN', port: port };
-    authTest.createConnection(connectionOption);
-    await authTest.connectAsync();
-    authTest.verifyNoErrorWasThrown();
-    await authTest.verifyConnectionIsUp();
+    const connectionOption = { ...connParameters.wiremock, password: 'MOCK_TOKEN', port: port, sfRetryMaxSleepTime: 2 };
+    const connection = testUtil.createConnection(connectionOption);
+    await testUtil.connectAsync(connection);
+    await assert.doesNotReject(async () => await testUtil.executeCmdAsync(connection, ' Select 1'));
+  });
+
+  it('Test retries after connection reset - fail', async function () {
+    await addWireMockMappingsFromFile(wireMock, 'wiremock/mappings/six_reset_connection_and_correct_response.json');
+    const connectionOption = { ...connParameters.wiremock, password: 'MOCK_TOKEN', port: port, sfRetryMaxNumRetries: 1, sfRetryMaxSleepTime: 2 };
+    const connection = testUtil.createConnection(connectionOption);
+    await testUtil.connectAsync(connection);
+    await assert.rejects(
+      testUtil.executeCmdAsync(connection, ' Select 1'),
+      (err) => {
+        assert.match(err.message, /Network error. Could not reach Snowflake./);
+        return true;
+      },
+    );
   });
 });
 

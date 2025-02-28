@@ -1,11 +1,11 @@
 const { exec } = require('child_process');
 const Logger = require('../lib/logger');
 const fs = require('fs');
+const WireMockRestClient = require('wiremock-rest-client').WireMockRestClient;
 
 
 async function runWireMockAsync(port) {
   let timeoutHandle;
-  const WireMockRestClient = require('wiremock-rest-client').WireMockRestClient;
   const waitingWireMockPromise =  new Promise( (resolve, reject) => {
     try {
       exec(`npx wiremock --enable-browser-proxying --proxy-pass-through  false --port ${port} `);

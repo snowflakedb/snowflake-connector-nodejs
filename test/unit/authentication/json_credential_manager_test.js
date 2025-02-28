@@ -46,6 +46,9 @@ describe('Json credential manager basic test', function () {
     const result = await credentialManager.read(key);
     assert.ok(result === null);
   });
+  after(async () => {
+    await fs.rm(path.join(os.homedir(), ...pathFromHome(), 'credential_cache_v1.json'));
+  });
 });
 
 describe('Json credential manager provided path test', function () {

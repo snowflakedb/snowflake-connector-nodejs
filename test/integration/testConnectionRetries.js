@@ -8,7 +8,7 @@ const testUtil = require('../integration/testUtil');
 const snowflake = require('../../lib/snowflake');
 const assert = require('assert');
 
-describe.only('Connection test', function () {
+describe('Connection test', function () {
   this.timeout(500000);
   let port;
   let wireMock;

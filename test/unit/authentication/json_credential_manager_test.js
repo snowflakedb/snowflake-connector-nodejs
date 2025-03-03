@@ -64,19 +64,19 @@ describe('Json credential manager provided path test', function () {
   it('test - user cache', async function () {
     await fs.mkdir(cacheFromUserPath, { recursive: true, mode: 0o700 });
     assert.strictEqual((await credentialManager.getTokenFile())[1], path.join(cacheFromUserPath, 'credential_cache_v1.json'));
-    await fs.rm(cacheFromUserPath, { recursive: true });
+    await fs.rm(cacheFromUserPath, { recursive: true, force: true });
   });
   it('test - env variable cache', async function () {
     await fs.mkdir(cacheFromEnvPath, { recursive: true, mode: 0o700 });
     assert.strictEqual((await credentialManager.getTokenFile())[1], path.join(cacheFromEnvPath, 'credential_cache_v1.json'));
-    await fs.rm(cacheFromEnvPath, { recursive: true });
+    await fs.rm(cacheFromEnvPath, { recursive: true, force: true });
   });
   it('test - user cache over env variable cache', async function () {
     await fs.mkdir(cacheFromUserPath, { recursive: true, mode: 0o700 });
     await fs.mkdir(cacheFromEnvPath, { recursive: true, mode: 0o700 });
     assert.strictEqual((await credentialManager.getTokenFile())[1], path.join(cacheFromUserPath, 'credential_cache_v1.json'));
-    await fs.rm(cacheFromUserPath, { recursive: true });
-    await fs.rm(cacheFromEnvPath, { recursive: true });
+    await fs.rm(cacheFromUserPath, { recursive: true, force: true });
+    await fs.rm(cacheFromEnvPath, { recursive: true, force: true });
   });
   it('test - defaults to home', async function () {
     assert.strictEqual((await credentialManager.getTokenFile())[1], path.join(os.homedir(), ...pathFromHome(), 'credential_cache_v1.json'));
@@ -85,14 +85,14 @@ describe('Json credential manager provided path test', function () {
     it('test - xdg variable cache', async function () {
       await fs.mkdir(cacheFromXDGPath, { recursive: true, mode: 0o700 });
       assert.strictEqual((await credentialManager.getTokenFile())[1], path.join(cacheFromXDGPath, 'credential_cache_v1.json'));
-      await fs.rm(cacheFromXDGPath, { recursive: true });
+      await fs.rm(cacheFromXDGPath, { recursive: true, force: true });
     });
     it('test - env variable cache over xdg cache', async function () {
       await fs.mkdir(cacheFromEnvPath, { recursive: true, mode: 0o700 });
       await fs.mkdir(cacheFromXDGPath, { recursive: true, mode: 0o700 });
       assert.strictEqual((await credentialManager.getTokenFile())[1], path.join(cacheFromEnvPath, 'credential_cache_v1.json'));
-      await fs.rm(cacheFromEnvPath, { recursive: true });
-      await fs.rm(cacheFromXDGPath, { recursive: true });
+      await fs.rm(cacheFromEnvPath, { recursive: true, force: true });
+      await fs.rm(cacheFromXDGPath, { recursive: true, force: true });
     });
   }
   after(() => {
@@ -121,7 +121,7 @@ describe('Json credential locked file failure', function () {
       locked = true;
     });
     assert.strictEqual(locked, false);
-    await fs.rm(lockPath, { recursive: true });
+    await fs.rm(lockPath, { recursive: true, force: true });
   });
 });
 

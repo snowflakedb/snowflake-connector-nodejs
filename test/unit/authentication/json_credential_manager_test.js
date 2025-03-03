@@ -116,9 +116,11 @@ describe('Json credential locked file failure', function () {
   it('test - fail on locked file', async function () {
     await fs.mkdir(lockPath, { recursive: true, mode: 0o700 });
     const credentialManager = new JsonCredentialManager();
-    await assert.rejects(async () => {
-      await credentialManager.write(key, randomPassword);
-    }, { message: 'Could not acquire lock on cache file' });
+    let locked = false;
+    await credentialManager.withFileLocked(() => {
+      locked = true;
+    });
+    assert.strictEqual(locked, false);
     await fs.rm(lockPath, { recursive: true });
   });
 });

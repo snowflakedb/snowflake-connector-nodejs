@@ -11,6 +11,7 @@ async function runWireMockAsync(port) {
       exec(`npx wiremock --enable-browser-proxying --proxy-pass-through  false --port ${port} `);
       const wireMock = new WireMockRestClient(`http://localhost:${port}`, { logLevel: 'debug' });
       const readyWireMock =  waitForWiremockStarted(wireMock);
+      console.log("########## WIREMOCK STARTED ##############")
       resolve(readyWireMock);
     } catch (err) {
       reject(err);
@@ -19,8 +20,8 @@ async function runWireMockAsync(port) {
 
   const timeout = new Promise((resolve, reject) =>
     timeoutHandle = setTimeout(
-      () => reject('Wiremock unavailable  after 60s.'),
-      60000));
+      () => reject('Wiremock unavailable  after 30s.'),
+      30000));
   return Promise.race([waitingWireMockPromise, timeout])
     .then(result => {
       clearTimeout(timeoutHandle);

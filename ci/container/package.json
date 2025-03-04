@@ -10,6 +10,7 @@
   },
   "devDependencies": {
     "async": "^3.2.3",
+    "https-proxy-agent": "^7.0.2",
     "mocha": "^10.2.0",
     "mock-require": "^3.0.3",
     "nyc": "^15.1.0",

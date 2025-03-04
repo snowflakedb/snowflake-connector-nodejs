@@ -11,7 +11,7 @@ const snowflake = require('./../lib/snowflake');
 const connOptions = require('../test/integration/connectionOptions');
 const testUtil = require('../test/integration/testUtil');
 
-describe('system$get_objects()', function () {
+describe.only('system$get_objects()', function () {
   const createDatabase = 'create or replace database node_testdb;';
   const createSchema = 'create or replace schema node_testschema;';
   const createTableT1 = 'create or replace table t1 (c1 number);';

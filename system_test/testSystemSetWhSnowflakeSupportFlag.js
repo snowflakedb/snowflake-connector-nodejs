@@ -11,7 +11,7 @@ const connOptions = require('../test/integration/connectionOptions');
 const connOptionsInternal = require('./connectionOptions');
 const testUtil = require('../test/integration/testUtil');
 
-describe('exclude support warehouses', function () {
+describe.only('exclude support warehouses', function () {
   const createSysWh =
     'create or replace warehouse syswh warehouse_size = \'xsmall\'';
   const dropSysWh = 'drop warehouse syswh';

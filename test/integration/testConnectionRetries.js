@@ -32,13 +32,13 @@ describe('Connection test', function () {
 
   it('Test retries after connection reset - success', async function () {
     await addWireMockMappingsFromFile(wireMock, 'wiremock/mappings/six_reset_connection_and_correct_response.json');
-    const connectionOption = { ...connParameters.wiremock, password: 'MOCK_TOKEN', port: port, sfRetryMaxSleepTime: 2 };
+    const connectionOption = { ...connParameters.wiremock, password: 'MOCK_TOKEN', port: port, sfRetryMaxSleepTime: 2, sfRetryMaxNumRetries: 10 };
     const connection = testUtil.createConnection(connectionOption);
     await testUtil.connectAsync(connection);
     await assert.doesNotReject(async () => await testUtil.executeCmdAsync(connection, ' Select 1'));
   });
 
-  it('Test retries after alformed response', async function () {
+  it('Test retries after malformed response', async function () {
     await addWireMockMappingsFromFile(wireMock, 'wiremock/mappings/six_malformed_and_correct.json');
     const connectionOption = { ...connParameters.wiremock, password: 'MOCK_TOKEN', port: port, sfRetryMaxSleepTime: 2 };
     const connection = testUtil.createConnection(connectionOption);

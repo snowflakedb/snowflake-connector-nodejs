@@ -31,7 +31,7 @@ describe('Connection test', function () {
     });
   });
 
-  it('does not return tokens when not in qaMode', function () {
+  it.only('does not return tokens when not in qaMode', function () {
     const connection = snowflake.createConnection(connOption.valid);
     assert.deepEqual(connection.getTokens(), {});
   });

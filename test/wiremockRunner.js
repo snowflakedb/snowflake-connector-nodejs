@@ -11,6 +11,7 @@ async function runWireMockAsync(port) {
       exec(`npx wiremock --enable-browser-proxying --proxy-pass-through  false --port ${port} `);
       const wireMock = new WireMockRestClient(`http://localhost:${port}`, { logLevel: 'debug' });
       const readyWireMock =  waitForWiremockStarted(wireMock);
+      console.log("########## WIREMOCK STARTED ##############")
       resolve(readyWireMock);
     } catch (err) {
       reject(err);

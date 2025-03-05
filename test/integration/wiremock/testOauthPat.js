@@ -45,7 +45,7 @@ if (os.platform !== 'win32')  {
       const connectionOption = { ...connParameters.oauthPATOnWiremock, token: 'INVALID_TOKEN', port: port };
       authTest.createConnection(connectionOption);
       await authTest.connectAsync();
-      authTest.verifyErrorWasThrown('Programmatic access token is invalid.');
+      authTest.verifyErrorWasThrown('Programmatic access token is invalid. ');
     });
   });
 }

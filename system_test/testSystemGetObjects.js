@@ -410,6 +410,7 @@ function testGetObjectsOnStmt(options) {
         {
           sqlText: sql,
           complete: function (err, statement) {
+            console.log(`######### errr ${JSON.stringify(err)}`);
             assert.ok(!err);
             queryId = statement.getQueryId();
             callback();
@@ -422,12 +423,14 @@ function testGetObjectsOnStmt(options) {
       const columnName = 'map';
       const sqlText = util.format('%s as "%s";',
         buildSqlSystem$GetObjects(queryId), columnName);
+      console.log(`######### sql ${sqlText}`);
       connSnowflake.execute(
         {
           sqlText: sqlText,
           complete: function (err, statement, rows) {
             assert.ok(!err);
             assert.ok(rows && (rows.length === 1));
+            console.log(`######### rows ${JSON.stringify(rows)}`);
             assert.deepStrictEqual(JSON.parse(rows[0][columnName]), output);
             callback();
           }

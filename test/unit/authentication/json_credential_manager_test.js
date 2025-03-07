@@ -1,5 +1,5 @@
 const assert = require('assert');
-const JsonCredentialManager = require('../../../lib/authentication/secure_storage/json_credential_manager');
+const { JsonCredentialManager, defaultJsonTokenCachePaths } = require('../../../lib/authentication/secure_storage/json_credential_manager');
 const Util = require('../../../lib/util');
 const { randomUUID, createHash } = require('crypto');
 const path = require('path');
@@ -15,15 +15,7 @@ const randomPassword = randomUUID();
 const randomPassword2 = randomUUID();
 
 const pathFromHome = function () {
-  switch (process.platform) {
-  case 'win32':
-    return ['AppData', 'Local', 'Snowflake', 'Caches'];
-  case 'linux':
-    return ['.cache', 'snowflake'];
-  case 'darwin':
-    return ['Library', 'Caches', 'Snowflake'];
-  }
-  return [];
+  return defaultJsonTokenCachePaths[process.platform];
 };
 
 const assertCachePath = async function (credentialManager, path) {

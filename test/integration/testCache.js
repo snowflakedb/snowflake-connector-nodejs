@@ -21,6 +21,16 @@ describe('Validate cache permissions test', async function () {
       await fs.unlink(validPermissionsFilePath);
     });
 
+    it('should return error on insecure permissions', async function () {
+      await assert.rejects(
+        validateOnlyUserReadWritePermissionAndOwner(invalidPermissionsFilePath),
+        (err) => {
+          assert.match(err.message, /Invalid file permissions/);
+          return true;
+        },
+      );
+    });
+
     it('should return error when system user is not a file owner', async function () {
       const anotherFileOwnerPath = path.join(wrongOwner);
       const fsMock = createFsMock()

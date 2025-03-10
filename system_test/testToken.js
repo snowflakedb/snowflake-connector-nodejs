@@ -120,8 +120,9 @@ describe('testLoginTokenExpire', function () {
             complete: function (err) {
               console.log(`ERROR :::: ${JSON.stringify(err)}`);
               assert.ok(err);
-              assert.strictEqual(err.message, 'Unable to perform ' +
-                'operation using terminated connection.');
+              console.log(`ERROR :::: ${JSON.stringify(err.message)}`);
+              assert.strictEqual(err.message, 'Unable to perform operation using terminated connection.');
+              console.log(`ERROR :::: callback`);
               callback();
             }
           });

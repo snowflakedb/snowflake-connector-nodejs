@@ -10,6 +10,7 @@ const util = require('util');
 const snowflake = require('./../lib/snowflake');
 const connOptions = require('../test/integration/connectionOptions');
 const testUtil = require('../test/integration/testUtil');
+const Logger = require('../lib/logger');
 
 describe('system$get_objects()', function () {
   const createDatabase = 'create or replace database node_testdb;';
@@ -428,6 +429,7 @@ function testGetObjectsOnStmt(options) {
           complete: function (err, statement, rows) {
             assert.ok(!err);
             assert.ok(rows && (rows.length === 1));
+            Logger.getInstance().warn(`Result is ${rows[0][columnName]}`);
             assert.deepStrictEqual(JSON.parse(rows[0][columnName]), output);
             callback();
           }

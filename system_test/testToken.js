@@ -118,6 +118,7 @@ describe('testLoginTokenExpire', function () {
           connection.execute({
             sqlText: 'create or replace table t(colA varchar)',
             complete: function (err) {
+              console.log(`ERROR :::: ${JSON.stringify(err)}`);
               assert.ok(err);
               assert.strictEqual(err.message, 'Unable to perform ' +
                 'operation using terminated connection.');

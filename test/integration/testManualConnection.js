@@ -116,6 +116,55 @@ if (process.env.RUN_MANUAL_TESTS_ONLY === 'true') {
         });
       });
     });
+
+    describe('Connection - AUTHORIZATION CODE authenticator ', function () {
+
+      it('test - connect AUTHORIZATION CODE - OKTA IDP', function (done) {
+        const connectionOption = { ...connOption.authorizationCodeOkta };
+        const connection = snowflake.createConnection(connectionOption);
+        connection.connectAsync(function (err) {
+          try {
+            assert.ok(!err);
+            connection.execute({
+              sqlText: 'select 1',
+              complete: function (err) {
+                console.log('SUCCESS connect');
+                testUtil.checkError(err);
+                testUtil.destroyConnection(connection, function () {
+                });
+                done();
+              },
+            });
+
+          } catch (err){
+            done(err);
+          }
+        });
+      });
+
+      it.only('test - connect AUTHORIZATION CODE - Snowflake IDP', function (done) {
+        const connectionOption = { ...connOption.authorizationCodeSnowflake };
+        console.log(JSON.stringify(connectionOption));
+        const connection = snowflake.createConnection(connectionOption);
+        connection.connectAsync(function (err) {
+          try {
+            assert.ok(!err);
+            connection.execute({
+              sqlText: 'select 1',
+              complete: function (err) {
+                testUtil.checkError(err);
+                testUtil.destroyConnection(connection, function () {
+                });
+                done();
+              },
+            });
+
+          } catch (err){
+            done(err);
+          }
+        });
+      });
+    });
   });
 
   describe('keepAlive test', function () {

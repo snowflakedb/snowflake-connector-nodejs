@@ -1,3 +1,4 @@
+const {authorizationCodeOkta, authorizationCodeSnowflake} = require("../integration/connectionOptions");
 const snowflakeAuthTestProtocol = process.env.SNOWFLAKE_AUTH_TEST_PROTOCOL;
 const snowflakeAuthTestHost = process.env.SNOWFLAKE_AUTH_TEST_HOST;
 const snowflakeAuthTestPort = process.env.SNOWFLAKE_AUTH_TEST_PORT;
@@ -63,8 +64,23 @@ const oauthPATOnWiremock =
       host: 'localhost',
       protocol: 'http',
       authenticator: 'PROGRAMMATIC_ACCESS_TOKEN',
-      // proxyHost: '127.0.0.1',
-      // proxyPort: 8080
+    };
+
+const oauthAuthorizationCodeOnWiremock =
+    {
+      ...baseParameters,
+      accessUrl: null,
+      username: 'MOCK_USERNAME',
+      account: 'MOCK_ACCOUNT_NAME',
+      host: '127.0.0.1',
+      protocol: 'http',
+      role: 'ANALYST',
+      authenticator: 'OAUTH_AUTHORIZATION_CODE_FLOW',
+      oauthClientId: '123',
+      oauthClientSecret: 'clientSecret',
+      oauthAuthorizationUrl: 'http://localhost:8099/oauth/authorize',
+      oauthRedirectUri: 'http://localhost:8009/snowflake/oauth-redirect',
+      oauthHttpAllowed: true
     };
 
 const keypairPrivateKey =
@@ -107,6 +123,9 @@ exports.externalBrowser = externalBrowser;
 exports.okta = okta;
 exports.oauth = oauth;
 exports.oauthPATOnWiremock = oauthPATOnWiremock;
+exports.oauthAuthorizationCodeOnWiremock = oauthAuthorizationCodeOnWiremock;
+exports.oauthAuthorizationCode = authorizationCodeSnowflake;
+exports.oauthAuthorizationCodeOkta = authorizationCodeOkta;
 exports.keypairPrivateKey = keypairPrivateKey;
 exports.keypairPrivateKeyPath = keypairPrivateKeyPath;
 exports.keypairEncryptedPrivateKeyPath = keypairEncryptedPrivateKeyPath;

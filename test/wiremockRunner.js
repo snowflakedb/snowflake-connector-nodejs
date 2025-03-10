@@ -1,6 +1,7 @@
 const WireMockRestClient =  require('wiremock-rest-client').WireMockRestClient;
 const { exec } = require('child_process');
 const Logger = require('../lib/logger');
+const fs = require('fs');
 
 
 async function runWireMockAsync(port) {
@@ -8,7 +9,8 @@ async function runWireMockAsync(port) {
   const waitingWireMockPromise =  new Promise( (resolve, reject) => {
     try {
       exec(`npx wiremock --enable-browser-proxying --proxy-pass-through  false --port ${port} `);
-      const wireMock = new WireMockRestClient(`http://localhost:${port}`);
+      const wireMock = new WireMockRestClient(`http://localhost:${port}`,
+        { logLevel: 'debug' });
       const readyWireMock =  waitForWiremockStarted(wireMock);
       resolve(readyWireMock);
     } catch (err) {
@@ -45,5 +47,14 @@ async function waitForWiremockStarted(wireMock) {
     });
 }
 
+async function addWireMockMappingsFromFile(wireMock, filePath) {
+  const requests = JSON.parse(fs.readFileSync(filePath, 'utf8'));
+  for (const mapping of requests.mappings) {
+    await wireMock.mappings.createMapping(mapping);
+  }
+}
+
+
 exports.runWireMockAsync = runWireMockAsync;
+exports.addWireMockMappingsFromFile = addWireMockMappingsFromFile;
 

@@ -13,6 +13,11 @@ const snowflakeTestPassword = process.env.SNOWFLAKE_TEST_PASSWORD;
 const snowflakeTestAdminUser = process.env.SNOWFLAKE_TEST_ADMIN_USER;
 const snowflakeTestAdminPassword = process.env.SNOWFLAKE_TEST_ADMIN_PASSWORD;
 const snowflakeTestPasscode = process.env.SNOWFLAKE_TEST_PASSCODE;
+const snowflakeOauthClientID = process.env.SNOWFLAKE_TEST_OAUTH_CLIENT_ID;
+const snowflakeOauthClientSecret = process.env.SNOWFLAKE_TEST_OAUTH_CLIENT_SECRET;
+const oauthAuthorizationUrl = process.env.SNOWFLAKE_TEST_OAUTH_AUTHORIZATION_URL;
+const oauthTokenRequestUrl = process.env.SNOWFLAKE_TEST_OAUTH_TOKEN_REQUEST_URL;
+const oauthRedirectUri = process.env.SNOWFLAKE_TEST_OAUTH_REDIRECT_UIR;
 
 if (snowflakeTestProtocol === undefined) {
   snowflakeTestProtocol = 'https';
@@ -86,6 +91,26 @@ const PAT = {
   role: 'ANALYST'
 };
 
+const authorizationCodeOkta = {
+  ...valid,
+  accessUrl: null,
+  authenticator: 'OAUTH_AUTHORIZATION_CODE_FLOW',
+  oauthClientId: snowflakeOauthClientID,
+  oauthClientSecret: snowflakeOauthClientSecret,
+  oauthAuthorizationUrl: oauthAuthorizationUrl,
+  oauthTokenRequestUrl: oauthTokenRequestUrl,
+  oauthRedirectUri: oauthRedirectUri
+};
+
+const authorizationCodeSnowflake = {
+  ...valid,
+  oauthClientId: snowflakeOauthClientID,
+  oauthClientSecret: snowflakeOauthClientSecret,
+  authenticator: 'OAUTH_AUTHORIZATION_CODE_FLOW',
+  oauthAuthorizationUrl: oauthAuthorizationUrl,
+  oauthTokenRequestUrl: oauthTokenRequestUrl
+};
+
 const privatelink =
 {
   accessUrl: accessUrl,
@@ -118,3 +143,5 @@ exports.privatelink = privatelink;
 exports.connectionWithProxy = connectionWithProxy;
 exports.MFA = MFA;
 exports.PAT = PAT;
+exports.authorizationCodeOkta = authorizationCodeOkta;
+exports.authorizationCodeSnowflake = authorizationCodeSnowflake;

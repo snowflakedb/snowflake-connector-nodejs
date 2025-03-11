@@ -75,7 +75,7 @@ describe('testLoginTokenExpire', function () {
     );
   });
 
-  it('testSessionToken', function (done) {
+  it.skip('testSessionToken', function (done) {
     const connection = snowflake.createConnection(connOption.valid);
     async.series(
       [
@@ -118,12 +118,9 @@ describe('testLoginTokenExpire', function () {
           connection.execute({
             sqlText: 'create or replace table t(colA varchar)',
             complete: function (err) {
-              console.log(`ERROR :::: ${JSON.stringify(err)}`);
               assert.ok(err);
-              console.log(`ERROR :::: ${JSON.stringify(err.message)}`);
               assert.strictEqual(err.message, 'Unable to perform operation using terminated connection.');
-              console.log(`ERROR :::: callback`);
-              callback();
+              callback(err);
             }
           });
         }

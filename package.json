@@ -10,7 +10,7 @@
     "@techteamer/ocsp": "1.0.1",
     "asn1.js-rfc2560": "^5.0.0",
     "asn1.js-rfc5280": "^3.0.0",
-    "axios": "^1.7.7",
+    "axios": "^1.8.2",
     "big-integer": "^1.6.43",
     "bignumber.js": "^9.1.2",
     "binascii": "0.0.2",

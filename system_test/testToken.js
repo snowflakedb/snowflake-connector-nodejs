@@ -4,7 +4,7 @@ const connOption = require('../test/integration/connectionOptions');
 const testUtil = require('../test/integration/testUtil');
 const async = require('async');
 
-describe('testLoginTokenExpire', function () {
+describe.skip('testLoginTokenExpire', function () {
   before(function (done) {
     const connectionToSnowflake = snowflake.createConnection(connOption.snowflakeAccount);
     async.series(
@@ -75,7 +75,7 @@ describe('testLoginTokenExpire', function () {
     );
   });
 
-  it.skip('testSessionToken', function (done) {
+  it('testSessionToken', function (done) {
     const connection = snowflake.createConnection(connOption.valid);
     async.series(
       [

@@ -1,7 +1,3 @@
-/*
- * Copyright (c) 2015-2024 Snowflake Computing Inc. All rights reserved.
- */
-
 const assert = require('assert');
 const mock = require('mock-require');
 const net = require('net');
@@ -231,8 +227,19 @@ describe('external browser authentication', function () {
       body['data']['AUTHENTICATOR'], AuthenticationTypes.EXTERNAL_BROWSER_AUTHENTICATOR, 'Authenticator should be EXTERNALBROWSER');
   });
 
-  it('external browser - id token', async function () {
+  it('external browser - id token, no webbrowser', async function () {
     const auth = new AuthIDToken(connectionOptionsIdToken, httpclient);
+    await auth.authenticate(credentials.authenticator, '', credentials.account, credentials.username, credentials.host);
+
+    const body = { data: {} };
+    auth.updateBody(body);
+
+    assert.strictEqual(body['data']['TOKEN'], connectionOptionsIdToken.idToken);
+    assert.strictEqual(body['data']['AUTHENTICATOR'], AuthenticationTypes.ID_TOKEN_AUTHENTICATOR);
+  });
+
+  it('external browser - id token, webbrowser cb provided', async function () {
+    const auth = new AuthIDToken(connectionOptionsIdToken, httpclient, webbrowser.open);
     await auth.authenticate(credentials.authenticator, '', credentials.account, credentials.username, credentials.host);
 
     const body = { data: {} };

@@ -1,13 +1,10 @@
-/*
- * Copyright (c) 2015-2024 Snowflake Computing Inc. All rights reserved.
- */
-
 const os = require('os');
 const path = require('path');
 const assert = require('assert');
 const mock = require('mock-require');
 const { Levels, ConfigurationUtil } = require('./../../../lib/configuration/client_configuration');
 const { getDriverDirectory } = require('./../../../lib/util');
+const { mockFiles, mockClientConfigFileEnvVariable, createFsMock } = require('../mock/mock_file');
 const defaultConfigName = 'sf_client_config.json';
 const badPermissionsConfig = 'bad_perm_config.json';
 const driverDirectory = getDriverDirectory();
@@ -42,7 +39,7 @@ describe('Configuration finding tests', function () {
 
   it('should take config from connection string', async function () {
     // given
-    const fsMock = new FsMock()
+    const fsMock = createFsMock()
       .mockFile(configFromConnectionString, fileContent)
       .mockFile(configFromEnvVariable, 'random content')
       .mockFile(configInDriverDirectory, 'random content')
@@ -63,7 +60,7 @@ describe('Configuration finding tests', function () {
 
   it('should take config from environmental variable if no input present', async function () {
     // given
-    const fsMock = new FsMock()
+    const fsMock = createFsMock()
       .mockFile(configFromEnvVariable, fileContent)
       .mockFile(configInDriverDirectory, 'random content')
       .mockFile(configInHomeDirectory, 'random content');
@@ -83,7 +80,7 @@ describe('Configuration finding tests', function () {
 
   it('should take config from driver directory if no input nor environmental variable present', async function () {
     // given
-    const fsMock = new FsMock()
+    const fsMock = createFsMock()
       .mockFile(configInDriverDirectory, fileContent)
       .mockFile(configInHomeDirectory, 'random content');
     mockFiles(fsMock);
@@ -102,7 +99,7 @@ describe('Configuration finding tests', function () {
 
   it('should take config from home directory if no input nor environmental variable nor in driver directory present', async function () {
     // given
-    const fsMock = new FsMock()
+    const fsMock = createFsMock()
       .mockFile(configInHomeDirectory, fileContent);
     mockFiles(fsMock);
     mockClientConfigFileEnvVariable(undefined);
@@ -120,7 +117,7 @@ describe('Configuration finding tests', function () {
 
   it('should return null if config could not be found', async function () {
     // given
-    const fsMock = new FsMock();
+    const fsMock = createFsMock();
     mockFiles(fsMock);
     mockClientConfigFileEnvVariable(undefined);
     const fsPromises = require('fs/promises');
@@ -137,7 +134,7 @@ describe('Configuration finding tests', function () {
   if (os.platform() !== 'win32') {
     it('should fail to open config when file has bad permissions', async function () {
       // given
-      const fsMock = new FsMock()
+      const fsMock = createFsMock()
         .mockFile(badPermissionsConfig, 'gibberish');
       mockFiles(fsMock);
       const fsPromises = require('fs/promises');
@@ -159,64 +156,3 @@ describe('Configuration finding tests', function () {
     });
   }
 });
-
-function mockFiles(fsMock) {
-  mock('fs/promises', {
-    access: async function (path) {
-      return fsMock.access(path);
-    },
-    readFile: async function (path){
-      return fsMock.readFile(path);
-    },
-    stat: async function (path) {
-      return fsMock.stat(path);
-    }
-  });
-}
-
-function mockClientConfigFileEnvVariable(envClientConfigFileValue) {
-  mock('process', {
-    env: {
-      SF_CLIENT_CONFIG_FILE: envClientConfigFileValue
-    }
-  });
-}
-
-class FsMock {
-  existingFiles = new Map();
-
-  constructor() {}
-
-  mockFile(filePath, fileContents) {
-    this.existingFiles.set(filePath, fileContents);
-    return this;
-  }
-
-  async access(filePath) {
-    if (!this.existingFiles.has(filePath)) {
-      throw new Error('File does not exist');
-    }
-  }
-
-  async readFile(filePath) {
-    if (!this.existingFiles.has(filePath)) {
-      throw new Error('File does not exist');
-    }
-    return this.existingFiles.get(filePath);
-  }
-
-  async stat(filePath) {
-    if (!this.existingFiles.has(filePath)) {
-      throw new Error('File does not exist');
-    }
-    if (filePath === badPermissionsConfig) {
-      return {
-        mode: 0o40777,
-      };
-    }
-
-    return {
-      mode: 0o40700,
-    };
-  }
-}

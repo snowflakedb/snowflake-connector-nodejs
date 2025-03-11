@@ -1,12 +1,5 @@
-/*
- * Copyright (c) 2015-2024 Snowflake Computing Inc. All rights reserved.
- */
-
 const Util = require('./../../lib/util');
 const assert = require('assert');
-const path = require('path');
-const fsPromises = require('fs/promises');
-const os = require('os');
 
 describe('Util', function () {
   it('Util.isFunction()', function () {
@@ -751,7 +744,7 @@ describe('Util', function () {
         result: true,
       },
       {
-        name: 'test - max retry timout is 0',
+        name: 'test - max retry timeout is 0',
         retryOption: {
           maxRetryCount: 7,
           numRetries: 1,
@@ -781,7 +774,7 @@ describe('Util', function () {
         result: false,
       },
       {
-        name: 'test - the remaining timout is 0',
+        name: 'test - the remaining timeout is 0',
         retryOption: {
           maxRetryCount: 7,
           numRetries: 8,
@@ -791,7 +784,7 @@ describe('Util', function () {
         result: false,
       },
       {
-        name: 'test - the remaining timoue is negative',
+        name: 'test - the remaining timeout is negative',
         retryOption: {
           maxRetryCount: 7,
           numRetries: 8,
@@ -992,7 +985,7 @@ describe('Util', function () {
         result: false,
       },
       {
-        name: 'credential manager is an empty obejct',
+        name: 'credential manager is an empty object',
         credentialManager: {},
         result: false,
       },
@@ -1066,96 +1059,6 @@ describe('Util', function () {
     }
   });
 
-  if (os.platform() !== 'win32') {
-    describe('Util.isFileNotWritableByGroupOrOthers()', function () {
-      let tempDir = null;
-      let oldMask = null;
-
-      before(async function () {
-        tempDir = await fsPromises.mkdtemp(path.join(os.tmpdir(), 'permission_tests'));
-        oldMask = process.umask(0o000);
-      });
-
-      after(async function () {
-        await fsPromises.rm(tempDir, { recursive: true, force: true });
-        process.umask(oldMask);
-      });
-
-      [
-        { filePerm: 0o700, isValid: true },
-        { filePerm: 0o600, isValid: true },
-        { filePerm: 0o500, isValid: true },
-        { filePerm: 0o400, isValid: true },
-        { filePerm: 0o300, isValid: true },
-        { filePerm: 0o200, isValid: true },
-        { filePerm: 0o100, isValid: true },
-        { filePerm: 0o707, isValid: false },
-        { filePerm: 0o706, isValid: false },
-        { filePerm: 0o705, isValid: true },
-        { filePerm: 0o704, isValid: true },
-        { filePerm: 0o703, isValid: false },
-        { filePerm: 0o702, isValid: false },
-        { filePerm: 0o701, isValid: true },
-        { filePerm: 0o770, isValid: false },
-        { filePerm: 0o760, isValid: false },
-        { filePerm: 0o750, isValid: true },
-        { filePerm: 0o740, isValid: true },
-        { filePerm: 0o730, isValid: false },
-        { filePerm: 0o720, isValid: false },
-        { filePerm: 0o710, isValid: true },
-      ].forEach(async function ({ filePerm, isValid }) {
-        it('File with permission: ' + filePerm.toString(8) + ' should be valid=' + isValid, async function () {
-          const filePath = path.join(tempDir, `file_${filePerm.toString()}`);
-          await writeFile(filePath, filePerm);
-          assert.strictEqual(await Util.isFileNotWritableByGroupOrOthers(filePath, fsPromises), isValid);
-        });
-      });
-
-      async function writeFile(filePath, mode) {
-        await fsPromises.writeFile(filePath, '', { encoding: 'utf8', mode: mode });
-      }
-    });
-  }
-
-  if (os.platform() !== 'win32') {
-    describe('Util.isFileModeCorrect()', function () {
-      const tempDir = path.join(os.tmpdir(), 'permission_tests');
-      let oldMask = null;
-
-      before(async function () {
-        await fsPromises.mkdir(tempDir);
-        oldMask = process.umask(0o000);
-      });
-
-      after(async function () {
-        await fsPromises.rm(tempDir, { recursive: true, force: true });
-        process.umask(oldMask);
-      });
-
-      [
-        { dirPerm: 0o700, expectedPerm: 0o700, isCorrect: true },
-        { dirPerm: 0o755, expectedPerm: 0o600, isCorrect: false },
-      ].forEach(async function ({ dirPerm, expectedPerm, isCorrect }) {
-        it('Should return ' + isCorrect + ' when directory permission ' + dirPerm.toString(8) + ' is compared to ' + expectedPerm.toString(8), async function () {
-          const dirPath = path.join(tempDir, `dir_${dirPerm.toString(8)}`);
-          await fsPromises.mkdir(dirPath, { mode: dirPerm });
-          assert.strictEqual(await Util.isFileModeCorrect(dirPath, expectedPerm, fsPromises), isCorrect);
-        });
-      });
-
-      [
-        { filePerm: 0o700, expectedPerm: 0o700, isCorrect: true },
-        { filePerm: 0o755, expectedPerm: 0o600, isCorrect: false },
-      ].forEach(async function ({ filePerm, expectedPerm, isCorrect }) {
-        it('Should return ' + isCorrect + ' when file permission ' + filePerm.toString(8) + ' is compared to ' + expectedPerm.toString(8), async function () {
-          const dirPath = path.join(tempDir, `file_${filePerm.toString(8)}`);
-          await fsPromises.appendFile(dirPath, '', { mode: filePerm });
-          assert.strictEqual(await Util.isFileModeCorrect(dirPath, expectedPerm, fsPromises), isCorrect);
-        });
-      });
-    });
-  }
-
   describe('shouldPerformGCPBucket function test', () => {
     const testCases = [
       {
@@ -1165,19 +1068,19 @@ describe('Util', function () {
         result: true,
       },
       {
-        name: 'test - when the disableGCPTokenUplaod is enabled',
+        name: 'test - when the disableGCPTokenUpload is enabled',
         accessToken: 'Token',
         forceGCPUseDownscopedCredential: true,
         result: false,
       },
       {
-        name: 'test - when token is empty but the disableGCPTokenUplaod is enabled',
+        name: 'test - when token is empty but the disableGCPTokenUpload is enabled',
         accessToken: null,
         forceGCPUseDownscopedCredential: true,
         result: false,
       },
       {
-        name: 'test - test - when token is empty but the disableGCPTokenUplaod is disabled',
+        name: 'test - when token is empty but the disableGCPTokenUpload is disabled',
         accessToken: null,
         forceGCPUseDownscopedCredential: false,
         result: false,
@@ -1215,33 +1118,88 @@ describe('Util', function () {
     }
   });
 
-  describe('lstrip function Test', function () {
+  describe('isEmptyObject function test', function () {
     const testCases = [
       {
-        name: 'remove consecutive characters /',
-        str: '///////////helloworld',
-        remove: '/',
-        result: 'helloworld'
+        name: 'JSON is not empty',
+        value: { 'hello': 'a' },
+        result: false
       },
       {
-        name: 'when the first character is not matched with the remove character',
-        str: '/\\/\\helloworld',
-        remove: '\\',
-        result: '/\\/\\helloworld'
+        name: 'JSON is empty',
+        value: {},
+        result: true
       },
       {
-        name: 'when the first and the third characters are matched',
-        str: '@1@12345helloworld',
-        remove: '@',
-        result: '1@12345helloworld'
+        name: 'non object(string)',
+        value: 'hello world',
+        result: false,
+      },
+      {
+        name: 'non object(int)',
+        value: 123,
+        result: false,
+      },
+      {
+        name: 'non object(int)',
+        value: 123,
+        result: false,
+      },
+      {
+        name: 'array',
+        value: [1, 2, 3],
+        result: false,
+      },
+      {
+        name: 'empty array',
+        value: [],
+        result: true,
+      },
+      {
+        name: 'null',
+        value: null,
+        result: true,
+      }, {
+        name: 'undefined',
+        value: undefined,
+        result: true,
       },
     ];
 
-    for (const { name, str, remove,  result } of testCases) {
-      it(name, function () {
-        assert.strictEqual(Util.lstrip(str, remove), result);
+    testCases.forEach(({ name, value, result }) => {
+      it(name, function () {        
+        assert.strictEqual(Util.isEmptyObject(value), result);
       });
-    }
-  });
+    });      
 
+    describe('lstrip function Test', function () {
+      const testCases = [
+        {
+          name: 'remove consecutive characters /',
+          str: '///////////helloworld',
+          remove: '/',
+          result: 'helloworld'
+        },
+        {
+          name: 'when the first character is not matched with the remove character',
+          str: '/\\/\\helloworld',
+          remove: '\\',
+          result: '/\\/\\helloworld'
+        },
+        {
+          name: 'when the first and the third characters are matched',
+          str: '@1@12345helloworld',
+          remove: '@',
+          result: '1@12345helloworld'
+        },
+      ];
+
+      for (const { name, str, remove,  result } of testCases) {
+        it(name, function () {
+          assert.strictEqual(Util.lstrip(str, remove), result);
+        });
+      }
+    });
+
+  });
 });

@@ -1,7 +1,3 @@
-/*
- * Copyright (c) 2015-2024 Snowflake Computing Inc. All rights reserved.
- */
-
 const mapErrNameToErrCode = require('./../../lib/errors').codes;
 const mapErrCodeToErrMessage = require('./../../lib/constants/error_messages');
 const mapErrCodeToSqlState = require('./../../lib/errors').mapErrorCodeToSqlState;

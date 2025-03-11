@@ -1,11 +1,11 @@
 {
   "name": "snowflake-sdk",
-  "version": "2.0.1",
+  "version": "2.0.2",
   "description": "Node.js driver for Snowflake",
   "dependencies": {
-    "@aws-sdk/client-s3": "^3.388.0",
-    "@smithy/node-http-handler": "^3.2.5",
-    "@azure/storage-blob": "12.18.x",
+    "@aws-sdk/client-s3": "^3.726.0",
+    "@smithy/node-http-handler": "^4.0.1",
+    "@azure/storage-blob": "12.26.x",
     "@google-cloud/storage": "^7.7.0",
     "@techteamer/ocsp": "1.0.1",
     "asn1.js-rfc2560": "^5.0.0",

@@ -102,7 +102,7 @@ describe('Oauth Authorization Code authentication', function () {
     };
     authTest.createConnection(connectionOption);
     await authTest.connectAsync();
-    authTest.verifyErrorWasThrown('"response" is not a conform Token Endpoint response (unexpected HTTP status code)');
+    authTest.verifyErrorWasThrown('Error while getting access token. Message: Request failed with status code 400');
   });
 
 
@@ -123,7 +123,7 @@ describe('Oauth Authorization Code authentication', function () {
     };
     authTest.createConnection(connectionOption);
     await authTest.connectAsync();
-    authTest.verifyErrorWasThrown('"response" is not a conform Token Endpoint response (unexpected HTTP status code)');
+    authTest.verifyErrorWasThrown('Error while getting access token. Message: Request failed with status code 400');
   });
 
 });

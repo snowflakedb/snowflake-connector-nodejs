@@ -80,6 +80,7 @@ const oauthAuthorizationCodeOnWiremock =
       oauthClientSecret: 'clientSecret',
       oauthAuthorizationUrl: 'http://localhost:8099/oauth/authorize',
       oauthRedirectUri: 'http://localhost:8009/snowflake/oauth-redirect',
+      oauthScope: 'session:role:ANALYST test-scope',
       oauthHttpAllowed: true
     };
 

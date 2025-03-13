@@ -25,6 +25,7 @@ else
     export PATH=$WORKSPACE/node_modules/.bin:$PATH
 fi
 cp $SOURCE_ROOT/ci/container/package.json .
+
 npm install
 
 PACKAGE_NAME=$(cd $WORKSPACE && ls snowflake-sdk*.tgz)
@@ -90,6 +91,8 @@ else
         "--reporter" "spec"
     )
 fi
+
+echo "[INFO] Mocha CMD: $MOCHA_CMD"
 
 if [[ -z "$GITHUB_ACTIONS" ]]; then
     echo "[INFO] Running Internal Tests. Test result: $WORKSPACE/junit-system-test.xml"

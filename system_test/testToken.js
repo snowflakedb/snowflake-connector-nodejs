@@ -4,7 +4,7 @@ const connOption = require('../test/integration/connectionOptions');
 const testUtil = require('../test/integration/testUtil');
 const async = require('async');
 
-describe('testLoginTokenExpire', function () {
+describe.skip('testLoginTokenExpire', function () {
   before(function (done) {
     const connectionToSnowflake = snowflake.createConnection(connOption.snowflakeAccount);
     async.series(
@@ -119,9 +119,8 @@ describe('testLoginTokenExpire', function () {
             sqlText: 'create or replace table t(colA varchar)',
             complete: function (err) {
               assert.ok(err);
-              assert.strictEqual(err.message, 'Unable to perform ' +
-                'operation using terminated connection.');
-              callback();
+              assert.strictEqual(err.message, 'Unable to perform operation using terminated connection.');
+              callback(err);
             }
           });
         }

@@ -18,6 +18,7 @@ const snowflakeOauthClientSecret = process.env.SNOWFLAKE_TEST_OAUTH_CLIENT_SECRE
 const oauthAuthorizationUrl = process.env.SNOWFLAKE_TEST_OAUTH_AUTHORIZATION_URL;
 const oauthTokenRequestUrl = process.env.SNOWFLAKE_TEST_OAUTH_TOKEN_REQUEST_URL;
 const oauthRedirectUri = process.env.SNOWFLAKE_TEST_OAUTH_REDIRECT_UIR;
+const oauthScope = process.env.SNOWFLAKE_TEST_OAUTH_SCOPE;
 
 if (snowflakeTestProtocol === undefined) {
   snowflakeTestProtocol = 'https';

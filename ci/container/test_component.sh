@@ -25,6 +25,8 @@ else
     export PATH=$WORKSPACE/node_modules/.bin:$PATH
 fi
 cp $SOURCE_ROOT/ci/container/package.json .
+
+cat $SOURCE_ROOT/ci/container/package.json
 npm install
 
 PACKAGE_NAME=$(cd $WORKSPACE && ls snowflake-sdk*.tgz)

@@ -52,7 +52,7 @@
               }
             ],
             "sessionInfo": {
-              "databaseName": "TEST_DHEYMAN",
+              "databaseName": "TEST_DATABASE",
               "schemaName": "TEST_JDBC",
               "warehouseName": "TEST_XSMALL",
               "roleName": "ANALYST"

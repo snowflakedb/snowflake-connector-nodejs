@@ -1,4 +1,3 @@
-const net = require('net');
 const connParameters = require('../../authentication/connectionParameters');
 const AuthTest = require('../../authentication/authTestsBaseClass');
 const { runWireMockAsync, addWireMockMappingsFromFile, } = require('../../wiremockRunner');

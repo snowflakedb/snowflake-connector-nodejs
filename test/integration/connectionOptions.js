@@ -111,6 +111,15 @@ const authorizationCodeSnowflake = {
   oauthTokenRequestUrl: oauthTokenRequestUrl
 };
 
+const clientCredentialSnowflake = {
+  ...valid,
+  username: '',
+  oauthClientId: snowflakeOauthClientID,
+  oauthClientSecret: snowflakeOauthClientSecret,
+  oauthTokenRequestUrl: oauthTokenRequestUrl,
+  authenticator: 'OAUTH_CLIENT_CREDENTIALS'
+};
+
 const privatelink =
 {
   accessUrl: accessUrl,
@@ -145,3 +154,4 @@ exports.MFA = MFA;
 exports.PAT = PAT;
 exports.authorizationCodeOkta = authorizationCodeOkta;
 exports.authorizationCodeSnowflake = authorizationCodeSnowflake;
+exports.clientCredentialSnowflake = clientCredentialSnowflake;

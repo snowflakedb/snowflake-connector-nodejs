@@ -159,6 +159,45 @@ if (process.env.RUN_MANUAL_TESTS_ONLY === 'true') {
         });
       });
     });
+
+    describe('Connection - CLIENT CREDENTIALS authenticator ', function () {
+
+      it('test - connect CLIENT CREDENTIALS - Snowflake', function (done) {
+        const connectionOption = { ...connOption.clientCredentialSnowflake };
+        const connection = snowflake.createConnection(connectionOption);
+        connection.connectAsync(function (err) {
+          try {
+            assert.ok(!err);
+            connection.execute({
+              sqlText: 'select 1',
+              complete: function (err) {
+                testUtil.checkError(err);
+                testUtil.destroyConnection(connection, function () {
+                });
+                done();
+              },
+            });
+
+          } catch (err){
+            done(err);
+          }
+        });
+      });
+
+      it('test - connect CLIENT CREDENTIALS - inconsistent username', function (done) {
+        const connectionOption = { ...connOption.clientCredentialSnowflake, ...{ username: 'inconsistentUser' } };
+        const connection = snowflake.createConnection(connectionOption);
+        connection.connectAsync(function (err) {
+          try {
+            assert(err);
+            assert.equal(err.message, 'The user you were trying to authenticate as differs from the user tied to the access token.');
+            done();
+          } catch (err){
+            done(err);
+          }
+        });
+      });
+    });
   });
 
   describe('keepAlive test', function () {

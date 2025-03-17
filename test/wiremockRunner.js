@@ -29,7 +29,7 @@ async function runWireMockAsync(port) {
 }
 
 async function waitForWiremockStarted(wireMock) {
-  let counter = 30;
+  let counter = 0;
   return fetch(wireMock.baseUri)
     .then(async (resp) => {
       if (resp.ok) {

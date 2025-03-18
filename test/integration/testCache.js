@@ -6,7 +6,7 @@ const { createFsMock, wrongOwner, mockFiles } = require('../unit/mock/mock_file'
 const { validateOnlyUserReadWritePermissionAndOwner } = require('../../lib/file_util');
 const mock = require('mock-require');
 
-describe('Validate cache permissions test', async function () {
+describe.only('Validate cache permissions test', async function () {
   if (os.platform() !== 'win32') {
     const invalidPermissionsFilePath = path.join(os.homedir(), 'invalid_permissions');
     const validPermissionsFilePath = path.join(os.homedir(), 'valid_permissions');

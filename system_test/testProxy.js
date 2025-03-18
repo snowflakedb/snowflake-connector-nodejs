@@ -4,7 +4,7 @@ const testUtil = require('../test/integration/testUtil');
 const connOptions = require('./connectionOptions');
 
 
-describe.only('testProxy', function () {
+describe('testProxy', function () {
   it('testConnectionWithProxy', function (done) {
     const connection = snowflake.createConnection(connOptions.connectionWithProxy);
     async.series(

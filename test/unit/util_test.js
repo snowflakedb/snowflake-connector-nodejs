@@ -1200,6 +1200,5 @@ describe('Util', function () {
         });
       }
     });
-
   });
 });

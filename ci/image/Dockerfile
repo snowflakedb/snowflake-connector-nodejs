@@ -3,11 +3,11 @@ FROM $IMAGE
 
 USER root
 
-RUN apk update && apk add python3 python3-dev py3-pip jq aws-cli gosu openjdk-17
+RUN apk update --no-cache && apk add --no-cache python3 python3-dev py3-pip jq aws-cli gosu openjdk-17
 RUN pip install -U snowflake-connector-python
 
 ENV JAVA_HOME=/usr/lib/jvm/java-17-openjdk
-ENV PATH="$PATH:/usr/lib/jvm/java-17-openjdk/bin"
+ENV PATH="$PATH:$JAVA_HOME/bin"
 
 # workspace
 RUN mkdir -p /home/user && \

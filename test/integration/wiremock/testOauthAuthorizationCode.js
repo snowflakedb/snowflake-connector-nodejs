@@ -66,7 +66,7 @@ describe('Oauth Authorization Code authentication', function () {
   });
 
   //invalid state
-  it('Successful flow scenario Authorization Code flow - invalid state', async function () {
+  it('Authorization Code flow - invalid state', async function () {
     GlobalConfig.setCustomRedirectingClient((redirectUri) =>  {
       const url = `${redirectUri.searchParams.get('redirect_uri')}?code=9s6wFkGDOjmgNEdwJMlDzv1AwxDjDVBxiT6wVqXjG5s&state=invalidState}`;
       return authUtil.withBrowserActionTimeout(3000, get(url));

@@ -1,4 +1,4 @@
-const {authorizationCodeOkta, authorizationCodeSnowflake} = require("../integration/connectionOptions");
+const { authorizationCodeOkta, authorizationCodeSnowflake } = require('../integration/connectionOptions');
 const snowflakeAuthTestProtocol = process.env.SNOWFLAKE_AUTH_TEST_PROTOCOL;
 const snowflakeAuthTestHost = process.env.SNOWFLAKE_AUTH_TEST_HOST;
 const snowflakeAuthTestPort = process.env.SNOWFLAKE_AUTH_TEST_PORT;

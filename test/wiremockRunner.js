@@ -6,7 +6,7 @@ const fs = require('fs');
 
 async function runWireMockAsync(port) {
   let timeoutHandle;
-  let counter = 0;
+  const counter = 0;
   const waitingWireMockPromise =  new Promise( (resolve, reject) => {
     try {
       exec(`npx wiremock --enable-browser-proxying --proxy-pass-through  false --port ${port} `);

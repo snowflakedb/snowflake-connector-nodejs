@@ -138,7 +138,7 @@ if (process.env.RUN_MANUAL_TESTS_ONLY === 'true') {
         });
       });
 
-      it.only('test - connect AUTHORIZATION CODE - Snowflake IDP', function (done) {
+      it('test - connect AUTHORIZATION CODE - Snowflake IDP', function (done) {
         const connectionOption = { ...connOption.authorizationCodeSnowflake };
         console.log(JSON.stringify(connectionOption));
         const connection = snowflake.createConnection(connectionOption);

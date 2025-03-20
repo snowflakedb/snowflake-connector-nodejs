@@ -427,7 +427,6 @@ describe('Secret Detector', function () {
     });
   });
 
-
   describe ('test - oauthClientSecret masking', async function () {
     const randomOauthClientIdValue = 'Fh[+2J~AcqeqW%?';
 
@@ -463,6 +462,48 @@ describe('Secret Detector', function () {
     testCases.forEach(({ name, outhClientSecretString, maskedtxt, maskedFlag, errstr }) => {
       it(`test - ${name}`, async function () {
         const result = SecretDetector.maskSecrets(outhClientSecretString);
+        assert.strictEqual(result.masked, maskedFlag);
+        assert.strictEqual(result.maskedtxt, maskedtxt);
+        assert.strictEqual(result.errstr, errstr);
+      });
+    });
+  });
+
+  describe ('test - clientSecret masking', async function () {
+    const randomOauthClientIdValue = 'Fh[+2J~AcqeqW%?';
+
+    const testCases = [{
+      name: 'clientSecret',
+      clientSecretString: 'clientSecret:' + randomOauthClientIdValue,
+      maskedtxt: 'clientSecret:****',
+      maskedFlag: true,
+      errstr: null
+    },
+    {
+      name: 'CLIENTSECRET',
+      clientSecretString: 'CLIENTSECRET:' + randomOauthClientIdValue,
+      maskedtxt: 'CLIENTSECRET:****',
+      maskedFlag: true,
+      errstr: null
+    },
+    {
+      name: 'clientSecrET',
+      clientSecretString: 'clientSecrET:' + randomOauthClientIdValue,
+      maskedtxt: 'clientSecrET:****',
+      maskedFlag: true,
+      errstr: null
+    },
+    {
+      name: 'clientSecret',
+      clientSecretString: 'clientSecret:' + randomOauthClientIdValue,
+      maskedtxt: 'clientSecret:****',
+      maskedFlag: true,
+      errstr: null
+    }];
+
+    testCases.forEach(({ name, clientSecretString, maskedtxt, maskedFlag, errstr }) => {
+      it(`test - ${name}`, async function () {
+        const result = SecretDetector.maskSecrets(clientSecretString);
         assert.strictEqual(result.masked, maskedFlag);
         assert.strictEqual(result.maskedtxt, maskedtxt);
         assert.strictEqual(result.errstr, errstr);

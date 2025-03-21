@@ -1,5 +1,6 @@
 const connParameters = require('../../authentication/connectionParameters');
 const AuthTest = require('../../authentication/authTestsBaseClass');
+
 const { runWireMockAsync, addWireMockMappingsFromFile } = require('../../wiremockRunner');
 const os = require('os');
 const { getFreePort } = require('../../../lib/util');

@@ -1,7 +1,3 @@
-/*
- * Copyright (c) 2015-2024 Snowflake Computing Inc. All rights reserved.
- */
-
 const Result = require('./../../../../lib/connection/result/result');
 const ConnectionConfig = require('./../../../../lib/connection/connection_config');
 const Util = require('./../../../../lib/util');

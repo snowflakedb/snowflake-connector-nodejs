@@ -1,7 +1,3 @@
-/*
- * Copyright (c) 2015-2024 Snowflake Computing Inc. All rights reserved.
- */
-
 const Statement = require('./../../../lib/connection/statement');
 const ErrorCodes = require('./../../../lib/errors').codes;
 const assert = require('assert');
@@ -414,4 +410,21 @@ describe('Statement.fetchResult()', function () {
     testCase = testCases[index];
     it(testCase.name, createItCallback(testCase));
   }
+});
+
+it('Statement file transfer error', async function () {
+  const mockFta = {
+    execute: async function () {
+      return null;
+    },
+    result: function () {
+      throw new Error('some file transfer error');
+    }
+  };
+  const context = {};
+  const body = {
+    'data': {},
+  };
+  await Statement.executeFileTransferRequest(context, body, null, mockFta);
+  assert.strictEqual(context.resultError.message, 'some file transfer error');
 });

@@ -1,7 +1,3 @@
-/*
- * Copyright (c) 2015-2024 Snowflake Computing Inc. All rights reserved.
- */
-
 const assert = require('assert');
 const JsonCredentialManager = require('../../../lib/authentication/secure_storage/json_credential_manager');
 const Util = require('../../../lib/util');

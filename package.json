@@ -1,6 +1,6 @@
 {
   "name": "snowflake-sdk",
-  "version": "2.0.1",
+  "version": "2.0.3",
   "description": "Node.js driver for Snowflake",
   "dependencies": {
     "@aws-sdk/client-s3": "^3.726.0",
@@ -10,7 +10,7 @@
     "@techteamer/ocsp": "1.0.1",
     "asn1.js-rfc2560": "^5.0.0",
     "asn1.js-rfc5280": "^3.0.0",
-    "axios": "^1.7.7",
+    "axios": "^1.8.3",
     "big-integer": "^1.6.43",
     "bignumber.js": "^9.1.2",
     "binascii": "0.0.2",
@@ -42,7 +42,9 @@
     "mocha": "^10.2.0",
     "mock-require": "^3.0.3",
     "nyc": "^15.1.0",
-    "test-console": "^2.0.0"
+    "test-console": "^2.0.0",
+    "wiremock": "^3.10.0",
+    "wiremock-rest-client": "^1.11.0"
   },
   "peerDependencies": {
     "asn1.js": "^5.4.1"

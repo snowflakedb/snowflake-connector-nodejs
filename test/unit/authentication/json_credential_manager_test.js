@@ -19,11 +19,8 @@ const pathFromHome = function () {
 };
 
 const assertCachePath = async function (credentialManager, path) {
-  const [fileHandle, filePath] = await credentialManager.getTokenFile();
+  const filePath = await credentialManager.getTokenFilePath();
   assert.strictEqual(filePath, path);
-  if (Util.exists(fileHandle)) {
-    fileHandle.close();
-  }
 };
 
 describe('Json credential manager basic test', function () {

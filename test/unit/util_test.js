@@ -1201,5 +1201,27 @@ describe('Util', function () {
       }
     });
 
+    describe('escapeHTML function test', function () {
+      const testCases = [
+        {
+          str: '<script>alert(\'example of text!\')</script>',
+          result: '&lt;script&gt;alert(&#39;example of text!&#39;)&lt;/script&gt;'
+        },
+        {
+          str: '',
+          result: ''
+        },
+        {
+          str: undefined,
+          result: undefined
+        },
+      ];
+
+      for (const {  str, result } of testCases) {
+        it('Test excapeHtml function', function () {
+          assert.strictEqual(Util.escapeHTML(str), result);
+        });
+      }
+    });
   });
 });

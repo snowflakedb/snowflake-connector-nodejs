@@ -6,6 +6,7 @@ const { runWireMockAsync } = require('../../wiremockRunner');
 const os = require('os');
 
 async function getFreePort() {
+
   return new Promise(res => {
     const srv = net.createServer();
     srv.listen(0, () => {

@@ -46,7 +46,6 @@
     "nyc": "^15.1.0",
     "test-console": "^2.0.0",
     "wiremock": "^3.10.0"
-    "wiremock": "^3.10.0",
   },
   "peerDependencies": {
     "asn1.js": "^5.4.1"

@@ -84,6 +84,21 @@ const oauthAuthorizationCodeOnWiremock =
       oauthHttpAllowed: true
     };
 
+const oauthClientCredentialsOnWiremock =
+    {
+      ...baseParameters,
+      accessUrl: null,
+      username: 'MOCK_USERNAME',
+      account: 'MOCK_ACCOUNT_NAME',
+      host: '127.0.0.1',
+      protocol: 'http',
+      role: 'ANALYST',
+      authenticator: 'OAUTH_CLIENT_CREDENTIALS',
+      oauthClientId: '123',
+      oauthClientSecret: 'clientSecret',
+      oauthHttpAllowed: true
+    };
+
 const keypairPrivateKey =
     {
       ...baseParameters,
@@ -108,22 +123,12 @@ const keypairEncryptedPrivateKeyPath =
       authenticator: 'SNOWFLAKE_JWT'
     };
 
-const oauthPATOnWiremock =
-  {
-    ...baseParameters,
-    accessUrl: null,
-    username: 'MOCK_USERNAME',
-    account: 'MOCK_ACCOUNT_NAME',
-    host: 'localhost',
-    protocol: 'http',
-    authenticator: 'PROGRAMMATIC_ACCESS_TOKEN',
-  };
-
 exports.externalBrowser = externalBrowser;
 exports.okta = okta;
 exports.oauth = oauth;
 exports.oauthPATOnWiremock = oauthPATOnWiremock;
 exports.oauthAuthorizationCodeOnWiremock = oauthAuthorizationCodeOnWiremock;
+exports.oauthClientCredentialsOnWiremock = oauthClientCredentialsOnWiremock;
 exports.oauthAuthorizationCode = authorizationCodeSnowflake;
 exports.oauthAuthorizationCodeOkta = authorizationCodeOkta;
 exports.keypairPrivateKey = keypairPrivateKey;

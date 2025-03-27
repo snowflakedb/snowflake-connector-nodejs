@@ -25,9 +25,9 @@ describe('Oauth Authorization Code authentication', function () {
       }
     };
     accessTokenKey = Util.buildCredentialCacheKey(connectionOption.host,
-      connectionOption.username, AuthenticationTypes.OAUTH_AUTHORIZATION_CODE + 'access_token');
+      connectionOption.username, AuthenticationTypes.OAUTH_AUTHORIZATION_CODE_FLOW + 'access_token');
     refreshTokenKey = Util.buildCredentialCacheKey(connectionOption.host,
-      connectionOption.username, AuthenticationTypes.OAUTH_AUTHORIZATION_CODE + 'refresh_token');
+      connectionOption.username, AuthenticationTypes.OAUTH_AUTHORIZATION_CODE_FLOW + 'refresh_token');
   });
 
   beforeEach(async () => {
@@ -38,7 +38,6 @@ describe('Oauth Authorization Code authentication', function () {
 
   afterEach(async () => {
     wireMock.scenarios.resetAllScenarios();
-    wireMock.mappings.resetAllMappings();
   });
 
   after(async () => {
@@ -115,6 +114,6 @@ describe('Oauth Authorization Code authentication', function () {
     const connOption = { ...connParameters.oauthAuthorizationCodeOnWiremock, enableExperimentalAuthentication: false };
     await authTest.createConnection(connOption);
     await authTest.connectAsync();
-    authTest.verifyErrorWasThrown('Wrong authorization type Failed to initialize authenticator: Error: Following authentication method not yet supported: OAUTH_AUTHORIZATION_CODE');
+    authTest.verifyErrorWasThrown('Wrong authorization type Failed to initialize authenticator: Error: Following authentication method not yet supported: OAUTH_AUTHORIZATION_CODE_FLOW');
   });
 });

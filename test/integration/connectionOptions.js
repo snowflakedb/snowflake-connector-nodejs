@@ -94,7 +94,7 @@ const PAT = {
 const authorizationCodeOkta = {
   ...valid,
   accessUrl: null,
-  authenticator: 'OAUTH_AUTHORIZATION_CODE_FLOW',
+  authenticator: 'OAUTH_AUTHORIZATION_CODE',
   oauthClientId: snowflakeOauthClientID,
   oauthClientSecret: snowflakeOauthClientSecret,
   oauthAuthorizationUrl: oauthAuthorizationUrl,
@@ -106,7 +106,7 @@ const authorizationCodeSnowflake = {
   ...valid,
   oauthClientId: snowflakeOauthClientID,
   oauthClientSecret: snowflakeOauthClientSecret,
-  authenticator: 'OAUTH_AUTHORIZATION_CODE_FLOW',
+  authenticator: 'OAUTH_AUTHORIZATION_CODE',
   oauthAuthorizationUrl: oauthAuthorizationUrl,
   oauthTokenRequestUrl: oauthTokenRequestUrl,
   proxyHost: '127.0.0.1',

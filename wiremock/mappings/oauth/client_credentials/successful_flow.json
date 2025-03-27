@@ -43,7 +43,17 @@
         "method": "POST",
         "bodyPatterns": [
           {
-            "contains": "access-token-123"
+            "equalToJson": {
+              "data": {
+                "ACCOUNT_NAME": "MOCK_ACCOUNT_NAME",
+                "CLIENT_APP_ID": "JavaScript",
+                "TOKEN": "access-token-123",
+                "LOGIN_NAME": "MOCK_USERNAME",
+                "AUTHENTICATOR": "OAUTH",
+                "OAUTH_TYPE": "OAUTH_CLIENT_CREDENTIALS"
+              }
+            },
+            "ignoreExtraElements": true
           }
         ]
       },

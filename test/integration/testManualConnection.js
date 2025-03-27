@@ -4,7 +4,7 @@ const connOption = require('./connectionOptions');
 const testUtil = require('./testUtil');
 const Logger = require('../../lib/logger');
 const Util = require('../../lib/util');
-const JsonCredentialManager = require('../../lib/authentication/secure_storage/json_credential_manager');
+const { JsonCredentialManager } = require('../../lib/authentication/secure_storage/json_credential_manager');
 
 if (process.env.RUN_MANUAL_TESTS_ONLY === 'true') {
   describe('Run manual tests', function () {

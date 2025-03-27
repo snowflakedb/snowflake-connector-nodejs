@@ -38,10 +38,7 @@ describe('Configuration finding tests', function () {
   });
 
   describe('Obtain Config testing', () => {
-    let tempDir = null;
-    const fsPromises = require('fs/promises');
     it('should take config from connection string', async function () {
-      
       // given
       const fsMock = createFsMock()
         .mockFile(configFromConnectionString, fileContent)
@@ -100,7 +97,7 @@ describe('Configuration finding tests', function () {
       // then
       assert.deepEqual(configFound, clientConfig);
     });
-  })
+  });
  
 
   it('should take config from home directory if no input nor environmental variable nor in driver directory present', async function () {

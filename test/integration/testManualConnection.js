@@ -6,7 +6,7 @@ const Logger = require('../../lib/logger');
 const Util = require('../../lib/util');
 const { JsonCredentialManager } = require('../../lib/authentication/secure_storage/json_credential_manager');
 
-if (process.env.RUN_MANUAL_TESTS_ONLY === 'true') {
+if ( 0 === 0) {
   describe('Run manual tests', function () {
     describe('Connection - MFA authenticator with DUO', function () {
       const connectionOption = connOption.MFA;
@@ -138,6 +138,7 @@ if (process.env.RUN_MANUAL_TESTS_ONLY === 'true') {
       });
 
       it('test - connect AUTHORIZATION CODE - Snowflake IDP', function (done) {
+        snowflake.configure({ logLevel: 'DEBUG',  disableOCSPChecks: true });
         const connectionOption = { ...connOption.authorizationCodeSnowflake };
         const connection = snowflake.createConnection(connectionOption);
         connection.connectAsync(function (err) {

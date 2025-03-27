@@ -9,7 +9,6 @@ RUN pip install -U snowflake-connector-python
 ENV JAVA_HOME=/usr/lib/jvm/java-17-openjdk
 ENV PATH="$PATH:$JAVA_HOME/bin"
 
-
 # workspace
 RUN mkdir -p /home/user && \
     chmod 777 /home/user

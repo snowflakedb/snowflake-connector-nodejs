@@ -33,9 +33,9 @@ describe('Oauth - refreshing token', function () {
     GlobalConfig.setCustomCredentialManager(defaultCredentialManager);
     // TODO: extract enum of credentail types
     accessTokenKey = Util.buildCredentialCacheKey(connectionOption.host,
-      connectionOption.username, AuthenticationTypes.OAUTH_AUTHORIZATION_CODE_FLOW + 'access_token');
+      connectionOption.username, AuthenticationTypes.OAUTH_AUTHORIZATION_CODE + 'access_token');
     refreshTokenKey = Util.buildCredentialCacheKey(connectionOption.host,
-      connectionOption.username, AuthenticationTypes.OAUTH_AUTHORIZATION_CODE_FLOW + 'refresh_token');
+      connectionOption.username, AuthenticationTypes.OAUTH_AUTHORIZATION_CODE + 'refresh_token');
   });
   beforeEach(async () => {
     authTest = new AuthTest();
@@ -52,14 +52,14 @@ describe('Oauth - refreshing token', function () {
     await addWireMockMappingsFromFile(wireMock, 'wiremock/mappings/oauth/token_cache_and_refresh/caching_refreshed_access_token_and_new_refresh_token.json');
     await GlobalConfig.getCredentialManager().write(accessTokenKey, 'expired_token');
 
-    authTest.createConnection(connectionOption);
+    await authTest.createConnection(connectionOption);
     await authTest.connectAsync();
     authTest.verifyNoErrorWasThrown();
   });
 
   it('Save oauth tokens after idp authorization', async function () {
     await addWireMockMappingsFromFile(wireMock, 'wiremock/mappings/oauth/token_cache_and_refresh/caching_tokens_after_connecting.json');
-    authTest.createConnection(connectionOption);
+    await authTest.createConnection(connectionOption);
     await authTest.connectAsync();
     authTest.verifyNoErrorWasThrown();
     const accessTokenInCache = await GlobalConfig.getCredentialManager().read(accessTokenKey);
@@ -72,7 +72,7 @@ describe('Oauth - refreshing token', function () {
   it('Use refresh token to get new access token', async function () {
     await GlobalConfig.getCredentialManager().write(refreshTokenKey, 'first_refresh_token');
     await addWireMockMappingsFromFile(wireMock, 'wiremock/mappings/oauth/token_cache_and_refresh/refreshing_expired_access_token.json');
-    authTest.createConnection(connectionOption);
+    await authTest.createConnection(connectionOption);
     await authTest.connectAsync();
     authTest.verifyNoErrorWasThrown();
     const accessTokenInCache = await GlobalConfig.getCredentialManager().read(accessTokenKey);
@@ -89,7 +89,7 @@ describe('Oauth - refreshing token', function () {
     await GlobalConfig.getCredentialManager().write(accessTokenKey, 'expired_token');
     await GlobalConfig.getCredentialManager().write(refreshTokenKey, 'first_refresh_token');
     await addWireMockMappingsFromFile(wireMock, 'wiremock/mappings/oauth/token_cache_and_refresh/restarting_full_flow_on_refresh_token_error.json');
-    authTest.createConnection(connectionOption);
+    await authTest.createConnection(connectionOption);
     await authTest.connectAsync();
     authTest.verifyNoErrorWasThrown();
     const accessTokenInCache = await GlobalConfig.getCredentialManager().read(accessTokenKey);

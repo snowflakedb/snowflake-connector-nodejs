@@ -5,22 +5,41 @@ const { getFreePort } = require('../../../lib/util');
 const authUtil = require('../../../lib/authentication/authentication_util');
 const GlobalConfig = require('../../../lib/global_config');
 const { get } = require('axios');
+const JsonCredentialManager = require('../../../lib/authentication/secure_storage/json_credential_manager');
+const Util = require('../../../lib/util');
+const AuthenticationTypes = require('../../../lib/authentication/authentication_types');
 
 describe('Oauth Authorization Code authentication', function () {
-  let port;
-  let authTest;
-  let wireMock;
+  let port, authTest, wireMock, accessTokenKey, refreshTokenKey, connectionOption;
+
   before(async () => {
+    const defaultCredentialManager = new JsonCredentialManager();
     port = await getFreePort();
     wireMock = await runWireMockAsync(port);
+    GlobalConfig.setCustomCredentialManager(defaultCredentialManager);
+    connectionOption = { ...connParameters.oauthAuthorizationCodeOnWiremock,
+      ...{
+        port: port,
+        oauthAuthorizationUrl: `https://127.0.0.1:${port}/oauth/authorize`,
+        oauthTokenRequestUrl: `http://127.0.0.1:${port}/oauth/token-request`,
+      }
+    };
+    accessTokenKey = Util.buildCredentialCacheKey(connectionOption.host,
+      connectionOption.username, AuthenticationTypes.OAUTH_AUTHORIZATION_CODE_FLOW + 'access_token');
+    refreshTokenKey = Util.buildCredentialCacheKey(connectionOption.host,
+      connectionOption.username, AuthenticationTypes.OAUTH_AUTHORIZATION_CODE_FLOW + 'refresh_token');
   });
+
   beforeEach(async () => {
     authTest = new AuthTest();
+    await GlobalConfig.getCredentialManager().remove(accessTokenKey);
+    await GlobalConfig.getCredentialManager().remove(refreshTokenKey);
   });
+
   afterEach(async () => {
     wireMock.scenarios.resetAllScenarios();
-    // console.log(await wireMock.requests.getUnmatchedRequests());
   });
+
   after(async () => {
     await wireMock.global.shutdown();
   });
@@ -32,13 +51,6 @@ describe('Oauth Authorization Code authentication', function () {
     }
     );
     await addWireMockMappingsFromFile(wireMock, 'wiremock/mappings/oauth/authorization_code/successful_flow.json');
-    const connectionOption = { ...connParameters.oauthAuthorizationCodeOnWiremock,
-      ...{
-        port: port,
-        oauthAuthorizationUrl: `https://127.0.0.1:${port}/oauth/authorize`,
-        oauthTokenRequestUrl: `http://127.0.0.1:${port}/oauth/token-request`,
-      }
-    };
     authTest.createConnection(connectionOption);
     await authTest.connectAsync();
     authTest.verifyNoErrorWasThrown();
@@ -52,13 +64,6 @@ describe('Oauth Authorization Code authentication', function () {
     }
     );
     await addWireMockMappingsFromFile(wireMock, 'wiremock/mappings/oauth/authorization_code/successful_flow.json');
-    const connectionOption = { ...connParameters.oauthAuthorizationCodeOnWiremock,
-      ...{
-        port: port,
-        oauthAuthorizationUrl: `https://127.0.0.1:${port}/oauth/authorize`,
-        oauthTokenRequestUrl: `http://127.0.0.1:${port}/oauth/token-request`,
-      }
-    };
     authTest.createConnection(connectionOption);
     await authTest.connectAsync();
     authTest.verifyErrorWasThrown('Error while getting oauth authorization code. ErrorCode invalid_scope. Message: One or more scopes are not configured for the authorization server resource.');
@@ -73,13 +78,6 @@ describe('Oauth Authorization Code authentication', function () {
     }
     );
     await addWireMockMappingsFromFile(wireMock, 'wiremock/mappings/oauth/authorization_code/successful_flow.json');
-    const connectionOption = { ...connParameters.oauthAuthorizationCodeOnWiremock,
-      ...{
-        port: port,
-        oauthAuthorizationUrl: `https://127.0.0.1:${port}/oauth/authorize`,
-        oauthTokenRequestUrl: `http://127.0.0.1:${port}/oauth/token-request`,
-      }
-    };
     authTest.createConnection(connectionOption);
     await authTest.connectAsync();
     authTest.verifyErrorWasThrown('unexpected "state" response parameter value');
@@ -93,13 +91,6 @@ describe('Oauth Authorization Code authentication', function () {
     }
     );
     await addWireMockMappingsFromFile(wireMock, 'wiremock/mappings/oauth/authorization_code/token_request_error.json');
-    const connectionOption = { ...connParameters.oauthAuthorizationCodeOnWiremock,
-      ...{
-        port: port,
-        oauthAuthorizationUrl: `https://127.0.0.1:${port}/oauth/authorize`,
-        oauthTokenRequestUrl: `http://127.0.0.1:${port}/oauth/token-request`,
-      }
-    };
     authTest.createConnection(connectionOption);
     await authTest.connectAsync();
     authTest.verifyErrorWasThrown('Error while getting access token. Message: Request failed with status code 400');
@@ -114,13 +105,6 @@ describe('Oauth Authorization Code authentication', function () {
     }
     );
     await addWireMockMappingsFromFile(wireMock, 'wiremock/mappings/oauth/authorization_code/token_request_error.json');
-    const connectionOption = { ...connParameters.oauthAuthorizationCodeOnWiremock,
-      ...{
-        port: port,
-        oauthAuthorizationUrl: `https://127.0.0.1:${port}/oauth/authorize`,
-        oauthTokenRequestUrl: `http://127.0.0.1:${port}/oauth/token-request`,
-      }
-    };
     authTest.createConnection(connectionOption);
     await authTest.connectAsync();
     authTest.verifyErrorWasThrown('Error while getting access token. Message: Request failed with status code 400');

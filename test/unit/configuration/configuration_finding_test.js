@@ -37,68 +37,65 @@ describe('Configuration finding tests', function () {
     mock.stop('process');
   });
 
-  describe('Obtain Config testing', () => {
-    it('should take config from connection string', async function () {
-      // given
-      const fsMock = createFsMock()
-        .mockFile(configFromConnectionString, fileContent)
-        .mockFile(configFromEnvVariable, 'random content')
-        .mockFile(configInDriverDirectory, 'random content')
-        .mockFile(configInHomeDirectory, 'random content');
-      mockFiles(fsMock);
-      mockClientConfigFileEnvVariable(configFromEnvVariable);
-      const fsPromises = require('fs/promises');
-      const process = require('process');
-      const configUtil = new ConfigurationUtil(fsPromises, process);
-      clientConfig.configPath = 'conn_config.json';
+  it('should take config from connection string', async function () {
+    // given
+    const fsMock = createFsMock()
+      .mockFile(configFromConnectionString, fileContent)
+      .mockFile(configFromEnvVariable, 'random content')
+      .mockFile(configInDriverDirectory, 'random content')
+      .mockFile(configInHomeDirectory, 'random content');
+    mockFiles(fsMock);
+    mockClientConfigFileEnvVariable(configFromEnvVariable);
+    const fsPromises = require('fs/promises');
+    const process = require('process');
+    const configUtil = new ConfigurationUtil(fsPromises, process);
+    clientConfig.configPath = 'conn_config.json';
   
-      // when
-      const configFound = await configUtil.getClientConfig(configFromConnectionString, true);
+    // when
+    const configFound = await configUtil.getClientConfig(configFromConnectionString, true);
   
-      // then
-      assert.deepEqual(configFound, clientConfig);
-    });
-  
-    it('should take config from environmental variable if no input present', async function () {
-      // given
-      const fsMock = createFsMock()
-        .mockFile(configFromEnvVariable, fileContent)
-        .mockFile(configInDriverDirectory, '{}')
-        .mockFile(configInHomeDirectory, '{}');
-      mockFiles(fsMock);
-      mockClientConfigFileEnvVariable(configFromEnvVariable);
-      const fsPromises = require('fs/promises');
-      const process = require('process');
-      const configUtil = new ConfigurationUtil(fsPromises, process);
-      clientConfig.configPath = 'env_config.json';
-  
-      // when
-      const configFound = await configUtil.getClientConfig(null, true);
-  
-      // then
-      assert.deepEqual(configFound, clientConfig);
-    });
-  
-    it('should take config from driver directory if no input nor environmental variable present', async function () {
-      // given
-      const fsMock = createFsMock()
-        .mockFile(configInDriverDirectory, fileContent)
-        .mockFile(configInHomeDirectory, 'random content');
-      mockFiles(fsMock);
-      mockClientConfigFileEnvVariable(undefined);
-      const fsPromises = require('fs/promises');
-      const process = require('process');
-      const configUtil = new ConfigurationUtil(fsPromises, process);
-      clientConfig.configPath = configInDriverDirectory;
-  
-      // when
-      const configFound = await configUtil.getClientConfig(null, true);
-  
-      // then
-      assert.deepEqual(configFound, clientConfig);
-    });
+    // then
+    assert.deepEqual(configFound, clientConfig);
   });
- 
+  
+  it('should take config from environmental variable if no input present', async function () {
+    // given
+    const fsMock = createFsMock()
+      .mockFile(configFromEnvVariable, fileContent)
+      .mockFile(configInDriverDirectory, '{}')
+      .mockFile(configInHomeDirectory, '{}');
+    mockFiles(fsMock);
+    mockClientConfigFileEnvVariable(configFromEnvVariable);
+    const fsPromises = require('fs/promises');
+    const process = require('process');
+    const configUtil = new ConfigurationUtil(fsPromises, process);
+    clientConfig.configPath = 'env_config.json';
+  
+    // when
+    const configFound = await configUtil.getClientConfig(null, true);
+  
+    // then
+    assert.deepEqual(configFound, clientConfig);
+  });
+  
+  it('should take config from driver directory if no input nor environmental variable present', async function () {
+    // given
+    const fsMock = createFsMock()
+      .mockFile(configInDriverDirectory, fileContent)
+      .mockFile(configInHomeDirectory, 'random content');
+    mockFiles(fsMock);
+    mockClientConfigFileEnvVariable(undefined);
+    const fsPromises = require('fs/promises');
+    const process = require('process');
+    const configUtil = new ConfigurationUtil(fsPromises, process);
+    clientConfig.configPath = configInDriverDirectory;
+  
+    // when
+    const configFound = await configUtil.getClientConfig(null, true);
+  
+    // then
+    assert.deepEqual(configFound, clientConfig);
+  });
 
   it('should take config from home directory if no input nor environmental variable nor in driver directory present', async function () {
     // given

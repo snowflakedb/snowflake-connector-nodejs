@@ -46,5 +46,12 @@ if (os.platform !== 'win32')  {
       await authTest.connectAsync();
       authTest.verifyErrorWasThrown('Programmatic access token is invalid.');
     });
+
+    it('Experimental authentication flag is not enabled ', async function () {
+      const connectionOption = { ...connParameters.oauthPATOnWiremock, token: 'INVALID_TOKEN', port: port, enableExperimentalAuthentication: false };
+      await authTest.createConnection(connectionOption);
+      await authTest.connectAsync();
+      authTest.verifyErrorWasThrown('Wrong authorization type Failed to initialize authenticator: Error: Following authentication method not yet supported: PROGRAMMATIC_ACCESS_TOKEN');
+    });
   });
 }

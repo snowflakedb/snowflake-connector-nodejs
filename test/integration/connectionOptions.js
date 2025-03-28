@@ -108,7 +108,19 @@ const authorizationCodeSnowflake = {
   oauthClientSecret: snowflakeOauthClientSecret,
   authenticator: 'OAUTH_AUTHORIZATION_CODE_FLOW',
   oauthAuthorizationUrl: oauthAuthorizationUrl,
-  oauthTokenRequestUrl: oauthTokenRequestUrl
+  oauthTokenRequestUrl: oauthTokenRequestUrl,
+  proxyHost: '127.0.0.1',
+  proxyPort: 8080,
+
+};
+
+const clientCredentialSnowflake = {
+  ...valid,
+  username: '',
+  oauthClientId: snowflakeOauthClientID,
+  oauthClientSecret: snowflakeOauthClientSecret,
+  oauthTokenRequestUrl: oauthTokenRequestUrl,
+  authenticator: 'OAUTH_CLIENT_CREDENTIALS'
 };
 
 const clientCredentialSnowflake = {

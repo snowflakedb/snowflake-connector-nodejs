@@ -3,7 +3,6 @@ const { exec } = require('child_process');
 const Logger = require('../lib/logger');
 const fs = require('fs');
 
-
 async function runWireMockAsync(port) {
   let timeoutHandle;
   const counter = 0;

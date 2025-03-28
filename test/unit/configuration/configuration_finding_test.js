@@ -50,7 +50,7 @@ describe('Configuration finding tests', function () {
     const process = require('process');
     const configUtil = new ConfigurationUtil(fsPromises, process);
     clientConfig.configPath = 'conn_config.json';
-  
+
     // when
     const configFound = await configUtil.getClientConfig(configFromConnectionString, true);
   
@@ -62,8 +62,8 @@ describe('Configuration finding tests', function () {
     // given
     const fsMock = createFsMock()
       .mockFile(configFromEnvVariable, fileContent)
-      .mockFile(configInDriverDirectory, '{}')
-      .mockFile(configInHomeDirectory, '{}');
+      .mockFile(configInDriverDirectory, 'random content')
+      .mockFile(configInHomeDirectory, 'random content');
     mockFiles(fsMock);
     mockClientConfigFileEnvVariable(configFromEnvVariable);
     const fsPromises = require('fs/promises');

@@ -845,11 +845,12 @@ describe('Verify stage binding and array binding', () => {
   testCases.forEach(({ timeZone, expected }) => {
     it(`test binding values with timezone ${timeZone}`, async () => {
       await testUtil.executeCmdAsync(connection, alterTimeZoneQuery(timeZone));
-      await testUtil.executeCmdAsync(connection, sharedStatement.setTimestampOutputFormat);
       await testUtil.executeCmdAsync(connection, getInsertQuery(arrayBindingTable), binding);
       await testUtil.destroyConnectionAsync(connection, arrayBindingTable);
       connection = testUtil.createConnection({ arrayBindingThreshold: 3 });
       await testUtil.connectAsync(connection);
+      await testUtil.executeCmdAsync(connection, sharedStatement.setTimestampOutputFormat);
+      await testUtil.executeCmdAsync(connection, sharedStatement.setTimestampNTZOutputFormat);
       await testUtil.executeCmdAsync(connection, alterTimeZoneQuery(timeZone));
       await testUtil.executeCmdAsync(connection, getInsertQuery(stageBindingTable), binding);
       let rows = await testUtil.executeCmdAsync(connection, selectQuery(arrayBindingTable));

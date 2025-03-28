@@ -66,7 +66,7 @@
                 "CLIENT_APP_ID": "JavaScript",
                 "TOKEN": "new-refreshed-access-token-123",
                 "LOGIN_NAME": "MOCK_USERNAME",
-                "AUTHENTICATOR": "OAUTH_AUTHORIZATION_CODE_FLOW"
+                "AUTHENTICATOR": "OAUTH_AUTHORIZATION_CODE"
               }
             },
             "ignoreExtraElements": true

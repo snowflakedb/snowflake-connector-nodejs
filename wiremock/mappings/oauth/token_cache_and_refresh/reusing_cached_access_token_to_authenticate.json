@@ -22,7 +22,8 @@
                 "CLIENT_APP_ID": "JavaScript",
                 "TOKEN": "reused-access-token-123",
                 "LOGIN_NAME": "MOCK_USERNAME",
-                "AUTHENTICATOR": "OAUTH_AUTHORIZATION_CODE_FLOW"
+                "AUTHENTICATOR": "OAUTH",
+                "OAUTH_TYPE": "OAUTH_AUTHORIZATION_CODE"
               }
             },
             "ignoreExtraElements": true

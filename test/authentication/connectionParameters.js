@@ -76,7 +76,7 @@ const oauthAuthorizationCodeOnWiremock =
       host: '127.0.0.1',
       protocol: 'http',
       role: 'ANALYST',
-      authenticator: 'OAUTH_AUTHORIZATION_CODE_FLOW',
+      authenticator: 'OAUTH_AUTHORIZATION_CODE',
       oauthClientId: '123',
       oauthClientSecret: 'clientSecret',
       oauthAuthorizationUrl: 'http://localhost:8099/oauth/authorize',

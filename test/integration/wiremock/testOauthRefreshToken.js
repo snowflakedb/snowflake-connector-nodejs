@@ -33,9 +33,9 @@ describe('Oauth - refreshing token', function () {
     GlobalConfig.setCustomCredentialManager(defaultCredentialManager);
     // TODO: extract enum of credentail types
     accessTokenKey = Util.buildCredentialCacheKey(connectionOption.host,
-      connectionOption.username, AuthenticationTypes.OAUTH_AUTHORIZATION_CODE_FLOW + 'access_token');
+      connectionOption.username, AuthenticationTypes.OAUTH_AUTHORIZATION_CODE + 'access_token');
     refreshTokenKey = Util.buildCredentialCacheKey(connectionOption.host,
-      connectionOption.username, AuthenticationTypes.OAUTH_AUTHORIZATION_CODE_FLOW + 'refresh_token');
+      connectionOption.username, AuthenticationTypes.OAUTH_AUTHORIZATION_CODE + 'refresh_token');
   });
   beforeEach(async () => {
     authTest = new AuthTest();

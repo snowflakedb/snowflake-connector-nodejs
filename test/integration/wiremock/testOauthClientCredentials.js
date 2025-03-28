@@ -56,5 +56,4 @@ describe('Oauth Client Credentials authentication', function () {
     await authTest.connectAsync();
     authTest.verifyErrorWasThrown('Error while getting access token. Message: "response" body "access_token" property must be a string');
   });
-
 });

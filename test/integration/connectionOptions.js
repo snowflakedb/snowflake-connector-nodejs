@@ -123,6 +123,15 @@ const clientCredentialSnowflake = {
   authenticator: 'OAUTH_CLIENT_CREDENTIALS'
 };
 
+const clientCredentialSnowflake = {
+  ...valid,
+  username: '',
+  oauthClientId: snowflakeOauthClientID,
+  oauthClientSecret: snowflakeOauthClientSecret,
+  oauthTokenRequestUrl: oauthTokenRequestUrl,
+  authenticator: 'OAUTH_CLIENT_CREDENTIALS'
+};
+
 const privatelink =
 {
   accessUrl: accessUrl,

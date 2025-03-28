@@ -7,6 +7,7 @@ const crypto = require('crypto');
 const Logger = require('../../lib/logger');
 const path = require('path');
 const os = require('os');
+const net = require('net');
 
 module.exports.createConnection = function (validConnectionOptionsOverride = {}, coreInstance) {
   coreInstance = coreInstance || snowflake;
@@ -389,3 +390,16 @@ module.exports.isRequestCancelledError = function (error) {
   assert.equal(error.name, 'CanceledError', `Expected error name "CanceledError", but received ${error.name}`);
   assert.equal(error.code, 'ERR_CANCELED', `Expected error code "ERR_CANCELED", but received ${error.code}`);
 };
+
+
+module.exports.getFreePort = async function () {
+  return new Promise(res => {
+    const srv = net.createServer();
+    srv.listen(0, () => {
+      const port = srv.address().port;
+      srv.close(() => res(port));
+    });
+  });
+};
+
+

@@ -5,7 +5,7 @@ const axios = require('axios');
 const { runWireMockAsync } = require('../../wiremockRunner');
 const os = require('os');
 
-async function getPortFree() {
+async function getFreePort() {
   return new Promise(res => {
     const srv = net.createServer();
     srv.listen(0, () => {
@@ -19,7 +19,7 @@ if (os.platform !== 'win32')  {
   describe('Wiremock test', function () {
     let port, wireMock;
     before(async () => {
-      port = await getPortFree();
+      port = await getFreePort();
       wireMock = await runWireMockAsync(port);
     });
     after(async () => {

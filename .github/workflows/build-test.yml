@@ -10,6 +10,7 @@ on:
         branches:
             - master
             - prep-**
+            - **
     workflow_dispatch:
         inputs:
           logLevel:

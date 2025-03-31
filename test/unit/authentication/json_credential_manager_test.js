@@ -152,4 +152,3 @@ describe('Json credential format', function () {
     await fs.rm(cacheFilePath);
   });
 });
-

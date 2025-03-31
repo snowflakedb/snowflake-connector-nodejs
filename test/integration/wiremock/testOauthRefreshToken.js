@@ -7,14 +7,15 @@ const authUtil = require('../../../lib/authentication/authentication_util');
 const { get } = require('axios');
 const Util = require('../../../lib/util');
 const AuthenticationTypes = require('../../../lib/authentication/authentication_types');
-const JsonCredentialManager = require('../../../lib/authentication/secure_storage/json_credential_manager');
+const { JsonCredentialManager } = require('../../../lib/authentication/secure_storage/json_credential_manager');
 const assert = require('node:assert');
-const defaultCredentialManager = new JsonCredentialManager();
+
 
 //refresh token
 describe('Oauth - refreshing token', function () {
   let accessTokenKey, refreshTokenKey, connectionOption, authTest, port, wireMock;
   before(async () => {
+    const defaultCredentialManager = new JsonCredentialManager();
     port = await getFreePort();
     wireMock = await runWireMockAsync(port);
     GlobalConfig.setCustomCredentialManager(defaultCredentialManager);
@@ -29,7 +30,6 @@ describe('Oauth - refreshing token', function () {
         proxyPort: 8080,
       }
     };
-    GlobalConfig.setCustomCredentialManager(defaultCredentialManager);
     // TODO: extract enum of credentail types
     accessTokenKey = Util.buildCredentialCacheKey(connectionOption.host,
       connectionOption.username, AuthenticationTypes.OAUTH_AUTHORIZATION_CODE + 'access_token');

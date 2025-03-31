@@ -8,8 +8,6 @@ on:
             - v*
     pull_request:
         branches:
-            - master
-            - prep-**
             - **
     workflow_dispatch:
         inputs:

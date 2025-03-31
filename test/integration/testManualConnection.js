@@ -6,7 +6,7 @@ const Logger = require('../../lib/logger');
 const Util = require('../../lib/util');
 const { JsonCredentialManager } = require('../../lib/authentication/secure_storage/json_credential_manager');
 
-if ( 0 === 0) {
+if (process.env.RUN_MANUAL_TESTS_ONLY === 'true') {
   describe('Run manual tests', function () {
     describe('Connection - MFA authenticator with DUO', function () {
       const connectionOption = connOption.MFA;

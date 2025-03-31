@@ -55,17 +55,6 @@ const oauth =
       authenticator: 'OAUTH'
     };
 
-const oauthPATOnWiremock =
-    {
-      ...baseParameters,
-      accessUrl: null,
-      username: 'MOCK_USERNAME',
-      account: 'MOCK_ACCOUNT_NAME',
-      host: 'localhost',
-      protocol: 'http',
-      authenticator: 'PROGRAMMATIC_ACCESS_TOKEN',
-    };
-
 const oauthAuthorizationCodeOnWiremock =
     {
       ...baseParameters,
@@ -143,4 +132,3 @@ exports.snowflakeAuthTestOauthClientSecret = snowflakeAuthTestOauthClientSecret;
 exports.snowflakeAuthTestOauthUrl = snowflakeAuthTestOauthUrl;
 exports.snowflakeAuthTestPrivateKeyPath = snowflakeAuthTestPrivateKeyPath;
 exports.snowflakeAuthTestInvalidPrivateKeyPath = snowflakeAuthTestInvalidPrivateKeyPath;
-exports.oauthPATOnWiremock = oauthPATOnWiremock;

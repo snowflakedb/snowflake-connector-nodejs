@@ -10,7 +10,6 @@ const AuthenticationTypes = require('../../../lib/authentication/authentication_
 const { JsonCredentialManager } = require('../../../lib/authentication/secure_storage/json_credential_manager');
 const assert = require('node:assert');
 
-
 //refresh token
 describe('Oauth - refreshing token', function () {
   let accessTokenKey, refreshTokenKey, connectionOption, authTest, port, wireMock;
@@ -58,6 +57,11 @@ describe('Oauth - refreshing token', function () {
 
   it('Save oauth tokens after idp authorization', async function () {
     await addWireMockMappingsFromFile(wireMock, 'wiremock/mappings/oauth/token_cache_and_refresh/caching_tokens_after_connecting.json');
+    GlobalConfig.setCustomRedirectingClient((redirectUri) =>  {
+      const url = `${redirectUri.searchParams.get('redirect_uri')}?code=9s6wFkGDOjmgNEdwJMlDzv1AwxDjDVBxiT6wVqXjG5s&state=${redirectUri.searchParams.get('state')}`;
+      return authUtil.withBrowserActionTimeout(3000, get(url));
+    }
+    );
     await authTest.createConnection(connectionOption);
     await authTest.connectAsync();
     authTest.verifyNoErrorWasThrown();

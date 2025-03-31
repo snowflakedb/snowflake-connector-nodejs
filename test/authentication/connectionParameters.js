@@ -129,7 +129,6 @@ const keypairEncryptedPrivateKeyPath =
 exports.externalBrowser = externalBrowser;
 exports.okta = okta;
 exports.oauth = oauth;
-exports.oauthPATOnWiremock = oauthPATOnWiremock;
 exports.oauthAuthorizationCodeOnWiremock = oauthAuthorizationCodeOnWiremock;
 exports.oauthClientCredentialsOnWiremock = oauthClientCredentialsOnWiremock;
 exports.oauthAuthorizationCode = authorizationCodeSnowflake;

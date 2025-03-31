@@ -5,7 +5,6 @@ const { getFreePort } = require('../../../lib/util');
 const GlobalConfig = require('../../../lib/global_config');
 const authUtil = require('../../../lib/authentication/authentication_util');
 const { get } = require('axios');
-const snowflake = require('../../../lib/snowflake');
 const Util = require('../../../lib/util');
 const AuthenticationTypes = require('../../../lib/authentication/authentication_types');
 const JsonCredentialManager = require('../../../lib/authentication/secure_storage/json_credential_manager');

@@ -73,7 +73,7 @@ describe('should parse toml connection configuration', function () {
   });
 });
 
-describe.only('Configuration parsing tests', function () {
+describe('Configuration parsing tests', function () {
 
   before(async function () {
     tempDir = await fsPromises.mkdtemp(path.join(os.tmpdir(), 'conf_parse_tests_'));
@@ -195,7 +195,7 @@ describe.only('Configuration parsing tests', function () {
       async () => await getClientConfig(filePath),
       (err) => {
         assert.strictEqual(err.name, 'ConfigurationError');
-        assert.strictEqual(err.message, 'Finding client configuration failed');
+        assert.strictEqual(err.message, 'Fail to open the configuration file');
         assert.match(err.cause.message, /ENOENT: no such file or directory./);
         return true;
       });
@@ -259,7 +259,7 @@ describe.only('Configuration parsing tests', function () {
 
       // expect
       await assert.rejects(
-        async () => await getClientConfig(filePath),
+        async () => await getClientConfig(filePath, true),
         (err) => {
           assert.strictEqual(err.name, 'ConfigurationError');
           assert.strictEqual(err.message, 'Parsing client configuration failed');
@@ -294,7 +294,7 @@ describe.only('Configuration parsing tests', function () {
     }, 2000);
 
     try{
-    await getClientConfig(filePath, true)
+    await getClientConfig(filePath, true, 3000)
     assert.ok(false, "should be failed");
     }catch(err)
     {

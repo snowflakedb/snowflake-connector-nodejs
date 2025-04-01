@@ -30,7 +30,6 @@ afterEach(async function () {
 });
 
 describe('Easy logging starter tests', function () {
-
   it('should configure easy logging only once when initialized with config file path', async function () {
     // given
     const logLevel = 'ERROR';
@@ -38,7 +37,7 @@ describe('Easy logging starter tests', function () {
     const anotherConfigFilePath = await createConfigFile('WARN', tempDir, 'another_config.json');
 
     // when
-    await init(configFilePath);
+    await init(configFilePath, true);
     Logger.getInstance().error('Logging something'); // we need to log anything to make the logger being recreated
 
     // then
@@ -63,8 +62,7 @@ describe('Easy logging starter tests', function () {
     await createConfigFile(logLevel, os.homedir(), defaultConfigName);
 
     // when
-    await init(null);
-    await init(null);
+    await init(null, true);
     Logger.getInstance().error('Logging something'); // we need to log anything to make the logger being recreated
 
     // then
@@ -81,7 +79,7 @@ describe('Easy logging starter tests', function () {
     const customConfigFilePath = await createConfigFile(customLogLevel, tempDir, 'config.json');
 
     // when
-    await init(null);
+    await init(null, true);
     Logger.getInstance().error('Logging something'); // we need to log anything to make the logger being recreated
 
     // then
@@ -90,7 +88,7 @@ describe('Easy logging starter tests', function () {
     assert.strictEqual(Logger.getInstance().getTransportLabels().toString(), ['File'].toString());
 
     // when
-    await init(customConfigFilePath);
+    await init(customConfigFilePath, true);
     Logger.getInstance().error('Logging something'); // we need to log anything to make the logger being recreated
 
     // then
@@ -106,7 +104,7 @@ describe('Easy logging starter tests', function () {
 
     // expect
     await assert.rejects(
-      async () => await init(configFilePath),
+      async () => await init(configFilePath, true),
       (err) => {
         assert.strictEqual(err.name, 'EasyLoggingError');
         assert.strictEqual(err.message, 'Failed to initialize easy logging');
@@ -122,7 +120,7 @@ describe('Easy logging starter tests', function () {
 
     // expect
     await assert.rejects(
-      async () => await init(configFilePath),
+      async () => await init(configFilePath, true),
       (err) => {
         assert.strictEqual(err.name, 'EasyLoggingError');
         assert.strictEqual(err.message, 'Failed to initialize easy logging');

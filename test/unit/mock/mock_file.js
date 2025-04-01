@@ -45,6 +45,26 @@ class FsMock {
     return this;
   }
 
+  async stat(filePath) {
+    if (filePath === badPermissionsConfig) {
+      return {
+        uid: 0,
+        mode: 0o40777,
+      };
+    }
+    if (filePath === wrongOwner) {
+      return {
+        uid: 0,
+        mode: 0o40600,
+      };
+    }
+
+    return {
+      uid: 0,
+      mode: 0o40700,
+    };
+  }
+
   async open(filePath) {
     if (!this.existingFiles.has(filePath)) {
       throw new Error('File does not exist');

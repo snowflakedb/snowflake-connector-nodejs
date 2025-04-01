@@ -3,8 +3,10 @@ const { Levels, ConfigurationUtil } = require('./../../../lib/configuration/clie
 const { loadConnectionConfiguration } = require('./../../../lib/configuration/connection_configuration');
 const getClientConfig = new ConfigurationUtil().getClientConfig;
 const fsPromises = require('fs/promises');
+const fs = require('fs');
 const os = require('os');
 const path = require('path');
+const { isWindows } = require('../../../lib/util');
 let tempDir = null;
 
 describe('should parse toml connection configuration', function () {
@@ -199,6 +201,40 @@ describe('Configuration parsing tests', function () {
       });
   });
 
+  it('should fail when the path is a symlink', async function () {
+    const fileName = 'config.json';
+    const filePath = path.join(tempDir, fileName);
+    const symlinkPath = path.join(tempDir, 'test_symlink');
+    await fsPromises.symlink(filePath, symlinkPath, isWindows() ? 'junction' : 'file');
+
+    // expect
+    await assert.rejects(
+      async () => await getClientConfig(symlinkPath),
+      (err) => {
+        assert.strictEqual(err.name, 'ConfigurationError');
+        assert.strictEqual(err.message, 'Fail to open the configuration file');
+        assert.match(err.cause.message, /ENOENT: no such file or directory, open/);
+        return true;
+      });
+  });
+
+  it('should fail when the path is a symlink', async function () {
+    const fileName = 'config.json';
+    const filePath = path.join(tempDir, fileName);
+    const symlinkPath = path.join(tempDir, 'test_symlink');
+    await fsPromises.symlink(filePath, symlinkPath, isWindows() ? 'junction' : 'file');
+
+    // expect
+    await assert.rejects(
+      async () => await getClientConfig(symlinkPath),
+      (err) => {
+        assert.strictEqual(err.name, 'ConfigurationError');
+        assert.strictEqual(err.message, 'Fail to open the configuration file');
+        assert.match(err.cause.message, /ENOENT: no such file or directory, open/);
+        return true;
+      });
+  });
+
   [
     {
       testCaseName: 'unknown log level',
@@ -248,6 +284,35 @@ describe('Configuration parsing tests', function () {
           return true;
         });
     });
+  });
+
+  it('test - when the file has been changed by others', async function () {
+    if (isWindows()) {
+      return;
+    }
+    const fileName = 'file_change_test.json';
+    const filePath = path.join(tempDir, fileName);
+    const fileContent = `{
+      "common": {
+          "log_level": "${Levels.Info}",
+          "log_path": "/some-path/some-directory"
+      } 
+  }`;
+    await fsPromises.writeFile(filePath, fileContent, { encoding: 'utf8' });
+    fs.open(filePath, (err, fd) => {
+      setTimeout(() => {
+        fs.writeFileSync(fd, 'Hacked by someone');
+        fs.closeSync(fd);
+      }, 1000);
+    });
+
+    const configuration = await getClientConfig(filePath, true);
+
+    assert.strictEqual(configuration.loggingConfig.logLevel, `${Levels.Info}`);
+    assert.strictEqual(configuration.loggingConfig.logPath, '/some-path/some-directory');
+
+    const content = await fsPromises.readFile(filePath, { encoding: 'utf8' });
+    assert.strictEqual(content, 'Hacked by someone');
   });
 
   function replaceSpaces(stringValue) {

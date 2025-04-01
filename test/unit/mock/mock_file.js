@@ -79,7 +79,7 @@ class FsMock {
       async close() {
         return;
       }
-    }
+    };
   }
 
   async access(filePath) {

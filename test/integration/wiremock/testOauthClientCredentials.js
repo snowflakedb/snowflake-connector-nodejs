@@ -36,7 +36,7 @@ describe('Oauth Client Credentials authentication', function () {
     await authTest.verifyConnectionIsUp();
   });
 
-  //invalidCode
+  //invalidCode test
   it('Client Credentials flow - invalid code', async function () {
     await addWireMockMappingsFromFile(wireMock, 'wiremock/mappings/oauth/client_credentials/token_request_error.json');
     const connectionOption = { ...connParameters.oauthClientCredentialsOnWiremock,

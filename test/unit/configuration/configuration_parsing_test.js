@@ -213,7 +213,7 @@ describe('Configuration parsing tests', function () {
       (err) => {
         assert.strictEqual(err.name, 'ConfigurationError');
         assert.strictEqual(err.message, 'Fail to open the configuration file');
-        assert.match(err.cause.message, isWindows() ? /ENOENT: no such file or directory, open/ : /ELOOP: too many symbolic links encountered, open/) ;
+        assert.match(err.cause.message, isWindows() ? /ENOENT: no such file or directory, open/ : /ELOOP: too many symbolic links encountered, open/);
         return true;
       });
   });
@@ -282,27 +282,22 @@ describe('Configuration parsing tests', function () {
       } 
   }`;
     await fsPromises.writeFile(filePath, fileContent, { encoding: 'utf8',  mode: 0o644 });
-    setTimeout(()=>{
+    setTimeout(() => {
       fs.open(filePath, 'w', (err, fd) => {
-        try{
         fs.writeFileSync(fd, 'Hacked by someone');
-        }catch(err) {
-          
-        }
         fs.closeSync(fd);
       });
     }, 2000);
 
-    try{
-    await getClientConfig(filePath, true, 3000)
-    assert.ok(false, "should be failed");
-    }catch(err)
-    {
+    try {
+      await getClientConfig(filePath, true, 3000);
+      assert.ok(false, 'should be failed');
+    } catch (err) {
       assert.strictEqual(err.name, 'ConfigurationError');
       assert.strictEqual(err.message, 'The config file has been modified');
       assert.strictEqual(err.cause, 'InvalidaConfigFile');
     }
-});
+  });
   function replaceSpaces(stringValue) {
     return stringValue.replace(' ', '_');
   }

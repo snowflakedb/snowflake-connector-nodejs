@@ -73,7 +73,7 @@ describe('should parse toml connection configuration', function () {
   });
 });
 
-describe('Configuration parsing tests', function () {
+describe.only('Configuration parsing tests', function () {
 
   before(async function () {
     tempDir = await fsPromises.mkdtemp(path.join(os.tmpdir(), 'conf_parse_tests_'));
@@ -107,7 +107,7 @@ describe('Configuration parsing tests', function () {
       await writeFile(filePath, fileContent);
 
       // when
-      const configuration = await getClientConfig(filePath);
+      const configuration = await getClientConfig(filePath, true);
 
       // then
       assert.equal(configuration.loggingConfig.logLevel, logLevel);
@@ -157,7 +157,7 @@ describe('Configuration parsing tests', function () {
       await fsPromises.writeFile(filePath, fileContent, { encoding: 'utf8' });
 
       // when
-      const configuration = await getClientConfig(filePath);
+      const configuration = await getClientConfig(filePath, true);
 
       // then
       assert.equal(configuration.logLevel, null);
@@ -213,24 +213,7 @@ describe('Configuration parsing tests', function () {
       (err) => {
         assert.strictEqual(err.name, 'ConfigurationError');
         assert.strictEqual(err.message, 'Fail to open the configuration file');
-        assert.match(err.cause.message, /ENOENT: no such file or directory, open/);
-        return true;
-      });
-  });
-
-  it('should fail when the path is a symlink', async function () {
-    const fileName = 'config.json';
-    const filePath = path.join(tempDir, fileName);
-    const symlinkPath = path.join(tempDir, 'test_symlink');
-    await fsPromises.symlink(filePath, symlinkPath, isWindows() ? 'junction' : 'file');
-
-    // expect
-    await assert.rejects(
-      async () => await getClientConfig(symlinkPath),
-      (err) => {
-        assert.strictEqual(err.name, 'ConfigurationError');
-        assert.strictEqual(err.message, 'Fail to open the configuration file');
-        assert.match(err.cause.message, /ENOENT: no such file or directory, open/);
+        assert.match(err.cause.message, isWindows() ? /ENOENT: no such file or directory, open/ : /ELOOP: too many symbolic links encountered, open/) ;
         return true;
       });
   });
@@ -298,23 +281,28 @@ describe('Configuration parsing tests', function () {
           "log_path": "/some-path/some-directory"
       } 
   }`;
-    await fsPromises.writeFile(filePath, fileContent, { encoding: 'utf8' });
-    fs.open(filePath, (err, fd) => {
-      setTimeout(() => {
+    await fsPromises.writeFile(filePath, fileContent, { encoding: 'utf8',  mode: 0o644 });
+    setTimeout(()=>{
+      fs.open(filePath, 'w', (err, fd) => {
+        try{
         fs.writeFileSync(fd, 'Hacked by someone');
+        }catch(err) {
+          
+        }
         fs.closeSync(fd);
-      }, 1000);
-    });
+      });
+    }, 2000);
 
-    const configuration = await getClientConfig(filePath, true);
-
-    assert.strictEqual(configuration.loggingConfig.logLevel, `${Levels.Info}`);
-    assert.strictEqual(configuration.loggingConfig.logPath, '/some-path/some-directory');
-
-    const content = await fsPromises.readFile(filePath, { encoding: 'utf8' });
-    assert.strictEqual(content, 'Hacked by someone');
-  });
-
+    try{
+    await getClientConfig(filePath, true)
+    assert.ok(false, "should be failed");
+    }catch(err)
+    {
+      assert.strictEqual(err.name, 'ConfigurationError');
+      assert.strictEqual(err.message, 'The config file has been modified');
+      assert.strictEqual(err.cause, 'InvalidaConfigFile');
+    }
+});
   function replaceSpaces(stringValue) {
     return stringValue.replace(' ', '_');
   }

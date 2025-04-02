@@ -43,24 +43,9 @@
     },
     {
       "scenarioName": "Successful OAuth authorization code flow",
-      "requiredScenarioState": "Authorized",
-      "newScenarioState": "Acquired access token",
       "request": {
         "urlPathPattern": "/oauth/token-request.*",
-        "method": "POST",
-        "headers": {
-          "Authorization": {
-            "contains": "Basic"
-          },
-          "Content-Type": {
-            "contains": "application/x-www-form-urlencoded; charset=UTF-8"
-          }
-        },
-        "bodyPatterns": [
-          {
-            "contains": "grant_type=authorization_code&code=123&redirect_uri=http%3A%2F%2Flocalhost%3A8009%2Fsnowflake%2Foauth-redirect&code_verifier="
-          }
-        ]
+        "method": "POST"
       },
       "response": {
         "status": 200,

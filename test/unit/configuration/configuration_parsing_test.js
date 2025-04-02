@@ -107,7 +107,7 @@ describe('Configuration parsing tests', function () {
       await writeFile(filePath, fileContent);
 
       // when
-      const configuration = await getClientConfig(filePath, true);
+      const configuration = await getClientConfig(filePath);
 
       // then
       assert.equal(configuration.loggingConfig.logLevel, logLevel);
@@ -157,7 +157,7 @@ describe('Configuration parsing tests', function () {
       await fsPromises.writeFile(filePath, fileContent, { encoding: 'utf8' });
 
       // when
-      const configuration = await getClientConfig(filePath, true);
+      const configuration = await getClientConfig(filePath);
 
       // then
       assert.equal(configuration.logLevel, null);
@@ -255,11 +255,11 @@ describe('Configuration parsing tests', function () {
       // given
       const fileName = 'config_wrong_' + replaceSpaces(testCaseName) + '.json';
       const filePath = path.join(tempDir, fileName);
-      await fsPromises.writeFile(filePath, fileContent, { encoding: 'utf8' });
+      await writeFile(filePath, fileContent);
 
       // expect
       await assert.rejects(
-        async () => await getClientConfig(filePath, true),
+        async () => await getClientConfig(filePath),
         (err) => {
           assert.strictEqual(err.name, 'ConfigurationError');
           assert.strictEqual(err.message, 'Parsing client configuration failed');
@@ -281,7 +281,7 @@ describe('Configuration parsing tests', function () {
           "log_path": "/some-path/some-directory"
       } 
   }`;
-    await fsPromises.writeFile(filePath, fileContent, { encoding: 'utf8',  mode: 0o644 });
+    await writeFile(filePath, fileContent);
     setTimeout(() => {
       fs.open(filePath, 'w', (err, fd) => {
         fs.writeFileSync(fd, 'Hacked by someone');
@@ -303,6 +303,6 @@ describe('Configuration parsing tests', function () {
   }
 
   async function writeFile(filePath, fileContent) {
-    await fsPromises.writeFile(filePath, fileContent, { encoding: 'utf8' });
+    await fsPromises.writeFile(filePath, fileContent, { encoding: 'utf8', mode: 0o755 });
   }
 });

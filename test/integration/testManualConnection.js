@@ -138,6 +138,7 @@ if (process.env.RUN_MANUAL_TESTS_ONLY === 'true') {
       });
 
       it('test - connect AUTHORIZATION CODE - Snowflake IDP', function (done) {
+        snowflake.configure({ logLevel: 'DEBUG',  disableOCSPChecks: true });
         const connectionOption = { ...connOption.authorizationCodeSnowflake };
         const connection = snowflake.createConnection(connectionOption);
         connection.connectAsync(function (err) {

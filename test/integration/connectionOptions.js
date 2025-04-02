@@ -108,7 +108,10 @@ const authorizationCodeSnowflake = {
   oauthClientSecret: snowflakeOauthClientSecret,
   authenticator: 'OAUTH_AUTHORIZATION_CODE_FLOW',
   oauthAuthorizationUrl: oauthAuthorizationUrl,
-  oauthTokenRequestUrl: oauthTokenRequestUrl
+  oauthTokenRequestUrl: oauthTokenRequestUrl,
+  proxyHost: '127.0.0.1',
+  proxyPort: 8080,
+
 };
 
 const clientCredentialSnowflake = {

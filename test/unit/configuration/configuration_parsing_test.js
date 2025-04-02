@@ -312,8 +312,8 @@ describe('Configuration parsing tests', function () {
       } 
   }`;
     await writeFile(filePath, fileContent);
-    setTimeout(()=>
-        fs.chmodSync(filePath, 0o777),
+    setTimeout(() =>
+      fs.chmodSync(filePath, 0o777),
     2000);
 
     try {
@@ -339,9 +339,9 @@ describe('Configuration parsing tests', function () {
       } 
   }`;
     await writeFile(filePath, fileContent);
-    setTimeout(async ()=>{
-        fs.rmSync(filePath);
-    await writeFile(filePath, "Hacked by someone");
+    setTimeout(async () => {
+      fs.rmSync(filePath);
+      await writeFile(filePath, 'Hacked by someone');
     },
     2000);
 

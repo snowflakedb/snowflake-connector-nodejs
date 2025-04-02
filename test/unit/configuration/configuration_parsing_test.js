@@ -326,7 +326,7 @@ describe('Configuration parsing tests', function () {
     }
   });
 
-  it.only('test - when the file has been replaced', async function () {
+  it('test - when the file has been replaced', async function () {
     if (isWindows()) {
       return;
     }

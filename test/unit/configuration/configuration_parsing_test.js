@@ -326,6 +326,35 @@ describe('Configuration parsing tests', function () {
     }
   });
 
+  it.only('test - when the file has been replaced', async function () {
+    if (isWindows()) {
+      return;
+    }
+    const fileName = 'file_replaced_test.json';
+    const filePath = path.join(tempDir, fileName);
+    const fileContent = `{
+      "common": {
+          "log_level": "${Levels.Info}",
+          "log_path": "/some-path/some-directory"
+      } 
+  }`;
+    await writeFile(filePath, fileContent);
+    setTimeout(async ()=>{
+        fs.rmSync(filePath);
+    await writeFile(filePath, "Hacked by someone");
+    },
+    2000);
+
+    try {
+      await getClientConfig(filePath, true, 5000);
+      assert.ok(false, 'should be failed');
+    } catch (err) {
+      assert.strictEqual(err.name, 'ConfigurationError');
+      assert.strictEqual(err.message, 'The config file has been modified');
+      assert.strictEqual(err.cause, 'InvalidConfigFile');
+    }
+  });
+
   function replaceSpaces(stringValue) {
     return stringValue.replace(' ', '_');
   }

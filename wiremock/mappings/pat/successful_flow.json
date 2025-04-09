@@ -19,7 +19,7 @@
                 "ACCOUNT_NAME": "MOCK_ACCOUNT_NAME",
                 "TOKEN": "MOCK_TOKEN",
                 "LOGIN_NAME": "MOCK_USERNAME",
-                "AUTHENTICATOR": "PROGRAMMATIC_ACCESS_TOKEN",
+                "AUTHENTICATOR": "PROGRAMMATIC_ACCESS_TOKEN"
               }
             },
             "ignoreExtraElements": true

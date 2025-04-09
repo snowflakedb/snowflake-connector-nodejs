@@ -24,9 +24,7 @@ describe('Oauth - refreshing token', function () {
         port: port,
         oauthAuthorizationUrl: `https://127.0.0.1:${port}/oauth/authorize`,
         oauthTokenRequestUrl: `http://127.0.0.1:${port}/oauth/token-request`,
-        clientStoreTemporaryCredential: true,
-        proxyHost: '127.0.0.1',
-        proxyPort: 8080,
+        clientStoreTemporaryCredential: true
       }
     };
     // TODO: extract enum of credentail types

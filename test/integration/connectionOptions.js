@@ -88,7 +88,8 @@ const MFA = {
 const PAT = {
   ...valid,
   authenticator: 'PROGRAMMATIC_ACCESS_TOKEN',
-  role: 'ANALYST'
+  role: 'ANALYST',
+  enableExperimentalAuthentication: true
 };
 
 const authorizationCodeOkta = {

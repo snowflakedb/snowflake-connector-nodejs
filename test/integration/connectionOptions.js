@@ -100,19 +100,19 @@ const authorizationCodeOkta = {
   oauthClientSecret: snowflakeOauthClientSecret,
   oauthAuthorizationUrl: oauthAuthorizationUrl,
   oauthTokenRequestUrl: oauthTokenRequestUrl,
-  oauthRedirectUri: oauthRedirectUri
+  oauthRedirectUri: oauthRedirectUri,
+  enableExperimentalAuthentication: true
 };
 
 const authorizationCodeSnowflake = {
   ...valid,
+  // username: snowflakeOauthClientID,
   oauthClientId: snowflakeOauthClientID,
   oauthClientSecret: snowflakeOauthClientSecret,
   authenticator: 'OAUTH_AUTHORIZATION_CODE',
   oauthAuthorizationUrl: oauthAuthorizationUrl,
   oauthTokenRequestUrl: oauthTokenRequestUrl,
-  proxyHost: '127.0.0.1',
-  proxyPort: 8080,
-
+  enableExperimentalAuthentication: true
 };
 
 const clientCredentialSnowflake = {
@@ -121,7 +121,8 @@ const clientCredentialSnowflake = {
   oauthClientId: snowflakeOauthClientID,
   oauthClientSecret: snowflakeOauthClientSecret,
   oauthTokenRequestUrl: oauthTokenRequestUrl,
-  authenticator: 'OAUTH_CLIENT_CREDENTIALS'
+  authenticator: 'OAUTH_CLIENT_CREDENTIALS',
+  enableExperimentalAuthentication: true
 };
 
 const privatelink =

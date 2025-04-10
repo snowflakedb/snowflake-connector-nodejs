@@ -2,8 +2,6 @@ const connParameters = require('../../authentication/connectionParameters');
 const AuthTest = require('../../authentication/authTestsBaseClass');
 const { runWireMockAsync, addWireMockMappingsFromFile } = require('../../wiremockRunner');
 const { getFreePort } = require('../../../lib/util');
-const GlobalConfig = require('../../../lib/global_config');
-const { JsonCredentialManager } = require('../../../lib/authentication/secure_storage/json_credential_manager');
 
 describe('Oauth Client Credentials authentication', function () {
   let port;
@@ -11,10 +9,8 @@ describe('Oauth Client Credentials authentication', function () {
   let wireMock;
   let connectionOption;
   before(async () => {
-    const defaultCredentialManager = new JsonCredentialManager();
     port = await getFreePort();
     wireMock = await runWireMockAsync(port);
-    GlobalConfig.setCustomCredentialManager(defaultCredentialManager);
     connectionOption = { ...connParameters.oauthClientCredentialsOnWiremock,
       ...{
         port: port,
@@ -26,9 +22,12 @@ describe('Oauth Client Credentials authentication', function () {
   beforeEach(async () => {
     authTest = new AuthTest();
   });
+
   afterEach(async () => {
     wireMock.scenarios.resetAllScenarios();
+    wireMock.mappings.resetAllMappings();
   });
+
   after(async () => {
     await wireMock.global.shutdown();
   });

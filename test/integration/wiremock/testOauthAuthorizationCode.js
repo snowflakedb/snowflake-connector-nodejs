@@ -6,11 +6,9 @@ const authUtil = require('../../../lib/authentication/authentication_util');
 const GlobalConfig = require('../../../lib/global_config');
 const { get } = require('axios');
 const { JsonCredentialManager } = require('../../../lib/authentication/secure_storage/json_credential_manager');
-const Util = require('../../../lib/util');
-const AuthenticationTypes = require('../../../lib/authentication/authentication_types');
 
 describe('Oauth Authorization Code authentication', function () {
-  let port, authTest, wireMock, accessTokenKey, refreshTokenKey, connectionOption;
+  let port, authTest, wireMock, connectionOption;
 
   before(async () => {
     const defaultCredentialManager = new JsonCredentialManager();
@@ -24,20 +22,15 @@ describe('Oauth Authorization Code authentication', function () {
         oauthTokenRequestUrl: `http://127.0.0.1:${port}/oauth/token-request`,
       }
     };
-    accessTokenKey = Util.buildCredentialCacheKey(connectionOption.host,
-      connectionOption.username, AuthenticationTypes.OAUTH_AUTHORIZATION_CODE_FLOW + 'access_token');
-    refreshTokenKey = Util.buildCredentialCacheKey(connectionOption.host,
-      connectionOption.username, AuthenticationTypes.OAUTH_AUTHORIZATION_CODE_FLOW + 'refresh_token');
   });
 
   beforeEach(async () => {
     authTest = new AuthTest();
-    await GlobalConfig.getCredentialManager().remove(accessTokenKey);
-    await GlobalConfig.getCredentialManager().remove(refreshTokenKey);
   });
 
   afterEach(async () => {
     wireMock.scenarios.resetAllScenarios();
+    wireMock.mappings.resetAllMappings();
   });
 
   after(async () => {
@@ -114,6 +107,6 @@ describe('Oauth Authorization Code authentication', function () {
     const connOption = { ...connParameters.oauthAuthorizationCodeOnWiremock, enableExperimentalAuthentication: false };
     await authTest.createConnection(connOption);
     await authTest.connectAsync();
-    authTest.verifyErrorWasThrown('Wrong authorization type Failed to initialize authenticator: Error: Following authentication method not yet supported: OAUTH_AUTHORIZATION_CODE_FLOW');
+    authTest.verifyErrorWasThrown('Wrong authorization type Failed to initialize authenticator: Error: Following authentication method not yet supported: OAUTH_AUTHORIZATION_CODE');
   });
 });

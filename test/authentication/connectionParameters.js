@@ -18,11 +18,24 @@ const snowflakeAuthTestPrivateKeyPath = process.env.SNOWFLAKE_AUTH_TEST_PRIVATE_
 const snowflakeAuthTestInvalidPrivateKeyPath = process.env.SNOWFLAKE_AUTH_TEST_INVALID_PRIVATE_KEY_PATH;
 const snowflakeAuthTestPrivateKeyPassword = process.env.SNOWFLAKE_AUTH_TEST_PRIVATE_KEY_PASSWORD;
 const snowflakeAuthTestEncryptedPrivateKeyPath = process.env.SNOWFLAKE_AUTH_TEST_ENCRYPTED_PRIVATE_KEY_PATH;
+const snowflakeAuthTestOauthOktaClientId = process.env.SNOWFLAKE_AUTH_TEST_EXTERNAL_OAUTH_OKTA_CLIENT_ID;
+const snowflakeAuthTestOauthOktaPassword = process.env.SNOWFLAKE_AUTH_TEST_EXTERNAL_OAUTH_OKTA_USER_PASSWORD;
+const snowflakeAuthTestOauthOktaClientSecret = process.env.SNOWFLAKE_AUTH_TEST_EXTERNAL_OAUTH_OKTA_CLIENT_SECRET;
+const snowflakeAuthTestOauthOktaClientToken = process.env.SNOWFLAKE_AUTH_TEST_EXTERNAL_OAUTH_OKTA_TOKEN;
+const snowflakeAuthTestOauthOktaRedirectUri = process.env.SNOWFLAKE_AUTH_TEST_EXTERNAL_OAUTH_OKTA_REDIRECT_URI;
+const snowflakeAuthTestOauthOktaAuthUrl = process.env.SNOWFLAKE_AUTH_TEST_EXTERNAL_OAUTH_OKTA_AUTH_URL;
+const snowflakeAuthTestSnowflakeUser = process.env.SNOWFLAKE_AUTH_TEST_SNOWFLAKE_USER;
+const snowflakeAuthTestSnowflakeInternalRole = process.env.SNOWFLAKE_AUTH_TEST_INTERNAL_OAUTH_SNOWFLAKE_ROLE;
+const snowflakeAuthTestSnowflakeRedirectUri = process.env.SNOWFLAKE_AUTH_TEST_INTERNAL_OAUTH_SNOWFLAKE_REDIRECT_URI;
+const snowflakeAuthTestSnowflakeClientSecret = process.env.SNOWFLAKE_AUTH_TEST_INTERNAL_OAUTH_SNOWFLAKE_CLIENT_SECRET;
+const snowflakeAuthTestSnowflakeClientId = process.env.SNOWFLAKE_AUTH_TEST_INTERNAL_OAUTH_SNOWFLAKE_CLIENT_ID;
+const snowflakeAuthTestSnowflakeWildcardsClientId = process.env.SNOWFLAKE_AUTH_TEST_INTERNAL_OAUTH_SNOWFLAKE_WILDCARDS_CLIENT_ID;
+const snowflakeAuthTestSnowflakeWildcardsClientSecret = process.env.SNOWFLAKE_AUTH_TEST_INTERNAL_OAUTH_SNOWFLAKE_WILDCARDS_CLIENT_SECRET;
 
 const accessUrlAuthTests = snowflakeAuthTestProtocol + '://' + snowflakeAuthTestHost + ':' +
     snowflakeAuthTestPort;
 
-const baseParameters = 
+const baseParameters =
     {
       accessUrl: accessUrlAuthTests,
       account: snowflakeAuthTestAccount,
@@ -126,6 +139,61 @@ const keypairEncryptedPrivateKeyPath =
       authenticator: 'SNOWFLAKE_JWT'
     };
 
+const oauthOktaClientCredentials =
+    {
+      ...baseParameters,
+      oauthClientId: snowflakeAuthTestOauthOktaClientId,
+      oauthClientSecret: snowflakeAuthTestOauthOktaClientSecret,
+      oauthTokenRequestUrl: snowflakeAuthTestOauthOktaClientToken,
+      username: snowflakeAuthTestOauthOktaClientId,
+      authenticator: 'OAUTH_CLIENT_CREDENTIALS',
+      enableExperimentalAuthentication: true
+    };
+
+const PATCredentials =
+    {
+      ...baseParameters,
+      username: snowflakeAuthTestOktaUser,
+      authenticator: 'PROGRAMMATIC_ACCESS_TOKEN',
+      enableExperimentalAuthentication: true
+    };
+
+const oauthSnowflakeAuthorizationCode =
+    {
+      ...baseParameters,
+      username: snowflakeAuthTestOauthOktaClientId,
+      role: snowflakeAuthTestSnowflakeInternalRole,
+      oauthRedirectUri: snowflakeAuthTestSnowflakeRedirectUri,
+      oauthClientSecret: snowflakeAuthTestSnowflakeClientSecret,
+      oauthClientId: snowflakeAuthTestSnowflakeClientId,
+      authenticator: 'OAUTH_AUTHORIZATION_CODE',
+      enableExperimentalAuthentication: true
+    };
+
+const oauthSnowflakeWildcardsAuthorizationCode =
+    {
+      ...baseParameters,
+      username: snowflakeAuthTestOauthOktaClientId,
+      role: snowflakeAuthTestSnowflakeInternalRole,
+      oauthClientSecret: snowflakeAuthTestSnowflakeWildcardsClientSecret,
+      oauthClientId: snowflakeAuthTestSnowflakeWildcardsClientId,
+      authenticator: 'OAUTH_AUTHORIZATION_CODE',
+      enableExperimentalAuthentication: true,
+    };
+
+const oauthOktaAuthorizationCode =
+    {
+      ...baseParameters,
+      username: snowflakeAuthTestOktaUser,
+      oauthClientSecret: snowflakeAuthTestOauthOktaClientSecret,
+      oauthClientId: snowflakeAuthTestOauthOktaClientId,
+      oauthRedirectUri: snowflakeAuthTestOauthOktaRedirectUri,
+      oauthAuthorizationUrl: snowflakeAuthTestOauthOktaAuthUrl,
+      oauthTokenRequestUrl: snowflakeAuthTestOauthOktaClientToken,
+      authenticator: 'OAUTH_AUTHORIZATION_CODE',
+      enableExperimentalAuthentication: true
+    };
+
 exports.externalBrowser = externalBrowser;
 exports.okta = okta;
 exports.oauth = oauth;
@@ -146,3 +214,12 @@ exports.snowflakeAuthTestOauthUrl = snowflakeAuthTestOauthUrl;
 exports.snowflakeAuthTestPrivateKeyPath = snowflakeAuthTestPrivateKeyPath;
 exports.snowflakeAuthTestInvalidPrivateKeyPath = snowflakeAuthTestInvalidPrivateKeyPath;
 exports.oauthPATOnWiremock = oauthPATOnWiremock;
+exports.oauthOktaClientCredentials = oauthOktaClientCredentials;
+exports.PATCredentials = PATCredentials;
+exports.snowflakeAuthTestSnowflakeUser = snowflakeAuthTestSnowflakeUser;
+exports.snowflakeAuthTestSnowflakeInternalRole = snowflakeAuthTestSnowflakeInternalRole;
+exports.oauthSnowflakeAuthorizationCode = oauthSnowflakeAuthorizationCode;
+exports.snowflakeAuthTestOauthOktaPassword = snowflakeAuthTestOauthOktaPassword;
+exports.snowflakeAuthTestOauthOktaClientId = snowflakeAuthTestOauthOktaClientId;
+exports.oauthSnowflakeWildcardsAuthorizationCode = oauthSnowflakeWildcardsAuthorizationCode;
+exports.oauthOktaAuthorizationCode = oauthOktaAuthorizationCode;

@@ -112,7 +112,7 @@ describe('Oauth Authorization Code authentication', function () {
   });
 
 
-  it('Do not open browser whether the port is unavailable', async function () {
+  it('Should not open browser whether the port is unavailable', async function () {
     const PORT = 8011;
     GlobalConfig.setCustomRedirectingClient(() =>  {
       throw Error('Browser should not be open');

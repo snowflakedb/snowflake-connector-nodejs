@@ -28,12 +28,23 @@ class AuthTest {
   }
   
   async createConnection(connectionOption) {
-    this.connection = snowflake.createConnection(connectionOption);
+    try {
+      const connection = snowflake.createConnection(connectionOption);
+      this.connection = connection;
+    } catch (error) {
+      this.error = error;
+    }
   }
 
   async connectAsync() {
-    await this.connection.connectAsync(this.connectAsyncCallback());
-    await this.waitForCallbackCompletion();
+    if (!this.error) {
+      try {
+        await this.connection.connectAsync(this.connectAsyncCallback());
+        await this.waitForCallbackCompletion();
+      } catch (error) {
+        this.error = error;
+      }
+    }
   }
 
   async verifyConnectionIsUp() {

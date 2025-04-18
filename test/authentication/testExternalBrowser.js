@@ -2,7 +2,7 @@ const assert = require('assert');
 const connParameters = require('./connectionParameters');
 const { spawn } = require('child_process');
 const Util = require('../../lib/util');
-const JsonCredentialManager = require('../../lib/authentication/secure_storage/json_credential_manager');
+const { JsonCredentialManager } = require('../../lib/authentication/secure_storage/json_credential_manager');
 const AuthTest = require('./authTestsBaseClass.js');
 
 describe('External browser authentication tests', function () {

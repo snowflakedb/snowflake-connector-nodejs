@@ -1,8 +1,8 @@
 const connParameters = require('../../authentication/connectionParameters');
 const AuthTest = require('../../authentication/authTestsBaseClass');
-const { runWireMockAsync, addWireMockMappingsFromFile, } = require('../../wiremockRunner');
+const { runWireMockAsync, addWireMockMappingsFromFile } = require('../../wiremockRunner');
 const os = require('os');
-const { getFreePort } = require('../testUtil');
+const { getFreePort } = require('../../../lib/util');
 
 if (os.platform !== 'win32')  {
   describe('Oauth PAT authentication', function () {
@@ -45,6 +45,13 @@ if (os.platform !== 'win32')  {
       authTest.createConnection(connectionOption);
       await authTest.connectAsync();
       authTest.verifyErrorWasThrown('Programmatic access token is invalid.');
+    });
+
+    it('Experimental authentication flag is not enabled ', async function () {
+      const connectionOption = { ...connParameters.oauthPATOnWiremock, token: 'INVALID_TOKEN', port: port, enableExperimentalAuthentication: false };
+      await authTest.createConnection(connectionOption);
+      await authTest.connectAsync();
+      authTest.verifyErrorWasThrown('Wrong authorization type Failed to initialize authenticator: Error: Following authentication method not yet supported: PROGRAMMATIC_ACCESS_TOKEN');
     });
   });
 }

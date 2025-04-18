@@ -112,9 +112,11 @@ describe('Oauth Authorization Code authentication', function () {
   });
 
 
-  it('Should not open browser whether the port is unavailable', async function () {
+  it('Should not open browser when the port is unavailable', async function () {
+   
     const PORT = 8011;
-    GlobalConfig.setCustomRedirectingClient(() =>  {
+
+    GlobalConfig.setCustomRedirectingClient(() => {
       throw Error('Browser should not be open');
     }
     );
@@ -123,11 +125,14 @@ describe('Oauth Authorization Code authentication', function () {
     });
 
     server.listen(PORT, () => {});
-
-    const connOption = { ...connParameters.oauthAuthorizationCodeOnWiremock };
-    connOption.oauthRedirectUri = `http://localhost:${PORT}/snowflake/oauth-redirect`;
-    await authTest.createConnection(connOption);
-    await authTest.connectAsync();
-    authTest.verifyErrorWasThrown('Can not run server using provided redirect url. Port not available.');
+    try {
+      const connOption = { ...connParameters.oauthAuthorizationCodeOnWiremock };
+      connOption.oauthRedirectUri = `http://localhost:${PORT}/snowflake/oauth-redirect`;
+      await authTest.createConnection(connOption);
+      await authTest.connectAsync();
+      authTest.verifyErrorWasThrown('Can not run server using provided redirect url. Port not available.');
+    } finally {
+      server.close();
+    }
   });
 });

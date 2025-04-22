@@ -48,19 +48,22 @@ class FsMock {
   async stat(filePath) {
     if (filePath === badPermissionsConfig) {
       return {
-        uid: 0,
+        uid: 1000,
+        gid: 1000,
         mode: 0o40777,
       };
     }
     if (filePath === wrongOwner) {
       return {
-        uid: 0,
+        uid: 1000,
+        gid: 1000,
         mode: 0o40600,
       };
     }
 
     return {
-      uid: 0,
+      uid: 1000,
+      gid: 1000,
       mode: 0o40700,
     };
   }
@@ -73,19 +76,22 @@ class FsMock {
       stat: async () => {
         if (filePath === badPermissionsConfig) {
           return {
-            uid: 0,
+            uid: 1000,
+            gid: 1000,
             mode: 0o40777,
           };
         }
         if (filePath === wrongOwner) {
           return {
-            uid: 0,
+            uid: 1000,
+            gid: 1000,
             mode: 0o40600,
           };
         }
     
         return {
-          uid: 0,
+          uid: 1000,
+          gid: 1000,
           mode: 0o40700,
         };
       },

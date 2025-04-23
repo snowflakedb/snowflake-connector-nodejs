@@ -1,4 +1,5 @@
 const mock = require('mock-require');
+const os = require('os');
 
 
 exports.mockClientConfigFileEnvVariable = function (envClientConfigFileValue) {
@@ -48,22 +49,22 @@ class FsMock {
   async stat(filePath) {
     if (filePath === badPermissionsConfig) {
       return {
-        uid: 1000,
-        gid: 1000,
+        uid: 0,
+        gid: 0,
         mode: 0o40777,
       };
     }
     if (filePath === wrongOwner) {
       return {
-        uid: 1000,
-        gid: 1000,
+        uid: 0,
+        gid: 0,
         mode: 0o40600,
       };
     }
 
     return {
-      uid: 1000,
-      gid: 1000,
+      uid: os.userInfo().uid,
+      gid: os.userInfo().gid,
       mode: 0o40700,
     };
   }
@@ -76,22 +77,22 @@ class FsMock {
       stat: async () => {
         if (filePath === badPermissionsConfig) {
           return {
-            uid: 1000,
-            gid: 1000,
+            uid: 0,
+            gid: 0,
             mode: 0o40777,
           };
         }
         if (filePath === wrongOwner) {
           return {
-            uid: 1000,
-            gid: 1000,
+            uid: 0,
+            gid: 0,
             mode: 0o40600,
           };
         }
     
         return {
-          uid: 1000,
-          gid: 1000,
+          uid: os.userInfo().uid,
+          gid: os.userInfo().gid,
           mode: 0o40700,
         };
       },

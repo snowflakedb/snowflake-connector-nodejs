@@ -6,6 +6,7 @@ const authUtil = require('../../../lib/authentication/authentication_util');
 const GlobalConfig = require('../../../lib/global_config');
 const { get } = require('axios');
 const { JsonCredentialManager } = require('../../../lib/authentication/secure_storage/json_credential_manager');
+const net = require('net');
 
 describe('Oauth Authorization Code authentication', function () {
   let port, authTest, wireMock, connectionOption;
@@ -108,5 +109,30 @@ describe('Oauth Authorization Code authentication', function () {
     await authTest.createConnection(connOption);
     await authTest.connectAsync();
     authTest.verifyErrorWasThrown('Wrong authorization type Failed to initialize authenticator: Error: Following authentication method not yet supported: OAUTH_AUTHORIZATION_CODE');
+  });
+
+
+  it('Should not open browser when the port is unavailable', async function () {
+   
+    const PORT = 8011;
+
+    GlobalConfig.setCustomRedirectingClient(() => {
+      throw Error('Browser should not be open');
+    }
+    );
+    const server = net.createServer((socket) => {
+      socket.destroy();
+    });
+
+    server.listen(PORT, () => {});
+    try {
+      const connOption = { ...connParameters.oauthAuthorizationCodeOnWiremock };
+      connOption.oauthRedirectUri = `http://localhost:${PORT}/snowflake/oauth-redirect`;
+      await authTest.createConnection(connOption);
+      await authTest.connectAsync();
+      authTest.verifyErrorWasThrown('Can not run server using provided redirect url. Port not available.');
+    } finally {
+      server.close();
+    }
   });
 });

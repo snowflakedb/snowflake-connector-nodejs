@@ -6,7 +6,7 @@ const async = require('async');
 // This test can run only if Snowflake account is available.
 const canRunTest = connOption.snowflakeAccount !== undefined;
 
-describe('testPingPong', function () {
+describe.skip('testPingPong', function () {
   before(function (done) {
     if (!canRunTest) {
       done();

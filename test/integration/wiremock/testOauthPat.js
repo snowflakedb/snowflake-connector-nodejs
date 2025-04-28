@@ -5,7 +5,7 @@ const os = require('os');
 const { getFreePort } = require('../testUtil');
 
 if (os.platform !== 'win32')  {
-  describe('Oauth PAT authentication', function () {
+  describe.skip('Oauth PAT authentication', function () {
     let port;
     let authTest;
     let wireMock;

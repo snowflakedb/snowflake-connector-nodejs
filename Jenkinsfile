@@ -36,7 +36,7 @@ timestamps {
             string(name: 'parent_job', value: env.JOB_NAME),
             string(name: 'parent_build_number', value: env.BUILD_NUMBER)
           ]
-          build job: 'RT-LanguageNodeJS-Private-PC', parameters: params
+          build job: 'RT-LanguageNodeJS-PC', parameters: params
         }
       },
       'Test Authentication': {
@@ -79,7 +79,7 @@ pipeline {
 }
 
 def wgetUpdateGithub(String state, String folder, String targetUrl, String seconds) {
-  def ghURL = "https://api.github.com/repos/snowflakedb/snowflake-connector-nodejs-private/statuses/$COMMIT_SHA_LONG"
+  def ghURL = "https://api.github.com/repos/snowflakedb/snowflake-connector-nodejs/statuses/$COMMIT_SHA_LONG"
   def data = JsonOutput.toJson([state: "${state}", context: "jenkins/${folder}", target_url: "${targetUrl}"])
   sh "wget ${ghURL} --spider -q --header='Authorization: token $GIT_PASSWORD' --post-data='${data}'"
 }

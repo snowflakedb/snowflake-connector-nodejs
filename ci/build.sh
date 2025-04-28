@@ -8,7 +8,7 @@ source $THIS_DIR/_init.sh
 source $THIS_DIR/scripts/login_internal_docker.sh
 
 if [[ -z "$GITHUB_ACTIONS" ]]; then
-    export GIT_URL=${GIT_URL:-https://github.com/snowflakedb/snowflake-connector-nodejs-private.git}
+    export GIT_URL=${GIT_URL:-https://github.com/snowflakedb/snowflake-connector-nodejs.git}
     export GIT_BRANCH=${GIT_BRANCH:-origin/$(git rev-parse --abbrev-ref HEAD)}
     export GIT_COMMIT=${GIT_COMMIT:-$(git rev-parse HEAD)}
 else

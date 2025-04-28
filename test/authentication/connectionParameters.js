@@ -87,6 +87,7 @@ const oauthPATOnWiremock =
     host: 'localhost',
     protocol: 'http',
     authenticator: 'PROGRAMMATIC_ACCESS_TOKEN',
+    enableExperimentalAuthentication: true
   };
 
 exports.externalBrowser = externalBrowser;

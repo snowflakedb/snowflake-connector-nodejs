@@ -117,6 +117,6 @@ describe('Easy logging tests', function () {
   }
 
   async function writeFile(filePath, fileContent) {
-    await fsPromises.writeFile(filePath, fileContent, { encoding: 'utf8' });
+    await fsPromises.writeFile(filePath, fileContent, { encoding: 'utf8', mode: 0o755 });
   }
 });

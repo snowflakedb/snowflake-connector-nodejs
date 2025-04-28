@@ -1,4 +1,5 @@
 const mock = require('mock-require');
+const os = require('os');
 
 
 exports.mockClientConfigFileEnvVariable = function (envClientConfigFileValue) {
@@ -19,6 +20,9 @@ exports.mockFiles = function (fsMock) {
     },
     stat: async function (path) {
       return fsMock.stat(path);
+    },
+    open: async function (path) {
+      return fsMock.open(path);
     }
   });
 };
@@ -42,38 +46,73 @@ class FsMock {
     return this;
   }
 
-  async access(filePath) {
-    if (!this.existingFiles.has(filePath)) {
-      throw new Error('File does not exist');
-    }
-  }
-
-  async readFile(filePath) {
-    if (!this.existingFiles.has(filePath)) {
-      throw new Error('File does not exist');
-    }
-    return this.existingFiles.get(filePath);
-  }
-
   async stat(filePath) {
-    if (!this.existingFiles.has(filePath)) {
-      throw new Error('ENOENT: File does not exist');
-    }
     if (filePath === badPermissionsConfig) {
       return {
+        uid: 0,
+        gid: 0,
         mode: 0o40777,
       };
     }
     if (filePath === wrongOwner) {
       return {
         uid: 0,
+        gid: 0,
         mode: 0o40600,
       };
     }
 
     return {
+      uid: os.userInfo().uid,
+      gid: os.userInfo().gid,
       mode: 0o40700,
     };
+  }
+
+  async open(filePath) {
+    if (!this.existingFiles.has(filePath)) {
+      throw new Error('File does not exist');
+    }
+    return {
+      stat: async () => {
+        if (filePath === badPermissionsConfig) {
+          return {
+            uid: 0,
+            gid: 0,
+            mode: 0o40777,
+          };
+        }
+        if (filePath === wrongOwner) {
+          return {
+            uid: 0,
+            gid: 0,
+            mode: 0o40600,
+          };
+        }
+    
+        return {
+          uid: os.userInfo().uid,
+          gid: os.userInfo().gid,
+          mode: 0o40700,
+        };
+      },
+      readFile: async () => {
+        if (!this.existingFiles.has(filePath)) {
+          throw new Error('File does not exist');
+        }
+        return this.existingFiles.get(filePath);
+      },
+
+      async close() {
+        return;
+      }
+    };
+  }
+
+  async access(filePath) {
+    if (!this.existingFiles.has(filePath)) {
+      throw new Error('File does not exist');
+    }
   }
 }
 

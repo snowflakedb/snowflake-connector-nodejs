@@ -1,6 +1,7 @@
 const ConnectionConfig = require('./../../../lib/connection/connection_config');
 const ErrorCodes = require('./../../../lib/errors').codes;
 const assert = require('assert');
+const AuthenticationTypes = require('./../../../lib/authentication/authentication_types');
 
 describe('ConnectionConfig: basic', function () {
   ///////////////////////////////////////////////////////////////////////////
@@ -807,6 +808,20 @@ describe('ConnectionConfig: basic', function () {
           oauthAuthorizationUrl: 'file://test.app',
         },
         errorCode: ErrorCodes.ERR_CONN_CREATE_INVALID_OUATH_AUTHORIZATION_URL
+      },
+      {
+        name: 'invalid config - incorrect token request url',
+
+        options: {
+          account: 'account',
+          username: 'username',
+          password: 'password',
+          authenticator: AuthenticationTypes.OAUTH_CLIENT_CREDENTIALS,
+          oauthClientId: 'test',
+          oauthClientSecret: 'secretValue',
+          oauthTokenRequestUrl: 'file://test.app',
+        },
+        errorCode: ErrorCodes.ERR_CONN_CREATE_INVALID_OUATH_TOKEN_REQUEST_URL
       },
       {
         name: 'invalid config - incorrect oauth authorization url',

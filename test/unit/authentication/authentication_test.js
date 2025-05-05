@@ -692,7 +692,6 @@ describe('okta authentication', function () {
           getEnableExperimentalAuthentication: () => false,
           getPasscode: () => '',
           getPasscodeInPassword: () => false,
-          getEnableExperimentalAuthentication: () => false,
           idToken: idToken || null,
           host: 'host',
         };

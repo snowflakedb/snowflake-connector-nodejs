@@ -145,3 +145,4 @@ exports.snowflakeAuthTestOauthClientSecret = snowflakeAuthTestOauthClientSecret;
 exports.snowflakeAuthTestOauthUrl = snowflakeAuthTestOauthUrl;
 exports.snowflakeAuthTestPrivateKeyPath = snowflakeAuthTestPrivateKeyPath;
 exports.snowflakeAuthTestInvalidPrivateKeyPath = snowflakeAuthTestInvalidPrivateKeyPath;
+exports.oauthPATOnWiremock = oauthPATOnWiremock;

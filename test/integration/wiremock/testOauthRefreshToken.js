@@ -28,7 +28,6 @@ describe('Oauth - refreshing token', function () {
           clientStoreTemporaryCredential: true
         }
       };
-      // TODO: extract enum of credentail types
       accessTokenKey = authUtil.buildOauthAccessTokenCacheKey(connectionOptionAuthorizationCode.host,
         connectionOptionAuthorizationCode.username, AuthenticationTypes.OAUTH_AUTHORIZATION_CODE);
       refreshTokenKey = authUtil.buildOauthRefreshTokenCacheKey(connectionOptionAuthorizationCode.host,

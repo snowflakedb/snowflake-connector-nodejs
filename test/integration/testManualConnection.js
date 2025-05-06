@@ -105,7 +105,15 @@ if (process.env.RUN_MANUAL_TESTS_ONLY === 'true') {
         connection.connectAsync(function (err) {
           try {
             assert.ok(!err);
-            done();
+            connection.execute({
+              sqlText: 'select 1',
+              complete: function (err) {
+                testUtil.checkError(err);
+                testUtil.destroyConnection(connection, function () {
+                });
+                done();
+              },
+            });
           } catch (err){
             done(err);
           }

@@ -130,7 +130,7 @@ describe('Oauth Authorization Code authentication', function () {
       connOption.oauthRedirectUri = `http://localhost:${PORT}/snowflake/oauth-redirect`;
       await authTest.createConnection(connOption);
       await authTest.connectAsync();
-      authTest.verifyErrorWasThrown('Can not run server using provided redirect url. Port not available.');
+      authTest.verifyErrorWasThrown('Cannot run server using provided redirect url. Port not available.');
     } finally {
       server.close();
     }

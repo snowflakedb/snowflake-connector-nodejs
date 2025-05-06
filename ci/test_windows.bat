@@ -68,6 +68,7 @@ popd
 
 echo [INFO] Testing
 cmd /c node_modules\.bin\mocha --timeout %TIMEOUT% --recursive --full-trace --color --reporter spec \"test/{unit,integration}/**/*.js\"
+echo [INFO] Finished tests
 if %ERRORLEVEL% NEQ 0 (
     echo [ERROR] failed to run mocha
     exit /b 1

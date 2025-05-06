@@ -78,6 +78,7 @@ describe('GCS client', function () {
           endPoint: null,
           useRegionalUrl: true,
           region: 'mockLocation',
+          useVirtualUrl: false,
         },
         result: 'https://storage.mocklocation.rep.googleapis.com'
       },
@@ -86,7 +87,8 @@ describe('GCS client', function () {
         stageInfo: {
           endPoint: null,
           useRegionalUrl: false,
-          region: 'me-central2'
+          region: 'me-central2',
+          useVirtualUrl: false,
         },
         result: 'https://storage.me-central2.rep.googleapis.com'
       },
@@ -95,7 +97,8 @@ describe('GCS client', function () {
         stageInfo: {
           endPoint: null,
           useRegionalUrl: false,
-          region: 'ME-cEntRal2'
+          region: 'ME-cEntRal2',
+          useVirtualUrl: false,
         },
         result: 'https://storage.me-central2.rep.googleapis.com'
       },
@@ -104,7 +107,8 @@ describe('GCS client', function () {
         stageInfo: {
           endPoint: null,
           useRegionalUrl: false,
-          region: 'ME-CENTRAL2'
+          region: 'ME-CENTRAL2',
+          useVirtualUrl: false,
         },
         result: 'https://storage.me-central2.rep.googleapis.com'
       },
@@ -113,7 +117,8 @@ describe('GCS client', function () {
         stageInfo: {
           endPoint: 'https://storage.specialEndPoint.rep.googleapis.com',
           useRegionalUrl: false,
-          region: 'ME-cEntRal1'
+          region: 'ME-cEntRal1',
+          useVirtualUrl: false,
         },
         result: 'https://storage.specialEndPoint.rep.googleapis.com'
       },
@@ -122,7 +127,8 @@ describe('GCS client', function () {
         stageInfo: {
           endPoint: 'https://storage.specialEndPoint.rep.googleapis.com',
           useRegionalUrl: true,
-          region: 'ME-cEntRal1'
+          region: 'ME-cEntRal1',
+          useVirtualUrl: false,
         },
         result: 'https://storage.specialEndPoint.rep.googleapis.com'
       },
@@ -131,9 +137,45 @@ describe('GCS client', function () {
         stageInfo: {
           endPoint: 'https://storage.specialEndPoint.rep.googleapis.com',
           useRegionalUrl: true,
-          region: 'ME-CENTRAL2'
+          region: 'ME-CENTRAL2',
+          useVirtualUrl: false,
         },
         result: 'https://storage.specialEndPoint.rep.googleapis.com'
+      },
+      {
+        name: 'when only the useVirtualUrl is enabled',
+        stageInfo: {
+          location: 'sfc-eng-regression/stakeda/test_stg/test_sub_dir/',
+          endPoint: null,
+          useRegionalUrl: false,
+          region: 'ME-WEST',
+          UseRegionalURL: false,
+          useVirtualUrl: true,
+        },
+        result: 'https://sfc-eng-regression.storage.googleapis.com',
+      },
+      {
+        name: 'when both the useRegionalURL and useVirtualUrl are enabled',
+        stageInfo: {
+          location: 'sfc-eng-regression/stakeda/test_stg/test_sub_dir/',
+          endPoint: null,
+          useRegionalUrl: true,
+          region: 'ME-WEST',
+          UseRegionalURL: false,
+          useVirtualUrl: true,
+        },
+        result: 'https://sfc-eng-regression.storage.googleapis.com',
+      },
+      {
+        name: 'when all the options are enabled',
+        stageInfo: {
+          location: 'sfc-eng-regression/stakeda/test_stg/test_sub_dir/',
+          endPoint: 'storage.specialEndPoint.rep.googleapis.com',
+          useRegionalUrl: true,
+          region: 'ME-CENTRAL2',
+          useVirtualUrl: true,
+        },
+        result: 'https://storage.specialEndPoint.rep.googleapis.com',
       },
     ];
 

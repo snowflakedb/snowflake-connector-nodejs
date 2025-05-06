@@ -335,7 +335,7 @@ declare module 'snowflake-sdk' {
         /**
          * Specifies whether the OCSP request is also sent to the proxy specified. 
          */
-        useProxyForOCSP?: boolean;
+        useConnectionConfigProxyForOCSP?: boolean;
 
         /**
          * Specifies the serviceName.

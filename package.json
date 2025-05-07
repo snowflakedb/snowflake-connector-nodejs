@@ -27,12 +27,14 @@
     "mkdirp": "^1.0.3",
     "moment": "^2.29.4",
     "moment-timezone": "^0.5.15",
+    "oauth4webapi": "^3.0.1",
     "open": "^7.3.1",
     "python-struct": "^1.1.3",
     "simple-lru-cache": "^0.0.2",
     "toml": "^3.0.0",
     "uuid": "^8.3.2",
-    "winston": "^3.1.0"
+    "winston": "^3.1.0",
+    "wiremock-rest-client": "^1.11.0"
   },
   "devDependencies": {
     "@aws-sdk/types": "^3.387.0",
@@ -43,8 +45,7 @@
     "mock-require": "^3.0.3",
     "nyc": "^15.1.0",
     "test-console": "^2.0.0",
-    "wiremock": "^3.10.0",
-    "wiremock-rest-client": "^1.11.0"
+    "wiremock": "^3.10.0"
   },
   "peerDependencies": {
     "asn1.js": "^5.4.1"
@@ -73,7 +74,9 @@
     "test:ci:coverage": "nyc npm run test:ci",
     "test:ci:withSystemTests": "mocha --exit -timeout 180000 --recursive --full-trace 'test/{unit,integration}/**/*.js' system_test/*.js",
     "test:ci:withSystemTests:coverage": "nyc npm run test:ci:withSystemTests",
-    "test:manual": "mocha --exit -timeout 180000 --full-trace --full-trace test/integration/testManualConnection.js"
+    "test:manual": "mocha --exit -timeout 180000 --full-trace --full-trace test/integration/testManualConnection.js",
+    "serve-wiremock": "wiremock --enable-browser-proxying --proxy-pass-through  false --port 8081 ",
+    "wiremock": "npm run serve-wiremock"
   },
   "author": {
     "name": "Snowflake Computing, Inc.",

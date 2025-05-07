@@ -4,7 +4,7 @@ const connOption = require('./connectionOptions');
 const testUtil = require('./testUtil');
 const Logger = require('../../lib/logger');
 const Util = require('../../lib/util');
-const JsonCredentialManager = require('../../lib/authentication/secure_storage/json_credential_manager');
+const { JsonCredentialManager } = require('../../lib/authentication/secure_storage/json_credential_manager');
 
 if (process.env.RUN_MANUAL_TESTS_ONLY === 'true') {
   describe('Run manual tests', function () {
@@ -96,6 +96,117 @@ if (process.env.RUN_MANUAL_TESTS_ONLY === 'true') {
         });
       });
     });
+
+    describe('Connection - PROGRAMMATIC_ACCESS_TOKEN authenticator', function () {
+      const connectionOption = { ...connOption.PAT, password: 'paste PAT here' };
+
+      it('test - connect using PAT', function (done) {
+        const connection = snowflake.createConnection(connectionOption);
+        connection.connectAsync(function (err) {
+          try {
+            assert.ok(!err);
+            connection.execute({
+              sqlText: 'select 1',
+              complete: function (err) {
+                testUtil.checkError(err);
+                testUtil.destroyConnection(connection, function () {
+                });
+                done();
+              },
+            });
+          } catch (err){
+            done(err);
+          }
+        });
+      });
+    });
+
+    describe('Connection - AUTHORIZATION CODE authenticator ', function () {
+
+      it('test - connect AUTHORIZATION CODE - OKTA IDP', function (done) {
+        const connectionOption = { ...connOption.authorizationCodeOkta };
+        const connection = snowflake.createConnection(connectionOption);
+        connection.connectAsync(function (err) {
+          try {
+            assert.ok(!err);
+            connection.execute({
+              sqlText: 'select 1',
+              complete: function (err) {
+                testUtil.checkError(err);
+                testUtil.destroyConnection(connection, function () {
+                });
+                done();
+              },
+            });
+
+          } catch (err){
+            done(err);
+          }
+        });
+      });
+
+      it('test - connect AUTHORIZATION CODE - Snowflake IDP', function (done) {
+        snowflake.configure({ logLevel: 'DEBUG',  disableOCSPChecks: true });
+        const connectionOption = { ...connOption.authorizationCodeSnowflake };
+        const connection = snowflake.createConnection(connectionOption);
+        connection.connectAsync(function (err) {
+          try {
+            assert.ok(!err);
+            connection.execute({
+              sqlText: 'select 1',
+              complete: function (err) {
+                testUtil.checkError(err);
+                testUtil.destroyConnection(connection, function () {
+                });
+                done();
+              },
+            });
+
+          } catch (err){
+            done(err);
+          }
+        });
+      });
+    });
+
+    describe('Connection - CLIENT CREDENTIALS authenticator ', function () {
+
+      it('test - connect CLIENT CREDENTIALS - Snowflake', function (done) {
+        const connectionOption = { ...connOption.clientCredentialSnowflake };
+        const connection = snowflake.createConnection(connectionOption);
+        connection.connectAsync(function (err) {
+          try {
+            assert.ok(!err);
+            connection.execute({
+              sqlText: 'select 1',
+              complete: function (err) {
+                testUtil.checkError(err);
+                testUtil.destroyConnection(connection, function () {
+                });
+                done();
+              },
+            });
+
+          } catch (err){
+            done(err);
+          }
+        });
+      });
+
+      it('test - connect CLIENT CREDENTIALS - inconsistent username', function (done) {
+        const connectionOption = { ...connOption.clientCredentialSnowflake, ...{ username: 'inconsistentUser' } };
+        const connection = snowflake.createConnection(connectionOption);
+        connection.connectAsync(function (err) {
+          try {
+            assert(err);
+            assert.equal(err.message, 'The user you were trying to authenticate as differs from the user tied to the access token.');
+            done();
+          } catch (err){
+            done(err);
+          }
+        });
+      });
+    });
   });
 
   describe('keepAlive test', function () {
@@ -133,9 +244,6 @@ if (process.env.RUN_MANUAL_TESTS_ONLY === 'true') {
                 .on('error', function (err) {
                   throw err;
                 })
-                .on('data', function () {
-                  return;
-                })
                 .on('end', function () {
                   const end = Date.now();
                   const time = end - start;
@@ -163,7 +271,6 @@ if (process.env.RUN_MANUAL_TESTS_ONLY === 'true') {
       assert.ok(sumWithoutKeepAlive * 0.66 > sumWithKeepAlive, 'With keep alive the queries should work faster');
     });
   });
-
 
   // Before run below tests you should prepare files connections.toml and token
   describe('Connection file configuration test', function () {

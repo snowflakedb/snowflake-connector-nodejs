@@ -39,6 +39,8 @@ echo [INFO] Schema:    %SNOWFLAKE_TEST_SCHEMA%
 echo [INFO] Warehouse: %SNOWFLAKE_TEST_WAREHOUSE%
 echo [INFO] Role:      %SNOWFLAKE_TEST_ROLE%
 
+echo [INFO] JAVA_HOME %JAVA_HOME%
+
 echo [INFO] Creating schema %SNOWFLAKE_TEST_SCHEMA%
 pushd %GITHUB_WORKSPACE%\ci\container
 python create_schema.py
@@ -65,7 +67,7 @@ start /b python hang_webserver.py 12345 > hang_webserver.out 2>&1
 popd
 
 echo [INFO] Testing
-cmd /c node_modules\.bin\mocha --timeout %TIMEOUT% --recursive --full-trace --color --reporter spec \"test/{unit,integration}/**/*.js\"
+cmd /c node_modules\.bin\mocha --exit --timeout %TIMEOUT% --recursive --full-trace --color --reporter spec \"test/{unit,integration}/**/*.js\"
 if %ERRORLEVEL% NEQ 0 (
     echo [ERROR] failed to run mocha
     exit /b 1

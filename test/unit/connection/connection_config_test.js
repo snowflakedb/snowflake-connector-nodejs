@@ -1,6 +1,7 @@
 const ConnectionConfig = require('./../../../lib/connection/connection_config');
 const ErrorCodes = require('./../../../lib/errors').codes;
 const assert = require('assert');
+const AuthenticationTypes = require('./../../../lib/authentication/authentication_types');
 
 describe('ConnectionConfig: basic', function () {
   ///////////////////////////////////////////////////////////////////////////
@@ -770,6 +771,71 @@ describe('ConnectionConfig: basic', function () {
           passcode: 123456
         },
         errorCode: ErrorCodes.ERR_CONN_CREATE_INVALID_PASSCODE
+      },
+      {
+        name: 'invalid config - lack of clientId for oauth authenticator',
+
+        options: {
+          account: 'account',
+          username: 'username',
+          password: 'password',
+          authenticator: 'OAUTH_AUTHORIZATION_CODE',
+        },
+        errorCode: ErrorCodes.ERR_CONN_CREATE_INVALID_OUATH_CLIENT_ID
+      },
+      {
+        name: 'invalid config - lack of clientSecret for oauth authenticator',
+
+        options: {
+          account: 'account',
+          username: 'username',
+          password: 'password',
+          authenticator: 'OAUTH_AUTHORIZATION_CODE',
+          oauthClientId: 'test'
+        },
+        errorCode: ErrorCodes.ERR_CONN_CREATE_INVALID_OUATH_CLIENT_SECRET
+      },
+      {
+        name: 'invalid config - incorrect oauth authorization url',
+
+        options: {
+          account: 'account',
+          username: 'username',
+          password: 'password',
+          authenticator: 'OAUTH_AUTHORIZATION_CODE',
+          oauthClientId: 'test',
+          oauthClientSecret: 'secretValue',
+          oauthAuthorizationUrl: 'file://test.app',
+        },
+        errorCode: ErrorCodes.ERR_CONN_CREATE_INVALID_OUATH_AUTHORIZATION_URL
+      },
+      {
+        name: 'invalid config - incorrect token request url',
+
+        options: {
+          account: 'account',
+          username: 'username',
+          password: 'password',
+          authenticator: AuthenticationTypes.OAUTH_CLIENT_CREDENTIALS,
+          oauthClientId: 'test',
+          oauthClientSecret: 'secretValue',
+          oauthTokenRequestUrl: 'file://test.app',
+        },
+        errorCode: ErrorCodes.ERR_CONN_CREATE_INVALID_OUATH_TOKEN_REQUEST_URL
+      },
+      {
+        name: 'invalid config - incorrect oauth authorization url',
+
+        options: {
+          account: 'account',
+          username: 'username',
+          password: 'password',
+          authenticator: 'OAUTH_AUTHORIZATION_CODE',
+          oauthClientId: 'test',
+          oauthClientSecret: 'secretValue',
+          oauthAuthorizationUrl: 'not_url_string',
+        },
+        errorCode: ErrorCodes.ERR_CONN_CREATE_INVALID_OUATH_AUTHORIZATION_URL
       },
     ];
 
@@ -1578,6 +1644,33 @@ describe('ConnectionConfig: basic', function () {
             account: 'account'
           }
       },
+      {
+        name: 'oauth config parameters',
+        input:
+          {
+            account: 'account',
+            username: 'username',
+            password: 'password',
+            host: 'host.snowflakecomputing.com',
+            port: 8082,
+            protocol: 'http',
+            authenticator: 'OAUTH_AUTHORIZATION_CODE',
+            oauthClientId: 'test',
+            oauthClientSecret: 'secretValue',
+            oauthAuthorizationUrl: 'https://oauth.authorization.url',
+          },
+        options:
+          {
+            accessUrl: 'http://host.snowflakecomputing.com:8082',
+            username: 'username',
+            password: 'password',
+            account: 'account',
+            authenticator: (config) => config.getAuthenticator(),
+            oauthClientId: (config) => config.getOauthClientId(),
+            oauthClientSecret: (config) => config.getOauthClientSecret(),
+            oauthAuthorizationUrl: (config) => config.getOauthAuthorizationUrl(),
+          }
+      },
     ];
 
   const createItCallback = function (testCase) {
@@ -1585,11 +1678,20 @@ describe('ConnectionConfig: basic', function () {
       const resultOptions = new ConnectionConfig(testCase.input);
       Object.keys(testCase.options).forEach(function (key) {
         const ref = testCase.options[key];
-        const val = resultOptions[key];
+        let val;
+        if (isFunction(testCase.options[key])) {
+          return testCase.options[key](resultOptions);
+        } else {
+          val = resultOptions[key];
+        }
         assert.strictEqual(val, ref);
       });
     };
   };
+
+  function isFunction(value) {
+    return typeof value === 'function';
+  }
 
   for (index = 0, length = testCases.length; index < length; index++) {
     testCase = testCases[index];

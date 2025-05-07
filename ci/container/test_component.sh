@@ -74,7 +74,7 @@ if [[ "$SHOULD_GENERATE_COVERAGE_REPORT" == "1" ]];
     )
   else
     MOCHA_CMD=(
-        "mocha" "--timeout" "$TIMEOUT" "--recursive" "--full-trace"
+        "mocha" "--exit" "--timeout" "$TIMEOUT" "--recursive" "--full-trace"
     )
 fi
 

@@ -779,7 +779,7 @@ describe('ConnectionConfig: basic', function () {
           account: 'account',
           username: 'username',
           password: 'password',
-          authenticator: 'OAUTH_AUTHORIZATION_CODE',
+          authenticator: 'OAUTH_CLIENT_CREDENTIALS',
         },
         errorCode: ErrorCodes.ERR_CONN_CREATE_INVALID_OUATH_CLIENT_ID
       },
@@ -790,7 +790,7 @@ describe('ConnectionConfig: basic', function () {
           account: 'account',
           username: 'username',
           password: 'password',
-          authenticator: 'OAUTH_AUTHORIZATION_CODE',
+          authenticator: 'OAUTH_CLIENT_CREDENTIALS',
           oauthClientId: 'test'
         },
         errorCode: ErrorCodes.ERR_CONN_CREATE_INVALID_OUATH_CLIENT_SECRET
@@ -1665,13 +1665,37 @@ describe('ConnectionConfig: basic', function () {
             username: 'username',
             password: 'password',
             account: 'account',
-            authenticator: (config) => config.getAuthenticator(),
-            oauthClientId: (config) => config.getOauthClientId(),
-            oauthClientSecret: (config) => config.getOauthClientSecret(),
-            oauthAuthorizationUrl: (config) => config.getOauthAuthorizationUrl(),
+            authenticator: (config) => config.getAuthenticator() === 'OAUTH_AUTHORIZATION_CODE',
+            oauthClientId: (config) => config.getOauthClientId() === 'test',
+            oauthClientSecret: (config) => config.getOauthClientSecret() === 'secretValue',
+            oauthAuthorizationUrl: (config) => config.getOauthAuthorizationUrl() === 'https://oauth.authorization.url',
           }
       },
-    ];
+      {
+        name: 'oauth public client parameters',
+        input:
+            {
+              account: 'account',
+              username: 'username',
+              password: 'password',
+              host: 'host.snowflakecomputing.com',
+              port: 8082,
+              protocol: 'http',
+              authenticator: 'OAUTH_AUTHORIZATION_CODE',
+            },
+        options:
+            {
+              accessUrl: 'http://host.snowflakecomputing.com:8082',
+              username: 'username',
+              password: 'password',
+              account: 'account',
+              authenticator: (config) => config.getAuthenticator() === 'OAUTH_AUTHORIZATION_CODE',
+              oauthClientId: (config) => config.getOauthClientId() === 'LOCAL_APPLICATION',
+              oauthClientSecret: (config) => config.getOauthClientSecret() === 'LOCAL_APPLICATION',
+              oauthAuthorizationUrl: (config) => config.getOauthAuthorizationUrl() === 'http://host.snowflakecomputing.com:8082/oauth/authorize',
+              oauthTokenRequestUrl: (config) => config.getOauthTokenRequestUrl() === 'http://host.snowflakecomputing.com:8082/oauth/token-request',
+            }
+      },];
 
   const createItCallback = function (testCase) {
     return function () {
@@ -1680,7 +1704,7 @@ describe('ConnectionConfig: basic', function () {
         const ref = testCase.options[key];
         let val;
         if (isFunction(testCase.options[key])) {
-          return testCase.options[key](resultOptions);
+          return assert.ok(testCase.options[key](resultOptions));
         } else {
           val = resultOptions[key];
         }

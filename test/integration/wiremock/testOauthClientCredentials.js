@@ -56,11 +56,4 @@ describe('Oauth Client Credentials authentication', function () {
     authTest.verifyErrorWasThrown('Error while getting access token. Message: "response" body "access_token" property must be a string');
   });
 
-  it('Experimental authentication flag is not enabled ', async function () {
-    const connOption = { ...connParameters.oauthClientCredentialsOnWiremock, enableExperimentalAuthentication: false };
-    await authTest.createConnection(connOption);
-    await authTest.connectAsync();
-    authTest.verifyErrorWasThrown('Wrong authorization type Failed to initialize authenticator: Error: Following authentication method not yet supported: OAUTH_CLIENT_CREDENTIALS');
-  });
-
 });

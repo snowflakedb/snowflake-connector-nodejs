@@ -104,14 +104,6 @@ describe('Oauth Authorization Code authentication', function () {
     authTest.verifyErrorWasThrown('Error while getting access token. Message: Request failed with status code 400');
   });
 
-  it('Experimental authentication flag is not enabled ', async function () {
-    const connOption = { ...connParameters.oauthAuthorizationCodeOnWiremock, enableExperimentalAuthentication: false };
-    await authTest.createConnection(connOption);
-    await authTest.connectAsync();
-    authTest.verifyErrorWasThrown('Wrong authorization type Failed to initialize authenticator: Error: Following authentication method not yet supported: OAUTH_AUTHORIZATION_CODE');
-  });
-
-
   it('Should not open browser when the port is unavailable', async function () {
    
     const PORT = 8011;

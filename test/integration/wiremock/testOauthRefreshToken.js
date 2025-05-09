@@ -28,9 +28,9 @@ describe('Oauth - refreshing token', function () {
           clientStoreTemporaryCredential: true
         }
       };
-      accessTokenKey = authUtil.buildOauthAccessTokenCacheKey(connectionOptionAuthorizationCode.host,
+      accessTokenKey = authUtil.buildOauthAccessTokenCacheKey(new URL(connectionOptionAuthorizationCode.oauthAuthorizationUrl).host,
         connectionOptionAuthorizationCode.username, AuthenticationTypes.OAUTH_AUTHORIZATION_CODE);
-      refreshTokenKey = authUtil.buildOauthRefreshTokenCacheKey(connectionOptionAuthorizationCode.host,
+      refreshTokenKey = authUtil.buildOauthRefreshTokenCacheKey(new URL(connectionOptionAuthorizationCode.oauthTokenRequestUrl).host,
         connectionOptionAuthorizationCode.username, AuthenticationTypes.OAUTH_AUTHORIZATION_CODE);
     });
     beforeEach(async () => {
@@ -133,9 +133,9 @@ describe('Oauth - refreshing token', function () {
           clientStoreTemporaryCredential: true
         }
       };
-      accessTokenKey = authUtil.buildOauthAccessTokenCacheKey(connectionOptionAClientCredentials.host,
+      accessTokenKey = authUtil.buildOauthAccessTokenCacheKey(new URL(connectionOptionAClientCredentials.oauthAuthorizationUrl).host,
         connectionOptionAClientCredentials.username, AuthenticationTypes.OAUTH_CLIENT_CREDENTIALS);
-      refreshTokenKey = authUtil.buildOauthRefreshTokenCacheKey(connectionOptionAClientCredentials.host,
+      refreshTokenKey = authUtil.buildOauthRefreshTokenCacheKey(new URL(connectionOptionAClientCredentials.oauthTokenRequestUrl).host,
         connectionOptionAClientCredentials.username, AuthenticationTypes.OAUTH_CLIENT_CREDENTIALS);
     });
     beforeEach(async () => {

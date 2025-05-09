@@ -64,7 +64,6 @@ const oauthPATOnWiremock =
       host: 'localhost',
       protocol: 'http',
       authenticator: 'PROGRAMMATIC_ACCESS_TOKEN',
-      enableExperimentalAuthentication: true
     };
 
 const oauthAuthorizationCodeOnWiremock =
@@ -83,7 +82,6 @@ const oauthAuthorizationCodeOnWiremock =
       oauthRedirectUri: 'http://localhost:8009/snowflake/oauth-redirect',
       oauthScope: 'session:role:ANALYST test-scope',
       oauthHttpAllowed: true,
-      enableExperimentalAuthentication: true
     };
 
 const oauthClientCredentialsOnWiremock =
@@ -99,7 +97,6 @@ const oauthClientCredentialsOnWiremock =
       oauthClientId: '123',
       oauthClientSecret: 'clientSecret',
       oauthHttpAllowed: true,
-      enableExperimentalAuthentication: true
     };
 
 const keypairPrivateKey =

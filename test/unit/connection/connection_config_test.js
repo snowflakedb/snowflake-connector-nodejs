@@ -1695,7 +1695,33 @@ describe('ConnectionConfig: basic', function () {
               oauthAuthorizationUrl: (config) => config.getOauthAuthorizationUrl() === 'http://host.snowflakecomputing.com:8082/oauth/authorize',
               oauthTokenRequestUrl: (config) => config.getOauthTokenRequestUrl() === 'http://host.snowflakecomputing.com:8082/oauth/token-request',
             }
-      },];
+      },
+      {
+        name: 'oauth public client parameters',
+        input:
+            {
+              account: 'account',
+              username: 'username',
+              password: 'password',
+              host: 'host.snowflakecomputing.cn',
+              port: 8082,
+              protocol: 'http',
+              authenticator: 'OAUTH_AUTHORIZATION_CODE',
+            },
+        options:
+            {
+              accessUrl: 'http://host.snowflakecomputing.cn:8082',
+              username: 'username',
+              password: 'password',
+              account: 'account',
+              authenticator: (config) => config.getAuthenticator() === 'OAUTH_AUTHORIZATION_CODE',
+              oauthClientId: (config) => config.getOauthClientId() === 'LOCAL_APPLICATION',
+              oauthClientSecret: (config) => config.getOauthClientSecret() === 'LOCAL_APPLICATION',
+              oauthAuthorizationUrl: (config) => config.getOauthAuthorizationUrl() === 'http://host.snowflakecomputing.cn:8082/oauth/authorize',
+              oauthTokenRequestUrl: (config) => config.getOauthTokenRequestUrl() === 'http://host.snowflakecomputing.cn:8082/oauth/token-request',
+            }
+      }
+    ];
 
   const createItCallback = function (testCase) {
     return function () {

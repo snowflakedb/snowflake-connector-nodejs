@@ -4,7 +4,7 @@
  */
 declare module 'snowflake-sdk' {
 
-    enum ErrorCode {
+    export enum ErrorCode {
         // 400001
         ERR_INTERNAL_ASSERT_FAILED = 400001,
         ERR_UNSUPPORTED_NODE_JS_VERSION = 400002,

@@ -1220,4 +1220,27 @@ describe('Util', function () {
       }
     });
   });
+
+  describe('Util.convertSmkIdToString()', function () {
+    it('should convert smkId numbers to strings in JSON', function () {
+      const input = '{"smkId" : 1234567890123456789, "otherKey" : "value"}';
+      const expectedOutput = '{"smkId" : "1234567890123456789", "otherKey" : "value"}';
+      const result = Util.convertSmkIdToString(input);
+      assert.strictEqual(result, expectedOutput);
+    });
+
+    it('should not modify JSON without smkId', function () {
+      const input = '{"otherKey" : "value"}';
+      const expectedOutput = '{"otherKey" : "value"}';
+      const result = Util.convertSmkIdToString(input);
+      assert.strictEqual(result, expectedOutput);
+    });
+
+    it('should convert smkId numbers to strings in JSON whitespace insensitive', function () {
+      const input = '{"smkId":1234567890123456789,"otherKey":"value"}';
+      const expectedOutput = '{"smkId":"1234567890123456789","otherKey":"value"}';
+      const result = Util.convertSmkIdToString(input);
+      assert.strictEqual(result, expectedOutput);
+    });
+  });
 });

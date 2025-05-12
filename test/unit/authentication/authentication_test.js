@@ -689,7 +689,6 @@ describe('okta authentication', function () {
           getClientType: () => '',
           getClientVersion: () => '',
           getClientStoreTemporaryCredential: () => true,
-          getEnableExperimentalAuthentication: () => false,
           getPasscode: () => '',
           getPasscodeInPassword: () => false,
           idToken: idToken || null,

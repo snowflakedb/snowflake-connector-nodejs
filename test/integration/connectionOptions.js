@@ -89,7 +89,6 @@ const PAT = {
   ...valid,
   authenticator: 'PROGRAMMATIC_ACCESS_TOKEN',
   role: 'ANALYST',
-  enableExperimentalAuthentication: true
 };
 
 const authorizationCodeOkta = {
@@ -101,7 +100,6 @@ const authorizationCodeOkta = {
   oauthAuthorizationUrl: oauthAuthorizationUrl,
   oauthTokenRequestUrl: oauthTokenRequestUrl,
   oauthRedirectUri: oauthRedirectUri,
-  enableExperimentalAuthentication: true
 };
 
 const authorizationCodeSnowflake = {
@@ -112,7 +110,6 @@ const authorizationCodeSnowflake = {
   authenticator: 'OAUTH_AUTHORIZATION_CODE',
   oauthAuthorizationUrl: oauthAuthorizationUrl,
   oauthTokenRequestUrl: oauthTokenRequestUrl,
-  enableExperimentalAuthentication: true
 };
 
 const clientCredentialSnowflake = {

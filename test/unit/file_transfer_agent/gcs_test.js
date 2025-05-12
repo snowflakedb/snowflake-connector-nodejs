@@ -36,8 +36,7 @@ describe('GCS client', function () {
   this.beforeEach(function () {
     meta = {
       stageInfo: {
-        location: mockLocation,
-        path: mockTable + '/' + mockPath + '/',
+        location: mockLocation + '/' + mockTable + '/' + mockPath + '/',
         endPoint: null,
         useRegionalUrl: false,
         region: 'mockLocation',
@@ -80,7 +79,8 @@ describe('GCS client', function () {
           region: 'mockLocation',
           useVirtualUrl: false,
         },
-        result: 'https://storage.mocklocation.rep.googleapis.com'
+        endPointResult: 'https://storage.mocklocation.rep.googleapis.com',
+        fileUrlResult: 'https://storage.mocklocation.rep.googleapis.com/mockLocation/mockTable/mockPath/mockFile'
       },
       {
         name: 'when the region is me-central2',
@@ -90,7 +90,9 @@ describe('GCS client', function () {
           region: 'me-central2',
           useVirtualUrl: false,
         },
-        result: 'https://storage.me-central2.rep.googleapis.com'
+        endPointResult: 'https://storage.me-central2.rep.googleapis.com',
+        fileUrlResult: 'https://storage.me-central2.rep.googleapis.com/mockLocation/mockTable/mockPath/mockFile'
+
       },
       {
         name: 'when the region is me-central2 (mixed case)',
@@ -100,7 +102,9 @@ describe('GCS client', function () {
           region: 'ME-cEntRal2',
           useVirtualUrl: false,
         },
-        result: 'https://storage.me-central2.rep.googleapis.com'
+        endPointResult: 'https://storage.me-central2.rep.googleapis.com',
+        fileUrlResult: 'https://storage.me-central2.rep.googleapis.com/mockLocation/mockTable/mockPath/mockFile'
+
       },
       {
         name: 'when the region is me-central2 (uppercase)',
@@ -110,7 +114,8 @@ describe('GCS client', function () {
           region: 'ME-CENTRAL2',
           useVirtualUrl: false,
         },
-        result: 'https://storage.me-central2.rep.googleapis.com'
+        endPointResult: 'https://storage.me-central2.rep.googleapis.com',
+        fileUrlResult: 'https://storage.me-central2.rep.googleapis.com/mockLocation/mockTable/mockPath/mockFile'
       },
       {
         name: 'when the endPoint is specified',
@@ -120,7 +125,8 @@ describe('GCS client', function () {
           region: 'ME-cEntRal1',
           useVirtualUrl: false,
         },
-        result: 'https://storage.specialEndPoint.rep.googleapis.com'
+        endPointResult: 'https://storage.specialEndPoint.rep.googleapis.com',
+        fileUrlResult: 'https://storage.specialEndPoint.rep.googleapis.com/mockLocation/mockTable/mockPath/mockFile'
       },
       {
         name: 'when both the endPoint and the useRegionalUrl are specified',
@@ -130,7 +136,9 @@ describe('GCS client', function () {
           region: 'ME-cEntRal1',
           useVirtualUrl: false,
         },
-        result: 'https://storage.specialEndPoint.rep.googleapis.com'
+        endPointResult: 'https://storage.specialEndPoint.rep.googleapis.com',
+        fileUrlResult: 'https://storage.specialEndPoint.rep.googleapis.com/mockLocation/mockTable/mockPath/mockFile'
+
       },
       {
         name: 'when both the endPoint is specified and the region is me-central2',
@@ -140,7 +148,8 @@ describe('GCS client', function () {
           region: 'ME-CENTRAL2',
           useVirtualUrl: false,
         },
-        result: 'https://storage.specialEndPoint.rep.googleapis.com'
+        endPointResult: 'https://storage.specialEndPoint.rep.googleapis.com',
+        fileUrlResult: 'https://storage.specialEndPoint.rep.googleapis.com/mockLocation/mockTable/mockPath/mockFile'
       },
       {
         name: 'when only the useVirtualUrl is enabled',
@@ -152,7 +161,9 @@ describe('GCS client', function () {
           UseRegionalURL: false,
           useVirtualUrl: true,
         },
-        result: 'https://sfc-eng-regression.storage.googleapis.com',
+        endPointResult: 'https://sfc-eng-regression.storage.googleapis.com',
+        fileUrlResult: 'https://sfc-eng-regression.storage.googleapis.com/stakeda/test_stg/test_sub_dir/mockFile'
+
       },
       {
         name: 'when both the useRegionalURL and useVirtualUrl are enabled',
@@ -164,7 +175,8 @@ describe('GCS client', function () {
           UseRegionalURL: false,
           useVirtualUrl: true,
         },
-        result: 'https://sfc-eng-regression.storage.googleapis.com',
+        endPointResult: 'https://sfc-eng-regression.storage.googleapis.com',
+        fileUrlResult: 'https://sfc-eng-regression.storage.googleapis.com/stakeda/test_stg/test_sub_dir/mockFile'
       },
       {
         name: 'when all the options are enabled',
@@ -175,14 +187,16 @@ describe('GCS client', function () {
           region: 'ME-CENTRAL2',
           useVirtualUrl: true,
         },
-        result: 'https://storage.specialEndPoint.rep.googleapis.com',
+        endPointResult: 'https://storage.specialEndPoint.rep.googleapis.com',
+        fileUrlResult: 'https://storage.specialEndPoint.rep.googleapis.com/sfc-eng-regression/stakeda/test_stg/test_sub_dir/mockFile'
       },
     ];
 
-    testCases.forEach(({ name, stageInfo, result }) => {
+    testCases.forEach(({ name, stageInfo, endPointResult, fileUrlResult }) => {
       it(name, () => {
         const client = GCS.createClient({ ...meta.stageInfo, ...stageInfo,  creds: { GCS_ACCESS_TOKEN: 'mockToken' } });
-        assert.strictEqual(client.gcsClient.apiEndpoint, result);
+        assert.strictEqual(client.gcsClient.apiEndpoint, endPointResult);
+        assert.strictEqual(GCS.generateFileURL({ ...meta.stageInfo, ...stageInfo,  creds: { GCS_ACCESS_TOKEN: 'mockToken' } }, 'mockFile'), fileUrlResult);
       } );
 
     });

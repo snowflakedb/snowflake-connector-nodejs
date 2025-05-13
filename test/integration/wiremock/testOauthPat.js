@@ -4,7 +4,7 @@ const { runWireMockAsync, addWireMockMappingsFromFile } = require('../../wiremoc
 const os = require('os');
 const { getFreePort } = require('../../../lib/util');
 
-if (os.platform !== 'win32')  {
+if (os.platform !== 'win32') {
   describe('Oauth PAT authentication', function () {
     let port;
     let authTest;
@@ -25,7 +25,11 @@ if (os.platform !== 'win32')  {
 
     it('Successful flow scenario PAT as token', async function () {
       await addWireMockMappingsFromFile(wireMock, 'wiremock/mappings/pat/successful_flow.json');
-      const connectionOption = { ...connParameters.oauthPATOnWiremock, token: 'MOCK_TOKEN', port: port };
+      const connectionOption = {
+        ...connParameters.oauthPATOnWiremock,
+        token: 'MOCK_TOKEN',
+        port: port,
+      };
       authTest.createConnection(connectionOption);
       await authTest.connectAsync();
       authTest.verifyNoErrorWasThrown();
@@ -33,7 +37,11 @@ if (os.platform !== 'win32')  {
 
     it('Successful flow scenario PAT as password', async function () {
       await addWireMockMappingsFromFile(wireMock, 'wiremock/mappings/pat/successful_flow.json');
-      const connectionOption = { ...connParameters.oauthPATOnWiremock, password: 'MOCK_TOKEN', port: port };
+      const connectionOption = {
+        ...connParameters.oauthPATOnWiremock,
+        password: 'MOCK_TOKEN',
+        port: port,
+      };
       authTest.createConnection(connectionOption);
       await authTest.connectAsync();
       authTest.verifyNoErrorWasThrown();
@@ -41,17 +49,28 @@ if (os.platform !== 'win32')  {
 
     it('Invalid token', async function () {
       await addWireMockMappingsFromFile(wireMock, 'wiremock/mappings/pat/invalid_pat_token.json');
-      const connectionOption = { ...connParameters.oauthPATOnWiremock, token: 'INVALID_TOKEN', port: port };
+      const connectionOption = {
+        ...connParameters.oauthPATOnWiremock,
+        token: 'INVALID_TOKEN',
+        port: port,
+      };
       authTest.createConnection(connectionOption);
       await authTest.connectAsync();
       authTest.verifyErrorWasThrown('Programmatic access token is invalid.');
     });
 
     it('Experimental authentication flag is not enabled ', async function () {
-      const connectionOption = { ...connParameters.oauthPATOnWiremock, token: 'INVALID_TOKEN', port: port, enableExperimentalAuthentication: false };
+      const connectionOption = {
+        ...connParameters.oauthPATOnWiremock,
+        token: 'INVALID_TOKEN',
+        port: port,
+        enableExperimentalAuthentication: false,
+      };
       await authTest.createConnection(connectionOption);
       await authTest.connectAsync();
-      authTest.verifyErrorWasThrown('Wrong authorization type Failed to initialize authenticator: Error: Following authentication method not yet supported: PROGRAMMATIC_ACCESS_TOKEN');
+      authTest.verifyErrorWasThrown(
+        'Wrong authorization type Failed to initialize authenticator: Error: Following authentication method not yet supported: PROGRAMMATIC_ACCESS_TOKEN',
+      );
     });
   });
 }

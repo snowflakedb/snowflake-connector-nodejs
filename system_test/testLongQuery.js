@@ -21,14 +21,14 @@ describe.skip('testPingPong', function () {
           testUtil.executeCmd(
             connectionToSnowflake,
             'alter system set CLIENT_HEALTH_CHECK_INTERVAL=2',
-            callback
+            callback,
           );
         },
         function (callback) {
           testUtil.destroyConnection(connectionToSnowflake, callback);
-        }
+        },
       ],
-      done
+      done,
     );
   });
 
@@ -47,14 +47,14 @@ describe.skip('testPingPong', function () {
           testUtil.executeCmd(
             connectionToSnowflake,
             'alter system set CLIENT_HEALTH_CHECK_INTERVAL=default',
-            callback
+            callback,
           );
         },
         function (callback) {
           testUtil.destroyConnection(connectionToSnowflake, callback);
-        }
+        },
       ],
-      done
+      done,
     );
   });
 
@@ -74,14 +74,14 @@ describe.skip('testPingPong', function () {
           testUtil.executeCmd(
             connection,
             'select count(*) from table(generator(timeLimit =>10))',
-            callback
+            callback,
           );
         },
         function (callback) {
           testUtil.destroyConnection(connection, callback);
-        }
+        },
       ],
-      done
+      done,
     );
   });
 });

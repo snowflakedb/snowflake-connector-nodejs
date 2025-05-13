@@ -34,16 +34,10 @@ describe('Oauth - refreshing token', function () {
           clientStoreTemporaryCredential: true,
         },
       };
-      accessTokenKey = authUtil.buildOauthAccessTokenCacheKey(
-        connectionOptionAuthorizationCode.host,
-        connectionOptionAuthorizationCode.username,
-        AuthenticationTypes.OAUTH_AUTHORIZATION_CODE,
-      );
-      refreshTokenKey = authUtil.buildOauthRefreshTokenCacheKey(
-        connectionOptionAuthorizationCode.host,
-        connectionOptionAuthorizationCode.username,
-        AuthenticationTypes.OAUTH_AUTHORIZATION_CODE,
-      );
+      accessTokenKey = authUtil.buildOauthAccessTokenCacheKey(new URL(connectionOptionAuthorizationCode.oauthAuthorizationUrl).host,
+        connectionOptionAuthorizationCode.username, AuthenticationTypes.OAUTH_AUTHORIZATION_CODE);
+      refreshTokenKey = authUtil.buildOauthRefreshTokenCacheKey(new URL(connectionOptionAuthorizationCode.oauthTokenRequestUrl).host,
+        connectionOptionAuthorizationCode.username, AuthenticationTypes.OAUTH_AUTHORIZATION_CODE);
     });
     beforeEach(async () => {
       authTest = new AuthTest();
@@ -161,16 +155,10 @@ describe('Oauth - refreshing token', function () {
           clientStoreTemporaryCredential: true,
         },
       };
-      accessTokenKey = authUtil.buildOauthAccessTokenCacheKey(
-        connectionOptionAClientCredentials.host,
-        connectionOptionAClientCredentials.username,
-        AuthenticationTypes.OAUTH_CLIENT_CREDENTIALS,
-      );
-      refreshTokenKey = authUtil.buildOauthRefreshTokenCacheKey(
-        connectionOptionAClientCredentials.host,
-        connectionOptionAClientCredentials.username,
-        AuthenticationTypes.OAUTH_CLIENT_CREDENTIALS,
-      );
+      accessTokenKey = authUtil.buildOauthAccessTokenCacheKey(new URL(connectionOptionAClientCredentials.oauthAuthorizationUrl).host,
+        connectionOptionAClientCredentials.username, AuthenticationTypes.OAUTH_CLIENT_CREDENTIALS);
+      refreshTokenKey = authUtil.buildOauthRefreshTokenCacheKey(new URL(connectionOptionAClientCredentials.oauthTokenRequestUrl).host,
+        connectionOptionAClientCredentials.username, AuthenticationTypes.OAUTH_CLIENT_CREDENTIALS);
     });
     beforeEach(async () => {
       authTest = new AuthTest();

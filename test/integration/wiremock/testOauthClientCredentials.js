@@ -70,15 +70,4 @@ describe('Oauth Client Credentials authentication', function () {
     );
   });
 
-  it('Experimental authentication flag is not enabled ', async function () {
-    const connOption = {
-      ...connParameters.oauthClientCredentialsOnWiremock,
-      enableExperimentalAuthentication: false,
-    };
-    await authTest.createConnection(connOption);
-    await authTest.connectAsync();
-    authTest.verifyErrorWasThrown(
-      'Wrong authorization type Failed to initialize authenticator: Error: Following authentication method not yet supported: OAUTH_CLIENT_CREDENTIALS',
-    );
-  });
 });

@@ -722,26 +722,27 @@ describe('ConnectionConfig: basic', function () {
     {
       name: 'invalid config - lack of clientSecret for oauth authenticator',
 
-      options: {
-        account: 'account',
-        username: 'username',
-        password: 'password',
-        authenticator: 'OAUTH_AUTHORIZATION_CODE',
-        oauthClientId: 'test',
+        options: {
+          account: 'account',
+          username: 'username',
+          password: 'password',
+          authenticator: 'OAUTH_CLIENT_CREDENTIALS',
+        },
+        errorCode: ErrorCodes.ERR_CONN_CREATE_INVALID_OUATH_CLIENT_ID
       },
       errorCode: ErrorCodes.ERR_CONN_CREATE_INVALID_OUATH_CLIENT_SECRET,
     },
     {
       name: 'invalid config - incorrect oauth authorization url',
 
-      options: {
-        account: 'account',
-        username: 'username',
-        password: 'password',
-        authenticator: 'OAUTH_AUTHORIZATION_CODE',
-        oauthClientId: 'test',
-        oauthClientSecret: 'secretValue',
-        oauthAuthorizationUrl: 'file://test.app',
+        options: {
+          account: 'account',
+          username: 'username',
+          password: 'password',
+          authenticator: 'OAUTH_CLIENT_CREDENTIALS',
+          oauthClientId: 'test'
+        },
+        errorCode: ErrorCodes.ERR_CONN_CREATE_INVALID_OUATH_CLIENT_SECRET
       },
       errorCode: ErrorCodes.ERR_CONN_CREATE_INVALID_OUATH_AUTHORIZATION_URL,
     },
@@ -1240,281 +1241,84 @@ describe('ConnectionConfig: basic', function () {
         password: 'password',
         account: 'pm',
       },
-      options: {
-        accessUrl: 'https://pm.snowflakecomputing.com',
-        username: 'username',
-        password: 'password',
-        account: 'pm',
+      {
+        name: 'oauth config parameters',
+        input:
+          {
+            account: 'account',
+            username: 'username',
+            password: 'password',
+            host: 'host.snowflakecomputing.com',
+            port: 8082,
+            protocol: 'http',
+            authenticator: 'OAUTH_AUTHORIZATION_CODE',
+            oauthClientId: 'test',
+            oauthClientSecret: 'secretValue',
+            oauthAuthorizationUrl: 'https://oauth.authorization.url',
+          },
+        options:
+          {
+            accessUrl: 'http://host.snowflakecomputing.com:8082',
+            username: 'username',
+            password: 'password',
+            account: 'account',
+            authenticator: (config) => config.getAuthenticator() === 'OAUTH_AUTHORIZATION_CODE',
+            oauthClientId: (config) => config.getOauthClientId() === 'test',
+            oauthClientSecret: (config) => config.getOauthClientSecret() === 'secretValue',
+            oauthAuthorizationUrl: (config) => config.getOauthAuthorizationUrl() === 'https://oauth.authorization.url',
+          }
       },
-    },
-    {
-      name: 'only one letter account and subdomain',
-      input: {
-        account: 'a.b',
-        username: 'username',
-        password: 'password',
-        retryTimeout: 1234,
+      {
+        name: 'oauth public client parameters',
+        input:
+            {
+              account: 'account',
+              username: 'username',
+              password: 'password',
+              host: 'host.snowflakecomputing.com',
+              port: 8082,
+              protocol: 'http',
+              authenticator: 'OAUTH_AUTHORIZATION_CODE',
+            },
+        options:
+            {
+              accessUrl: 'http://host.snowflakecomputing.com:8082',
+              username: 'username',
+              password: 'password',
+              account: 'account',
+              authenticator: (config) => config.getAuthenticator() === 'OAUTH_AUTHORIZATION_CODE',
+              oauthClientId: (config) => config.getOauthClientId() === 'LOCAL_APPLICATION',
+              oauthClientSecret: (config) => config.getOauthClientSecret() === 'LOCAL_APPLICATION',
+              oauthAuthorizationUrl: (config) => config.getOauthAuthorizationUrl() === 'http://host.snowflakecomputing.com:8082/oauth/authorize',
+              oauthTokenRequestUrl: (config) => config.getOauthTokenRequestUrl() === 'http://host.snowflakecomputing.com:8082/oauth/token-request',
+            }
       },
-      options: {
-        accessUrl: 'https://a.b.snowflakecomputing.com',
-        username: 'username',
-        password: 'password',
-        account: 'a',
-        region: 'b',
-      },
-    },
-    {
-      name: 'two letter account and subdomain',
-      input: {
-        username: 'username',
-        password: 'password',
-        account: 'pm.ab',
-      },
-      options: {
-        accessUrl: 'https://pm.ab.snowflakecomputing.com',
-        username: 'username',
-        password: 'password',
-        account: 'pm',
-        region: 'ab',
-      },
-    },
-    {
-      name: 'account with [-] in the middle',
-      input: {
-        account: 'a-b',
-        username: 'username',
-        password: 'password',
-        retryTimeout: 1234,
-      },
-      options: {
-        accessUrl: 'https://a-b.snowflakecomputing.com',
-        username: 'username',
-        password: 'password',
-        account: 'a-b',
-      },
-    },
-    {
-      name: 'account with [_] in the middle',
-      input: {
-        account: 'a_b',
-        username: 'username',
-        password: 'password',
-        retryTimeout: 1234,
-      },
-      options: {
-        accessUrl: 'https://a_b.snowflakecomputing.com',
-        username: 'username',
-        password: 'password',
-        account: 'a_b',
-      },
-    },
-    {
-      name: 'account with subdomain',
-      input: {
-        account: 'account.subdomain',
-        username: 'username',
-        password: 'password',
-        retryTimeout: 1234,
-      },
-      options: {
-        accessUrl: 'https://account.subdomain.snowflakecomputing.com',
-        username: 'username',
-        password: 'password',
-        account: 'account',
-        region: 'subdomain',
-      },
-    },
-    {
-      name: 'account with subdomain with _ and -',
-      input: {
-        account: 'acc_ount.sub-domain.aws',
-        username: 'username',
-        password: 'password',
-        retryTimeout: 1234,
-      },
-      options: {
-        accessUrl: 'https://acc_ount.sub-domain.aws.snowflakecomputing.com',
-        username: 'username',
-        password: 'password',
-        account: 'acc_ount',
-        region: 'sub-domain.aws',
-      },
-    },
-    {
-      name: 'region with _',
-      input: {
-        account: 'account',
-        region: 'reg_ion',
-        username: 'username',
-        password: 'password',
-        retryTimeout: 1234,
-      },
-      options: {
-        accessUrl: 'https://account.reg_ion.snowflakecomputing.com',
-        username: 'username',
-        password: 'password',
-        account: 'account',
-        region: 'reg_ion',
-      },
-    },
-    {
-      name: 'region with -',
-      input: {
-        account: 'account',
-        region: 'reg-ion',
-        username: 'username',
-        password: 'password',
-        retryTimeout: 1234,
-      },
-      options: {
-        accessUrl: 'https://account.reg-ion.snowflakecomputing.com',
-        username: 'username',
-        password: 'password',
-        account: 'account',
-        region: 'reg-ion',
-      },
-    },
-    {
-      name: 'long region',
-      input: {
-        account: 'account',
-        region: 'region.region2.region3',
-        username: 'username',
-        password: 'password',
-        retryTimeout: 1234,
-      },
-      options: {
-        accessUrl: 'https://account.region.region2.region3.snowflakecomputing.com',
-        username: 'username',
-        password: 'password',
-        account: 'account',
-        region: 'region.region2.region3',
-      },
-    },
-    {
-      name: 'host',
-      input: {
-        account: 'account',
-        username: 'username',
-        password: 'password',
-        retryTimeout: 1234,
-        host: 'host.sub-domain.snowflakecomputing.com',
-      },
-      options: {
-        accessUrl: 'https://host.sub-domain.snowflakecomputing.com',
-        username: 'username',
-        password: 'password',
-        account: 'account',
-      },
-    },
-    {
-      name: 'accessUrl and host',
-      input: {
-        account: 'account',
-        username: 'username',
-        password: 'password',
-        retryTimeout: 1234,
-        host: 'host.snowflakecomputing.com',
-        accessUrl: 'https://access-url.snowflakecomputing.com',
-      },
-      options: {
-        accessUrl: 'https://access-url.snowflakecomputing.com',
-        username: 'username',
-        password: 'password',
-        account: 'account',
-      },
-    },
-    {
-      name: 'accessUrl and host no account',
-      input: {
-        username: 'username',
-        password: 'password',
-        retryTimeout: 1234,
-        host: 'host.snowflakecomputing.com',
-        accessUrl: 'https://access-url.snowflakecomputing.com',
-      },
-      options: {
-        accessUrl: 'https://access-url.snowflakecomputing.com',
-        username: 'username',
-        password: 'password',
-        account: 'access-url',
-      },
-    },
-    {
-      name: 'host no account',
-      input: {
-        username: 'username',
-        password: 'password',
-        retryTimeout: 1234,
-        host: 'host.snowflakecomputing.com',
-      },
-      options: {
-        accessUrl: 'https://host.snowflakecomputing.com',
-        username: 'username',
-        password: 'password',
-        host: 'host.snowflakecomputing.com',
-        account: 'host',
-      },
-    },
-    {
-      name: 'host and port',
-      input: {
-        account: 'account',
-        username: 'username',
-        password: 'password',
-        host: 'host.snowflakecomputing.com',
-        port: 444,
-      },
-      options: {
-        accessUrl: 'https://host.snowflakecomputing.com:444',
-        username: 'username',
-        password: 'password',
-        account: 'account',
-      },
-    },
-    {
-      name: 'protocol, host and port',
-      input: {
-        account: 'account',
-        username: 'username',
-        password: 'password',
-        host: 'host.snowflakecomputing.com',
-        port: 8082,
-        protocol: 'http',
-      },
-      options: {
-        accessUrl: 'http://host.snowflakecomputing.com:8082',
-        username: 'username',
-        password: 'password',
-        account: 'account',
-      },
-    },
-    {
-      name: 'oauth config parameters',
-      input: {
-        account: 'account',
-        username: 'username',
-        password: 'password',
-        host: 'host.snowflakecomputing.com',
-        port: 8082,
-        protocol: 'http',
-        authenticator: 'OAUTH_AUTHORIZATION_CODE',
-        oauthClientId: 'test',
-        oauthClientSecret: 'secretValue',
-        oauthAuthorizationUrl: 'https://oauth.authorization.url',
-      },
-      options: {
-        accessUrl: 'http://host.snowflakecomputing.com:8082',
-        username: 'username',
-        password: 'password',
-        account: 'account',
-        authenticator: (config) => config.getAuthenticator(),
-        oauthClientId: (config) => config.getOauthClientId(),
-        oauthClientSecret: (config) => config.getOauthClientSecret(),
-        oauthAuthorizationUrl: (config) => config.getOauthAuthorizationUrl(),
-      },
-    },
-  ];
+      {
+        name: 'oauth public client parameters',
+        input:
+            {
+              account: 'account',
+              username: 'username',
+              password: 'password',
+              host: 'host.snowflakecomputing.cn',
+              port: 8082,
+              protocol: 'http',
+              authenticator: 'OAUTH_AUTHORIZATION_CODE',
+            },
+        options:
+            {
+              accessUrl: 'http://host.snowflakecomputing.cn:8082',
+              username: 'username',
+              password: 'password',
+              account: 'account',
+              authenticator: (config) => config.getAuthenticator() === 'OAUTH_AUTHORIZATION_CODE',
+              oauthClientId: (config) => config.getOauthClientId() === 'LOCAL_APPLICATION',
+              oauthClientSecret: (config) => config.getOauthClientSecret() === 'LOCAL_APPLICATION',
+              oauthAuthorizationUrl: (config) => config.getOauthAuthorizationUrl() === 'http://host.snowflakecomputing.cn:8082/oauth/authorize',
+              oauthTokenRequestUrl: (config) => config.getOauthTokenRequestUrl() === 'http://host.snowflakecomputing.cn:8082/oauth/token-request',
+            }
+      }
+    ];
 
   const createItCallback = function (testCase) {
     return function () {
@@ -1523,7 +1327,7 @@ describe('ConnectionConfig: basic', function () {
         const ref = testCase.options[key];
         let val;
         if (isFunction(testCase.options[key])) {
-          return testCase.options[key](resultOptions);
+          return assert.ok(testCase.options[key](resultOptions));
         } else {
           val = resultOptions[key];
         }

@@ -24,7 +24,7 @@ if [[ "$LOCAL_USER_NAME" == "jenkins" ]]; then
 else
     export PATH=$WORKSPACE/node_modules/.bin:$PATH
 fi
-cp $SOURCE_ROOT/ci/container/package.json .
+#cp $SOURCE_ROOT/ci/container/package.json .
 npm install
 
 PACKAGE_NAME=$(cd $WORKSPACE && ls snowflake-sdk*.tgz)

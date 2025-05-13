@@ -47,7 +47,7 @@ python create_schema.py
 popd
 
 echo [INFO] Installing Test package
-copy %GITHUB_WORKSPACE%\package.json .
+REM copy %GITHUB_WORKSPACE%\package.json .
 REM copy %GITHUB_WORKSPACE%\package-lock.json .
 cmd /c npm install
 if %ERRORLEVEL% NEQ 0 (

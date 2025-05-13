@@ -56,7 +56,7 @@ if %ERRORLEVEL% NEQ 0 (
 )
 echo [INFO] Installing Snowflake NodeJS Driver
 copy %GITHUB_WORKSPACE%\artifacts\* .
-dir /s /l
+dir /s /l test
 REM cmd /c npm install
 REM for %%f in (snowflake-sdk*.tgz) do cmd /c npm install %%f
 

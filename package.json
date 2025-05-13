@@ -41,6 +41,8 @@
     "async": "^3.2.3",
     "check-dts": "^0.8.2",
     "eslint": "^8.41.0",
+    "husky": "^9.1.7",
+    "lint-staged": "^16.0.0",
     "mocha": "^11.1.0",
     "mock-require": "^3.0.3",
     "nyc": "^15.1.0",
@@ -59,6 +61,10 @@
     "url": "https://github.com/snowflakedb/snowflake-connector-nodejs"
   },
   "typings": "./index.d.ts",
+  "lint-staged": {
+    "*": "npm run prettier:format",
+    "*.js": "npm run lint:fix"
+  },
   "scripts": {
     "lint:check": "eslint && check-dts index.d.ts",
     "lint:check:all": "eslint lib samples system_test test && check-dts index.d.ts",
@@ -79,7 +85,8 @@
     "test:ci:withSystemTests:coverage": "nyc npm run test:ci:withSystemTests",
     "test:manual": "mocha --exit -timeout 180000 --full-trace --full-trace test/integration/testManualConnection.js",
     "serve-wiremock": "wiremock --enable-browser-proxying --proxy-pass-through  false --port 8081 ",
-    "wiremock": "npm run serve-wiremock"
+    "wiremock": "npm run serve-wiremock",
+    "prepare": "husky"
   },
   "author": {
     "name": "Snowflake Computing, Inc.",

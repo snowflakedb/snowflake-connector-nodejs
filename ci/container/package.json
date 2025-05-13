@@ -6,8 +6,7 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "dependencies": {
-  },
+  "dependencies": {},
   "devDependencies": {
     "async": "^3.2.3",
     "https-proxy-agent": "^7.0.2",

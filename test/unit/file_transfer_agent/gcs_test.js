@@ -30,7 +30,7 @@ describe('GCS client', function () {
   const encryptionMetadata = {
     key: mockKey,
     iv: mockIv,
-    matDesc: mockMatDesc
+    matDesc: mockMatDesc,
   };
 
   this.beforeEach(function () {
@@ -43,7 +43,7 @@ describe('GCS client', function () {
       },
       presignedUrl: mockPresignedUrl,
       dstFileName: mockPresignedUrl,
-      client: mockClient
+      client: mockClient,
     };
 
     mock('httpClient', {
@@ -55,14 +55,14 @@ describe('GCS client', function () {
       },
       head: async function () {
         return {
-          headers: ''
+          headers: '',
         };
-      }
+      },
     });
     mock('fileStream', {
       readFileSync: async function (data) {
         return data;
-      }
+      },
     });
     httpClient = require('httpClient');
     fileStream = require('fileStream');
@@ -80,7 +80,8 @@ describe('GCS client', function () {
           useVirtualUrl: false,
         },
         endPointResult: 'https://storage.mocklocation.rep.googleapis.com',
-        fileUrlResult: 'https://storage.mocklocation.rep.googleapis.com/mockLocation/mockTable/mockPath/mockFile'
+        fileUrlResult:
+          'https://storage.mocklocation.rep.googleapis.com/mockLocation/mockTable/mockPath/mockFile',
       },
       {
         name: 'when the region is me-central2',
@@ -91,8 +92,8 @@ describe('GCS client', function () {
           useVirtualUrl: false,
         },
         endPointResult: 'https://storage.me-central2.rep.googleapis.com',
-        fileUrlResult: 'https://storage.me-central2.rep.googleapis.com/mockLocation/mockTable/mockPath/mockFile'
-
+        fileUrlResult:
+          'https://storage.me-central2.rep.googleapis.com/mockLocation/mockTable/mockPath/mockFile',
       },
       {
         name: 'when the region is me-central2 (mixed case)',
@@ -103,8 +104,8 @@ describe('GCS client', function () {
           useVirtualUrl: false,
         },
         endPointResult: 'https://storage.me-central2.rep.googleapis.com',
-        fileUrlResult: 'https://storage.me-central2.rep.googleapis.com/mockLocation/mockTable/mockPath/mockFile'
-
+        fileUrlResult:
+          'https://storage.me-central2.rep.googleapis.com/mockLocation/mockTable/mockPath/mockFile',
       },
       {
         name: 'when the region is me-central2 (uppercase)',
@@ -115,7 +116,8 @@ describe('GCS client', function () {
           useVirtualUrl: false,
         },
         endPointResult: 'https://storage.me-central2.rep.googleapis.com',
-        fileUrlResult: 'https://storage.me-central2.rep.googleapis.com/mockLocation/mockTable/mockPath/mockFile'
+        fileUrlResult:
+          'https://storage.me-central2.rep.googleapis.com/mockLocation/mockTable/mockPath/mockFile',
       },
       {
         name: 'when the endPoint is specified',
@@ -126,7 +128,8 @@ describe('GCS client', function () {
           useVirtualUrl: false,
         },
         endPointResult: 'https://storage.specialEndPoint.rep.googleapis.com',
-        fileUrlResult: 'https://storage.specialEndPoint.rep.googleapis.com/mockLocation/mockTable/mockPath/mockFile'
+        fileUrlResult:
+          'https://storage.specialEndPoint.rep.googleapis.com/mockLocation/mockTable/mockPath/mockFile',
       },
       {
         name: 'when both the endPoint and the useRegionalUrl are specified',
@@ -137,8 +140,8 @@ describe('GCS client', function () {
           useVirtualUrl: false,
         },
         endPointResult: 'https://storage.specialEndPoint.rep.googleapis.com',
-        fileUrlResult: 'https://storage.specialEndPoint.rep.googleapis.com/mockLocation/mockTable/mockPath/mockFile'
-
+        fileUrlResult:
+          'https://storage.specialEndPoint.rep.googleapis.com/mockLocation/mockTable/mockPath/mockFile',
       },
       {
         name: 'when both the endPoint is specified and the region is me-central2',
@@ -149,7 +152,8 @@ describe('GCS client', function () {
           useVirtualUrl: false,
         },
         endPointResult: 'https://storage.specialEndPoint.rep.googleapis.com',
-        fileUrlResult: 'https://storage.specialEndPoint.rep.googleapis.com/mockLocation/mockTable/mockPath/mockFile'
+        fileUrlResult:
+          'https://storage.specialEndPoint.rep.googleapis.com/mockLocation/mockTable/mockPath/mockFile',
       },
       {
         name: 'when only the useVirtualUrl is enabled',
@@ -162,8 +166,8 @@ describe('GCS client', function () {
           useVirtualUrl: true,
         },
         endPointResult: 'https://sfc-eng-regression.storage.googleapis.com',
-        fileUrlResult: 'https://sfc-eng-regression.storage.googleapis.com/stakeda/test_stg/test_sub_dir/mockFile'
-
+        fileUrlResult:
+          'https://sfc-eng-regression.storage.googleapis.com/stakeda/test_stg/test_sub_dir/mockFile',
       },
       {
         name: 'when both the useRegionalURL and useVirtualUrl are enabled',
@@ -176,7 +180,8 @@ describe('GCS client', function () {
           useVirtualUrl: true,
         },
         endPointResult: 'https://sfc-eng-regression.storage.googleapis.com',
-        fileUrlResult: 'https://sfc-eng-regression.storage.googleapis.com/stakeda/test_stg/test_sub_dir/mockFile'
+        fileUrlResult:
+          'https://sfc-eng-regression.storage.googleapis.com/stakeda/test_stg/test_sub_dir/mockFile',
       },
       {
         name: 'when all the options are enabled',
@@ -188,17 +193,27 @@ describe('GCS client', function () {
           useVirtualUrl: true,
         },
         endPointResult: 'https://storage.specialEndPoint.rep.googleapis.com',
-        fileUrlResult: 'https://storage.specialEndPoint.rep.googleapis.com/sfc-eng-regression/stakeda/test_stg/test_sub_dir/mockFile'
+        fileUrlResult:
+          'https://storage.specialEndPoint.rep.googleapis.com/sfc-eng-regression/stakeda/test_stg/test_sub_dir/mockFile',
       },
     ];
 
     testCases.forEach(({ name, stageInfo, endPointResult, fileUrlResult }) => {
       it(name, () => {
-        const client = GCS.createClient({ ...meta.stageInfo, ...stageInfo,  creds: { GCS_ACCESS_TOKEN: 'mockToken' } });
+        const client = GCS.createClient({
+          ...meta.stageInfo,
+          ...stageInfo,
+          creds: { GCS_ACCESS_TOKEN: 'mockToken' },
+        });
         assert.strictEqual(client.gcsClient.apiEndpoint, endPointResult);
-        assert.strictEqual(GCS.generateFileURL({ ...meta.stageInfo, ...stageInfo,  creds: { GCS_ACCESS_TOKEN: 'mockToken' } }, 'mockFile'), fileUrlResult);
-      } );
-
+        assert.strictEqual(
+          GCS.generateFileURL(
+            { ...meta.stageInfo, ...stageInfo, creds: { GCS_ACCESS_TOKEN: 'mockToken' } },
+            'mockFile',
+          ),
+          fileUrlResult,
+        );
+      });
     });
   });
 
@@ -242,7 +257,7 @@ describe('GCS client', function () {
         const err = new Error();
         err.response = { status: 401 };
         throw err;
-      }
+      },
     });
     const httpClient = require('httpClient');
     const GCS = new SnowflakeGCSUtil(connectionConfig, httpClient);
@@ -257,7 +272,7 @@ describe('GCS client', function () {
         const err = new Error();
         err.response = { status: 403 };
         throw err;
-      }
+      },
     });
     const httpClient = require('httpClient');
     const GCS = new SnowflakeGCSUtil(connectionConfig, httpClient);
@@ -274,7 +289,7 @@ describe('GCS client', function () {
         const err = new Error();
         err.response = { status: 404 };
         throw err;
-      }
+      },
     });
     const httpClient = require('httpClient');
     const GCS = new SnowflakeGCSUtil(connectionConfig, httpClient);
@@ -291,7 +306,7 @@ describe('GCS client', function () {
         const err = new Error();
         err.response = { status: 401 };
         throw err;
-      }
+      },
     });
     const httpClient = require('httpClient');
     const GCS = new SnowflakeGCSUtil(connectionConfig, httpClient);
@@ -309,7 +324,7 @@ describe('GCS client', function () {
         err = new Error();
         err.response = { status: 0 };
         throw err;
-      }
+      },
     });
     const httpClient = require('httpClient');
     const GCS = new SnowflakeGCSUtil(connectionConfig, httpClient);
@@ -334,12 +349,12 @@ describe('GCS client', function () {
         const err = new Error();
         err.code = 403;
         throw err;
-      }
+      },
     });
     mock('fileStream', {
       readFileSync: async function (data) {
         return data;
-      }
+      },
     });
     httpClient = require('httpClient');
     fileStream = require('fileStream');
@@ -355,12 +370,12 @@ describe('GCS client', function () {
         const err = new Error();
         err.code = 400;
         throw err;
-      }
+      },
     });
     mock('fileStream', {
       readFileSync: async function (data) {
         return data;
-      }
+      },
     });
     httpClient = require('httpClient');
     fileStream = require('fileStream');
@@ -379,12 +394,12 @@ describe('GCS client', function () {
         const err = new Error();
         err.code = 401;
         throw err;
-      }
+      },
     });
     mock('fileStream', {
       readFileSync: async function (data) {
         return data;
-      }
+      },
     });
     mock('gcsClient', {
       bucket: function () {
@@ -397,11 +412,11 @@ describe('GCS client', function () {
                 throw err;
               };
             }
-            return new file;
+            return new file();
           };
         }
-        return new bucket;
-      }
+        return new bucket();
+      },
     });
     httpClient = require('httpClient');
     fileStream = require('fileStream');

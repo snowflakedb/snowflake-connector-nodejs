@@ -1,17 +1,14 @@
-********************************************************************************
+---
 Node.js Driver - Samples
-********************************************************************************
+---
 
-Install
-======================================================================
+# Install
 
 In directory samples run `npm i`.
 
-Test
-======================================================================
+# Test
 
-Prepare for tests
-----------------------------------------------------------------------
+## Prepare for tests
 
 Specify env variables:
 
@@ -27,34 +24,38 @@ export SNOWFLAKE_TEST_HOST=<your_snowflake_host>
 export SNOWFLAKE_TEST_PORT=<your_snowflake_port>
 ```
 
-Run test to compare json parser
-----------------------------------------------------------------------
+## Run test to compare json parser
 
 By default, the test creates a table with 300000 rows of sample variant data (json format)
-and measures the time and number of blocks while retrieving the results using two different 
+and measures the time and number of blocks while retrieving the results using two different
 methods to extract data.
-1. Streaming results:  `stream.on('readable', ...)`
-2. Events results:  `stream.on('data', ...)`
+
+1. Streaming results: `stream.on('readable', ...)`
+2. Events results: `stream.on('data', ...)`
+
 ```
 npm run jsonParserComparison
 ```
+
 Test can be started with parameters:
- - number of rows in table, default=300000
- - number of selected rows, default=300000
- - only for chosen parser if got as last parameter: Function, vm, better-eval, JSON, default all
+
+- number of rows in table, default=300000
+- number of selected rows, default=300000
+- only for chosen parser if got as last parameter: Function, vm, better-eval, JSON, default all
 
 Example:
+
 ```
 npm run jsonParserComparison 300000 300000 Function
 ```
 
- or 
- ```
+or
+
+```
 npm run jsonParserComparison 300000 300000 JSON
 ```
 
-Run query reading all rows vs streaming the rows
-----------------------------------------------------------------------
+## Run query reading all rows vs streaming the rows
 
 1. Set your query in [`rowsVsStreamingQuery.js`](./rowsVsStreamingQuery.js)`
 2. Run `npm run rowsVsStreamingQuery`

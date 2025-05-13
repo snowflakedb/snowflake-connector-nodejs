@@ -8,28 +8,28 @@ const Logger = require('../../lib/logger');
 describe('Test Array Bind', function () {
   this.timeout(300000);
   let connection;
-  const createABTable = 'create or replace table testAB(colA string, colB number, colC date, colD time, colE TIMESTAMP_NTZ, colF TIMESTAMP_TZ, bi binary(5), bool boolean)';
+  const createABTable =
+    'create or replace table testAB(colA string, colB number, colC date, colD time, colE TIMESTAMP_NTZ, colF TIMESTAMP_TZ, bi binary(5), bool boolean)';
   const insertAB = 'insert into testAB values(?, ?, ?, ?, ?, ?, ?, ?)';
   const selectAB = 'select * from testAB where colB = 1';
-  const createNABTable = 'create or replace table testNAB(colA string, colB number, colC date, colD time, colE TIMESTAMP_NTZ, colF TIMESTAMP_TZ, bi binary(5), bool boolean)';
+  const createNABTable =
+    'create or replace table testNAB(colA string, colB number, colC date, colD time, colE TIMESTAMP_NTZ, colF TIMESTAMP_TZ, bi binary(5), bool boolean)';
   const insertNAB = 'insert into testNAB values(?, ?, ?, ?, ?, ?, ?, ?)';
   const selectNAB = 'select * from testNAB where colB = 1';
-  const createNullTable = 'create or replace table testNullTB(colA string, colB number, colC date, colD time, colE TIMESTAMP_NTZ, colF TIMESTAMP_TZ, bi binary(5), bool boolean)';
+  const createNullTable =
+    'create or replace table testNullTB(colA string, colB number, colC date, colD time, colE TIMESTAMP_NTZ, colF TIMESTAMP_TZ, bi binary(5), bool boolean)';
   const insertNull = 'insert into testNullTB values(?, ?, ?, ?, ?, ?, ?, ?)';
   const selectNull = 'select * from testNullTB where colB = 1';
   const binaryData = (0xffff00).toString(16);
 
-  const usedTableNames = [
-    'testAB', 'testNAB', 'testNullTB',
-  ];
+  const usedTableNames = ['testAB', 'testNAB', 'testNullTB'];
 
   before(function (done) {
-
     connection = snowflake.createConnection({
       ...connOption.valid,
       arrayBindingThreshold: 3,
     });
-    testUtil.connect(connection, err => {
+    testUtil.connect(connection, (err) => {
       done(err);
     });
   });
@@ -52,14 +52,23 @@ describe('Test Array Bind', function () {
             complete: function (err) {
               testUtil.checkError(err);
               callback();
-            }
+            },
           });
         },
         function (callback) {
           const arrBind = [];
           const count = 100;
           for (let i = 0; i < count; i++) {
-            arrBind.push(['string' + i, i, '2020-05-11', '12:35:41.3333333', new Date('2022-04-01 23:59:59'), new Date('2022-07-08 12:05:30.9999999'), binaryData, true]);
+            arrBind.push([
+              'string' + i,
+              i,
+              '2020-05-11',
+              '12:35:41.3333333',
+              new Date('2022-04-01 23:59:59'),
+              new Date('2022-07-08 12:05:30.9999999'),
+              binaryData,
+              true,
+            ]);
           }
 
           const insertABStmt = connection.execute({
@@ -71,7 +80,7 @@ describe('Test Array Bind', function () {
               assert.strictEqual(insertABStmt.getSqlText(), insertAB);
               assert.strictEqual(insertABStmt.getNumUpdatedRows(), count);
               callback();
-            }
+            },
           });
         },
         function (callback) {
@@ -80,14 +89,23 @@ describe('Test Array Bind', function () {
             complete: function (err) {
               testUtil.checkError(err);
               callback();
-            }
+            },
           });
         },
         function (callback) {
           const arrBind = [];
           const count = 2;
           for (let i = 0; i < count; i++) {
-            arrBind.push(['string' + i, i, '2020-05-11', '12:35:41.3333333', new Date('2022-04-01 23:59:59'), new Date('2022-07-08 12:05:30.9999999'), binaryData, true]);
+            arrBind.push([
+              'string' + i,
+              i,
+              '2020-05-11',
+              '12:35:41.3333333',
+              new Date('2022-04-01 23:59:59'),
+              new Date('2022-07-08 12:05:30.9999999'),
+              binaryData,
+              true,
+            ]);
           }
           connection.execute({
             sqlText: insertNAB,
@@ -96,7 +114,7 @@ describe('Test Array Bind', function () {
               testUtil.checkError(err);
               assert.strictEqual(stmt.getNumUpdatedRows(), count);
               callback();
-            }
+            },
           });
         },
         function (callback) {
@@ -106,7 +124,7 @@ describe('Test Array Bind', function () {
               testUtil.checkError(err);
               NABData = rows[0];
               callback();
-            }
+            },
           });
         },
         function (callback) {
@@ -135,11 +153,11 @@ describe('Test Array Bind', function () {
               assert.equal(ABData['BOOL'], true);
               assert.equal(Buffer.from(ABData['BI']).toString('hex'), binaryData);
               callback();
-            }
+            },
           });
         },
       ],
-      done
+      done,
     );
   });
 
@@ -152,16 +170,25 @@ describe('Test Array Bind', function () {
             sqlText: createNullTable,
             complete: function (err) {
               callback(err);
-            }
+            },
           });
         },
         function (callback) {
           const arrBind = [];
           const count = 100;
           for (let i = 0; i < count; i++) {
-            arrBind.push([null, i, '2020-05-11', '12:35:41.3333333', '2022-04-01 23:59:59', '2022-07-08 12:05:30.9999999', binaryData, true]);
+            arrBind.push([
+              null,
+              i,
+              '2020-05-11',
+              '12:35:41.3333333',
+              '2022-04-01 23:59:59',
+              '2022-07-08 12:05:30.9999999',
+              binaryData,
+              true,
+            ]);
           }
-          
+
           connection.execute({
             sqlText: insertNull,
             binds: arrBind,
@@ -169,11 +196,15 @@ describe('Test Array Bind', function () {
               if (err) {
                 callback(err);
               } else if (stmt.getNumUpdatedRows() !== count) {
-                callback(new Error(`Expected number of inserted rows to be ${count} but was ${stmt.getNumUpdatedRows()}`));
+                callback(
+                  new Error(
+                    `Expected number of inserted rows to be ${count} but was ${stmt.getNumUpdatedRows()}`,
+                  ),
+                );
               } else {
                 callback();
               }
-            }
+            },
           });
         },
         function (callback) {
@@ -181,14 +212,23 @@ describe('Test Array Bind', function () {
             sqlText: createNABTable,
             complete: function (err) {
               callback(err);
-            }
+            },
           });
         },
         function (callback) {
           const arrBind = [];
           const count = 2;
           for (let i = 0; i < count; i++) {
-            arrBind.push(['string' + i, i, '2020-05-11', '12:35:41.3333333', '2022-04-01 23:59:59', '2022-07-08 12:05:30.9999999', binaryData, true]);
+            arrBind.push([
+              'string' + i,
+              i,
+              '2020-05-11',
+              '12:35:41.3333333',
+              '2022-04-01 23:59:59',
+              '2022-07-08 12:05:30.9999999',
+              binaryData,
+              true,
+            ]);
           }
           connection.execute({
             sqlText: insertNAB,
@@ -197,11 +237,15 @@ describe('Test Array Bind', function () {
               if (err) {
                 callback(err);
               } else if (stmt.getNumUpdatedRows() !== count) {
-                callback(new Error(`Expected number of inserted rows to be ${count} but was ${stmt.getNumUpdatedRows()}`));
+                callback(
+                  new Error(
+                    `Expected number of inserted rows to be ${count} but was ${stmt.getNumUpdatedRows()}`,
+                  ),
+                );
               } else {
                 callback();
               }
-            }
+            },
           });
         },
         function (callback) {
@@ -214,7 +258,7 @@ describe('Test Array Bind', function () {
                 NABData = rows[0];
                 callback();
               }
-            }
+            },
           });
         },
         function (callback) {
@@ -247,19 +291,20 @@ describe('Test Array Bind', function () {
                   callback(e);
                 }
               }
-            }
+            },
           });
         },
       ],
-      done
+      done,
     );
   });
-  
+
   it('testBindWithJson', function (done) {
     async.series(
       [
         function (callback) {
-          const createSql = 'create or replace table testBindJson(colA varchar(30), colB varchar(30))';
+          const createSql =
+            'create or replace table testBindJson(colA varchar(30), colB varchar(30))';
           testUtil.executeCmd(connection, createSql, callback);
         },
         function (callback) {
@@ -268,7 +313,8 @@ describe('Test Array Bind', function () {
           for (let i = 0; i < count; i++) {
             arrBind.push(['some-data-for-stuff1', 'some-data-for-stuff2']);
           }
-          const insertSql = 'insert into testBindJson(cola,colb) select value:stuff1, value:stuff2 from table(flatten(parse_json(?)))';
+          const insertSql =
+            'insert into testBindJson(cola,colb) select value:stuff1, value:stuff2 from table(flatten(parse_json(?)))';
           connection.execute({
             sqlText: insertSql,
             binds: [JSON.stringify(arrBind)],
@@ -279,11 +325,11 @@ describe('Test Array Bind', function () {
                 assert.strictEqual(stmt.getNumUpdatedRows(), count);
                 callback();
               }
-            }
+            },
           });
         },
       ],
-      done
+      done,
     );
   });
   it('testBindWithLargeArray', function (done) {
@@ -310,18 +356,19 @@ describe('Test Array Bind', function () {
                 assert.strictEqual(stmt.getNumUpdatedRows(), count);
                 callback();
               }
-            }
+            },
           });
         },
       ],
-      done
+      done,
     );
   });
   it('testBindWithArray', function (done) {
     async.series(
       [
         function (callback) {
-          const createSql = 'create or replace table test101 (id INT, type VARCHAR(40), data VARIANT, createdDateTime TIMESTAMP_TZ(0), action VARCHAR(256))';
+          const createSql =
+            'create or replace table test101 (id INT, type VARCHAR(40), data VARIANT, createdDateTime TIMESTAMP_TZ(0), action VARCHAR(256))';
           testUtil.executeCmd(connection, createSql, callback);
         },
         function (callback) {
@@ -331,52 +378,53 @@ describe('Test Array Bind', function () {
               'SAMPLE',
               '{"user":{"SSS":"KKKK003","email":"THE"}',
               '2018-11-02T04:14:56.000000Z',
-              null
+              null,
             ],
             [
               '5490',
               'SAMPLE',
               '{"user":{"SSS":"LLL108","email":"Jenn"}',
               '2018-11-02T04:14:56.000000Z',
-              null
+              null,
             ],
             [
               '5491',
               'SAMPLE',
               '{"user":{"SSS":"LLL108","email":"Jennif"}',
               '2018-11-02T04:14:56.000000Z',
-              null
+              null,
             ],
             [
               '5492',
               'SAMPLE',
               '{"user":{"SSS":"LLL108","email":"Je"}',
               '2018-11-02T04:14:56.000000Z',
-              null
+              null,
             ],
             [
               '5493',
               'SAMPLE',
               '{"user":{"SSS":"LLL108","email":"Jenn"}',
               '2018-11-02T04:14:56.000000Z',
-              null
+              null,
             ],
             [
               '5494',
               'SAMPLE',
               '{"user":{"SSS":"LLL108","email":"Jennifer@xxx.com"}',
               '2018-11-02T04:14:56.000000Z',
-              null
-            ]
+              null,
+            ],
           ];
-          
+
           const flatValue = [];
-          dataset.forEach(element => {
-            element.forEach(value => {
-              flatValue.push(value); 
-            }); 
+          dataset.forEach((element) => {
+            element.forEach((value) => {
+              flatValue.push(value);
+            });
           });
-          const insertTable101 = 'insert into test101 (id,type,data,createdDateTime,action) select COLUMN1,COLUMN2,TRY_PARSE_JSON(COLUMN3),COLUMN4,COLUMN5 from values  (?,?,?,?,?),(?,?,?,?,?),(?,?,?,?,?),(?,?,?,?,?),(?,?,?,?,?),(?,?,?,?,?)';
+          const insertTable101 =
+            'insert into test101 (id,type,data,createdDateTime,action) select COLUMN1,COLUMN2,TRY_PARSE_JSON(COLUMN3),COLUMN4,COLUMN5 from values  (?,?,?,?,?),(?,?,?,?,?),(?,?,?,?,?),(?,?,?,?,?),(?,?,?,?,?),(?,?,?,?,?)';
           connection.execute({
             sqlText: insertTable101,
             binds: flatValue,
@@ -387,7 +435,7 @@ describe('Test Array Bind', function () {
               } else {
                 callback();
               }
-            }
+            },
           });
         },
         function (callback) {
@@ -399,11 +447,11 @@ describe('Test Array Bind', function () {
               const result = rows[0];
               assert.equal(result['TYPE'], 'SAMPLE');
               callback();
-            }
+            },
           });
         },
       ],
-      done
+      done,
     );
   });
 });
@@ -419,14 +467,14 @@ describe('Test Array Bind - full path', function () {
   const fullTableName = `${DATABASE_NAME}.${SCHEMA_NAME}.testAB`;
   const createABTable = `create or replace table ${fullTableName}(colA string, colB number, colC date, colD time, colE TIMESTAMP_NTZ, colF TIMESTAMP_TZ)`;
   const insertAB = `insert into ${fullTableName} values(?, ?, ?, ?, ?, ?)`;
-  
+
   before(function (done) {
     connection = snowflake.createConnection({
       ...connOption.valid,
       // Set schema and database to null to ensure that full path to table is passed in commands
       schema: undefined,
       database: undefined,
-      arrayBindingThreshold: 3
+      arrayBindingThreshold: 3,
     });
     testUtil.connect(connection, function (err) {
       if (err) {
@@ -436,7 +484,7 @@ describe('Test Array Bind - full path', function () {
           sqlText: createABTable,
           complete: function (err) {
             done(err);
-          }
+          },
         });
       }
     });
@@ -446,9 +494,16 @@ describe('Test Array Bind - full path', function () {
     const arrBind = [];
     const count = 100;
     for (let i = 0; i < count; i++) {
-      arrBind.push([null, i, '2020-05-11', '12:35:41.3333333', '2022-04-01 23:59:59', '2022-07-08 12:05:30.9999999']);
+      arrBind.push([
+        null,
+        i,
+        '2020-05-11',
+        '12:35:41.3333333',
+        '2022-04-01 23:59:59',
+        '2022-07-08 12:05:30.9999999',
+      ]);
     }
-    
+
     connection.execute({
       sqlText: insertAB,
       binds: arrBind,
@@ -456,7 +511,7 @@ describe('Test Array Bind - full path', function () {
         testUtil.checkError(err);
         assert.strictEqual(stmt.getNumUpdatedRows(), count);
         done();
-      }
+      },
     });
   });
 
@@ -469,10 +524,12 @@ describe('Test Array Bind - full path', function () {
 describe('Test Array Bind Force Error on Upload file', function () {
   this.timeout(300000);
   let connection;
-  const createABTable = 'create or replace table testAB(colA string, colB number, colC date, colD time, colE TIMESTAMP_NTZ, colF TIMESTAMP_TZ)';
+  const createABTable =
+    'create or replace table testAB(colA string, colB number, colC date, colD time, colE TIMESTAMP_NTZ, colF TIMESTAMP_TZ)';
   const insertAB = 'insert into testAB values(?, ?, ?, ?, ?, ?)';
   const selectAB = 'select * from testAB where colB = 1';
-  const createNABTable = 'create or replace table testNAB(colA string, colB number, colC date, colD time, colE TIMESTAMP_NTZ, colF TIMESTAMP_TZ)';
+  const createNABTable =
+    'create or replace table testNAB(colA string, colB number, colC date, colD time, colE TIMESTAMP_NTZ, colF TIMESTAMP_TZ)';
   const insertNAB = 'insert into testNAB values(?, ?, ?, ?, ?, ?)';
   const selectNAB = 'select * from testNAB where colB = 1';
 
@@ -489,8 +546,7 @@ describe('Test Array Bind Force Error on Upload file', function () {
     });
   });
 
-  afterEach(async () => {
-  });
+  afterEach(async () => {});
 
   after(async () => {
     await testUtil.dropTablesIgnoringErrorsAsync(connection, usedTableNames);
@@ -507,14 +563,21 @@ describe('Test Array Bind Force Error on Upload file', function () {
             complete: function (err) {
               testUtil.checkError(err);
               callback();
-            }
+            },
           });
         },
         function (callback) {
           const arrBind = [];
           const count = 100;
           for (let i = 0; i < count; i++) {
-            arrBind.push(['string' + i, i, '2020-05-11', '12:35:41.3333333', '2022-04-01 23:59:59', '2022-07-08 12:05:30.9999999']);
+            arrBind.push([
+              'string' + i,
+              i,
+              '2020-05-11',
+              '12:35:41.3333333',
+              '2022-04-01 23:59:59',
+              '2022-07-08 12:05:30.9999999',
+            ]);
           }
 
           const insertABStmt = connection.execute({
@@ -526,7 +589,7 @@ describe('Test Array Bind Force Error on Upload file', function () {
               assert.strictEqual(insertABStmt.getSqlText(), insertAB);
               assert.strictEqual(insertABStmt.getNumUpdatedRows(), count);
               callback();
-            }
+            },
           });
         },
         function (callback) {
@@ -535,14 +598,21 @@ describe('Test Array Bind Force Error on Upload file', function () {
             complete: function (err) {
               testUtil.checkError(err);
               callback();
-            }
+            },
           });
         },
         function (callback) {
           const arrBind = [];
           const count = 2;
           for (let i = 0; i < count; i++) {
-            arrBind.push(['string' + i, i, '2020-05-11', '12:35:41.3333333', '2022-04-01 23:59:59', '2022-07-08 12:05:30.9999999']);
+            arrBind.push([
+              'string' + i,
+              i,
+              '2020-05-11',
+              '12:35:41.3333333',
+              '2022-04-01 23:59:59',
+              '2022-07-08 12:05:30.9999999',
+            ]);
           }
           connection.execute({
             sqlText: insertNAB,
@@ -551,7 +621,7 @@ describe('Test Array Bind Force Error on Upload file', function () {
               testUtil.checkError(err);
               assert.strictEqual(stmt.getNumUpdatedRows(), count);
               callback();
-            }
+            },
           });
         },
         function (callback) {
@@ -561,7 +631,7 @@ describe('Test Array Bind Force Error on Upload file', function () {
               testUtil.checkError(err);
               NABData = rows[0];
               callback();
-            }
+            },
           });
         },
         function (callback) {
@@ -587,11 +657,11 @@ describe('Test Array Bind Force Error on Upload file', function () {
               assert.equal(ABDataE.toString(), NABDataE.toString());
               assert.equal(ABDataF.toString(), NABDataF.toString());
               callback();
-            }
+            },
           });
         },
       ],
-      done
+      done,
     );
   });
 });
@@ -629,10 +699,17 @@ describe('Test Array Bind - full path with cancel', function () {
     await testUtil.executeCmdAsync(connection, createABTable);
   });
 
-  it('Full path array bind with cancel', done => {
+  it('Full path array bind with cancel', (done) => {
     const arrBind = [];
     for (let i = 0; i < rowsToInsert; i++) {
-      arrBind.push([null, i, '2020-05-11', '12:35:41.3333333', '2022-04-01 23:59:59', '2022-07-08 12:05:30.9999999']);
+      arrBind.push([
+        null,
+        i,
+        '2020-05-11',
+        '12:35:41.3333333',
+        '2022-04-01 23:59:59',
+        '2022-07-08 12:05:30.9999999',
+      ]);
     }
 
     const insertABStmt = connection.execute({
@@ -647,7 +724,7 @@ describe('Test Array Bind - full path with cancel', function () {
         } else {
           done(new Error('Insert should be cancelled'));
         }
-      }
+      },
     });
 
     Logger.getInstance().trace('setting timeout');
@@ -655,9 +732,14 @@ describe('Test Array Bind - full path with cancel', function () {
       Logger.getInstance().trace('Cancel sent');
       insertABStmt.cancel(function (err) {
         if (err) {
-          Logger.getInstance().trace('Full path array bind with cancel: Cancel error=%s', JSON.stringify(err));
+          Logger.getInstance().trace(
+            'Full path array bind with cancel: Cancel error=%s',
+            JSON.stringify(err),
+          );
         } else {
-          Logger.getInstance().trace('Full path array bind with cancel: Successfully aborted statement');
+          Logger.getInstance().trace(
+            'Full path array bind with cancel: Successfully aborted statement',
+          );
         }
       });
     }, cancelInsertAfterMs);

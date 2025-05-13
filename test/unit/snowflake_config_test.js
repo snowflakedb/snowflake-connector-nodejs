@@ -15,7 +15,7 @@ describe('Snowflake Configure Tests', function () {
       ocspFailOpen: GlobalConfig.getOcspFailOpen(),
       keepAlive: GlobalConfig.getKeepAlive(),
       jsonColumnVariantParser: GlobalConfig.jsonColumnVariantParser,
-      xmlColumnVariantParser: GlobalConfig.xmlColumnVariantParser
+      xmlColumnVariantParser: GlobalConfig.xmlColumnVariantParser,
     };
   });
 
@@ -24,51 +24,50 @@ describe('Snowflake Configure Tests', function () {
   });
 
   describe('Test invalid arguments', function () {
-    const negativeTestCases =
-      [
-        {
-          name: 'invalid logLevel',
-          options: { logLevel: 'unsupported' },
-          errorCode: ErrorCodes.ERR_GLOBAL_CONFIGURE_INVALID_LOG_LEVEL
-        },
-        {
-          name: 'invalid disableOCSPChecks',
-          options: { disableOCSPChecks: 'unsupported' },
-          errorCode: ErrorCodes.ERR_GLOBAL_CONFIGURE_INVALID_DISABLE_OCSP_CHECKS
-        },
-        {
-          name: 'invalid ocspMode',
-          options: { ocspFailOpen: 'unsupported' },
-          errorCode: ErrorCodes.ERR_GLOBAL_CONFIGURE_INVALID_OCSP_MODE
-        },
-        {
-          name: 'invalid json parser',
-          options: { jsonColumnVariantParser: 'unsupported' },
-          errorCode: ErrorCodes.ERR_GLOBAL_CONFIGURE_INVALID_JSON_PARSER
-        },
-        {
-          name: 'invalid xml parser',
-          options: { xmlColumnVariantParser: 'unsupported' },
-          errorCode: ErrorCodes.ERR_GLOBAL_CONFIGURE_INVALID_XML_PARSER
-        },
-        {
-          name: 'invalid keep alive',
-          options: { keepAlive: 'unsupported' },
-          errorCode: ErrorCodes.ERR_GLOBAL_CONFIGURE_INVALID_KEEP_ALIVE
-        },
-        {
-          name: 'invalid customCredentialManager',
-          options: { customCredentialManager: 'unsupported' },
-          errorCode: ErrorCodes.ERR_GLOBAL_CONFIGURE_INVALID_CUSTOM_CREDENTIAL_MANAGER
-        },
-        {
-          name: 'invalid proxy',
-          options: { useEnvProxy: 'unsupported' },
-          errorCode: ErrorCodes.ERR_GLOBAL_CONFIGURE_INVALID_USE_ENV_PROXY
-        },
-      ];
+    const negativeTestCases = [
+      {
+        name: 'invalid logLevel',
+        options: { logLevel: 'unsupported' },
+        errorCode: ErrorCodes.ERR_GLOBAL_CONFIGURE_INVALID_LOG_LEVEL,
+      },
+      {
+        name: 'invalid disableOCSPChecks',
+        options: { disableOCSPChecks: 'unsupported' },
+        errorCode: ErrorCodes.ERR_GLOBAL_CONFIGURE_INVALID_DISABLE_OCSP_CHECKS,
+      },
+      {
+        name: 'invalid ocspMode',
+        options: { ocspFailOpen: 'unsupported' },
+        errorCode: ErrorCodes.ERR_GLOBAL_CONFIGURE_INVALID_OCSP_MODE,
+      },
+      {
+        name: 'invalid json parser',
+        options: { jsonColumnVariantParser: 'unsupported' },
+        errorCode: ErrorCodes.ERR_GLOBAL_CONFIGURE_INVALID_JSON_PARSER,
+      },
+      {
+        name: 'invalid xml parser',
+        options: { xmlColumnVariantParser: 'unsupported' },
+        errorCode: ErrorCodes.ERR_GLOBAL_CONFIGURE_INVALID_XML_PARSER,
+      },
+      {
+        name: 'invalid keep alive',
+        options: { keepAlive: 'unsupported' },
+        errorCode: ErrorCodes.ERR_GLOBAL_CONFIGURE_INVALID_KEEP_ALIVE,
+      },
+      {
+        name: 'invalid customCredentialManager',
+        options: { customCredentialManager: 'unsupported' },
+        errorCode: ErrorCodes.ERR_GLOBAL_CONFIGURE_INVALID_CUSTOM_CREDENTIAL_MANAGER,
+      },
+      {
+        name: 'invalid proxy',
+        options: { useEnvProxy: 'unsupported' },
+        errorCode: ErrorCodes.ERR_GLOBAL_CONFIGURE_INVALID_USE_ENV_PROXY,
+      },
+    ];
 
-    negativeTestCases.forEach(testCase => {
+    negativeTestCases.forEach((testCase) => {
       it(testCase.name, function () {
         let error;
 
@@ -85,123 +84,108 @@ describe('Snowflake Configure Tests', function () {
   });
 
   describe('Test valid arguments', function () {
-    const testCases =
-      [
-        {
-          name: 'logLevel off',
-          options:
-            {
-              logLevel: LOG_LEVEL_TAGS.OFF
-            }
+    const testCases = [
+      {
+        name: 'logLevel off',
+        options: {
+          logLevel: LOG_LEVEL_TAGS.OFF,
         },
-        {
-          name: 'logLevel error',
-          options:
-          {
-            logLevel: LOG_LEVEL_TAGS.ERROR
-          }
+      },
+      {
+        name: 'logLevel error',
+        options: {
+          logLevel: LOG_LEVEL_TAGS.ERROR,
         },
-        {
-          name: 'logLevel warn',
-          options:
-          {
-            logLevel: LOG_LEVEL_TAGS.WARN
-          }
+      },
+      {
+        name: 'logLevel warn',
+        options: {
+          logLevel: LOG_LEVEL_TAGS.WARN,
         },
-        {
-          name: 'logLevel debug',
-          options:
-          {
-            logLevel: LOG_LEVEL_TAGS.DEBUG
-          }
+      },
+      {
+        name: 'logLevel debug',
+        options: {
+          logLevel: LOG_LEVEL_TAGS.DEBUG,
         },
-        {
-          name: 'logLevel info',
-          options:
-          {
-            logLevel: LOG_LEVEL_TAGS.INFO
-          }
+      },
+      {
+        name: 'logLevel info',
+        options: {
+          logLevel: LOG_LEVEL_TAGS.INFO,
         },
-        {
-          name: 'logLevel trace',
-          options:
-          {
-            logLevel: LOG_LEVEL_TAGS.TRACE
-          }
+      },
+      {
+        name: 'logLevel trace',
+        options: {
+          logLevel: LOG_LEVEL_TAGS.TRACE,
         },
-        {
-          name: 'disableOCSPChecks false',
-          options:
-          {
-            disableOCSPChecks: false
-          }
+      },
+      {
+        name: 'disableOCSPChecks false',
+        options: {
+          disableOCSPChecks: false,
         },
-        {
-          name: 'disableOCSPChecks true',
-          options:
-          {
-            disableOCSPChecks: true
-          }
+      },
+      {
+        name: 'disableOCSPChecks true',
+        options: {
+          disableOCSPChecks: true,
         },
-        {
-          name: 'ocspFailOpen false',
-          options:
-          {
-            ocspFailOpen: false
-          }
+      },
+      {
+        name: 'ocspFailOpen false',
+        options: {
+          ocspFailOpen: false,
         },
-        {
-          name: 'ocspFailOpen true',
-          options:
-          {
-            ocspFailOpen: true
-          }
+      },
+      {
+        name: 'ocspFailOpen true',
+        options: {
+          ocspFailOpen: true,
         },
-        {
-          name: 'keepAlive false',
-          options:
-          {
-            keepAlive: false
-          }
+      },
+      {
+        name: 'keepAlive false',
+        options: {
+          keepAlive: false,
         },
-        {
-          name: 'keepAlive true',
-          options:
-          {
-            keepAlive: true
-          }
+      },
+      {
+        name: 'keepAlive true',
+        options: {
+          keepAlive: true,
         },
-        {
-          name: 'json parser',
-          options:
-          {
-            jsonColumnVariantParser: rawColumnValue => require('vm').runInNewContext('(' + rawColumnValue + ')')
-          }
+      },
+      {
+        name: 'json parser',
+        options: {
+          jsonColumnVariantParser: (rawColumnValue) =>
+            require('vm').runInNewContext('(' + rawColumnValue + ')'),
         },
-        {
-          name: 'xml parser',
-          options:
-          {
-            xmlColumnVariantParser: rawColumnValue => new (require('fast-xml-parser')).XMLParser().parse(rawColumnValue)
-          }
+      },
+      {
+        name: 'xml parser',
+        options: {
+          xmlColumnVariantParser: (rawColumnValue) =>
+            new (require('fast-xml-parser').XMLParser)().parse(rawColumnValue),
         },
-        {
-          name: 'useEnvProxy false',
-          options:
-          {
-            useEnvProxy: false
-          }
+      },
+      {
+        name: 'useEnvProxy false',
+        options: {
+          useEnvProxy: false,
         },
-        {
-          name: 'useEnvProxy true',
-          options:
-          {
-            useEnvProxy: true
-          }
+      },
+      {
+        name: 'useEnvProxy true',
+        options: {
+          useEnvProxy: true,
         },
-      ];
+      },
+    ];
 
-    testCases.forEach(testCase => {
+    testCases.forEach((testCase) => {
       it(testCase.name, function () {
         snowflake.configure(testCase.options);
         Object.keys(testCase.options).forEach(function (key) {

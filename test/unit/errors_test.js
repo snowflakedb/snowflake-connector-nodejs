@@ -14,10 +14,11 @@ describe('Errors', function () {
 
         assert.ok(errCode, 'missing error code for: ' + errName);
 
-        assert.ok(Object.prototype.hasOwnProperty.call(mapErrCodeToErrMessage, errCode),
-          'missing error message for: ' + errCode);
-        assert.ok(mapErrCodeToErrMessage[errCode],
-          'invalid error message for: ' + errCode);
+        assert.ok(
+          Object.prototype.hasOwnProperty.call(mapErrCodeToErrMessage, errCode),
+          'missing error message for: ' + errCode,
+        );
+        assert.ok(mapErrCodeToErrMessage[errCode], 'invalid error message for: ' + errCode);
       }
     }
   });
@@ -30,8 +31,10 @@ describe('Errors', function () {
       if (Object.prototype.hasOwnProperty.call(mapErrNameToErrCode, errName)) {
         errCode = mapErrNameToErrCode[errName];
 
-        assert.ok(!Object.prototype.hasOwnProperty.call(mapErrCodeToErrName, errCode),
-          'more than one error name for code: ' + errCode);
+        assert.ok(
+          !Object.prototype.hasOwnProperty.call(mapErrCodeToErrName, errCode),
+          'more than one error name for code: ' + errCode,
+        );
 
         mapErrCodeToErrName[errCode] = errName;
       }
@@ -48,9 +51,10 @@ describe('Errors', function () {
 
     for (const errCode in mapErrCodeToSqlState) {
       if (Object.prototype.hasOwnProperty.call(mapErrCodeToSqlState, errCode)) {
-        assert.ok(mapErrCodeToErrName[errCode],
-          'invalid mapping: ' + errCode + ':' +
-          mapErrCodeToSqlState[errCode]);
+        assert.ok(
+          mapErrCodeToErrName[errCode],
+          'invalid mapping: ' + errCode + ':' + mapErrCodeToSqlState[errCode],
+        );
       }
     }
   });

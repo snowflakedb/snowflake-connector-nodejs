@@ -41,7 +41,7 @@
     "async": "^3.2.3",
     "check-dts": "^0.8.2",
     "eslint": "^8.41.0",
-    "mocha": "^11.1.0",
+    "mocha": "^10.2.0",
     "mock-require": "^3.0.3",
     "nyc": "^15.1.0",
     "test-console": "^2.0.0",

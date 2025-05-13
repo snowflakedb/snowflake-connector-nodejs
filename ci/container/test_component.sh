@@ -29,6 +29,7 @@ npm install
 
 #PACKAGE_NAME=$(cd $WORKSPACE && ls snowflake-sdk*.tgz)
 echo "[INFO] Install package $PACKAGE_NAME"
+ls -l
 #npm install $WORKSPACE/${PACKAGE_NAME}
 
 echo "[INFO] Setting test parameters"

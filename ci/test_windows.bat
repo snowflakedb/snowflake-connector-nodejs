@@ -49,7 +49,7 @@ popd
 echo [INFO] Installing Test package
 REM copy %GITHUB_WORKSPACE%\ci\container\package.json .
 cmd /c npm install
-dir
+REM dir
 if %ERRORLEVEL% NEQ 0 (
     echo [ERROR] failed to install test packages
     exit /b 1
@@ -70,7 +70,7 @@ start /b python hang_webserver.py 12345 > hang_webserver.out 2>&1
 popd
 
 echo [INFO] Testing
-cmd /c node_modules\.bin\mocha --exit --timeout %TIMEOUT% --recursive --full-trace --color --reporter spec \"test\{unit,integration}\**\*.js\"
+cmd /c node_modules\.bin\mocha --exit --timeout %TIMEOUT% --recursive --full-trace --color --reporter spec test/{unit,integration}/**/*.js
 if %ERRORLEVEL% NEQ 0 (
     echo [ERROR] failed to run mocha
     exit /b 1

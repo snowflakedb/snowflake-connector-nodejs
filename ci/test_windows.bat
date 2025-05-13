@@ -47,7 +47,7 @@ python create_schema.py
 popd
 
 echo [INFO] Installing Test package
-copy %GITHUB_WORKSPACE%\ci\container\package.json .
+REM copy %GITHUB_WORKSPACE%\ci\container\package.json .
 cmd /c npm install
 dir
 if %ERRORLEVEL% NEQ 0 (
@@ -57,6 +57,7 @@ if %ERRORLEVEL% NEQ 0 (
 echo [INFO] Installing Snowflake NodeJS Driver
 copy %GITHUB_WORKSPACE%\artifacts\* .
 dir
+REM cmd /c npm install
 REM for %%f in (snowflake-sdk*.tgz) do cmd /c npm install %%f
 
 if %ERRORLEVEL% NEQ 0 (

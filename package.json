@@ -44,6 +44,7 @@
     "mocha": "^11.1.0",
     "mock-require": "^3.0.3",
     "nyc": "^15.1.0",
+    "prettier": "^3.5.3",
     "test-console": "^2.0.0",
     "wiremock": "^3.10.0"
   },
@@ -63,6 +64,8 @@
     "lint:check:all": "eslint lib samples system_test test && check-dts index.d.ts",
     "lint:check:all:errorsOnly": "npm run lint:check:all -- --quiet",
     "lint:fix": "eslint --fix",
+    "prettier:check": "prettier . --check",
+    "prettier:format": "prettier . -w",
     "test": "mocha --exit -timeout 180000 --recursive --full-trace test/unit/**/*.js test/unit/*.js",
     "test:authentication": "mocha --exit -timeout 180000 --recursive --full-trace test/authentication/**/*.js test/authentication/*.js",
     "test:integration": "mocha --exit -timeout 180000 --recursive --full-trace test/integration/**/*.js test/integration/*.js",

@@ -28,6 +28,7 @@ cp $SOURCE_ROOT/ci/container/package.json .
 npm install
 
 #PACKAGE_NAME=$(cd $WORKSPACE && ls snowflake-sdk*.tgz)
+echo "[INFO] Install package $PACKAGE_NAME"
 #npm install $WORKSPACE/${PACKAGE_NAME}
 
 echo "[INFO] Setting test parameters"

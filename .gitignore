@@ -1,3 +1,4 @@
+*.DS_Store
 *.swp
 .idea
 .git
@@ -7,7 +8,6 @@ dist
 junit*.xml
 node_modules
 coverage
-package-lock.json
 snowflake.log
 __pycache__/
 wss-*-agent.config

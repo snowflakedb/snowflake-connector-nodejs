@@ -1,4 +1,4 @@
-REM 
+REM
 REM Tests NodeJS Driver on Windows
 REM
 setlocal
@@ -55,7 +55,7 @@ if %ERRORLEVEL% NEQ 0 (
 )
 echo [INFO] Installing Snowflake NodeJS Driver
 copy %GITHUB_WORKSPACE%\artifacts\* .
-for %%f in (snowflake-sdk*.tgz) do cmd /c npm install %%f
+REM for %%f in (snowflake-sdk*.tgz) do cmd /c npm install %%f
 
 if %ERRORLEVEL% NEQ 0 (
     echo [ERROR] failed to install the Snowflake NodeJS Driver

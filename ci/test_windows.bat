@@ -49,16 +49,16 @@ popd
 echo [INFO] Installing Test package
 REM copy %GITHUB_WORKSPACE%\ci\container\package.json .
 cmd /c npm install
-dir
+REM dir
 if %ERRORLEVEL% NEQ 0 (
     echo [ERROR] failed to install test packages
     exit /b 1
 )
 echo [INFO] Installing Snowflake NodeJS Driver
 copy %GITHUB_WORKSPACE%\artifacts\* .
-dir
+REM dir
 REM cmd /c npm install
-REM for %%f in (snowflake-sdk*.tgz) do cmd /c npm install %%f
+for %%f in (snowflake-sdk*.tgz) do cmd /c npm install %%f
 
 if %ERRORLEVEL% NEQ 0 (
     echo [ERROR] failed to install the Snowflake NodeJS Driver

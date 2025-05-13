@@ -9,8 +9,7 @@
       "response": {
         "status": 200,
         "fixedDelayMilliseconds": 500
-
-        }
+      }
     },
     {
       "scenarioName": "Test wiremock endpoint",

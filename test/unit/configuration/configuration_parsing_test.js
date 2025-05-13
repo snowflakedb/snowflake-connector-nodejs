@@ -1,6 +1,8 @@
 const assert = require('assert');
 const { Levels, ConfigurationUtil } = require('./../../../lib/configuration/client_configuration');
-const { loadConnectionConfiguration } = require('./../../../lib/configuration/connection_configuration');
+const {
+  loadConnectionConfiguration,
+} = require('./../../../lib/configuration/connection_configuration');
 const getClientConfig = new ConfigurationUtil().getClientConfig;
 const fsPromises = require('fs/promises');
 const fs = require('fs');
@@ -10,14 +12,13 @@ const { isWindows } = require('../../../lib/util');
 let tempDir = null;
 
 describe('should parse toml connection configuration', function () {
-
-  beforeEach( async function () {
+  beforeEach(async function () {
     process.env.SNOWFLAKE_HOME = process.cwd() + '/test';
     const configurationPath = path.join(process.env.SNOWFLAKE_HOME, 'connections.toml');
     await fsPromises.chmod(configurationPath, '600');
   });
 
-  afterEach( function () {
+  afterEach(function () {
     delete process.env.SNOWFLAKE_HOME;
     delete process.env.SNOWFLAKE_DEFAULT_CONNECTION_NAME;
   });
@@ -50,7 +51,7 @@ describe('should parse toml connection configuration', function () {
     }
   });
 
-  it('should throw error toml when file does not exist',  function (done) {
+  it('should throw error toml when file does not exist', function (done) {
     process.env.SNOWFLAKE_HOME = '/unknown/';
     try {
       loadConnectionConfiguration();
@@ -67,14 +68,16 @@ describe('should parse toml connection configuration', function () {
       loadConnectionConfiguration();
       assert.fail();
     } catch (error) {
-      assert.strictEqual(error.message, 'Connection configuration with name unknown does not exist');
+      assert.strictEqual(
+        error.message,
+        'Connection configuration with name unknown does not exist',
+      );
       done();
     }
   });
 });
 
 describe('Configuration parsing tests', function () {
-
   before(async function () {
     tempDir = await fsPromises.mkdtemp(path.join(os.tmpdir(), 'conf_parse_tests_'));
   });
@@ -86,11 +89,11 @@ describe('Configuration parsing tests', function () {
   [
     {
       testCaseName: 'INFO',
-      logLevel: Levels.Info.toUpperCase()
+      logLevel: Levels.Info.toUpperCase(),
     },
     {
       testCaseName: 'info',
-      logLevel: Levels.Info.toLowerCase()
+      logLevel: Levels.Info.toLowerCase(),
     },
   ].forEach(({ testCaseName, logLevel }) => {
     it('should parse json with log level: ' + testCaseName, async function () {
@@ -123,13 +126,13 @@ describe('Configuration parsing tests', function () {
             "log_level": null,
             "log_path": null
         }
-      }`
+      }`,
     },
     {
       testCaseName: 'config with empty common',
       fileContent: `{
         "common": {} 
-     }`
+     }`,
     },
     {
       testCaseName: 'config with known values and unknown key',
@@ -139,7 +142,7 @@ describe('Configuration parsing tests', function () {
                 "log_path": null,
                 "unknown_key": "unknown_value"
             } 
-        }`
+        }`,
     },
     {
       testCaseName: 'config with unknown key',
@@ -147,8 +150,8 @@ describe('Configuration parsing tests', function () {
             "common": {
                 "unknown_key": "unknown_value"
             } 
-        }`
-    }
+        }`,
+    },
   ].forEach(({ testCaseName, fileContent }) => {
     it('should parse config without values: ' + testCaseName, async function () {
       // given
@@ -168,16 +171,16 @@ describe('Configuration parsing tests', function () {
   [
     {
       testCaseName: 'null',
-      filePath: null
+      filePath: null,
     },
     {
       testCaseName: 'empty string',
-      filePath: ''
+      filePath: '',
     },
     {
       testCaseName: 'undefined',
-      filePath: undefined
-    }
+      filePath: undefined,
+    },
   ].forEach(({ testCaseName, filePath }) => {
     it('should return null when config file not given: ' + testCaseName, async function () {
       // when
@@ -198,7 +201,8 @@ describe('Configuration parsing tests', function () {
         assert.strictEqual(err.message, 'Fail to open the configuration file');
         assert.match(err.cause.message, /ENOENT: no such file or directory./);
         return true;
-      });
+      },
+    );
   });
 
   it('should fail when the path is a symlink', async function () {
@@ -213,9 +217,15 @@ describe('Configuration parsing tests', function () {
       (err) => {
         assert.strictEqual(err.name, 'ConfigurationError');
         assert.strictEqual(err.message, 'Fail to open the configuration file');
-        assert.match(err.cause.message, isWindows() ? /ENOENT: no such file or directory, open/ : /ELOOP: too many symbolic links encountered, open/);
+        assert.match(
+          err.cause.message,
+          isWindows()
+            ? /ENOENT: no such file or directory, open/
+            : /ELOOP: too many symbolic links encountered, open/,
+        );
         return true;
-      });
+      },
+    );
   });
 
   [
@@ -226,11 +236,11 @@ describe('Configuration parsing tests', function () {
                 "log_level": "unknown",
                 "log_path": "/some-path/some-directory"
             } 
-        }`
+        }`,
     },
     {
       testCaseName: 'no common in config',
-      fileContent: '{}'
+      fileContent: '{}',
     },
     {
       testCaseName: 'log level is not a string',
@@ -239,7 +249,7 @@ describe('Configuration parsing tests', function () {
                 "log_level": 5,
                 "log_path": "/some-path/some-directory"
             } 
-        }`
+        }`,
     },
     {
       testCaseName: 'log path is not a string',
@@ -248,7 +258,7 @@ describe('Configuration parsing tests', function () {
                 "log_level": "${Levels.Info}",
                 "log_path": true
             } 
-        }`
+        }`,
     },
   ].forEach(({ testCaseName, fileContent }) => {
     it('should fail for wrong config content ' + testCaseName, async function () {
@@ -265,7 +275,8 @@ describe('Configuration parsing tests', function () {
           assert.strictEqual(err.message, 'Parsing client configuration failed');
           assert.ok(err.cause);
           return true;
-        });
+        },
+      );
     });
   });
 
@@ -312,9 +323,7 @@ describe('Configuration parsing tests', function () {
       } 
   }`;
     await writeFile(filePath, fileContent);
-    setTimeout(() =>
-      fs.chmodSync(filePath, 0o777),
-    2000);
+    setTimeout(() => fs.chmodSync(filePath, 0o777), 2000);
 
     try {
       await getClientConfig(filePath, true, 3000);
@@ -342,8 +351,7 @@ describe('Configuration parsing tests', function () {
     setTimeout(async () => {
       fs.rmSync(filePath);
       await writeFile(filePath, 'Hacked by someone');
-    },
-    2000);
+    }, 2000);
 
     try {
       await getClientConfig(filePath, true, 5000);

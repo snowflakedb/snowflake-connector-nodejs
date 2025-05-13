@@ -44,7 +44,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          issue_number: "{{ event.issue.id }}"
-          owner: "{{ event.repository.owner.login }}"
-          name: "{{ event.repository.name }}"
-          jira: "${{ steps.create.outputs.issue }}"
+          issue_number: '{{ event.issue.id }}'
+          owner: '{{ event.repository.owner.login }}'
+          name: '{{ event.repository.name }}'
+          jira: '${{ steps.create.outputs.issue }}'

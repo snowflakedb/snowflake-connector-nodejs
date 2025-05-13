@@ -1,12 +1,11 @@
 const mock = require('mock-require');
 const os = require('os');
 
-
 exports.mockClientConfigFileEnvVariable = function (envClientConfigFileValue) {
   mock('process', {
     env: {
-      SF_CLIENT_CONFIG_FILE: envClientConfigFileValue
-    }
+      SF_CLIENT_CONFIG_FILE: envClientConfigFileValue,
+    },
   });
 };
 
@@ -15,7 +14,7 @@ exports.mockFiles = function (fsMock) {
     access: async function (path) {
       return fsMock.access(path);
     },
-    readFile: async function (path){
+    readFile: async function (path) {
       return fsMock.readFile(path);
     },
     stat: async function (path) {
@@ -23,7 +22,7 @@ exports.mockFiles = function (fsMock) {
     },
     open: async function (path) {
       return fsMock.open(path);
-    }
+    },
   });
 };
 
@@ -89,7 +88,7 @@ class FsMock {
             mode: 0o40600,
           };
         }
-    
+
         return {
           uid: os.userInfo().uid,
           gid: os.userInfo().gid,
@@ -105,7 +104,7 @@ class FsMock {
 
       async close() {
         return;
-      }
+      },
     };
   }
 

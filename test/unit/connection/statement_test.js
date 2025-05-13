@@ -7,212 +7,184 @@ describe('Statement.execute()', function () {
   //// Test synchronous errors                                          ////
   //////////////////////////////////////////////////////////////////////////
 
-  const testCases =
-    [
-      {
-        name: 'execute() missing options',
-        options: {},
-        errorCode: ErrorCodes.ERR_CONN_EXEC_STMT_MISSING_OPTIONS
+  const testCases = [
+    {
+      name: 'execute() missing options',
+      options: {},
+      errorCode: ErrorCodes.ERR_CONN_EXEC_STMT_MISSING_OPTIONS,
+    },
+    {
+      name: 'execute() undefined options',
+      options: {
+        statementOptions: undefined,
       },
-      {
-        name: 'execute() undefined options',
-        options:
-          {
-            statementOptions: undefined
-          },
-        errorCode: ErrorCodes.ERR_CONN_EXEC_STMT_MISSING_OPTIONS
+      errorCode: ErrorCodes.ERR_CONN_EXEC_STMT_MISSING_OPTIONS,
+    },
+    {
+      name: 'execute() null options',
+      options: {
+        statementOptions: null,
       },
-      {
-        name: 'execute() null options',
-        options:
-          {
-            statementOptions: null
-          },
-        errorCode: ErrorCodes.ERR_CONN_EXEC_STMT_MISSING_OPTIONS
+      errorCode: ErrorCodes.ERR_CONN_EXEC_STMT_MISSING_OPTIONS,
+    },
+    {
+      name: 'execute() invalid options',
+      options: {
+        statementOptions: 'invalid',
       },
-      {
-        name: 'execute() invalid options',
-        options:
-          {
-            statementOptions: 'invalid'
-          },
-        errorCode: ErrorCodes.ERR_CONN_EXEC_STMT_INVALID_OPTIONS
+      errorCode: ErrorCodes.ERR_CONN_EXEC_STMT_INVALID_OPTIONS,
+    },
+    {
+      name: 'execute() missing sql text',
+      options: {
+        statementOptions: {},
       },
-      {
-        name: 'execute() missing sql text',
-        options:
-          {
-            statementOptions: {}
-          },
-        errorCode: ErrorCodes.ERR_CONN_EXEC_STMT_MISSING_SQL_TEXT
+      errorCode: ErrorCodes.ERR_CONN_EXEC_STMT_MISSING_SQL_TEXT,
+    },
+    {
+      name: 'execute() null sql text',
+      options: {
+        statementOptions: { sqlText: null },
       },
-      {
-        name: 'execute() null sql text',
-        options:
-          {
-            statementOptions: { sqlText: null }
-          },
-        errorCode: ErrorCodes.ERR_CONN_EXEC_STMT_MISSING_SQL_TEXT
+      errorCode: ErrorCodes.ERR_CONN_EXEC_STMT_MISSING_SQL_TEXT,
+    },
+    {
+      name: 'execute() undefined sql text',
+      options: {
+        statementOptions: { sqlText: undefined },
       },
-      {
-        name: 'execute() undefined sql text',
-        options:
-          {
-            statementOptions: { sqlText: undefined }
-          },
-        errorCode: ErrorCodes.ERR_CONN_EXEC_STMT_MISSING_SQL_TEXT
+      errorCode: ErrorCodes.ERR_CONN_EXEC_STMT_MISSING_SQL_TEXT,
+    },
+    {
+      name: 'execute() invalid sql text',
+      options: {
+        statementOptions: { sqlText: 0 },
       },
-      {
-        name: 'execute() invalid sql text',
-        options:
-          {
-            statementOptions: { sqlText: 0 }
-          },
-        errorCode: ErrorCodes.ERR_CONN_EXEC_STMT_INVALID_SQL_TEXT
-      },
-      {
-        name: 'execute() invalid binds',
-        options:
-          {
-            statementOptions:
-              {
-                sqlText: '',
-                binds: 'invalid'
-              }
-          },
-        errorCode: ErrorCodes.ERR_CONN_EXEC_STMT_INVALID_BINDS
-      },
-      {
-        name: 'execute() invalid bind values',
-        options:
-          {
-            statementOptions:
-              {
-                sqlText: '',
-                binds: [function () {
-                }]
-              }
-          },
-        errorCode: ErrorCodes.ERR_CONN_EXEC_STMT_INVALID_BIND_VALUES
-      },
-      {
-        name: 'execute() invalid parameters',
-        options:
-          {
-            statementOptions:
-              {
-                sqlText: '',
-                parameters: 'invalid'
-              }
-          },
-        errorCode: ErrorCodes.ERR_CONN_EXEC_STMT_INVALID_PARAMETERS
-      },
-      {
-        name: 'execute() invalid complete',
-        options:
-          {
-            statementOptions:
-              {
-                sqlText: '',
-                complete: 'invalid'
-              }
-          },
-        errorCode: ErrorCodes.ERR_CONN_EXEC_STMT_INVALID_COMPLETE
-      },
-      {
-        name: 'execute() invalid streamResult',
-        options:
-          {
-            statementOptions:
-              {
-                sqlText: '',
-                streamResult: 'invalid'
-              }
-          },
-        errorCode: ErrorCodes.ERR_CONN_EXEC_STMT_INVALID_STREAM_RESULT
-      },
-      {
-        name: 'execute() invalid fetchAsString',
-        options:
-          {
-            statementOptions:
-              {
-                sqlText: '',
-                fetchAsString: 'invalid'
-              }
-          },
-        errorCode: ErrorCodes.ERR_CONN_EXEC_STMT_INVALID_FETCH_AS_STRING
-      },
-      {
-        name: 'execute() invalid fetchAsString values',
-        options:
-          {
-            statementOptions:
-              {
-                sqlText: '',
-                fetchAsString: ['invalid']
-              }
-          },
-        errorCode: ErrorCodes.ERR_CONN_EXEC_STMT_INVALID_FETCH_AS_STRING_VALUES
-      },
-      {
-        name: 'execute() missing services',
-        options:
-          {
-            statementOptions: { sqlText: 'sqlText' }
-          },
-        errorCode: ErrorCodes.ERR_INTERNAL_ASSERT_FAILED
-      },
-      {
-        name: 'execute() missing connectionConfig',
-        options:
-          {
-            statementOptions: { sqlText: 'sqlText' },
-            services: {}
-          },
-        errorCode: ErrorCodes.ERR_INTERNAL_ASSERT_FAILED
-      },
-      {
-        name: 'execute() invalid request id with sqlText',
-        options:
-          {
-            statementOptions: { sqlText: 'sqlText', requestId: 1234 },
-            services: {},
-            connectionConfig: null
-          },
-        errorCode: ErrorCodes.ERR_CONN_EXEC_STMT_INVALID_REQUEST_ID
-      },
-      {
-        name: 'execute() invalid request id without sqlText',
-        options:
-          {
-            statementOptions: { requestId: 1234 },
-            services: {},
-            connectionConfig: null
-          },
-        errorCode: ErrorCodes.ERR_CONN_EXEC_STMT_INVALID_REQUEST_ID
-      },
-      {
-        name: 'execute() missing sqlText and requestId',
-        options:
-          {
-            statementOptions: {},
-            services: {},
-            connectionConfig: null
-          },
-        errorCode: ErrorCodes.ERR_CONN_EXEC_STMT_MISSING_SQL_TEXT
-      },
-      {
-        name: 'execute() invalid describeOnly',
-        options: {
-          statementOptions: {
-            sqlText: '',
-            describeOnly: 1,
-          },
+      errorCode: ErrorCodes.ERR_CONN_EXEC_STMT_INVALID_SQL_TEXT,
+    },
+    {
+      name: 'execute() invalid binds',
+      options: {
+        statementOptions: {
+          sqlText: '',
+          binds: 'invalid',
         },
-        errorCode: ErrorCodes.ERR_CONN_EXEC_STMT_INVALID_DESCRIBE_ONLY
-      }
-    ];
+      },
+      errorCode: ErrorCodes.ERR_CONN_EXEC_STMT_INVALID_BINDS,
+    },
+    {
+      name: 'execute() invalid bind values',
+      options: {
+        statementOptions: {
+          sqlText: '',
+          binds: [function () {}],
+        },
+      },
+      errorCode: ErrorCodes.ERR_CONN_EXEC_STMT_INVALID_BIND_VALUES,
+    },
+    {
+      name: 'execute() invalid parameters',
+      options: {
+        statementOptions: {
+          sqlText: '',
+          parameters: 'invalid',
+        },
+      },
+      errorCode: ErrorCodes.ERR_CONN_EXEC_STMT_INVALID_PARAMETERS,
+    },
+    {
+      name: 'execute() invalid complete',
+      options: {
+        statementOptions: {
+          sqlText: '',
+          complete: 'invalid',
+        },
+      },
+      errorCode: ErrorCodes.ERR_CONN_EXEC_STMT_INVALID_COMPLETE,
+    },
+    {
+      name: 'execute() invalid streamResult',
+      options: {
+        statementOptions: {
+          sqlText: '',
+          streamResult: 'invalid',
+        },
+      },
+      errorCode: ErrorCodes.ERR_CONN_EXEC_STMT_INVALID_STREAM_RESULT,
+    },
+    {
+      name: 'execute() invalid fetchAsString',
+      options: {
+        statementOptions: {
+          sqlText: '',
+          fetchAsString: 'invalid',
+        },
+      },
+      errorCode: ErrorCodes.ERR_CONN_EXEC_STMT_INVALID_FETCH_AS_STRING,
+    },
+    {
+      name: 'execute() invalid fetchAsString values',
+      options: {
+        statementOptions: {
+          sqlText: '',
+          fetchAsString: ['invalid'],
+        },
+      },
+      errorCode: ErrorCodes.ERR_CONN_EXEC_STMT_INVALID_FETCH_AS_STRING_VALUES,
+    },
+    {
+      name: 'execute() missing services',
+      options: {
+        statementOptions: { sqlText: 'sqlText' },
+      },
+      errorCode: ErrorCodes.ERR_INTERNAL_ASSERT_FAILED,
+    },
+    {
+      name: 'execute() missing connectionConfig',
+      options: {
+        statementOptions: { sqlText: 'sqlText' },
+        services: {},
+      },
+      errorCode: ErrorCodes.ERR_INTERNAL_ASSERT_FAILED,
+    },
+    {
+      name: 'execute() invalid request id with sqlText',
+      options: {
+        statementOptions: { sqlText: 'sqlText', requestId: 1234 },
+        services: {},
+        connectionConfig: null,
+      },
+      errorCode: ErrorCodes.ERR_CONN_EXEC_STMT_INVALID_REQUEST_ID,
+    },
+    {
+      name: 'execute() invalid request id without sqlText',
+      options: {
+        statementOptions: { requestId: 1234 },
+        services: {},
+        connectionConfig: null,
+      },
+      errorCode: ErrorCodes.ERR_CONN_EXEC_STMT_INVALID_REQUEST_ID,
+    },
+    {
+      name: 'execute() missing sqlText and requestId',
+      options: {
+        statementOptions: {},
+        services: {},
+        connectionConfig: null,
+      },
+      errorCode: ErrorCodes.ERR_CONN_EXEC_STMT_MISSING_SQL_TEXT,
+    },
+    {
+      name: 'execute() invalid describeOnly',
+      options: {
+        statementOptions: {
+          sqlText: '',
+          describeOnly: 1,
+        },
+      },
+      errorCode: ErrorCodes.ERR_CONN_EXEC_STMT_INVALID_DESCRIBE_ONLY,
+    },
+  ];
 
   const createItCallback = function (testCase) {
     return function () {
@@ -225,7 +197,8 @@ describe('Statement.execute()', function () {
         Statement.createStatementPreExec(
           options.statementOptions,
           options.services,
-          options.connectionConfig);
+          options.connectionConfig,
+        );
       } catch (err) {
         error = err;
       } finally {
@@ -247,143 +220,124 @@ describe('Statement.fetchResult()', function () {
   //// Test synchronous errors                                          ////
   //////////////////////////////////////////////////////////////////////////
 
-  const testCases =
-    [
-      {
-        name: 'fetchResult() undefined options',
-        options:
-          {
-            statementOptions: undefined
-          },
-        errorCode: ErrorCodes.ERR_CONN_FETCH_RESULT_MISSING_OPTIONS
+  const testCases = [
+    {
+      name: 'fetchResult() undefined options',
+      options: {
+        statementOptions: undefined,
       },
-      {
-        name: 'fetchResult() null options',
-        options:
-          {
-            statementOptions: null,
-            services: null,
-            connectionConfig: null
-          },
-        errorCode: ErrorCodes.ERR_CONN_FETCH_RESULT_MISSING_OPTIONS
+      errorCode: ErrorCodes.ERR_CONN_FETCH_RESULT_MISSING_OPTIONS,
+    },
+    {
+      name: 'fetchResult() null options',
+      options: {
+        statementOptions: null,
+        services: null,
+        connectionConfig: null,
       },
-      {
-        name: 'fetchResult() invalid options',
-        options:
-          {
-            statementOptions: 'invalid'
-          },
-        errorCode: ErrorCodes.ERR_CONN_FETCH_RESULT_INVALID_OPTIONS
+      errorCode: ErrorCodes.ERR_CONN_FETCH_RESULT_MISSING_OPTIONS,
+    },
+    {
+      name: 'fetchResult() invalid options',
+      options: {
+        statementOptions: 'invalid',
       },
-      {
-        name: 'fetchResult() missing query id',
-        options:
-          {
-            statementOptions: {}
-          },
-        errorCode: ErrorCodes.ERR_CONN_FETCH_RESULT_MISSING_QUERY_ID
+      errorCode: ErrorCodes.ERR_CONN_FETCH_RESULT_INVALID_OPTIONS,
+    },
+    {
+      name: 'fetchResult() missing query id',
+      options: {
+        statementOptions: {},
       },
-      {
-        name: 'fetchResult() undefined query id',
-        options:
-          {
-            statementOptions: { queryId: undefined }
-          },
-        errorCode: ErrorCodes.ERR_CONN_FETCH_RESULT_MISSING_QUERY_ID
+      errorCode: ErrorCodes.ERR_CONN_FETCH_RESULT_MISSING_QUERY_ID,
+    },
+    {
+      name: 'fetchResult() undefined query id',
+      options: {
+        statementOptions: { queryId: undefined },
       },
-      {
-        name: 'fetchResult() null query id',
-        options:
-          {
-            statementOptions: { queryId: null }
-          },
-        errorCode: ErrorCodes.ERR_CONN_FETCH_RESULT_MISSING_QUERY_ID
+      errorCode: ErrorCodes.ERR_CONN_FETCH_RESULT_MISSING_QUERY_ID,
+    },
+    {
+      name: 'fetchResult() null query id',
+      options: {
+        statementOptions: { queryId: null },
       },
-      {
-        name: 'fetchResult() invalid query id',
-        options:
-          {
-            statementOptions: { queryId: 0 }
-          },
-        errorCode: ErrorCodes.ERR_CONN_FETCH_RESULT_INVALID_QUERY_ID
+      errorCode: ErrorCodes.ERR_CONN_FETCH_RESULT_MISSING_QUERY_ID,
+    },
+    {
+      name: 'fetchResult() invalid query id',
+      options: {
+        statementOptions: { queryId: 0 },
       },
-      {
-        name: 'fetchResult() invalid complete',
-        options:
-          {
-            statementOptions:
-              {
-                queryId: '',
-                complete: 'invalid'
-              }
-          },
-        errorCode: ErrorCodes.ERR_CONN_FETCH_RESULT_INVALID_COMPLETE
+      errorCode: ErrorCodes.ERR_CONN_FETCH_RESULT_INVALID_QUERY_ID,
+    },
+    {
+      name: 'fetchResult() invalid complete',
+      options: {
+        statementOptions: {
+          queryId: '',
+          complete: 'invalid',
+        },
       },
-      {
-        name: 'fetchResult() invalid streamResult',
-        options:
-          {
-            statementOptions:
-              {
-                queryId: '',
-                streamResult: 'invalid'
-              }
-          },
-        errorCode: ErrorCodes.ERR_CONN_FETCH_RESULT_INVALID_STREAM_RESULT
+      errorCode: ErrorCodes.ERR_CONN_FETCH_RESULT_INVALID_COMPLETE,
+    },
+    {
+      name: 'fetchResult() invalid streamResult',
+      options: {
+        statementOptions: {
+          queryId: '',
+          streamResult: 'invalid',
+        },
       },
-      {
-        name: 'fetchResult() invalid fetchAsString',
-        options:
-          {
-            statementOptions:
-              {
-                queryId: '',
-                fetchAsString: 'invalid'
-              }
-          },
-        errorCode: ErrorCodes.ERR_CONN_FETCH_RESULT_INVALID_FETCH_AS_STRING
+      errorCode: ErrorCodes.ERR_CONN_FETCH_RESULT_INVALID_STREAM_RESULT,
+    },
+    {
+      name: 'fetchResult() invalid fetchAsString',
+      options: {
+        statementOptions: {
+          queryId: '',
+          fetchAsString: 'invalid',
+        },
       },
-      {
-        name: 'fetchResult() invalid fetchAsString values',
-        options:
-          {
-            statementOptions:
-              {
-                queryId: '',
-                fetchAsString: ['invalid']
-              }
-          },
-        errorCode: ErrorCodes.ERR_CONN_FETCH_RESULT_INVALID_FETCH_AS_STRING_VALUES
+      errorCode: ErrorCodes.ERR_CONN_FETCH_RESULT_INVALID_FETCH_AS_STRING,
+    },
+    {
+      name: 'fetchResult() invalid fetchAsString values',
+      options: {
+        statementOptions: {
+          queryId: '',
+          fetchAsString: ['invalid'],
+        },
       },
-      {
-        name: 'fetchResult() missing services',
-        options:
-          {
-            statementOptions: { queryId: 'foo' }
-          },
-        errorCode: ErrorCodes.ERR_INTERNAL_ASSERT_FAILED
+      errorCode: ErrorCodes.ERR_CONN_FETCH_RESULT_INVALID_FETCH_AS_STRING_VALUES,
+    },
+    {
+      name: 'fetchResult() missing services',
+      options: {
+        statementOptions: { queryId: 'foo' },
       },
-      {
-        name: 'fetchResult() missing connectionConfig',
-        options:
-          {
-            statementOptions: { queryId: 'foo' },
-            services: {},
-            connectionConfig: null
-          },
-        errorCode: ErrorCodes.ERR_INTERNAL_ASSERT_FAILED
+      errorCode: ErrorCodes.ERR_INTERNAL_ASSERT_FAILED,
+    },
+    {
+      name: 'fetchResult() missing connectionConfig',
+      options: {
+        statementOptions: { queryId: 'foo' },
+        services: {},
+        connectionConfig: null,
       },
-      {
-        name: 'fetchResult() invali row mode',
-        options:
-          {
-            statementOptions: { queryId: 'foo', rowMode: 'invalid' },
-            services: {},
-            connectionConfig: null
-          },
-        errorCode: ErrorCodes.ERR_STMT_STREAM_ROWS_INVALID_ROW_MODE
-      }
-    ];
+      errorCode: ErrorCodes.ERR_INTERNAL_ASSERT_FAILED,
+    },
+    {
+      name: 'fetchResult() invali row mode',
+      options: {
+        statementOptions: { queryId: 'foo', rowMode: 'invalid' },
+        services: {},
+        connectionConfig: null,
+      },
+      errorCode: ErrorCodes.ERR_STMT_STREAM_ROWS_INVALID_ROW_MODE,
+    },
+  ];
 
   const createItCallback = function (testCase) {
     return function () {
@@ -395,7 +349,8 @@ describe('Statement.fetchResult()', function () {
         Statement.createStatementPostExec(
           options.statementOptions,
           options.services,
-          options.connectionConfig);
+          options.connectionConfig,
+        );
       } catch (err) {
         error = err;
       } finally {
@@ -419,11 +374,11 @@ it('Statement file transfer error', async function () {
     },
     result: function () {
       throw new Error('some file transfer error');
-    }
+    },
   };
   const context = {};
   const body = {
-    'data': {},
+    data: {},
   };
   await Statement.executeFileTransferRequest(context, body, null, mockFta);
   assert.strictEqual(context.resultError.message, 'some file transfer error');

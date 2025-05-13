@@ -16,7 +16,7 @@ function generateRandomString(sizeInBytes) {
   return buffer.toString('hex').slice(0, sizeInBytes);
 }
 
-if (process.env.RUN_MANUAL_TESTS_ONLY === 'true'){
+if (process.env.RUN_MANUAL_TESTS_ONLY === 'true') {
   describe('Max LOB test', function () {
     let connection;
     // This size cannot be tested on our env. The snowflake team should test internally.
@@ -40,31 +40,31 @@ if (process.env.RUN_MANUAL_TESTS_ONLY === 'true'){
     const smallSizeTableData = {
       C1: generateRandomString(SMALL_SIZE),
       C2: generateRandomString(SMALL_SIZE),
-      C3: Math.ceil(Math.random() * 100000)
+      C3: Math.ceil(Math.random() * 100000),
     };
 
     const originSizeTableData = {
       C1: generateRandomString(ORIGIN_SIZE),
       C2: generateRandomString(ORIGIN_SIZE),
-      C3: Math.ceil(Math.random() * 100000)
+      C3: Math.ceil(Math.random() * 100000),
     };
 
     const mediumSizeTableData = {
       C1: generateRandomString(MEDIUM_SIZE),
       C2: generateRandomString(ORIGIN_SIZE),
-      C3: Math.ceil(Math.random() * 100000)
+      C3: Math.ceil(Math.random() * 100000),
     };
 
     const largeSizeTableData = {
       C1: generateRandomString(LARGE_SIZE),
       C2: generateRandomString(ORIGIN_SIZE),
-      C3: Math.ceil(Math.random() * 100000)
+      C3: Math.ceil(Math.random() * 100000),
     };
 
     const maxSizeTableData = {
       C1: generateRandomString(MAX_LOB_SIZE),
       C2: generateRandomString(ORIGIN_SIZE),
-      C3: Math.ceil(Math.random() * 100000)
+      C3: Math.ceil(Math.random() * 100000),
     };
 
     const testCases = [
@@ -72,7 +72,7 @@ if (process.env.RUN_MANUAL_TESTS_ONLY === 'true'){
       { name: 'test - insert 16MB size data', data: originSizeTableData },
       { name: 'test - insert 32MB size data', data: mediumSizeTableData },
       { name: 'test - insert 64MB size data', data: largeSizeTableData },
-      { name: 'test - insert 128MB size data', data: maxSizeTableData }
+      { name: 'test - insert 128MB size data', data: maxSizeTableData },
     ];
 
     describe('test the increased LOB memory', function () {
@@ -88,7 +88,7 @@ if (process.env.RUN_MANUAL_TESTS_ONLY === 'true'){
       });
 
       testSizes.forEach((size) => {
-        it(`test ${size} byte size data`, function (){
+        it(`test ${size} byte size data`, function () {
           testUtil.executeCmd(connection, `select randstr(${size}, 124)`, (err) => assert.ok(!err));
         });
       });
@@ -108,9 +108,19 @@ if (process.env.RUN_MANUAL_TESTS_ONLY === 'true'){
         await testUtil.destroyConnectionAsync(connection);
       });
 
-      it('test - copy to stage where size > 16MB', function (done){
-        const rowData = mediumSizeTableData.C1 + ',' + mediumSizeTableData.C2 + ',' + mediumSizeTableData.C3 + '\n';
-        const tmpFile = testUtil.createTempFile(os.tmpdir(), testUtil.createRandomFileName(), rowData);
+      it('test - copy to stage where size > 16MB', function (done) {
+        const rowData =
+          mediumSizeTableData.C1 +
+          ',' +
+          mediumSizeTableData.C2 +
+          ',' +
+          mediumSizeTableData.C3 +
+          '\n';
+        const tmpFile = testUtil.createTempFile(
+          os.tmpdir(),
+          testUtil.createRandomFileName(),
+          rowData,
+        );
 
         let putQuery = `PUT file://${tmpFile} ${stageName}`;
         // Windows user contains a '~' in the path which causes an error
@@ -119,35 +129,38 @@ if (process.env.RUN_MANUAL_TESTS_ONLY === 'true'){
           putQuery = `PUT file://${process.env.USERPROFILE}\\AppData\\Local\\Temp\\${fileName} ${stageName}`;
         }
 
-        async.series([
-          function (callback) {
-            // Upload file
-            connection.execute({
-              sqlText: putQuery,
-              complete: function (err) {
-                if (err) {
-                  callback(err);
-                } else {
-                  callback();
-                }
-              }
-            });
-          },
-          function (callback) {
-            // Copy into temp table
-            connection.execute({
-              sqlText: copyIntoTable,
-              complete: function (err, _, rows) {
-                if (err) {
-                  callback(err);
-                } else {
-                  assert.equal(rows[0].status, 'LOADED');
-                  callback();
-                }
-              }
-            });
-          }
-        ], done);
+        async.series(
+          [
+            function (callback) {
+              // Upload file
+              connection.execute({
+                sqlText: putQuery,
+                complete: function (err) {
+                  if (err) {
+                    callback(err);
+                  } else {
+                    callback();
+                  }
+                },
+              });
+            },
+            function (callback) {
+              // Copy into temp table
+              connection.execute({
+                sqlText: copyIntoTable,
+                complete: function (err, _, rows) {
+                  if (err) {
+                    callback(err);
+                  } else {
+                    assert.equal(rows[0].status, 'LOADED');
+                    callback();
+                  }
+                },
+              });
+            },
+          ],
+          done,
+        );
       });
     });
 
@@ -167,21 +180,21 @@ if (process.env.RUN_MANUAL_TESTS_ONLY === 'true'){
       });
 
       testCases.forEach(({ name, data }) => {
-        it(name, function (done){
-          async.series([
-            function (callback) {
-              testUtil.executeCmd(connection, normalInsert + `('${data.C1}','${data.C2}',${data.C3})`, callback);
-            },
-            function (callback) {
-              testUtil.executeQueryAndVerify(
-                connection,
-                selectTable,
-                [{ ...data }],
-                callback
-              );
-            },
-          ],
-          done
+        it(name, function (done) {
+          async.series(
+            [
+              function (callback) {
+                testUtil.executeCmd(
+                  connection,
+                  normalInsert + `('${data.C1}','${data.C2}',${data.C3})`,
+                  callback,
+                );
+              },
+              function (callback) {
+                testUtil.executeQueryAndVerify(connection, selectTable, [{ ...data }], callback);
+              },
+            ],
+            done,
           );
         });
       });
@@ -203,21 +216,17 @@ if (process.env.RUN_MANUAL_TESTS_ONLY === 'true'){
       });
 
       testCases.forEach(({ name, data }) => {
-        it(name, function (done){
-          async.series([
-            function (callback) {
-              testUtil.executeCmd(connection, namedBindingInsert, callback, Object.values(data));
-            },
-            function (callback) {
-              testUtil.executeQueryAndVerify(
-                connection,
-                selectTable,
-                [{ ...data }],
-                callback
-              );
-            },
-          ],
-          done
+        it(name, function (done) {
+          async.series(
+            [
+              function (callback) {
+                testUtil.executeCmd(connection, namedBindingInsert, callback, Object.values(data));
+              },
+              function (callback) {
+                testUtil.executeQueryAndVerify(connection, selectTable, [{ ...data }], callback);
+              },
+            ],
+            done,
           );
         });
       });
@@ -239,21 +248,22 @@ if (process.env.RUN_MANUAL_TESTS_ONLY === 'true'){
       });
 
       testCases.forEach(({ name, data }) => {
-        it(name, function (done){
-          async.series([
-            function (callback) {
-              testUtil.executeCmd(connection, positionalBindingInsert, callback, Object.values(data));
-            },
-            function (callback) {
-              testUtil.executeQueryAndVerify(
-                connection,
-                selectTable,
-                [{ ...data }],
-                callback
-              );
-            },
-          ],
-          done
+        it(name, function (done) {
+          async.series(
+            [
+              function (callback) {
+                testUtil.executeCmd(
+                  connection,
+                  positionalBindingInsert,
+                  callback,
+                  Object.values(data),
+                );
+              },
+              function (callback) {
+                testUtil.executeQueryAndVerify(connection, selectTable, [{ ...data }], callback);
+              },
+            ],
+            done,
           );
         });
       });
@@ -278,21 +288,22 @@ if (process.env.RUN_MANUAL_TESTS_ONLY === 'true'){
       });
 
       testCases.forEach(({ name, data }) => {
-        it(name, function (done){
-          async.series([
-            function (callback) {
-              testUtil.executeCmd(connection, positionalBindingInsert, callback, Object.values(data));
-            },
-            function (callback) {
-              testUtil.executeQueryAndVerify(
-                connection,
-                selectTable,
-                [{ ...data }],
-                callback
-              );
-            },
-          ],
-          done
+        it(name, function (done) {
+          async.series(
+            [
+              function (callback) {
+                testUtil.executeCmd(
+                  connection,
+                  positionalBindingInsert,
+                  callback,
+                  Object.values(data),
+                );
+              },
+              function (callback) {
+                testUtil.executeQueryAndVerify(connection, selectTable, [{ ...data }], callback);
+              },
+            ],
+            done,
           );
         });
       });
@@ -302,19 +313,32 @@ if (process.env.RUN_MANUAL_TESTS_ONLY === 'true'){
       before(async () => {
         connection = testUtil.createConnection();
         await testUtil.connectAsync(connection);
-        await testUtil.executeCmdAsync(connection, 'alter session set FEATURE_INCREASED_MAX_LOB_SIZE_IN_MEMORY=\'ENABLED\'');
+        await testUtil.executeCmdAsync(
+          connection,
+          "alter session set FEATURE_INCREASED_MAX_LOB_SIZE_IN_MEMORY='ENABLED'",
+        );
       });
 
       after(async () => {
-        await testUtil.executeCmdAsync(connection, 'alter session unset FEATURE_INCREASED_MAX_LOB_SIZE_IN_MEMORY');
-        await testUtil.executeCmdAsync(connection, 'alter session unset ENABLE_LARGE_VARCHAR_AND_BINARY_IN_RESULT');
+        await testUtil.executeCmdAsync(
+          connection,
+          'alter session unset FEATURE_INCREASED_MAX_LOB_SIZE_IN_MEMORY',
+        );
+        await testUtil.executeCmdAsync(
+          connection,
+          'alter session unset ENABLE_LARGE_VARCHAR_AND_BINARY_IN_RESULT',
+        );
         await testUtil.destroyConnectionAsync(connection);
       });
 
       it('switching parameters should affect response when selecting 20MB string', async function () {
         await async.series([
           function (callback) {
-            testUtil.executeCmd(connection, 'alter session set ENABLE_LARGE_VARCHAR_AND_BINARY_IN_RESULT=false', callback);
+            testUtil.executeCmd(
+              connection,
+              'alter session set ENABLE_LARGE_VARCHAR_AND_BINARY_IN_RESULT=false',
+              callback,
+            );
           },
           function (callback) {
             connection.execute({
@@ -322,11 +346,15 @@ if (process.env.RUN_MANUAL_TESTS_ONLY === 'true'){
               complete: function (err) {
                 assert.match(err.message, /^.*exceeds supported length.*$/);
                 callback();
-              }
+              },
             });
           },
           function (callback) {
-            testUtil.executeCmd(connection, 'alter session set ENABLE_LARGE_VARCHAR_AND_BINARY_IN_RESULT=true', callback);
+            testUtil.executeCmd(
+              connection,
+              'alter session set ENABLE_LARGE_VARCHAR_AND_BINARY_IN_RESULT=true',
+              callback,
+            );
           },
           function (callback) {
             connection.execute({
@@ -334,7 +362,7 @@ if (process.env.RUN_MANUAL_TESTS_ONLY === 'true'){
               complete: function (err) {
                 assert.equal(err, null);
                 callback();
-              }
+              },
             });
           },
         ]);
@@ -342,4 +370,3 @@ if (process.env.RUN_MANUAL_TESTS_ONLY === 'true'){
     });
   });
 }
-

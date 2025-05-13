@@ -39,45 +39,43 @@ if (snowflakeTestProxyPort === undefined) {
   snowflakeTestProxyPort = '3128';
 }
 
-const accessUrl = snowflakeTestProtocol + '://' + snowflakeTestHost + ':' +
-  snowflakeTestPort;
+const accessUrl = snowflakeTestProtocol + '://' + snowflakeTestHost + ':' + snowflakeTestPort;
 
-const valid =
-  {
-    accessUrl: accessUrl,
-    username: snowflakeTestUser,
-    password: snowflakeTestPassword,
-    account: snowflakeTestAccount,
-    warehouse: snowflakeTestWarehouse,
-    database: snowflakeTestDatabase,
-    schema: snowflakeTestSchema,
-    role: snowflakeTestRole,
-    host: snowflakeTestHost,
-  };
+const valid = {
+  accessUrl: accessUrl,
+  username: snowflakeTestUser,
+  password: snowflakeTestPassword,
+  account: snowflakeTestAccount,
+  warehouse: snowflakeTestWarehouse,
+  database: snowflakeTestDatabase,
+  schema: snowflakeTestSchema,
+  role: snowflakeTestRole,
+  host: snowflakeTestHost,
+};
 
-const snowflakeAccount = snowflakeTestAdminUser !== undefined ?
-  {
-    accessUrl: accessUrl,
-    username: snowflakeTestAdminUser,
-    password: snowflakeTestAdminPassword,
-    account: 'snowflake'
-  } : undefined;
+const snowflakeAccount =
+  snowflakeTestAdminUser !== undefined
+    ? {
+        accessUrl: accessUrl,
+        username: snowflakeTestAdminUser,
+        password: snowflakeTestAdminPassword,
+        account: 'snowflake',
+      }
+    : undefined;
 
-const wrongUserName =
-  {
-    accessUrl: accessUrl,
-    username: snowflakeTestUser,
-    password: 'testWrongPass',
-    account: snowflakeTestAccount
-  };
+const wrongUserName = {
+  accessUrl: accessUrl,
+  username: snowflakeTestUser,
+  password: 'testWrongPass',
+  account: snowflakeTestAccount,
+};
 
-const wrongPwd =
-  {
-    accessUrl: accessUrl,
-    username: snowflakeTestUser,
-    password: '',
-    account: snowflakeTestAccount
-  };
+const wrongPwd = {
+  accessUrl: accessUrl,
+  username: snowflakeTestUser,
+  password: '',
+  account: snowflakeTestAccount,
+};
 
 const MFA = {
   ...valid,
@@ -119,30 +117,28 @@ const clientCredentialSnowflake = {
   oauthClientSecret: snowflakeOauthClientSecret,
   oauthTokenRequestUrl: oauthTokenRequestUrl,
   authenticator: 'OAUTH_CLIENT_CREDENTIALS',
-  enableExperimentalAuthentication: true
+  enableExperimentalAuthentication: true,
 };
 
-const privatelink =
-{
+const privatelink = {
   accessUrl: accessUrl,
   username: snowflakeTestUser,
   password: snowflakeTestPassword,
-  account: snowflakeTestAccount + '.privatelink'
+  account: snowflakeTestAccount + '.privatelink',
 };
 
-const connectionWithProxy =
-  {
-    accessUrl: accessUrl,
-    username: snowflakeTestUser,
-    password: snowflakeTestPassword,
-    account: snowflakeTestAccount,
-    warehouse: snowflakeTestWarehouse,
-    database: snowflakeTestDatabase,
-    schema: snowflakeTestSchema,
-    role: snowflakeTestRole,
-    proxyHost: snowflakeTestProxyHost,
-    proxyPort: parseInt(snowflakeTestProxyPort, 10)
-  };
+const connectionWithProxy = {
+  accessUrl: accessUrl,
+  username: snowflakeTestUser,
+  password: snowflakeTestPassword,
+  account: snowflakeTestAccount,
+  warehouse: snowflakeTestWarehouse,
+  database: snowflakeTestDatabase,
+  schema: snowflakeTestSchema,
+  role: snowflakeTestRole,
+  proxyHost: snowflakeTestProxyHost,
+  proxyPort: parseInt(snowflakeTestProxyPort, 10),
+};
 
 exports.valid = valid;
 exports.snowflakeAccount = snowflakeAccount;

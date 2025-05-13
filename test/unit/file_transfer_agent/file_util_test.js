@@ -3,11 +3,13 @@ const testUtil = require('../../integration/testUtil');
 const os = require('os');
 const fsPromises = require('fs').promises;
 const crypto = require('crypto');
-const { getMatchingFilePaths, isFileNotWritableByGroupOrOthers,
-  validateOnlyUserReadWritePermissionAndOwner, isFileModeCorrect
+const {
+  getMatchingFilePaths,
+  isFileNotWritableByGroupOrOthers,
+  validateOnlyUserReadWritePermissionAndOwner,
+  isFileModeCorrect,
 } = require('../../../lib/file_util');
 const path = require('path');
-
 
 describe('matching files by wildcard', function () {
   const randomName = crypto.randomUUID();
@@ -47,7 +49,6 @@ describe('matching files by wildcard', function () {
     const matched = getMatchingFilePaths(os.tmpdir(), `${randomName}matched` + '*.gz');
     assert.strictEqual(matched.length, excpetedNomberOfMatchedFiles);
   });
-
 });
 
 if (os.platform() !== 'win32') {
@@ -55,7 +56,10 @@ if (os.platform() !== 'win32') {
     let testFilePath;
 
     before(async function () {
-      testFilePath = await testUtil.createTempFileAsync(os.tmpdir(), testUtil.createRandomFileName());
+      testFilePath = await testUtil.createTempFileAsync(
+        os.tmpdir(),
+        testUtil.createRandomFileName(),
+      );
     });
 
     after(async function () {
@@ -65,39 +69,39 @@ if (os.platform() !== 'win32') {
     [
       {
         permission: '600',
-        expectedResult: true
+        expectedResult: true,
       },
       {
         permission: '100600',
-        expectedResult: true
+        expectedResult: true,
       },
       {
         permission: '700',
-        expectedResult: false
+        expectedResult: false,
       },
       {
         permission: '640',
-        expectedResult: false
+        expectedResult: false,
       },
       {
         permission: '100777',
-        expectedResult: false
+        expectedResult: false,
       },
       {
         permission: '444',
-        expectedResult: false
+        expectedResult: false,
       },
       {
         permission: '12477',
-        expectedResult: false
-      }
+        expectedResult: false,
+      },
     ].forEach(({ permission, expectedResult }) => {
       it(`verify permission ${permission}`, async function () {
         await fsPromises.chmod(testFilePath, permission);
         if (!expectedResult) {
-          assert.rejects( () =>  validateOnlyUserReadWritePermissionAndOwner(testFilePath));
+          assert.rejects(() => validateOnlyUserReadWritePermissionAndOwner(testFilePath));
         } else {
-          assert.doesNotReject( () =>  validateOnlyUserReadWritePermissionAndOwner(testFilePath));
+          assert.doesNotReject(() => validateOnlyUserReadWritePermissionAndOwner(testFilePath));
         }
       });
     });
@@ -142,11 +146,14 @@ if (os.platform() !== 'win32') {
       { filePerm: 0o720, isValid: false },
       { filePerm: 0o710, isValid: true },
     ].forEach(async function ({ filePerm, isValid }) {
-      it('File with permission: ' + filePerm.toString(8) + ' should be valid=' + isValid, async function () {
-        const filePath = path.join(tempDir, `file_${filePerm.toString()}`);
-        await writeFile(filePath, filePerm);
-        assert.strictEqual(await isFileNotWritableByGroupOrOthers(filePath, fsPromises), isValid);
-      });
+      it(
+        'File with permission: ' + filePerm.toString(8) + ' should be valid=' + isValid,
+        async function () {
+          const filePath = path.join(tempDir, `file_${filePerm.toString()}`);
+          await writeFile(filePath, filePerm);
+          assert.strictEqual(await isFileNotWritableByGroupOrOthers(filePath, fsPromises), isValid);
+        },
+      );
     });
 
     async function writeFile(filePath, mode) {
@@ -174,23 +181,38 @@ if (os.platform() !== 'win32') {
       { dirPerm: 0o700, expectedPerm: 0o700, isCorrect: true },
       { dirPerm: 0o755, expectedPerm: 0o600, isCorrect: false },
     ].forEach(async function ({ dirPerm, expectedPerm, isCorrect }) {
-      it('Should return ' + isCorrect + ' when directory permission ' + dirPerm.toString(8) + ' is compared to ' + expectedPerm.toString(8), async function () {
-        const dirPath = path.join(tempDir, `dir_${dirPerm.toString(8)}`);
-        await fsPromises.mkdir(dirPath, { mode: dirPerm });
-        assert.strictEqual(await isFileModeCorrect(dirPath, expectedPerm, fsPromises), isCorrect);
-      });
+      it(
+        'Should return ' +
+          isCorrect +
+          ' when directory permission ' +
+          dirPerm.toString(8) +
+          ' is compared to ' +
+          expectedPerm.toString(8),
+        async function () {
+          const dirPath = path.join(tempDir, `dir_${dirPerm.toString(8)}`);
+          await fsPromises.mkdir(dirPath, { mode: dirPerm });
+          assert.strictEqual(await isFileModeCorrect(dirPath, expectedPerm, fsPromises), isCorrect);
+        },
+      );
     });
 
     [
       { filePerm: 0o700, expectedPerm: 0o700, isCorrect: true },
       { filePerm: 0o755, expectedPerm: 0o600, isCorrect: false },
     ].forEach(async function ({ filePerm, expectedPerm, isCorrect }) {
-      it('Should return ' + isCorrect + ' when file permission ' + filePerm.toString(8) + ' is compared to ' + expectedPerm.toString(8), async function () {
-        const dirPath = path.join(tempDir, `file_${filePerm.toString(8)}`);
-        await fsPromises.appendFile(dirPath, '', { mode: filePerm });
-        assert.strictEqual(await isFileModeCorrect(dirPath, expectedPerm, fsPromises), isCorrect);
-      });
+      it(
+        'Should return ' +
+          isCorrect +
+          ' when file permission ' +
+          filePerm.toString(8) +
+          ' is compared to ' +
+          expectedPerm.toString(8),
+        async function () {
+          const dirPath = path.join(tempDir, `file_${filePerm.toString(8)}`);
+          await fsPromises.appendFile(dirPath, '', { mode: filePerm });
+          assert.strictEqual(await isFileModeCorrect(dirPath, expectedPerm, fsPromises), isCorrect);
+        },
+      );
     });
   });
 }
-

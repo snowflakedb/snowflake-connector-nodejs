@@ -1,7 +1,5 @@
 ---
-
 Node.js Driver - Samples
-
 ---
 
 # Install

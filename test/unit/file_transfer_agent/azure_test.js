@@ -51,16 +51,14 @@ describe('Azure client', function () {
   before(function () {
     sinonSandbox = sinon.createSandbox();
     sinonSandbox.stub(AZURE, 'BlobServiceClient').returns({
-      getContainerClient: () => {
-        return {
-          getBlobClient: () => ({
-            getProperties: getPropertiesStub
-          }),
-          getBlockBlobClient: () => ({
-            upload: uploadStub
-          })
-        };
-      }
+      getContainerClient: () => ({
+        getBlobClient: () => ({
+          getProperties: getPropertiesStub
+        }),
+        getBlockBlobClient: () => ({
+          upload: uploadStub
+        })
+      })
     });
     sinonSandbox.stub(fs, 'readFileSync').returnsArg(0);
     Azure = new SnowflakeAzureUtil(noProxyConnectionConfig);

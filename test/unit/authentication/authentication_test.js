@@ -427,7 +427,7 @@ describe('okta authentication', function () {
         };
         return json;
       }
-    }
+    };
   });
 
   it('okta - authenticate method is thenable', done => {
@@ -511,7 +511,7 @@ describe('okta authentication', function () {
         }
         return json;
       }
-    }
+    };
     const auth = new AuthOkta(connectionOptionsOkta, httpclient);
 
     try {
@@ -553,7 +553,7 @@ describe('okta authentication', function () {
         };
         return json;
       }
-    }
+    };
     const auth = new AuthOkta(connectionOptionsOkta, httpclient);
 
     try {

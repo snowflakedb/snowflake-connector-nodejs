@@ -252,6 +252,8 @@ describe('external browser authentication', function () {
 });
 
 describe('key-pair authentication', function () {
+  let sinonSandbox;
+
   const mockToken = 'mockToken';
   const mockPrivateKeyFile = 'mockPrivateKeyFile';
   const mockPublicKeyObj = 'mockPublicKeyObj';
@@ -265,21 +267,21 @@ describe('key-pair authentication', function () {
       }
       return {
         export: () =>  connectionOptionsKeyPair.getPrivateKey()
-      }
+      };
     });
     sinonSandbox.stub(crypto, 'createPublicKey').callsFake((options) => {
       assert.strictEqual(options.key, connectionOptionsKeyPair.getPrivateKey());
       return {
         export: () => mockPublicKeyObj
-      }
+      };
     });
     sinonSandbox.stub(crypto, 'createHash').callsFake(() => {
       return {
         update: (publicKeyObj) => {
           assert.strictEqual(publicKeyObj, mockPublicKeyObj);
-          return { digest: () => {} }
+          return { digest: () => {} };
         }
-      }
+      };
     });
     sinonSandbox.stub(jsonwebtoken, 'sign').callsFake(() => mockToken);
     sinonSandbox.stub(fs, 'readFileSync').callsFake(() => mockPrivateKeyFile);
@@ -287,7 +289,7 @@ describe('key-pair authentication', function () {
 
   after(() => {
     sinonSandbox.restore();
-  })
+  });
 
   it('key-pair - authenticate method is thenable', done => {
     const auth = new AuthKeypair(connectionOptionsKeyPair);

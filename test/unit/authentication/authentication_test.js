@@ -1,6 +1,10 @@
 const assert = require('assert');
 const mock = require('mock-require');
 const net = require('net');
+const crypto = require('crypto');
+const jsonwebtoken = require('jsonwebtoken');
+const fs = require('fs');
+const sinon = require('sinon');
 
 const authenticator = require('./../../../lib/authentication/authentication');
 const AuthDefault = require('./../../../lib/authentication/auth_default');
@@ -248,84 +252,52 @@ describe('external browser authentication', function () {
 });
 
 describe('key-pair authentication', function () {
-  let cryptomod;
-  let jwtmod;
-  let filesystem;
-
   const mockToken = 'mockToken';
   const mockPrivateKeyFile = 'mockPrivateKeyFile';
   const mockPublicKeyObj = 'mockPublicKeyObj';
 
   before(function () {
-    mock('cryptomod', {
-      createPrivateKey: function (options) {
-        assert.strictEqual(options.key, mockPrivateKeyFile);
-
-        if (options.passphrase) {
-          assert.strictEqual(options.passphrase, connectionOptionsKeyPairPath.getPrivateKeyPass());
-        }
-
-        function privKeyObject() {
-          this.export = function () {
-            return connectionOptionsKeyPair.getPrivateKey();
-          };
-        }
-
-        return new privKeyObject;
-      },
-      createPublicKey: function (options) {
-        assert.strictEqual(options.key, connectionOptionsKeyPair.getPrivateKey());
-
-        function pubKeyObject() {
-          this.export = function () {
-            return mockPublicKeyObj;
-          };
-        }
-
-        return new pubKeyObject;
-      },
-      createHash: function () {
-        function createHash() {
-          this.update = function (publicKeyObj) {
-            function update() {
-              assert.strictEqual(publicKeyObj, mockPublicKeyObj);
-              this.digest = function () {};
-            }
-            return new update;
-          };
-        }
-        return new createHash;
+    sinonSandbox = sinon.createSandbox();
+    sinonSandbox.stub(crypto, 'createPrivateKey').callsFake((options) => {
+      assert.strictEqual(options.key, mockPrivateKeyFile);
+      if (options.passphrase) {
+        assert.strictEqual(options.passphrase, connectionOptionsKeyPairPath.getPrivateKeyPass());
+      }
+      return {
+        export: () =>  connectionOptionsKeyPair.getPrivateKey()
       }
     });
-    mock('jwtmod', {
-      sign: function () {
-        return mockToken;
+    sinonSandbox.stub(crypto, 'createPublicKey').callsFake((options) => {
+      assert.strictEqual(options.key, connectionOptionsKeyPair.getPrivateKey());
+      return {
+        export: () => mockPublicKeyObj
       }
     });
-    mock('filesystem', {
-      readFileSync: function () {
-        return mockPrivateKeyFile;
+    sinonSandbox.stub(crypto, 'createHash').callsFake(() => {
+      return {
+        update: (publicKeyObj) => {
+          assert.strictEqual(publicKeyObj, mockPublicKeyObj);
+          return { digest: () => {} }
+        }
       }
     });
-
-    cryptomod = require('cryptomod');
-    jwtmod = require('jwtmod');
-    filesystem = require('filesystem');
+    sinonSandbox.stub(jsonwebtoken, 'sign').callsFake(() => mockToken);
+    sinonSandbox.stub(fs, 'readFileSync').callsFake(() => mockPrivateKeyFile);
   });
 
-  it('key-pair - authenticate method is thenable', done => {
-    const auth = new AuthKeypair(connectionOptionsKeyPair,
-      cryptomod, jwtmod, filesystem);
+  after(() => {
+    sinonSandbox.restore();
+  })
 
+  it('key-pair - authenticate method is thenable', done => {
+    const auth = new AuthKeypair(connectionOptionsKeyPair);
     auth.authenticate(connectionOptionsKeyPair.authenticator, '', connectionOptionsKeyPair.account, connectionOptionsKeyPair.username)
       .then(done)
       .catch(done);
   });
 
   it('key-pair - get token with private key', function () {
-    const auth = new AuthKeypair(connectionOptionsKeyPair,
-      cryptomod, jwtmod, filesystem);
-
+    const auth = new AuthKeypair(connectionOptionsKeyPair);
     auth.authenticate(connectionOptionsKeyPair.authenticator, '', connectionOptionsKeyPair.account, connectionOptionsKeyPair.username);
 
     const body = { data: {} };
@@ -336,8 +308,7 @@ describe('key-pair authentication', function () {
   });
 
   it('key-pair - get token with private key by reauthentication', async function () {
-    const auth = new AuthKeypair(connectionOptionsKeyPair,
-      cryptomod, jwtmod, filesystem);
+    const auth = new AuthKeypair(connectionOptionsKeyPair);
 
     const body = { data: { 'TOKEN': 'wrongToken' } };
     await auth.reauthenticate(body);
@@ -347,8 +318,7 @@ describe('key-pair authentication', function () {
   });
 
   it('key-pair - get token with private key path with passphrase', function () {
-    const auth = new AuthKeypair(connectionOptionsKeyPairPath,
-      cryptomod, jwtmod, filesystem);
+    const auth = new AuthKeypair(connectionOptionsKeyPairPath);
 
     auth.authenticate(connectionOptionsKeyPairPath.authenticator, '',
       connectionOptionsKeyPairPath.account,
@@ -362,8 +332,7 @@ describe('key-pair authentication', function () {
   });
 
   it('key-pair - get token with private key path without passphrase', function () {
-    const auth = new AuthKeypair(connectionOptionsKeyPairPath,
-      cryptomod, jwtmod, filesystem);
+    const auth = new AuthKeypair(connectionOptionsKeyPairPath);
 
     auth.authenticate(connectionOptionsKeyPairPath.authenticator, '',
       connectionOptionsKeyPairPath.account,
@@ -486,10 +455,10 @@ describe('okta authentication', function () {
   it('okta - reauthenticate', async function () {
     const auth = authenticator.getAuthenticator(connectionOptionsOkta, httpclient);
     await auth.authenticate(connectionOptionsOkta.authenticator, '', connectionOptionsOkta.account, connectionOptionsOkta.username);
-    const body = { 
+    const body = {
       data: {
         RAW_SAML_RESPONSE: 'WRONG SAML'
-      } 
+      }
     };
 
     auth.reauthenticate(body, {
@@ -504,7 +473,7 @@ describe('okta authentication', function () {
   it('okta - reauthentication timeout error', async function () {
     const auth = authenticator.getAuthenticator(connectionOptionsOkta, httpclient);
     await auth.authenticate(connectionOptionsOkta.authenticator, '', connectionOptionsOkta.account, connectionOptionsOkta.username);
-    
+
     try {
       await auth.reauthenticate({ data: { RAW_SAML_RESPONSE: 'token' } }, { numRetries: 5, totalElapsedTime: 350 });
       assert.fail();
@@ -516,7 +485,7 @@ describe('okta authentication', function () {
   it('okta - reauthentication max retry error', async function () {
     const auth = authenticator.getAuthenticator(connectionOptionsOkta, httpclient);
     await auth.authenticate(connectionOptionsOkta.authenticator, '', connectionOptionsOkta.account, connectionOptionsOkta.username);
-    
+
     try {
       await auth.reauthenticate({ data: { RAW_SAML_RESPONSE: 'token' } }, { numRetries: 9, totalElapsedTime: 280 });
       assert.fail();

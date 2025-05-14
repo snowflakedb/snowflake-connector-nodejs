@@ -275,16 +275,14 @@ describe('key-pair authentication', function () {
         export: () => mockPublicKeyObj
       };
     });
-    sinonSandbox.stub(crypto, 'createHash').callsFake(() => {
-      return {
-        update: (publicKeyObj) => {
-          assert.strictEqual(publicKeyObj, mockPublicKeyObj);
-          return { digest: () => {} };
-        }
-      };
+    sinonSandbox.stub(crypto, 'createHash').returns({
+      update: (publicKeyObj) => {
+        assert.strictEqual(publicKeyObj, mockPublicKeyObj);
+        return { digest: () => {} };
+      }
     });
-    sinonSandbox.stub(jsonwebtoken, 'sign').callsFake(() => mockToken);
-    sinonSandbox.stub(fs, 'readFileSync').callsFake(() => mockPrivateKeyFile);
+    sinonSandbox.stub(jsonwebtoken, 'sign').returns(mockToken);
+    sinonSandbox.stub(fs, 'readFileSync').returns(mockPrivateKeyFile);
   });
 
   after(() => {
@@ -399,7 +397,7 @@ describe('okta authentication', function () {
   const mockSamlResponse = '<form action="https://' + connectionOptionsOkta.account + '.snowflakecomputing.com/fed/login">';
 
   before(function () {
-    mock('httpclient', {
+    httpclient = {
       post: async function (url) {
         let json;
         if (url.startsWith('https://' + connectionOptionsOkta.account)) {
@@ -429,9 +427,7 @@ describe('okta authentication', function () {
         };
         return json;
       }
-    });
-
-    httpclient = require('httpclient');
+    }
   });
 
   it('okta - authenticate method is thenable', done => {
@@ -497,7 +493,7 @@ describe('okta authentication', function () {
   });
 
   it('okta - SAML response fail prefix', async function () {
-    mock('httpclient', {
+    httpclient = {
       post: async function (url) {
         let json;
         if (url.startsWith('https://' + connectionOptionsOkta.account)) {
@@ -515,10 +511,7 @@ describe('okta authentication', function () {
         }
         return json;
       }
-    });
-
-    httpclient = require('httpclient');
-
+    }
     const auth = new AuthOkta(connectionOptionsOkta, httpclient);
 
     try {
@@ -529,7 +522,7 @@ describe('okta authentication', function () {
   });
 
   it('okta - SAML response fail postback', async function () {
-    mock('httpclient', {
+    httpclient = {
       post: async function (url) {
         let json;
         if (url.startsWith('https://' + connectionOptionsOkta.account)) {
@@ -560,10 +553,7 @@ describe('okta authentication', function () {
         };
         return json;
       }
-    });
-
-    httpclient = require('httpclient');
-
+    }
     const auth = new AuthOkta(connectionOptionsOkta, httpclient);
 
     try {

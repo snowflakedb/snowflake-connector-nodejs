@@ -26,7 +26,6 @@ describe('GCS client', function () {
   let GCS;
   let sinonSandbox;
   let httpClient;
-  let fileStream;
   const dataFile = mockDataFile;
   let meta;
   const encryptionMetadata = {
@@ -53,7 +52,7 @@ describe('GCS client', function () {
       put: async () => {},
       get: async () => {},
       head: async () => ({ headers: '' }),
-    }
+    };
     GCS = new SnowflakeGCSUtil(connectionConfig, httpClient);
   });
 
@@ -230,7 +229,7 @@ describe('GCS client', function () {
       const err = new Error();
       err.response = { status: 401 };
       throw err;
-    }
+    };
     const GCS = new SnowflakeGCSUtil(connectionConfig, httpClient);
 
     await GCS.getFileHeader(meta, dataFile);
@@ -242,7 +241,7 @@ describe('GCS client', function () {
       const err = new Error();
       err.response = { status: 403 };
       throw err;
-    }
+    };
     const GCS = new SnowflakeGCSUtil(connectionConfig, httpClient);
 
     meta.presignedUrl = '';
@@ -256,7 +255,7 @@ describe('GCS client', function () {
       const err = new Error();
       err.response = { status: 404 };
       throw err;
-    }
+    };
     const GCS = new SnowflakeGCSUtil(connectionConfig, httpClient);
 
     meta.presignedUrl = '';
@@ -270,7 +269,7 @@ describe('GCS client', function () {
       const err = new Error();
       err.response = { status: 401 };
       throw err;
-    }
+    };
     const GCS = new SnowflakeGCSUtil(connectionConfig, httpClient);
 
     meta.presignedUrl = '';
@@ -306,7 +305,7 @@ describe('GCS client', function () {
       const err = new Error();
       err.code = 403;
       throw err;
-    }
+    };
     const GCS = new SnowflakeGCSUtil(connectionConfig, httpClient);
 
     await GCS.uploadFile(dataFile, meta, encryptionMetadata);
@@ -318,7 +317,7 @@ describe('GCS client', function () {
       const err = new Error();
       err.code = 400;
       throw err;
-    }
+    };
     const GCS = new SnowflakeGCSUtil(connectionConfig, httpClient);
 
     meta.client = '';
@@ -333,7 +332,7 @@ describe('GCS client', function () {
       const err = new Error();
       err.code = 401;
       throw err;
-    }
+    };
     const gcsClient = {
       bucket: () => ({
         file: () => ({
@@ -344,7 +343,7 @@ describe('GCS client', function () {
           }
         })
       })
-    }
+    };
     const GCS = new SnowflakeGCSUtil(connectionConfig, httpClient);
 
     meta.presignedUrl = '';

@@ -1,5 +1,4 @@
 const assert = require('assert');
-const mock = require('mock-require');
 const net = require('net');
 const crypto = require('crypto');
 const jsonwebtoken = require('jsonwebtoken');
@@ -107,7 +106,6 @@ describe('default authentication', function () {
 });
 
 describe('external browser authentication', function () {
-  let webbrowser;
   let browserRedirectPort;
   let httpclient;
 
@@ -125,39 +123,40 @@ describe('external browser authentication', function () {
     getDisableConsoleLogin: () => true,
     host: 'fakehost'
   };
+  const browserOpenCallback = () => {
+    const client = net.createConnection({ port: browserRedirectPort }, () => {
+      client.write(`GET /?token=${mockToken} HTTP/1.1\r\n`);
+    });
+  };
+  const httpResponseStub = sinon.stub();
 
   before(function () {
-    mock('webbrowser', {
-      open: function () {
-        const client = net.createConnection({ port: browserRedirectPort }, () => {
-          client.write(`GET /?token=${mockToken} HTTP/1.1\r\n`);
-        });
-        return;
-      }
-    });
-    mock('httpclient', {
+    httpclient = {
       requestAsync: async function (options) {
-        const data =
-          {
-            data: {
-              data:
-                {
-                  ssoUrl: mockSsoURL,
-                  proofKey: mockProofKey
-                }
-            }
-          };
+        const response = {
+          data: {
+            data: httpResponseStub()
+          }
+        };
         browserRedirectPort = options.data['data']['BROWSER_MODE_REDIRECT_PORT'];
-        return data;
+        return response;
       }
-    });
+    };
+  });
 
-    webbrowser = require('webbrowser');
-    httpclient = require('httpclient');
+  beforeEach(() => {
+    httpResponseStub.returns({
+      ssoUrl: mockSsoURL,
+      proofKey: mockProofKey
+    });
+  });
+
+  afterEach(() => {
+    httpResponseStub.reset();
   });
 
   it('external browser - authenticate method is thenable', done => {
-    const auth = new AuthWeb(connectionConfig, httpclient, webbrowser.open);
+    const auth = new AuthWeb(connectionConfig, httpclient, browserOpenCallback);
 
     auth.authenticate(credentials.authenticator, '', credentials.account, credentials.username)
       .then(done)
@@ -165,7 +164,7 @@ describe('external browser authentication', function () {
   });
 
   it('external browser - get success', async function () {
-    const auth = new AuthWeb(connectionConfig, httpclient, webbrowser.open);
+    const auth = new AuthWeb(connectionConfig, httpclient, browserOpenCallback);
     await auth.authenticate(credentials.authenticator, '', credentials.account, credentials.username);
 
     const body = { data: {} };
@@ -176,31 +175,7 @@ describe('external browser authentication', function () {
   });
 
   it('external browser - get fail', async function () {
-    mock('webbrowser', {
-      open: function () {
-        return;
-      }
-    });
-
-    mock('httpclient', {
-      requestAsync: async function (options) {
-        const data =
-          {
-            data: {
-              data:
-                {
-                  ssoUrl: mockSsoURL
-                }
-            }
-          };
-        browserRedirectPort = options.data['data']['BROWSER_MODE_REDIRECT_PORT'];
-        return data;
-      }
-    });
-
-    webbrowser = require('webbrowser');
-    httpclient = require('httpclient');
-
+    httpResponseStub.returns({ ssoUrl: mockSsoURL });
     const fastFailConnectionConfig = {
       getBrowserActionTimeout: () => 10,
       getProxy: () => {},
@@ -210,7 +185,7 @@ describe('external browser authentication', function () {
       host: 'fakehost'
     };
 
-    const auth = new AuthWeb(fastFailConnectionConfig, httpclient, webbrowser.open);
+    const auth = new AuthWeb(fastFailConnectionConfig, httpclient, () => null);
     await assert.rejects(async () => {
       await auth.authenticate(credentials.authenticator, '', credentials.account, credentials.username);
     }, {
@@ -240,7 +215,7 @@ describe('external browser authentication', function () {
   });
 
   it('external browser - id token, webbrowser cb provided', async function () {
-    const auth = new AuthIDToken(connectionOptionsIdToken, httpclient, webbrowser.open);
+    const auth = new AuthIDToken(connectionOptionsIdToken, httpclient, browserOpenCallback);
     await auth.authenticate(credentials.authenticator, '', credentials.account, credentials.username, credentials.host);
 
     const body = { data: {} };

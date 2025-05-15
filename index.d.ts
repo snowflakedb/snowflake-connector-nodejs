@@ -302,6 +302,11 @@ declare module 'snowflake-sdk' {
         browserActionTimeout?: number;
 
         /**
+         * Customize implementation for opening the browser window used for SSO authentication. By default, the npm `open` package is used.
+         */
+        openExternalBrowserCallback?: (url: string) => void;
+
+        /**
          * Specifies the lists of hosts that the driver should connect to directly, bypassing the proxy server (e.g. *.amazonaws.com to bypass Amazon S3 access). For multiple hosts, separate the hostnames with a pipe symbol (|).
          * You can also use an asterisk as a wild card. For example: noProxy: "*.amazonaws.com|*.my_company.com"
          */
@@ -333,7 +338,7 @@ declare module 'snowflake-sdk' {
         proxyProtocol?: string;
 
         /**
-         * Specifies whether the OCSP request is also sent to the proxy specified. 
+         * Specifies whether the OCSP request is also sent to the proxy specified.
          */
         useConnectionConfigProxyForOCSP?: boolean;
 

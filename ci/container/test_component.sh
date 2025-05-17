@@ -91,8 +91,6 @@ else
     )
 fi
 
-ls -l
-
 if [[ -z "$GITHUB_ACTIONS" ]]; then
     echo "[INFO] Running Internal Tests. Test result: $WORKSPACE/junit-system-test.xml"
     if ! ${MOCHA_CMD[@]} "$SOURCE_ROOT/system_test/**/*"; then

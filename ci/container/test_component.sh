@@ -95,7 +95,7 @@ ls -l
 
 if [[ -z "$GITHUB_ACTIONS" ]]; then
     echo "[INFO] Running Internal Tests. Test result: $WORKSPACE/junit-system-test.xml"
-    if ! ${MOCHA_CMD[@]} "$SOURCE_ROOT/system_test"; then
+    if ! ${MOCHA_CMD[@]} "$SOURCE_ROOT/system_test/**/*"; then
         echo "[ERROR] Test failed"
         [[ -f "$WORKSPACE/junit.xml" ]] && cat $WORKSPACE/junit.xml
         exit 1
@@ -105,7 +105,7 @@ if [[ -z "$GITHUB_ACTIONS" ]]; then
 fi
 
 echo "[INFO] Running Tests: Test result: $WORKSPACE/junit.xml"
-if ! ${MOCHA_CMD[@]} "$SOURCE_ROOT/test/{unit,integration}"; then
+if ! ${MOCHA_CMD[@]} "$SOURCE_ROOT/test/{unit,integration}/**/*"; then
     echo "[ERROR] Test failed"
     [[ -f "$WORKSPACE/junit.xml" ]] && cat $WORKSPACE/junit.xml
     exit 1

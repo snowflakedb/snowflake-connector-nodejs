@@ -64,7 +64,7 @@
   "typings": "./index.d.ts",
   "scripts": {
     "prepack": "tsc",
-    "lint:check": "eslint && check-dts lib/index.d.ts",
+    "lint:check": "eslint && check-dts index.d.ts",
     "lint:check:all": "eslint lib samples system_test test && check-dts lib/index.d.ts",
     "lint:check:all:errorsOnly": "npm run lint:check:all -- --quiet",
     "lint:fix": "eslint --fix",

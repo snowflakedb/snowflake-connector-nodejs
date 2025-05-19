@@ -48,6 +48,7 @@
     "nyc": "^15.1.0",
     "test-console": "^2.0.0",
     "ts-node": "^10.9.2",
+    "typescript": "^5.8.3",
     "wiremock": "^3.10.0"
   },
   "peerDependencies": {

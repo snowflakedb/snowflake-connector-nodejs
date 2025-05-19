@@ -3,7 +3,7 @@ NodeJS Driver for Snowflake
 ********************************************************************************
 <p>
   <a href="https://github.com/snowflakedb/snowflake-connector-nodejs/actions?query=workflow%3A%22Build+and+Test%22+branch%3Amaster" target="_blank"><img src="https://github.com/snowflakedb/snowflake-connector-nodejs/workflows/Build%20and%20Test/badge.svg?branch=master" alt="master" /></a>
-  <a href="https://www.npmjs.com/package/snowflake-sdk" target="_blank"><img src="https://img.shields.io/npm/v/snowflake-sdk.svg" alt="npm" /></a> 
+  <a href="https://www.npmjs.com/package/snowflake-sdk" target="_blank"><img src="https://img.shields.io/npm/v/snowflake-sdk.svg" alt="npm" /></a>
   <a href="http://www.apache.org/licenses/LICENSE-2.0.txt" target="_blank"><img src="http://img.shields.io/:license-Apache%202-brightgreen.svg" alt="apache" /> </a>
   <a href="https://codecov.io/gh/snowflakedb/snowflake-connector-nodejs" target="_blank"><img src="https://codecov.io/gh/snowflakedb/snowflake-connector-nodejs/branch/master/graph/badge.svg?token=QZMWDu35ds" alt="codecov" /></a>
 </p>
@@ -20,7 +20,7 @@ Run `npm i snowflake-sdk` in your existing NodeJs project.
 Docs
 ======================================================================
 
-For detailed documentation and basic usage examples, please see the documentation 
+For detailed documentation and basic usage examples, please see the documentation
 at <a href="https://docs.snowflake.net/manuals/user-guide/nodejs-driver.html">NodeJS Driver for Snowflake</a>.
 
 Note
@@ -153,3 +153,18 @@ Fix potentially fixable formatting errors and warnings of single file or directo
 ```
 npm run lint:fix -- test/unit/logger
 ```
+
+
+TypeScript Migration
+----------------------------------------------------------------------
+The build and test pipeline supports TypeScript. You can:
+* Import `.ts` files into `.js` files
+* Import `.js` files into `.ts` files
+* Rename `.js` files to `.ts` files
+
+#### Migration playbook:
+* Every newly created file should be a `.ts` file
+* When working with existing `.js` file, try to rename it to `.ts`. If there's compilation error:
+  * Try to fix it
+  * If the fix is time consuming - use `// @ts-ignore Error Description` e.g. `// @ts-ignore TS2451: Cannot redeclare block-scoped variable 'toString'.`
+* Feel free to add more compilation rules to `tsconfig.json`

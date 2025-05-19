@@ -66,6 +66,7 @@ exports.isFunction = function (value) {
   return !!value && typeof value === 'function';
 };
 
+// @ts-ignore TS2451: Cannot redeclare block-scoped variable 'toString'.
 const toString = Object.prototype.toString;
 
 /**
@@ -359,6 +360,7 @@ exports.apply = function (dst, src) {
  * @returns {Boolean}
  */
 exports.isBrowser = function () {
+  // @ts-ignore TS2339: Property 'browser' does not exist on type 'Process'
   return !!(process && process.browser);
 };
 
@@ -623,9 +625,9 @@ exports.buildCredentialCacheKey = function (host, username, credType) {
 };
 
 /**
- * 
- * @param {Object} customCredentialManager 
- * @returns 
+ *
+ * @param {Object} customCredentialManager
+ * @returns
  */
 exports.checkValidCustomCredentialManager = function (customCredentialManager) {
   if ( typeof customCredentialManager !== 'object') {
@@ -722,7 +724,7 @@ exports.isNotEmptyString = function (variable) {
 /**
  * Checks Whether the object is empty (can be null or undefined) or not.
  * @param object
- * @returns {boolean} 
+ * @returns {boolean}
  */
 exports.isEmptyObject = (object) => {
   if (!exports.exists(object)) {

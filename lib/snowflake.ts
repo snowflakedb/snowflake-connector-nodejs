@@ -1,7 +1,6 @@
 const core = require('./core');
 const Util = require('./util');
-const Errors = require('./errors');
-const ErrorCodes = Errors.codes;
+import { codes as ErrorCodes } from './errors';
 const testFn = require('./__dummyTsFile').default;
 
 testFn();

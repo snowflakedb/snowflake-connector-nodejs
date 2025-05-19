@@ -29,6 +29,7 @@ npm install
 PACKAGE_NAME=$(cd $WORKSPACE && ls snowflake-sdk*.tgz)
 echo "[INFO] Test $PACKAGE_NAME installation"
 npm install $WORKSPACE/${PACKAGE_NAME}
+# TODO run test file
 
 echo "[INFO] Setting test parameters"
 if [[ "$LOCAL_USER_NAME" == "jenkins" ]]; then

@@ -48,6 +48,7 @@ popd
 
 echo [INFO] Installing Test package
 cmd /c npm install
+REM test run script
 if %ERRORLEVEL% NEQ 0 (
     echo [ERROR] failed to install test packages
     exit /b 1

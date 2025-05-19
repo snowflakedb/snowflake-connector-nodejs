@@ -24,8 +24,8 @@ describe('Oauth Client Credentials authentication', function () {
   });
 
   afterEach(async () => {
-    wireMock.scenarios.resetAllScenarios();
-    wireMock.mappings.resetAllMappings();
+    await wireMock.scenarios.resetAllScenarios();
+    await wireMock.mappings.resetAllMappings();
   });
 
   after(async () => {

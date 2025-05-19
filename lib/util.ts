@@ -5,6 +5,7 @@ const Logger = require('./logger');
 const fs = require('fs');
 const Errors = require('./errors');
 const net = require('net');
+import { name as driverName, version as driverVersion } from '../package.json';
 
 /**
  * Note: A simple wrapper around util.inherits() for now, but this might change
@@ -486,11 +487,9 @@ exports.validateClientSessionKeepAliveHeartbeatFrequency = function (input, mast
 };
 
 // driver name
-const driverName = require('./../package.json').name;
 exports.driverName = driverName;
 
 // driver version
-const driverVersion = require('./../package.json').version;
 exports.driverVersion = driverVersion;
 
 // nodeJS version

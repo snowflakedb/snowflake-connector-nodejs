@@ -1,12 +1,13 @@
 {
   "compilerOptions": {
     "module": "commonjs",
+    "target": "ES2018",
+    "lib": ["ES2018"],
+    "outDir": "./dist",
     "sourceMap": true,
     "allowJs": true,
-    "outDir": "./dist",
-    "target": "ES2018",
     "esModuleInterop": true,
-    "resolveJsonModule": true
+    "resolveJsonModule": true,
   },
-  "include": ["index.js"],
+  "include": ["index.js", "lib/**/*"],
 }

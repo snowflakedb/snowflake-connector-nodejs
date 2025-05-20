@@ -163,7 +163,7 @@ The build and test pipeline supports TypeScript. You can:
 * Rename `.js` files to `.ts` files
 
 #### Migration playbook:
-* Every newly created file should be a `.ts` file
+* Every newly created file should be a `.ts` file. Try avoiding 'any' types as it will complicate strict mode migration in the future.
 * When working with existing `.js` file, try to rename it to `.ts`. If there's compilation error:
   * Try to fix it
   * If the fix is time consuming - use `// @ts-ignore Error Description` e.g. `// @ts-ignore TS2451: Cannot redeclare block-scoped variable 'toString'.`

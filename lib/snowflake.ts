@@ -8,7 +8,7 @@ testFn();
 const clientEnvironment = process.versions;
 
 // if we're not using the minimum supported version of node.js, raise an error
-const minimumNodeVersion = '6.0.0'; // TODO: this should be node 18 like our docs says?
+const minimumNodeVersion = '18.0.0';
 if (Util.string.compareVersions(clientEnvironment.node, minimumNodeVersion) < 0) {
   throw createClientError(
     ErrorCodes.ERR_UNSUPPORTED_NODE_JS_VERSION, true, minimumNodeVersion);

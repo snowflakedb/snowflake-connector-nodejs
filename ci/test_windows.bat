@@ -48,7 +48,7 @@ popd
 
 echo [INFO] Installing Test package
 cmd /c npm install
-REM test run script
+cmd /c node %GITHUB_WORKSPACE%\ci\container\test_npm_package.js
 if %ERRORLEVEL% NEQ 0 (
     echo [ERROR] failed to install test packages
     exit /b 1

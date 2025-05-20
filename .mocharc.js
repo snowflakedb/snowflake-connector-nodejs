@@ -3,6 +3,6 @@ module.exports = {
   exit: true,
   timeout: 180000,
   fullTrace: true,
-  extension: ['js', 'ts'],
   recursive: true,
+  extension: ['js', 'ts'],
 }

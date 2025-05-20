@@ -67,7 +67,7 @@ start /b python hang_webserver.py 12345 > hang_webserver.out 2>&1
 popd
 
 echo [INFO] Testing
-cmd /c node_modules\.bin\mocha --exit --timeout %TIMEOUT% --recursive --full-trace --color --reporter spec test/{unit,integration}/**/*.js
+cmd /c node_modules\.bin\mocha --timeout %TIMEOUT% test/{unit,integration}/**/*.js
 if %ERRORLEVEL% NEQ 0 (
     echo [ERROR] failed to run mocha
     exit /b 1

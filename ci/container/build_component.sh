@@ -13,7 +13,7 @@ echo "[INFO] Building"
 rm -f snowflake-sdk*.tgz
 echo "[DEBUG] Version"
 npm version
-echo "[DEBUG] Installing"
+echo "[DEBUG] Installing Build Dependencies"
 npm install
 echo "[DEBUG] Packing"
 npm pack

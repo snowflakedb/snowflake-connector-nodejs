@@ -5,6 +5,10 @@ import testFn from './__dummyTsFile';
 
 testFn();
 
+// Crush test
+const { key } = require('../dummy.json');
+console.log('dummy.json key', key);
+
 const clientEnvironment = process.versions;
 
 // if we're not using the minimum supported version of node.js, raise an error

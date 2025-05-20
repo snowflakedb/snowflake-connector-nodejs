@@ -36,8 +36,7 @@ describe('GCS client', function () {
   this.beforeEach(function () {
     meta = {
       stageInfo: {
-        location: mockLocation,
-        path: mockTable + '/' + mockPath + '/',
+        location: mockLocation + '/' + mockTable + '/' + mockPath + '/',
         endPoint: null,
         useRegionalUrl: false,
         region: 'mockLocation',
@@ -78,69 +77,126 @@ describe('GCS client', function () {
           endPoint: null,
           useRegionalUrl: true,
           region: 'mockLocation',
+          useVirtualUrl: false,
         },
-        result: 'https://storage.mocklocation.rep.googleapis.com'
+        endPointResult: 'https://storage.mocklocation.rep.googleapis.com',
+        fileUrlResult: 'https://storage.mocklocation.rep.googleapis.com/mockLocation/mockTable/mockPath/mockFile'
       },
       {
         name: 'when the region is me-central2',
         stageInfo: {
           endPoint: null,
           useRegionalUrl: false,
-          region: 'me-central2'
+          region: 'me-central2',
+          useVirtualUrl: false,
         },
-        result: 'https://storage.me-central2.rep.googleapis.com'
+        endPointResult: 'https://storage.me-central2.rep.googleapis.com',
+        fileUrlResult: 'https://storage.me-central2.rep.googleapis.com/mockLocation/mockTable/mockPath/mockFile'
+
       },
       {
         name: 'when the region is me-central2 (mixed case)',
         stageInfo: {
           endPoint: null,
           useRegionalUrl: false,
-          region: 'ME-cEntRal2'
+          region: 'ME-cEntRal2',
+          useVirtualUrl: false,
         },
-        result: 'https://storage.me-central2.rep.googleapis.com'
+        endPointResult: 'https://storage.me-central2.rep.googleapis.com',
+        fileUrlResult: 'https://storage.me-central2.rep.googleapis.com/mockLocation/mockTable/mockPath/mockFile'
+
       },
       {
         name: 'when the region is me-central2 (uppercase)',
         stageInfo: {
           endPoint: null,
           useRegionalUrl: false,
-          region: 'ME-CENTRAL2'
+          region: 'ME-CENTRAL2',
+          useVirtualUrl: false,
         },
-        result: 'https://storage.me-central2.rep.googleapis.com'
+        endPointResult: 'https://storage.me-central2.rep.googleapis.com',
+        fileUrlResult: 'https://storage.me-central2.rep.googleapis.com/mockLocation/mockTable/mockPath/mockFile'
       },
       {
         name: 'when the endPoint is specified',
         stageInfo: {
           endPoint: 'https://storage.specialEndPoint.rep.googleapis.com',
           useRegionalUrl: false,
-          region: 'ME-cEntRal1'
+          region: 'ME-cEntRal1',
+          useVirtualUrl: false,
         },
-        result: 'https://storage.specialEndPoint.rep.googleapis.com'
+        endPointResult: 'https://storage.specialEndPoint.rep.googleapis.com',
+        fileUrlResult: 'https://storage.specialEndPoint.rep.googleapis.com/mockLocation/mockTable/mockPath/mockFile'
       },
       {
         name: 'when both the endPoint and the useRegionalUrl are specified',
         stageInfo: {
           endPoint: 'https://storage.specialEndPoint.rep.googleapis.com',
           useRegionalUrl: true,
-          region: 'ME-cEntRal1'
+          region: 'ME-cEntRal1',
+          useVirtualUrl: false,
         },
-        result: 'https://storage.specialEndPoint.rep.googleapis.com'
+        endPointResult: 'https://storage.specialEndPoint.rep.googleapis.com',
+        fileUrlResult: 'https://storage.specialEndPoint.rep.googleapis.com/mockLocation/mockTable/mockPath/mockFile'
+
       },
       {
         name: 'when both the endPoint is specified and the region is me-central2',
         stageInfo: {
           endPoint: 'https://storage.specialEndPoint.rep.googleapis.com',
           useRegionalUrl: true,
-          region: 'ME-CENTRAL2'
+          region: 'ME-CENTRAL2',
+          useVirtualUrl: false,
         },
-        result: 'https://storage.specialEndPoint.rep.googleapis.com'
+        endPointResult: 'https://storage.specialEndPoint.rep.googleapis.com',
+        fileUrlResult: 'https://storage.specialEndPoint.rep.googleapis.com/mockLocation/mockTable/mockPath/mockFile'
+      },
+      {
+        name: 'when only the useVirtualUrl is enabled',
+        stageInfo: {
+          location: 'sfc-eng-regression/stakeda/test_stg/test_sub_dir/',
+          endPoint: null,
+          useRegionalUrl: false,
+          region: 'ME-WEST',
+          UseRegionalURL: false,
+          useVirtualUrl: true,
+        },
+        endPointResult: 'https://sfc-eng-regression.storage.googleapis.com',
+        fileUrlResult: 'https://sfc-eng-regression.storage.googleapis.com/stakeda/test_stg/test_sub_dir/mockFile'
+
+      },
+      {
+        name: 'when both the useRegionalURL and useVirtualUrl are enabled',
+        stageInfo: {
+          location: 'sfc-eng-regression/stakeda/test_stg/test_sub_dir/',
+          endPoint: null,
+          useRegionalUrl: true,
+          region: 'ME-WEST',
+          UseRegionalURL: false,
+          useVirtualUrl: true,
+        },
+        endPointResult: 'https://sfc-eng-regression.storage.googleapis.com',
+        fileUrlResult: 'https://sfc-eng-regression.storage.googleapis.com/stakeda/test_stg/test_sub_dir/mockFile'
+      },
+      {
+        name: 'when all the options are enabled',
+        stageInfo: {
+          location: 'sfc-eng-regression/stakeda/test_stg/test_sub_dir/',
+          endPoint: 'storage.specialEndPoint.rep.googleapis.com',
+          useRegionalUrl: true,
+          region: 'ME-CENTRAL2',
+          useVirtualUrl: true,
+        },
+        endPointResult: 'https://storage.specialEndPoint.rep.googleapis.com',
+        fileUrlResult: 'https://storage.specialEndPoint.rep.googleapis.com/sfc-eng-regression/stakeda/test_stg/test_sub_dir/mockFile'
       },
     ];
 
-    testCases.forEach(({ name, stageInfo, result }) => {
+    testCases.forEach(({ name, stageInfo, endPointResult, fileUrlResult }) => {
       it(name, () => {
         const client = GCS.createClient({ ...meta.stageInfo, ...stageInfo,  creds: { GCS_ACCESS_TOKEN: 'mockToken' } });
-        assert.strictEqual(client.gcsClient.apiEndpoint, result);
+        assert.strictEqual(client.gcsClient.apiEndpoint, endPointResult);
+        assert.strictEqual(GCS.generateFileURL({ ...meta.stageInfo, ...stageInfo,  creds: { GCS_ACCESS_TOKEN: 'mockToken' } }, 'mockFile'), fileUrlResult);
       } );
 
     });

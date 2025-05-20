@@ -174,9 +174,6 @@ describe('external browser authentication', function () {
   it('external browser - get fail', async function () {
     mock('webbrowser', {
       open: function () {
-        const client = net.createConnection({ port: browserRedirectPort }, () => {
-          client.write('\r\n');
-        });
         return;
       }
     });

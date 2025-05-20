@@ -943,16 +943,12 @@ describe('Util', function () {
           user: mockUser,
           host: mockHost,
           cred: mockCred,
-          result: '{mockHost}:{mockUser}:{SF_NODE_JS_DRIVER}:{mockCred}}'
+          result: '{MOCKHOST}:{MOCKUSER}:{MOCKCRED}'
         },
       ];
-      testCases.forEach((name, user, host, cred, result) => {
+      testCases.forEach(({ name, user, host, cred, result }) => {
         it(`${name}`, function () {
-          if (!result) {
-            assert.strictEqual(Util.buildCredentialCacheKey(host, user, cred), null);
-          } else {
-            assert.strictEqual(Util.buildCredentialCacheKey(host, user, cred), result);
-          }
+          assert.strictEqual(Util.buildCredentialCacheKey(host, user, cred), result);
         });
       });
     });
@@ -1201,5 +1197,50 @@ describe('Util', function () {
       }
     });
 
+    describe('escapeHTML function test', function () {
+      const testCases = [
+        {
+          str: '<script>alert(\'example of text!\')</script>',
+          result: '&lt;script&gt;alert(&#39;example of text!&#39;)&lt;/script&gt;'
+        },
+        {
+          str: '',
+          result: ''
+        },
+        {
+          str: undefined,
+          result: undefined
+        },
+      ];
+
+      for (const {  str, result } of testCases) {
+        it('Test excapeHtml function', function () {
+          assert.strictEqual(Util.escapeHTML(str), result);
+        });
+      }
+    });
+  });
+
+  describe('Util.convertSmkIdToString()', function () {
+    it('should convert smkId numbers to strings in JSON', function () {
+      const input = '{"smkId" : 1234567890123456789, "otherKey" : "value"}';
+      const expectedOutput = '{"smkId" : "1234567890123456789", "otherKey" : "value"}';
+      const result = Util.convertSmkIdToString(input);
+      assert.strictEqual(result, expectedOutput);
+    });
+
+    it('should not modify JSON without smkId', function () {
+      const input = '{"otherKey" : "value"}';
+      const expectedOutput = '{"otherKey" : "value"}';
+      const result = Util.convertSmkIdToString(input);
+      assert.strictEqual(result, expectedOutput);
+    });
+
+    it('should convert smkId numbers to strings in JSON whitespace insensitive', function () {
+      const input = '{"smkId":1234567890123456789,"otherKey":"value"}';
+      const expectedOutput = '{"smkId":"1234567890123456789","otherKey":"value"}';
+      const result = Util.convertSmkIdToString(input);
+      assert.strictEqual(result, expectedOutput);
+    });
   });
 });

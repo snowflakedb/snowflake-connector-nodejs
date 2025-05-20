@@ -3,8 +3,10 @@ const { Levels, ConfigurationUtil } = require('./../../../lib/configuration/clie
 const { loadConnectionConfiguration } = require('./../../../lib/configuration/connection_configuration');
 const getClientConfig = new ConfigurationUtil().getClientConfig;
 const fsPromises = require('fs/promises');
+const fs = require('fs');
 const os = require('os');
 const path = require('path');
+const { isWindows } = require('../../../lib/util');
 let tempDir = null;
 
 describe('should parse toml connection configuration', function () {
@@ -193,8 +195,25 @@ describe('Configuration parsing tests', function () {
       async () => await getClientConfig(filePath),
       (err) => {
         assert.strictEqual(err.name, 'ConfigurationError');
-        assert.strictEqual(err.message, 'Finding client configuration failed');
+        assert.strictEqual(err.message, 'Fail to open the configuration file');
         assert.match(err.cause.message, /ENOENT: no such file or directory./);
+        return true;
+      });
+  });
+
+  it('should fail when the path is a symlink', async function () {
+    const fileName = 'config.json';
+    const filePath = path.join(tempDir, fileName);
+    const symlinkPath = path.join(tempDir, 'test_symlink');
+    await fsPromises.symlink(filePath, symlinkPath, isWindows() ? 'junction' : 'file');
+
+    // expect
+    await assert.rejects(
+      async () => await getClientConfig(symlinkPath),
+      (err) => {
+        assert.strictEqual(err.name, 'ConfigurationError');
+        assert.strictEqual(err.message, 'Fail to open the configuration file');
+        assert.match(err.cause.message, isWindows() ? /ENOENT: no such file or directory, open/ : /ELOOP: too many symbolic links encountered, open/);
         return true;
       });
   });
@@ -236,7 +255,7 @@ describe('Configuration parsing tests', function () {
       // given
       const fileName = 'config_wrong_' + replaceSpaces(testCaseName) + '.json';
       const filePath = path.join(tempDir, fileName);
-      await fsPromises.writeFile(filePath, fileContent, { encoding: 'utf8' });
+      await writeFile(filePath, fileContent);
 
       // expect
       await assert.rejects(
@@ -250,11 +269,97 @@ describe('Configuration parsing tests', function () {
     });
   });
 
+  it('test - when the file has been changed by others', async function () {
+    if (isWindows()) {
+      return;
+    }
+    const fileName = 'file_change_test.json';
+    const filePath = path.join(tempDir, fileName);
+    const fileContent = `{
+      "common": {
+          "log_level": "${Levels.Info}",
+          "log_path": "/some-path/some-directory"
+      } 
+  }`;
+    await writeFile(filePath, fileContent);
+    setTimeout(() => {
+      fs.open(filePath, 'w', (err, fd) => {
+        fs.writeFileSync(fd, 'Hacked by someone');
+        fs.closeSync(fd);
+      });
+    }, 2000);
+
+    try {
+      await getClientConfig(filePath, true, 3000);
+      assert.ok(false, 'should be failed');
+    } catch (err) {
+      assert.strictEqual(err.name, 'ConfigurationError');
+      assert.strictEqual(err.message, 'The config file has been modified');
+      assert.strictEqual(err.cause, 'InvalidConfigFile');
+    }
+  });
+
+  it('test - when the file permission has been changed by others', async function () {
+    if (isWindows()) {
+      return;
+    }
+    const fileName = 'file_permission_change_test.json';
+    const filePath = path.join(tempDir, fileName);
+    const fileContent = `{
+      "common": {
+          "log_level": "${Levels.Info}",
+          "log_path": "/some-path/some-directory"
+      } 
+  }`;
+    await writeFile(filePath, fileContent);
+    setTimeout(() =>
+      fs.chmodSync(filePath, 0o777),
+    2000);
+
+    try {
+      await getClientConfig(filePath, true, 3000);
+      assert.ok(false, 'should be failed');
+    } catch (err) {
+      assert.strictEqual(err.name, 'ConfigurationError');
+      assert.strictEqual(err.message, 'The config file has been modified');
+      assert.strictEqual(err.cause, 'InvalidConfigFile');
+    }
+  });
+
+  it('test - when the file has been replaced', async function () {
+    if (isWindows()) {
+      return;
+    }
+    const fileName = 'file_replaced_test.json';
+    const filePath = path.join(tempDir, fileName);
+    const fileContent = `{
+      "common": {
+          "log_level": "${Levels.Info}",
+          "log_path": "/some-path/some-directory"
+      } 
+  }`;
+    await writeFile(filePath, fileContent);
+    setTimeout(async () => {
+      fs.rmSync(filePath);
+      await writeFile(filePath, 'Hacked by someone');
+    },
+    2000);
+
+    try {
+      await getClientConfig(filePath, true, 5000);
+      assert.ok(false, 'should be failed');
+    } catch (err) {
+      assert.strictEqual(err.name, 'ConfigurationError');
+      assert.strictEqual(err.message, 'The config file has been modified');
+      assert.strictEqual(err.cause, 'InvalidConfigFile');
+    }
+  });
+
   function replaceSpaces(stringValue) {
     return stringValue.replace(' ', '_');
   }
 
   async function writeFile(filePath, fileContent) {
-    await fsPromises.writeFile(filePath, fileContent, { encoding: 'utf8' });
+    await fsPromises.writeFile(filePath, fileContent, { encoding: 'utf8', mode: 0o755 });
   }
 });

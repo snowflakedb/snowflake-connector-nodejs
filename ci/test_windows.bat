@@ -48,7 +48,6 @@ popd
 
 echo [INFO] Installing Test package
 cmd /c npm install
-cmd /c node %GITHUB_WORKSPACE%\ci\container\test_npm_package.js
 if %ERRORLEVEL% NEQ 0 (
     echo [ERROR] failed to install test packages
     exit /b 1
@@ -56,6 +55,7 @@ if %ERRORLEVEL% NEQ 0 (
 echo [INFO] Test snowflake-sdk installation
 copy %GITHUB_WORKSPACE%\artifacts\* .
 for %%f in (snowflake-sdk*.tgz) do cmd /c npm install %%f
+cmd /c node %GITHUB_WORKSPACE%\ci\container\test_npm_package.js
 
 if %ERRORLEVEL% NEQ 0 (
     echo [ERROR] failed to install the Snowflake NodeJS Driver

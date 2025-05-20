@@ -1,5 +1,7 @@
 import assert from "assert";
-import snowflake from '../lib/snowflake';
+import * as snowflake from "../lib/snowflake";
+
+console.log('snowflake', snowflake);
 
 describe('Dummy test', () => {
   it('passed', () => {

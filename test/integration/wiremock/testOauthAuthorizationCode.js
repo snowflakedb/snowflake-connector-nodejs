@@ -30,8 +30,8 @@ describe('Oauth Authorization Code authentication', function () {
   });
 
   afterEach(async () => {
-    wireMock.scenarios.resetAllScenarios();
-    wireMock.mappings.resetAllMappings();
+    await wireMock.scenarios.resetAllScenarios();
+    await wireMock.mappings.resetAllMappings();
   });
 
   after(async () => {
@@ -105,7 +105,7 @@ describe('Oauth Authorization Code authentication', function () {
   });
 
   it('Should not open browser when the port is unavailable', async function () {
-   
+
     const PORT = 8011;
 
     GlobalConfig.setCustomRedirectingClient(() => {

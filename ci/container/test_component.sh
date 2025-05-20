@@ -70,11 +70,11 @@ python3 $THIS_DIR/hang_webserver.py 12345 > hang_webserver.out 2>&1 &
 if [[ "$SHOULD_GENERATE_COVERAGE_REPORT" == "1" ]];
   then
     MOCHA_CMD=(
-       "npx" "nyc" "--reporter=lcov" "--reporter=text" "mocha" "--exit" "--timeout" "$TIMEOUT" "--recursive" "--full-trace"
+       "npx" "nyc" "--reporter=lcov" "--reporter=text" "mocha" "--timeout" "$TIMEOUT"
     )
   else
     MOCHA_CMD=(
-        "mocha" "--exit" "--timeout" "$TIMEOUT" "--recursive" "--full-trace"
+        "mocha" "--timeout" "$TIMEOUT"
     )
 fi
 

@@ -35,14 +35,14 @@ describe('Oauth - refreshing token', function () {
     });
     beforeEach(async () => {
       authTest = new AuthTest();
-      wireMock.scenarios.resetAllScenarios();
-      wireMock.mappings.resetAllMappings();
+      await wireMock.scenarios.resetAllScenarios();
+      await wireMock.mappings.resetAllMappings();
       await authUtil.removeFromCache(accessTokenKey);
       await authUtil.removeFromCache(refreshTokenKey);
     });
     afterEach(async () => {
-      wireMock.scenarios.resetAllScenarios();
-      wireMock.mappings.resetAllMappings();
+      await wireMock.scenarios.resetAllScenarios();
+      await wireMock.mappings.resetAllMappings();
       await authUtil.removeFromCache(accessTokenKey);
       await authUtil.removeFromCache(refreshTokenKey);
     });
@@ -140,14 +140,14 @@ describe('Oauth - refreshing token', function () {
     });
     beforeEach(async () => {
       authTest = new AuthTest();
-      wireMock.scenarios.resetAllScenarios();
-      wireMock.mappings.resetAllMappings();
+      await wireMock.scenarios.resetAllScenarios();
+      await wireMock.mappings.resetAllMappings();
       await authUtil.removeFromCache(accessTokenKey);
       await authUtil.removeFromCache(refreshTokenKey);
     });
     afterEach(async () => {
-      wireMock.scenarios.resetAllScenarios();
-      wireMock.mappings.resetAllMappings();
+      await wireMock.scenarios.resetAllScenarios();
+      await wireMock.mappings.resetAllMappings();
       await authUtil.removeFromCache(accessTokenKey);
       await authUtil.removeFromCache(refreshTokenKey);
     });

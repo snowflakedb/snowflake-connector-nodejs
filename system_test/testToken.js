@@ -18,7 +18,7 @@ describe.skip('testLoginTokenExpire', function () {
         function (callback) {
           testUtil.executeCmd(
             connectionToSnowflake,
-            'alter system set MASTER_TOKEN_VALIDITY=5',
+            'alter system set MASTER_TOKEN_VALIDITY=9',
             callback
           );
         },

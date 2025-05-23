@@ -1,14 +1,16 @@
 const core = require('./core');
 const Util = require('./util');
-const Errors = require('./errors');
-const ErrorCodes = Errors.codes;
+import { createClientError, codes as ErrorCodes } from './errors';
+import testFn from './__dummyTsFile';
+
+testFn();
 
 const clientEnvironment = process.versions;
 
 // if we're not using the minimum supported version of node.js, raise an error
-const minimumNodeVersion = '6.0.0';
+const minimumNodeVersion = '18.0.0';
 if (Util.string.compareVersions(clientEnvironment.node, minimumNodeVersion) < 0) {
-  throw Errors.createClientError(
+  throw createClientError(
     ErrorCodes.ERR_UNSUPPORTED_NODE_JS_VERSION, true, minimumNodeVersion);
 }
 

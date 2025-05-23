@@ -179,7 +179,7 @@ describe('GCS client', function () {
           useVirtualUrl: true,
         },
         endPointResult: 'https://storage.specialEndPoint.rep.googleapis.com',
-        fileUrlResult: 'https://storage.specialEndPoint.rep.googleapis.com/sfc-eng-regression/stakeda/test_stg/test_sub_dir/mockFile'
+        fileUrlResult: 'https://storage.specialEndPoint.rep.googleapis.com/stakeda/test_stg/test_sub_dir/mockFile'
       },
     ];
 

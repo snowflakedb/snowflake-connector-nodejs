@@ -8,8 +8,8 @@
     "allowJs": true,
     "esModuleInterop": true,
     "resolveJsonModule": true,
-    // NOTE: Ideally, we want strict mode, but it will cause too much @ts-ignore in the codebase
-    // "strict": true
+    "strict": true,
+    "skipLibCheck": true,
   },
   "include": ["index.js", "lib/**/*"],
 }

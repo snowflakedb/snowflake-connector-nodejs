@@ -28,9 +28,6 @@ npm install
 
 PACKAGE_NAME=$(cd $WORKSPACE && ls snowflake-sdk*.tgz)
 echo "[INFO] Test $PACKAGE_NAME installation"
-ls -l $SOURCE_ROOT
-ls -l $SOURCE_ROOT/ci
-ls -l $SOURCE_ROOT/ci/container
 npm install $WORKSPACE/${PACKAGE_NAME}
 node $SOURCE_ROOT/ci/container/test_npm_package.js
 

@@ -28,11 +28,11 @@ npm install
 
 PACKAGE_NAME=$(cd $WORKSPACE && ls snowflake-sdk*.tgz)
 echo "[INFO] Test $PACKAGE_NAME installation"
-ls -l $WORKSPACE
-ls -l $WORKSPACE/ci
-ls -l $WORKSPACE/ci/container
+ls -l $SOURCE_ROOT
+ls -l $SOURCE_ROOT/ci
+ls -l $SOURCE_ROOT/ci/container
 npm install $WORKSPACE/${PACKAGE_NAME}
-node $WORKSPACE/ci/container/test_npm_package.js
+node $SOURCE_ROOT/ci/container/test_npm_package.js
 
 echo "[INFO] Setting test parameters"
 if [[ "$LOCAL_USER_NAME" == "jenkins" ]]; then

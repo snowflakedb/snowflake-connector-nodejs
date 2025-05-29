@@ -668,11 +668,11 @@ exports.escapeHTML = function (value: string) {
 /**
  * Typescript with "module": "commonjs" will transform every import() to a require() statement.
  *
- * This will break node dynamic resulting in a runtime error:
+ * This will break ESM dynamic imports resulting in a runtime error:
  * -require() of ES Module... from ... not supported.
  *
  * A hacky solution - https://github.com/microsoft/TypeScript/issues/43329
  */
-export function dynamicImportESMInTypescriptWithCommonJS(moduleName: string) {
+export async function dynamicImportESMInTypescriptWithCommonJS(moduleName: string) {
   return Function(`return import("${moduleName}")`)()
 }

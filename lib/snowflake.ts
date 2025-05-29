@@ -1,5 +1,5 @@
-const Util = require('./util');
 const core = require('./core');
+import * as Util from './util';
 import { createClientError, codes as ErrorCodes } from './errors';
 
 const clientEnvironment = process.versions;

@@ -13,6 +13,7 @@ const nodeJSVersion = process.version?.startsWith('v')
   : process.version;
 
 export { driverName, driverVersion };
+
 export const userAgent = `JavaScript/${driverVersion} (${process.platform}-${process.arch}) NodeJS/${nodeJSVersion}`;
 
 /**
@@ -128,7 +129,6 @@ export function isPrivateKey(value: string) {
 /**
  * A collection of number-related utility functions.
  */
-// Ensure that this is not used for !numbers
 export const number =
   {
     /**

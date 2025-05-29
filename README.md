@@ -164,8 +164,11 @@ The build and test pipeline supports TypeScript. You can:
 
 #### Migration playbook
 * Every newly created file should be a `.ts` file.
-* When working with existing `.js` file, try to rename it to `.ts`. If there's compilation error:
-  * Try to fix it
-  * If the fix is time consuming - use `// @ts-ignore Error Description` e.g. `// @ts-ignore TS2451: Cannot redeclare block-scoped variable 'toString'.`
-  * Do your best to avoid fixing strict mode errors with `(var: any)`
+* When working with existing `.js` file, try to rename it to `.ts` and
+  * Try to replace require() with import
+  * Try to replace module.export with ES export const/default
+  * If there's compilation error:
+    * Try to fix it
+    * If the fix is time consuming - use `// @ts-ignore Error Description` e.g. `// @ts-ignore TS2451: Cannot redeclare block-scoped variable 'toString'.`
+    * Do your best to avoid fixing strict mode errors with `(var: any)`
 * Feel free to add more compilation rules to `tsconfig.json`

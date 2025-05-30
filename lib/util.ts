@@ -135,21 +135,21 @@ export const number =
      * Determines if a given value is a positive number.
      */
     isPositive: function (value: any) {
-      return exports.isNumber(value) && (value > 0);
+      return isNumber(value) && (value > 0);
     },
 
     /**
      * Determines if a given value is a non-negative number.
      */
     isNonNegative: function (value: any) {
-      return exports.isNumber(value) && (value >= 0);
+      return isNumber(value) && (value >= 0);
     },
 
     /**
      * Determines if a given value is an integer.
      */
     isInteger: function (value: any) {
-      return exports.isNumber(value) && (Math.floor(value) === value);
+      return isNumber(value) && (Math.floor(value) === value);
     },
 
     /**
@@ -176,7 +176,7 @@ export const string =
      * Determines if a given string is not null or empty.
      */
     isNotNullOrEmpty: function (value: any) {
-      return exports.isString(value) && value;
+      return isString(value) && value;
     },
 
     /**
@@ -188,7 +188,7 @@ export const string =
      */
     compareVersions: function (version1: string, version2: string) {
       // if one or both inputs are valid, return NaN
-      if (!exports.isString(version1) || !exports.isString(version2)) {
+      if (!isString(version1) || !isString(version2)) {
         return NaN;
       }
 
@@ -213,7 +213,7 @@ export const string =
         version2Part = Number(version2Parts[index]);
 
         // if one or both values are not numerical, consider the input invalid
-        if (!exports.isNumber(version1Part) || !exports.isNumber(version2Part)) {
+        if (!isNumber(version1Part) || !isNumber(version2Part)) {
           result = NaN;
           break;
         }
@@ -583,7 +583,7 @@ export function isNotEmptyAsString(variable: string) {
   if (typeof variable === 'string') {
     return variable;
   }
-  return exports.exists(variable);
+  return exists(variable);
 };
 
 export function isNotEmptyString(variable: string) {
@@ -594,7 +594,7 @@ export function isNotEmptyString(variable: string) {
  * Checks Whether the object is empty (can be null or undefined) or not.
  */
 export function isEmptyObject(object: object) {
-  if (!exports.exists(object)) {
+  if (!exists(object)) {
     return true;
   }
   if (typeof object !== 'object') {
@@ -643,7 +643,7 @@ export async function isPortOpen(port: number) {
 /**
 * Left strip the specified character from a string.
 */
-exports.lstrip = function (str: string, remove: string) {
+export function lstrip(str: string, remove: string) {
   while (str.length > 0 && remove.indexOf(str.charAt(0)) !== -1) {
     str = str.substr(1);
   }
@@ -654,7 +654,7 @@ exports.lstrip = function (str: string, remove: string) {
 /**
  * This method transforms HTML special characters into their corresponding entity representations.
  */
-exports.escapeHTML = function (value: string) {
+export function escapeHTML(value: string) {
   if (!exists(value)) {
     return value;
   }

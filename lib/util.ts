@@ -672,6 +672,8 @@ export function escapeHTML(value: string) {
  * -require() of ES Module... from ... not supported.
  *
  * A hacky solution - https://github.com/microsoft/TypeScript/issues/43329
+ *
+ * This could be removed once we drop node 18 support as Node 20+ support esm in require()
  */
 export async function dynamicImportESMInTypescriptWithCommonJS(moduleName: string) {
   return Function(`return import("${moduleName}")`)()

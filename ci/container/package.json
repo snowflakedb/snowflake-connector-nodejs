@@ -1,0 +1,23 @@
+{
+  "name": "nodejs_driver_test",
+  "version": "1.7.0",
+  "description": "Tests for Snowflake Nodejs Driver",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "dependencies": {
+  },
+  "devDependencies": {
+    "async": "^3.2.3",
+    "https-proxy-agent": "^7.0.2",
+    "mocha": "^10.2.0",
+    "mock-require": "^3.0.3",
+    "nyc": "^15.1.0",
+    "test-console": "^2.0.0",
+    "wiremock": "^3.10.0",
+    "wiremock-rest-client": "^1.11.0"
+  },
+  "author": "Snowflake, Inc.",
+  "license": "ISC"
+}

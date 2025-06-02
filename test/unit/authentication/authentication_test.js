@@ -1,9 +1,6 @@
 const assert = require('assert');
+const mock = require('mock-require');
 const net = require('net');
-const crypto = require('crypto');
-const jsonwebtoken = require('jsonwebtoken');
-const fs = require('fs');
-const sinon = require('sinon');
 
 const authenticator = require('./../../../lib/authentication/authentication');
 const AuthDefault = require('./../../../lib/authentication/auth_default');
@@ -106,6 +103,7 @@ describe('default authentication', function () {
 });
 
 describe('external browser authentication', function () {
+  let webbrowser;
   let browserRedirectPort;
   let httpclient;
 
@@ -123,40 +121,39 @@ describe('external browser authentication', function () {
     getDisableConsoleLogin: () => true,
     host: 'fakehost'
   };
-  const browserOpenCallback = () => {
-    const client = net.createConnection({ port: browserRedirectPort }, () => {
-      client.write(`GET /?token=${mockToken} HTTP/1.1\r\n`);
-    });
-  };
-  const httpResponseStub = sinon.stub();
 
   before(function () {
-    httpclient = {
-      requestAsync: async function (options) {
-        const response = {
-          data: {
-            data: httpResponseStub()
-          }
-        };
-        browserRedirectPort = options.data['data']['BROWSER_MODE_REDIRECT_PORT'];
-        return response;
+    mock('webbrowser', {
+      open: function () {
+        const client = net.createConnection({ port: browserRedirectPort }, () => {
+          client.write(`GET /?token=${mockToken} HTTP/1.1\r\n`);
+        });
+        return;
       }
-    };
-  });
-
-  beforeEach(() => {
-    httpResponseStub.returns({
-      ssoUrl: mockSsoURL,
-      proofKey: mockProofKey
     });
-  });
+    mock('httpclient', {
+      requestAsync: async function (options) {
+        const data =
+          {
+            data: {
+              data:
+                {
+                  ssoUrl: mockSsoURL,
+                  proofKey: mockProofKey
+                }
+            }
+          };
+        browserRedirectPort = options.data['data']['BROWSER_MODE_REDIRECT_PORT'];
+        return data;
+      }
+    });
 
-  afterEach(() => {
-    httpResponseStub.reset();
+    webbrowser = require('webbrowser');
+    httpclient = require('httpclient');
   });
 
   it('external browser - authenticate method is thenable', done => {
-    const auth = new AuthWeb(connectionConfig, httpclient, browserOpenCallback);
+    const auth = new AuthWeb(connectionConfig, httpclient, webbrowser.open);
 
     auth.authenticate(credentials.authenticator, '', credentials.account, credentials.username)
       .then(done)
@@ -164,7 +161,7 @@ describe('external browser authentication', function () {
   });
 
   it('external browser - get success', async function () {
-    const auth = new AuthWeb(connectionConfig, httpclient, browserOpenCallback);
+    const auth = new AuthWeb(connectionConfig, httpclient, webbrowser.open);
     await auth.authenticate(credentials.authenticator, '', credentials.account, credentials.username);
 
     const body = { data: {} };
@@ -175,7 +172,31 @@ describe('external browser authentication', function () {
   });
 
   it('external browser - get fail', async function () {
-    httpResponseStub.returns({ ssoUrl: mockSsoURL });
+    mock('webbrowser', {
+      open: function () {
+        return;
+      }
+    });
+
+    mock('httpclient', {
+      requestAsync: async function (options) {
+        const data =
+          {
+            data: {
+              data:
+                {
+                  ssoUrl: mockSsoURL
+                }
+            }
+          };
+        browserRedirectPort = options.data['data']['BROWSER_MODE_REDIRECT_PORT'];
+        return data;
+      }
+    });
+
+    webbrowser = require('webbrowser');
+    httpclient = require('httpclient');
+
     const fastFailConnectionConfig = {
       getBrowserActionTimeout: () => 10,
       getProxy: () => {},
@@ -185,7 +206,7 @@ describe('external browser authentication', function () {
       host: 'fakehost'
     };
 
-    const auth = new AuthWeb(fastFailConnectionConfig, httpclient, () => null);
+    const auth = new AuthWeb(fastFailConnectionConfig, httpclient, webbrowser.open);
     await assert.rejects(async () => {
       await auth.authenticate(credentials.authenticator, '', credentials.account, credentials.username);
     }, {
@@ -215,7 +236,7 @@ describe('external browser authentication', function () {
   });
 
   it('external browser - id token, webbrowser cb provided', async function () {
-    const auth = new AuthIDToken(connectionOptionsIdToken, httpclient, browserOpenCallback);
+    const auth = new AuthIDToken(connectionOptionsIdToken, httpclient, webbrowser.open);
     await auth.authenticate(credentials.authenticator, '', credentials.account, credentials.username, credentials.host);
 
     const body = { data: {} };
@@ -227,52 +248,84 @@ describe('external browser authentication', function () {
 });
 
 describe('key-pair authentication', function () {
-  let sinonSandbox;
+  let cryptomod;
+  let jwtmod;
+  let filesystem;
 
   const mockToken = 'mockToken';
   const mockPrivateKeyFile = 'mockPrivateKeyFile';
   const mockPublicKeyObj = 'mockPublicKeyObj';
 
   before(function () {
-    sinonSandbox = sinon.createSandbox();
-    sinonSandbox.stub(crypto, 'createPrivateKey').callsFake((options) => {
-      assert.strictEqual(options.key, mockPrivateKeyFile);
-      if (options.passphrase) {
-        assert.strictEqual(options.passphrase, connectionOptionsKeyPairPath.getPrivateKeyPass());
-      }
-      return {
-        export: () =>  connectionOptionsKeyPair.getPrivateKey()
-      };
-    });
-    sinonSandbox.stub(crypto, 'createPublicKey').callsFake((options) => {
-      assert.strictEqual(options.key, connectionOptionsKeyPair.getPrivateKey());
-      return {
-        export: () => mockPublicKeyObj
-      };
-    });
-    sinonSandbox.stub(crypto, 'createHash').returns({
-      update: (publicKeyObj) => {
-        assert.strictEqual(publicKeyObj, mockPublicKeyObj);
-        return { digest: () => {} };
-      }
-    });
-    sinonSandbox.stub(jsonwebtoken, 'sign').returns(mockToken);
-    sinonSandbox.stub(fs, 'readFileSync').returns(mockPrivateKeyFile);
-  });
+    mock('cryptomod', {
+      createPrivateKey: function (options) {
+        assert.strictEqual(options.key, mockPrivateKeyFile);
 
-  after(() => {
-    sinonSandbox.restore();
+        if (options.passphrase) {
+          assert.strictEqual(options.passphrase, connectionOptionsKeyPairPath.getPrivateKeyPass());
+        }
+
+        function privKeyObject() {
+          this.export = function () {
+            return connectionOptionsKeyPair.getPrivateKey();
+          };
+        }
+
+        return new privKeyObject;
+      },
+      createPublicKey: function (options) {
+        assert.strictEqual(options.key, connectionOptionsKeyPair.getPrivateKey());
+
+        function pubKeyObject() {
+          this.export = function () {
+            return mockPublicKeyObj;
+          };
+        }
+
+        return new pubKeyObject;
+      },
+      createHash: function () {
+        function createHash() {
+          this.update = function (publicKeyObj) {
+            function update() {
+              assert.strictEqual(publicKeyObj, mockPublicKeyObj);
+              this.digest = function () {};
+            }
+            return new update;
+          };
+        }
+        return new createHash;
+      }
+    });
+    mock('jwtmod', {
+      sign: function () {
+        return mockToken;
+      }
+    });
+    mock('filesystem', {
+      readFileSync: function () {
+        return mockPrivateKeyFile;
+      }
+    });
+
+    cryptomod = require('cryptomod');
+    jwtmod = require('jwtmod');
+    filesystem = require('filesystem');
   });
 
   it('key-pair - authenticate method is thenable', done => {
-    const auth = new AuthKeypair(connectionOptionsKeyPair);
+    const auth = new AuthKeypair(connectionOptionsKeyPair,
+      cryptomod, jwtmod, filesystem);
+
     auth.authenticate(connectionOptionsKeyPair.authenticator, '', connectionOptionsKeyPair.account, connectionOptionsKeyPair.username)
       .then(done)
       .catch(done);
   });
 
   it('key-pair - get token with private key', function () {
-    const auth = new AuthKeypair(connectionOptionsKeyPair);
+    const auth = new AuthKeypair(connectionOptionsKeyPair,
+      cryptomod, jwtmod, filesystem);
+
     auth.authenticate(connectionOptionsKeyPair.authenticator, '', connectionOptionsKeyPair.account, connectionOptionsKeyPair.username);
 
     const body = { data: {} };
@@ -283,7 +336,8 @@ describe('key-pair authentication', function () {
   });
 
   it('key-pair - get token with private key by reauthentication', async function () {
-    const auth = new AuthKeypair(connectionOptionsKeyPair);
+    const auth = new AuthKeypair(connectionOptionsKeyPair,
+      cryptomod, jwtmod, filesystem);
 
     const body = { data: { 'TOKEN': 'wrongToken' } };
     await auth.reauthenticate(body);
@@ -293,7 +347,8 @@ describe('key-pair authentication', function () {
   });
 
   it('key-pair - get token with private key path with passphrase', function () {
-    const auth = new AuthKeypair(connectionOptionsKeyPairPath);
+    const auth = new AuthKeypair(connectionOptionsKeyPairPath,
+      cryptomod, jwtmod, filesystem);
 
     auth.authenticate(connectionOptionsKeyPairPath.authenticator, '',
       connectionOptionsKeyPairPath.account,
@@ -307,7 +362,8 @@ describe('key-pair authentication', function () {
   });
 
   it('key-pair - get token with private key path without passphrase', function () {
-    const auth = new AuthKeypair(connectionOptionsKeyPairPath);
+    const auth = new AuthKeypair(connectionOptionsKeyPairPath,
+      cryptomod, jwtmod, filesystem);
 
     auth.authenticate(connectionOptionsKeyPairPath.authenticator, '',
       connectionOptionsKeyPairPath.account,
@@ -372,7 +428,7 @@ describe('okta authentication', function () {
   const mockSamlResponse = '<form action="https://' + connectionOptionsOkta.account + '.snowflakecomputing.com/fed/login">';
 
   before(function () {
-    httpclient = {
+    mock('httpclient', {
       post: async function (url) {
         let json;
         if (url.startsWith('https://' + connectionOptionsOkta.account)) {
@@ -402,7 +458,9 @@ describe('okta authentication', function () {
         };
         return json;
       }
-    };
+    });
+
+    httpclient = require('httpclient');
   });
 
   it('okta - authenticate method is thenable', done => {
@@ -428,10 +486,10 @@ describe('okta authentication', function () {
   it('okta - reauthenticate', async function () {
     const auth = authenticator.getAuthenticator(connectionOptionsOkta, httpclient);
     await auth.authenticate(connectionOptionsOkta.authenticator, '', connectionOptionsOkta.account, connectionOptionsOkta.username);
-    const body = {
+    const body = { 
       data: {
         RAW_SAML_RESPONSE: 'WRONG SAML'
-      }
+      } 
     };
 
     auth.reauthenticate(body, {
@@ -446,7 +504,7 @@ describe('okta authentication', function () {
   it('okta - reauthentication timeout error', async function () {
     const auth = authenticator.getAuthenticator(connectionOptionsOkta, httpclient);
     await auth.authenticate(connectionOptionsOkta.authenticator, '', connectionOptionsOkta.account, connectionOptionsOkta.username);
-
+    
     try {
       await auth.reauthenticate({ data: { RAW_SAML_RESPONSE: 'token' } }, { numRetries: 5, totalElapsedTime: 350 });
       assert.fail();
@@ -458,7 +516,7 @@ describe('okta authentication', function () {
   it('okta - reauthentication max retry error', async function () {
     const auth = authenticator.getAuthenticator(connectionOptionsOkta, httpclient);
     await auth.authenticate(connectionOptionsOkta.authenticator, '', connectionOptionsOkta.account, connectionOptionsOkta.username);
-
+    
     try {
       await auth.reauthenticate({ data: { RAW_SAML_RESPONSE: 'token' } }, { numRetries: 9, totalElapsedTime: 280 });
       assert.fail();
@@ -468,7 +526,7 @@ describe('okta authentication', function () {
   });
 
   it('okta - SAML response fail prefix', async function () {
-    httpclient = {
+    mock('httpclient', {
       post: async function (url) {
         let json;
         if (url.startsWith('https://' + connectionOptionsOkta.account)) {
@@ -486,7 +544,10 @@ describe('okta authentication', function () {
         }
         return json;
       }
-    };
+    });
+
+    httpclient = require('httpclient');
+
     const auth = new AuthOkta(connectionOptionsOkta, httpclient);
 
     try {
@@ -497,7 +558,7 @@ describe('okta authentication', function () {
   });
 
   it('okta - SAML response fail postback', async function () {
-    httpclient = {
+    mock('httpclient', {
       post: async function (url) {
         let json;
         if (url.startsWith('https://' + connectionOptionsOkta.account)) {
@@ -528,7 +589,10 @@ describe('okta authentication', function () {
         };
         return json;
       }
-    };
+    });
+
+    httpclient = require('httpclient');
+
     const auth = new AuthOkta(connectionOptionsOkta, httpclient);
 
     try {

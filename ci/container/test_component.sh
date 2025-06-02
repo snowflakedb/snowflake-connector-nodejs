@@ -24,10 +24,10 @@ if [[ "$LOCAL_USER_NAME" == "jenkins" ]]; then
 else
     export PATH=$WORKSPACE/node_modules/.bin:$PATH
 fi
+cp $SOURCE_ROOT/ci/container/package.json .
 npm install
 
 PACKAGE_NAME=$(cd $WORKSPACE && ls snowflake-sdk*.tgz)
-echo "[INFO] Test $PACKAGE_NAME installation"
 npm install $WORKSPACE/${PACKAGE_NAME}
 
 echo "[INFO] Setting test parameters"
@@ -70,11 +70,11 @@ python3 $THIS_DIR/hang_webserver.py 12345 > hang_webserver.out 2>&1 &
 if [[ "$SHOULD_GENERATE_COVERAGE_REPORT" == "1" ]];
   then
     MOCHA_CMD=(
-       "npx" "nyc" "--reporter=lcov" "--reporter=text" "mocha" "--timeout" "$TIMEOUT"
+       "npx" "nyc" "--reporter=lcov" "--reporter=text" "mocha" "--exit" "--timeout" "$TIMEOUT" "--recursive" "--full-trace"
     )
   else
     MOCHA_CMD=(
-        "mocha" "--timeout" "$TIMEOUT"
+        "mocha" "--exit" "--timeout" "$TIMEOUT" "--recursive" "--full-trace"
     )
 fi
 

@@ -1,4 +1,4 @@
-REM
+REM 
 REM Tests NodeJS Driver on Windows
 REM
 setlocal
@@ -47,12 +47,13 @@ python create_schema.py
 popd
 
 echo [INFO] Installing Test package
+copy %GITHUB_WORKSPACE%\ci\container\package.json .
 cmd /c npm install
 if %ERRORLEVEL% NEQ 0 (
     echo [ERROR] failed to install test packages
     exit /b 1
 )
-echo [INFO] Test snowflake-sdk installation
+echo [INFO] Installing Snowflake NodeJS Driver
 copy %GITHUB_WORKSPACE%\artifacts\* .
 for %%f in (snowflake-sdk*.tgz) do cmd /c npm install %%f
 
@@ -66,7 +67,7 @@ start /b python hang_webserver.py 12345 > hang_webserver.out 2>&1
 popd
 
 echo [INFO] Testing
-cmd /c node_modules\.bin\mocha --timeout %TIMEOUT% test/{unit,integration}/**/*.js
+cmd /c node_modules\.bin\mocha --exit --timeout %TIMEOUT% --recursive --full-trace --color --reporter spec \"test/{unit,integration}/**/*.js\"
 if %ERRORLEVEL% NEQ 0 (
     echo [ERROR] failed to run mocha
     exit /b 1

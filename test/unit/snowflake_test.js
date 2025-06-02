@@ -298,6 +298,12 @@ describe('snowflake.createConnection() synchronous errors', function () {
   }
 });
 
+describe('snowflake.ErrorCode property', function () {
+  it('snowflake.ErrorCodes returns an enum', () => {
+    assert.strictEqual(snowflake.ErrorCode, ErrorCodes);
+  });
+});
+
 describe('snowflake.createConnection() success', function () {
   it('createConnection() returns connection', function () {
     const connection = snowflake.createConnection(connectionOptions);

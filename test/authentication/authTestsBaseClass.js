@@ -1,8 +1,13 @@
 const assert = require('assert');
 const testUtil = require('../integration/testUtil');
 const snowflake = require('../../lib/snowflake');
+const { spawn } = require('child_process');
 
 class AuthTest {
+
+  runAuthTestsManually = process.env.RUN_AUTH_TESTS_MANUALLY === 'true';
+  cleanBrowserProcessesPath = '/externalbrowser/cleanBrowserProcesses.js';
+  
   constructor() {
     this.connection = null;
     this.error = null;
@@ -74,6 +79,54 @@ class AuthTest {
 
   verifyErrorWasThrown(message) {
     assert.strictEqual(this.error?.message, message);
+  }
+
+  execWithTimeout(command, args, timeout = 5000) {
+    return new Promise((resolve, reject) => {
+      const child = spawn(command, args, { shell: true });
+
+      let stdout = '';
+      let stderr = '';
+
+      child.stdout.on('data', (data) => {
+        stdout += data;
+      });
+
+      child.stderr.on('data', (data) => {
+        stderr += data;
+      });
+
+      child.on('error', (err) => {
+        reject(err);
+      });
+
+      child.on('close', (code) => {
+        if (code !== 0) {
+          reject(new Error(`Process exited with code: ${code}, error: ${stderr}`));
+        } else {
+          resolve({ stdout, stderr });
+        }
+      });
+
+      setTimeout(() => {
+        child.kill();
+        reject(new Error('Process timed out'));
+      }, timeout);
+    });
+  }
+
+  async cleanBrowserProcesses() {
+    if (!this.runAuthTestsManually) {
+      await this.execWithTimeout('node', [this.cleanBrowserProcessesPath], 15000);
+    }
+  }
+
+  async connectAndProvideCredentials(provideCredentialsPromise) {
+    if (this.runAuthTestsManually) {
+      await this.connectAsync();
+    } else {
+      await Promise.allSettled([this.connectAsync(), provideCredentialsPromise]);
+    }
   }
 }
 

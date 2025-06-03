@@ -4,10 +4,10 @@ const AuthTest = require('./authTestsBaseClass.js');
 const authUtil = require('../../lib/authentication/authentication_util');
 const AuthenticationTypes = require('../../lib/authentication/authentication_types');
 
-describe('External browser authentication tests', function () {
+describe('Oauth Snowflake Authorization code tests', function () {
   const provideBrowserCredentialsPath = '/externalbrowser/provideBrowserCredentials.js';
-  const login = connParameters.snowflakeTestBrowserUser;
-  const password = connParameters.snowflakeAuthTestOktaPass;
+  const login = connParameters.snowflakeAuthTestOauthOktaClientId;
+  const password = connParameters.snowflakeAuthTestOauthOktaPassword;
   let authTest;
 
   beforeEach(async () => {
@@ -19,71 +19,63 @@ describe('External browser authentication tests', function () {
     await authTest.destroyConnection();
   });
 
-  describe('External browser tests', async () => {
+  describe('Oauth Snowflake Authorization code tests', async () => {
     it('Successful connection', async () => {
-      const connectionOption = { ...connParameters.externalBrowser, clientStoreTemporaryCredential: false };
+      const connectionOption = { ...connParameters.oauthSnowflakeAuthorizationCode, clientStoreTemporaryCredential: false };
       authTest.createConnection(connectionOption);
-      const provideCredentialsPromise = authTest.execWithTimeout('node', [provideBrowserCredentialsPath, 'success', login, password], 15000);
+      const provideCredentialsPromise = authTest.execWithTimeout('node', [provideBrowserCredentialsPath, 'internalOauthSnowflakeSuccess', login, password], 15000);
       await authTest.connectAndProvideCredentials(provideCredentialsPromise);
       authTest.verifyNoErrorWasThrown();
       await authTest.verifyConnectionIsUp();
     });
 
     it('Mismatched Username', async () => {
-      const connectionOption = { ...connParameters.externalBrowser, username: 'differentUsername', clientStoreTemporaryCredential: false };
+      const connectionOption = { ...connParameters.oauthSnowflakeAuthorizationCode, username: 'differentUsername', clientStoreTemporaryCredential: false };
       authTest.createConnection(connectionOption);
-      const provideCredentialsPromise = authTest.execWithTimeout('node', [provideBrowserCredentialsPath, 'success', login, password], 15000);
+      const provideCredentialsPromise = authTest.execWithTimeout('node', [provideBrowserCredentialsPath, 'internalOauthSnowflakeSuccess', login, password], 15000);
       await authTest.connectAndProvideCredentials(provideCredentialsPromise);
-      authTest.verifyErrorWasThrown('The user you were trying to authenticate as differs from the user currently logged in at the IDP.');
+      authTest.verifyErrorWasThrown('The user you were trying to authenticate as differs from the user tied to the access token.');
       await authTest.verifyConnectionIsNotUp('Unable to perform operation using terminated connection.');
     });
 
-    it('Wrong credentials', async () => {
-      const login = 'itsnotanaccount.com';
-      const password = 'fakepassword';
-      const connectionOption = { ...connParameters.externalBrowser, browserActionTimeout: 10000, clientStoreTemporaryCredential: false };
-      authTest.createConnection(connectionOption);
-      const provideCredentialsPromise = authTest.execWithTimeout('node', [provideBrowserCredentialsPath, 'fail', login, password]);
-      await authTest.connectAndProvideCredentials(provideCredentialsPromise);
-      authTest.verifyErrorWasThrown('Error while getting SAML token: Browser action timed out after 10000 ms.');
-      await authTest.verifyConnectionIsNotUp();
-    });
-
     it('External browser timeout', async () => {
-      const connectionOption = { ...connParameters.externalBrowser, browserActionTimeout: 100, clientStoreTemporaryCredential: false };
+      const connectionOption = { ...connParameters.oauthSnowflakeAuthorizationCode, browserActionTimeout: 100, clientStoreTemporaryCredential: false };
       authTest.createConnection(connectionOption);
       const connectToBrowserPromise = authTest.execWithTimeout('node', [provideBrowserCredentialsPath, 'timeout']);
       await authTest.connectAndProvideCredentials(connectToBrowserPromise);
-      authTest.verifyErrorWasThrown('Error while getting SAML token: Browser action timed out after 100 ms.');
+      authTest.verifyErrorWasThrown('Browser action timed out after 100 ms.');
       await authTest.verifyConnectionIsNotUp();
     });
   });
 
-  describe('ID Token authentication tests', async () => {
-    const connectionOption = { ...connParameters.externalBrowser, clientStoreTemporaryCredential: true };
-    const idTokenKey = authUtil.buildOauthAccessTokenCacheKey(connectionOption.host,
-      connectionOption.username, AuthenticationTypes.ID_TOKEN_AUTHENTICATOR);
-
+  describe('Oauth Snowflake Authorization - token cache', async () => {
+    const connectionOption = { ...connParameters.oauthSnowflakeAuthorizationCode, clientStoreTemporaryCredential: true };
+    const accessTokenKey = authUtil.buildOauthAccessTokenCacheKey(connectionOption.host,
+      connectionOption.username, AuthenticationTypes.OAUTH_AUTHORIZATION_CODE);
+    const refreshTokenKey = authUtil.buildOauthRefreshTokenCacheKey(connectionOption.host,
+      connectionOption.username, AuthenticationTypes.OAUTH_AUTHORIZATION_CODE);
     let firstIdToken;
 
     before(async () => {
-      await authUtil.removeFromCache(idTokenKey);
+      await authUtil.removeFromCache(accessTokenKey);
+      await authUtil.removeFromCache(refreshTokenKey);
     });
 
     after(async () => {
-      await authUtil.removeFromCache(idTokenKey);
+      await authUtil.removeFromCache(accessTokenKey);
+      await authUtil.removeFromCache(refreshTokenKey);
     });
 
     it('obtains the id token from the server and saves it on the local storage', async function () {
       authTest.createConnection(connectionOption);
-      const provideCredentialsPromise = authTest.execWithTimeout('node', [provideBrowserCredentialsPath, 'success', login, password], 15000);
+      const provideCredentialsPromise = authTest.execWithTimeout('node', [provideBrowserCredentialsPath, 'internalOauthSnowflakeSuccess', login, password], 15000);
       await authTest.connectAndProvideCredentials(provideCredentialsPromise);
       authTest.verifyNoErrorWasThrown();
       await authTest.verifyConnectionIsUp();
     });
 
     it('the token is saved in the credential manager', async function () {
-      firstIdToken = await authUtil.removeFromCache(idTokenKey);
+      firstIdToken = await authUtil.readCache(accessTokenKey);
       assert.notStrictEqual(firstIdToken, null);
     });
 
@@ -95,17 +87,18 @@ describe('External browser authentication tests', function () {
     });
 
     it('opens browser again when token is incorrect',  async function () {
-      await authUtil.removeFromCache(idTokenKey);
+      await authUtil.removeFromCache(accessTokenKey);
       authTest.createConnection(connectionOption);
-      const provideCredentialsPromise = authTest.execWithTimeout('node', [provideBrowserCredentialsPath, 'success', login, password], 15000);
+      const provideCredentialsPromise = authTest.execWithTimeout('node', [provideBrowserCredentialsPath, 'internalOauthSnowflakeSuccess', login, password], 15000);
       await authTest.connectAndProvideCredentials(provideCredentialsPromise);
       authTest.verifyNoErrorWasThrown();
       await authTest.verifyConnectionIsUp();
     });
 
     it('refreshes the token for credential cache key', async function () {
-      const newToken = await authUtil.readCache(idTokenKey);
+      const newToken = await authUtil.removeFromCache(accessTokenKey);
       assert.notStrictEqual(firstIdToken, newToken);
     });
   });
 });
+

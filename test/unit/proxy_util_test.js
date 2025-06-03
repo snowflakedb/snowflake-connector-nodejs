@@ -161,7 +161,8 @@ describe('getProxyEnv function test ', function () {
         host: 'proxy.example.com',
         port: 8080,
         protocol: 'http:',
-        noProxy: '*.amazonaws.com'
+        noProxy: '*.amazonaws.com',
+        useForOCSP: true
       }
     },
     {
@@ -176,7 +177,8 @@ describe('getProxyEnv function test ', function () {
         password: 'world',
         port: 8080,
         protocol: 'http:',
-        noProxy: '*.amazonaws.com|*.my_company.com'
+        noProxy: '*.amazonaws.com|*.my_company.com',
+        useForOCSP: true
       }
     },
     {
@@ -190,6 +192,7 @@ describe('getProxyEnv function test ', function () {
         port: 1234,
         protocol: 'https:',
         noProxy: undefined,
+        useForOCSP: false
       },
     },
     {
@@ -202,6 +205,7 @@ describe('getProxyEnv function test ', function () {
         port: 1234,
         protocol: 'http:',
         noProxy: '*.amazonaws.com|*.my_company.com|*.test.com',
+        useForOCSP: false
       },
     },
     {
@@ -214,6 +218,7 @@ describe('getProxyEnv function test ', function () {
         port: 80,
         protocol: 'http:',
         noProxy: '*.amazonaws.com|*.my_company.com|*.test.com',
+        useForOCSP: false
       },
     },
     {
@@ -226,6 +231,7 @@ describe('getProxyEnv function test ', function () {
         port: 80,
         protocol: 'http:',
         noProxy: '*.amazonaws.com|*.my_company.com|*.test.com',
+        useForOCSP: true
       },
     },
     {
@@ -238,6 +244,7 @@ describe('getProxyEnv function test ', function () {
         port: 443,
         protocol: 'https:',
         noProxy: '*.amazonaws.com|*.my_company.com|*.test.com',
+        useForOCSP: false
       }
     }
   ];

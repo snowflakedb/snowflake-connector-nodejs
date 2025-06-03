@@ -1,8 +1,8 @@
 const connParameters = require('../../authentication/connectionParameters');
 const AuthTest = require('../../authentication/authTestsBaseClass');
-const { runWireMockAsync, addWireMockMappingsFromFile, } = require('../../wiremockRunner');
+const { runWireMockAsync, addWireMockMappingsFromFile } = require('../../wiremockRunner');
 const os = require('os');
-const { getFreePort } = require('../testUtil');
+const { getFreePort } = require('../../../lib/util');
 
 if (os.platform !== 'win32')  {
   describe('Oauth PAT authentication', function () {
@@ -17,7 +17,7 @@ if (os.platform !== 'win32')  {
       authTest = new AuthTest();
     });
     afterEach(async () => {
-      wireMock.scenarios.resetAllScenarios();
+      await wireMock.scenarios.resetAllScenarios();
     });
     after(async () => {
       await wireMock.global.shutdown();

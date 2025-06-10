@@ -308,61 +308,6 @@ describe('ConnectionConfig: basic', function () {
         errorCode: ErrorCodes.ERR_CONN_CREATE_INVALID_ACCOUNT_REGEX
       },
       {
-        name: 'region starting with -',
-        options:
-          {
-            username: 'username',
-            password: 'password',
-            account: 'account',
-            region: '-region'
-          },
-        errorCode: ErrorCodes.ERR_CONN_CREATE_INVALID_REGION_REGEX
-      },
-      {
-        name: 'region ending with -',
-        options:
-          {
-            username: 'username',
-            password: 'password',
-            account: 'account',
-            region: 'region-'
-          },
-        errorCode: ErrorCodes.ERR_CONN_CREATE_INVALID_REGION_REGEX
-      },
-      {
-        name: 'region starting with invalid character',
-        options:
-          {
-            username: 'username',
-            password: 'password',
-            account: 'account',
-            region: '?region'
-          },
-        errorCode: ErrorCodes.ERR_CONN_CREATE_INVALID_REGION_REGEX
-      },
-      {
-        name: 'region with invalid character',
-        options:
-          {
-            username: 'username',
-            password: 'password',
-            account: 'account',
-            region: 'region?'
-          },
-        errorCode: ErrorCodes.ERR_CONN_CREATE_INVALID_REGION_REGEX
-      },
-      {
-        name: 'region with invalid character in the middle',
-        options:
-          {
-            username: 'username',
-            password: 'password',
-            account: 'account',
-            region: 'reg?ion'
-          },
-        errorCode: ErrorCodes.ERR_CONN_CREATE_INVALID_REGION_REGEX
-      },
-      {
         name: 'invalid warehouse',
         options:
           {

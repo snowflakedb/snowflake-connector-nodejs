@@ -51,7 +51,6 @@ declare module 'snowflake-sdk' {
         ERR_CONN_CREATE_INVALID_STREAM_RESULT = 404019,
         ERR_CONN_CREATE_INVALID_FETCH_AS_STRING = 404020,
         ERR_CONN_CREATE_INVALID_FETCH_AS_STRING_VALUES = 404021,
-        ERR_CONN_CREATE_INVALID_REGION = 404022,
         ERR_CONN_CREATE_INVALID_KEEP_ALIVE = 404023,
         ERR_CONN_CREATE_INVALID_KEEP_ALIVE_HEARTBEAT_FREQ = 404024,
         ERR_CONN_CREATE_INVALID_TREAT_INTEGER_AS_BIGINT = 404025,
@@ -75,7 +74,6 @@ declare module 'snowflake-sdk' {
         ERR_CONN_CREATE_INVALID_CLIENT_CONFIG_FILE = 404043,
         ERR_CONN_CREATE_INVALID_RETRY_TIMEOUT = 404044,
         ERR_CONN_CREATE_INVALID_ACCOUNT_REGEX = 404045,
-        ERR_CONN_CREATE_INVALID_REGION_REGEX = 404046,
         ERR_CONN_CREATE_INVALID_DISABLE_CONSOLE_LOGIN = 404047,
         ERR_CONN_CREATE_INVALID_FORCE_GCP_USE_DOWNSCOPED_CREDENTIAL = 404048,
         ERR_CONN_CREATE_INVALID_REPRESENT_NULL_AS_STRING_NULL = 404050,
@@ -264,12 +262,6 @@ declare module 'snowflake-sdk' {
          * Specifies the name of the client application connecting to Snowflake.
          */
         application?: string;
-
-        /**
-         * @deprecated
-         * The ID for the region where your account is located.
-         */
-        region?: string;
 
         /**
          * Host address to which the driver should connect.

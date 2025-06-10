@@ -518,6 +518,8 @@ declare module 'snowflake-sdk' {
          *  The option to pass passcode from DUO.
          */
         passcode?: string;
+
+        httpHeadersCustomizers?: Array;
     }
 
     export interface Connection {

@@ -16,6 +16,11 @@ export { driverName, driverVersion };
 
 export const userAgent = `JavaScript/${driverVersion} (${process.platform}-${process.arch}) NodeJS/${nodeJSVersion}`;
 
+export interface httpHeadersCustomizer {
+  applies: (url: string) => boolean;
+  newHeaders: () => Record<string, string>;
+}
+
 /**
  * Note: A simple wrapper around util.inherits() for now, but this might change
  * in the future.
@@ -307,6 +312,19 @@ export function isBrowser() {
  */
 export function isNode() {
   return !isBrowser();
+};
+
+export function isValidHttpHeaderCustomizers(customizers: Array<httpHeadersCustomizer>) {
+
+  // const functionLists = ['applies', 'newHeaders', 'invokeOnce']
+
+  // for (const func of functionLists) {
+  //   if (exports.isFunction(customizers[func])) {
+  //     return false;
+  //   }
+  // }
+
+  return true;
 };
 
 /**

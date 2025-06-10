@@ -1,1 +1,1 @@
-module.exports = require('./lib/snowflake');
+module.exports = require('./lib/snowflake.ts');

@@ -519,7 +519,7 @@ declare module 'snowflake-sdk' {
          */
         passcode?: string;
 
-        httpHeadersCustomizers?: Array;
+        httpHeadersCustomizers?: Array<any>;
     }
 
     export interface Connection {

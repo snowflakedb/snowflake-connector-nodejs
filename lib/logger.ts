@@ -1,22 +1,18 @@
-const BrowserLogger = require('./logger/browser');
+import BrowserLogger from './logger/browser';
 
-let instance;
+let instance: BrowserLogger;
 
 /**
  * Sets the logger instance. For internal use only.
- *
- * @param {*} newInstance
  */
-exports.setInstance = function (newInstance) {
+export function setInstance(newInstance: BrowserLogger) {
   instance = newInstance;
 };
 
 /**
  * Returns the current logger instance.
- *
- * @returns {Logger}
  */
-exports.getInstance = function () {
+export function getInstance() {
   // use the browser implementation of logger as the default implementation;
   // we do this so that unit tests don't fail when the modules they're testing
   // log messages

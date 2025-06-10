@@ -4,7 +4,7 @@ const { execSync } = require('child_process');
 
 // Clear dist folder
 try {
-const distPath = path.join(process.cwd(), 'dist');
+  const distPath = path.join(process.cwd(), 'dist');
   fs.rmSync(distPath, { recursive: true, force: true });
   console.log('Successfully cleared /dist folder');
 } catch (err) {

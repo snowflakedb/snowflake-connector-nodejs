@@ -1,14 +1,13 @@
 const core = require('./core');
-const Util = require('./util');
-const Errors = require('./errors');
-const ErrorCodes = Errors.codes;
+import * as Util from './util';
+import { createClientError, codes as ErrorCodes } from './errors';
 
 const clientEnvironment = process.versions;
 
 // if we're not using the minimum supported version of node.js, raise an error
 const minimumNodeVersion = '6.0.0';
 if (Util.string.compareVersions(clientEnvironment.node, minimumNodeVersion) < 0) {
-  throw Errors.createClientError(
+  throw createClientError(
     ErrorCodes.ERR_UNSUPPORTED_NODE_JS_VERSION, true, minimumNodeVersion);
 }
 

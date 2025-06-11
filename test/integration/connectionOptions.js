@@ -118,8 +118,7 @@ const clientCredentialSnowflake = {
   oauthClientId: snowflakeOauthClientID,
   oauthClientSecret: snowflakeOauthClientSecret,
   oauthTokenRequestUrl: oauthTokenRequestUrl,
-  authenticator: 'OAUTH_CLIENT_CREDENTIALS',
-  enableExperimentalAuthentication: true
+  authenticator: 'OAUTH_CLIENT_CREDENTIALS'
 };
 
 const privatelink =

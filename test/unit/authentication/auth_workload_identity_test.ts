@@ -22,7 +22,7 @@ mock('@aws-sdk/ec2-metadata-service', {
 import AuthWorkloadIdentity from '../../../lib/authentication/auth_workload_identity';
 
 
-describe('AWS updateBody', () => {
+describe('Workload Identity for AWS', () => {
   const AWS_REGION = 'test-aws-region';
   const connectionConfig: WIP_ConnectionConfig = {
     workloadIdentityProvider: 'AWS',
@@ -41,14 +41,19 @@ describe('AWS updateBody', () => {
     sinonSandbox.restore();
   });
 
-  it('raises error when no credentials are found', async () => {
+  it('authenticate method is thenable', done=> {
+    const auth = new AuthWorkloadIdentity(connectionConfig);
+    auth.authenticate().then(done).catch(done);
+  });
+
+  it('updateBody raises error when no credentials are found', async () => {
     awsSdkStub.getCredentials.returns(null);
     const auth = new AuthWorkloadIdentity(connectionConfig);
     const body: AuthRequestBody = { data: {} };
     await assert.rejects(auth.updateBody(body), /No workload identity credentials were found. Provider: AWS/);
   });
 
-  it('Sets valid body fields', async () => {
+  it('updateBody sets valid body fields', async () => {
     const auth = new AuthWorkloadIdentity(connectionConfig);
     const body: AuthRequestBody = { data: {} };
     await auth.updateBody(body);

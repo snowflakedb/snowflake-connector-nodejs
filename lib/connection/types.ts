@@ -5,5 +5,5 @@ import { WorkloadIdentityProvider } from "../authentication/auth_workload_identi
  */
 export interface WIP_ConnectionConfig {
   enableExperimentalWorkloadIdentityAuth?: boolean;
-  workloadIdentityProvider?: WorkloadIdentityProvider;
+  workloadIdentityProvider?: keyof typeof WorkloadIdentityProvider;
 }

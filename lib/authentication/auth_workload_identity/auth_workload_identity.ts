@@ -24,7 +24,7 @@ class AuthWorkloadIdentity implements AuthClass {
     if (!token) {
       throw createInvalidParameterError(
         ErrorCode.ERR_CONN_CREATE_MISSING_WORKLOAD_IDENTITY_CREDENTIALS,
-        `No workload identity credential was found for: ${provider}`
+        provider
       );
     } else {
       return {

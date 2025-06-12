@@ -1,6 +1,5 @@
 import { defaultProvider } from '@aws-sdk/credential-provider-node';
 import { MetadataService } from '@aws-sdk/ec2-metadata-service';
-import { STSClient, GetCallerIdentityCommand } from '@aws-sdk/client-sts';
 import { HttpRequest } from '@aws-sdk/protocol-http';
 import { SignatureV4 } from '@aws-sdk/signature-v4';
 import { Sha256 } from '@aws-crypto/sha256-js';
@@ -28,18 +27,6 @@ async function getAwsRegion() {
   }
 }
 
-async function getAwsArn(region: string) {
-  try {
-    const stsClient = new STSClient({ region });
-    const command = new GetCallerIdentityCommand({});
-    const response = await stsClient.send(command);
-    return response.Arn;
-  } catch (error) {
-    Logger().debug("No AWS caller identity was found.");
-    return null;
-  }
-}
-
 /**
  * Tries to create a workload identity attestation for AWS.
  * If the application isn't running on AWS or no credentials were found, returns null.
@@ -52,11 +39,6 @@ export async function getAwsAttestationToken() {
 
   const region = await getAwsRegion();
   if (!region) {
-    return null;
-  }
-
-  const arn = await getAwsArn(region);
-  if (!arn) {
     return null;
   }
 
@@ -89,6 +71,5 @@ export async function getAwsAttestationToken() {
     method: 'POST',
     headers: signedRequest.headers
   };
-  console.log(stsHostname, token);
   return btoa(JSON.stringify(token));
 }

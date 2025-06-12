@@ -1,4 +1,4 @@
-import sinon, { SinonSandbox } from 'sinon';
+import sinon from 'sinon';
 import mock from 'mock-require';
 import assert from 'assert';
 import { WIP_ConnectionConfig } from '../../../lib/connection/types';

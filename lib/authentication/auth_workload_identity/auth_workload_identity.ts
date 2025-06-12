@@ -8,6 +8,9 @@ class AuthWorkloadIdentity implements AuthClass {
   connectionConfig: WIP_ConnectionConfig;
 
   constructor(connectionConfig: WIP_ConnectionConfig) {
+    if (!connectionConfig.enableExperimentalWorkloadIdentityAuth) {
+      throw new Error('Experimental Workload identity authentication is not enabled. Please set enableExperimentalWorkloadIdentityAuth to true to use this authenticator.');
+    }
     this.connectionConfig = connectionConfig;
   }
 

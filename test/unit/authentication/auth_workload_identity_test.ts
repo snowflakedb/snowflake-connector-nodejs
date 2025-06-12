@@ -26,6 +26,7 @@ describe('Workload Identity for AWS', () => {
   const AWS_REGION = 'test-aws-region';
   const connectionConfig: WIP_ConnectionConfig = {
     workloadIdentityProvider: 'AWS',
+    enableExperimentalWorkloadIdentityAuth: true,
   };
 
   beforeEach(() => {
@@ -39,6 +40,13 @@ describe('Workload Identity for AWS', () => {
 
   afterEach(() => {
     sinonSandbox.restore();
+  });
+
+  it('throws error when instance is created without enableExperimentalWorkloadIdentityAuth', () => {
+    assert.throws(() => new AuthWorkloadIdentity({
+      ...connectionConfig,
+      enableExperimentalWorkloadIdentityAuth: undefined,
+    }), /Experimental Workload identity authentication is not enabled/);
   });
 
   it('authenticate method is thenable', done=> {

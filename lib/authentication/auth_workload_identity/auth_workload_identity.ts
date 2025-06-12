@@ -11,6 +11,11 @@ class AuthWorkloadIdentity implements AuthClass {
     if (!connectionConfig.enableExperimentalWorkloadIdentityAuth) {
       throw new Error('Experimental Workload identity authentication is not enabled. Please set enableExperimentalWorkloadIdentityAuth to true to use this authenticator.');
     }
+    // NOTE:
+    // Check will be removed when auto-detection is implemented
+    if (connectionConfig.workloadIdentityProvider !== WorkloadIdentityProvider.AWS) {
+      throw new Error(`Experimental authenticator: 'WORKLOAD_IDENTITY' requires workloadIdentityProvider: 'AWS'`);
+    }
     this.connectionConfig = connectionConfig;
   }
 
@@ -20,8 +25,6 @@ class AuthWorkloadIdentity implements AuthClass {
 
     if (provider === WorkloadIdentityProvider.AWS) {
       token = await getAwsAttestationToken();
-    } else {
-      throw new Error(`Experimental authenticator: 'WORKLOAD_IDENTITY' requires workloadIdentityProvider: 'AWS'`);
     }
 
     if (!token) {

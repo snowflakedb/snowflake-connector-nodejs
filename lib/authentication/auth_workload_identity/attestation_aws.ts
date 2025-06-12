@@ -5,7 +5,7 @@ import { SignatureV4 } from '@aws-sdk/signature-v4';
 import { Sha256 } from '@aws-crypto/sha256-js';
 import Logger from '../../logger';
 
-async function getAwsCredentials() {
+export async function getAwsCredentials() {
   try {
     return await defaultProvider()();
   } catch (error) {
@@ -14,7 +14,7 @@ async function getAwsCredentials() {
   }
 }
 
-async function getAwsRegion() {
+export async function getAwsRegion() {
   if (process.env.AWS_REGION) {
     return process.env.AWS_REGION; // Lambda
   } else {

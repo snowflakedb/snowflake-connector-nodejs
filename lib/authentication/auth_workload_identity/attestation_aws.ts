@@ -33,13 +33,11 @@ async function getAwsRegion() {
  */
 export async function getAwsAttestationToken() {
   const credentials = await getAwsCredentials();
-  console.log('>>>>>>>credentials', credentials);
   if (!credentials) {
     return null;
   }
 
   const region = await getAwsRegion();
-  console.log('>>>>>>>credentials', credentials);
   if (!region) {
     return null;
   }

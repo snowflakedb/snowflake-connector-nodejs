@@ -1,27 +1,41 @@
 import sinon from 'sinon';
-import mock from 'mock-require';
+import rewiremock from 'rewiremock/node';
 import assert from 'assert';
 import { WIP_ConnectionConfig } from '../../../lib/connection/types';
 import { AuthRequestBody } from '../../../lib/authentication/types';
+import OriginalAuthWorkloadIdentity from '../../../lib/authentication/auth_workload_identity';
 
-// NOTE:
-// Sinon can't stub frozen AWS SDK properties, so we need to mock entire require
-const sinonSandbox = sinon.createSandbox();
-const awsSdkStub = {
-  getCredentials: sinonSandbox.stub(),
-  getRegion: sinonSandbox.stub(),
-};
-mock('@aws-sdk/credential-provider-node', {
-  defaultProvider: () => awsSdkStub.getCredentials
-});
-mock('@aws-sdk/ec2-metadata-service', {
-  MetadataService: class {
-    request = () => awsSdkStub.getRegion();
-  }
-});
-import AuthWorkloadIdentity from '../../../lib/authentication/auth_workload_identity';
+describe('Workload Identity Authentication', async() => {
+  const sinonSandbox = sinon.createSandbox();
+  const awsSdkStub = {
+    getCredentials: sinonSandbox.stub(),
+    getRegion: sinonSandbox.stub(),
+  };
+  let AuthWorkloadIdentity: typeof OriginalAuthWorkloadIdentity;
 
-describe('Workload Identity Authentication', () => {
+  before(async () => {
+    // NOTE:
+    // Sinon can't stub frozen AWS SDK properties, so we need to mock entire require
+    rewiremock('@aws-sdk/credential-provider-node').with({
+      defaultProvider: () => awsSdkStub.getCredentials,
+    })
+    rewiremock('@aws-sdk/ec2-metadata-service').with({
+      MetadataService: class {
+        request = () => awsSdkStub.getRegion();
+      }
+    });
+    rewiremock.enable();
+    AuthWorkloadIdentity = (await import('../../../lib/authentication/auth_workload_identity')).default;
+  });
+
+  afterEach(() => {
+    sinonSandbox.restore();
+  });
+
+  after(() => {
+    rewiremock.disable();
+  });
+
   it('throws error when instance is created without enableExperimentalWorkloadIdentityAuth', () => {
     assert.throws(() => new AuthWorkloadIdentity({
       workloadIdentityProvider: 'AWS',
@@ -58,10 +72,6 @@ describe('Workload Identity Authentication', () => {
         sessionToken: 'dummy session token',
       });
       awsSdkStub.getRegion.returns(AWS_REGION);
-    });
-
-    afterEach(() => {
-      sinonSandbox.restore();
     });
 
     it('throws error when no credentials are found', async () => {

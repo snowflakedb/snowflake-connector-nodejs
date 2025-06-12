@@ -51,6 +51,7 @@
     "mocha": "^11.1.0",
     "mock-require": "^3.0.3",
     "nyc": "^15.1.0",
+    "rewiremock": "^3.14.6",
     "sinon": "^20.0.0",
     "test-console": "^2.0.0",
     "ts-node": "^10.9.2",

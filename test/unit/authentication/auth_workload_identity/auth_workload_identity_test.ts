@@ -51,35 +51,32 @@ describe('Workload Identity Authentication', async () => {
     }), /requires workloadIdentityProvider: 'AWS'/);
   });
 
-  it('authenticate method is thenable', done => {
-    const auth = new AuthWorkloadIdentity({
-      workloadIdentityProvider: 'AWS',
-      enableExperimentalWorkloadIdentityAuth: true,
-    });
-    auth.authenticate().then(done).catch(done);
-  });
-
-  describe('updateBody for AWS', () => {
+  describe('AWS', () => {
     const connectionConfig: WIP_ConnectionConfig = {
       workloadIdentityProvider: 'AWS',
       enableExperimentalWorkloadIdentityAuth: true,
     };
 
-    it('throws error when credentials are not found', async () => {
+    it('authenticate() throws error when credentials are not found', async () => {
       const auth = new AuthWorkloadIdentity(connectionConfig);
-      const body: AuthRequestBody = { data: {} };
-      await assert.rejects(auth.updateBody(body), /No workload identity credentials were found. Provider: AWS/);
+      await assert.rejects(auth.authenticate(), /No workload identity credentials were found. Provider: AWS/);
     });
 
-    it('sets valid body fields', async () => {
+    it('authenticate() sets valid fields for updateBody() to use', async () => {
       awsSdkMock.getCredentials.returns(AWS_CREDENTIALS);
       awsSdkMock.getMetadataRegion.returns(AWS_REGION);
       const auth = new AuthWorkloadIdentity(connectionConfig);
       const body: AuthRequestBody = { data: {} };
+      await auth.authenticate();
       await auth.updateBody(body);
       assert.strictEqual(body.data.AUTHENTICATOR, 'WORKLOAD_IDENTITY');
       assert.strictEqual(body.data.PROVIDER, 'AWS');
       assertAwsAttestationToken(body.data.TOKEN, AWS_REGION);
+    });
+
+    it('reauthenticate() throws TODO error', async () => {
+      const auth = new AuthWorkloadIdentity(connectionConfig);
+      await assert.rejects(auth.reauthenticate({ data: {} }), /TODO: Not implemented/);
     });
   });
 });

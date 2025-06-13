@@ -7,7 +7,7 @@ export const AWS_CREDENTIALS = {
   sessionToken: 'test',
 };
 
-export function assertAwsAttestationToken(token: string | null, region: string) {
+export function assertAwsAttestationToken(token: string | null | undefined, region: string) {
   if (!token) {
     assert.fail('Token is null');
   }

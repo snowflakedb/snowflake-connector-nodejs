@@ -6,6 +6,8 @@ import { WIP_ConnectionConfig } from "../../connection/types";
 
 class AuthWorkloadIdentity implements AuthClass {
   connectionConfig: WIP_ConnectionConfig;
+  tokenProvider?: WorkloadIdentityProvider;
+  token?: string;
 
   constructor(connectionConfig: WIP_ConnectionConfig) {
     if (!connectionConfig.enableExperimentalWorkloadIdentityAuth) {
@@ -19,7 +21,13 @@ class AuthWorkloadIdentity implements AuthClass {
     this.connectionConfig = connectionConfig;
   }
 
-  async getAttestation() {
+  updateBody(body: AuthRequestBody) {
+    body.data['AUTHENTICATOR'] = 'WORKLOAD_IDENTITY';
+    body.data['PROVIDER'] = this.tokenProvider;
+    body.data['TOKEN'] = this.token;
+  }
+
+  async authenticate() {
     const provider = this.connectionConfig.workloadIdentityProvider;
     let token: string | null = null;
 
@@ -33,23 +41,16 @@ class AuthWorkloadIdentity implements AuthClass {
         provider
       );
     } else {
-      return {
-        provider,
-        token,
-      };
+      // NOTE:
+      // "as WorkloadIdentityProvider" is temporary while no auto-detection is implemented
+      this.tokenProvider = provider as WorkloadIdentityProvider;
+      this.token = token;
     }
   }
 
-  async updateBody(body: AuthRequestBody) {
-    const { provider, token } = await this.getAttestation();
-    body.data['AUTHENTICATOR'] = 'WORKLOAD_IDENTITY';
-    body.data['PROVIDER'] = provider;
-    body.data['TOKEN'] = token;
+  async reauthenticate(_body: AuthRequestBody) {
+    throw new Error('TODO: Not implemented');
   }
-
-  async authenticate() { }
-
-  async reauthenticate() { }
 }
 
 export default AuthWorkloadIdentity;

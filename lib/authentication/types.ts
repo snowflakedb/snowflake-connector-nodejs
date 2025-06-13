@@ -5,7 +5,7 @@ export interface AuthRequestBody {
 }
 
 export interface AuthClass {
-  updateBody(body: AuthRequestBody): Promise<void>;
+  updateBody(body: AuthRequestBody): void;
   authenticate(): Promise<void>;
-  reauthenticate(): Promise<void>;
+  reauthenticate(body: AuthRequestBody): Promise<void>;
 }

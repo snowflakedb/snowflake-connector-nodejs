@@ -9,7 +9,7 @@ export const AWS_CREDENTIALS = {
 
 export function assertAwsAttestationToken(token: string | null | undefined, region: string) {
   if (!token) {
-    assert.fail('Token is null');
+    assert.fail('Token is empty');
   }
   const decodedToken = JSON.parse(atob(token));
   const parsedUrl = new URL(decodedToken.url);

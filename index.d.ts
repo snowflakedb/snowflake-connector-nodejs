@@ -201,6 +201,12 @@ declare module 'snowflake-sdk' {
         attributesGroupName?: false | null | string;
     }
 
+    export interface HttpHeadersCustomizer {
+        applies(method: string, url: string): boolean;
+        newHeaders() : Record<string, string>;
+    }
+
+
     export interface ConfigureOptions {
         /**
          * Set the logLevel and logFilePath,
@@ -519,9 +525,8 @@ declare module 'snowflake-sdk' {
          */
         passcode?: string;
 
-        httpHeadersCustomizers?: Array<any>;
+        httpHeadersCustomizers?: Array<HttpHeadersCustomizer>;
     }
-
     export interface Connection {
         /**
          * Returns true if the connection is active otherwise false.

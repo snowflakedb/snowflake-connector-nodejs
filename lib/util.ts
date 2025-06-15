@@ -16,7 +16,7 @@ export { driverName, driverVersion };
 
 export const userAgent = `JavaScript/${driverVersion} (${process.platform}-${process.arch}) NodeJS/${nodeJSVersion}`;
 
-export interface httpHeadersCustomizer {
+export interface HttpHeadersCustomizer {
   applies: (url: string) => boolean;
   newHeaders: () => Record<string, string>;
 }
@@ -312,19 +312,6 @@ export function isBrowser() {
  */
 export function isNode() {
   return !isBrowser();
-};
-
-export function isValidHttpHeaderCustomizers(customizers: Array<httpHeadersCustomizer>) {
-
-  // const functionLists = ['applies', 'newHeaders', 'invokeOnce']
-
-  // for (const func of functionLists) {
-  //   if (exports.isFunction(customizers[func])) {
-  //     return false;
-  //   }
-  // }
-
-  return true;
 };
 
 /**
@@ -695,4 +682,20 @@ export function escapeHTML(value: string) {
  */
 export async function dynamicImportESMInTypescriptWithCommonJS(moduleName: string) {
   return Function(`return import("${moduleName}")`)()
+}
+
+export function checkValidHTTPHeaderCustomizers(customizers: HttpHeadersCustomizer[]) : boolean {
+  const requireMethods: (keyof HttpHeadersCustomizer)[] = ['applies', 'newHeaders'];
+  for (const customizer of customizers) {
+    for (const method of requireMethods) {
+      if (
+        typeof customizer !== 'object' ||
+        customizer === null ||
+        typeof customizer[method] !== 'function'
+      ) {
+        return false;
+      }
+    }
+  }
+  return true;
 }

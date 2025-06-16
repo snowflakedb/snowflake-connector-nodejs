@@ -11,6 +11,11 @@ export function setInstance(newInstance: BrowserLogger) {
 
 /**
  * Returns the current logger instance.
+ * @deprecated Use default import:
+ * ```
+ *  import Logger from './Logger';
+ *  Logger().info(...)
+ * ```
  */
 export function getInstance() {
   // use the browser implementation of logger as the default implementation;
@@ -22,3 +27,5 @@ export function getInstance() {
 
   return instance;
 };
+
+export default () => getInstance();

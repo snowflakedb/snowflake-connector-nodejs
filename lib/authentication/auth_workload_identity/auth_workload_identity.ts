@@ -82,8 +82,9 @@ class AuthWorkloadIdentity implements AuthClass {
     }
   }
 
-  async reauthenticate(_body: AuthRequestBody) {
-    throw new Error('TODO: Not implemented');
+  async reauthenticate(body: AuthRequestBody) {
+    await this.authenticate();
+    this.updateBody(body);
   }
 }
 

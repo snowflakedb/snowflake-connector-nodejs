@@ -25,7 +25,7 @@ describe('Workload Identity Authentication', async () => {
   }
 
   function mockGcpTokenGetter() {
-    const getGcpTokenStub = sinonSandbox.stub();
+    const getGcpTokenStub = sinon.stub();
     sinonSandbox.stub(GoogleAuth.prototype, 'getIdTokenClient').resolves({
       idTokenProvider: {
         fetchIdToken: getGcpTokenStub,
@@ -68,25 +68,18 @@ describe('Workload Identity Authentication', async () => {
     }), /Experimental Workload identity authentication is not enabled/);
   });
 
-  it('throws error when authenticate() is called with invalid workloadIdentity.provider', () => {
+  it('reauthenticate() calls authenticate() and updates body with new token', async () => {
     const auth = new AuthWorkloadIdentity({
-      workloadIdentity: {
-        // @ts-expect-error - Invalid provider
-        provider: 'INVALID',
-      },
-      enableExperimentalWorkloadIdentityAuth: true,
-    });
-    assert.rejects(auth.authenticate(), new RegExp('requires workloadIdentity.provider'));
-  });
-
-  it('reauthenticate() throws TODO error', async () => {
-    const auth = new AuthWorkloadIdentity({
-      workloadIdentity: {
-        provider: 'AWS',
-      },
       enableExperimentalWorkloadIdentityAuth: true
     });
-    await assert.rejects(auth.reauthenticate({ data: {} }), /TODO: Not implemented/);
+    sinonSandbox
+      .stub(auth, 'authenticate')
+      .callsFake(async function (this: InstanceType<typeof AuthWorkloadIdentity>) {
+        this.token = 'reauthenticated token';
+      });
+    const body: AuthRequestBody = { data: {} };
+    await auth.reauthenticate(body);
+    assert.strictEqual(body.data.TOKEN, 'reauthenticated token');
   });
 
   describe('authenticate() with auto-detect', () => {

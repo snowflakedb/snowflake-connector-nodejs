@@ -4,7 +4,6 @@ import { WorkloadIdentityProvider, WorkloadIdentityProviderKey } from "./types";
 import { createInvalidParameterError, ErrorCode } from '../../errors';
 import { WIP_ConnectionConfig } from "../../connection/types";
 import { getAzureAttestationToken } from "./attestation_azure";
-import { getGcpAttestationToken } from "./attestation_gcp";
 
 class AuthWorkloadIdentity implements AuthClass {
   connectionConfig: WIP_ConnectionConfig;

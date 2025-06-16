@@ -3,7 +3,7 @@
 export const WorkloadIdentityProvider = {
   AWS: 'AWS',
   AZURE: 'AZURE',
-  // GCP: 'GCP',
+  GCP: 'GCP',
   // OIDC: 'OIDC'
 } as const;
 

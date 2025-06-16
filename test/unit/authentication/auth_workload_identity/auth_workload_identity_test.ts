@@ -16,6 +16,24 @@ describe('Workload Identity Authentication', async () => {
   };
   let AuthWorkloadIdentity: typeof OriginalAuthWorkloadIdentity;
 
+  function mockAzureTokenGetter() {
+    const tokenStub = sinon.stub();
+    sinonSandbox
+      .stub(AzureIdentity.DefaultAzureCredential.prototype, 'getToken')
+      .get(() => tokenStub);
+    return tokenStub;
+  }
+
+  function mockGcpTokenGetter() {
+    const getGcpTokenStub = sinonSandbox.stub();
+    sinonSandbox.stub(GoogleAuth.prototype, 'getIdTokenClient').resolves({
+      idTokenProvider: {
+        fetchIdToken: getGcpTokenStub,
+      },
+    } as any);
+    return getGcpTokenStub;
+  }
+
   before(async () => {
     // NOTE:
     // Sinon can't stub frozen AWS SDK properties, so we need to mock entire require
@@ -32,6 +50,8 @@ describe('Workload Identity Authentication', async () => {
   });
 
   afterEach(() => {
+    awsSdkMock.getCredentials.reset();
+    awsSdkMock.getMetadataRegion.reset();
     sinonSandbox.restore();
   });
 
@@ -69,7 +89,70 @@ describe('Workload Identity Authentication', async () => {
     await assert.rejects(auth.reauthenticate({ data: {} }), /TODO: Not implemented/);
   });
 
-  describe('AWS', () => {
+  describe('authenticate() with auto-detect', () => {
+    const connectionConfig: WIP_ConnectionConfig = {
+      enableExperimentalWorkloadIdentityAuth: true,
+    };
+
+    it('throws error when detection fails', async () => {
+      awsSdkMock.getCredentials.throws(new Error('no credentials'));
+      mockAzureTokenGetter().throws(new Error('no credentials'));
+      mockGcpTokenGetter().throws(new Error('no credentials'));
+      const auth = new AuthWorkloadIdentity(connectionConfig);
+      assert.rejects(auth.authenticate(), /No workload identity credentials were found. Provider: auto-detect/);
+    });
+
+    it('uses OIDC when token is provided', async () => {
+      const auth = new AuthWorkloadIdentity({ ...connectionConfig, token: 'test-token' });
+      await auth.authenticate();
+      assert.strictEqual(auth.tokenProvider, 'OIDC');
+      assert.strictEqual(auth.token, 'test-token');
+    });
+
+    it('uses AWS when AWS credentials are found', async () => {
+      awsSdkMock.getCredentials.returns(AWS_CREDENTIALS);
+      awsSdkMock.getMetadataRegion.returns(AWS_REGION);
+      const auth = new AuthWorkloadIdentity(connectionConfig);
+      await auth.authenticate();
+      assert.strictEqual(auth.tokenProvider, 'AWS');
+      assertAwsAttestationToken(auth.token, AWS_REGION);
+    });
+
+    it('uses AZURE when Azure credentials are found', async () => {
+      mockAzureTokenGetter().returns({ token: 'test-token' });
+      const auth = new AuthWorkloadIdentity(connectionConfig);
+      await auth.authenticate();
+      assert.strictEqual(auth.tokenProvider, 'AZURE');
+      assert.strictEqual(auth.token, 'test-token');
+    });
+  });
+
+  describe('authenticate() with OIDC', () => {
+    const connectionConfig: WIP_ConnectionConfig = {
+      token: 'test-token',
+      enableExperimentalWorkloadIdentityAuth: true,
+      workloadIdentity: {
+        provider: 'OIDC',
+      },
+    };
+
+    it('throws error when token is not provided', async () => {
+      const auth = new AuthWorkloadIdentity({ ...connectionConfig, token: undefined });
+      await assert.rejects(auth.authenticate(), /No workload identity credentials were found. Provider: OIDC/);
+    });
+
+    it('sets valid fields for updateBody() to use', async () => {
+      const auth = new AuthWorkloadIdentity(connectionConfig);
+      const body: AuthRequestBody = { data: {} };
+      await auth.authenticate();
+      auth.updateBody(body);
+      assert.strictEqual(body.data.AUTHENTICATOR, 'WORKLOAD_IDENTITY');
+      assert.strictEqual(body.data.PROVIDER, 'OIDC');
+      assert.strictEqual(body.data.TOKEN, connectionConfig.token);
+    });
+  });
+
+  describe('authenticate() with AWS', () => {
     const connectionConfig: WIP_ConnectionConfig = {
       workloadIdentity: {
         provider: 'AWS',
@@ -77,12 +160,12 @@ describe('Workload Identity Authentication', async () => {
       enableExperimentalWorkloadIdentityAuth: true,
     };
 
-    it('authenticate() throws error when credentials are not found', async () => {
+    it('throws error when credentials are not found', async () => {
       const auth = new AuthWorkloadIdentity(connectionConfig);
       await assert.rejects(auth.authenticate(), /No workload identity credentials were found. Provider: AWS/);
     });
 
-    it('authenticate() sets valid fields for updateBody() to use', async () => {
+    it('sets valid fields for updateBody() to use', async () => {
       awsSdkMock.getCredentials.returns(AWS_CREDENTIALS);
       awsSdkMock.getMetadataRegion.returns(AWS_REGION);
       const auth = new AuthWorkloadIdentity(connectionConfig);
@@ -95,7 +178,7 @@ describe('Workload Identity Authentication', async () => {
     });
   });
 
-  describe('AZURE', () => {
+  describe('authenticate() with AZURE', () => {
     const connectionConfig: WIP_ConnectionConfig = {
       workloadIdentity: {
         provider: 'AZURE',
@@ -105,19 +188,16 @@ describe('Workload Identity Authentication', async () => {
     let getAzureTokenStub: sinon.SinonStub;
 
     beforeEach(() => {
-      getAzureTokenStub = sinonSandbox.stub();
-      sinonSandbox
-        .stub(AzureIdentity.DefaultAzureCredential.prototype, 'getToken')
-        .get(() => getAzureTokenStub);
+      getAzureTokenStub = mockAzureTokenGetter();
     });
 
-    it('authenticate() throws error when credentials are not found', async () => {
+    it('throws error when credentials are not found', async () => {
       getAzureTokenStub.throws(new Error('no credentials'));
       const auth = new AuthWorkloadIdentity(connectionConfig);
       await assert.rejects(auth.authenticate(), /No workload identity credentials were found. Provider: AZURE/);
     });
 
-    it('authenticate() sets valid fields for updateBody() to use', async () => {
+    it('sets valid fields for updateBody() to use', async () => {
       getAzureTokenStub.returns({ token: 'test-token' });
       const auth = new AuthWorkloadIdentity(connectionConfig);
       const body: AuthRequestBody = { data: {} };
@@ -129,31 +209,26 @@ describe('Workload Identity Authentication', async () => {
     });
   });
 
-  describe('GCP', () => {
+  describe('authenticate() with GCP', () => {
     const connectionConfig: WIP_ConnectionConfig = {
       workloadIdentity: {
         provider: 'GCP',
       },
       enableExperimentalWorkloadIdentityAuth: true,
     };
-    let fetchIdTokenStub: sinon.SinonStub;
+    let getGcpTokenStub: sinon.SinonStub;
 
     beforeEach(() => {
-      fetchIdTokenStub = sinonSandbox.stub();
-      sinonSandbox.stub(GoogleAuth.prototype, 'getIdTokenClient').resolves({
-        idTokenProvider: {
-          fetchIdToken: fetchIdTokenStub,
-        },
-      } as any);
+      getGcpTokenStub = mockGcpTokenGetter();
     });
 
-    it('authenticate() throws error when credentials are not found', async () => {
+    it('throws error when credentials are not found', async () => {
       const auth = new AuthWorkloadIdentity(connectionConfig);
       await assert.rejects(auth.authenticate(), /No workload identity credentials were found. Provider: GCP/);
     });
 
-    it('authenticate() sets valid fields for updateBody() to use', async () => {
-      fetchIdTokenStub.returns('test-token');
+    it('sets valid fields for updateBody() to use', async () => {
+      getGcpTokenStub.returns('test-token');
       const auth = new AuthWorkloadIdentity(connectionConfig);
       const body: AuthRequestBody = { data: {} };
       await auth.authenticate();

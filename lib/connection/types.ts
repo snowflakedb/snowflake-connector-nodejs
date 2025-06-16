@@ -5,9 +5,16 @@ import { WorkloadIdentityProviderKey } from "../authentication/auth_workload_ide
  */
 export interface WIP_ConnectionConfig {
   enableExperimentalWorkloadIdentityAuth?: boolean;
+  token?: string;
   workloadIdentity?: {
     /**
-     * Specifies the workload identity provider
+     * Specifies the workload identity provider, available options:
+     * * AWS - Uses `@aws-sdk` to find credentials and creates signed Caller Identity request
+     * * AZURE - Uses `@azure/identity` find credentials and get JWT token
+     * * GCP - Uses `google-auth-library` to find credentials and get JWT token
+     * * OIDC - Reads JWT token from `ConnectionOptions.token`
+     *
+     * When none is passed, the driver will try to auto-detect the provider.
      */
     provider?: WorkloadIdentityProviderKey;
     /**

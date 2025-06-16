@@ -9,7 +9,6 @@ export async function getAwsCredentials() {
   try {
     return await defaultProvider()();
   } catch (error) {
-    Logger().debug("No AWS credentials were found.");
     return null;
   }
 }
@@ -21,7 +20,6 @@ export async function getAwsRegion() {
     try {
       return await new MetadataService().request('/latest/meta-data/placement/region', {}) // EC2
     } catch (error) {
-      Logger().debug("No AWS region was found.");
       return null;
     }
   }
@@ -34,11 +32,13 @@ export async function getAwsRegion() {
 export async function getAwsAttestationToken() {
   const credentials = await getAwsCredentials();
   if (!credentials) {
+    Logger().debug("No AWS credentials were found.");
     return null;
   }
 
   const region = await getAwsRegion();
   if (!region) {
+    Logger().debug("No AWS region was found.");
     return null;
   }
 

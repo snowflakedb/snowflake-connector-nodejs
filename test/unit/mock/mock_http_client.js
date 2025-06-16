@@ -212,6 +212,7 @@ function buildRequestOutputMappings(clientInfo) {
         {
           method: 'POST',
           url: 'http://fakeaccount.snowflakecomputing.com/session/v1/login-request',
+          isRetry: false,
           headers:
             {
               'Accept': 'application/json',
@@ -319,6 +320,7 @@ function buildRequestOutputMappings(clientInfo) {
         {
           method: 'POST',
           url: 'http://fakeaccount.snowflakecomputing.com/session?delete=true',
+          isRetry: false,
           headers:
             {
               'Accept': 'application/json',
@@ -348,6 +350,7 @@ function buildRequestOutputMappings(clientInfo) {
         {
           method: 'POST',
           url: 'http://fakeaccount.snowflakecomputing.com/session?delete=true',
+          isRetry: false,
           headers:
             {
               'Accept': 'application/json',
@@ -378,6 +381,7 @@ function buildRequestOutputMappings(clientInfo) {
         {
           method: 'POST',
           url: 'http://fakeaccount.snowflakecomputing.com/queries/v1/query-request?requestId=foobar',
+          isRetry: false,
           headers:
             {
               'Accept': 'application/snowflake',
@@ -482,6 +486,7 @@ function buildRequestOutputMappings(clientInfo) {
         {
           method: 'POST',
           url: 'http://fakeaccount.snowflakecomputing.com/queries/v1/query-request?requestId=foobar',
+          isRetry: false,
           headers:
             {
               'Accept': 'application/snowflake',
@@ -585,6 +590,7 @@ function buildRequestOutputMappings(clientInfo) {
         {
           method: 'POST',
           url: 'http://fakeaccount.snowflakecomputing.com/queries/v1/query-request?requestId=foobar',
+          isRetry: false,
           headers:
             {
               'Accept': 'application/snowflake',
@@ -706,6 +712,7 @@ function buildRequestOutputMappings(clientInfo) {
         {
           method: 'POST',
           url: 'http://fakeaccount.snowflakecomputing.com/queries/v1/query-request?requestId=foobar',
+          isRetry: false,
           headers:
             {
               'Accept': 'application/snowflake',
@@ -751,6 +758,7 @@ function buildRequestOutputMappings(clientInfo) {
         {
           method: 'POST',
           url: 'http://fakeaccount.snowflakecomputing.com/queries/v1/query-request?requestId=SNOW-728803-requestId',
+          isRetry: false,
           headers:
             {
               'Accept': 'application/snowflake',
@@ -793,6 +801,7 @@ function buildRequestOutputMappings(clientInfo) {
         {
           method: 'POST',
           url: 'http://fakeaccount.snowflakecomputing.com/queries/v1/query-request?requestId=SNOW-728803-requestId',
+          isRetry: false,
           headers:
             {
               'Accept': 'application/snowflake',
@@ -824,6 +833,7 @@ function buildRequestOutputMappings(clientInfo) {
         {
           method: 'GET',
           url: 'http://fakeaccount.snowflakecomputing.com/queries/df2852ef-e082-4bb3-94a4-e540bf0e70c6/result?disableOfflineChunks=false',
+          isRetry: false,
           headers:
             {
               'Accept': 'application/snowflake',
@@ -922,6 +932,7 @@ function buildRequestOutputMappings(clientInfo) {
         {
           method: 'GET',
           url: 'http://fakeaccount.snowflakecomputing.com/queries/13f12818-de4c-41d2-bf19-f115ee8a5cc1/result?disableOfflineChunks=false',
+          isRetry: false,
           headers:
             {
               'Accept': 'application/snowflake',
@@ -958,6 +969,7 @@ function buildRequestOutputMappings(clientInfo) {
         {
           method: 'POST',
           url: 'http://fakeaccount.snowflakecomputing.com/queries/v1/abort-request',
+          isRetry: false,
           headers:
             {
               'Accept': 'application/json',
@@ -998,6 +1010,7 @@ function buildRequestOutputMappings(clientInfo) {
         {
           method: 'POST',
           url: 'http://fakeaccount.snowflakecomputing.com/queries/df2852ef-e082-4bb3-94a4-e540bf0e70c6/abort-request',
+          isRetry: false,
           headers:
             {
               'Accept': 'application/json',
@@ -1021,6 +1034,7 @@ function buildRequestOutputMappings(clientInfo) {
         {
           method: 'POST',
           url: 'http://fakeaccount.snowflakecomputing.com/queries/13f12818-de4c-41d2-bf19-f115ee8a5cc1/abort-request',
+          isRetry: false,
           headers:
             {
               'Accept': 'application/json',
@@ -1075,6 +1089,7 @@ function buildRequestOutputMappings(clientInfo) {
         {
           method: 'GET',
           url: 'http://fakeaccount.snowflakecomputing.com/queries/foobar/result?disableOfflineChunks=false',
+          isRetry: false,
           headers:
             {
               'Accept': 'application/snowflake',
@@ -1098,6 +1113,7 @@ function buildRequestOutputMappings(clientInfo) {
         {
           method: 'POST',
           url: 'http://fakeaccount.snowflakecomputing.com/queries/foobar/abort-request',
+          isRetry: false,
           headers:
             {
               'Accept': 'application/json',
@@ -1121,6 +1137,7 @@ function buildRequestOutputMappings(clientInfo) {
         {
           method: 'POST',
           url: 'http://fakeaccount.snowflakecomputing.com/queries/v1/query-request?requestId=b97fee20-a805-11e5-a0ab-ddd3321ed586',
+          isRetry: false,
           headers:
             {
               'Accept': 'application/snowflake',
@@ -1164,6 +1181,7 @@ function buildRequestOutputMappings(clientInfo) {
         {
           method: 'POST',
           url: 'http://fakeaccount.snowflakecomputing.com/queries/v1/abort-request',
+          isRetry: false,
           headers:
             {
               'Accept': 'application/json',
@@ -1197,6 +1215,7 @@ function buildRequestOutputMappings(clientInfo) {
         {
           method: 'POST',
           url: 'http://fakeaccount.snowflakecomputing.com/queries/v1/query-request?requestId=foobar',
+          isRetry: false,
           headers:
             {
               'Accept': 'application/snowflake',
@@ -1232,6 +1251,7 @@ function buildRequestOutputMappings(clientInfo) {
         {
           method: 'POST',
           url: 'http://fakeaccount.snowflakecomputing.com/session/v1/login-request',
+          isRetry: false,
           headers:
             {
               'Accept': 'application/json',
@@ -1342,6 +1362,7 @@ function buildRequestOutputMappings(clientInfo) {
         {
           method: 'POST',
           url: 'http://fakeaccount.snowflakecomputing.com/queries/v1/query-request?requestId=foobar',
+          isRetry: false,
           headers:
             {
               'Accept': 'application/snowflake',
@@ -1452,6 +1473,7 @@ function buildRequestOutputMappings(clientInfo) {
         {
           method: 'POST',
           url: 'http://fakeaccount.snowflakecomputing.com/session/v1/login-request',
+          isRetry: false,
           headers:
             {
               'Accept': 'application/json',
@@ -1561,6 +1583,7 @@ function buildRequestOutputMappings(clientInfo) {
         {
           method: 'POST',
           url: 'http://fakeaccount.snowflakecomputing.com/session/v1/login-request',
+          isRetry: false,
           headers:
             {
               'Accept': 'application/json',
@@ -1670,6 +1693,7 @@ function buildRequestOutputMappings(clientInfo) {
         {
           method: 'POST',
           url: 'http://fakeaccount.snowflakecomputing.com/session/v1/login-request',
+          isRetry: false,
           headers:
             {
               'Accept': 'application/json',
@@ -1732,6 +1756,7 @@ function buildRequestOutputMappings(clientInfo) {
         {
           method: 'POST',
           url: 'http://fakeaccount.snowflakecomputing.com/session?delete=true',
+          isRetry: false,
           headers:
             {
               'Accept': 'application/json',
@@ -1763,6 +1788,7 @@ function buildRequestOutputMappings(clientInfo) {
         {
           method: 'POST',
           url: 'http://fakeaccount.snowflakecomputing.com/session/v1/login-request',
+          isRetry: false,
           headers:
             {
               'Accept': 'application/json',
@@ -1825,6 +1851,7 @@ function buildRequestOutputMappings(clientInfo) {
         {
           method: 'POST',
           url: 'http://fakeaccount.snowflakecomputing.com/session?delete=true',
+          isRetry: false,
           headers:
             {
               'Accept': 'application/json',
@@ -1855,6 +1882,7 @@ function buildRequestOutputMappings(clientInfo) {
         {
           method: 'POST',
           url: 'http://fake504.snowflakecomputing.com/session/v1/login-request',
+          isRetry: false,
           headers:
             {
               'Accept': 'application/json',
@@ -1896,6 +1924,7 @@ function buildRequestOutputMappings(clientInfo) {
         {
           method: 'POST',
           url: 'http://fake504.snowflakecomputing.com/session/v1/login-request?clientStartTime=FIXEDTIMESTAMP&retryCount=1',
+          isRetry: false,
           headers:
             {
               'Accept': 'application/json',
@@ -1938,6 +1967,7 @@ function buildRequestOutputMappings(clientInfo) {
         {
           method: 'POST',
           url: 'http://fake504.snowflakecomputing.com/session/v1/login-request?clientStartTime=FIXEDTIMESTAMP&retryCount=2',
+          isRetry: false,
           headers:
             {
               'Accept': 'application/json',
@@ -2000,6 +2030,7 @@ function buildRequestOutputMappings(clientInfo) {
         {
           method: 'POST',
           url: 'http://fake504.snowflakecomputing.com/session?delete=true',
+          isRetry: false,
           headers:
             {
               'Accept': 'application/json',
@@ -2030,6 +2061,7 @@ function buildRequestOutputMappings(clientInfo) {
         {
           method: 'POST',
           url: 'http://fakeaccount.snowflakecomputing.com/session/heartbeat',
+          isRetry: false,
           headers:
             {
               'Accept': 'application/json',

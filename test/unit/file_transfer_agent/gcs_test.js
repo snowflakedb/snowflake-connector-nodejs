@@ -20,6 +20,7 @@ describe('GCS client', function () {
     getProxy: function () {
       return this.proxy;
     },
+    getHTTPHeadersCustomizers: () => [],
     accessUrl: 'http://fakeaccount.snowflakecomputing.com',
   };
 
@@ -351,5 +352,18 @@ describe('GCS client', function () {
 
     await GCS.uploadFile(dataFile, meta, encryptionMetadata);
     assert.strictEqual(meta['resultStatus'], resultStatus.RENEW_TOKEN);
+  });
+
+  it('upload - isRetry flags', async function () {
+    httpClient.put = async () => {
+      const err = new Error();
+      err.code = 403;
+      throw err;
+    };
+    const GCS = new SnowflakeGCSUtil(connectionConfig, httpClient);
+
+    await GCS.uploadFile(dataFile, meta, encryptionMetadata);
+    assert.strictEqual(meta['resultStatus'], resultStatus.NEED_RETRY);
+
   });
 });

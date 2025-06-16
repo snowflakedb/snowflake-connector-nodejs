@@ -29,6 +29,11 @@ declare module 'snowflake-sdk' {
         attributesGroupName?: false | null | string;
     }
 
+    export interface HttpHeadersCustomizer {
+        applies(method: string, url: string): boolean;
+        newHeaders() : Record<string, string>;
+    }
+
     export interface ConfigureOptions {
         /**
          * Set the logLevel and logFilePath,
@@ -358,6 +363,12 @@ declare module 'snowflake-sdk' {
          * The API may change in future versions.
          */
         workloadIdentityProvider?: keyof typeof import('./lib/authentication/auth_workload_identity/types').WorkloadIdentityProvider;
+
+        /**
+         * Customizes the HTTP headers sent with each request.
+         * The customizer functions are called with the HTTP method and URL.
+         */
+        httpHeadersCustomizers?: Array<HttpHeadersCustomizer>;
     }
 
     export interface Connection {

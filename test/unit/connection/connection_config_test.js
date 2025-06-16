@@ -837,6 +837,23 @@ describe('ConnectionConfig: basic', function () {
         },
         errorCode: ErrorCodes.ERR_CONN_CREATE_INVALID_OUATH_AUTHORIZATION_URL
       },
+      {
+        name: 'invalid config - incorrect httpHeaderCustomizers',
+
+        options: {
+          account: 'account',
+          username: 'username',
+          password: 'password',
+          httpHeadersCustomizers: [
+            {
+              apply: function () {
+                return 'invalid';
+              }
+            }
+          ]
+        },
+        errorCode: ErrorCodes.ERR_CONN_CREATE_INVALID_HTTP_HEADER_CUSTOMIZERS
+      },
     ];
 
   const createNegativeITCallback = function (testCase) {
@@ -1720,7 +1737,7 @@ describe('ConnectionConfig: basic', function () {
               oauthAuthorizationUrl: (config) => config.getOauthAuthorizationUrl() === 'http://host.snowflakecomputing.cn:8082/oauth/authorize',
               oauthTokenRequestUrl: (config) => config.getOauthTokenRequestUrl() === 'http://host.snowflakecomputing.cn:8082/oauth/token-request',
             }
-      }
+      },
     ];
 
   const createItCallback = function (testCase) {

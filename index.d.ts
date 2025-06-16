@@ -125,6 +125,11 @@ declare module 'snowflake-sdk' {
         authenticator?: keyof typeof import('./lib/authentication/authentication_types').default;
 
         /**
+         * Allows to set experimental authenticator: 'WORKLOAD_IDENTITY'
+         */
+        enableExperimentalWorkloadIdentityAuth?: boolean;
+
+        /**
          * Specifies the timeout, in milliseconds, for browser activities related to SSO authentication. The default value is 120000 (milliseconds).
          */
         browserActionTimeout?: number;
@@ -346,6 +351,13 @@ declare module 'snowflake-sdk' {
          *  The option to pass passcode from DUO.
          */
         passcode?: string;
+
+        /**
+         * Specifies the workload identity provider when authenticator is set to `WORKLOAD_IDENTITY`.
+         * This option is experimental and requires enableExperimentalWorkloadIdentityAuth to be enabled.
+         * The API may change in future versions.
+         */
+        workloadIdentityProvider?: keyof typeof import('./lib/authentication/auth_workload_identity/types').WorkloadIdentityProvider;
     }
 
     export interface Connection {

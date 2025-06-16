@@ -143,16 +143,14 @@ const oauthOktaClientCredentials =
       oauthClientSecret: snowflakeAuthTestOauthOktaClientSecret,
       oauthTokenRequestUrl: snowflakeAuthTestOauthOktaClientToken,
       username: snowflakeAuthTestOauthOktaClientId,
-      authenticator: 'OAUTH_CLIENT_CREDENTIALS',
-      enableExperimentalAuthentication: true
+      authenticator: 'OAUTH_CLIENT_CREDENTIALS'
     };
 
 const PATCredentials =
     {
       ...baseParameters,
       username: snowflakeAuthTestOktaUser,
-      authenticator: 'PROGRAMMATIC_ACCESS_TOKEN',
-      enableExperimentalAuthentication: true
+      authenticator: 'PROGRAMMATIC_ACCESS_TOKEN'
     };
 
 const oauthSnowflakeAuthorizationCode =
@@ -163,8 +161,7 @@ const oauthSnowflakeAuthorizationCode =
       oauthRedirectUri: snowflakeAuthTestSnowflakeRedirectUri,
       oauthClientSecret: snowflakeAuthTestSnowflakeClientSecret,
       oauthClientId: snowflakeAuthTestSnowflakeClientId,
-      authenticator: 'OAUTH_AUTHORIZATION_CODE',
-      enableExperimentalAuthentication: true
+      authenticator: 'OAUTH_AUTHORIZATION_CODE'
     };
 
 const oauthSnowflakeWildcardsAuthorizationCode =
@@ -174,8 +171,7 @@ const oauthSnowflakeWildcardsAuthorizationCode =
       role: snowflakeAuthTestSnowflakeInternalRole,
       oauthClientSecret: snowflakeAuthTestSnowflakeWildcardsClientSecret,
       oauthClientId: snowflakeAuthTestSnowflakeWildcardsClientId,
-      authenticator: 'OAUTH_AUTHORIZATION_CODE',
-      enableExperimentalAuthentication: true,
+      authenticator: 'OAUTH_AUTHORIZATION_CODE'
     };
 
 const oauthOktaAuthorizationCode =
@@ -187,8 +183,7 @@ const oauthOktaAuthorizationCode =
       oauthRedirectUri: snowflakeAuthTestOauthOktaRedirectUri,
       oauthAuthorizationUrl: snowflakeAuthTestOauthOktaAuthUrl,
       oauthTokenRequestUrl: snowflakeAuthTestOauthOktaClientToken,
-      authenticator: 'OAUTH_AUTHORIZATION_CODE',
-      enableExperimentalAuthentication: true
+      authenticator: 'OAUTH_AUTHORIZATION_CODE'
     };
 
 exports.externalBrowser = externalBrowser;

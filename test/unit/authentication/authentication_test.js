@@ -600,39 +600,42 @@ describe('okta authentication', function () {
       });
     });
   });
+});
 
-  describe('test getAuthenticator()', () => {
-    [
-      { name: 'default', providedAuth: AuthenticationTypes.DEFAULT_AUTHENTICATOR, expectedAuth: 'AuthDefault' },
-      { name: 'external browser', providedAuth: AuthenticationTypes.EXTERNAL_BROWSER_AUTHENTICATOR, expectedAuth: 'AuthWeb' },
-      { name: 'id token', providedAuth: AuthenticationTypes.EXTERNAL_BROWSER_AUTHENTICATOR, expectedAuth: 'AuthIDToken', idToken: 'idToken' },
-      { name: 'key pair', providedAuth: AuthenticationTypes.KEY_PAIR_AUTHENTICATOR, expectedAuth: 'AuthKeypair' },
-      { name: 'oauth', providedAuth: AuthenticationTypes.OAUTH_AUTHENTICATOR, expectedAuth: 'AuthOauth' },
-      { name: 'okta', providedAuth: 'https://mycustom.okta.com:8443', expectedAuth: 'AuthOkta' },
-      { name: 'unknown', providedAuth: 'unknown', expectedAuth: 'AuthDefault' }
-    ].forEach(({ name, providedAuth, expectedAuth, idToken }) => {
-      it(`${name}`, () => {
-        const connectionConfig = {
-          getBrowserActionTimeout: () => 100,
-          getProxy: () => {},
-          getAuthenticator: () => providedAuth,
-          getServiceName: () => '',
-          getDisableConsoleLogin: () => true,
-          getPrivateKey: () => '',
-          getPrivateKeyPath: () => '',
-          getPrivateKeyPass: () => '',
-          getToken: () => '',
-          getClientType: () => '',
-          getClientVersion: () => '',
-          getClientStoreTemporaryCredential: () => true,
-          getPasscode: () => '',
-          getPasscodeInPassword: () => false,
-          idToken: idToken || null,
-          host: 'host',
-        };
+describe('test getAuthenticator()', () => {
+  [
+    { name: 'default', providedAuth: AuthenticationTypes.DEFAULT_AUTHENTICATOR, expectedAuth: 'AuthDefault' },
+    { name: 'external browser', providedAuth: AuthenticationTypes.EXTERNAL_BROWSER_AUTHENTICATOR, expectedAuth: 'AuthWeb' },
+    { name: 'id token', providedAuth: AuthenticationTypes.EXTERNAL_BROWSER_AUTHENTICATOR, expectedAuth: 'AuthIDToken', idToken: 'idToken' },
+    { name: 'key pair', providedAuth: AuthenticationTypes.KEY_PAIR_AUTHENTICATOR, expectedAuth: 'AuthKeypair' },
+    { name: 'oauth', providedAuth: AuthenticationTypes.OAUTH_AUTHENTICATOR, expectedAuth: 'AuthOauth' },
+    { name: 'okta', providedAuth: 'https://mycustom.okta.com:8443', expectedAuth: 'AuthOkta' },
+    { name: 'workload identity', providedAuth: AuthenticationTypes.WORKLOAD_IDENTITY, expectedAuth: 'AuthWorkloadIdentity' },
+    { name: 'unknown', providedAuth: 'unknown', expectedAuth: 'AuthDefault' }
+  ].forEach(({ name, providedAuth, expectedAuth, idToken }) => {
+    it(`${name}`, () => {
+      const connectionConfig = {
+        getBrowserActionTimeout: () => 100,
+        getProxy: () => {},
+        getAuthenticator: () => providedAuth,
+        getServiceName: () => '',
+        getDisableConsoleLogin: () => true,
+        getPrivateKey: () => '',
+        getPrivateKeyPath: () => '',
+        getPrivateKeyPass: () => '',
+        getToken: () => '',
+        getClientType: () => '',
+        getClientVersion: () => '',
+        getClientStoreTemporaryCredential: () => true,
+        getPasscode: () => '',
+        getPasscodeInPassword: () => false,
+        idToken: idToken || null,
+        host: 'host',
+        enableExperimentalWorkloadIdentityAuth: true,
+        workloadIdentityProvider: 'AWS',
+      };
 
-        assert.strictEqual(authenticator.getAuthenticator(connectionConfig, { }).constructor.name, expectedAuth);
-      });
+      assert.strictEqual(authenticator.getAuthenticator(connectionConfig, { }).constructor.name, expectedAuth);
     });
   });
 });

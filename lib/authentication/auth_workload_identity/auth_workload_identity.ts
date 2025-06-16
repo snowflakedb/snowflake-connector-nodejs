@@ -1,22 +1,19 @@
 import { AuthClass, AuthRequestBody } from "../types";
 import { getAwsAttestationToken } from "./attestation_aws";
-import { WorkloadIdentityProvider } from "./types";
+import { WorkloadIdentityProvider, WorkloadIdentityProviderKey } from "./types";
 import { createInvalidParameterError, ErrorCode } from '../../errors';
 import { WIP_ConnectionConfig } from "../../connection/types";
+import { getAzureAttestationToken } from "./attestation_azure";
+import { getGcpAttestationToken } from "./attestation_gcp";
 
 class AuthWorkloadIdentity implements AuthClass {
   connectionConfig: WIP_ConnectionConfig;
-  tokenProvider?: WorkloadIdentityProvider;
+  tokenProvider?: WorkloadIdentityProviderKey;
   token?: string;
 
   constructor(connectionConfig: WIP_ConnectionConfig) {
     if (!connectionConfig.enableExperimentalWorkloadIdentityAuth) {
       throw new Error('Experimental Workload identity authentication is not enabled. Please set enableExperimentalWorkloadIdentityAuth to true to use this authenticator.');
-    }
-    // NOTE:
-    // Check will be removed when auto-detection is implemented
-    if (connectionConfig.workloadIdentityProvider !== WorkloadIdentityProvider.AWS) {
-      throw new Error(`Experimental authenticator: 'WORKLOAD_IDENTITY' requires workloadIdentityProvider: 'AWS'`);
     }
     this.connectionConfig = connectionConfig;
   }
@@ -28,11 +25,15 @@ class AuthWorkloadIdentity implements AuthClass {
   }
 
   async authenticate() {
-    const provider = this.connectionConfig.workloadIdentityProvider;
+    const { provider, azureEntraIdResource } = this.connectionConfig.workloadIdentity ?? {};
     let token: string | null = null;
 
     if (provider === WorkloadIdentityProvider.AWS) {
       token = await getAwsAttestationToken();
+    } else if (provider === WorkloadIdentityProvider.AZURE) {
+      token = await getAzureAttestationToken(azureEntraIdResource);
+    } else {
+      throw new Error(`Experimental authenticator: 'WORKLOAD_IDENTITY' requires workloadIdentity.provider: ${Object.values(WorkloadIdentityProvider).join('|')}`);
     }
 
     if (!token) {
@@ -41,9 +42,7 @@ class AuthWorkloadIdentity implements AuthClass {
         provider
       );
     } else {
-      // NOTE:
-      // "as WorkloadIdentityProvider" is temporary while no auto-detection is implemented
-      this.tokenProvider = provider as WorkloadIdentityProvider;
+      this.tokenProvider = provider;
       this.token = token;
     }
   }

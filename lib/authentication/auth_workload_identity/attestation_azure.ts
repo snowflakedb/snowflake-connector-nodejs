@@ -4,7 +4,13 @@ import Logger from '../../logger';
 export const DEFAULT_AZURE_ENTRA_ID_RESOURCE = 'api://fd3f753b-eed3-462c-b6a7-a4b5bb650aad';
 
 export async function getAzureAttestationToken(entraIdResource = DEFAULT_AZURE_ENTRA_ID_RESOURCE) {
-  const credential = new DefaultAzureCredential();
+  const credential = new DefaultAzureCredential({
+    // NOTE:
+    // We don't want retries because it makes auto-detect mode slow
+    retryOptions: {
+      maxRetries: 0,
+    }
+  });
 
   try {
     Logger().debug("Getting Azure auth token");

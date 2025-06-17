@@ -844,7 +844,7 @@ describe('ConnectionConfig: basic', function () {
           account: 'account',
           username: 'username',
           password: 'password',
-          httpHeadersCustomizers: [
+          httpHeaderCustomizers: [
             {
               apply: function () {
                 return 'invalid';

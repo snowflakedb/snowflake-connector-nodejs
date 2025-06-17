@@ -31,8 +31,6 @@ declare module 'snowflake-sdk' {
         attributesGroupName?: false | null | string;
     }
 
-
-
     export interface ConfigureOptions {
         /**
          * Set the logLevel and logFilePath,

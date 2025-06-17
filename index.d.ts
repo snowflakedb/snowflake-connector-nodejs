@@ -2,6 +2,8 @@
  * The snowflake-sdk module provides an instance to connect to the Snowflake server
  * @see [source] {@link https://docs.snowflake.com/en/developer-guide/node-js/nodejs-driver}
  */
+import { HttpHeaderCustomizer } from './lib/connection/types';
+
 declare module 'snowflake-sdk' {
 
     export const ErrorCode: typeof import('./lib/error_code').default;
@@ -29,10 +31,7 @@ declare module 'snowflake-sdk' {
         attributesGroupName?: false | null | string;
     }
 
-    export interface HttpHeadersCustomizer {
-        applies(method: string, url: string): boolean;
-        newHeaders() : Record<string, string>;
-    }
+
 
     export interface ConfigureOptions {
         /**
@@ -368,7 +367,7 @@ declare module 'snowflake-sdk' {
          * Customizes the HTTP headers sent with each request.
          * The customizer functions are called with the HTTP method and URL.
          */
-        httpHeadersCustomizers?: Array<HttpHeadersCustomizer>;
+        httpHeaderCustomizers?: Array<HttpHeaderCustomizer>;
     }
 
     export interface Connection {

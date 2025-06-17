@@ -7,3 +7,8 @@ export interface WIP_ConnectionConfig {
   enableExperimentalWorkloadIdentityAuth?: boolean;
   workloadIdentityProvider?: keyof typeof WorkloadIdentityProvider;
 }
+
+export interface HttpHeaderCustomizer {
+  applies(method: string, url: string): boolean;
+  newHeaders() : Record<string, string>;
+}

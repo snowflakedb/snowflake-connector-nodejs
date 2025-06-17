@@ -19,7 +19,7 @@ class AuthWorkloadIdentity implements AuthClass {
     this.connectionConfig = connectionConfig;
   }
 
-  async autodetectToken(): Promise<{ provider: WorkloadIdentityProviderKey, token: string | null } | null> {
+  async autodetectToken(): Promise<{ provider: WorkloadIdentityProviderKey, token: string } | null> {
     const oidcToken = this.connectionConfig.token;
     if (oidcToken) {
       return { provider: WorkloadIdentityProvider.OIDC, token: oidcToken };

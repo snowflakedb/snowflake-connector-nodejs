@@ -10,18 +10,19 @@ import { assertAwsAttestationToken, AWS_CREDENTIALS, AWS_REGION } from './test_u
 
 describe('Workload Identity Authentication', async () => {
   const sinonSandbox = sinon.createSandbox();
+  const cloudSdkStubs = sinon.createSandbox();
   const awsSdkMock = {
-    getCredentials: sinonSandbox.stub(),
-    getMetadataRegion: sinonSandbox.stub(),
+    getCredentials: cloudSdkStubs.stub(),
+    getMetadataRegion: cloudSdkStubs.stub(),
   };
-  const getAzureTokenMock = sinon.stub();
-  const getGcpTokenMock = sinon.stub();
+  const getAzureTokenMock = cloudSdkStubs.stub();
+  const getGcpTokenMock = cloudSdkStubs.stub();
   let AuthWorkloadIdentity: typeof OriginalAuthWorkloadIdentity;
 
+  // NOTE:
+  // - Sinon can't stub frozen AWS SDK properties, so we need to mock entire require
+  // - Important to mock every cloud provider so we never call real endpoints (causing slow tests)
   before(async () => {
-    // NOTE:
-    // - Important to mock every cloud provider so we never call real endpoints (causing slow tests)
-    // - Sinon can't stub frozen AWS SDK properties, so we need to mock entire require
     rewiremock('@aws-sdk/credential-provider-node').with({
       defaultProvider: () => awsSdkMock.getCredentials,
     })
@@ -30,6 +31,11 @@ describe('Workload Identity Authentication', async () => {
         request = () => awsSdkMock.getMetadataRegion();
       }
     });
+    rewiremock.enable();
+    AuthWorkloadIdentity = (await import('../../../../lib/authentication/auth_workload_identity')).default;
+  });
+
+  beforeEach(async () => {
     sinonSandbox
       .stub(AzureIdentity.DefaultAzureCredential.prototype, 'getToken')
       .get(() => getAzureTokenMock);
@@ -38,19 +44,14 @@ describe('Workload Identity Authentication', async () => {
         fetchIdToken: getGcpTokenMock,
       },
     } as any);
-    rewiremock.enable();
-    AuthWorkloadIdentity = (await import('../../../../lib/authentication/auth_workload_identity')).default;
   });
 
-  beforeEach(() => {
-    awsSdkMock.getCredentials.throws(new Error('no credentials'));
-    awsSdkMock.getMetadataRegion.throws(new Error('no credentials'));
-    getAzureTokenMock.throws(new Error('no credentials'));
-    getGcpTokenMock.throws(new Error('no credentials'));
+  afterEach(async () => {
+    cloudSdkStubs.reset();
+    sinonSandbox.restore();
   });
 
   after(() => {
-    sinonSandbox.restore();
     rewiremock.disable();
   });
 

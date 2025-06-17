@@ -6,6 +6,7 @@ import { WIP_ConnectionConfig } from "../../connection/types";
 import Logger from '../../logger';
 import { getAzureAttestationToken } from "./attestation_azure";
 import { getGcpAttestationToken } from "./attestation_gcp";
+import AuthenticationTypes from "../authentication_types";
 
 class AuthWorkloadIdentity implements AuthClass {
   connectionConfig: WIP_ConnectionConfig;
@@ -45,7 +46,7 @@ class AuthWorkloadIdentity implements AuthClass {
   }
 
   updateBody(body: AuthRequestBody) {
-    body.data['AUTHENTICATOR'] = 'WORKLOAD_IDENTITY';
+    body.data['AUTHENTICATOR'] = AuthenticationTypes.WORKLOAD_IDENTITY;
     body.data['PROVIDER'] = this.tokenProvider;
     body.data['TOKEN'] = this.token;
   }

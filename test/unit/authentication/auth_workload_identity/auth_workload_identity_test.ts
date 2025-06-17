@@ -86,11 +86,20 @@ describe('Workload Identity Authentication', async () => {
     const connectionConfig: WIP_ConnectionConfig = {
       enableExperimentalWorkloadIdentityAuth: true,
     };
+    let getAzureTokenMock: sinon.SinonStub;
+    let getGcpTokenMock: sinon.SinonStub;
+
+    beforeEach(() => {
+      // NOTE:
+      // Important to mock every cloud provider so auto-detect woudn't call real endpoints (causing slow tests)
+      getAzureTokenMock = mockAzureTokenGetter();
+      getGcpTokenMock = mockGcpTokenGetter();
+      awsSdkMock.getCredentials.throws(new Error('no credentials'));
+      getAzureTokenMock.throws(new Error('no credentials'));
+      getGcpTokenMock.throws(new Error('no credentials'));
+    });
 
     it('throws error when detection fails', async () => {
-      awsSdkMock.getCredentials.throws(new Error('no credentials'));
-      mockAzureTokenGetter().throws(new Error('no credentials'));
-      mockGcpTokenGetter().throws(new Error('no credentials'));
       const auth = new AuthWorkloadIdentity(connectionConfig);
       await assert.rejects(auth.authenticate(), /No workload identity credentials were found. Provider: auto-detect/);
     });
@@ -112,7 +121,7 @@ describe('Workload Identity Authentication', async () => {
     });
 
     it('uses AZURE when Azure credentials are found', async () => {
-      mockAzureTokenGetter().returns({ token: 'test-token' });
+      getAzureTokenMock.returns({ token: 'test-token' });
       const auth = new AuthWorkloadIdentity(connectionConfig);
       await auth.authenticate();
       assert.strictEqual(auth.tokenProvider, 'AZURE');
@@ -120,7 +129,7 @@ describe('Workload Identity Authentication', async () => {
     });
 
     it('uses GCP when GCP credentials are found', async () => {
-      mockGcpTokenGetter().returns('test-token');
+      getGcpTokenMock.returns('test-token');
       const auth = new AuthWorkloadIdentity(connectionConfig);
       await auth.authenticate();
       assert.strictEqual(auth.tokenProvider, 'GCP');

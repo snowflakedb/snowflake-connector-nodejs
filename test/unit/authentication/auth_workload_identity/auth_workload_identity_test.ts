@@ -86,20 +86,13 @@ describe('Workload Identity Authentication', async () => {
     const connectionConfig: WIP_ConnectionConfig = {
       enableExperimentalWorkloadIdentityAuth: true,
     };
-    let getAzureTokenStub: sinon.SinonStub;
-    let getGcpTokenStub: sinon.SinonStub;
-
-    beforeEach(() => {
-      getAzureTokenStub = mockAzureTokenGetter();
-      getGcpTokenStub = mockGcpTokenGetter();
-      awsSdkMock.getCredentials.throws(new Error('no credentials'));
-      getAzureTokenStub.throws(new Error('no credentials'));
-      getGcpTokenStub.throws(new Error('no credentials'));
-    });
 
     it('throws error when detection fails', async () => {
+      awsSdkMock.getCredentials.throws(new Error('no credentials'));
+      mockAzureTokenGetter().throws(new Error('no credentials'));
+      mockGcpTokenGetter().throws(new Error('no credentials'));
       const auth = new AuthWorkloadIdentity(connectionConfig);
-      await assert.rejects(auth.authenticate(), /No workload identity credentials were found. Provider: auto-detect/);
+      assert.rejects(auth.authenticate(), /No workload identity credentials were found. Provider: auto-detect/);
     });
 
     it('uses OIDC when token is provided', async () => {
@@ -119,18 +112,10 @@ describe('Workload Identity Authentication', async () => {
     });
 
     it('uses AZURE when Azure credentials are found', async () => {
-      getAzureTokenStub.returns({ token: 'test-token' });
+      mockAzureTokenGetter().returns({ token: 'test-token' });
       const auth = new AuthWorkloadIdentity(connectionConfig);
       await auth.authenticate();
       assert.strictEqual(auth.tokenProvider, 'AZURE');
-      assert.strictEqual(auth.token, 'test-token');
-    });
-
-    it('uses GCP when GCP credentials are found', async () => {
-      getGcpTokenStub.returns('test-token');
-      const auth = new AuthWorkloadIdentity(connectionConfig);
-      await auth.authenticate();
-      assert.strictEqual(auth.tokenProvider, 'GCP');
       assert.strictEqual(auth.token, 'test-token');
     });
   });

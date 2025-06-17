@@ -19,35 +19,29 @@ class AuthWorkloadIdentity implements AuthClass {
     this.connectionConfig = connectionConfig;
   }
 
-  async autodetectToken(): Promise<{ provider: WorkloadIdentityProviderKey, token: string } | null> {
-    const getProviderCredentials = (
-      provider: WorkloadIdentityProviderKey,
-      getTokenPromise: Promise<string | null>
-    ) => getTokenPromise.then(token => token ? {
-      provider,
-      token
-    } : Promise.reject());
+  async autodetectToken(): Promise<{ provider: WorkloadIdentityProviderKey, token: string | null } | null> {
+    const oidcToken = this.connectionConfig.token;
+    if (oidcToken) {
+      return { provider: WorkloadIdentityProvider.OIDC, token: oidcToken };
+    }
 
-    const credentials = await Promise.any([
-      getProviderCredentials(
-        WorkloadIdentityProvider.OIDC,
-        Promise.resolve(this.connectionConfig.token ?? null)
-      ),
-      getProviderCredentials(
-        WorkloadIdentityProvider.AWS,
-        getAwsAttestationToken()
-      ),
-      getProviderCredentials(
-        WorkloadIdentityProvider.AZURE,
-        getAzureAttestationToken(this.connectionConfig.workloadIdentity?.azureEntraIdResource)
-      ),
-      getProviderCredentials(
-        WorkloadIdentityProvider.GCP,
-        getGcpAttestationToken()
-      )
-    ]).catch(() => null);
+    const awsCredentials = await getAwsAttestationToken();
+    if (awsCredentials) {
+      return { provider: WorkloadIdentityProvider.AWS, token: awsCredentials };
+    }
 
-    return credentials ?? null;
+    const azureEntraIdResource = this.connectionConfig.workloadIdentity?.azureEntraIdResource;
+    const azureToken = await getAzureAttestationToken(azureEntraIdResource);
+    if (azureToken) {
+      return { provider: WorkloadIdentityProvider.AZURE, token: azureToken };
+    }
+
+    const gcpToken = await getGcpAttestationToken();
+    if (gcpToken) {
+      return { provider: WorkloadIdentityProvider.GCP, token: gcpToken };
+    }
+
+    return null;
   }
 
   updateBody(body: AuthRequestBody) {

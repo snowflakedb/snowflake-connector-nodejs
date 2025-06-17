@@ -14,14 +14,29 @@ describe('Workload Identity Authentication', async () => {
     getCredentials: sinonSandbox.stub(),
     getMetadataRegion: sinonSandbox.stub(),
   };
-  const getAzureTokenMock = sinon.stub();
-  const getGcpTokenMock = sinon.stub();
   let AuthWorkloadIdentity: typeof OriginalAuthWorkloadIdentity;
+
+  function mockAzureTokenGetter() {
+    const tokenStub = sinon.stub();
+    sinonSandbox
+      .stub(AzureIdentity.DefaultAzureCredential.prototype, 'getToken')
+      .get(() => tokenStub);
+    return tokenStub;
+  }
+
+  function mockGcpTokenGetter() {
+    const getGcpTokenStub = sinon.stub();
+    sinonSandbox.stub(GoogleAuth.prototype, 'getIdTokenClient').resolves({
+      idTokenProvider: {
+        fetchIdToken: getGcpTokenStub,
+      },
+    } as any);
+    return getGcpTokenStub;
+  }
 
   before(async () => {
     // NOTE:
-    // - Important to mock every cloud provider so we never call real endpoints (causing slow tests)
-    // - Sinon can't stub frozen AWS SDK properties, so we need to mock entire require
+    // Sinon can't stub frozen AWS SDK properties, so we need to mock entire require
     rewiremock('@aws-sdk/credential-provider-node').with({
       defaultProvider: () => awsSdkMock.getCredentials,
     })
@@ -30,27 +45,17 @@ describe('Workload Identity Authentication', async () => {
         request = () => awsSdkMock.getMetadataRegion();
       }
     });
-    sinonSandbox
-      .stub(AzureIdentity.DefaultAzureCredential.prototype, 'getToken')
-      .get(() => getAzureTokenMock);
-    sinonSandbox.stub(GoogleAuth.prototype, 'getIdTokenClient').resolves({
-      idTokenProvider: {
-        fetchIdToken: getGcpTokenMock,
-      },
-    } as any);
     rewiremock.enable();
     AuthWorkloadIdentity = (await import('../../../../lib/authentication/auth_workload_identity')).default;
   });
 
-  beforeEach(() => {
-    awsSdkMock.getCredentials.throws(new Error('no credentials'));
-    awsSdkMock.getMetadataRegion.throws(new Error('no credentials'));
-    getAzureTokenMock.throws(new Error('no credentials'));
-    getGcpTokenMock.throws(new Error('no credentials'));
+  afterEach(() => {
+    awsSdkMock.getCredentials.reset();
+    awsSdkMock.getMetadataRegion.reset();
+    sinonSandbox.restore();
   });
 
   after(() => {
-    sinonSandbox.restore();
     rewiremock.disable();
   });
 
@@ -81,6 +86,18 @@ describe('Workload Identity Authentication', async () => {
     const connectionConfig: WIP_ConnectionConfig = {
       enableExperimentalWorkloadIdentityAuth: true,
     };
+    let getAzureTokenMock: sinon.SinonStub;
+    let getGcpTokenMock: sinon.SinonStub;
+
+    beforeEach(() => {
+      // NOTE:
+      // Important to mock every cloud provider so auto-detect woudn't call real endpoints (causing slow tests)
+      getAzureTokenMock = mockAzureTokenGetter();
+      getGcpTokenMock = mockGcpTokenGetter();
+      awsSdkMock.getCredentials.throws(new Error('no credentials'));
+      getAzureTokenMock.throws(new Error('no credentials'));
+      getGcpTokenMock.throws(new Error('no credentials'));
+    });
 
     it('throws error when detection fails', async () => {
       const auth = new AuthWorkloadIdentity(connectionConfig);
@@ -178,14 +195,20 @@ describe('Workload Identity Authentication', async () => {
       },
       enableExperimentalWorkloadIdentityAuth: true,
     };
+    let getAzureTokenStub: sinon.SinonStub;
+
+    beforeEach(() => {
+      getAzureTokenStub = mockAzureTokenGetter();
+    });
 
     it('throws error when credentials are not found', async () => {
+      getAzureTokenStub.throws(new Error('no credentials'));
       const auth = new AuthWorkloadIdentity(connectionConfig);
       await assert.rejects(auth.authenticate(), /No workload identity credentials were found. Provider: AZURE/);
     });
 
     it('sets valid fields for updateBody() to use', async () => {
-      getAzureTokenMock.returns({ token: 'test-token' });
+      getAzureTokenStub.returns({ token: 'test-token' });
       const auth = new AuthWorkloadIdentity(connectionConfig);
       const body: AuthRequestBody = { data: {} };
       await auth.authenticate();
@@ -203,6 +226,11 @@ describe('Workload Identity Authentication', async () => {
       },
       enableExperimentalWorkloadIdentityAuth: true,
     };
+    let getGcpTokenStub: sinon.SinonStub;
+
+    beforeEach(() => {
+      getGcpTokenStub = mockGcpTokenGetter();
+    });
 
     it('throws error when credentials are not found', async () => {
       const auth = new AuthWorkloadIdentity(connectionConfig);
@@ -210,7 +238,7 @@ describe('Workload Identity Authentication', async () => {
     });
 
     it('sets valid fields for updateBody() to use', async () => {
-      getGcpTokenMock.returns('test-token');
+      getGcpTokenStub.returns('test-token');
       const auth = new AuthWorkloadIdentity(connectionConfig);
       const body: AuthRequestBody = { data: {} };
       await auth.authenticate();

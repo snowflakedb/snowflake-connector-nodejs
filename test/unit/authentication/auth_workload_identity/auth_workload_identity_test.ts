@@ -92,7 +92,7 @@ describe('Workload Identity Authentication', async () => {
       mockAzureTokenGetter().throws(new Error('no credentials'));
       mockGcpTokenGetter().throws(new Error('no credentials'));
       const auth = new AuthWorkloadIdentity(connectionConfig);
-      assert.rejects(auth.authenticate(), /No workload identity credentials were found. Provider: auto-detect/);
+      await assert.rejects(auth.authenticate(), /No workload identity credentials were found. Provider: auto-detect/);
     });
 
     it('uses OIDC when token is provided', async () => {
@@ -116,6 +116,14 @@ describe('Workload Identity Authentication', async () => {
       const auth = new AuthWorkloadIdentity(connectionConfig);
       await auth.authenticate();
       assert.strictEqual(auth.tokenProvider, 'AZURE');
+      assert.strictEqual(auth.token, 'test-token');
+    });
+
+    it('uses GCP when GCP credentials are found', async () => {
+      mockGcpTokenGetter().returns('test-token');
+      const auth = new AuthWorkloadIdentity(connectionConfig);
+      await auth.authenticate();
+      assert.strictEqual(auth.tokenProvider, 'GCP');
       assert.strictEqual(auth.token, 'test-token');
     });
   });

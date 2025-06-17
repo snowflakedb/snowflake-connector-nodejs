@@ -332,6 +332,7 @@ describe('S3 client', function () {
     const AWS = new SnowflakeS3Util(noProxyConnectionConfig, s3, filesystem);
     await AWS.uploadFile(dataFile, meta, encryptionMetadata);
     assert.strictEqual(meta['resultStatus'], resultStatus.NEED_RETRY_WITH_LOWER_CONCURRENCY);
+    assert.strictEqual(meta.isRetry, true);
   });
 
   it('upload - fail HTTP 400', async function () {
@@ -364,6 +365,7 @@ describe('S3 client', function () {
     const AWS = new SnowflakeS3Util(noProxyConnectionConfig, s3, filesystem);
     await AWS.uploadFile(dataFile, meta, encryptionMetadata);
     assert.strictEqual(meta['resultStatus'], resultStatus.NEED_RETRY);
+    assert.strictEqual(meta.isRetry, true);
   });
 
   it('proxy configured', async function () {

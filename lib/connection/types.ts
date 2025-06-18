@@ -4,6 +4,7 @@ import { WorkloadIdentityProviderKey } from "../authentication/auth_workload_ide
  * Work In Progress typing for ConnectionConfig instance
  */
 export interface WIP_ConnectionConfig {
+  oauthEnableSingleUseRefreshTokens?: boolean;
   enableExperimentalWorkloadIdentityAuth?: boolean;
   workloadIdentity?: {
     /**

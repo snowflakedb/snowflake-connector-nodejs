@@ -186,6 +186,17 @@ const oauthOktaAuthorizationCode =
       authenticator: 'OAUTH_AUTHORIZATION_CODE'
     };
 
+const wiremock =
+  {
+    ...baseParameters,
+    accessUrl: null,
+    username: 'MOCK_USERNAME',
+    account: 'MOCK_ACCOUNT_NAME',
+    host: 'localhost',
+    protocol: 'http',
+    authenticator: 'OAUTH',
+  };
+
 exports.externalBrowser = externalBrowser;
 exports.okta = okta;
 exports.oauth = oauth;
@@ -215,3 +226,4 @@ exports.snowflakeAuthTestOauthOktaPassword = snowflakeAuthTestOauthOktaPassword;
 exports.snowflakeAuthTestOauthOktaClientId = snowflakeAuthTestOauthOktaClientId;
 exports.oauthSnowflakeWildcardsAuthorizationCode = oauthSnowflakeWildcardsAuthorizationCode;
 exports.oauthOktaAuthorizationCode = oauthOktaAuthorizationCode;
+exports.wiremock = wiremock;

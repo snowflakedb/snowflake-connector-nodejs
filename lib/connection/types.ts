@@ -11,7 +11,7 @@ export interface WIP_ConnectionConfig {
      */
     provider?: WorkloadIdentityProviderKey;
     /**
-     * Customize Azure Entra Id Resource used to obrain auth token
+     * Customize Azure Entra Id Resource used to obtain auth token
      */
     azureEntraIdResource?: string;
   }

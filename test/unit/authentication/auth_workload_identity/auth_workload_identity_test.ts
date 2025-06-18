@@ -2,6 +2,7 @@ import sinon from 'sinon';
 import rewiremock from 'rewiremock/node';
 import assert from 'assert';
 import * as AzureIdentity from '@azure/identity';
+import { GoogleAuth } from 'google-auth-library';
 import { WIP_ConnectionConfig } from '../../../../lib/connection/types';
 import { AuthRequestBody } from '../../../../lib/authentication/types';
 import OriginalAuthWorkloadIdentity from '../../../../lib/authentication/auth_workload_identity';
@@ -124,6 +125,41 @@ describe('Workload Identity Authentication', async () => {
       auth.updateBody(body);
       assert.strictEqual(body.data.AUTHENTICATOR, 'WORKLOAD_IDENTITY');
       assert.strictEqual(body.data.PROVIDER, 'AZURE');
+      assert.strictEqual(body.data.TOKEN, 'test-token');
+    });
+  });
+
+  describe('GCP', () => {
+    const connectionConfig: WIP_ConnectionConfig = {
+      workloadIdentity: {
+        provider: 'GCP',
+      },
+      enableExperimentalWorkloadIdentityAuth: true,
+    };
+    let fetchIdTokenStub: sinon.SinonStub;
+
+    beforeEach(() => {
+      fetchIdTokenStub = sinonSandbox.stub();
+      sinonSandbox.stub(GoogleAuth.prototype, 'getIdTokenClient').resolves({
+        idTokenProvider: {
+          fetchIdToken: fetchIdTokenStub,
+        },
+      } as any);
+    });
+
+    it('authenticate() throws error when credentials are not found', async () => {
+      const auth = new AuthWorkloadIdentity(connectionConfig);
+      await assert.rejects(auth.authenticate(), /No workload identity credentials were found. Provider: GCP/);
+    });
+
+    it('authenticate() sets valid fields for updateBody() to use', async () => {
+      fetchIdTokenStub.returns('test-token');
+      const auth = new AuthWorkloadIdentity(connectionConfig);
+      const body: AuthRequestBody = { data: {} };
+      await auth.authenticate();
+      auth.updateBody(body);
+      assert.strictEqual(body.data.AUTHENTICATOR, 'WORKLOAD_IDENTITY');
+      assert.strictEqual(body.data.PROVIDER, 'GCP');
       assert.strictEqual(body.data.TOKEN, 'test-token');
     });
   });

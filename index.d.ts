@@ -82,7 +82,7 @@ declare module 'snowflake-sdk' {
     useEnvProxy?: boolean;
   }
 
-  export interface ConnectionOptions {
+  export type ConnectionOptions = WIP_ConnectionConfig & {
     //Detail information: https://docs.snowflake.com/en/developer-guide/node-js/nodejs-driver-options
 
     /**
@@ -353,19 +353,6 @@ declare module 'snowflake-sdk' {
      *  The option to pass passcode from DUO.
      */
     passcode?: string;
-
-    /**
-     * Enable single use refresh tokens for OAuth
-     */
-    oauthEnableSingleUseRefreshTokens?: WIP_ConnectionConfig['oauthEnableSingleUseRefreshTokens'];
-
-    /**
-     * Customization options for "authentication: WORKLOAD_IDENTITY"
-     *
-     * This option is experimental and requires enableExperimentalWorkloadIdentityAuth to be enabled.
-     * The API may change in future versions.
-     */
-    workloadIdentity: import('./lib/connection/types').WIP_ConnectionConfig['workloadIdentity']
   }
 
   export interface Connection {

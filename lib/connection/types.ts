@@ -29,7 +29,7 @@ export interface WIP_ConnectionConfig {
   workloadIdentityProvider?: WorkloadIdentityProviderKey;
 
   /**
-   * Customize Azure Entra Id Resource used to obrain workload identity auth token
+   * Customize Azure Entra Id Resource used to obtain workload identity auth token
    */
   workloadIdentityAzureEntraIdResource?: string;
 }

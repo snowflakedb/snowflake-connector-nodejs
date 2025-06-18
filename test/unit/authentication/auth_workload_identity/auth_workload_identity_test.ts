@@ -1,6 +1,7 @@
 import sinon from 'sinon';
 import rewiremock from 'rewiremock/node';
 import assert from 'assert';
+import * as AzureIdentity from '@azure/identity';
 import { WIP_ConnectionConfig } from '../../../../lib/connection/types';
 import { AuthRequestBody } from '../../../../lib/authentication/types';
 import OriginalAuthWorkloadIdentity from '../../../../lib/authentication/auth_workload_identity';
@@ -39,21 +40,39 @@ describe('Workload Identity Authentication', async () => {
 
   it('throws error when instance is created without enableExperimentalWorkloadIdentityAuth', () => {
     assert.throws(() => new AuthWorkloadIdentity({
-      workloadIdentityProvider: 'AWS',
+      workloadIdentity: {
+        provider: 'AWS',
+      },
       enableExperimentalWorkloadIdentityAuth: undefined,
     }), /Experimental Workload identity authentication is not enabled/);
   });
 
-  it('throws error when instance is created with invalid workloadIdentityProvider', () => {
-    assert.throws(() => new AuthWorkloadIdentity({
-      workloadIdentityProvider: undefined,
+  it('throws error when authenticate() is called with invalid workloadIdentity.provider', () => {
+    const auth = new AuthWorkloadIdentity({
+      workloadIdentity: {
+        // @ts-expect-error - Invalid provider
+        provider: 'INVALID',
+      },
       enableExperimentalWorkloadIdentityAuth: true,
-    }), /requires workloadIdentityProvider: 'AWS'/);
+    });
+    assert.rejects(auth.authenticate(), new RegExp('requires workloadIdentity.provider'));
+  });
+
+  it('reauthenticate() throws TODO error', async () => {
+    const auth = new AuthWorkloadIdentity({
+      workloadIdentity: {
+        provider: 'AWS',
+      },
+      enableExperimentalWorkloadIdentityAuth: true
+    });
+    await assert.rejects(auth.reauthenticate({ data: {} }), /TODO: Not implemented/);
   });
 
   describe('AWS', () => {
     const connectionConfig: WIP_ConnectionConfig = {
-      workloadIdentityProvider: 'AWS',
+      workloadIdentity: {
+        provider: 'AWS',
+      },
       enableExperimentalWorkloadIdentityAuth: true,
     };
 
@@ -68,15 +87,44 @@ describe('Workload Identity Authentication', async () => {
       const auth = new AuthWorkloadIdentity(connectionConfig);
       const body: AuthRequestBody = { data: {} };
       await auth.authenticate();
-      await auth.updateBody(body);
+      auth.updateBody(body);
       assert.strictEqual(body.data.AUTHENTICATOR, 'WORKLOAD_IDENTITY');
       assert.strictEqual(body.data.PROVIDER, 'AWS');
       assertAwsAttestationToken(body.data.TOKEN, AWS_REGION);
     });
+  });
 
-    it('reauthenticate() throws TODO error', async () => {
+  describe('AZURE', () => {
+    const connectionConfig: WIP_ConnectionConfig = {
+      workloadIdentity: {
+        provider: 'AZURE',
+      },
+      enableExperimentalWorkloadIdentityAuth: true,
+    };
+    let getAzureTokenStub: sinon.SinonStub;
+
+    beforeEach(() => {
+      getAzureTokenStub = sinonSandbox.stub();
+      sinonSandbox
+        .stub(AzureIdentity.DefaultAzureCredential.prototype, 'getToken')
+        .get(() => getAzureTokenStub);
+    });
+
+    it('authenticate() throws error when credentials are not found', async () => {
+      getAzureTokenStub.throws(new Error('no credentials'));
       const auth = new AuthWorkloadIdentity(connectionConfig);
-      await assert.rejects(auth.reauthenticate({ data: {} }), /TODO: Not implemented/);
+      await assert.rejects(auth.authenticate(), /No workload identity credentials were found. Provider: AZURE/);
+    });
+
+    it('authenticate() sets valid fields for updateBody() to use', async () => {
+      getAzureTokenStub.returns({ token: 'test-token' });
+      const auth = new AuthWorkloadIdentity(connectionConfig);
+      const body: AuthRequestBody = { data: {} };
+      await auth.authenticate();
+      auth.updateBody(body);
+      assert.strictEqual(body.data.AUTHENTICATOR, 'WORKLOAD_IDENTITY');
+      assert.strictEqual(body.data.PROVIDER, 'AZURE');
+      assert.strictEqual(body.data.TOKEN, 'test-token');
     });
   });
 });

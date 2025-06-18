@@ -196,7 +196,10 @@ declare module 'snowflake-sdk' {
     privateKeyPass?: string;
 
     /**
-     * Specifies the OAuth token to use for authentication. Set this option if you set the authenticator option to OAUTH.
+     * Specifies the token to use for authentication. Set this option if you set the authenticator option to
+     * * OAUTH
+     * * PROGRAMMATIC_ACCESS_TOKEN
+     * * WORKLOAD_IDENTITY
      */
     token?: string;
 
@@ -358,7 +361,7 @@ declare module 'snowflake-sdk' {
      * This option is experimental and requires enableExperimentalWorkloadIdentityAuth to be enabled.
      * The API may change in future versions.
      */
-    workloadIdentity: import('./lib/connection/types').WIP_ConnectionConfig['workloadIdentity']
+    workloadIdentity?: import('./lib/connection/types').WIP_ConnectionConfig['workloadIdentity']
   }
 
   export interface Connection {

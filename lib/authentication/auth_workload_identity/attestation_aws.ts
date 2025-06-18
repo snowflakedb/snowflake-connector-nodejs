@@ -7,6 +7,7 @@ import Logger from '../../logger';
 
 export async function getAwsCredentials() {
   try {
+    Logger().debug("Getting AWS credentials from default provider");
     return await defaultProvider()();
   } catch (error) {
     Logger().debug("No AWS credentials were found.");
@@ -16,12 +17,14 @@ export async function getAwsCredentials() {
 
 export async function getAwsRegion() {
   if (process.env.AWS_REGION) {
+    Logger().debug("Getting AWS region from AWS_REGION");
     return process.env.AWS_REGION; // Lambda
   } else {
     try {
+      Logger().debug("Getting AWS region from EC2 metadata service");
       return await new MetadataService().request('/latest/meta-data/placement/region', {}) // EC2
     } catch (error) {
-      Logger().debug("No AWS region was found.");
+      Logger().debug(`Failed to fetch AWS region from EC2 metadata service: ${error}`);
       return null;
     }
   }

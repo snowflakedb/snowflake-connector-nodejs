@@ -34,6 +34,9 @@ describe('Workload Identity Authentication', async () => {
   });
 
   beforeEach(() => {
+    sinon.stub(process, 'env').value({
+      SF_ENABLE_EXPERIMENTAL_AUTHENTICATION: 'true'
+    });
     sinon.stub(AzureIdentity.DefaultAzureCredential.prototype, 'getToken').get(() => getAzureTokenMock);
     sinon.stub(GoogleAuth.prototype, 'getIdTokenClient').resolves({
       idTokenProvider: {
@@ -51,19 +54,15 @@ describe('Workload Identity Authentication', async () => {
     rewiremock.disable();
   });
 
-  it('throws error when instance is created without enableExperimentalWorkloadIdentityAuth', () => {
-    assert.throws(() => new AuthWorkloadIdentity({
-      workloadIdentity: {
-        provider: 'AWS',
-      },
-      enableExperimentalWorkloadIdentityAuth: undefined,
-    }), /Experimental Workload identity authentication is not enabled/);
+  it('throws error when instance is created without SF_ENABLE_EXPERIMENTAL_AUTHENTICATION=true', () => {
+    sinon.stub(process, 'env').value({
+      SF_ENABLE_EXPERIMENTAL_AUTHENTICATION: false
+    });
+    assert.throws(() => new AuthWorkloadIdentity({}), /Experimental Workload identity authentication is not enabled/);
   });
 
   it('reauthenticate() calls authenticate() and updates body with new token', async () => {
-    const auth = new AuthWorkloadIdentity({
-      enableExperimentalWorkloadIdentityAuth: true
-    });
+    const auth = new AuthWorkloadIdentity({});
     sinon
       .stub(auth, 'authenticate')
       .callsFake(async function (this: InstanceType<typeof AuthWorkloadIdentity>) {
@@ -75,9 +74,7 @@ describe('Workload Identity Authentication', async () => {
   });
 
   describe('authenticate() with auto-detect', () => {
-    const connectionConfig: WIP_ConnectionConfig = {
-      enableExperimentalWorkloadIdentityAuth: true,
-    };
+    const connectionConfig: WIP_ConnectionConfig = {};
 
     it('throws error when detection fails', async () => {
       const auth = new AuthWorkloadIdentity(connectionConfig);
@@ -120,10 +117,7 @@ describe('Workload Identity Authentication', async () => {
   describe('authenticate() with OIDC', () => {
     const connectionConfig: WIP_ConnectionConfig = {
       token: 'test-token',
-      enableExperimentalWorkloadIdentityAuth: true,
-      workloadIdentity: {
-        provider: 'OIDC',
-      },
+      workloadIdentityProvider: 'OIDC'
     };
 
     it('throws error when token is not provided', async () => {
@@ -144,10 +138,7 @@ describe('Workload Identity Authentication', async () => {
 
   describe('authenticate() with AWS', () => {
     const connectionConfig: WIP_ConnectionConfig = {
-      workloadIdentity: {
-        provider: 'AWS',
-      },
-      enableExperimentalWorkloadIdentityAuth: true,
+      workloadIdentityProvider: 'AWS'
     };
 
     it('throws error when credentials are not found', async () => {
@@ -170,10 +161,7 @@ describe('Workload Identity Authentication', async () => {
 
   describe('authenticate() with AZURE', () => {
     const connectionConfig: WIP_ConnectionConfig = {
-      workloadIdentity: {
-        provider: 'AZURE',
-      },
-      enableExperimentalWorkloadIdentityAuth: true,
+      workloadIdentityProvider: 'AZURE'
     };
 
     it('throws error when credentials are not found', async () => {
@@ -196,10 +184,7 @@ describe('Workload Identity Authentication', async () => {
 
   describe('authenticate() with GCP', () => {
     const connectionConfig: WIP_ConnectionConfig = {
-      workloadIdentity: {
-        provider: 'GCP',
-      },
-      enableExperimentalWorkloadIdentityAuth: true,
+      workloadIdentityProvider: 'GCP'
     };
 
     it('throws error when credentials are not found', async () => {

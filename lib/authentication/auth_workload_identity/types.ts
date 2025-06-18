@@ -3,8 +3,8 @@
 export const WorkloadIdentityProvider = {
   AWS: 'AWS',
   AZURE: 'AZURE',
-  // GCP: 'GCP',
-  // OIDC: 'OIDC'
+  GCP: 'GCP',
+  OIDC: 'OIDC'
 } as const;
 
 export type WorkloadIdentityProviderKey = keyof typeof WorkloadIdentityProvider;

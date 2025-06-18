@@ -198,11 +198,6 @@ declare module 'snowflake-sdk' {
     privateKeyPass?: string;
 
     /**
-     * Specifies the OAuth token to use for authentication. Set this option if you set the authenticator option to OAUTH.
-     */
-    token?: string;
-
-    /**
      * The default virtual warehouse to use for the session after connecting. Used for performing queries, loading data, etc.
      */
     warehouse?: string;

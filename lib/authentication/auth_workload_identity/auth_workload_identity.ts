@@ -4,6 +4,7 @@ import { WorkloadIdentityProvider, WorkloadIdentityProviderKey } from "./types";
 import { createInvalidParameterError, ErrorCode } from '../../errors';
 import { WIP_ConnectionConfig } from "../../connection/types";
 import { getAzureAttestationToken } from "./attestation_azure";
+import { getGcpAttestationToken } from "./attestation_gcp";
 
 class AuthWorkloadIdentity implements AuthClass {
   connectionConfig: WIP_ConnectionConfig;
@@ -31,6 +32,8 @@ class AuthWorkloadIdentity implements AuthClass {
       token = await getAwsAttestationToken();
     } else if (provider === WorkloadIdentityProvider.AZURE) {
       token = await getAzureAttestationToken(azureEntraIdResource);
+    } else if (provider === WorkloadIdentityProvider.GCP) {
+      token = await getGcpAttestationToken();
     } else {
       throw new Error(`Experimental authenticator: 'WORKLOAD_IDENTITY' requires workloadIdentity.provider: ${Object.values(WorkloadIdentityProvider).join('|')}`);
     }

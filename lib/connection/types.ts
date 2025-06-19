@@ -38,5 +38,5 @@ export interface WIP_ConnectionConfig {
 
 export interface HttpHeaderCustomizer {
   applies(method: string, url: string): boolean;
-  newHeaders() : Record<string, string>;
+  newHeaders() : Record<string, any>;
 }

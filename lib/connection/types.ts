@@ -35,3 +35,8 @@ export interface WIP_ConnectionConfig {
     azureEntraIdResource?: string;
   }
 }
+
+export interface HttpHeaderCustomizer {
+  applies(method: string, url: string): boolean;
+  newHeaders() : Record<string, any>;
+}

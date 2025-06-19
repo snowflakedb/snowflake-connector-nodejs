@@ -14,7 +14,8 @@ describe('S3 client', function () {
   const mockKey = 'mockKey';
   const mockIv = 'mockIv';
   const mockMatDesc = 'mockMatDesc';
-  const noProxyConnectionConfig = {
+  const ConnectionConfig = {
+    getHttpHeaderCustomizers: () => [],
     getProxy: function () {
       return null;
     }
@@ -77,7 +78,7 @@ describe('S3 client', function () {
     s3 = require('s3');
     filesystem = require('filesystem');
 
-    AWS = new SnowflakeS3Util(noProxyConnectionConfig, s3, filesystem);
+    AWS = new SnowflakeS3Util(ConnectionConfig, s3, filesystem);
   });
 
   describe('AWS client endpoint testing', async function () {
@@ -181,7 +182,7 @@ describe('S3 client', function () {
       }
     });
     s3 = require('s3');
-    const AWS = new SnowflakeS3Util(noProxyConnectionConfig, s3);
+    const AWS = new SnowflakeS3Util(ConnectionConfig, s3);
     await AWS.getFileHeader(meta, dataFile);
     assert.strictEqual(meta['resultStatus'], resultStatus.RENEW_TOKEN);
   });
@@ -208,7 +209,7 @@ describe('S3 client', function () {
     });
     s3 = require('s3');
 
-    const AWS = new SnowflakeS3Util(noProxyConnectionConfig, s3);
+    const AWS = new SnowflakeS3Util(ConnectionConfig, s3);
     await AWS.getFileHeader(meta, dataFile);
     assert.strictEqual(meta['resultStatus'], resultStatus.NOT_FOUND_FILE);
   });
@@ -234,7 +235,7 @@ describe('S3 client', function () {
       }
     });
     s3 = require('s3');
-    const AWS = new SnowflakeS3Util(noProxyConnectionConfig, s3, filesystem);
+    const AWS = new SnowflakeS3Util(ConnectionConfig, s3, filesystem);
     await AWS.getFileHeader(meta, dataFile);
     assert.strictEqual(meta['resultStatus'], resultStatus.RENEW_TOKEN);
   });
@@ -260,7 +261,7 @@ describe('S3 client', function () {
       }
     });
     s3 = require('s3');
-    const AWS = new SnowflakeS3Util(noProxyConnectionConfig, s3, filesystem);
+    const AWS = new SnowflakeS3Util(ConnectionConfig, s3, filesystem);
     await AWS.getFileHeader(meta, dataFile);
     assert.strictEqual(meta['resultStatus'], resultStatus.ERROR);
   });
@@ -297,7 +298,7 @@ describe('S3 client', function () {
     });
     s3 = require('s3');
     filesystem = require('filesystem');
-    const AWS = new SnowflakeS3Util(noProxyConnectionConfig, s3, filesystem);
+    const AWS = new SnowflakeS3Util(ConnectionConfig, s3, filesystem);
     await AWS.uploadFile(dataFile, meta, encryptionMetadata);
     assert.strictEqual(meta['resultStatus'], resultStatus.RENEW_TOKEN);
   });
@@ -329,9 +330,10 @@ describe('S3 client', function () {
     });
     s3 = require('s3');
     filesystem = require('filesystem');
-    const AWS = new SnowflakeS3Util(noProxyConnectionConfig, s3, filesystem);
+    const AWS = new SnowflakeS3Util(ConnectionConfig, s3, filesystem);
     await AWS.uploadFile(dataFile, meta, encryptionMetadata);
     assert.strictEqual(meta['resultStatus'], resultStatus.NEED_RETRY_WITH_LOWER_CONCURRENCY);
+    assert.strictEqual(meta.isRetry, true);
   });
 
   it('upload - fail HTTP 400', async function () {
@@ -361,9 +363,10 @@ describe('S3 client', function () {
     });
     s3 = require('s3');
     filesystem = require('filesystem');
-    const AWS = new SnowflakeS3Util(noProxyConnectionConfig, s3, filesystem);
+    const AWS = new SnowflakeS3Util(ConnectionConfig, s3, filesystem);
     await AWS.uploadFile(dataFile, meta, encryptionMetadata);
     assert.strictEqual(meta['resultStatus'], resultStatus.NEED_RETRY);
+    assert.strictEqual(meta.isRetry, true);
   });
 
   it('proxy configured', async function () {
@@ -386,6 +389,7 @@ describe('S3 client', function () {
       protocol: 'https'
     };
     const proxyConnectionConfig = {
+      getHttpHeaderCustomizers: () => [],
       accessUrl: 'http://snowflake.com',
       getProxy: function () {
         return proxyOptions;

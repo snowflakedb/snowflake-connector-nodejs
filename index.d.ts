@@ -127,11 +127,6 @@ declare module 'snowflake-sdk' {
     authenticator?: keyof typeof import('./lib/authentication/authentication_types').default;
 
     /**
-     * Allows to set experimental authenticator: 'WORKLOAD_IDENTITY'
-     */
-    enableExperimentalWorkloadIdentityAuth?: boolean;
-
-    /**
      * Specifies the timeout, in milliseconds, for browser activities related to SSO authentication. The default value is 120000 (milliseconds).
      */
     browserActionTimeout?: number;

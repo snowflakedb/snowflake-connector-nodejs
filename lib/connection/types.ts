@@ -20,7 +20,7 @@ export interface WIP_ConnectionConfig {
   /**
    * When authenticator=WORKLOAD_IDENTITY, specifies the identity provider. Available options:
    * * AWS - Uses `@aws-sdk` to find credentials and encodes signed GetCallerIdentity request as token
-   * * AZURE - Uses `@azure/identity` find credentials and get JWT token
+   * * AZURE - Uses `@azure/identity` to find credentials and get JWT token
    * * GCP - Uses `google-auth-library` to find credentials and get JWT token
    * * OIDC - Reads JWT token from `ConnectionOptions.token`
    *

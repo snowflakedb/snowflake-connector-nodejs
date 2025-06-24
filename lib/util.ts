@@ -684,7 +684,7 @@ export async function dynamicImportESMInTypescriptWithCommonJS(moduleName: strin
   return Function(`return import("${moduleName}")`)()
 }
 
-export function isValidHTTPHeaderCustomizers(customizers: HttpHeadersCustomizer[]) : boolean {
+export function isValidHTTPHeadersCustomizer(customizers: HttpHeadersCustomizer[]) : boolean {
   const requireMethods: (keyof HttpHeadersCustomizer)[] = ['applies', 'newHeaders'];
   for (const customizer of customizers) {
     for (const method of requireMethods) {

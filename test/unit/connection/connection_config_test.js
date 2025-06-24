@@ -838,13 +838,13 @@ describe('ConnectionConfig: basic', function () {
         errorCode: ErrorCodes.ERR_CONN_CREATE_INVALID_OUATH_AUTHORIZATION_URL
       },
       {
-        name: 'invalid config - incorrect httpHeaderCustomizers',
+        name: 'invalid config - incorrect httpHeadersCustomizer',
 
         options: {
           account: 'account',
           username: 'username',
           password: 'password',
-          httpHeaderCustomizers: [
+          httpHeadersCustomizer: [
             {
               apply: function () {
                 return 'invalid';

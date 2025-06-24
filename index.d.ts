@@ -4,7 +4,7 @@ import { WIP_ConnectionConfig } from './lib/connection/types';
  * The snowflake-sdk module provides an instance to connect to the Snowflake server
  * @see [source] {@link https://docs.snowflake.com/en/developer-guide/node-js/nodejs-driver}
  */
-import { HttpHeaderCustomizer } from './lib/connection/types';
+import { HttpHeadersCustomizer } from './lib/connection/types';
 
 declare module 'snowflake-sdk' {
 
@@ -355,7 +355,7 @@ declare module 'snowflake-sdk' {
      * Customizes the HTTP headers sent with each request.
      * The customizer functions are called with the HTTP method and URL.
      */
-     httpHeaderCustomizers?: Array<HttpHeaderCustomizer>;
+     httpHeadersCustomizer?: Array<HttpHeadersCustomizer>;
   }
 
   export interface Connection {

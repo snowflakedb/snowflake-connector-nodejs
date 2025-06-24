@@ -15,7 +15,7 @@ describe('S3 client', function () {
   const mockIv = 'mockIv';
   const mockMatDesc = 'mockMatDesc';
   const ConnectionConfig = {
-    getHttpHeaderCustomizers: () => [],
+    getHttpHeadersCustomizer: () => [],
     getProxy: function () {
       return null;
     }
@@ -389,7 +389,7 @@ describe('S3 client', function () {
       protocol: 'https'
     };
     const proxyConnectionConfig = {
-      getHttpHeaderCustomizers: () => [],
+      getHttpHeadersCustomizer: () => [],
       accessUrl: 'http://snowflake.com',
       getProxy: function () {
         return proxyOptions;

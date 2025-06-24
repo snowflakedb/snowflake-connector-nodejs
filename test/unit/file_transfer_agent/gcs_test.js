@@ -20,7 +20,7 @@ describe('GCS client', function () {
     getProxy: function () {
       return this.proxy;
     },
-    getHttpHeaderCustomizers: () => [],
+    getHttpHeadersCustomizer: () => [],
     accessUrl: 'http://fakeaccount.snowflakecomputing.com',
   };
 

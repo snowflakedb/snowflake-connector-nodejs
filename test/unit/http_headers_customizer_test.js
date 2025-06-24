@@ -58,7 +58,7 @@ describe('customizer header tests', () => {
     verifyHeaders(firstHeaders, { ...testingHeaders, ...result });
 
     const retryHeader = getHttpRequestHeaders(connectionConfig, { isRetry: true, url: 'http://fakeaccount.snowflakecomputing.com', headers: testingHeaders });
-    delete firstHeaders['user-agent'];
+    delete retryHeader['user-agent'];
     verifyHeaders(retryHeader, { ...testingHeaders });
   });
 

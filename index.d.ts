@@ -84,7 +84,7 @@ declare module 'snowflake-sdk' {
     useEnvProxy?: boolean;
   }
 
-  export interface ConnectionOptions extends WIP_ConnectionConfig {
+  export type ConnectionOptions = WIP_ConnectionConfig & {
     //Detail information: https://docs.snowflake.com/en/developer-guide/node-js/nodejs-driver-options
 
     /**

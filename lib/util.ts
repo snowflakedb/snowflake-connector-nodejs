@@ -683,19 +683,3 @@ export function escapeHTML(value: string) {
 export async function dynamicImportESMInTypescriptWithCommonJS(moduleName: string) {
   return Function(`return import("${moduleName}")`)()
 }
-
-export function isValidHTTPHeadersCustomizer(customizers: HttpHeadersCustomizer[]) : boolean {
-  const requireMethods: (keyof HttpHeadersCustomizer)[] = ['applies', 'newHeaders'];
-  for (const customizer of customizers) {
-    for (const method of requireMethods) {
-      if (
-        typeof customizer !== 'object' ||
-        customizer === null ||
-        typeof customizer[method] !== 'function'
-      ) {
-        return false;
-      }
-    }
-  }
-  return true;
-}

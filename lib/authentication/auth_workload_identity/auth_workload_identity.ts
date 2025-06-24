@@ -14,8 +14,8 @@ class AuthWorkloadIdentity implements AuthClass {
   token!: string;
 
   constructor(connectionConfig: WIP_ConnectionConfig) {
-    if (!connectionConfig.enableExperimentalWorkloadIdentityAuth) {
-      throw new Error('Experimental Workload identity authentication is not enabled. Please set enableExperimentalWorkloadIdentityAuth to true to use this authenticator.');
+    if (process.env.SF_ENABLE_EXPERIMENTAL_AUTHENTICATION !== 'true') {
+      throw new Error('Experimental Workload identity authentication is not enabled. Please set env var SF_ENABLE_EXPERIMENTAL_AUTHENTICATION=true to use this authenticator.');
     }
     this.connectionConfig = connectionConfig;
   }
@@ -31,8 +31,7 @@ class AuthWorkloadIdentity implements AuthClass {
       return { provider: WorkloadIdentityProvider.AWS, token: awsCredentials };
     }
 
-    const azureEntraIdResource = this.connectionConfig.workloadIdentity?.azureEntraIdResource;
-    const azureToken = await getAzureAttestationToken(azureEntraIdResource);
+    const azureToken = await getAzureAttestationToken(this.connectionConfig.workloadIdentityAzureEntraIdResource);
     if (azureToken) {
       return { provider: WorkloadIdentityProvider.AZURE, token: azureToken };
     }
@@ -52,13 +51,13 @@ class AuthWorkloadIdentity implements AuthClass {
   }
 
   async authenticate() {
-    let provider = this.connectionConfig.workloadIdentity?.provider;
+    let provider = this.connectionConfig.workloadIdentityProvider;
     let token: string | null = null;
 
     if (provider === WorkloadIdentityProvider.AWS) {
       token = await getAwsAttestationToken();
     } else if (provider === WorkloadIdentityProvider.AZURE) {
-      token = await getAzureAttestationToken(this.connectionConfig.workloadIdentity?.azureEntraIdResource);
+      token = await getAzureAttestationToken(this.connectionConfig.workloadIdentityAzureEntraIdResource);
     } else if (provider === WorkloadIdentityProvider.GCP) {
       token = await getGcpAttestationToken();
     } else if (provider === WorkloadIdentityProvider.OIDC) {

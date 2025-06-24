@@ -1,7 +1,7 @@
 import {getHttpRequestHeaders} from '../../lib/http/base';
 import ConnectionConfig from '../../lib/connection/connection_config';
 import assert from 'assert';
-import {ConnectionOptions} from '../../index';
+import * as Snowflake from '../../index';
 
 
 describe('customizer header tests', () => {
@@ -34,7 +34,7 @@ accept: "application/json",
 const normalizeHeader = {
     'user-agent': 'JavaScript/2.1.0 (win32-x64) NodeJS/22.11.0'
 }
-    const mockConnectionOptions : ConnectionOptions  = {
+    const mockConnectionOptions : Snowflake.ConnectionOptions  = {
   accessUrl: 'http://fakeaccount.snowflakecomputing.com',
   username: 'fakeusername',
   password: 'fakepassword',

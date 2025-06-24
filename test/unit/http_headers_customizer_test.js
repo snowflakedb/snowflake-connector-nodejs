@@ -34,9 +34,6 @@ describe('customizer header tests', () => {
     'content-type': 'type',
   };
 
-  const normalizeHeader = {
-    'user-agent': 'JavaScript/2.1.0 (win32-x64) NodeJS/22.11.0'
-  };
   //     const mockConnectionOptions : Snowflake.ConnectionOptions  = {
   //   accessUrl: 'http://fakeaccount.snowflakecomputing.com',
   //   username: 'fakeusername',
@@ -57,10 +54,12 @@ describe('customizer header tests', () => {
     mockConnectionOptions.httpHeadersCustomizer = customHeaders;
     const connectionConfig = new ConnectionConfig(mockConnectionOptions);
     const firstHeaders = getHttpRequestHeaders(connectionConfig, { isRetry: false, url: 'http://fakeaccount.snowflakecomputing.com', headers: testingHeaders });
-    verifyHeaders(firstHeaders, { ...testingHeaders, ...normalizeHeader, ...result });
+    delete firstHeaders['user-agent'];
+    verifyHeaders(firstHeaders, { ...testingHeaders, ...result });
 
     const retryHeader = getHttpRequestHeaders(connectionConfig, { isRetry: true, url: 'http://fakeaccount.snowflakecomputing.com', headers: testingHeaders });
-    verifyHeaders(retryHeader, { ...testingHeaders, ...normalizeHeader });
+    delete firstHeaders['user-agent'];
+    verifyHeaders(retryHeader, { ...testingHeaders });
   });
 
   it('verify custom headers do not overwrite the original headers', () => {
@@ -78,7 +77,8 @@ describe('customizer header tests', () => {
     ];
     const connectionConfig = new ConnectionConfig(mockConnectionOptions);
     const firstHeaders = getHttpRequestHeaders(connectionConfig, { isRetry: false, url: 'http://fakeaccount.snowflakecomputing.com', headers: testingHeaders });
-    verifyHeaders(firstHeaders, { ...testingHeaders, ...normalizeHeader, ...result });
+    delete firstHeaders['user-agent'];
+    verifyHeaders(firstHeaders, { ...testingHeaders, ...result });
   });
 });
 

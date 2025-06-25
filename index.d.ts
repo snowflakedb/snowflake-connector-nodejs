@@ -1,4 +1,4 @@
-import { WIP_ConnectionConfig } from './lib/connection/types';
+import { WIP_ConnectionOptions } from './lib/connection/types';
 
 /**
  * The snowflake-sdk module provides an instance to connect to the Snowflake server
@@ -82,7 +82,7 @@ declare module 'snowflake-sdk' {
     useEnvProxy?: boolean;
   }
 
-  export type ConnectionOptions = WIP_ConnectionConfig & {
+  export type ConnectionOptions = WIP_ConnectionOptions & {
     //Detail information: https://docs.snowflake.com/en/developer-guide/node-js/nodejs-driver-options
 
     /**

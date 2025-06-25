@@ -1,9 +1,9 @@
 import { WorkloadIdentityProviderKey } from "../authentication/auth_workload_identity/types";
 
 /**
- * Work In Progress typing for ConnectionConfig instance
+ * Work In Progress typing for ConnectionOptions
  */
-export interface WIP_ConnectionConfig {
+export interface WIP_ConnectionOptions {
   /**
    * Specifies the token to use for authentication. Set this option if you set the authenticator option to
    * * OAUTH
@@ -32,4 +32,13 @@ export interface WIP_ConnectionConfig {
    * Customize Azure Entra Id Resource used to obtain workload identity auth token
    */
   workloadIdentityAzureEntraIdResource?: string;
+}
+
+/**
+ * Work In Progress typing for ConnectionConfig instance
+ */
+export type WIP_ConnectionConfig = WIP_ConnectionOptions & {
+  getOauthHttpAllowed(): boolean;
+  getOauthClientId(): string;
+  getOauthClientSecret(): string;
 }

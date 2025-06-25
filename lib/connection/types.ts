@@ -37,7 +37,18 @@ export interface WIP_ConnectionOptions {
 /**
  * Work In Progress typing for ConnectionConfig instance
  */
-export type WIP_ConnectionConfig = WIP_ConnectionOptions & {
+export type WIP_ConnectionConfig = {
+  // NOTE:
+  // Temporary explicit mapping as at some point we'll have options that aren't present on
+  // ConnectionConfig instance e.g. instead of oauthClientId we have getOauthClientId().
+  //
+  // Future plan is to remove this type and let TypeScript to infer types automatically from
+  // ConnectionConfig code.
+  token: WIP_ConnectionOptions['token'];
+  workloadIdentityProvider: WIP_ConnectionOptions['workloadIdentityProvider'];
+  workloadIdentityAzureEntraIdResource: WIP_ConnectionOptions['workloadIdentityAzureEntraIdResource'];
+  oauthEnableSingleUseRefreshTokens: WIP_ConnectionOptions['oauthEnableSingleUseRefreshTokens'];
+
   getOauthHttpAllowed(): boolean;
   getOauthClientId(): string;
   getOauthClientSecret(): string;

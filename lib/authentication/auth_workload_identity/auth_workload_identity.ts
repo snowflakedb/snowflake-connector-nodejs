@@ -14,6 +14,9 @@ class AuthWorkloadIdentity implements AuthClass {
   token!: string;
 
   constructor(connectionConfig: WIP_ConnectionConfig) {
+    if (process.env.SF_ENABLE_EXPERIMENTAL_AUTHENTICATION !== 'true') {
+      throw new Error('Experimental Workload identity authentication is not enabled. Please set env var SF_ENABLE_EXPERIMENTAL_AUTHENTICATION=true to use this authenticator.');
+    }
     this.connectionConfig = connectionConfig;
   }
 

@@ -1,11 +1,7 @@
-// import {getHttpRequestHeaders} from '../../lib/http/base';
-// import ConnectionConfig from '../../lib/connection/connection_config';
-// import assert from 'assert';
-// import * as Snowflake from '../../index';
-
-const { getHttpRequestHeaders } = require('../../lib/http/base');
-const ConnectionConfig = require('../../lib/connection/connection_config');
-const assert = require('assert');
+import {getHttpRequestHeaders} from '../../lib/http/base';
+import ConnectionConfig from '../../lib/connection/connection_config';
+import assert from 'assert';
+import * as Snowflake from '../../index';
 
 describe('customizer header tests', () => {
   const customHeaders = [{
@@ -34,15 +30,7 @@ describe('customizer header tests', () => {
     'content-type': 'type',
   };
 
-  //     const mockConnectionOptions : Snowflake.ConnectionOptions  = {
-  //   accessUrl: 'http://fakeaccount.snowflakecomputing.com',
-  //   username: 'fakeusername',
-  //   password: 'fakepassword',
-  //   account: 'fakeaccount',
-  //   authenticator: 'DEFAULT_AUTHENTICATOR',
-  // }
-
-  const mockConnectionOptions = {
+  const mockConnectionOptions : Snowflake.ConnectionOptions = {
     accessUrl: 'http://fakeaccount.snowflakecomputing.com',
     username: 'fakeusername',
     password: 'fakepassword',
@@ -82,22 +70,12 @@ describe('customizer header tests', () => {
   });
 });
 
-// function verifyHeaders(headers: Record<string,any>, expectedHeaders: Record<string,any>) {
-//     assert.strictEqual(Object.keys(headers).length, Object.keys(expectedHeaders).length, 'Headers length mismatch')
+function verifyHeaders(headers: Record<string,any>, expectedHeaders: Record<string,any>) {
+    assert.strictEqual(Object.keys(headers).length, Object.keys(expectedHeaders).length, 'Headers length mismatch')
 
-//     for (const key in expectedHeaders) {
-//         if (headers.hasOwnProperty(key)) {
-//             assert.deepStrictEqual(headers[key], expectedHeaders[key], `Header ${key} does not match expected value`);
-//         }
-//     }
-// }
-
-function verifyHeaders(headers, expectedHeaders) {
-  assert.strictEqual(Object.keys(headers).length, Object.keys(expectedHeaders).length, 'Headers length mismatch');
-
-  for (const key in expectedHeaders) {
-    if (Object.prototype.hasOwnProperty.call(headers, key)) {
-      assert.deepStrictEqual(headers[key], expectedHeaders[key], `Header ${key} does not match expected value`);
+    for (const key in expectedHeaders) {
+        if (headers.hasOwnProperty(key)) {
+            assert.deepStrictEqual(headers[key], expectedHeaders[key], `Header ${key} does not match expected value`);
+        }
     }
-  }
 }

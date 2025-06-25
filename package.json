@@ -86,7 +86,7 @@
     "test:system": "mocha 'system_test/**/*.{js,ts}'",
     "test:unit": "mocha \"test/unit/**/*.{js,ts}'",
     "test:unit:coverage": "nyc npm run test:unit",
-    "test:ci": "mocha 'test/{unit,integration}/**/*.{js,ts}'",
+    "test:ci": "mocha \"test/{unit,integration}/**/*.{js,ts}\"",
     "test:ci:coverage": "nyc npm run test:ci",
     "test:ci:withSystemTests": "mocha 'test/{unit,integration}/**/*.{js,ts}' 'system_test/**/*.{js,ts}'",
     "test:ci:withSystemTests:coverage": "nyc npm run test:ci:withSystemTests",

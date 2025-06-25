@@ -1,7 +1,7 @@
 import {getHttpRequestHeaders} from '../../lib/http/base';
 import ConnectionConfig from '../../lib/connection/connection_config';
 import assert from 'assert';
-import * as Snowflake from '../../index';
+import * as Snowflake from 'snowflake-sdk';
 
 describe('customizer header tests', () => {
   const customHeaders = [{

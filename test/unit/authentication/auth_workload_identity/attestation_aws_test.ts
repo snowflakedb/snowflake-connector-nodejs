@@ -64,6 +64,16 @@ describe('Attestation AWS', () => {
     });
   });
 
+  describe('getStsHostname', () => {
+    it('returns valid name for china region', () => {
+      assert.strictEqual(AttestationAws.getStsHostname('cn-northwest-1'), 'sts.cn-northwest-1.amazonaws.com.cn');
+    });
+
+    it('returns valid name for non-china region', () => {
+      assert.strictEqual(AttestationAws.getStsHostname('us-east-1'), 'sts.us-east-1.amazonaws.com');
+    });
+  });
+
   describe('getAwsAttestationToken', () => {
     it('returns null when no credentials are found', async () => {
       assert.strictEqual(await AttestationAws.getAwsAttestationToken(), null);

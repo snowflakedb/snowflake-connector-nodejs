@@ -30,6 +30,11 @@ export async function getAwsRegion() {
   }
 }
 
+export function getStsHostname(region: string) {
+  const domain = region.startsWith('cn-') ? 'amazonaws.com.cn' : 'amazonaws.com';
+  return `sts.${region}.${domain}`;
+}
+
 /**
  * Tries to create a workload identity attestation for AWS.
  * If the application isn't running on AWS or no credentials were found, returns null.
@@ -45,7 +50,7 @@ export async function getAwsAttestationToken() {
     return null;
   }
 
-  const stsHostname = `sts.${region}.amazonaws.com`;
+  const stsHostname = getStsHostname(region);
   const request = new HttpRequest({
     method: 'POST',
     protocol: 'https',

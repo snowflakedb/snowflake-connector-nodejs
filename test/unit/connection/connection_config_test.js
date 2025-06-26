@@ -2,7 +2,6 @@ const ConnectionConfig = require('./../../../lib/connection/connection_config');
 const ErrorCodes = require('./../../../lib/errors').codes;
 const assert = require('assert');
 const AuthenticationTypes = require('./../../../lib/authentication/authentication_types');
-const { query } = require('winston');
 
 describe('ConnectionConfig: basic', function () {
   ///////////////////////////////////////////////////////////////////////////

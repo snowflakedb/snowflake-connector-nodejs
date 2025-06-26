@@ -325,11 +325,6 @@ declare module 'snowflake-sdk' {
     clientRequestMFAToken?: boolean;
 
     /**
-     * The option to enable the SSO token. The default value is false.
-     */
-    clientStoreTemporaryCredential?: boolean;
-
-    /**
      *  The option to include the passcode from DUO into the password.
      */
     passcodeInPassword?: boolean;

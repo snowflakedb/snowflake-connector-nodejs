@@ -23,6 +23,13 @@ export interface WIP_ConnectionOptions {
   authenticator?: string;
 
   /**
+   * Enable SSO token caching. The default value is false.
+   *
+   * https://docs.snowflake.com/en/developer-guide/node-js/nodejs-driver-authenticate#authentication-token-caching
+   */
+  clientStoreTemporaryCredential?: boolean;
+
+  /**
    * Specifies the token to use for authentication. Set this option if you set the authenticator option to
    * * OAUTH
    * * PROGRAMMATIC_ACCESS_TOKEN
@@ -34,6 +41,52 @@ export interface WIP_ConnectionOptions {
    * Enable single use refresh tokens for OAuth
    */
   oauthEnableSingleUseRefreshTokens?: boolean;
+
+  /**
+   * Value of `client id` provided by the identity provider for Snowflake integration (Snowflake security integration metadata).
+   */
+  oauthClientId?: string;
+
+  /**
+   * Value of the `client secret` provided by the identity provider for Snowflake integration (Snowflake security integration metadata).
+   */
+  oauthClientSecret?: string;
+
+  /**
+   * Identity provider endpoint supplying the authorization code to the driver.
+   * When Snowflake is used as an identity provider, this value is derived from the `server` or `account` parameters.
+   */
+  oauthAuthorizationUrl?: string;
+
+  /**
+   * Identity Provider endpoint supplying the access tokens to the driver.
+   * When using Snowflake as an Identity Provider, this value is derived from the `server` or `account` parameters.
+   */
+  oauthTokenRequestUrl?: string;
+
+  /**
+   * Scope requested in the Identity Provider authorization request.
+   * By default, it is derived from the role.
+   * When multiple scopes are required, the value should be a space-separated list of multiple scopes.
+   */
+  oauthScope?: string;
+
+  /**
+   * URI to use for authorization code redirection (Snowflake security integration metadata).
+   * Default: `http://127.0.0.1:{randomAvailablePort}/`.
+   */
+  oauthRedirectUri?: string;
+
+  /**
+   * @deprecated
+   * FOR TESTING ONLY. Allows to use insecure http requests.
+   */
+  oauthHttpAllowed?: boolean;
+
+  /**
+   * When authenticator=OAUTH_AUTHORIZATION_CODE, customize the code challenge method
+   */
+  oauthChallengeMethod?: string;
 
   /**
    * When authenticator=WORKLOAD_IDENTITY, specifies the identity provider. Available options:

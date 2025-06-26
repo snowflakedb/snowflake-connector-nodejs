@@ -2,6 +2,7 @@ const ConnectionConfig = require('./../../../lib/connection/connection_config');
 const ErrorCodes = require('./../../../lib/errors').codes;
 const assert = require('assert');
 const AuthenticationTypes = require('./../../../lib/authentication/authentication_types');
+const { query } = require('winston');
 
 describe('ConnectionConfig: basic', function () {
   ///////////////////////////////////////////////////////////////////////////
@@ -836,6 +837,29 @@ describe('ConnectionConfig: basic', function () {
           oauthAuthorizationUrl: 'not_url_string',
         },
         errorCode: ErrorCodes.ERR_CONN_CREATE_INVALID_OUATH_AUTHORIZATION_URL
+      },
+      {
+        name: 'invalid query tag - not a string',
+
+        options: {
+          account: 'account',
+          username: 'username',
+          password: 'password',
+          queryTag: 1234
+
+        },
+        errorCode: ErrorCodes.ERR_CONN_CREATE_INVALID_QUERY_TAG
+      },
+      {
+        name: 'invalid query tag - too long',
+
+        options: {
+          account: 'account',
+          username: 'username',
+          password: 'password',
+          queryTag: 'a'.repeat(2001)
+        },
+        errorCode: ErrorCodes.ERR_CONN_CREATE_INVALID_QUERY_TAG
       },
     ];
 

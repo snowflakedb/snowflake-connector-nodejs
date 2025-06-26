@@ -16,6 +16,11 @@ export { driverName, driverVersion };
 
 export const userAgent = `JavaScript/${driverVersion} (${process.platform}-${process.arch}) NodeJS/${nodeJSVersion}`;
 
+export interface HttpHeadersCustomizer {
+  applies: (url: string) => boolean;
+  newHeaders: () => Record<string, string>;
+}
+
 /**
  * Note: A simple wrapper around util.inherits() for now, but this might change
  * in the future.

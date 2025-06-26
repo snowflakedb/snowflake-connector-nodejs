@@ -33,3 +33,8 @@ export interface WIP_ConnectionConfig {
    */
   workloadIdentityAzureEntraIdResource?: string;
 }
+
+export interface HttpHeadersCustomizer {
+  applies(method: string, url: string): boolean;
+  newHeaders() : Record<string, any>;
+}

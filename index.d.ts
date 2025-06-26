@@ -4,6 +4,8 @@ import { WIP_ConnectionConfig } from './lib/connection/types';
  * The snowflake-sdk module provides an instance to connect to the Snowflake server
  * @see [source] {@link https://docs.snowflake.com/en/developer-guide/node-js/nodejs-driver}
  */
+import { HttpHeadersCustomizer } from './lib/connection/types';
+
 declare module 'snowflake-sdk' {
 
   export const ErrorCode: typeof import('./lib/error_code').default;
@@ -343,6 +345,12 @@ declare module 'snowflake-sdk' {
      *  The option to pass passcode from DUO.
      */
     passcode?: string;
+    
+    /**
+     * Customizes the HTTP headers sent with each request.
+     * The customizer functions are called with the HTTP method and URL.
+     */
+     httpHeadersCustomizer?: Array<HttpHeadersCustomizer>;
   }
 
   export interface Connection {

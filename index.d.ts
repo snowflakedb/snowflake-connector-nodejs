@@ -122,11 +122,6 @@ declare module 'snowflake-sdk' {
     password?: string;
 
     /**
-     * Specifies the authenticator to use for verifying user login credentials.
-     */
-    authenticator?: keyof typeof import('./lib/authentication/authentication_types').default;
-
-    /**
      * Specifies the timeout, in milliseconds, for browser activities related to SSO authentication. The default value is 120000 (milliseconds).
      */
     browserActionTimeout?: number;

@@ -5,6 +5,24 @@ import { WorkloadIdentityProviderKey } from "../authentication/auth_workload_ide
  */
 export interface WIP_ConnectionOptions {
   /**
+   * Specifies the authenticator to use for verifying user login credentials.
+   *
+   * Available options:
+   * * `SNOWFLAKE` - Default authenticator that uses basic username/password authentication
+   * * `EXTERNALBROWSER` - Browser-based SSO authentication through your identity provider
+   * * `SNOWFLAKE_JWT` - Key pair authentication using a private key and public key pair
+   * * `OAUTH` - OAuth authentication using a token obtained from OAuth flow
+   * * `USERNAME_PASSWORD_MFA` - Username/password with multi-factor authentication
+   * * `ID_TOKEN` - ID token-based authentication
+   * * `PROGRAMMATIC_ACCESS_TOKEN` - Authentication using a programmatic access token
+   * * `OAUTH_AUTHORIZATION_CODE` - OAuth authorization code flow for web applications
+   * * `OAUTH_CLIENT_CREDENTIALS` - OAuth client credentials flow for service-to-service auth
+   * * `WORKLOAD_IDENTITY` - Workload identity authentication for cloud providers
+   * * `https://<okta_account_name>.okta.com` - Native SSO authentication through Okta
+   */
+  authenticator?: string;
+
+  /**
    * Specifies the token to use for authentication. Set this option if you set the authenticator option to
    * * OAUTH
    * * PROGRAMMATIC_ACCESS_TOKEN

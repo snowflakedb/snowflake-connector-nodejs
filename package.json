@@ -3,15 +3,7 @@
   "version": "2.1.0",
   "description": "Node.js driver for Snowflake",
   "dependencies": {
-    "@aws-crypto/sha256-js": "^5.2.0",
-    "@aws-sdk/client-s3": "^3.726.0",
-    "@aws-sdk/credential-provider-node": "^3.823.0",
-    "@aws-sdk/ec2-metadata-service": "^3.826.0",
-    "@aws-sdk/protocol-http": "^3.370.0",
-    "@aws-sdk/signature-v4": "^3.370.0",
     "@azure/identity": "^4.10.1",
-    "@azure/storage-blob": "12.26.x",
-    "@google-cloud/storage": "^7.7.0",
     "@smithy/node-http-handler": "^4.0.1",
     "@techteamer/ocsp": "1.0.1",
     "asn1.js-rfc2560": "^5.0.0",
@@ -62,8 +54,25 @@
     "wiremock-rest-client": "^1.11.0"
   },
   "peerDependencies": {
-    "asn1.js": "^5.4.1"
+    "asn1.js": "^5.4.1",
+    "@aws-crypto/sha256-js": "^5.2.0",
+    "@aws-sdk/client-s3": "^3.726.0",
+    "@aws-sdk/credential-provider-node": "^3.823.0",
+    "@aws-sdk/ec2-metadata-service": "^3.826.0",
+    "@aws-sdk/protocol-http": "^3.370.0",
+    "@aws-sdk/signature-v4": "^3.370.0",
+    "@azure/storage-blob": "12.26.x",
+    "@google-cloud/storage": "^7.7.0"
   },
+  "peerDependenciesMeta": {
+    "@aws-crypto/sha256-js": { "optional": true },
+    "@aws-sdk/client-s3": { "optional": true },
+    "@aws-sdk/credential-provider-node": { "optional": true },
+    "@aws-sdk/ec2-metadata-service": { "optional": true },
+    "@aws-sdk/protocol-http": { "optional": true },
+    "@aws-sdk/signature-v4": { "optional": true }
+  },
+
   "overrides": {
     "semver": "^7.5.2"
   },

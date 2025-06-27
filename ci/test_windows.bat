@@ -61,6 +61,27 @@ if %ERRORLEVEL% NEQ 0 (
     echo [ERROR] failed to install the Snowflake NodeJS Driver
     exit /b 1
 )
+
+echo [INFO] Install file_transfer module
+if "%CLOUD_PROVIDER%"=="AZURE" (
+  echo [INFO] Install Azure
+  npm install @azure/storage-blob
+) else if "%CLOUD_PROVIDER%"=="GCP" (
+  echo [INFO] Install Google Cloud
+  npm install @google-cloud/storage
+) else if "%CLOUD_PROVIDER%"=="AWS" (
+  echo [INFO] Install AWS SDK
+  npm install @aws-crypto/sha256-js ^
+  @aws-sdk/client-s3 ^
+  @aws-sdk/credential-provider-node ^
+  @aws-sdk/ec2-metadata-service ^
+  @aws-sdk/protocol-http ^
+  @aws-sdk/signature-v4
+) else (
+  echo === unknown cloud provider
+  exit /b 1
+)
+
 echo [INFO] Starting hang_webserver.py 12345
 pushd %GITHUB_WORKSPACE%\ci\container
 start /b python hang_webserver.py 12345 > hang_webserver.out 2>&1

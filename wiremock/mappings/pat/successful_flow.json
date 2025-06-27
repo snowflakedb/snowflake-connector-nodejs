@@ -43,7 +43,7 @@
             "remMeToken": null,
             "remMeValidityInSeconds": 0,
             "healthCheckInterval": 45,
-            "newClientForUpgrade": "3.12.3",
+            "newClientForUpgrade": "3.12.2",
             "sessionId": 1172562260498,
             "parameters": [
               {

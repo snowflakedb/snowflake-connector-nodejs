@@ -1,5 +1,5 @@
 const assert = require('assert');
-const AZURE = require('@azure/storage-blob');
+let AZURE;
 const fs = require('fs');
 const sinon = require('sinon');
 const SnowflakeAzureUtil = require('./../../../lib/file_transfer_agent/azure_util');
@@ -7,7 +7,7 @@ const resultStatus = require('../../../lib/file_util').resultStatus;
 
 let hasAzure = true;
 try {
-  require.resolve('@azure/storage-blob');
+  AZURE = require('@azure/storage-blob');
 } catch (err) {
   hasAzure = false;
 }

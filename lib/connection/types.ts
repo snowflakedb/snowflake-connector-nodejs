@@ -17,7 +17,7 @@ export interface WIP_ConnectionOptions {
    * * `PROGRAMMATIC_ACCESS_TOKEN` - Authentication using a programmatic access token
    * * `OAUTH_AUTHORIZATION_CODE` - OAuth authorization code flow for web applications
    * * `OAUTH_CLIENT_CREDENTIALS` - OAuth client credentials flow for service-to-service auth
-   * * `WORKLOAD_IDENTITY` - Workload identity authentication for cloud providers
+   * * `WORKLOAD_IDENTITY` - Workload identity authentication
    * * `https://<okta_account_name>.okta.com` - Native SSO authentication through Okta
    */
   authenticator?: string;

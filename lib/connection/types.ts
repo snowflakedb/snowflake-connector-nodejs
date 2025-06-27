@@ -13,8 +13,7 @@ export interface WIP_ConnectionOptions {
    * * `SNOWFLAKE_JWT` - Key pair authentication using a private key and public key pair
    * * `OAUTH` - OAuth authentication using a token obtained from OAuth flow
    * * `USERNAME_PASSWORD_MFA` - Username/password with multi-factor authentication
-   * * `ID_TOKEN` - ID token-based authentication
-   * * `PROGRAMMATIC_ACCESS_TOKEN` - Authentication using a programmatic access token
+   * * `PROGRAMMATIC_ACCESS_TOKEN` - Using a programmatic access token set in ConnectionOptions.token or ConnectionOptions.password
    * * `OAUTH_AUTHORIZATION_CODE` - OAuth authorization code flow for web applications
    * * `OAUTH_CLIENT_CREDENTIALS` - OAuth client credentials flow for service-to-service auth
    * * `WORKLOAD_IDENTITY` - Workload identity authentication

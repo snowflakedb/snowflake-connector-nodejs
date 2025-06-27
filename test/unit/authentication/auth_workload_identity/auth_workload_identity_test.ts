@@ -3,10 +3,11 @@ import rewiremock from 'rewiremock/node';
 import assert from 'assert';
 import * as AzureIdentity from '@azure/identity';
 import { GoogleAuth } from 'google-auth-library';
-import { WIP_ConnectionConfig } from '../../../../lib/connection/types';
+import { WIP_ConnectionConfig, WIP_ConnectionOptions } from '../../../../lib/connection/types';
 import { AuthRequestBody } from '../../../../lib/authentication/types';
 import OriginalAuthWorkloadIdentity from '../../../../lib/authentication/auth_workload_identity';
 import { assertAwsAttestationToken, AWS_CREDENTIALS, AWS_REGION } from './test_utils';
+import ConnectionConfig from '../../../../lib/connection/connection_config';
 
 describe('Workload Identity Authentication', async () => {
   const cloudSdkStubs = sinon.createSandbox();
@@ -17,6 +18,14 @@ describe('Workload Identity Authentication', async () => {
   const getAzureTokenMock = cloudSdkStubs.stub();
   const getGcpTokenMock = cloudSdkStubs.stub();
   let AuthWorkloadIdentity: typeof OriginalAuthWorkloadIdentity;
+
+  function getConnectionConfig(options: WIP_ConnectionOptions = {}): WIP_ConnectionConfig {
+    return new ConnectionConfig({
+      authenticator: 'WORKLOAD_IDENTITY',
+      account: 'test-account',
+      ...options
+    });
+  }
 
   before(async () => {
     // NOTE:
@@ -58,11 +67,11 @@ describe('Workload Identity Authentication', async () => {
     sinon.stub(process, 'env').value({
       SF_ENABLE_EXPERIMENTAL_AUTHENTICATION: false
     });
-    assert.throws(() => new AuthWorkloadIdentity({}), /Experimental Workload identity authentication is not enabled/);
+    assert.throws(() => new AuthWorkloadIdentity(getConnectionConfig()), /Experimental Workload identity authentication is not enabled/);
   });
 
   it('reauthenticate() calls authenticate() and updates body with new token', async () => {
-    const auth = new AuthWorkloadIdentity({});
+    const auth = new AuthWorkloadIdentity(getConnectionConfig());
     sinon
       .stub(auth, 'authenticate')
       .callsFake(async function (this: InstanceType<typeof AuthWorkloadIdentity>) {
@@ -74,15 +83,13 @@ describe('Workload Identity Authentication', async () => {
   });
 
   describe('authenticate() with auto-detect', () => {
-    const connectionConfig: WIP_ConnectionConfig = {};
-
     it('throws error when detection fails', async () => {
-      const auth = new AuthWorkloadIdentity(connectionConfig);
+      const auth = new AuthWorkloadIdentity(getConnectionConfig());
       await assert.rejects(auth.authenticate(), /No workload identity credentials were found. Provider: auto-detect/);
     });
 
     it('uses OIDC when token is provided', async () => {
-      const auth = new AuthWorkloadIdentity({ ...connectionConfig, token: 'test-token' });
+      const auth = new AuthWorkloadIdentity(getConnectionConfig({ token: 'test-token' }));
       await auth.authenticate();
       assert.strictEqual(auth.tokenProvider, 'OIDC');
       assert.strictEqual(auth.token, 'test-token');
@@ -91,7 +98,7 @@ describe('Workload Identity Authentication', async () => {
     it('uses AWS when AWS credentials are found', async () => {
       awsSdkMock.getCredentials.returns(AWS_CREDENTIALS);
       awsSdkMock.getMetadataRegion.returns(AWS_REGION);
-      const auth = new AuthWorkloadIdentity(connectionConfig);
+      const auth = new AuthWorkloadIdentity(getConnectionConfig());
       await auth.authenticate();
       assert.strictEqual(auth.tokenProvider, 'AWS');
       assertAwsAttestationToken(auth.token, AWS_REGION);
@@ -99,7 +106,7 @@ describe('Workload Identity Authentication', async () => {
 
     it('uses AZURE when Azure credentials are found', async () => {
       getAzureTokenMock.returns({ token: 'test-token' });
-      const auth = new AuthWorkloadIdentity(connectionConfig);
+      const auth = new AuthWorkloadIdentity(getConnectionConfig());
       await auth.authenticate();
       assert.strictEqual(auth.tokenProvider, 'AZURE');
       assert.strictEqual(auth.token, 'test-token');
@@ -107,7 +114,7 @@ describe('Workload Identity Authentication', async () => {
 
     it('uses GCP when GCP credentials are found', async () => {
       getGcpTokenMock.returns('test-token');
-      const auth = new AuthWorkloadIdentity(connectionConfig);
+      const auth = new AuthWorkloadIdentity(getConnectionConfig());
       await auth.authenticate();
       assert.strictEqual(auth.tokenProvider, 'GCP');
       assert.strictEqual(auth.token, 'test-token');
@@ -115,10 +122,10 @@ describe('Workload Identity Authentication', async () => {
   });
 
   describe('authenticate() with OIDC', () => {
-    const connectionConfig: WIP_ConnectionConfig = {
+    const connectionConfig = getConnectionConfig({
       token: 'test-token',
       workloadIdentityProvider: 'OIDC'
-    };
+    });
 
     it('throws error when token is not provided', async () => {
       const auth = new AuthWorkloadIdentity({ ...connectionConfig, token: undefined });
@@ -137,9 +144,9 @@ describe('Workload Identity Authentication', async () => {
   });
 
   describe('authenticate() with AWS', () => {
-    const connectionConfig: WIP_ConnectionConfig = {
+    const connectionConfig = getConnectionConfig({
       workloadIdentityProvider: 'AWS'
-    };
+    });
 
     it('throws error when credentials are not found', async () => {
       const auth = new AuthWorkloadIdentity(connectionConfig);
@@ -160,9 +167,9 @@ describe('Workload Identity Authentication', async () => {
   });
 
   describe('authenticate() with AZURE', () => {
-    const connectionConfig: WIP_ConnectionConfig = {
+    const connectionConfig = getConnectionConfig({
       workloadIdentityProvider: 'AZURE'
-    };
+    });
 
     it('throws error when credentials are not found', async () => {
       getAzureTokenMock.throws(new Error('no credentials'));
@@ -183,9 +190,9 @@ describe('Workload Identity Authentication', async () => {
   });
 
   describe('authenticate() with GCP', () => {
-    const connectionConfig: WIP_ConnectionConfig = {
+    const connectionConfig = getConnectionConfig({
       workloadIdentityProvider: 'GCP'
-    };
+    });
 
     it('throws error when credentials are not found', async () => {
       const auth = new AuthWorkloadIdentity(connectionConfig);

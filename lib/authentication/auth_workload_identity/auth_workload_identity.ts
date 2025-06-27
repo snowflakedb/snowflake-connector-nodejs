@@ -9,15 +9,13 @@ import { getGcpAttestationToken } from "./attestation_gcp";
 import AuthenticationTypes from "../authentication_types";
 
 class AuthWorkloadIdentity implements AuthClass {
-  connectionConfig: WIP_ConnectionConfig;
   tokenProvider!: WorkloadIdentityProviderKey;
   token!: string;
 
-  constructor(connectionConfig: WIP_ConnectionConfig) {
+  constructor(private connectionConfig: WIP_ConnectionConfig) {
     if (process.env.SF_ENABLE_EXPERIMENTAL_AUTHENTICATION !== 'true') {
       throw new Error('Experimental Workload identity authentication is not enabled. Please set env var SF_ENABLE_EXPERIMENTAL_AUTHENTICATION=true to use this authenticator.');
     }
-    this.connectionConfig = connectionConfig;
   }
 
   async autodetectToken(): Promise<{ provider: WorkloadIdentityProviderKey, token: string } | null> {

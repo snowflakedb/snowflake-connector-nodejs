@@ -82,6 +82,7 @@ for name in "${!TARGET_TEST_IMAGES[@]}"; do
         -e GITHUB_REF \
         -e GITHUB_EVENT_NAME \
         -e RUNNER_TRACKING_ID \
+        -e CLOUD_PROVIDER=$CLOUD_PROVIDER \
         "${TARGET_TEST_IMAGES[$name]}" \
         "/mnt/host/ci/container/test_component.sh"
     echo "[INFO] Test Results: $WORKSPACE/junit*,xml"

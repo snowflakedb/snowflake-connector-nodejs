@@ -177,6 +177,22 @@ describe('Connection test', function () {
 
     await testUtil.assertActiveConnectionDestroyedCorrectlyAsync(connection);
   });
+
+  it.only('test query tag', function (done) {
+    const expectedQueryTag = 'Test QUERY_TAG 12345';
+    const connection = snowflake.createConnection({ ...connOption.valid, queryTag: expectedQueryTag });
+    connection.connect(function (err, conn) {
+      testUtil.checkError(err);
+      conn.execute({
+        sqlText: 'SELECT QUERY_TAG FROM table(information_schema.query_history_by_session())',
+        complete: function (err, stmt, rows) {
+          testUtil.checkError(err);
+          assert.strictEqual(rows[0]['QUERY_TAG'], expectedQueryTag, `Expected query tag "${expectedQueryTag}" but got "${rows[0]['QUERY_TAG']}"`);
+          done();
+        }
+      });
+    });
+  });
 });
 
 

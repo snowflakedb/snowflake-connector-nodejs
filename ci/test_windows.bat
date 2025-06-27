@@ -71,12 +71,7 @@ if "%CLOUD_PROVIDER%"=="AZURE" (
   npm install @google-cloud/storage
 ) else if "%CLOUD_PROVIDER%"=="AWS" (
   echo [INFO] Install AWS SDK
-  npm install @aws-crypto/sha256-js ^
-  @aws-sdk/client-s3 ^
-  @aws-sdk/credential-provider-node ^
-  @aws-sdk/ec2-metadata-service ^
-  @aws-sdk/protocol-http ^
-  @aws-sdk/signature-v4
+  npm install @aws-sdk/client-s3 
 ) else (
   echo === unknown cloud provider
   exit /b 1

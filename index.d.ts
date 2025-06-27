@@ -1,4 +1,4 @@
-import { WIP_ConnectionConfig } from './lib/connection/types';
+import { WIP_ConnectionOptions } from './lib/connection/types';
 
 /**
  * The snowflake-sdk module provides an instance to connect to the Snowflake server
@@ -82,7 +82,7 @@ declare module 'snowflake-sdk' {
     useEnvProxy?: boolean;
   }
 
-  export type ConnectionOptions = WIP_ConnectionConfig & {
+  export type ConnectionOptions = WIP_ConnectionOptions & {
     //Detail information: https://docs.snowflake.com/en/developer-guide/node-js/nodejs-driver-options
 
     /**
@@ -121,11 +121,6 @@ declare module 'snowflake-sdk' {
      * Password for the user.
      */
     password?: string;
-
-    /**
-     * Specifies the authenticator to use for verifying user login credentials.
-     */
-    authenticator?: keyof typeof import('./lib/authentication/authentication_types').default;
 
     /**
      * Specifies the timeout, in milliseconds, for browser activities related to SSO authentication. The default value is 120000 (milliseconds).
@@ -329,11 +324,6 @@ declare module 'snowflake-sdk' {
      * The option to enable the MFA token. The default value is false.
      */
     clientRequestMFAToken?: boolean;
-
-    /**
-     * The option to enable the SSO token. The default value is false.
-     */
-    clientStoreTemporaryCredential?: boolean;
 
     /**
      *  The option to include the passcode from DUO into the password.

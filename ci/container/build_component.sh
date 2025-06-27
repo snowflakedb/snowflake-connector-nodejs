@@ -15,6 +15,19 @@ echo "[DEBUG] Version"
 npm version
 echo "[DEBUG] Installing Build Dependencies"
 npm install
+echo "[DEBUG] Installing Cloud Dependencies"
+if [[ "$CLOUD_PROVIDER" == "AZURE" ]]; then
+    echo "Install Azure"
+    npm install @azure/storage-blob
+elif [[ "$CLOUD_PROVIDER" == "GCP" ]]; then
+    echo "Install GCP"
+    npm install @google-cloud/storage
+elif [[ "$CLOUD_PROVIDER" == "AWS" ]]; then
+    echo "Install AWS"
+    npm install @aws-sdk/client-s3 
+else
+    echo "[ERROR] unknown cloud provider"
+fi
 echo "[DEBUG] Packing"
 npm pack
 rm -f ~/.npmrc

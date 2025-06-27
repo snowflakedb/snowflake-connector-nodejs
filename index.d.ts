@@ -97,7 +97,8 @@ declare module 'snowflake-sdk' {
 
     /**
      * @deprecated
-     * The ID for the region where your account is located.
+     * Append a region or any sub domains before snowflakecomputing.com to the
+     * end of account parameter after a dot, e.g., account=<account>.<region>.
      */
     region?: string;
 

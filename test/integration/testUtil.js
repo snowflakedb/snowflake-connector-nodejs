@@ -38,8 +38,7 @@ module.exports.createConnectionPool = function (validConnectionOptionsOverride, 
 
 module.exports.connect = function (connection, callback) {
   connection.connect(function (err) {
-    assert.ok(!err, JSON.stringify(err));
-    callback();
+    callback(err);
   });
 };
 
@@ -57,8 +56,7 @@ module.exports.connectAsyncWithOriginalCallback = function (connection, callback
 
 module.exports.destroyConnection = function (connection, callback) {
   connection.destroy(function (err) {
-    assert.ok(!err, JSON.stringify(err));
-    callback();
+    callback(err);
   });
 };
 

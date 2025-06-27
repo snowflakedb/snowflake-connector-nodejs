@@ -3,6 +3,7 @@
 # Test NodeJS Driver for Linux and Mac
 #
 set -o pipefail
+set -x
 THIS_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 export WORKSPACE=${WORKSPACE:-/mnt/workspace}
 export SOURCE_ROOT=${SOURCE_ROOT:-/mnt/host}

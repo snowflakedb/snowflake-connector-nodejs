@@ -92,6 +92,8 @@ else
     )
 fi
 
+echo "[INFO] Mocha CMD: $MOCHA_CMD"
+
 if [[ -z "$GITHUB_ACTIONS" ]]; then
     echo "[INFO] Running Internal Tests. Test result: $WORKSPACE/junit-system-test.xml"
     if ! ${MOCHA_CMD[@]} "$SOURCE_ROOT/system_test/**/*.{js,ts}"; then

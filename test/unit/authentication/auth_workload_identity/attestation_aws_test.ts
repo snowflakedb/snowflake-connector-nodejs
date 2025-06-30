@@ -17,14 +17,16 @@ describe('Attestation AWS', () => {
     // Sinon can't stub frozen AWS SDK properties, so we need to mock entire require
     rewiremock('@aws-sdk/credential-provider-node').with({
       defaultProvider: () => awsSdkMock.getCredentials,
-    })
+    });
     rewiremock('@aws-sdk/ec2-metadata-service').with({
       MetadataService: class {
         request = () => awsSdkMock.getMetadataRegion();
-      }
+      },
     });
     rewiremock.enable();
-    AttestationAws = (await import('../../../../lib/authentication/auth_workload_identity/attestation_aws'));
+    AttestationAws = await import(
+      '../../../../lib/authentication/auth_workload_identity/attestation_aws'
+    );
   });
 
   beforeEach(() => {
@@ -66,7 +68,10 @@ describe('Attestation AWS', () => {
 
   describe('getStsHostname', () => {
     it('returns valid name for china region', () => {
-      assert.strictEqual(AttestationAws.getStsHostname('cn-northwest-1'), 'sts.cn-northwest-1.amazonaws.com.cn');
+      assert.strictEqual(
+        AttestationAws.getStsHostname('cn-northwest-1'),
+        'sts.cn-northwest-1.amazonaws.com.cn',
+      );
     });
 
     it('returns valid name for non-china region', () => {

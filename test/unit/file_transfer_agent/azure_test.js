@@ -21,21 +21,20 @@ describe('Azure client', function () {
     accessUrl: 'http://fakeaccount.snowflakecomputing.com',
   };
 
-
   let Azure = null;
   const dataFile = mockDataFile;
   const meta = {
     stageInfo: {
       location: mockLocation,
       path: mockTable + '/' + mockPath + '/',
-      creds: {}
+      creds: {},
     },
     SHA256_DIGEST: mockDigest,
   };
   const encryptionMetadata = {
     key: mockKey,
     iv: mockIv,
-    matDesc: mockMatDesc
+    matDesc: mockMatDesc,
   };
 
   let sinonSandbox;
@@ -53,12 +52,12 @@ describe('Azure client', function () {
     sinonSandbox.stub(AZURE, 'BlobServiceClient').returns({
       getContainerClient: () => ({
         getBlobClient: () => ({
-          getProperties: getPropertiesStub
+          getProperties: getPropertiesStub,
         }),
         getBlockBlobClient: () => ({
-          upload: uploadStub
-        })
-      })
+          upload: uploadStub,
+        }),
+      }),
     });
     sinonSandbox.stub(fs, 'readFileSync').returnsArg(0);
     Azure = new SnowflakeAzureUtil(noProxyConnectionConfig);
@@ -75,7 +74,11 @@ describe('Azure client', function () {
 
   it('extract bucket name and path', async function () {
     verifyNameAndPath('sfc-eng-regression/test_sub_dir/', 'sfc-eng-regression', 'test_sub_dir/');
-    verifyNameAndPath('sfc-eng-regression/stakeda/test_stg/test_sub_dir/', 'sfc-eng-regression', 'stakeda/test_stg/test_sub_dir/');
+    verifyNameAndPath(
+      'sfc-eng-regression/stakeda/test_stg/test_sub_dir/',
+      'sfc-eng-regression',
+      'stakeda/test_stg/test_sub_dir/',
+    );
     verifyNameAndPath('sfc-eng-regression/', 'sfc-eng-regression', '');
     verifyNameAndPath('sfc-eng-regression//', 'sfc-eng-regression', '/');
     verifyNameAndPath('sfc-eng-regression///', 'sfc-eng-regression', '//');

@@ -86,7 +86,7 @@
     "lint:check": "eslint . && check-dts index.d.ts",
     "lint:fix": "eslint --fix",
     "prettier:check": "prettier --check .",
-    "prettier:format": "prettier -w",
+    "prettier:format": "prettier -w .",
     "test": "mocha 'test/unit/**/*.{js,ts}'",
     "test:authentication": "mocha 'test/authentication/**/*.{js,ts}'",
     "test:integration": "mocha 'test/integration/**/*.{js,ts}'",

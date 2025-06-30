@@ -9,11 +9,11 @@ export async function getAzureAttestationToken(entraIdResource = DEFAULT_AZURE_E
     // We don't want retries because it makes auto-detect mode slow
     retryOptions: {
       maxRetries: 0,
-    }
+    },
   });
 
   try {
-    Logger().debug("Getting Azure auth token");
+    Logger().debug('Getting Azure auth token');
     const token = await credential.getToken(entraIdResource);
     return token.token;
   } catch (error) {

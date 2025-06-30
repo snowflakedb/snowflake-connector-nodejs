@@ -3,7 +3,6 @@ const async = require('async');
 const testUtil = require('../test/integration/testUtil');
 const connOptions = require('./connectionOptions');
 
-
 describe.skip('testProxy', function () {
   it('testConnectionWithProxy', function (done) {
     const connection = snowflake.createConnection(connOptions.connectionWithProxy);
@@ -14,9 +13,9 @@ describe.skip('testProxy', function () {
         },
         function (callback) {
           testUtil.destroyConnection(connection, callback);
-        }
+        },
       ],
-      done
+      done,
     );
   });
 
@@ -31,33 +30,25 @@ describe.skip('testProxy', function () {
           testUtil.executeCmd(
             connection,
             'create or replace table testProxy(colA string)',
-            callback
+            callback,
           );
         },
         function (callback) {
-          testUtil.executeCmd(
-            connection,
-            'insert into testProxy values(\'testString\')',
-            callback
-          );
+          testUtil.executeCmd(connection, "insert into testProxy values('testString')", callback);
         },
         function (callback) {
           testUtil.executeQueryAndVerify(
             connection,
             'select * from testProxy',
-            [{ 'COLA': 'testString' }],
-            callback
+            [{ COLA: 'testString' }],
+            callback,
           );
         },
         function (callback) {
-          testUtil.executeCmd(
-            connection,
-            'drop table if exists testProxy',
-            callback
-          );
-        }
+          testUtil.executeCmd(connection, 'drop table if exists testProxy', callback);
+        },
       ],
-      done
+      done,
     );
   });
 });

@@ -12,15 +12,15 @@ class AuthOauthClientCredentials implements AuthClass {
 
   constructor(
     private connectionConfig: WIP_ConnectionConfig,
-    private httpClient: any
-  ) { }
+    private httpClient: any,
+  ) {}
 
   async getOauth4webapi() {
     if (!this._oauthImport) {
       this._oauthImport = await dynamicImportESMInTypescriptWithCommonJS('oauth4webapi');
     }
     return this._oauthImport;
-  };
+  }
 
   updateBody(body: AuthRequestBody) {
     if (this.token) {
@@ -28,7 +28,7 @@ class AuthOauthClientCredentials implements AuthClass {
     }
     body['data']['AUTHENTICATOR'] = AuthenticationTypes.OAUTH_AUTHENTICATOR;
     body['data']['OAUTH_TYPE'] = AuthenticationTypes.OAUTH_CLIENT_CREDENTIALS;
-  };
+  }
 
   async authenticate() {
     const clientId = this.connectionConfig.getOauthClientId();
@@ -56,27 +56,33 @@ class AuthOauthClientCredentials implements AuthClass {
       // An issuer is an obligatory parameter in validation processed by oauth4webapi library, even when it isn't used
       issuer: 'UNKNOWN',
       // eslint-disable-next-line camelcase
-      token_endpoint: tokenUrl.href
+      token_endpoint: tokenUrl.href,
     };
     const client = {
       // eslint-disable-next-line camelcase
-      client_id: clientId
+      client_id: clientId,
     };
 
     try {
       Logger().debug(`Executing token request: ${tokenUrl.href}`);
       const clientAuth = oauth.ClientSecretPost(clientSecret);
-      const response = await oauth.clientCredentialsGrantRequest(as, client, clientAuth, parameters, {
-        [oauth.allowInsecureRequests]: this.connectionConfig.getOauthHttpAllowed(),
-        [oauth.customFetch]: async (url, options) => {
-          const response = await this.httpClient.requestAsync({ url, ...options });
-          return new Response(response.json, {
-            status: response.statusCode,
-            statusText: response.statusText,
-            headers: response.headers
-          });
-        }
-      });
+      const response = await oauth.clientCredentialsGrantRequest(
+        as,
+        client,
+        clientAuth,
+        parameters,
+        {
+          [oauth.allowInsecureRequests]: this.connectionConfig.getOauthHttpAllowed(),
+          [oauth.customFetch]: async (url, options) => {
+            const response = await this.httpClient.requestAsync({ url, ...options });
+            return new Response(response.json, {
+              status: response.statusCode,
+              statusText: response.statusText,
+              headers: response.headers,
+            });
+          },
+        },
+      );
       const result = await oauth.processClientCredentialsResponse(as, client, response);
 
       if (result.access_token) {

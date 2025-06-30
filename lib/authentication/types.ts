@@ -1,7 +1,7 @@
 export interface AuthRequestBody {
   data: {
     [key: string]: any;
-  }
+  };
 }
 
 export interface AuthClass {

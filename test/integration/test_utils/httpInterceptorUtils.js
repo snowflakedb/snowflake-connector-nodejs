@@ -66,7 +66,7 @@ class Interceptors {
           target[prop] = newObj;
           return newObj;
         }
-      }
+      },
     });
   }
 }
@@ -74,8 +74,10 @@ class Interceptors {
 module.exports.Interceptors = Interceptors;
 
 function HttpClientWithInterceptors(connectionConfig, initialInterceptors) {
-  Logger.getInstance().trace('Initializing HttpClientWithInterceptors with Connection Config[%s]',
-    connectionConfig.describeIdentityAttributes());
+  Logger.getInstance().trace(
+    'Initializing HttpClientWithInterceptors with Connection Config[%s]',
+    connectionConfig.describeIdentityAttributes(),
+  );
   this.interceptors = new Interceptors(initialInterceptors);
   NodeHttpClient.apply(this, [connectionConfig]);
 }
@@ -107,6 +109,5 @@ function getHttpClientWithInterceptorsClass(interceptors) {
 
   return HttpClientWithInterceptorsWrapper;
 }
-
 
 module.exports.getHttpClientWithInterceptorsClass = getHttpClientWithInterceptorsClass;

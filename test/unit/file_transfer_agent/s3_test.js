@@ -1,7 +1,8 @@
 const assert = require('assert');
 const mock = require('mock-require');
 const SnowflakeS3Util = require('./../../../lib/file_transfer_agent/s3_util').S3Util;
-const extractBucketNameAndPath = require('./../../../lib/file_transfer_agent/s3_util').extractBucketNameAndPath;
+const extractBucketNameAndPath =
+  require('./../../../lib/file_transfer_agent/s3_util').extractBucketNameAndPath;
 
 const resultStatus = require('../../../lib/file_util').resultStatus;
 
@@ -17,7 +18,7 @@ describe('S3 client', function () {
   const noProxyConnectionConfig = {
     getProxy: function () {
       return null;
-    }
+    },
   };
 
   let AWS;
@@ -28,14 +29,14 @@ describe('S3 client', function () {
     stageInfo: {
       location: mockLocation,
       path: mockTable + '/' + mockPath + '/',
-      creds: {}
+      creds: {},
     },
     SHA256_DIGEST: mockDigest,
   };
   const encryptionMetadata = {
     key: mockKey,
     iv: mockIv,
-    matDesc: mockMatDesc
+    matDesc: mockMatDesc,
   };
 
   before(function () {
@@ -46,14 +47,14 @@ describe('S3 client', function () {
             function getObject() {
               this.then = function (callback) {
                 callback({
-                  Metadata: ''
+                  Metadata: '',
                 });
               };
             }
 
-            return new getObject;
+            return new getObject();
           };
-          
+
           this.config = config;
           this.putObject = function () {
             function putObject() {
@@ -62,17 +63,17 @@ describe('S3 client', function () {
               };
             }
 
-            return new putObject;
+            return new putObject();
           };
         }
 
-        return new S3;
-      }
+        return new S3();
+      },
     });
     mock('filesystem', {
       readFileSync: async function (data) {
         return data;
-      }
+      },
     });
     s3 = require('s3');
     filesystem = require('filesystem');
@@ -90,7 +91,7 @@ describe('S3 client', function () {
           useS3RegionalUrl: true,
           endPoint: null,
         },
-        result: null
+        result: null,
       },
       {
         name: 'when useS3RegionalURL and is enabled and domain starts with cn',
@@ -98,18 +99,18 @@ describe('S3 client', function () {
           ...originalStageInfo,
           useS3RegionalUrl: true,
           endPoint: null,
-          region: 'cn-mockLocation'
+          region: 'cn-mockLocation',
         },
-        result: 'https://s3.cn-mockLocation.amazonaws.com.cn'
+        result: 'https://s3.cn-mockLocation.amazonaws.com.cn',
       },
       {
         name: 'when endPoint is enabled',
         stageInfo: {
           ...originalStageInfo,
           endPoint: 's3.endpoint',
-          useS3RegionalUrl: false
+          useS3RegionalUrl: false,
         },
-        result: 'https://s3.endpoint'
+        result: 'https://s3.endpoint',
       },
       {
         name: 'when both endPoint and useS3PReiongalUrl is valid',
@@ -117,9 +118,8 @@ describe('S3 client', function () {
           ...originalStageInfo,
           endPoint: 's3.endpoint',
           useS3RegionalUrl: true,
-
         },
-        result: 'https://s3.endpoint'
+        result: 'https://s3.endpoint',
       },
     ];
 
@@ -127,11 +127,9 @@ describe('S3 client', function () {
       it(name, () => {
         const client = AWS.createClient(stageInfo);
         assert.strictEqual(client.config.endpoint, result);
-      } );
-
+      });
     });
   });
-
 
   it('extract bucket name and path', async function () {
     let result = extractBucketNameAndPath('sfc-eng-regression/test_sub_dir/');
@@ -173,12 +171,12 @@ describe('S3 client', function () {
               };
             }
 
-            return new getObject;
+            return new getObject();
           };
         }
 
-        return new S3;
-      }
+        return new S3();
+      },
     });
     s3 = require('s3');
     const AWS = new SnowflakeS3Util(noProxyConnectionConfig, s3);
@@ -199,12 +197,12 @@ describe('S3 client', function () {
               };
             }
 
-            return new getObject;
+            return new getObject();
           };
         }
 
-        return new S3;
-      }
+        return new S3();
+      },
     });
     s3 = require('s3');
 
@@ -226,12 +224,12 @@ describe('S3 client', function () {
               };
             }
 
-            return new getObject;
+            return new getObject();
           };
         }
 
-        return new S3;
-      }
+        return new S3();
+      },
     });
     s3 = require('s3');
     const AWS = new SnowflakeS3Util(noProxyConnectionConfig, s3, filesystem);
@@ -252,12 +250,12 @@ describe('S3 client', function () {
               };
             }
 
-            return new getObject;
+            return new getObject();
           };
         }
 
-        return new S3;
-      }
+        return new S3();
+      },
     });
     s3 = require('s3');
     const AWS = new SnowflakeS3Util(noProxyConnectionConfig, s3, filesystem);
@@ -283,17 +281,17 @@ describe('S3 client', function () {
               };
             }
 
-            return new putObject;
+            return new putObject();
           };
         }
 
-        return new S3;
-      }
+        return new S3();
+      },
     });
     mock('filesystem', {
       readFileSync: async function (data) {
         return data;
-      }
+      },
     });
     s3 = require('s3');
     filesystem = require('filesystem');
@@ -315,17 +313,17 @@ describe('S3 client', function () {
               };
             }
 
-            return new putObject;
+            return new putObject();
           };
         }
 
-        return new S3;
-      }
+        return new S3();
+      },
     });
     mock('filesystem', {
       readFileSync: async function (data) {
         return data;
-      }
+      },
     });
     s3 = require('s3');
     filesystem = require('filesystem');
@@ -347,17 +345,17 @@ describe('S3 client', function () {
               };
             }
 
-            return new putObject;
+            return new putObject();
           };
         }
 
-        return new S3;
-      }
+        return new S3();
+      },
     });
     mock('filesystem', {
       readFileSync: async function (data) {
         return data;
-      }
+      },
     });
     s3 = require('s3');
     filesystem = require('filesystem');
@@ -371,25 +369,24 @@ describe('S3 client', function () {
       S3: function (config) {
         function S3() {
           this.config = config;
-          this.putObject = function () {
-          };
+          this.putObject = function () {};
         }
 
-        return new S3;
-      }
+        return new S3();
+      },
     });
     const proxyOptions = {
       host: '127.0.0.1',
       port: 8080,
       user: 'user',
       password: 'password',
-      protocol: 'https'
+      protocol: 'https',
     };
     const proxyConnectionConfig = {
       accessUrl: 'http://snowflake.com',
       getProxy: function () {
         return proxyOptions;
-      }
+      },
     };
     s3 = require('s3');
     const AWS = new SnowflakeS3Util(proxyConnectionConfig, s3);

@@ -7,7 +7,7 @@ let instance: BrowserLogger;
  */
 export function setInstance(newInstance: BrowserLogger) {
   instance = newInstance;
-};
+}
 
 /**
  * Returns the current logger instance.
@@ -26,6 +26,6 @@ export function getInstance() {
   }
 
   return instance;
-};
+}
 
 export default () => getInstance();

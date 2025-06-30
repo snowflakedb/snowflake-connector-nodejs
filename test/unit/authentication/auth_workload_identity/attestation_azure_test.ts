@@ -1,7 +1,10 @@
 import sinon from 'sinon';
 import assert from 'assert';
 import * as AzureIdentity from '@azure/identity';
-import { getAzureAttestationToken, DEFAULT_AZURE_ENTRA_ID_RESOURCE } from "../../../../lib/authentication/auth_workload_identity/attestation_azure";
+import {
+  getAzureAttestationToken,
+  DEFAULT_AZURE_ENTRA_ID_RESOURCE,
+} from '../../../../lib/authentication/auth_workload_identity/attestation_azure';
 
 describe('Attestation AZURE', () => {
   const sinonSandbox = sinon.createSandbox();

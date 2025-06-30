@@ -9,8 +9,10 @@ import { mapErrorCodeToSqlState } from './../../lib/errors';
  * "ERR_INTERNAL_ASSERT_FAILED": 400001,
  *
  * Indexing only actual enum keys
-*/
-const errorNames = Object.keys(ErrorCode).filter(value => !(parseInt(value) > 0)) as (keyof typeof ErrorCode)[];
+ */
+const errorNames = Object.keys(ErrorCode).filter(
+  (value) => !(parseInt(value) > 0),
+) as (keyof typeof ErrorCode)[];
 
 describe('Errors', function () {
   it('every error name should have an error code and error message', function () {

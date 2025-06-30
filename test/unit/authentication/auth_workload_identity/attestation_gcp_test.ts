@@ -1,7 +1,10 @@
 import sinon from 'sinon';
 import assert from 'assert';
 import { GoogleAuth } from 'google-auth-library';
-import { getGcpAttestationToken, SNOWFLAKE_AUDIENCE } from '../../../../lib/authentication/auth_workload_identity/attestation_gcp';
+import {
+  getGcpAttestationToken,
+  SNOWFLAKE_AUDIENCE,
+} from '../../../../lib/authentication/auth_workload_identity/attestation_gcp';
 
 describe('Attestation GCP', () => {
   const sinonSandbox = sinon.createSandbox();

@@ -11,7 +11,7 @@ exports.executeQuery = async function (connection, query, binds) {
         } else {
           reject(err);
         }
-      }
+      },
     });
   });
 };
@@ -38,31 +38,29 @@ exports.connectUsingEnv = async () => {
     warehouse: snowflakeTestWarehouse,
     host: snowflakeTestHost,
     port: snowflakeTestPort,
-    protocol: snowflakeTestProtocol
+    protocol: snowflakeTestProtocol,
   });
 
-  return  new Promise((resolve, reject) => {
-    connection.connect(
-      function (err, conn) {
-        if (err) {
-          console.error('Unable to connect: ' + err.message);
-          reject(new Error(err.message));
-        } else {
-          console.log('Successfully connected to Snowflake');
-          resolve(conn);
-        }
+  return new Promise((resolve, reject) => {
+    connection.connect(function (err, conn) {
+      if (err) {
+        console.error('Unable to connect: ' + err.message);
+        reject(new Error(err.message));
+      } else {
+        console.log('Successfully connected to Snowflake');
+        resolve(conn);
       }
-    );
+    });
   });
 };
 
-exports.destroyAsync = connection => new Promise((resolve, reject) => {
-  connection.destroy(err => {
-    if (err) {
-      reject(err);
-    } else {
-      resolve();
-    }
-  }
-  );
-});
+exports.destroyAsync = (connection) =>
+  new Promise((resolve, reject) => {
+    connection.destroy((err) => {
+      if (err) {
+        reject(err);
+      } else {
+        resolve();
+      }
+    });
+  });

@@ -1,7 +1,4 @@
-const {
-  authorizationCodeOkta,
-  authorizationCodeSnowflake,
-} = require('../integration/connectionOptions');
+const { authorizationCodeOkta, authorizationCodeSnowflake } = require('../integration/connectionOptions');
 const snowflakeAuthTestProtocol = process.env.SNOWFLAKE_AUTH_TEST_PROTOCOL;
 const snowflakeAuthTestHost = process.env.SNOWFLAKE_AUTH_TEST_HOST;
 const snowflakeAuthTestPort = process.env.SNOWFLAKE_AUTH_TEST_PORT;
@@ -18,105 +15,113 @@ const snowflakeAuthTestDatabase = process.env.SNOWFLAKE_AUTH_TEST_DATABASE;
 const snowflakeAuthTestWarehouse = process.env.SNOWFLAKE_AUTH_TEST_WAREHOUSE;
 const snowflakeAuthTestSchema = process.env.SNOWFLAKE_AUTH_TEST_SCHEMA;
 const snowflakeAuthTestPrivateKeyPath = process.env.SNOWFLAKE_AUTH_TEST_PRIVATE_KEY_PATH;
-const snowflakeAuthTestInvalidPrivateKeyPath =
-  process.env.SNOWFLAKE_AUTH_TEST_INVALID_PRIVATE_KEY_PATH;
+const snowflakeAuthTestInvalidPrivateKeyPath = process.env.SNOWFLAKE_AUTH_TEST_INVALID_PRIVATE_KEY_PATH;
 const snowflakeAuthTestPrivateKeyPassword = process.env.SNOWFLAKE_AUTH_TEST_PRIVATE_KEY_PASSWORD;
-const snowflakeAuthTestEncryptedPrivateKeyPath =
-  process.env.SNOWFLAKE_AUTH_TEST_ENCRYPTED_PRIVATE_KEY_PATH;
+const snowflakeAuthTestEncryptedPrivateKeyPath = process.env.SNOWFLAKE_AUTH_TEST_ENCRYPTED_PRIVATE_KEY_PATH;
 
-const accessUrlAuthTests =
-  snowflakeAuthTestProtocol + '://' + snowflakeAuthTestHost + ':' + snowflakeAuthTestPort;
+const accessUrlAuthTests = snowflakeAuthTestProtocol + '://' + snowflakeAuthTestHost + ':' +
+    snowflakeAuthTestPort;
 
-const baseParameters = {
-  accessUrl: accessUrlAuthTests,
-  account: snowflakeAuthTestAccount,
-  role: snowflakeAuthTestRole,
-  host: snowflakeAuthTestHost,
-  warehouse: snowflakeAuthTestWarehouse,
-  database: snowflakeAuthTestDatabase,
-  schema: snowflakeAuthTestSchema,
-};
+const baseParameters = 
+    {
+      accessUrl: accessUrlAuthTests,
+      account: snowflakeAuthTestAccount,
+      role: snowflakeAuthTestRole,
+      host: snowflakeAuthTestHost,
+      warehouse: snowflakeAuthTestWarehouse,
+      database: snowflakeAuthTestDatabase,
+      schema: snowflakeAuthTestSchema,
+    };
 
-const externalBrowser = {
-  ...baseParameters,
-  username: snowflakeAuthTestBrowserUser,
-  authenticator: 'EXTERNALBROWSER',
-};
+const externalBrowser =
+    {
+      ...baseParameters,
+      username: snowflakeAuthTestBrowserUser,
+      authenticator: 'EXTERNALBROWSER'
+    };
 
-const okta = {
-  ...baseParameters,
-  username: snowflakeAuthTestOktaUser,
-  password: snowflakeAuthTestOktaPass,
-  authenticator: snowflakeAuthTestOktaAuth,
-};
+const okta =
+    {
+      ...baseParameters,
+      username: snowflakeAuthTestOktaUser,
+      password: snowflakeAuthTestOktaPass,
+      authenticator: snowflakeAuthTestOktaAuth
+    };
 
-const oauth = {
-  ...baseParameters,
-  username: snowflakeAuthTestOktaUser,
-  authenticator: 'OAUTH',
-};
+const oauth =
+    {
+      ...baseParameters,
+      username: snowflakeAuthTestOktaUser,
+      authenticator: 'OAUTH'
+    };
 
-const oauthPATOnWiremock = {
-  ...baseParameters,
-  accessUrl: null,
-  username: 'MOCK_USERNAME',
-  account: 'MOCK_ACCOUNT_NAME',
-  host: 'localhost',
-  protocol: 'http',
-  authenticator: 'PROGRAMMATIC_ACCESS_TOKEN',
-};
+const oauthPATOnWiremock =
+    {
+      ...baseParameters,
+      accessUrl: null,
+      username: 'MOCK_USERNAME',
+      account: 'MOCK_ACCOUNT_NAME',
+      host: 'localhost',
+      protocol: 'http',
+      authenticator: 'PROGRAMMATIC_ACCESS_TOKEN',
+    };
 
-const oauthAuthorizationCodeOnWiremock = {
-  ...baseParameters,
-  accessUrl: null,
-  username: 'MOCK_USERNAME',
-  account: 'MOCK_ACCOUNT_NAME',
-  host: '127.0.0.1',
-  protocol: 'http',
-  role: 'ANALYST',
-  authenticator: 'OAUTH_AUTHORIZATION_CODE',
-  oauthClientId: '123',
-  oauthClientSecret: 'clientSecret',
-  oauthAuthorizationUrl: 'http://localhost:8099/oauth/authorize',
-  oauthRedirectUri: 'http://localhost:8009/snowflake/oauth-redirect',
-  oauthScope: 'session:role:ANALYST test-scope',
-  oauthHttpAllowed: true,
-};
+const oauthAuthorizationCodeOnWiremock =
+    {
+      ...baseParameters,
+      accessUrl: null,
+      username: 'MOCK_USERNAME',
+      account: 'MOCK_ACCOUNT_NAME',
+      host: '127.0.0.1',
+      protocol: 'http',
+      role: 'ANALYST',
+      authenticator: 'OAUTH_AUTHORIZATION_CODE',
+      oauthClientId: '123',
+      oauthClientSecret: 'clientSecret',
+      oauthAuthorizationUrl: 'http://localhost:8099/oauth/authorize',
+      oauthRedirectUri: 'http://localhost:8009/snowflake/oauth-redirect',
+      oauthScope: 'session:role:ANALYST test-scope',
+      oauthHttpAllowed: true,
+    };
 
-const oauthClientCredentialsOnWiremock = {
-  ...baseParameters,
-  accessUrl: null,
-  username: 'MOCK_USERNAME',
-  account: 'MOCK_ACCOUNT_NAME',
-  host: '127.0.0.1',
-  protocol: 'http',
-  role: 'ANALYST',
-  authenticator: 'OAUTH_CLIENT_CREDENTIALS',
-  oauthClientId: '123',
-  oauthClientSecret: 'clientSecret',
-  oauthHttpAllowed: true,
-};
+const oauthClientCredentialsOnWiremock =
+    {
+      ...baseParameters,
+      accessUrl: null,
+      username: 'MOCK_USERNAME',
+      account: 'MOCK_ACCOUNT_NAME',
+      host: '127.0.0.1',
+      protocol: 'http',
+      role: 'ANALYST',
+      authenticator: 'OAUTH_CLIENT_CREDENTIALS',
+      oauthClientId: '123',
+      oauthClientSecret: 'clientSecret',
+      oauthHttpAllowed: true,
+    };
 
-const keypairPrivateKey = {
-  ...baseParameters,
-  username: snowflakeAuthTestOktaUser,
-  authenticator: 'SNOWFLAKE_JWT',
-};
+const keypairPrivateKey =
+    {
+      ...baseParameters,
+      username: snowflakeAuthTestOktaUser,
+      authenticator: 'SNOWFLAKE_JWT'
+    };
 
-const keypairPrivateKeyPath = {
-  ...baseParameters,
-  username: snowflakeAuthTestOktaUser,
-  privateKeyPath: snowflakeAuthTestPrivateKeyPath,
-  authenticator: 'SNOWFLAKE_JWT',
-};
+const keypairPrivateKeyPath =
+    {
+      ...baseParameters,
+      username: snowflakeAuthTestOktaUser,
+      privateKeyPath: snowflakeAuthTestPrivateKeyPath,
+      authenticator: 'SNOWFLAKE_JWT'
+    };
 
-const keypairEncryptedPrivateKeyPath = {
-  ...baseParameters,
-  username: snowflakeAuthTestOktaUser,
-  privateKeyPass: snowflakeAuthTestPrivateKeyPassword,
-  privateKeyPath: snowflakeAuthTestEncryptedPrivateKeyPath,
-  authenticator: 'SNOWFLAKE_JWT',
-};
+const keypairEncryptedPrivateKeyPath =
+    {
+      ...baseParameters,
+      username: snowflakeAuthTestOktaUser,
+      privateKeyPass: snowflakeAuthTestPrivateKeyPassword,
+      privateKeyPath: snowflakeAuthTestEncryptedPrivateKeyPath,
+      authenticator: 'SNOWFLAKE_JWT'
+    };
 
 exports.externalBrowser = externalBrowser;
 exports.okta = okta;

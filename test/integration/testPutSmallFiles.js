@@ -30,7 +30,7 @@ function uploadFiles(callback, index = 0) {
             callback();
           }
         }
-      },
+      }
     });
   }
 }
@@ -51,9 +51,9 @@ describe('Test Put Small Files', function () {
         sqlText: useWH,
         complete: function (err) {
           testUtil.checkError(err);
-
+          
           done();
-        },
+        }
       });
     });
   });
@@ -71,27 +71,20 @@ describe('Test Put Small Files', function () {
             complete: function (err) {
               testUtil.checkError(err);
               callback();
-            },
+            }
           });
         },
         function (callback) {
           const arrBind = [];
           const filesize = 1024 * 100;
-
+          
           for (let i = 0; i < count; i++) {
-            arrBind.push([
-              'string' + i,
-              i,
-              '2020-05-11',
-              '12:35:41.3333333',
-              '2022-04-01 23:59:59',
-              '2022-07-08 12:05:30.9999999',
-            ]);
+            arrBind.push(['string' + i, i, '2020-05-11', '12:35:41.3333333', '2022-04-01 23:59:59', '2022-07-08 12:05:30.9999999']);
           }
-
+          
           let fileCount = 0;
           let strbuffer = '';
-
+          
           let tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'tmp'));
           if (tmpDir.indexOf('~') !== -1 && process.platform === 'win32') {
             const tmpFolderName = tmpDir.substring(tmpDir.lastIndexOf('\\'));
@@ -100,13 +93,13 @@ describe('Test Put Small Files', function () {
           for (let i = 0; i < arrBind.length; i++) {
             for (let j = 0; j < arrBind[i].length; j++) {
               if (j > 0) {
-                strbuffer += ',';
+                strbuffer += ','; 
               }
               strbuffer += arrBind[i][j];
             }
             strbuffer += '\n';
 
-            if (strbuffer.length >= filesize || i === arrBind.length - 1) {
+            if ((strbuffer.length >= filesize) || (i === arrBind.length - 1)) {
               const fileName = path.join(tmpDir, (++fileCount).toString());
               fs.writeFileSync(fileName, strbuffer);
               files.push(fileName);
@@ -129,7 +122,7 @@ describe('Test Put Small Files', function () {
             complete: function (err) {
               testUtil.checkError(err);
               callback();
-            },
+            }
           });
         },
         function select(callback) {
@@ -143,7 +136,7 @@ describe('Test Put Small Files', function () {
               assert.strictEqual(dateValue.toString(), '1589155200000');
               assert.strictEqual(timeValue.toString(), '1648857599000');
               callback();
-            },
+            }
           });
         },
         function selectall(callback) {
@@ -153,11 +146,11 @@ describe('Test Put Small Files', function () {
               testUtil.checkError(err);
               assert.strictEqual(rows[0]['NUM'], count);
               callback();
-            },
+            }
           });
         },
       ],
-      done,
+      done
     );
   });
 });

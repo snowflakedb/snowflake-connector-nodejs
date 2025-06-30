@@ -7,92 +7,101 @@ describe('ResultStream: basic', function () {
   //// Test synchronous errors                                           ////
   ///////////////////////////////////////////////////////////////////////////
 
-  const testCases = [
-    {
-      name: 'missing options',
-      errorCode: ErrorCodes.ERR_INTERNAL_ASSERT_FAILED,
-    },
-    {
-      name: 'undefined options',
-      options: undefined,
-      errorCode: ErrorCodes.ERR_INTERNAL_ASSERT_FAILED,
-    },
-    {
-      name: 'null options',
-      options: null,
-      errorCode: ErrorCodes.ERR_INTERNAL_ASSERT_FAILED,
-    },
-    {
-      name: 'invalid options',
-      options: 'invalid',
-      errorCode: ErrorCodes.ERR_INTERNAL_ASSERT_FAILED,
-    },
-    {
-      name: 'missing chunks',
-      options: {},
-      errorCode: ErrorCodes.ERR_INTERNAL_ASSERT_FAILED,
-    },
-    {
-      name: 'undefined chunks',
-      options: {
-        chunks: undefined,
+  const testCases =
+    [
+      {
+        name: 'missing options',
+        errorCode: ErrorCodes.ERR_INTERNAL_ASSERT_FAILED
       },
-      errorCode: ErrorCodes.ERR_INTERNAL_ASSERT_FAILED,
-    },
-    {
-      name: 'null chunks',
-      options: {
-        chunks: null,
+      {
+        name: 'undefined options',
+        options: undefined,
+        errorCode: ErrorCodes.ERR_INTERNAL_ASSERT_FAILED
       },
-      errorCode: ErrorCodes.ERR_INTERNAL_ASSERT_FAILED,
-    },
-    {
-      name: 'invalid chunks',
-      options: {
-        chunks: 'invalid',
+      {
+        name: 'null options',
+        options: null,
+        errorCode: ErrorCodes.ERR_INTERNAL_ASSERT_FAILED
       },
-      errorCode: ErrorCodes.ERR_INTERNAL_ASSERT_FAILED,
-    },
-    {
-      name: 'missing prefetchSize',
-      options: {
-        chunks: [],
+      {
+        name: 'invalid options',
+        options: 'invalid',
+        errorCode: ErrorCodes.ERR_INTERNAL_ASSERT_FAILED
       },
-      errorCode: ErrorCodes.ERR_INTERNAL_ASSERT_FAILED,
-    },
-    {
-      name: 'undefined prefetchSize',
-      options: {
-        chunks: [],
-        prefetchSize: undefined,
+      {
+        name: 'missing chunks',
+        options: {},
+        errorCode: ErrorCodes.ERR_INTERNAL_ASSERT_FAILED
       },
-      errorCode: ErrorCodes.ERR_INTERNAL_ASSERT_FAILED,
-    },
-    {
-      name: 'null prefetchSize',
-      options: {
-        chunks: [],
-        prefetchSize: null,
+      {
+        name: 'undefined chunks',
+        options:
+          {
+            chunks: undefined
+          },
+        errorCode: ErrorCodes.ERR_INTERNAL_ASSERT_FAILED
       },
-      errorCode: ErrorCodes.ERR_INTERNAL_ASSERT_FAILED,
-    },
-    {
-      name: 'invalid prefetchSize (wrong type)',
-      options: {
-        chunks: [],
-        prefetchSize: 'invalid',
+      {
+        name: 'null chunks',
+        options:
+          {
+            chunks: null
+          },
+        errorCode: ErrorCodes.ERR_INTERNAL_ASSERT_FAILED
       },
-      errorCode: ErrorCodes.ERR_INTERNAL_ASSERT_FAILED,
-    },
-    {
-      name: 'invalid prefetchSize (negative)',
-      options: {
-        chunks: [],
-        prefetchSize: -1,
+      {
+        name: 'invalid chunks',
+        options:
+          {
+            chunks: 'invalid'
+          },
+        errorCode: ErrorCodes.ERR_INTERNAL_ASSERT_FAILED
       },
-      errorCode: ErrorCodes.ERR_INTERNAL_ASSERT_FAILED,
-    },
-  ];
+      {
+        name: 'missing prefetchSize',
+        options:
+          {
+            chunks: []
+          },
+        errorCode: ErrorCodes.ERR_INTERNAL_ASSERT_FAILED
+      },
+      {
+        name: 'undefined prefetchSize',
+        options:
+          {
+            chunks: [],
+            prefetchSize: undefined
+          },
+        errorCode: ErrorCodes.ERR_INTERNAL_ASSERT_FAILED
+      },
+      {
+        name: 'null prefetchSize',
+        options:
+          {
+            chunks: [],
+            prefetchSize: null
+          },
+        errorCode: ErrorCodes.ERR_INTERNAL_ASSERT_FAILED
+      },
+      {
+        name: 'invalid prefetchSize (wrong type)',
+        options:
+          {
+            chunks: [],
+            prefetchSize: 'invalid'
+          },
+        errorCode: ErrorCodes.ERR_INTERNAL_ASSERT_FAILED
+      },
+      {
+        name: 'invalid prefetchSize (negative)',
+        options:
+          {
+            chunks: [],
+            prefetchSize: -1
+          },
+        errorCode: ErrorCodes.ERR_INTERNAL_ASSERT_FAILED
+      }
+    ];
 
   const createItCallback = function (testCase) {
     return function () {
@@ -120,10 +129,11 @@ describe('ResultStream: basic', function () {
   ///////////////////////////////////////////////////////////////////////////
 
   it('valid result stream', function () {
-    const resultStream = new ResultStream({
-      chunks: [],
-      prefetchSize: 1,
-    });
+    const resultStream = new ResultStream(
+      {
+        chunks: [],
+        prefetchSize: 1
+      });
 
     assert.ok(resultStream, 'should be a valid ResultStream');
   });

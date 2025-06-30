@@ -11,9 +11,9 @@ describe('Test Cancel Query', function () {
       [
         function (callback) {
           testUtil.connect(connection, callback);
-        },
+        }
       ],
-      done,
+      done
     );
   });
 
@@ -22,15 +22,16 @@ describe('Test Cancel Query', function () {
       [
         function (callback) {
           testUtil.destroyConnection(connection, callback);
-        },
+        }
       ],
-      done,
+      done
     );
   });
 
+
   it('testCancelQuerySimple', function (done) {
     const statement = connection.execute({
-      sqlText: longQuery,
+      sqlText: longQuery
     });
 
     setTimeout(function () {
@@ -41,3 +42,23 @@ describe('Test Cancel Query', function () {
     }, 10000);
   });
 });
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

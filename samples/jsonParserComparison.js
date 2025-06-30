@@ -10,9 +10,7 @@ async function run() {
   console.log('Started with arguments: ');
   console.log(`Inserted rows amount: ${rowCountToInsert} - default ${defaultRowCount}`);
   console.log(`Selected rows amount: ${rowCountToFetch} - default ${defaultRowCount}`);
-  console.log(
-    `Selected json parser: ${chosenParser} - default all of Function, vm, better-eval, JSON`,
-  );
+  console.log(`Selected json parser: ${chosenParser} - default all of Function, vm, better-eval, JSON`);
 
   const rowCount = rowCountToInsert || defaultRowCount;
   const selectLimit = rowCountToFetch || defaultRowCount;
@@ -64,8 +62,7 @@ async function run() {
         "favoriteFruit": "apple"
       }') 
       from table(generator(rowcount=>${rowCount}))`;
-  const createTableWithVariant = (tableName) =>
-    `create or replace table ${tableName}(colA variant)`;
+  const createTableWithVariant = (tableName) => `create or replace table ${tableName}(colA variant)`;
 
   const dropTableWithVariant = (tableName) => `drop table if exists ${tableName}`;
   const dropTempTable = `drop table if exists ${testVariantTempName}`;
@@ -73,47 +70,33 @@ async function run() {
   const insertVariant = (tableName) => `insert into ${tableName}
                          select parse_json(value)
                          from ${testVariantTempName}`;
-  const selectCountVariant = (tableName) => `select count(colA) from ${tableName}`;
+  const selectCountVariant = (tableName) => `select count(colA) from ${(tableName)}`;
 
   const testCases = [];
   if (!chosenParser || chosenParser.toString().includes('Function')) {
-    testCases.push({
-      parser: 'Function',
-      jsonColumnVariantParser: (rawColumnValue) => new Function(`return (${rawColumnValue})`),
-    });
+    testCases.push({ parser: 'Function', jsonColumnVariantParser: (rawColumnValue) => new Function(`return (${rawColumnValue})`) });
   }
   if (!chosenParser || chosenParser.toString().includes('better-eval')) {
-    testCases.push({
-      parser: 'betterEval',
-      jsonColumnVariantParser: (rawColumnValue) =>
-        require('better-eval').call('(' + rawColumnValue + ')'),
-    });
+    testCases.push({ parser: 'betterEval', jsonColumnVariantParser: (rawColumnValue) => require('better-eval').call('(' + rawColumnValue + ')') });
   }
   if (!chosenParser || chosenParser.toString().includes('vm')) {
-    testCases.push({
-      parser: 'vm',
-      jsonColumnVariantParser: (rawColumnValue) =>
-        require('vm').runInNewContext('(' + rawColumnValue + ')'),
-    });
+    testCases.push({ parser: 'vm', jsonColumnVariantParser: rawColumnValue => require('vm').runInNewContext('(' + rawColumnValue + ')') });
   }
   // eval lib contains vulnerability so we decide to resign using it
   // if (!process.argv[4] || process.argv[4].toString().contains('eval')) {
   //   testCases.push({parser: 'eval', jsonColumnVariantParser: rawColumnValue => eval('(' + rawColumnValue + ')')})
   // };
   if (!chosenParser || chosenParser.toString().includes('JSON')) {
-    testCases.push({
-      parser: 'JSON',
-      jsonColumnVariantParser: (rawColumnValue) => JSON.parse(rawColumnValue),
-    });
+    testCases.push({ parser: 'JSON', jsonColumnVariantParser: rawColumnValue => JSON.parse(rawColumnValue) });
   }
 
   const execute = async ({ parser, jsonColumnVariantParser }, extractFunction) => {
     console.log(`\nTest for parser: [${parser}] extracting by ${extractFunction.name}`);
     const testVariantTableName = `testVariantTable000${parser}`;
     const connection = await helpers.connectUsingEnv();
-    return new Promise((resolve, reject) => {
+    return new Promise( (resolve, reject) => {
       snowflake.configure({
-        jsonColumnVariantParser: jsonColumnVariantParser,
+        jsonColumnVariantParser: jsonColumnVariantParser
       });
 
       helpers.executeQuery(connection, createTempTableWithJsonData);
@@ -122,9 +105,7 @@ async function run() {
       helpers.executeQuery(connection, selectCountVariant(testVariantTableName));
 
       const queryTimeLabel = parser + 'SelectTime';
-      let avgBlock = 0,
-        minBlock = 999999999999999,
-        maxBlock = 0;
+      let avgBlock = 0, minBlock = 999999999999999, maxBlock = 0;
       let blockCount = 0;
       blocked((time) => {
         blockCount++;
@@ -158,12 +139,13 @@ async function run() {
             console.log(err);
             reject(err);
           });
-        },
+        }
       });
-    }).finally(async () => {
-      await helpers.executeQuery(connection, dropTableWithVariant(testVariantTableName));
-      await helpers.executeQuery(connection, dropTempTable);
-    });
+    })
+      .finally(async () => {
+        await helpers.executeQuery(connection, dropTableWithVariant(testVariantTableName));
+        await helpers.executeQuery(connection, dropTempTable);
+      });
   };
 
   function extractOnData(stream) {
@@ -179,7 +161,7 @@ async function run() {
   function extractOnStream(stream) {
     let count = 0;
     stream.on('readable', function () {
-      while (stream.read() !== null) {
+      while ((stream.read()) !== null) {
         count++;
         if (count % 10000 === 0) {
           console.log(`Parsed rows: ${count}`);
@@ -188,7 +170,7 @@ async function run() {
     });
   }
 
-  testCases.reduce((promise, nextParser) => {
+  testCases.reduce( (promise, nextParser) => {
     return promise
       .then(() => {
         return execute(nextParser, extractOnData);

@@ -24,7 +24,7 @@ jobs:
       - name: Extract issue from title
         id: extract
         env:
-          TITLE: '${{ github.event.issue.title }}'
+          TITLE: "${{ github.event.issue.title }}"
         run: |
           jira=$(echo -n $TITLE | awk '{print $1}' | sed -e 's/://')
           echo ::set-output name=jira::$jira
@@ -32,4 +32,4 @@ jobs:
         uses: ./jira/gajira-close
         if: startsWith(steps.extract.outputs.jira, 'SNOW-')
         with:
-          issue: '${{ steps.extract.outputs.jira }}'
+          issue: "${{ steps.extract.outputs.jira }}"

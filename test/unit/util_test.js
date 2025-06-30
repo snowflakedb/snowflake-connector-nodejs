@@ -4,7 +4,8 @@ const assert = require('assert');
 describe('Util', function () {
   it('Util.isFunction()', function () {
     // positive tests
-    assert.ok(Util.isFunction(function () {}));
+    assert.ok(Util.isFunction(function () {
+    }));
     assert.ok(Util.isFunction(new Function()));
 
     // negative tests
@@ -32,7 +33,8 @@ describe('Util', function () {
     assert.ok(!Util.isObject(''));
     assert.ok(!Util.isObject('foo'));
     assert.ok(!Util.isObject(new Date()));
-    assert.ok(!Util.isObject(function () {}));
+    assert.ok(!Util.isObject(function () {
+    }));
     assert.ok(!Util.isObject(new Function()));
   });
 
@@ -49,7 +51,8 @@ describe('Util', function () {
     assert.ok(!Util.isDate(1));
     assert.ok(!Util.isDate(''));
     assert.ok(!Util.isDate('foo'));
-    assert.ok(!Util.isDate(function () {}));
+    assert.ok(!Util.isDate(function () {
+    }));
     assert.ok(!Util.isDate(new Function()));
   });
 
@@ -69,7 +72,8 @@ describe('Util', function () {
     assert.ok(!Util.isArray(new Date()));
     assert.ok(!Util.isArray({}));
     assert.ok(!Util.isArray(new Object()));
-    assert.ok(!Util.isArray(function () {}));
+    assert.ok(!Util.isArray(function () {
+    }));
     assert.ok(!Util.isArray(new Function()));
   });
 
@@ -87,7 +91,8 @@ describe('Util', function () {
     assert.ok(!Util.isString(new Date()));
     assert.ok(!Util.isString({}));
     assert.ok(!Util.isString(new Object()));
-    assert.ok(!Util.isString(function () {}));
+    assert.ok(!Util.isString(function () {
+    }));
     assert.ok(!Util.isString(new Function()));
   });
 
@@ -106,7 +111,8 @@ describe('Util', function () {
     assert.ok(!Util.isBoolean(new Date()));
     assert.ok(!Util.isBoolean({}));
     assert.ok(!Util.isBoolean(new Object()));
-    assert.ok(!Util.isBoolean(function () {}));
+    assert.ok(!Util.isBoolean(function () {
+    }));
     assert.ok(!Util.isBoolean(new Function()));
   });
 
@@ -129,7 +135,8 @@ describe('Util', function () {
     assert.ok(!Util.isNumber(new Date()));
     assert.ok(!Util.isNumber({}));
     assert.ok(!Util.isNumber(new Object()));
-    assert.ok(!Util.isNumber(function () {}));
+    assert.ok(!Util.isNumber(function () {
+    }));
     assert.ok(!Util.isNumber(new Function()));
   });
 
@@ -141,7 +148,8 @@ describe('Util', function () {
     assert.ok(Util.exists(new Date()));
     assert.ok(Util.exists({}));
     assert.ok(Util.exists(new Object()));
-    assert.ok(Util.exists(function () {}));
+    assert.ok(Util.exists(function () {
+    }));
     assert.ok(Util.exists(new Function()));
 
     // negative tests
@@ -172,117 +180,110 @@ describe('Util', function () {
       {
         version1: '',
         version2: '',
-        result: 0,
+        result: 0
       },
       {
         version1: '',
         version2: '0',
-        result: 0,
+        result: 0
       },
       {
         version1: '0',
         version2: '',
-        result: 0,
-      },
-    );
+        result: 0
+      });
 
     testCases.push(
       {
         version1: '0.0.1',
         version2: '0.1.0',
-        result: -1,
+        result: -1
       },
       {
         version1: '0.0.1',
         version2: '0.1',
-        result: -1,
+        result: -1
       },
       {
         version1: '0.1.0',
         version2: '0.0.1',
-        result: 1,
+        result: 1
       },
       {
         version1: '1.1.0',
         version2: '0.1.1',
-        result: 1,
+        result: 1
       },
       {
         version1: '1.1.0',
         version2: '0.1.1',
-        result: 1,
+        result: 1
       },
       {
         version1: '0.1',
         version2: '0.1.0',
-        result: 0,
+        result: 0
       },
       {
         version1: '5.10.0',
         version2: '6.0.0',
-        result: -1,
-      },
-    );
+        result: -1
+      });
 
     // if one or both inputs are invalid versions, return NaN
     testCases.push(
       {
         version1: '',
         version2: 0,
-        result: NaN,
+        result: NaN
       },
       {
         version1: 0,
         version2: '',
-        result: NaN,
+        result: NaN
       },
       {
         version1: 1,
         version2: 1,
-        result: NaN,
+        result: NaN
       },
       {
         version1: 1,
         version2: 2,
-        result: NaN,
+        result: NaN
       },
       {
         version1: {},
         version2: false,
-        result: NaN,
+        result: NaN
       },
       {
         version1: 'foo',
         version2: '1',
-        result: NaN,
+        result: NaN
       },
       {
         version1: '1',
         version2: 'foo',
-        result: NaN,
+        result: NaN
       },
       {
         version1: 'foo',
         version2: 'foo',
-        result: NaN,
-      },
-    );
+        result: NaN
+      });
 
     let testCase, actual, expected;
     for (let index = 0, length = testCases.length; index < length; index++) {
       testCase = testCases[index];
-      actual = Util.string.compareVersions(testCase.version1, testCase.version2);
+      actual =
+        Util.string.compareVersions(testCase.version1, testCase.version2);
       expected = testCase.result;
 
-      assert.ok(
-        isNaN(actual) && isNaN(expected) ? true : actual === expected,
-        'index = ' +
-          index +
-          ', version1 = ' +
-          testCase.version1 +
-          ', version2 = ' +
-          testCase.version2,
-      );
+      assert.ok(isNaN(actual) && isNaN(expected) ? true : (actual === expected),
+        'index = ' + index +
+        ', version1 = ' + testCase.version1 +
+        ', version2 = ' + testCase.version2);
     }
   });
 
@@ -327,7 +328,7 @@ describe('Util', function () {
     assert.ok(Util.number.isInteger(0));
     assert.ok(Util.number.isInteger(1));
     assert.ok(Util.number.isInteger(-1));
-    assert.ok(Util.number.isInteger(1.0));
+    assert.ok(Util.number.isInteger(1.00));
     assert.ok(Util.number.isInteger(Number.MAX_SAFE_INTEGER));
     assert.ok(Util.number.isInteger(Number.MIN_SAFE_INTEGER));
     assert.ok(Util.number.isInteger(Number.MAX_VALUE));
@@ -381,56 +382,58 @@ describe('Util', function () {
     ////                 Positive Test Cases                             ////
     /////////////////////////////////////////////////////////////////////////
 
-    const testCasesPos = [
-      {
-        url: 'a',
-        paramName: 'foo',
-        paramValue: 'bar',
-        result: 'a?foo=bar',
-      },
-      {
-        url: 'http://www.something.snowflakecomputing.com',
-        paramName: 'foo',
-        paramValue: 'bar',
-        result: 'http://www.something.snowflakecomputing.com?foo=bar',
-      },
-      {
-        url: 'http://www.something.snowflakecomputing.com?param1=value1',
-        paramName: 'foo',
-        paramValue: 'bar',
-        result: 'http://www.something.snowflakecomputing.com?param1=value1&foo=bar',
-      },
-    ];
+    const testCasesPos =
+      [
+        {
+          url: 'a',
+          paramName: 'foo',
+          paramValue: 'bar',
+          result: 'a?foo=bar'
+        },
+        {
+          url: 'http://www.something.snowflakecomputing.com',
+          paramName: 'foo',
+          paramValue: 'bar',
+          result: 'http://www.something.snowflakecomputing.com?foo=bar'
+        },
+        {
+          url: 'http://www.something.snowflakecomputing.com?param1=value1',
+          paramName: 'foo',
+          paramValue: 'bar',
+          result: 'http://www.something.snowflakecomputing.com?param1=value1&foo=bar'
+        }
+      ];
 
     let testCase;
     for (let index = 0, length = testCasesPos.length; index < length; index++) {
       testCase = testCasesPos[index];
       assert.strictEqual(
-        Util.url.appendParam(testCase.url, testCase.paramName, testCase.paramValue),
-        testCase.result,
-      );
+        Util.url.appendParam(
+          testCase.url, testCase.paramName, testCase.paramValue),
+        testCase.result);
     }
 
     /////////////////////////////////////////////////////////////////////////
     ////                 Negative Test Cases                             ////
     /////////////////////////////////////////////////////////////////////////
 
-    const testCasesNeg = [
-      {
-        paramName: 'foo',
-        paramValue: 'bar',
-      },
-      {
-        url: undefined,
-        paramName: 'foo',
-        paramValue: 'bar',
-      },
-      {
-        url: null,
-        paramName: 'foo',
-        paramValue: 'bar',
-      },
-    ];
+    const testCasesNeg =
+      [
+        {
+          paramName: 'foo',
+          paramValue: 'bar'
+        },
+        {
+          url: undefined,
+          paramName: 'foo',
+          paramValue: 'bar'
+        },
+        {
+          url: null,
+          paramName: 'foo',
+          paramValue: 'bar'
+        }
+      ];
 
     let error;
     for (let index = 0, length = testCasesPos.length; index < length; index++) {
@@ -438,7 +441,8 @@ describe('Util', function () {
 
       testCase = testCasesNeg[index];
       try {
-        Util.url.appendParam(testCase.url, testCase.paramName, testCase.paramValue);
+        Util.url.appendParam(
+          testCase.url, testCase.paramName, testCase.paramValue);
       } catch (err) {
         error = err;
       } finally {
@@ -448,28 +452,29 @@ describe('Util', function () {
   });
 
   describe('Append retry parameters', function () {
-    const testCases = [
-      {
-        testName: 'test appending retry params with retry reason',
-        option: {
-          url: 'http://www.something.snowflakecomputing.com',
-          retryCount: 3,
-          retryReason: 429,
-          includeRetryReason: true,
+    const testCases =
+      [
+        {
+          testName: 'test appending retry params with retry reason',
+          option: {
+            url: 'http://www.something.snowflakecomputing.com',
+            retryCount: 3,
+            retryReason: 429,
+            includeRetryReason: true,
+          },
+          result: 'http://www.something.snowflakecomputing.com?retryCount=3&retryReason=429'
         },
-        result: 'http://www.something.snowflakecomputing.com?retryCount=3&retryReason=429',
-      },
-      {
-        testName: 'test appending retry params without retry reason',
-        option: {
-          url: 'http://www.something.snowflakecomputing.com',
-          retryCount: 3,
-          retryReason: 429,
-          includeRetryReason: false,
-        },
-        result: 'http://www.something.snowflakecomputing.com?retryCount=3',
-      },
-    ];
+        {
+          testName: 'test appending retry params without retry reason',
+          option: {
+            url: 'http://www.something.snowflakecomputing.com',
+            retryCount: 3,
+            retryReason: 429,
+            includeRetryReason: false,
+          },
+          result: 'http://www.something.snowflakecomputing.com?retryCount=3'
+        }
+      ];
 
     for (let i = 0; i < testCases.length; i++) {
       const testCase = testCases[i];
@@ -482,7 +487,8 @@ describe('Util', function () {
 
   describe('Util.isLoginRequest Test', function () {
     const baseUrl = 'wwww.test.com';
-    const testCases = [
+    const testCases =
+    [
       {
         testName: 'test URL with a right login end point',
         endPoint: '/v1/login-request',
@@ -502,7 +508,7 @@ describe('Util', function () {
         testName: 'test URL with a wrong authenticator-request point',
         endPoint: '/authenticator-requ',
         result: false,
-      },
+      }
     ];
 
     for (const { testName, endPoint, result } of testCases) {
@@ -515,7 +521,8 @@ describe('Util', function () {
 
   describe('Util.getJitterSleepTime Test', function () {
     it('test - retryTimeout is over 300', function () {
-      const errorCodes = [
+      const errorCodes =
+      [
         {
           statusCode: 403,
           retry403: true,
@@ -553,12 +560,7 @@ describe('Util', function () {
       let retryCount = 0;
       let totalElapsedTime = currentSleepTime;
       for (const response of errorCodes) {
-        const result = Util.getJitteredSleepTime(
-          retryCount,
-          currentSleepTime,
-          totalElapsedTime,
-          maxRetryTimeout,
-        );
+        const result = Util.getJitteredSleepTime(retryCount, currentSleepTime, totalElapsedTime, maxRetryTimeout);
         const jitter = currentSleepTime / 2;
         const nextSleep = 2 ** retryCount;
         currentSleepTime = result.sleep;
@@ -579,13 +581,8 @@ describe('Util', function () {
       const maxRetryCount = 20;
       let totalElapsedTime = currentSleepTime;
       let retryCount = 1;
-      for (; retryCount < maxRetryCount; retryCount++) {
-        const result = Util.getJitteredSleepTime(
-          retryCount,
-          currentSleepTime,
-          totalElapsedTime,
-          maxRetryTimeout,
-        );
+      for ( ; retryCount < maxRetryCount; retryCount++) {
+        const result = Util.getJitteredSleepTime(retryCount, currentSleepTime, totalElapsedTime, maxRetryTimeout);
         const jitter = currentSleepTime / 2;
         const nextSleep = 2 ** retryCount;
         currentSleepTime = result.sleep;
@@ -621,7 +618,7 @@ describe('Util', function () {
     const randomNumber = Util.chooseRandom(10, 100);
     const jitter = Util.getJitter(randomNumber);
 
-    assert.ok(randomNumber / -2 <= jitter && jitter <= randomNumber / 2);
+    assert.ok(randomNumber / -2 <= jitter && jitter <= randomNumber / 2  );
   });
 
   it('Util.apply()', function () {
@@ -642,97 +639,97 @@ describe('Util', function () {
     src = { b: 2 };
     assert.strictEqual(Util.apply(dst, src), dst);
     assert.strictEqual(Object.keys(dst).length, 2);
-    assert.ok(Object.prototype.hasOwnProperty.call(dst, 'a') && dst.a === 1);
-    assert.ok(Object.prototype.hasOwnProperty.call(dst, 'b') && dst.b === 2);
+    assert.ok(Object.prototype.hasOwnProperty.call(dst, 'a') && (dst.a === 1));
+    assert.ok(Object.prototype.hasOwnProperty.call(dst, 'b') && (dst.b === 2));
 
     dst = { a: 1 };
     src = { a: 2 };
     assert.strictEqual(Util.apply(dst, src), dst);
     assert.strictEqual(Object.keys(dst).length, 1);
-    assert.ok(Object.prototype.hasOwnProperty.call(dst, 'a') && dst.a === 2);
+    assert.ok(Object.prototype.hasOwnProperty.call(dst, 'a') && (dst.a === 2));
   });
 
   it('Util.isRetryableHttpError()', function () {
-    const testCasesPos = [
-      {
-        name: '200 - OK',
-        statusCode: 200,
-        retry403: false,
-        isRetryable: false,
-      },
-      {
-        name: '400 - Bad Request',
-        statusCode: 400,
-        retry403: false,
-        isRetryable: false,
-      },
-      {
-        name: '403 - Forbidden',
-        statusCode: 403,
-        retry403: false,
-        isRetryable: false,
-      },
-      {
-        name: '403 - Forbidden (retry on 403)',
-        statusCode: 403,
-        retry403: true,
-        isRetryable: true,
-      },
-      {
-        name: '404 - Not Found',
-        statusCode: 404,
-        retry403: false,
-        isRetryable: false,
-      },
-      {
-        name: '408 - Request Timeout',
-        statusCode: 408,
-        retry403: false,
-        isRetryable: true,
-      },
-      {
-        name: '429 - Too Many Requests',
-        statusCode: 429,
-        retry403: false,
-        isRetryable: true,
-      },
-      {
-        name: '500 - Internal Server Error',
-        statusCode: 500,
-        retry403: false,
-        isRetryable: true,
-      },
-      {
-        name: '503 - Service Unavailable',
-        statusCode: 503,
-        retry403: false,
-        isRetryable: true,
-      },
-    ];
+    const testCasesPos =
+      [
+        {
+          name: '200 - OK',
+          statusCode: 200,
+          retry403: false,
+          isRetryable: false,
+        },
+        {
+          name: '400 - Bad Request',
+          statusCode: 400,
+          retry403: false,
+          isRetryable: false,
+        },
+        {
+          name: '403 - Forbidden',
+          statusCode: 403,
+          retry403: false,
+          isRetryable: false,
+        },
+        {
+          name: '403 - Forbidden (retry on 403)',
+          statusCode: 403,
+          retry403: true,
+          isRetryable: true,
+        },
+        {
+          name: '404 - Not Found',
+          statusCode: 404,
+          retry403: false,
+          isRetryable: false,
+        },
+        {
+          name: '408 - Request Timeout',
+          statusCode: 408,
+          retry403: false,
+          isRetryable: true,
+        },
+        {
+          name: '429 - Too Many Requests',
+          statusCode: 429,
+          retry403: false,
+          isRetryable: true,
+        },
+        {
+          name: '500 - Internal Server Error',
+          statusCode: 500,
+          retry403: false,
+          isRetryable: true,
+        },
+        {
+          name: '503 - Service Unavailable',
+          statusCode: 503,
+          retry403: false,
+          isRetryable: true,
+        },
+      ];
 
     let testCase;
     let err;
     for (let index = 0, length = testCasesPos.length; index < length; index++) {
       testCase = testCasesPos[index];
       err = {
-        response: { statusCode: testCase.statusCode },
+        response: { statusCode: testCase.statusCode }
       };
-      assert.strictEqual(
-        Util.isRetryableHttpError(err.response, testCase.retry403),
-        testCase.isRetryable,
-      );
+      assert.strictEqual(Util.isRetryableHttpError(
+        err.response, testCase.retry403), testCase.isRetryable);
     }
   });
 
   describe('Okta Authentication Retry Condition', () => {
-    const testCases = [
+    const testCases =
+    [
       {
         name: 'test - default values',
         retryOption: {
           maxRetryCount: 7,
           numRetries: 1,
           remainingTimeout: 300000,
-          maxRetryTimeout: 300000,
+          maxRetryTimeout: 300000
         },
         result: true,
       },
@@ -742,7 +739,7 @@ describe('Util', function () {
           maxRetryCount: 7,
           numRetries: 7,
           remainingTimeout: 300000,
-          maxRetryTimeout: 300000,
+          maxRetryTimeout: 300000
         },
         result: true,
       },
@@ -752,7 +749,7 @@ describe('Util', function () {
           maxRetryCount: 7,
           numRetries: 1,
           remainingTimeout: 300000,
-          maxRetryTimeout: 0,
+          maxRetryTimeout: 0
         },
         result: true,
       },
@@ -762,7 +759,7 @@ describe('Util', function () {
           maxRetryCount: 7,
           numRetries: 8,
           remainingTimeout: -50,
-          maxRetryTimeout: 0,
+          maxRetryTimeout: 0
         },
         result: false,
       },
@@ -772,7 +769,7 @@ describe('Util', function () {
           maxRetryCount: 7,
           numRetries: 8,
           remainingTimeout: 300000,
-          maxRetryTimeout: 300,
+          maxRetryTimeout: 300
         },
         result: false,
       },
@@ -782,7 +779,7 @@ describe('Util', function () {
           maxRetryCount: 7,
           numRetries: 8,
           remainingTimeout: 0,
-          maxRetryTimeout: 300,
+          maxRetryTimeout: 300
         },
         result: false,
       },
@@ -792,7 +789,7 @@ describe('Util', function () {
           maxRetryCount: 7,
           numRetries: 8,
           remainingTimeout: -10,
-          maxRetryTimeout: 300,
+          maxRetryTimeout: 300
         },
         result: false,
       },
@@ -800,10 +797,7 @@ describe('Util', function () {
 
     testCases.forEach(({ name, retryOption, result }) => {
       it(name, () => {
-        assert.strictEqual(
-          Util.shouldRetryOktaAuth({ ...retryOption, startTime: Date.now() }),
-          result,
-        );
+        assert.strictEqual(Util.shouldRetryOktaAuth({ ...retryOption, startTime: Date.now() }), result);
       });
     });
   });
@@ -811,19 +805,16 @@ describe('Util', function () {
   describe('isPrivateKey', () => {
     [
       // pragma: allowlist nextline secret
-      {
-        name: 'trimmed already key',
-        key: '-----BEGIN PRIVATE KEY-----\ntest\n-----END PRIVATE KEY-----',
-      },
+      { name: 'trimmed already key', key: '-----BEGIN PRIVATE KEY-----\ntest\n-----END PRIVATE KEY-----' },
       {
         name: 'key with whitespaces at the beginning',
         // pragma: allowlist nextline secret
-        key: '   -----BEGIN PRIVATE KEY-----\ntest\n-----END PRIVATE KEY-----',
+        key: '   -----BEGIN PRIVATE KEY-----\ntest\n-----END PRIVATE KEY-----'
       },
       {
         name: 'key with whitespaces at the end',
         // pragma: allowlist nextline secret
-        key: '-----BEGIN PRIVATE KEY-----\ntest\n-----END PRIVATE KEY-----\n\n\n',
+        key: '-----BEGIN PRIVATE KEY-----\ntest\n-----END PRIVATE KEY-----\n\n\n'
       },
     ].forEach(({ name, key }) => {
       it(`${name} is valid`, () => {
@@ -837,16 +828,16 @@ describe('Util', function () {
       {
         name: 'key with missing ending',
         // pragma: allowlist nextline secret
-        key: '   -----BEGIN PRIVATE KEY-----\ntest',
+        key: '   -----BEGIN PRIVATE KEY-----\ntest'
       },
       {
         name: 'key with invalid beginning',
-        key: '-----BEGIN PUBLIC KEY-----\ntest\n-----END PRIVATE KEY-----\n\n\n',
+        key: '-----BEGIN PUBLIC KEY-----\ntest\n-----END PRIVATE KEY-----\n\n\n'
       },
       {
         name: 'key with invalid end',
         // pragma: allowlist nextline secret
-        key: '-----BEGIN PRIVATE KEY-----\ntest\n-----END PUBLIC KEY-----\n\n\n',
+        key: '-----BEGIN PRIVATE KEY-----\ntest\n-----END PUBLIC KEY-----\n\n\n'
       },
     ].forEach(({ name, key }) => {
       it(`${name} is invalid`, () => {
@@ -860,33 +851,33 @@ describe('Util', function () {
       {
         name: 'private link',
         host: 'account.privatelink.snowflakecomputing.com',
-        result: true,
+        result: true
       },
       {
         name: 'private link upper case letters',
         host: 'ACCOUNT.PRIVATELINK.SNOWFLAKECOMPUTING.COM',
-        result: true,
+        result: true
       },
       {
         name: 'private link mixed case letters',
         host: 'account.privateLINK.snowflakecomputING.com',
-        result: true,
+        result: true
       },
       {
         name: 'no private link',
         host: 'account.snowflakecomputing.com',
-        result: false,
+        result: false
       },
       {
         name: 'private link cn',
         host: 'account.privatelink.snowflakecomputing.cn',
-        result: true,
+        result: true
       },
       {
         name: 'no private link cn',
         host: 'account.snowflakecomputing.cn',
-        result: false,
-      },
+        result: false
+      }
     ].forEach(({ name, host, result }) => {
       it(`${name} is valid`, () => {
         assert.equal(Util.isPrivateLink(host), result);
@@ -899,13 +890,13 @@ describe('Util', function () {
     const shouldMatchCircular = '{"one":1,"two":2,"myself":"[Circular]"}';
 
     it('non-circular reference is handled correctly by JSON.stringify replacer', () => {
-      const a = { one: 1, two: 2 };
+      const a = { 'one': 1, 'two': 2 };
       const replacedA = JSON.stringify(a, Util.getCircularReplacer());
       assert.deepEqual(replacedA, shouldMatchNonCircular);
     });
 
     it('circular reference is handled correctly by JSON.stringify replacer', () => {
-      const b = { one: 1, two: 2 };
+      const b = { 'one': 1, 'two': 2 };
       b.myself = b;
       const replacedB = JSON.stringify(b, Util.getCircularReplacer());
       assert.deepEqual(replacedB, shouldMatchCircular);
@@ -924,35 +915,35 @@ describe('Util', function () {
           user: null,
           host: null,
           cred: null,
-          result: null,
+          result: null
         },
         {
           name: 'when two parameters are null or undefined',
           user: mockUser,
           host: null,
           cred: undefined,
-          result: null,
+          result: null
         },
         {
           name: 'when one parameter is null',
           user: mockUser,
           host: mockHost,
           cred: undefined,
-          result: null,
+          result: null
         },
         {
           name: 'when one parameter is undefined',
           user: mockUser,
           host: undefined,
           cred: mockCred,
-          result: null,
+          result: null
         },
         {
           name: 'when all the parameters are valid',
           user: mockUser,
           host: mockHost,
           cred: mockCred,
-          result: '{MOCKHOST}:{MOCKUSER}:{MOCKCRED}',
+          result: '{MOCKHOST}:{MOCKUSER}:{MOCKCRED}'
         },
       ];
       testCases.forEach(({ name, user, host, cred, result }) => {
@@ -964,6 +955,7 @@ describe('Util', function () {
   });
 
   describe('test valid custom credential manager', function () {
+
     function sampleManager() {
       this.read = function () {};
 
@@ -998,7 +990,7 @@ describe('Util', function () {
         credentialManager: {
           read: 'read',
           write: 1234,
-          remove: [],
+          remove: []
         },
         result: false,
       },
@@ -1007,15 +999,19 @@ describe('Util', function () {
         credentialManager: {
           read: 'read',
           write: 1234,
-          remove: [],
+          remove: []
         },
         result: false,
       },
       {
         name: 'credential manager has two valid properties, but miss one',
         credentialManager: {
-          read: function () {},
-          write: function () {},
+          read: function () {
+
+          },
+          write: function () {
+
+          }
         },
         result: false,
       },
@@ -1038,20 +1034,20 @@ describe('Util', function () {
       {
         name: 'all the parameters are null or undefined',
         parameters: [null, undefined, null, null],
-        result: false,
+        result: false
       },
       {
         name: 'one parameter is null',
         parameters: ['a', 2, true, null],
-        result: false,
+        result: false
       },
       {
         name: 'all the parameter are existing',
         parameters: ['a', 123, ['testing'], {}],
-        result: true,
+        result: true
       },
     ];
-
+  
     for (const { name, parameters, result } of testCases) {
       it(name, function () {
         assert.strictEqual(Util.checkParametersDefined(...parameters), result);
@@ -1108,7 +1104,7 @@ describe('Util', function () {
       },
     ];
 
-    for (const { name, value } of testCases) {
+    for (const { name, value, } of testCases) {
       it(name, function () {
         process.env[name] = value;
         assert.strictEqual(Util.getEnvVar('snowflake_env_test'), value);
@@ -1122,13 +1118,13 @@ describe('Util', function () {
     const testCases = [
       {
         name: 'JSON is not empty',
-        value: { hello: 'a' },
-        result: false,
+        value: { 'hello': 'a' },
+        result: false
       },
       {
         name: 'JSON is empty',
         value: {},
-        result: true,
+        result: true
       },
       {
         name: 'non object(string)',
@@ -1159,8 +1155,7 @@ describe('Util', function () {
         name: 'null',
         value: null,
         result: true,
-      },
-      {
+      }, {
         name: 'undefined',
         value: undefined,
         result: true,
@@ -1168,10 +1163,10 @@ describe('Util', function () {
     ];
 
     testCases.forEach(({ name, value, result }) => {
-      it(name, function () {
+      it(name, function () {        
         assert.strictEqual(Util.isEmptyObject(value), result);
       });
-    });
+    });      
 
     describe('lstrip function Test', function () {
       const testCases = [
@@ -1179,23 +1174,23 @@ describe('Util', function () {
           name: 'remove consecutive characters /',
           str: '///////////helloworld',
           remove: '/',
-          result: 'helloworld',
+          result: 'helloworld'
         },
         {
           name: 'when the first character is not matched with the remove character',
           str: '/\\/\\helloworld',
           remove: '\\',
-          result: '/\\/\\helloworld',
+          result: '/\\/\\helloworld'
         },
         {
           name: 'when the first and the third characters are matched',
           str: '@1@12345helloworld',
           remove: '@',
-          result: '1@12345helloworld',
+          result: '1@12345helloworld'
         },
       ];
 
-      for (const { name, str, remove, result } of testCases) {
+      for (const { name, str, remove,  result } of testCases) {
         it(name, function () {
           assert.strictEqual(Util.lstrip(str, remove), result);
         });
@@ -1205,20 +1200,20 @@ describe('Util', function () {
     describe('escapeHTML function test', function () {
       const testCases = [
         {
-          str: "<script>alert('example of text!')</script>",
-          result: '&lt;script&gt;alert(&#39;example of text!&#39;)&lt;/script&gt;',
+          str: '<script>alert(\'example of text!\')</script>',
+          result: '&lt;script&gt;alert(&#39;example of text!&#39;)&lt;/script&gt;'
         },
         {
           str: '',
-          result: '',
+          result: ''
         },
         {
           str: undefined,
-          result: undefined,
+          result: undefined
         },
       ];
 
-      for (const { str, result } of testCases) {
+      for (const {  str, result } of testCases) {
         it('Test excapeHtml function', function () {
           assert.strictEqual(Util.escapeHTML(str), result);
         });

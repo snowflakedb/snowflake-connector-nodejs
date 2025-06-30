@@ -7,7 +7,7 @@ describe('Okta authentication', function () {
   beforeEach(async () => {
     authTest = new AuthTest();
   });
-
+  
   afterEach(async () => {
     await authTest.destroyConnection();
   });
@@ -21,11 +21,7 @@ describe('Okta authentication', function () {
   });
 
   it('Wrong credentials', async function () {
-    const connectionOption = {
-      ...connParameters.okta,
-      username: 'itsnotanaccount.com',
-      password: 'fakepassword',
-    };
+    const connectionOption = { ...connParameters.okta, username: 'itsnotanaccount.com', password: 'fakepassword' };
     authTest.createConnection(connectionOption);
     await authTest.connectAsync();
     authTest.verifyErrorWasThrown('Request failed with status code 401');
@@ -34,13 +30,10 @@ describe('Okta authentication', function () {
 
   //todo SNOW-1844747 improve error message
   it('Wrong okta url', async function () {
-    const connectionOption = {
-      ...connParameters.okta,
-      authenticator: 'https://testinvalidaccoount.com',
-    };
+    const connectionOption = { ...connParameters.okta, authenticator: 'https://testinvalidaccoount.com' };
     authTest.createConnection(connectionOption);
     await authTest.connectAsync();
-    authTest.verifyErrorWasThrown("Cannot read properties of null (reading 'ssoUrl')");
+    authTest.verifyErrorWasThrown('Cannot read properties of null (reading \'ssoUrl\')');
     await authTest.verifyConnectionIsNotUp();
   });
 });

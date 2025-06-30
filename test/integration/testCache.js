@@ -33,7 +33,8 @@ describe('Validate cache permissions test', async function () {
 
     it('should return error when system user is not a file owner', async function () {
       const anotherFileOwnerPath = path.join(wrongOwner);
-      const fsMock = createFsMock().mockFile(anotherFileOwnerPath, 'test');
+      const fsMock = createFsMock()
+        .mockFile(anotherFileOwnerPath, 'test');
       mockFiles(fsMock);
       const fsPromises = require('fs/promises');
       await assert.rejects(
@@ -47,9 +48,7 @@ describe('Validate cache permissions test', async function () {
     });
 
     it('should execute successfully on secure permissions', async function () {
-      await assert.doesNotReject(
-        async () => await validateOnlyUserReadWritePermissionAndOwner(validPermissionsFilePath),
-      );
+      await assert.doesNotReject(async () => await validateOnlyUserReadWritePermissionAndOwner(validPermissionsFilePath));
     });
   }
 });

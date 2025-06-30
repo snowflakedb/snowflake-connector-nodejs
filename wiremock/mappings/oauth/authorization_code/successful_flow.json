@@ -764,7 +764,11 @@
                 "type": "fixed"
               }
             ],
-            "rowset": [["1"]],
+            "rowset": [
+              [
+                "1"
+              ]
+            ],
             "total": 1,
             "returned": 1,
             "queryId": "01baf79b-0108-1a60-0000-01110354a6ce",

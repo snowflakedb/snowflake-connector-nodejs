@@ -7,8 +7,7 @@ describe('Test Stage Binding with Customer Table', function () {
 
   let connection;
   const tableName = 'EVENTS_TEMP';
-  const createTable =
-    `create or replace TABLE ${tableName} (ORGANIZATION_ID VARCHAR(16777216),` +
+  const createTable = `create or replace TABLE ${tableName} (ORGANIZATION_ID VARCHAR(16777216),` +
     'APP_ID VARCHAR(16777216), OCCURREDAT VARCHAR(16777216), SHOP_ID VARCHAR(16777216),' +
     'TYPE VARCHAR(16777216),ID VARCHAR(16777216),CHARGE_AMOUNT_AMOUNT FLOAT,' +
     'CHARGE_AMOUNT_CURRENCYCODE VARCHAR(16777216),CHARGE_ID VARCHAR(16777216),' +
@@ -34,31 +33,9 @@ describe('Test Stage Binding with Customer Table', function () {
     const arrBind = [];
     const rowsToInsert = 10000; // 100000 rows causes "Statement exhausted compilation resources and was canceled. Please contact support." in regression environment
     for (let i = 0; i < rowsToInsert; i++) {
-      arrBind.push([
-        'string' + i,
-        'appid',
-        'occuredat',
-        'shopid',
-        'type',
-        'id',
-        10.9,
-        'charge amount currency code',
-        'chargeid',
-        'chargename',
-        'chargetest',
-        'chargebillingon',
-        'reason',
-        'description',
-        99.99,
-        'appcredit amount currency code',
-        'appcreditid',
-        'appcreditname',
-        'appcredittest',
-        'appname',
-        'shopmyshopifyoumin',
-        'shopname',
-        'appapikey',
-      ]);
+      arrBind.push(['string' + i, 'appid', 'occuredat', 'shopid', 'type', 'id', 10.9, 'charge amount currency code',
+        'chargeid', 'chargename', 'chargetest', 'chargebillingon', 'reason', 'description', 99.99, 'appcredit amount currency code',
+        'appcreditid', 'appcreditname', 'appcredittest', 'appname', 'shopmyshopifyoumin', 'shopname', 'appapikey']);
     }
     connection.execute({
       sqlText: insertWithQmark,
@@ -74,7 +51,7 @@ describe('Test Stage Binding with Customer Table', function () {
             done(e);
           }
         }
-      },
+      }
     });
   });
 });

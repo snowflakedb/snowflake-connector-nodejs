@@ -7,7 +7,7 @@ function getRandomDBNames() {
   const dbName = 'qcc_test_db';
   const arr = [];
   const randomNumber = Math.floor(Math.random() * 10000);
-  for (let i = 0; i < 3; i++) {
+  for (let i = 0; i < 3; i++){
     arr.push(dbName + (randomNumber + i));
   }
   return arr;
@@ -18,7 +18,7 @@ if (process.env.CLOUD_PROVIDER === 'AWS') {
   describe('Query Context Cache test', function () {
     this.retries(3);
     let connection;
-    const dbNames = getRandomDBNames();
+    const dbNames = getRandomDBNames(); 
 
     beforeEach(async () => {
       connection = testUtil.createConnection(connOption);
@@ -35,7 +35,7 @@ if (process.env.CLOUD_PROVIDER === 'AWS') {
         sqlTexts: [
           `create or replace database ${dbNames[0]}`,
           'create or replace hybrid table t1 (a int primary key, b int)',
-          'insert into t1 values (1, 2), (2, 3), (3, 4)',
+          'insert into t1 values (1, 2), (2, 3), (3, 4)'
         ],
         QccSize: 2,
       },
@@ -43,7 +43,7 @@ if (process.env.CLOUD_PROVIDER === 'AWS') {
         sqlTexts: [
           `create or replace database ${dbNames[1]}`,
           'create or replace hybrid table t2 (a int primary key, b int)',
-          'insert into t2 values (1, 2), (2, 3), (3, 4)',
+          'insert into t2 values (1, 2), (2, 3), (3, 4)'
         ],
         QccSize: 3,
       },
@@ -51,7 +51,7 @@ if (process.env.CLOUD_PROVIDER === 'AWS') {
         sqlTexts: [
           `create or replace database ${dbNames[2]}`,
           'create or replace hybrid table t3 (a int primary key, b int)',
-          'insert into t3 values (1, 2), (2, 3), (3, 4)',
+          'insert into t3 values (1, 2), (2, 3), (3, 4)'
         ],
         QccSize: 4,
       },
@@ -59,7 +59,7 @@ if (process.env.CLOUD_PROVIDER === 'AWS') {
         sqlTexts: [
           `select * from ${dbNames[0]}.public.t1 x, ${dbNames[1]}.public.t2 y, ${dbNames[2]}.public.t3 z where x.a = y.a and y.a = z.a;`,
           `select * from ${dbNames[0]}.public.t1 x, ${dbNames[1]}.public.t2 y where x.a = y.a;`,
-          `select * from ${dbNames[1]}.public.t2 y, ${dbNames[2]}.public.t3 z where y.a = z.a;`,
+          `select * from ${dbNames[1]}.public.t2 y, ${dbNames[2]}.public.t3 z where y.a = z.a;`
         ],
         QccSize: 4,
       },
@@ -70,15 +70,15 @@ if (process.env.CLOUD_PROVIDER === 'AWS') {
       let testingfunction;
       for (let i = 0; i < querySet.length; i++) {
         const { sqlTexts, QccSize } = querySet[i];
-        for (let k = 0; k < sqlTexts.length; k++) {
-          if (k !== sqlTexts.length - 1) {
+        for (let k = 0; k < sqlTexts.length; k++){
+          if (k !== sqlTexts.length - 1){
             testingfunction = function (callback) {
               connection.execute({
                 sqlText: sqlTexts[k],
                 complete: function (err) {
                   assert.ok(!err, 'There should be no error!');
                   callback();
-                },
+                }
               });
             };
           } else {
@@ -89,8 +89,8 @@ if (process.env.CLOUD_PROVIDER === 'AWS') {
                   assert.ok(!err, 'There should be no error!');
                   assert.strictEqual(stmt.getQueryContextCacheSize(), QccSize);
                   assert.strictEqual(stmt.getQueryContextDTOSize(), QccSize);
-                  callback();
-                },
+                  callback(); 
+                }
               });
             };
           }
@@ -99,7 +99,7 @@ if (process.env.CLOUD_PROVIDER === 'AWS') {
       }
       return testingSet;
     }
-
+  
     it('test Query Context Cache', function (done) {
       async.series(createQueryTest(), done);
     });

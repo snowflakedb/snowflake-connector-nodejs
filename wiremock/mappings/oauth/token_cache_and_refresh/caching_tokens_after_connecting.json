@@ -35,11 +35,11 @@
           "Content-Type": "application/json"
         },
         "jsonBody": {
-          "access_token": "new-refreshed-access-token-123",
+          "access_token" : "new-refreshed-access-token-123",
           "refresh_token": "new-refresh-token-123",
-          "token_type": "Bearer",
-          "expires_in": 599,
-          "idpInitiated": false
+          "token_type" : "Bearer",
+          "expires_in" : 599,
+          "idpInitiated" : false
         }
       }
     },

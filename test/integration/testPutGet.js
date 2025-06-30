@@ -24,30 +24,10 @@ const COL1_DATA = 'FIRST';
 const COL2_DATA = 'SECOND';
 const COL3_DATA = 'THIRD';
 const ROW_DATA =
-  COL1_DATA +
-  ',' +
-  COL2_DATA +
-  ',' +
-  COL3_DATA +
-  '\n' +
-  COL1_DATA +
-  ',' +
-  COL2_DATA +
-  ',' +
-  COL3_DATA +
-  '\n' +
-  COL1_DATA +
-  ',' +
-  COL2_DATA +
-  ',' +
-  COL3_DATA +
-  '\n' +
-  COL1_DATA +
-  ',' +
-  COL2_DATA +
-  ',' +
-  COL3_DATA +
-  '\n';
+  COL1_DATA + ',' + COL2_DATA + ',' + COL3_DATA + '\n' +
+  COL1_DATA + ',' + COL2_DATA + ',' + COL3_DATA + '\n' +
+  COL1_DATA + ',' + COL2_DATA + ',' + COL3_DATA + '\n' +
+  COL1_DATA + ',' + COL2_DATA + ',' + COL3_DATA + '\n';
 const ROW_DATA_SIZE = 76;
 
 const ROW_DATA_OVERWRITE = COL3_DATA + ',' + COL1_DATA + ',' + COL2_DATA + '\n';
@@ -91,7 +71,7 @@ function executePutCmd(connection, putQuery, callback, results) {
       stream.on('end', function () {
         callback();
       });
-    },
+    }
   });
 }
 
@@ -126,46 +106,44 @@ describe('PUT GET test', function () {
     await testUtil.destroyConnectionAsync(connection);
   });
 
-  const testCases = [
-    {
-      name: 'gzip',
-      encoding: fileCompressionType.lookupByMimeSubType('gzip'),
-    },
-    {
-      name: 'bzip2',
-      encoding: fileCompressionType.lookupByMimeSubType('bz2'),
-    },
-    {
-      name: 'brotli',
-      encoding: fileCompressionType.lookupByMimeSubType('br'),
-    },
-    {
-      name: 'deflate',
-      encoding: fileCompressionType.lookupByMimeSubType('deflate'),
-    },
-    {
-      name: 'raw deflate',
-      encoding: fileCompressionType.lookupByMimeSubType('raw_deflate'),
-    },
-    {
-      name: 'zstd',
-      encoding: fileCompressionType.lookupByMimeSubType('zstd'),
-    },
-    {
-      name: 'GziP', // Verify case insensitive
-      encoding: fileCompressionType.lookupByMimeSubType('GziP'),
-    },
-  ];
+  const testCases =
+    [
+      {
+        name: 'gzip',
+        encoding: fileCompressionType.lookupByMimeSubType('gzip'),
+      },
+      {
+        name: 'bzip2',
+        encoding: fileCompressionType.lookupByMimeSubType('bz2'),
+      },
+      {
+        name: 'brotli',
+        encoding: fileCompressionType.lookupByMimeSubType('br'),
+      },
+      {
+        name: 'deflate',
+        encoding: fileCompressionType.lookupByMimeSubType('deflate'),
+      },
+      {
+        name: 'raw deflate',
+        encoding: fileCompressionType.lookupByMimeSubType('raw_deflate'),
+      },
+      {
+        name: 'zstd',
+        encoding: fileCompressionType.lookupByMimeSubType('zstd'),
+      },
+      {
+        name: 'GziP', // Verify case insensitive
+        encoding: fileCompressionType.lookupByMimeSubType('GziP'),
+      }
+    ];
 
   const createItCallback = function (testCase) {
     return function (done) {
       {
         // Create a temp file with specified file extension and Write row data to temp file
-        tmpFile = testUtil.createTempFile(
-          os.tmpdir(),
-          testUtil.createRandomFileName({ postfix: testCase.encoding['file_extension'] }),
-          ROW_DATA,
-        );
+        tmpFile = testUtil.createTempFile(os.tmpdir(), 
+          testUtil.createRandomFileName( { postfix: testCase.encoding['file_extension'] }), ROW_DATA);
 
         let putQuery = `PUT file://${tmpFile} @${DATABASE_NAME}.${SCHEMA_NAME}.%${TEMP_TABLE_NAME}`;
         // Windows user contains a '~' in the path which causes an error
@@ -210,7 +188,7 @@ describe('PUT GET test', function () {
                       callback(e);
                     }
                   }
-                },
+                }
               });
             },
             function (callback) {
@@ -239,7 +217,7 @@ describe('PUT GET test', function () {
                       callback();
                     });
                   }
-                },
+                }
               });
             },
             function (callback) {
@@ -262,7 +240,7 @@ describe('PUT GET test', function () {
                       callback();
                     });
                   }
-                },
+                }
               });
             },
             function (callback) {
@@ -283,12 +261,12 @@ describe('PUT GET test', function () {
                       // Delete the downloaded file
                       fs.unlink(path.join(tmpDir, row.file), (err) => {
                         if (err) {
-                          throw err;
+                          throw (err);
                         }
                         // Delete the temporary folder
                         fs.rmdir(tmpDir, (err) => {
                           if (err) {
-                            throw err;
+                            throw (err);
                           }
                         });
                       });
@@ -297,13 +275,14 @@ describe('PUT GET test', function () {
                       callback();
                     });
                   }
-                },
+                }
               });
-            },
+            }
           ],
-          done,
+          done
         );
       }
+
     };
   };
 
@@ -350,11 +329,12 @@ describe('PUT GET overwrite test', function () {
       PUT file://${process.env.USERPROFILE}\\AppData\\Local\\Temp\\${fileName} @${DATABASE_NAME}.${SCHEMA_NAME}.%${TEMP_TABLE_NAME} AUTO_COMPRESS=FALSE`;
   }
 
-  const testCases = [
-    {
-      name: 'overwrite',
-    },
-  ];
+  const testCases =
+    [
+      {
+        name: 'overwrite'
+      },
+    ];
 
   const createItCallback = function () {
     return function (done) {
@@ -381,7 +361,7 @@ describe('PUT GET overwrite test', function () {
                       callback();
                     });
                   }
-                },
+                }
               });
             },
             function (callback) {
@@ -405,7 +385,7 @@ describe('PUT GET overwrite test', function () {
                       callback();
                     });
                   }
-                },
+                }
               });
             },
             function (callback) {
@@ -431,13 +411,14 @@ describe('PUT GET overwrite test', function () {
                       callback();
                     });
                   }
-                },
+                }
               });
-            },
+            }
           ],
-          done,
+          done
         );
       }
+
     };
   };
 
@@ -454,7 +435,7 @@ describe('PUT GET test with GCS_USE_DOWNSCOPED_CREDENTIAL select large query', f
 
   before(async () => {
     connection = testUtil.createConnection({
-      gcsUseDownscopedCredential: true,
+      gcsUseDownscopedCredential: true
     });
     await testUtil.connectAsync(connection);
   });
@@ -488,11 +469,11 @@ describe('PUT GET test with GCS_USE_DOWNSCOPED_CREDENTIAL select large query', f
                   callback();
                 });
               }
-            },
+            }
           });
-        },
+        }
       ],
-      done,
+      done
     );
   });
 });
@@ -510,7 +491,7 @@ describe('PUT GET test with GCS_USE_DOWNSCOPED_CREDENTIAL', function () {
 
   before(async () => {
     connection = testUtil.createConnection({
-      gcsUseDownscopedCredential: true,
+      gcsUseDownscopedCredential: true
     });
     await testUtil.connectAsync(connection);
     await testUtil.executeCmdAsync(connection, createTable);
@@ -525,12 +506,9 @@ describe('PUT GET test with GCS_USE_DOWNSCOPED_CREDENTIAL', function () {
   });
 
   it('testUploadDownload', function (done) {
+
     // Create a temp file with specified file extension and write row data to temp file
-    tmpFile = testUtil.createTempFile(
-      os.tmpdir(),
-      testUtil.createRandomFileName({ postfix: 'gz' }),
-      ROW_DATA,
-    );
+    tmpFile = testUtil.createTempFile(os.tmpdir(), testUtil.createRandomFileName( { postfix: 'gz' } ), ROW_DATA);
 
     let putQuery = `PUT file://${tmpFile} @${DATABASE_NAME}.${SCHEMA_NAME}.%${TEMP_TABLE_NAME}`;
     // Windows user contains a '~' in the path which causes an error
@@ -575,7 +553,7 @@ describe('PUT GET test with GCS_USE_DOWNSCOPED_CREDENTIAL', function () {
                   callback();
                 });
               }
-            },
+            }
           });
         },
         function (callback) {
@@ -604,7 +582,7 @@ describe('PUT GET test with GCS_USE_DOWNSCOPED_CREDENTIAL', function () {
                   callback();
                 });
               }
-            },
+            }
           });
         },
         function (callback) {
@@ -627,7 +605,7 @@ describe('PUT GET test with GCS_USE_DOWNSCOPED_CREDENTIAL', function () {
                   callback();
                 });
               }
-            },
+            }
           });
         },
         function (callback) {
@@ -636,7 +614,7 @@ describe('PUT GET test with GCS_USE_DOWNSCOPED_CREDENTIAL', function () {
             sqlText: getQuery,
             complete: function (err, stmt) {
               if (err) {
-                callback(err);
+                callback(err); 
               } else {
                 const stream = stmt.streamRows();
                 stream.on('error', function (err) {
@@ -648,12 +626,12 @@ describe('PUT GET test with GCS_USE_DOWNSCOPED_CREDENTIAL', function () {
                   // Delete the downloaded file
                   fs.unlink(path.join(tmpDir, row.file), (err) => {
                     if (err) {
-                      throw err;
+                      throw (err);
                     }
                     // Delete the temporary folder
                     fs.rmdir(tmpDir, (err) => {
                       if (err) {
-                        throw err;
+                        throw (err);
                       }
                     });
                   });
@@ -662,11 +640,11 @@ describe('PUT GET test with GCS_USE_DOWNSCOPED_CREDENTIAL', function () {
                   callback();
                 });
               }
-            },
+            }
           });
-        },
+        }
       ],
-      done,
+      done
     );
   });
 });
@@ -694,7 +672,7 @@ describe('PUT GET test with multiple files', function () {
   });
 
   afterEach(async () => {
-    tmpFiles.forEach((file) => {
+    tmpFiles.forEach(file => {
       testUtil.deleteFileSyncIgnoringErrors(file);
     });
     testUtil.deleteFolderSyncIgnoringErrors(tmpDir);
@@ -710,16 +688,8 @@ describe('PUT GET test with multiple files', function () {
 
   it('testDownloadMultifiles', function (done) {
     // Create two temp file with specified file extension and write row data to temp file
-    const tmpFile1 = testUtil.createTempFile(
-      os.tmpdir(),
-      testUtil.createRandomFileName({ postfix: 'gz' }),
-      ROW_DATA,
-    );
-    const tmpFile2 = testUtil.createTempFile(
-      os.tmpdir(),
-      testUtil.createRandomFileName({ postfix: 'gz' }),
-      ROW_DATA,
-    );
+    const tmpFile1 = testUtil.createTempFile(os.tmpdir(), testUtil.createRandomFileName( { postfix: 'gz' } ), ROW_DATA);
+    const tmpFile2 = testUtil.createTempFile(os.tmpdir(), testUtil.createRandomFileName( { postfix: 'gz' } ), ROW_DATA);
     tmpFiles = [tmpFile1, tmpFile2];
 
     const tmpfilePath1 = getPlatformTmpPath(tmpFile1);
@@ -767,30 +737,27 @@ describe('PUT GET test with multiple files', function () {
                   const writeStream = fs.createWriteStream(decompressedFile);
                   const unzip = zlib.createGunzip();
 
-                  fileContents
-                    .pipe(unzip)
-                    .pipe(writeStream)
-                    .on('finish', function () {
-                      // Verify the data of the downloaded file
-                      // this callback is called asynchronously so we gather results and in stream end we check if all files are correct
-                      const data = fs.readFileSync(decompressedFile).toString();
-                      try {
-                        assert.strictEqual(data, ROW_DATA);
-                        testResult.push(true);
-                      } catch (e) {
-                        testResult.push(e);
-                      }
-                    });
+                  fileContents.pipe(unzip).pipe(writeStream).on('finish', function () {
+                    // Verify the data of the downloaded file
+                    // this callback is called asynchronously so we gather results and in stream end we check if all files are correct
+                    const data = fs.readFileSync(decompressedFile).toString();
+                    try {
+                      assert.strictEqual(data, ROW_DATA);
+                      testResult.push(true);
+                    } catch (e) {
+                      testResult.push(e);
+                    }
+                  });
                 });
                 stream.on('end', function () {
                   expectArrayToBeFinallyFilledWithTrue(2, testResult, callback);
                 });
               }
-            },
+            }
           });
         },
       ],
-      done,
+      done
     );
   });
 
@@ -803,11 +770,7 @@ describe('PUT GET test with multiple files', function () {
     // Create temp files with specified prefix
     tmpFiles = [];
     for (let i = 0; i < count; i++) {
-      const tmpFile = testUtil.createTempFile(
-        os.tmpdir(),
-        testUtil.createRandomFileName({ prefix: `testUploadDownloadMultifiles-${testId}` }),
-        ROW_DATA,
-      );
+      const tmpFile = testUtil.createTempFile(os.tmpdir(), testUtil.createRandomFileName( { prefix: `testUploadDownloadMultifiles-${testId}` } ), ROW_DATA);
       tmpFiles.push(tmpFile);
     }
 
@@ -848,30 +811,27 @@ describe('PUT GET test with multiple files', function () {
                   const writeStream = fs.createWriteStream(decompressedFile);
                   const unzip = zlib.createGunzip();
 
-                  fileContents
-                    .pipe(unzip)
-                    .pipe(writeStream)
-                    .on('finish', function () {
-                      // Verify the data of the downloaded file
-                      // this callback is called asynchronously so we gather results and in stream end we check if all files are correct
-                      const data = fs.readFileSync(decompressedFile).toString();
-                      try {
-                        assert.strictEqual(data, ROW_DATA);
-                        testResult.push(true);
-                      } catch (e) {
-                        testResult.push(e);
-                      }
-                    });
+                  fileContents.pipe(unzip).pipe(writeStream).on('finish', function () {
+                    // Verify the data of the downloaded file
+                    // this callback is called asynchronously so we gather results and in stream end we check if all files are correct
+                    const data = fs.readFileSync(decompressedFile).toString();
+                    try {
+                      assert.strictEqual(data, ROW_DATA);
+                      testResult.push(true);
+                    } catch (e) {
+                      testResult.push(e);
+                    }
+                  });
                 });
                 stream.on('end', function () {
                   expectArrayToBeFinallyFilledWithTrue(count, testResult, callback);
                 });
               }
-            },
+            }
           });
         },
       ],
-      done,
+      done
     );
   });
 
@@ -880,14 +840,14 @@ describe('PUT GET test with multiple files', function () {
    * @param testResult `any[]` array with gathered results
    * @param callback `(err|undefined) => void` done or async series callback function
    */
-  function expectArrayToBeFinallyFilledWithTrue(expectedResultSize, testResult, callback) {
+  function expectArrayToBeFinallyFilledWithTrue(expectedResultSize, testResult, callback){
     const expectedResult = new Array(expectedResultSize).fill(true);
     function checkResult() {
       if (testResult.length >= expectedResultSize) {
         try {
           assert.deepEqual(testResult, expectedResult);
           callback();
-        } catch (e) {
+        } catch (e){
           callback(e);
         }
       } else {
@@ -924,7 +884,7 @@ describe('PUT GET test without compress', function () {
     putQuery = `PUT ${tmpfilePath} ${stage} AUTO_COMPRESS=FALSE`;
     tmpdirPath = getPlatformTmpPath(tmpDir);
     getQuery = `GET ${stage} ${tmpdirPath}`;
-
+    
     connection = testUtil.createConnection();
     await testUtil.connectAsync(connection);
     await testUtil.executeCmdAsync(connection, createTable);
@@ -962,7 +922,7 @@ describe('PUT GET test without compress', function () {
                   callback();
                 });
               }
-            },
+            }
           });
         },
         function (callback) {
@@ -987,11 +947,11 @@ describe('PUT GET test without compress', function () {
                   callback();
                 });
               }
-            },
+            }
           });
-        },
+        }
       ],
-      done,
+      done
     );
   });
 });
@@ -1005,7 +965,7 @@ describe('PUT GET test with different size', function () {
   const dropTable = `DROP TABLE IF EXISTS ${TEMP_TABLE_NAME}`;
 
   let zeroByteFile = null;
-  let largeFile = null;
+  let largeFile = null; 
   let tmpDir = null;
   let zeroByteFilePath = '';
   let largeFilePath = '';
@@ -1015,7 +975,7 @@ describe('PUT GET test with different size', function () {
   before(async () => {
     // Create a temp file without specified file extension
     zeroByteFile = testUtil.createTempFile(os.tmpdir(), testUtil.createRandomFileName());
-    largeFile = testUtil.createTempFile(os.tmpdir(), testUtil.createRandomFileName());
+    largeFile = testUtil.createTempFile(os.tmpdir(), testUtil.createRandomFileName()); 
     // Create a tmp folder for downloaded files
     tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'get'));
     // Create a file of 100 MB
@@ -1052,14 +1012,13 @@ describe('PUT GET test with different size', function () {
           executePutWithFileSize(
             `PUT ${zeroByteFilePath} ${stage} AUTO_COMPRESS=FALSE`,
             0,
-            callback,
-          );
+            callback);
         },
         function (callback) {
           executeGetWithFileSize(getQuery, 0, callback);
-        },
+        }
       ],
-      done,
+      done
     );
   });
 
@@ -1070,14 +1029,13 @@ describe('PUT GET test with different size', function () {
           executePutWithFileSize(
             `PUT ${largeFilePath} ${stage} AUTO_COMPRESS=FALSE`,
             100 * 1024 * 1024,
-            callback,
-          );
+            callback);
         },
         function (callback) {
           executeGetWithFileSize(getQuery, 100 * 1024 * 1024, callback);
-        },
+        }
       ],
-      done,
+      done
     );
   });
 
@@ -1101,7 +1059,7 @@ describe('PUT GET test with different size', function () {
             callback();
           });
         }
-      },
+      }
     });
   }
 
@@ -1127,10 +1085,11 @@ describe('PUT GET test with different size', function () {
             callback();
           });
         }
-      },
+      }
     });
   }
 });
+
 
 describe('PUT GET test with relative path and current working directory', function () {
   let connection;
@@ -1140,7 +1099,7 @@ describe('PUT GET test with relative path and current working directory', functi
   const removeFile = `REMOVE ${stage}`;
   const dropTable = `DROP TABLE IF EXISTS ${TEMP_TABLE_NAME}`;
 
-  let tmpFile = null;
+  let tmpFile = null; 
   let tmpDir = null;
   let tmpFileDir = '';
   let relativeTmpFilePath = '';
@@ -1148,7 +1107,7 @@ describe('PUT GET test with relative path and current working directory', functi
 
   before(async () => {
     // Create a temp file without specified file extension
-    tmpFile = testUtil.createTempFile(os.tmpdir(), testUtil.createRandomFileName());
+    tmpFile = testUtil.createTempFile(os.tmpdir(), testUtil.createRandomFileName()); 
     // Obtain the directory path for this tmp file, which will be passed as cwd to execute command
     tmpFileDir = path.dirname(tmpFile);
     // Create a tmp folder for downloaded files
@@ -1179,6 +1138,7 @@ describe('PUT GET test with relative path and current working directory', functi
     await testUtil.destroyConnectionAsync(connection);
   });
 
+
   it('uses the provided context for current working directory when SQL text uses relative path', function (done) {
     async.series(
       [
@@ -1186,14 +1146,13 @@ describe('PUT GET test with relative path and current working directory', functi
           executePutWithCwd(
             `PUT ${relativeTmpFilePath} ${stage} AUTO_COMPRESS=FALSE`,
             10 * 1024,
-            callback,
-          );
+            callback);
         },
         function (callback) {
           executeGetWithCwd(getQuery, 10 * 1024, callback);
-        },
+        }
       ],
-      done,
+      done
     );
   });
 
@@ -1218,7 +1177,7 @@ describe('PUT GET test with relative path and current working directory', functi
             callback();
           });
         }
-      },
+      }
     });
   }
 
@@ -1245,10 +1204,11 @@ describe('PUT GET test with relative path and current working directory', functi
             callback();
           });
         }
-      },
+      }
     });
   }
 });
+
 
 describe('PUT GET test with error', function () {
   let connection;
@@ -1259,14 +1219,14 @@ describe('PUT GET test with error', function () {
   const removeFile = `REMOVE ${stage}`;
   const dropTable = `DROP TABLE IF EXISTS ${TEMP_TABLE_NAME}`;
 
-  let tmpFile = null;
+  let tmpFile = null; 
   let tmpfilePath = null;
 
   before(async () => {
     // Create a temp file without specified file extension
     tmpFile = testUtil.createTempFile(os.tmpdir(), testUtil.createRandomFileName());
     tmpfilePath = getPlatformTmpPath(tmpFile);
-
+    
     connection = testUtil.createConnection();
     await testUtil.connectAsync(connection);
     await testUtil.executeCmdAsync(connection, createTable);
@@ -1285,31 +1245,31 @@ describe('PUT GET test with error', function () {
       [
         function (callback) {
           verifyCompilationError(`PUT file_not_exist.txt ${stage}  OVERWRITE=true`, callback);
-        },
+        }
       ],
-      done,
+      done
     );
   });
-
+  
   it('compresssed file not exist', function (done) {
     async.series(
       [
         function (callback) {
           verifyCompilationError(`PUT file_not_exist.gzip ${stage}  OVERWRITE=true`, callback);
-        },
+        }
       ],
-      done,
+      done
     );
   });
-
+  
   it('stage not exist', function (done) {
     async.series(
       [
         function (callback) {
           verifyCompilationError(`PUT ${tmpfilePath} ${stageNotExist}`, callback);
-        },
+        }
       ],
-      done,
+      done
     );
   });
 
@@ -1323,7 +1283,7 @@ describe('PUT GET test with error', function () {
         } else {
           assert.ok(err, 'there should be an error');
         }
-      },
+      }
     });
   }
 });

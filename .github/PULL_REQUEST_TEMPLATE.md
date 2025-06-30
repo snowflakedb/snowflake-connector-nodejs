@@ -1,9 +1,7 @@
 ### Description
-
 Please explain the changes you made here.
 
 ### Checklist
-
 - [ ] Create tests which fail without the change (if possible)
 - [ ] Make all tests (unit and integration) pass (`npm run test:unit` and `npm run test:integration`)
 - [ ] Extend the types in index.d.ts file (if necessary)

@@ -22,7 +22,10 @@ describe('OCSP early exist error', function () {
   });
 
   it('canEarlyExitForOCSP - revoked', function (done) {
-    const errors = [Errors.createOCSPError(ErrorCodes.ERR_OCSP_REVOKED), null];
+    const errors = [
+      Errors.createOCSPError(ErrorCodes.ERR_OCSP_REVOKED),
+      null
+    ];
     {
       GlobalConfig.setOcspFailOpen(true);
       const err = SocketUtil.canEarlyExitForOCSP(errors);
@@ -37,7 +40,10 @@ describe('OCSP early exist error', function () {
   });
 
   it('canEarlyExitForOCSP - unknown', function (done) {
-    const errors = [Errors.createOCSPError(ErrorCodes.ERR_OCSP_UNKNOWN), null];
+    const errors = [
+      Errors.createOCSPError(ErrorCodes.ERR_OCSP_UNKNOWN),
+      null
+    ];
     {
       GlobalConfig.setOcspFailOpen(true);
       // revoked
@@ -57,7 +63,7 @@ describe('OCSP early exist error', function () {
     const errors = [
       Errors.createOCSPError(ErrorCodes.ERR_OCSP_REVOKED),
       Errors.createOCSPError(ErrorCodes.ERR_OCSP_NO_RESPONSE),
-      null,
+      null
     ];
     {
       GlobalConfig.setOcspFailOpen(true);
@@ -75,7 +81,7 @@ describe('OCSP early exist error', function () {
   it('canEarlyExitForOCSP - unknown and other errors', function (done) {
     const errors = [
       Errors.createOCSPError(ErrorCodes.ERR_OCSP_UNKNOWN),
-      Errors.createOCSPError(ErrorCodes.ERR_OCSP_INVALID_SIGNATURE),
+      Errors.createOCSPError(ErrorCodes.ERR_OCSP_INVALID_SIGNATURE)
     ];
     {
       GlobalConfig.setOcspFailOpen(true);
@@ -94,7 +100,7 @@ describe('OCSP early exist error', function () {
     const errors = [
       Errors.createOCSPError(ErrorCodes.ERR_OCSP_NO_SIGNATURE_ALGORITHM),
       Errors.createOCSPError(ErrorCodes.ERR_OCSP_NO_RESPONSE),
-      null,
+      null
     ];
     {
       GlobalConfig.setOcspFailOpen(true);

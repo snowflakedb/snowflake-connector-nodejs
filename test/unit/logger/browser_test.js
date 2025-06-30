@@ -33,10 +33,11 @@ describe('Logger - browser', function () {
   }
 
   function createLogger(level) {
-    return new Logger({
-      includeTimestamp: false,
-      level: level,
-    });
+    return new Logger(
+      {
+        includeTimestamp: false,
+        level: level
+      });
   }
 
   it('should use info level as default', function () {
@@ -145,7 +146,7 @@ describe('Logger - browser', function () {
     logMessages(logger);
     logger.configure({
       level: logTagToLevel(LOG_LEVEL_TAGS.INFO),
-      filePath: 'it does not matter',
+      filePath: 'it does not matter'
     });
     logMessages(logger);
 

@@ -7,12 +7,12 @@ const async = require('async');
 const snowflake = MockTestUtil.snowflake;
 const connOpts = MockTestUtil.connectionOptions.default;
 
-const stmtOpts = {
-  sqlText:
-    'select to_boolean(:1) as "boolean", to_date(:2) as "date", 1.123456789123456789 as "number"',
-  binds: ['false', '1967-06-23'],
-  requestId: 'foobar',
-};
+const stmtOpts =
+  {
+    sqlText: 'select to_boolean(:1) as "boolean", to_date(:2) as "date", 1.123456789123456789 as "number"',
+    binds: ['false', '1967-06-23'],
+    requestId: 'foobar'
+  };
 
 const numberAsString = '1.123456789123456789';
 const booleanAsString = 'FALSE';
@@ -37,75 +37,82 @@ const strmOptsBoolean = { fetchAsString: typesBoolean };
 const strmOptsDate = { fetchAsString: typesDate };
 
 describe('Statement - fetch as string', function () {
-  const testCases = [
-    {
-      name: 'connection = none, statement = none, stream = number',
-      connOpts: connOptsNone,
-      stmtOpts: stmtOptsNone,
-      strmOpts: strmOptsNumber,
-      verifyFn: verifyOnlyNumberConverted,
-    },
-    {
-      name: 'connection = none, statement = none, stream = boolean',
-      connOpts: connOptsNone,
-      stmtOpts: stmtOptsNone,
-      strmOpts: strmOptsBoolean,
-      verifyFn: verifyOnlyBooleanConverted,
-    },
-    {
-      name: 'connection = none, statement = none, stream = date',
-      connOpts: connOptsNone,
-      stmtOpts: stmtOptsNone,
-      strmOpts: strmOptsDate,
-      verifyFn: verifyOnlyDateConverted,
-    },
-    {
-      name: 'connection = none, statement = boolean, stream = number',
-      connOpts: connOptsNone,
-      stmtOpts: stmtOptsBoolean,
-      strmOpts: strmOptsNumber,
-      verifyFn: verifyOnlyNumberConverted,
-    },
-    {
-      name: 'connection = date, statement = boolean, stream = number',
-      connOpts: connOptsDate,
-      stmtOpts: stmtOptsBoolean,
-      strmOpts: strmOptsNumber,
-      verifyFn: verifyOnlyNumberConverted,
-    },
-    {
-      name: 'connection = none, statement = number, stream = none',
-      connOpts: connOptsNone,
-      stmtOpts: stmtOptsNumber,
-      strmOpts: strmOptsNone,
-      verifyFn: verifyOnlyNumberConverted,
-    },
-    {
-      name: 'connection = boolean, statement = number, stream = none',
-      connOpts: connOptsBoolean,
-      stmtOpts: stmtOptsNumber,
-      strmOpts: strmOptsNone,
-      verifyFn: verifyOnlyNumberConverted,
-    },
-    {
-      name: 'connection = number, statement = none, stream = none',
-      connOpts: connOptsNumber,
-      stmtOpts: stmtOptsNone,
-      strmOpts: strmOptsNone,
-      verifyFn: verifyOnlyNumberConverted,
-    },
-  ];
+  const testCases =
+    [
+      {
+        name: 'connection = none, statement = none, stream = number',
+        connOpts: connOptsNone,
+        stmtOpts: stmtOptsNone,
+        strmOpts: strmOptsNumber,
+        verifyFn: verifyOnlyNumberConverted
+      },
+      {
+        name: 'connection = none, statement = none, stream = boolean',
+        connOpts: connOptsNone,
+        stmtOpts: stmtOptsNone,
+        strmOpts: strmOptsBoolean,
+        verifyFn: verifyOnlyBooleanConverted
+      },
+      {
+        name: 'connection = none, statement = none, stream = date',
+        connOpts: connOptsNone,
+        stmtOpts: stmtOptsNone,
+        strmOpts: strmOptsDate,
+        verifyFn: verifyOnlyDateConverted
+      },
+      {
+        name: 'connection = none, statement = boolean, stream = number',
+        connOpts: connOptsNone,
+        stmtOpts: stmtOptsBoolean,
+        strmOpts: strmOptsNumber,
+        verifyFn: verifyOnlyNumberConverted
+      },
+      {
+        name: 'connection = date, statement = boolean, stream = number',
+        connOpts: connOptsDate,
+        stmtOpts: stmtOptsBoolean,
+        strmOpts: strmOptsNumber,
+        verifyFn: verifyOnlyNumberConverted
+      },
+      {
+        name: 'connection = none, statement = number, stream = none',
+        connOpts: connOptsNone,
+        stmtOpts: stmtOptsNumber,
+        strmOpts: strmOptsNone,
+        verifyFn: verifyOnlyNumberConverted
+      },
+      {
+        name: 'connection = boolean, statement = number, stream = none',
+        connOpts: connOptsBoolean,
+        stmtOpts: stmtOptsNumber,
+        strmOpts: strmOptsNone,
+        verifyFn: verifyOnlyNumberConverted
+      },
+      {
+        name: 'connection = number, statement = none, stream = none',
+        connOpts: connOptsNumber,
+        stmtOpts: stmtOptsNone,
+        strmOpts: strmOptsNone,
+        verifyFn: verifyOnlyNumberConverted
+      }
+    ];
 
   for (let index = 0, length = testCases.length; index < length; index++) {
     const testCase = testCases[index];
-    it(
-      testCase.name,
-      createItCallback(testCase.connOpts, testCase.stmtOpts, testCase.strmOpts, testCase.verifyFn),
-    );
+    it(testCase.name,
+      createItCallback(
+        testCase.connOpts,
+        testCase.stmtOpts,
+        testCase.strmOpts,
+        testCase.verifyFn));
   }
 });
 
-function createItCallback(connectionOptions, statementOptions, streamOptions, verifyFn) {
+function createItCallback(
+  connectionOptions,
+  statementOptions,
+  streamOptions,
+  verifyFn) {
   return function (done) {
     let connection;
     async.series(
@@ -119,9 +126,7 @@ function createItCallback(connectionOptions, statementOptions, streamOptions, ve
         },
         function (callback) {
           const rows = [];
-          connection
-            .execute(statementOptions)
-            .streamRows(streamOptions)
+          connection.execute(statementOptions).streamRows(streamOptions)
             .on('data', function (row) {
               rows.push(row);
             })
@@ -132,12 +137,11 @@ function createItCallback(connectionOptions, statementOptions, streamOptions, ve
             .on('error', function (err) {
               assert.ok(!err);
             });
-        },
+        }
       ],
       function () {
         done();
-      },
-    );
+      });
   };
 }
 

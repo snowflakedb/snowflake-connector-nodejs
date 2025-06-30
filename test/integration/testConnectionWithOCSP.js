@@ -16,21 +16,21 @@ const testConnectionOptions = {
   username: 'fakeuser',
   password: 'fakepasword',
   account: 'fakeaccount',
-  sfRetryMaxLoginRetries: 2,
+  sfRetryMaxLoginRetries: 2
 };
 
 const testRevokedConnectionOptions = {
   accessUrl: 'https://revoked.badssl.com',
   username: 'fakeuser',
   password: 'fakepasword',
-  account: 'fakeaccount',
+  account: 'fakeaccount'
 };
 
 function getConnectionOptions() {
   // use unique hostname to avoid connection cache in tests.
   // If connection is cached, the test result is not consistent.
   const objCopy = Object.assign({}, testConnectionOptions);
-  objCopy['accessUrl'] = 'https://fakeaccount' + testCounter + '.snowflakecomputing.com';
+  objCopy['accessUrl'] = 'https://fakeaccount' + (testCounter) + '.snowflakecomputing.com';
   testCounter++;
   return objCopy;
 }
@@ -57,7 +57,7 @@ describe('Connection with OCSP test', function () {
       'SF_OCSP_TEST_INJECT_VALIDITY_ERROR',
       'SF_OCSP_TEST_OCSP_RESPONDER_TIMEOUT',
       'SF_OCSP_TEST_OCSP_RESPONSE_CACHE_SERVER_TIMEOUT',
-    ].forEach((envVariable) => delete process.env[envVariable]);
+    ].forEach(envVariable => delete process.env[envVariable]);
   });
 
   it('OCSP NOP - Fail Open', function (done) {
@@ -372,8 +372,8 @@ describe('Connection with OCSP test', function () {
         password: 'fakepasword',
         account: 'fakeaccount',
       },
-      errorCode: 'CERT_HAS_EXPIRED',
-    },
+      errorCode: 'CERT_HAS_EXPIRED'
+    }
     /*
     ,{
       // This test case got invalid as the certificate expired.
@@ -407,12 +407,9 @@ describe('Connection with OCSP test', function () {
 
   it('OCSP Invalid Certificate', function (done) {
     const testOptions = function (i) {
-      Logger.getInstance().error(
-        '==> ' + testInvalidCertConnectionOptions[i].connectString.accessUrl,
-      );
+      Logger.getInstance().error('==> ' + testInvalidCertConnectionOptions[i].connectString.accessUrl);
       const connection = snowflake.createConnection(
-        testInvalidCertConnectionOptions[i].connectString,
-      );
+        testInvalidCertConnectionOptions[i].connectString);
       connectToHttpsEndpoint(testOptions, i, connection, done);
     };
     testOptions(0);

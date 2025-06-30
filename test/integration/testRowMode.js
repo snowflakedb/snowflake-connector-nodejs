@@ -2,6 +2,7 @@ const assert = require('assert');
 const testUtil = require('./testUtil');
 const RowMode = require('./../../lib/constants/row_mode');
 
+
 describe('Test row mode', function () {
   this.timeout(5000);
   let connection;
@@ -12,16 +13,7 @@ describe('Test row mode', function () {
 
   const expectedArray = ['a', 1, 3, 'a', 2, 3, 'a', 3];
   const expectedObject = { KEY: 'a', FOO: 3, NAME: 3, NAME2: 3 };
-  const expectedObjectWithRenamedDuplicatedColumns = {
-    KEY: 'a',
-    FOO: 1,
-    NAME: 3,
-    KEY_2: 'a',
-    FOO_2: 2,
-    NAME2: 3,
-    KEY_3: 'a',
-    FOO_3: 3,
-  };
+  const expectedObjectWithRenamedDuplicatedColumns = { KEY: 'a', FOO: 1, NAME: 3, KEY_2: 'a', FOO_2: 2, NAME2: 3, KEY_3: 'a', FOO_3: 3 };
 
   const testCases = [
     {
@@ -29,53 +21,54 @@ describe('Test row mode', function () {
       statementRowModes: [
         {
           rowMode: RowMode.ARRAY,
-          expected: expectedArray,
+          expected: expectedArray
         },
         {
           rowMode: RowMode.OBJECT_WITH_RENAMED_DUPLICATED_COLUMNS,
-          expected: expectedObjectWithRenamedDuplicatedColumns,
+          expected: expectedObjectWithRenamedDuplicatedColumns
         },
         {
           rowMode: undefined,
-          expected: expectedObject,
-        },
-      ],
+          expected: expectedObject
+        }
+      ]
     },
     {
       connectionRowMode: RowMode.ARRAY,
       statementRowModes: [
         {
           rowMode: undefined,
-          expected: expectedArray,
+          expected: expectedArray
         },
         {
           rowMode: RowMode.OBJECT_WITH_RENAMED_DUPLICATED_COLUMNS,
-          expected: expectedObjectWithRenamedDuplicatedColumns,
+          expected: expectedObjectWithRenamedDuplicatedColumns
         },
         {
           rowMode: RowMode.OBJECT,
-          expected: expectedObject,
+          expected: expectedObject
         },
-      ],
+      ]
     },
     {
       connectionRowMode: RowMode.OBJECT_WITH_RENAMED_DUPLICATED_COLUMNS,
       statementRowModes: [
         {
           rowMode: undefined,
-          expected: expectedObjectWithRenamedDuplicatedColumns,
+          expected: expectedObjectWithRenamedDuplicatedColumns
         },
         {
           rowMode: RowMode.ARRAY,
-          expected: expectedArray,
+          expected: expectedArray
         },
         {
           rowMode: RowMode.OBJECT,
-          expected: expectedObject,
+          expected: expectedObject
         },
-      ],
-    },
+      ]
+    }
   ];
+
 
   testCases.forEach(({ connectionRowMode, statementRowModes }) => {
     describe(`rowMode ${connectionRowMode} in connection`, function () {
@@ -89,14 +82,14 @@ describe('Test row mode', function () {
 
       statementRowModes.forEach(({ rowMode, expected }) => {
         describe(`rowMode ${rowMode} in statement`, function () {
+
           it('stream rows', function (done) {
             const stmt = connection.execute({
               sqlText: sql,
               rowMode: rowMode,
-              streamResult: true,
+              streamResult: true
             });
-            stmt
-              .streamRows()
+            stmt.streamRows()
               .on('data', function (row) {
                 assert.deepStrictEqual(row, expected);
               })
@@ -120,7 +113,7 @@ describe('Test row mode', function () {
                   assert.deepStrictEqual(rows[0], expected);
                   done();
                 }
-              },
+              }
             });
           });
         });
@@ -153,7 +146,7 @@ describe('Test row mode', function () {
         connection.execute({
           rowMode: 'invalid',
           sqlText: sql,
-          complete: function () {},
+          complete: function () {}
         });
       } catch (err) {
         assert.strictEqual(err.code, 411006);
@@ -173,16 +166,16 @@ describe('Test row mode', function () {
 
     it('test duplicates', function (done) {
       const expected = {
-        KEY: 'a',
-        FOO: 1,
-        KEY_1: 'a1',
-        FOO_2: 2,
-        KEY_3: 'a2',
-        FOO_3: 3,
-        KEY_2: 'a3',
-        FOO_4: 4,
-        KEY_4: 'a4',
-        FOO_5: 5,
+        'KEY': 'a',
+        'FOO': 1,
+        'KEY_1': 'a1',
+        'FOO_2': 2,
+        'KEY_3': 'a2',
+        'FOO_3': 3,
+        'KEY_2': 'a3',
+        'FOO_4': 4,
+        'KEY_4': 'a4',
+        'FOO_5': 5
       };
       connection.execute({
         rowMode: RowMode.OBJECT_WITH_RENAMED_DUPLICATED_COLUMNS,
@@ -199,7 +192,7 @@ describe('Test row mode', function () {
           }
           assert.deepStrictEqual(rows[0], expected);
           done();
-        },
+        }
       });
     });
   });

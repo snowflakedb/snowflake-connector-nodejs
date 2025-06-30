@@ -10,7 +10,7 @@ describe('Test Bind Varible', function () {
   const dropTestTbl = 'drop table if exists testTbl';
   const insertWithQmark = 'insert into testTbl values(?, ?)';
   const insertWithSemiColon = 'insert into testTbl values(:1, :2)';
-  const insertValue = "insert into testTbl values('string', 3)";
+  const insertValue = 'insert into testTbl values(\'string\', 3)';
   const insertSingleBind = 'insert into testTbl values(?)';
   const selectAllFromTbl = 'select * from testTbl order by 1';
   const selectAllFromTblLimit1 = 'select * from testTbl order by 1 limit ?';
@@ -22,9 +22,9 @@ describe('Test Bind Varible', function () {
       [
         function (callback) {
           testUtil.connect(connection, callback);
-        },
+        }
       ],
-      done,
+      done
     );
   });
 
@@ -33,9 +33,9 @@ describe('Test Bind Varible', function () {
       [
         function (callback) {
           testUtil.destroyConnection(connection, callback);
-        },
+        }
       ],
-      done,
+      done
     );
   });
 
@@ -46,26 +46,29 @@ describe('Test Bind Varible', function () {
           testUtil.executeCmd(connection, createTestTbl, callback);
         },
         function (callback) {
-          testUtil.executeCmd(connection, insertWithQmark, callback, ['string', 3]);
+          testUtil.executeCmd(
+            connection,
+            insertWithQmark,
+            callback,
+            ['string', 3]
+          );
         },
         function (callback) {
           testUtil.executeQueryAndVerify(
             connection,
             selectAllFromTbl,
-            [
-              {
-                COLA: 'string',
-                COLB: 3,
-              },
-            ],
-            callback,
+            [{
+              'COLA': 'string',
+              'COLB': 3
+            }],
+            callback
           );
         },
         function (callback) {
           testUtil.executeCmd(connection, dropTestTbl, callback);
-        },
+        }
       ],
-      done,
+      done
     );
   });
 
@@ -76,29 +79,30 @@ describe('Test Bind Varible', function () {
           testUtil.executeCmd(connection, createTestTbl, callback);
         },
         function (callback) {
-          testUtil.executeCmd(connection, insertWithQmark, callback, [
-            ['string3', 6],
-            ['string2', 4],
-            ['string1', 2],
-          ]);
+          testUtil.executeCmd(
+            connection,
+            insertWithQmark,
+            callback,
+            [['string3', 6], ['string2', 4], ['string1', 2]]
+          );
         },
         function (callback) {
           testUtil.executeQueryAndVerify(
             connection,
             selectAllFromTbl,
             [
-              { COLA: 'string1', COLB: 2 },
-              { COLA: 'string2', COLB: 4 },
-              { COLA: 'string3', COLB: 6 },
+              { 'COLA': 'string1', 'COLB': 2 },
+              { 'COLA': 'string2', 'COLB': 4 },
+              { 'COLA': 'string3', 'COLB': 6 }
             ],
-            callback,
+            callback
           );
         },
         function (callback) {
           testUtil.executeCmd(connection, dropTestTbl, callback);
-        },
+        }
       ],
-      done,
+      done
     );
   });
 
@@ -109,23 +113,26 @@ describe('Test Bind Varible', function () {
           testUtil.executeCmd(connection, createTestTbl, callback);
         },
         function (callback) {
-          testUtil.executeCmd(connection, insertWithSemiColon, callback, ['string', 3]);
+          testUtil.executeCmd(
+            connection,
+            insertWithSemiColon,
+            callback,
+            ['string', 3]
+          );
         },
         function (callback) {
           testUtil.executeQueryAndVerify(
             connection,
             selectAllFromTbl,
-            [
-              {
-                COLA: 'string',
-                COLB: 3,
-              },
-            ],
-            callback,
+            [{
+              'COLA': 'string',
+              'COLB': 3
+            }],
+            callback
           );
-        },
+        }
       ],
-      done,
+      done
     );
   });
 
@@ -142,21 +149,19 @@ describe('Test Bind Varible', function () {
           testUtil.executeQueryAndVerify(
             connection,
             selectWithBind,
-            [
-              {
-                COLA: 'string',
-                COLB: 3,
-              },
-            ],
+            [{
+              'COLA': 'string',
+              'COLB': 3
+            }],
             callback,
-            [3, 'string'],
+            [3, 'string']
           );
         },
         function (callback) {
           testUtil.executeCmd(connection, dropTestTbl, callback);
-        },
+        }
       ],
-      done,
+      done
     );
   });
 
@@ -169,95 +174,97 @@ describe('Test Bind Varible', function () {
         },
         function (callback) {
           // use binds to insert a null value for colA into the table
-          connection.execute({
-            sqlText: insertWithSemiColon,
-            binds: [null, 3],
-            complete: function (err) {
-              assert.ok(!err);
-              callback();
-            },
-          });
+          connection.execute(
+            {
+              sqlText: insertWithSemiColon,
+              binds: [null, 3],
+              complete: function (err) {
+                assert.ok(!err);
+                callback();
+              }
+            });
         },
         function (callback) {
           // check that the value of colA in the inserted row is indeed null
-          connection.execute({
-            sqlText: 'select * from testTbl where colA is null',
-            complete: function (err, statement, rows) {
-              assert.ok(!err);
-              assert.ok(util.isArray(rows));
-              assert.ok(rows.length === 1);
-              callback();
-            },
-          });
+          connection.execute(
+            {
+              sqlText: 'select * from testTbl where colA is null',
+              complete: function (err, statement, rows) {
+                assert.ok(!err);
+                assert.ok(util.isArray(rows));
+                assert.ok(rows.length === 1);
+                callback();
+              }
+            });
         },
         function (callback) {
           testUtil.executeCmd(connection, dropTestTbl, callback);
-        },
+        }
       ],
-      done,
-    );
+      done);
   });
 
   it('testWrongBinds', function (done) {
-    const wrongBindsOptions = [
-      {
-        // empty binds array
-        sqlText: insertWithSemiColon,
-        binds: [],
-        verifyResults: function (err) {
-          assert.ok(err);
-          assert.strictEqual('002049', err['code']);
+    const wrongBindsOptions =
+      [
+        {
+          // empty binds array
+          sqlText: insertWithSemiColon,
+          binds: [],
+          verifyResults: function (err) {
+            assert.ok(err);
+            assert.strictEqual('002049', err['code']);
+          }
         },
-      },
-      {
-        //wrong binds data type
-        sqlText: insertWithSemiColon,
-        binds: [3, 'string'],
-        verifyResults: function (err) {
-          assert.ok(err);
-          assert.strictEqual('100038', err['code']);
+        {
+          //wrong binds data type
+          sqlText: insertWithSemiColon,
+          binds: [3, 'string'],
+          verifyResults: function (err) {
+            assert.ok(err);
+            assert.strictEqual('100038', err['code']);
+          }
         },
-      },
-      {
-        // no binds array
-        sqlText: insertWithSemiColon,
-        verifyResults: function (err) {
-          assert.ok(err);
-          assert.strictEqual('002049', err['code']);
+        {
+          // no binds array
+          sqlText: insertWithSemiColon,
+          verifyResults: function (err) {
+            assert.ok(err);
+            assert.strictEqual('002049', err['code']);
+          }
         },
-      },
-      //these three testcases won't return an error
-      {
-        // more binds entry in the array
-        sqlText: insertWithSemiColon,
-        binds: ['string', 3, 3],
-        verifyResults: function (err) {
-          testUtil.checkError(err);
+        //these three testcases won't return an error
+        {
+          // more binds entry in the array
+          sqlText: insertWithSemiColon,
+          binds: ['string', 3, 3],
+          verifyResults: function (err) {
+            testUtil.checkError(err);
+          }
         },
-      },
-      {
-        //no qmark or semicolon but with binds
-        sqlText: insertValue,
-        binds: ['string', 3],
-        verifyResults: function (err) {
-          testUtil.checkError(err);
+        {
+          //no qmark or semicolon but with binds
+          sqlText: insertValue,
+          binds: ['string', 3],
+          verifyResults: function (err) {
+            testUtil.checkError(err);
+          }
         },
-      },
-      {
-        sqlText: 'insert into testTbl values(?, :2)',
-        binds: ['string2', 4],
-        verifyResults: function (err) {
-          testUtil.checkError(err);
+        {
+          sqlText: 'insert into testTbl values(?, :2)',
+          binds: ['string2', 4],
+          verifyResults: function (err) {
+            testUtil.checkError(err);
+          }
         },
-      },
-      {
-        sqlText: 'insert into testTbl values(:2, 3)',
-        binds: [5, 'string'],
-        verifyResults: function (err) {
-          testUtil.checkError(err);
-        },
-      },
-    ];
+        {
+          sqlText: 'insert into testTbl values(:2, 3)',
+          binds: [5, 'string'],
+          verifyResults: function (err) {
+            testUtil.checkError(err);
+          }
+        }
+      ];
 
     async.series(
       [
@@ -282,9 +289,9 @@ describe('Test Bind Varible', function () {
         },
         function (callback) {
           testUtil.executeCmd(connection, dropTestTbl, callback);
-        },
+        }
       ],
-      done,
+      done
     );
   });
 
@@ -298,7 +305,7 @@ describe('Test Bind Varible', function () {
           const bindSets = [
             ['string2', 4],
             ['string3', 5],
-            ['string4', 6],
+            ['string4', 6]
           ];
 
           const insertWithDifferentBinds = function (i) {
@@ -309,7 +316,7 @@ describe('Test Bind Varible', function () {
                 function () {
                   insertWithDifferentBinds(i + 1);
                 },
-                bindSets[i],
+                bindSets[i]
               );
             } else {
               callback();
@@ -320,14 +327,19 @@ describe('Test Bind Varible', function () {
         },
         function (callback) {
           const expected = [
-            { COLA: 'string2', COLB: 4 },
-            { COLA: 'string3', COLB: 5 },
-            { COLA: 'string4', COLB: 6 },
+            { 'COLA': 'string2', 'COLB': 4 },
+            { 'COLA': 'string3', 'COLB': 5 },
+            { 'COLA': 'string4', 'COLB': 6 }
           ];
-          testUtil.executeQueryAndVerify(connection, selectAllFromTbl, expected, callback);
-        },
+          testUtil.executeQueryAndVerify(
+            connection,
+            selectAllFromTbl,
+            expected,
+            callback
+          );
+        }
       ],
-      done,
+      done
     );
   });
 
@@ -338,33 +350,33 @@ describe('Test Bind Varible', function () {
           testUtil.executeCmd(
             connection,
             'create or replace table testTbl(colA string, colB string, colC string)',
-            callback,
-          );
+            callback);
         },
         function (callback) {
-          testUtil.executeCmd(connection, 'insert into testTbl values(:1, :1, :1)', callback, [
-            'string',
-          ]);
+          testUtil.executeCmd(
+            connection,
+            'insert into testTbl values(:1, :1, :1)',
+            callback,
+            ['string']
+          );
         },
         function (callback) {
           testUtil.executeQueryAndVerify(
             connection,
             selectAllFromTbl,
-            [
-              {
-                COLA: 'string',
-                COLB: 'string',
-                COLC: 'string',
-              },
-            ],
-            callback,
+            [{
+              'COLA': 'string',
+              'COLB': 'string',
+              'COLC': 'string'
+            }],
+            callback
           );
         },
         function (callback) {
           testUtil.executeCmd(connection, dropTestTbl, callback);
-        },
+        }
       ],
-      done,
+      done
     );
   });
 
@@ -373,26 +385,40 @@ describe('Test Bind Varible', function () {
       async.series(
         [
           function (callback) {
-            testUtil.executeCmd(connection, sharedStatement.setTimezoneAndTimestamps, callback);
+            testUtil.executeCmd(
+              connection,
+              sharedStatement.setTimezoneAndTimestamps,
+              callback
+            );
           },
           function (callback) {
             testUtil.executeCmd(
               connection,
               'create or replace table testTbl(colA ' + dataType + ');',
-              callback,
+              callback
             );
           },
           function (callback) {
-            testUtil.executeCmd(connection, insertSingleBind, callback, binds);
+            testUtil.executeCmd(
+              connection,
+              insertSingleBind,
+              callback,
+              binds
+            );
           },
           function (callback) {
-            testUtil.executeQueryAndVerify(connection, selectAllFromTbl, expected, callback);
+            testUtil.executeQueryAndVerify(
+              connection,
+              selectAllFromTbl,
+              expected,
+              callback
+            );
           },
           function (callback) {
             testUtil.executeCmd(connection, dropTestTbl, callback);
-          },
+          }
         ],
-        callback,
+        callback
       );
     };
 
@@ -403,51 +429,67 @@ describe('Test Bind Varible', function () {
             testUtil.executeCmd(connection, createTestTbl, callback);
           },
           function (callback) {
-            testUtil.executeCmd(connection, insertWithQmark, callback, [
-              ['string', 3],
-              ['string2', 4],
-            ]);
+            testUtil.executeCmd(
+              connection,
+              insertWithQmark,
+              callback,
+              [['string', 3], ['string2', 4]]
+            );
           },
           function (callback) {
             testUtil.executeQueryAndVerify(
               connection,
               selectAllFromTblLimit1,
-              [
-                {
-                  COLA: 'string',
-                  COLB: 3,
-                },
-              ],
+              [{
+                'COLA': 'string',
+                'COLB': 3
+              }],
               callback,
-              [1],
+              [1]
             );
           },
           function (callback) {
             testUtil.executeCmd(connection, dropTestTbl, callback);
-          },
+          }
         ],
-        done,
+        done
       );
     });
 
+
     it('testBindingBooleanSimple', function (done) {
-      testingFunc('boolean', [true], [{ COLA: true }], done);
+      testingFunc(
+        'boolean',
+        [true],
+        [{ 'COLA': true }],
+        done
+      );
     });
 
     it('testBindingDateSimple', function (done) {
-      testingFunc('date', ['2012-11-11'], [{ COLA: '2012-11-11' }], done);
+      testingFunc(
+        'date',
+        ['2012-11-11'],
+        [{ 'COLA': '2012-11-11' }],
+        done
+      );
     });
 
     it('testBindingTimeSimple', function (done) {
-      testingFunc('time', ['12:34:56.789789789'], [{ COLA: '12:34:56' }], done);
+      testingFunc(
+        'time',
+        ['12:34:56.789789789'],
+        [{ 'COLA': '12:34:56' }],
+        done
+      );
     });
 
     it('testBindingTimestampLTZSimple', function (done) {
       testingFunc(
         'timestamp_ltz',
         ['Thu, 21 Jan 2016 06:32:44 -0800'],
-        [{ COLA: '2016-01-21 06:32:44.000 -0800' }],
-        done,
+        [{ 'COLA': '2016-01-21 06:32:44.000 -0800' }],
+        done
       );
     });
 
@@ -455,8 +497,8 @@ describe('Test Bind Varible', function () {
       testingFunc(
         'timestamp_tz',
         ['Thu, 21 Jan 2016 06:32:44 -0800'],
-        [{ COLA: '2016-01-21 06:32:44.000 -0800' }],
-        done,
+        [{ 'COLA': '2016-01-21 06:32:44.000 -0800' }],
+        done
       );
     });
 
@@ -464,8 +506,8 @@ describe('Test Bind Varible', function () {
       testingFunc(
         'timestamp_ntz',
         ['Thu, 21 Jan 2016 06:32:44 -0800'],
-        [{ COLA: '2016-01-21 06:32:44.000' }],
-        done,
+        [{ 'COLA': '2016-01-21 06:32:44.000' }],
+        done
       );
     });
 
@@ -473,8 +515,8 @@ describe('Test Bind Varible', function () {
       testingFunc(
         'timestamp_ntz',
         [new Date('Thu, 21 Jan 2016 06:32:44 -0800')],
-        [{ COLA: '2016-01-21 14:32:44.000' }],
-        done,
+        [{ 'COLA': '2016-01-21 14:32:44.000' }],
+        done
       );
     });
 
@@ -533,12 +575,12 @@ describe('Test Bind Varible', function () {
           const maliciousOptions = [
             {
               sqlText: 'select * from testTbl where colA = ?',
-              binds: ['a; drop table if exists testTbl'],
+              binds: ['a; drop table if exists testTbl']
             },
             {
               sqlText: 'select * from testTbl where colA = ?',
-              binds: ["$*~?':1234567890!@#$%^&*()_="],
-            },
+              binds: ['$*~?\':1234567890!@#$%^&*()_=']
+            }
           ];
           const selectWithOption = function (i) {
             if (i < maliciousOptions.length) {
@@ -549,7 +591,7 @@ describe('Test Bind Varible', function () {
                 function () {
                   selectWithOption(i + 1);
                 },
-                maliciousOptions[i].binds,
+                maliciousOptions[i].binds
               );
             } else {
               callback();
@@ -557,14 +599,15 @@ describe('Test Bind Varible', function () {
           };
 
           selectWithOption(0);
-        },
+        }
       ],
-      done,
+      done
     );
   });
 });
 
 describe('Verify stage binding and array binding', () => {
+
   function generateDate(year, month, day, hour, minute, second, millis) {
     const date = new Date();
     date.setFullYear(year, month - 1, day);
@@ -581,11 +624,7 @@ describe('Verify stage binding and array binding', () => {
 
     for (let i = 0; i < actual.length; i++) {
       assert.strictEqual(Object.keys(actual[i]).length, Object.keys(expected[i]).length);
-      Object.keys(actual[i]).forEach((key) =>
-        key === 'C1'
-          ? assert.strictEqual(actual[i][key], expected[i][key])
-          : assert.strictEqual(actual[i][key].toJSON(), expected[i][key]),
-      );
+      Object.keys(actual[i]).forEach((key) => key === 'C1' ? assert.strictEqual(actual[i][key], expected[i][key]) : assert.strictEqual(actual[i][key].toJSON(), expected[i][key]));
     }
   }
 
@@ -606,7 +645,7 @@ describe('Verify stage binding and array binding', () => {
     generateDate(2025, 2, 18, 11, 37, 25, 326),
     //SummerTime
     generateDate(2024, 6, 22, 23, 37, 25, 520),
-    new Date(2000, 0, 1),
+    new Date(2000, 0, 1)
   ];
 
   const binding = [];
@@ -615,89 +654,93 @@ describe('Verify stage binding and array binding', () => {
   const testCases = [
     {
       timeZone: 'UTC',
-      expected: [
-        {
-          C1: 0,
-          C2: '0001-01-01 23:24:25.987',
-          //Javascript Timezone limitation
-          C3: '0001-01-01 23:24:25.987 +0000',
-          C4: '0001-01-01 23:24:25.987 +0000',
-          C5: '0001-01-01',
-        },
-        {
-          C1: 1,
-          C2: '9999-12-30 23:24:25.987',
-          C3: '9999-12-30 23:24:25.987 +0000',
-          C4: '9999-12-30 23:24:25.987 +0000',
-          C5: '9999-12-30',
-        },
-        {
-          C1: 2,
-          C2: '2025-02-18 11:37:25.326',
-          C3: '2025-02-18 11:37:25.326 +0000',
-          C4: '2025-02-18 11:37:25.326 +0000',
-          C5: '2025-02-18',
-        },
-        {
-          C1: 3,
-          C2: '2024-06-22 23:37:25.520',
-          C3: '2024-06-22 23:37:25.520 +0000',
-          C4: '2024-06-22 23:37:25.520 +0000',
-          C5: '2024-06-22',
-        },
-        {
-          C1: 4,
-          C2: '2000-01-01 00:00:00.000',
-          C3: '2000-01-01 00:00:00.000 +0000',
-          C4: '2000-01-01 00:00:00.000 +0000',
-          C5: '2000-01-01',
-        },
-      ],
+      expected:
+        [
+          {
+            C1: 0,
+            C2: '0001-01-01 23:24:25.987',
+            //Javascript Timezone limitation
+            C3: '0001-01-01 23:24:25.987 +0000',
+            C4: '0001-01-01 23:24:25.987 +0000',
+            C5: '0001-01-01'
+          },
+          {
+            C1: 1,
+            C2: '9999-12-30 23:24:25.987',
+            C3: '9999-12-30 23:24:25.987 +0000',
+            C4: '9999-12-30 23:24:25.987 +0000',
+            C5: '9999-12-30'
+
+          },
+          {
+            C1: 2,
+            C2: '2025-02-18 11:37:25.326',
+            C3: '2025-02-18 11:37:25.326 +0000',
+            C4: '2025-02-18 11:37:25.326 +0000',
+            C5: '2025-02-18',
+          },
+          {
+            C1: 3,
+            C2: '2024-06-22 23:37:25.520',
+            C3: '2024-06-22 23:37:25.520 +0000',
+            C4: '2024-06-22 23:37:25.520 +0000',
+            C5: '2024-06-22',
+          },
+          {
+            C1: 4,
+            C2: '2000-01-01 00:00:00.000',
+            C3: '2000-01-01 00:00:00.000 +0000',
+            C4: '2000-01-01 00:00:00.000 +0000',
+            C5: '2000-01-01',
+          },
+        ],
     },
     {
       timeZone: 'Europe/Warsaw',
-      expected: [
-        {
-          C1: 0,
-          C2: '0001-01-01 23:24:25.987',
-          //Javascript Timezone limitation
-          C3: '0001-01-02 00:48:25.987 +0124',
-          C4: '0001-01-01 23:24:25.987 +0000',
-          C5: '0001-01-01',
-        },
-        {
-          C1: 1,
-          C2: '9999-12-30 23:24:25.987',
-          C3: '9999-12-31 00:24:25.987 +0100',
-          C4: '9999-12-30 23:24:25.987 +0000',
-          C5: '9999-12-30',
-        },
-        {
-          C1: 2,
-          C2: '2025-02-18 11:37:25.326',
-          C3: '2025-02-18 12:37:25.326 +0100',
-          C4: '2025-02-18 11:37:25.326 +0000',
-          C5: '2025-02-18',
-        },
-        {
-          C1: 3,
-          C2: '2024-06-22 23:37:25.520',
-          C3: '2024-06-23 01:37:25.520 +0200',
-          C4: '2024-06-22 23:37:25.520 +0000',
-          C5: '2024-06-22',
-        },
-        {
-          C1: 4,
-          C2: '2000-01-01 00:00:00.000',
-          C3: '2000-01-01 01:00:00.000 +0100',
-          C4: '2000-01-01 00:00:00.000 +0000',
-          C5: '2000-01-01',
-        },
-      ],
+      expected:
+        [
+          {
+            C1: 0,
+            C2: '0001-01-01 23:24:25.987',
+            //Javascript Timezone limitation
+            C3: '0001-01-02 00:48:25.987 +0124',
+            C4: '0001-01-01 23:24:25.987 +0000',
+            C5: '0001-01-01',
+          },
+          {
+            C1: 1,
+            C2: '9999-12-30 23:24:25.987',
+            C3: '9999-12-31 00:24:25.987 +0100',
+            C4: '9999-12-30 23:24:25.987 +0000',
+            C5: '9999-12-30',
+          },
+          {
+            C1: 2,
+            C2: '2025-02-18 11:37:25.326',
+            C3: '2025-02-18 12:37:25.326 +0100',
+            C4: '2025-02-18 11:37:25.326 +0000',
+            C5: '2025-02-18',
+          },
+          {
+            C1: 3,
+            C2: '2024-06-22 23:37:25.520',
+            C3: '2024-06-23 01:37:25.520 +0200',
+            C4: '2024-06-22 23:37:25.520 +0000',
+            C5: '2024-06-22',
+          },
+          {
+            C1: 4,
+            C2: '2000-01-01 00:00:00.000',
+            C3: '2000-01-01 01:00:00.000 +0100',
+            C4: '2000-01-01 00:00:00.000 +0000',
+            C5: '2000-01-01',
+          },
+        ],
     },
     {
       timeZone: 'Asia/Tokyo',
-      expected: [
+      expected: 
+      [
         {
           C1: 0,
           C2: '0001-01-01 23:24:25.987',
@@ -735,11 +778,12 @@ describe('Verify stage binding and array binding', () => {
           C4: '2000-01-01 00:00:00.000 +0000',
           C5: '2000-01-01',
         },
-      ],
-    },
+      ]
+    }, 
     {
       timeZone: 'America/Los_Angeles',
-      expected: [
+      expected: 
+      [
         {
           C1: 0,
           C2: '0001-01-01 23:24:25.987',
@@ -777,14 +821,14 @@ describe('Verify stage binding and array binding', () => {
           C4: '2000-01-01 00:00:00.000 +0000',
           C5: '2000-01-01',
         },
-      ],
+      ]
     },
   ];
 
   beforeEach(async () => {
     connection = testUtil.createConnection();
-    await testUtil.connectAsync(connection);
-    await testUtil.executeCmdAsync(connection, getCreateTableQuery(arrayBindingTable));
+    await  testUtil.connectAsync(connection);
+    await  testUtil.executeCmdAsync(connection, getCreateTableQuery(arrayBindingTable));
     await testUtil.executeCmdAsync(connection, getCreateTableQuery(stageBindingTable));
   });
 

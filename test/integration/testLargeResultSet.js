@@ -35,7 +35,7 @@ describe('Large result Set Tests', function () {
           assert.strictEqual(rowCount, sourceRowCount);
           done();
         });
-      },
+      }
     });
   });
 
@@ -47,7 +47,7 @@ describe('Large result Set Tests', function () {
         testUtil.checkError(err);
         let rowCount = 0;
         const stream = stmt.streamRows({
-          start: offset,
+          start: offset
         });
         stream.on('data', function () {
           rowCount++;
@@ -59,7 +59,7 @@ describe('Large result Set Tests', function () {
           assert.strictEqual(rowCount, sourceRowCount - offset);
           done();
         });
-      },
+      }
     });
   });
 
@@ -71,7 +71,7 @@ describe('Large result Set Tests', function () {
         testUtil.checkError(err);
         let rowCount = 0;
         const stream = stmt.streamRows({
-          start: offset,
+          start: offset
         });
         stream.on('data', function () {
           rowCount++;
@@ -83,7 +83,7 @@ describe('Large result Set Tests', function () {
           assert.strictEqual(rowCount, sourceRowCount - offset);
           done();
         });
-      },
+      }
     });
   });
 
@@ -113,93 +113,96 @@ describe('Large result Set Tests', function () {
       const arrJSON = [];
       for (let i = 0; i < sourceRowCount; i++) {
         const sampleJSON = {
-          root: {
-            key: [
-              {
-                key1: i,
-                key2: 'value2',
-                key3: 'value3',
-                key4: 'value4',
-                key5: {
-                  key: [
-                    { key1: 'value1', key2: 'value2' },
-                    { key1: 'value1', key2: 'value2' },
-                    { key1: 'value1', key2: 'value2' },
-                    { key1: 'value1', key2: 'value2' },
-                  ],
+          'root':
+          {
+            'key':
+              [
+                {
+                  'key1': i,
+                  'key2': 'value2',
+                  'key3': 'value3',
+                  'key4': 'value4',
+                  'key5':
+                  {
+                    'key':
+                      [
+                        { 'key1': 'value1', 'key2': 'value2' },
+                        { 'key1': 'value1', 'key2': 'value2' },
+                        { 'key1': 'value1', 'key2': 'value2' },
+                        { 'key1': 'value1', 'key2': 'value2' }
+                      ]
+                  },
+                  'key6':
+                    [
+                      { 'key1': 'value1', 'key': 'value' },
+                      { 'key1': 'value1', 'key': 'value' },
+                      { 'key1': 'value1', 'key': 'value' },
+                      { 'key1': 'value1', 'key': 'value' },
+                      { 'key1': 'value1', 'key': 'value' },
+                      { 'key1': 'value1', 'key': 'value' },
+                      { 'key1': 'value1', 'key': 'value' }
+                    ]
                 },
-                key6: [
-                  { key1: 'value1', key: 'value' },
-                  { key1: 'value1', key: 'value' },
-                  { key1: 'value1', key: 'value' },
-                  { key1: 'value1', key: 'value' },
-                  { key1: 'value1', key: 'value' },
-                  { key1: 'value1', key: 'value' },
-                  { key1: 'value1', key: 'value' },
-                ],
-              },
-            ],
-          },
+              ]
+          }
         };
         arrJSON.push([JSON.stringify(sampleJSON)]);
       }
 
-      async.series(
-        [
-          function (callback) {
-            connection.execute({
-              sqlText: insertTemp,
-              binds: arrJSON,
-              complete: function (err, stmt) {
-                if (err) {
+      async.series([
+        function (callback) {
+          connection.execute({
+            sqlText: insertTemp,
+            binds: arrJSON,
+            complete: function (err, stmt) {
+              if (err) {
+                callback(err);
+              } else {
+                try {
+                  assert.strictEqual(stmt.getNumUpdatedRows(), sourceRowCount);
+                  callback();
+                } catch (err) {
                   callback(err);
-                } else {
+                }
+              }
+            }
+          });
+        },
+        function (callback) {
+          connection.execute({
+            sqlText: insertVariant,
+            complete: (err) => callback(err)
+          });
+        },
+        function (callback) {
+          connection.execute({
+            sqlText: selectVariant,
+            streamResult: true,
+            complete: function (err, stmt) {
+              if (err) {
+                callback(err);
+              } else {
+                const stream = stmt.streamRows();
+                let rowCount = 0;
+                stream.on('data', function () {
+                  rowCount++;
+                });
+                stream.on('error', function (err) {
+                  callback(err);
+                });
+                stream.on('end', function () {
                   try {
-                    assert.strictEqual(stmt.getNumUpdatedRows(), sourceRowCount);
+                    assert.strictEqual(rowCount, sourceRowCount);
                     callback();
                   } catch (err) {
                     callback(err);
                   }
-                }
-              },
-            });
-          },
-          function (callback) {
-            connection.execute({
-              sqlText: insertVariant,
-              complete: (err) => callback(err),
-            });
-          },
-          function (callback) {
-            connection.execute({
-              sqlText: selectVariant,
-              streamResult: true,
-              complete: function (err, stmt) {
-                if (err) {
-                  callback(err);
-                } else {
-                  const stream = stmt.streamRows();
-                  let rowCount = 0;
-                  stream.on('data', function () {
-                    rowCount++;
-                  });
-                  stream.on('error', function (err) {
-                    callback(err);
-                  });
-                  stream.on('end', function () {
-                    try {
-                      assert.strictEqual(rowCount, sourceRowCount);
-                      callback();
-                    } catch (err) {
-                      callback(err);
-                    }
-                  });
-                }
-              },
-            });
-          },
-        ],
-        done,
+                });
+              }
+            }
+          });
+        }],
+      done
       );
     });
   });
@@ -229,7 +232,7 @@ describe('SNOW-743920:Large result set with ~35 chunks', function () {
     await testUtil.destroyConnectionAsync(connection);
   });
 
-  it('fetch result set with many chunks without streaming', (done) => {
+  it('fetch result set with many chunks without streaming', done => {
     connection.execute({
       sqlText: selectData,
       complete: function (err, _, rows) {
@@ -244,11 +247,11 @@ describe('SNOW-743920:Large result set with ~35 chunks', function () {
             done(e);
           }
         }
-      },
+      }
     });
   });
 
-  it('fetch result set with many chunks with streaming', (done) => {
+  it('fetch result set with many chunks with streaming', done => {
     const rows = [];
     connection.execute({
       sqlText: selectData,
@@ -257,10 +260,9 @@ describe('SNOW-743920:Large result set with ~35 chunks', function () {
         if (err) {
           done(err);
         } else {
-          stmt
-            .streamRows()
+          stmt.streamRows()
             .on('error', () => done(err))
-            .on('data', (row) => rows.push(row))
+            .on('data', row => rows.push(row))
             .on('end', () => {
               try {
                 testUtil.checkError(err);
@@ -271,7 +273,7 @@ describe('SNOW-743920:Large result set with ~35 chunks', function () {
               }
             });
         }
-      },
+      }
     });
   });
 });

@@ -1,9 +1,10 @@
-const externalAccount = {
-  accessUrl: 'http://externalaccount.reg.local.snowflakecomputing.com:8082',
-  username: 'snowman',
-  password: 'test',
-  account: 'externalaccount',
-};
+const externalAccount =
+  {
+    accessUrl: 'http://externalaccount.reg.local.snowflakecomputing.com:8082',
+    username: 'snowman',
+    password: 'test',
+    account: 'externalaccount'
+  };
 
 let snowflakeTestProtocol = process.env.SNOWFLAKE_TEST_PROTOCOL;
 let snowflakeTestHost = process.env.SNOWFLAKE_TEST_HOST;
@@ -45,23 +46,25 @@ if (snowflakeTestProxyPort === undefined) {
   snowflakeTestProxyPort = '3128';
 }
 
-const accessUrl = snowflakeTestProtocol + '://' + snowflakeTestHost + ':' + snowflakeTestPort;
+const accessUrl = snowflakeTestProtocol + '://' + snowflakeTestHost + ':' +
+  snowflakeTestPort;
 
-const connectionWithProxy = {
-  accessUrl: accessUrl,
-  username: snowflakeTestUser,
-  password: snowflakeTestPassword,
-  account: snowflakeTestAccount,
-  warehouse: snowflakeTestWarehouse,
-  database: snowflakeTestDatabase,
-  schema: snowflakeTestSchema,
-  role: snowflakeTestRole,
-  proxyHost: snowflakeTestProxyHost,
-  proxyPort: parseInt(snowflakeTestProxyPort, 10),
-  proxyProtocol: snowflakeTestProxyProtocol,
-  proxyUser: snowflakeTestProxyUser,
-  proxyPassword: snowflakeTestProxyPassword,
-};
+const connectionWithProxy =
+  {
+    accessUrl: accessUrl,
+    username: snowflakeTestUser,
+    password: snowflakeTestPassword,
+    account: snowflakeTestAccount,
+    warehouse: snowflakeTestWarehouse,
+    database: snowflakeTestDatabase,
+    schema: snowflakeTestSchema,
+    role: snowflakeTestRole,
+    proxyHost: snowflakeTestProxyHost,
+    proxyPort: parseInt(snowflakeTestProxyPort, 10),
+    proxyProtocol: snowflakeTestProxyProtocol,
+    proxyUser: snowflakeTestProxyUser,
+    proxyPassword: snowflakeTestProxyPassword,
+  };
 
 exports.externalAccount = externalAccount;
 exports.connectionWithProxy = connectionWithProxy;

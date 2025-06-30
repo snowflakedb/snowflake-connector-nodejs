@@ -6,7 +6,7 @@ const { runWireMockAsync } = require('../../wiremockRunner');
 const os = require('os');
 
 async function getFreePort() {
-  return new Promise((res) => {
+  return new Promise(res => {
     const srv = net.createServer();
     srv.listen(0, () => {
       const port = srv.address().port;
@@ -15,7 +15,7 @@ async function getFreePort() {
   });
 }
 
-if (os.platform !== 'win32') {
+if (os.platform !== 'win32')  {
   describe('Wiremock test', function () {
     let port, wireMock;
     before(async () => {
@@ -39,4 +39,5 @@ if (os.platform !== 'win32') {
       assert.strictEqual(response.status, 200);
     });
   });
+
 }

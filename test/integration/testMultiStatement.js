@@ -17,7 +17,7 @@ describe('Test multi statement', function () {
         complete: function (err) {
           testUtil.checkError(err);
           done();
-        },
+        }
       });
     });
   });
@@ -37,7 +37,7 @@ describe('Test multi statement', function () {
               Logger.getInstance().info('=== server version =');
               Logger.getInstance().info(rows);
               callback();
-            },
+            }
           });
         },
         function () {
@@ -64,11 +64,11 @@ describe('Test multi statement', function () {
                   done();
                 }
               });
-            },
+            }
           });
-        },
+        }
       ],
-      done,
+      done
     );
   });
 });

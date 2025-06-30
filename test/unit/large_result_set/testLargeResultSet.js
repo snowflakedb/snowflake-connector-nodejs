@@ -14,7 +14,7 @@ describe('LargeResultSetService', () => {
 
   beforeEach(() => {
     const connectionOptions = {
-      ...connOptions.valid,
+      ...(connOptions.valid),
       timeout: 100,
     };
 
@@ -22,6 +22,7 @@ describe('LargeResultSetService', () => {
       version: '1',
       environment: process.versions,
     });
+
 
     // let's override internal configuration for retries to not wait too long
     httpConnectionOptions.getRetryLargeResultSetMaxNumRetries = () => 2;
@@ -36,7 +37,7 @@ describe('LargeResultSetService', () => {
       { testName: 'should retry on 503', url: '/503', expectedErrorName: 'LargeResultSetError' },
       { testName: 'should retry on timeout', url: '/hang', expectedErrorName: 'NetworkError' },
     ].forEach(({ testName, url, expectedErrorName }) => {
-      it(testName, (done) => {
+      it(testName, done => {
         largeResultSetService.getObject({
           url: baseUrl + url,
           callback: (err) => {
@@ -49,18 +50,18 @@ describe('LargeResultSetService', () => {
             } else {
               done('expected error');
             }
-          },
+          }
         });
       });
     });
   });
 
   describe('when recover at last try', () => {
-    beforeEach((done) => {
+    beforeEach(done => {
       httpClientInstance.request({
         url: baseUrl + '/resetCounter',
         method: 'POST',
-        callback: (err) => done(err),
+        callback: err => done(err)
       });
     });
 
@@ -68,25 +69,23 @@ describe('LargeResultSetService', () => {
       { testName: 'should recover from 503', url: '/eachThirdReturns200Others503' },
       { testName: 'should recover from timeout', url: '/eachThirdReturns200OthersHang' },
     ].forEach(({ testName, url }) => {
-      it(testName, (done) => {
+      it(testName, done => {
         largeResultSetService.getObject({
           url: baseUrl + url,
           callback: (err) => {
             done(err);
-          },
+          }
         });
       });
     });
   });
 
-  it('should fail on xml content', (done) => {
+  it('should fail on xml content', done => {
     largeResultSetService.getObject({
       url: baseUrl + '/xml',
       callback: (err, body) => {
-        err && err.name === 'LargeResultSetError'
-          ? done()
-          : done(`Error expected but received body ${body}`);
-      },
+        err && err.name === 'LargeResultSetError' ? done() : done(`Error expected but received body ${body}`);
+      }
     });
   });
 });

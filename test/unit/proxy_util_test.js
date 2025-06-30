@@ -12,31 +12,11 @@ describe('ProxyUtil Test - removing http or https from string', () => {
   [
     { name: 'remove http from url', text: 'http://my.pro.xy:8080', shouldMatch: hostAndPortDone },
     { name: 'remove https from url', text: 'https://my.pro.xy:8080', shouldMatch: hostAndPortDone },
-    {
-      name: 'remove http from ip and port',
-      text: 'http://10.20.30.40:8080',
-      shouldMatch: ipAndPortDone,
-    },
-    {
-      name: 'remove https from ip and port',
-      text: 'https://10.20.30.40:8080',
-      shouldMatch: ipAndPortDone,
-    },
-    {
-      name: 'dont remove http(s) from hostname and port',
-      text: 'my.pro.xy:8080',
-      shouldMatch: hostAndPortDone,
-    },
-    {
-      name: 'dont remove http(s) from ip and port',
-      text: '10.20.30.40:8080',
-      shouldMatch: ipAndPortDone,
-    },
-    {
-      name: 'dont remove http(s) from simple string',
-      text: somethingEntirelyDifferentDone,
-      shouldMatch: somethingEntirelyDifferentDone,
-    },
+    { name: 'remove http from ip and port', text: 'http://10.20.30.40:8080', shouldMatch: ipAndPortDone },
+    { name: 'remove https from ip and port', text: 'https://10.20.30.40:8080', shouldMatch: ipAndPortDone },
+    { name: 'dont remove http(s) from hostname and port', text: 'my.pro.xy:8080', shouldMatch: hostAndPortDone },
+    { name: 'dont remove http(s) from ip and port', text: '10.20.30.40:8080', shouldMatch: ipAndPortDone },
+    { name: 'dont remove http(s) from simple string', text: somethingEntirelyDifferentDone, shouldMatch: somethingEntirelyDifferentDone }
   ].forEach(({ name, text, shouldMatch }) => {
     it(`${name}`, () => {
       assert.deepEqual(ProxyUtil.removeScheme(text), shouldMatch);
@@ -54,12 +34,8 @@ describe('ProxyUtil Test - detecting PROXY envvars and compare with the agent pr
   });
 
   after(() => {
-    originalHttpProxy
-      ? (process.env.HTTP_PROXY = originalHttpProxy)
-      : delete process.env.HTTP_PROXY;
-    originalHttpsProxy
-      ? (process.env.HTTPS_PROXY = originalHttpsProxy)
-      : delete process.env.HTTPS_PROXY;
+    originalHttpProxy ? process.env.HTTP_PROXY = originalHttpProxy : delete process.env.HTTP_PROXY;
+    originalHttpsProxy ? process.env.HTTPS_PROXY = originalHttpsProxy : delete process.env.HTTPS_PROXY;
   });
 
   [
@@ -68,130 +44,84 @@ describe('ProxyUtil Test - detecting PROXY envvars and compare with the agent pr
       isWarn: false,
       httpproxy: '10.20.30.40:8080',
       HTTPSPROXY: '',
-      agentOptions: { keepalive: true },
-      shouldLog:
-        ' // PROXY environment variables: HTTP_PROXY: 10.20.30.40:8080 HTTPS_PROXY: <unset> NO_PROXY: <unset>.',
-    },
-    {
+      agentOptions: { 'keepalive': true },
+      shouldLog: ' // PROXY environment variables: HTTP_PROXY: 10.20.30.40:8080 HTTPS_PROXY: <unset> NO_PROXY: <unset>.'
+    }, {
       name: 'detect HTTPS_PROXY envvar, no agent proxy',
       isWarn: false,
       httpproxy: '',
       HTTPSPROXY: 'http://pro.xy:3128',
-      agentOptions: { keepalive: true },
-      shouldLog:
-        ' // PROXY environment variables: HTTP_PROXY: <unset> HTTPS_PROXY: http://pro.xy:3128 NO_PROXY: <unset>.',
-    },
-    {
+      agentOptions: { 'keepalive': true },
+      shouldLog: ' // PROXY environment variables: HTTP_PROXY: <unset> HTTPS_PROXY: http://pro.xy:3128 NO_PROXY: <unset>.'
+    }, {
       name: 'detect both http_proxy and HTTPS_PROXY envvar, no agent proxy',
       isWarn: false,
       httpproxy: '10.20.30.40:8080',
       HTTPSPROXY: 'http://pro.xy:3128',
-      agentOptions: { keepalive: true },
-      shouldLog:
-        ' // PROXY environment variables: HTTP_PROXY: 10.20.30.40:8080 HTTPS_PROXY: http://pro.xy:3128 NO_PROXY: <unset>.',
-    },
-    {
+      agentOptions: { 'keepalive': true },
+      shouldLog: ' // PROXY environment variables: HTTP_PROXY: 10.20.30.40:8080 HTTPS_PROXY: http://pro.xy:3128 NO_PROXY: <unset>.'
+    }, {
       name: 'detect http_proxy envvar, agent proxy set to an unauthenticated proxy, same as the envvar',
       isWarn: false,
       httpproxy: '10.20.30.40:8080',
       HTTPSPROXY: '',
-      agentOptions: { keepalive: true, host: '10.20.30.40', port: 8080 },
-      shouldLog:
-        ' // PROXY environment variables: HTTP_PROXY: 10.20.30.40:8080 HTTPS_PROXY: <unset> NO_PROXY: <unset>. // Proxy configured in Agent: proxy=10.20.30.40:8080',
-    },
-    {
+      agentOptions: { 'keepalive': true, 'host': '10.20.30.40', 'port': 8080 },
+      shouldLog: ' // PROXY environment variables: HTTP_PROXY: 10.20.30.40:8080 HTTPS_PROXY: <unset> NO_PROXY: <unset>. // Proxy configured in Agent: proxy=10.20.30.40:8080'
+    }, {
       name: 'detect both http_proxy and HTTPS_PROXY envvar, agent proxy set to an unauthenticated proxy, same as the envvar',
       isWarn: false,
       httpproxy: '10.20.30.40:8080',
       HTTPSPROXY: 'http://10.20.30.40:8080',
-      agentOptions: { keepalive: true, host: '10.20.30.40', port: 8080 },
-      shouldLog:
-        ' // PROXY environment variables: HTTP_PROXY: 10.20.30.40:8080 HTTPS_PROXY: http://10.20.30.40:8080 NO_PROXY: <unset>. // Proxy configured in Agent: proxy=10.20.30.40:8080',
-    },
-    {
+      agentOptions: { 'keepalive': true, 'host': '10.20.30.40', 'port': 8080 },
+      shouldLog: ' // PROXY environment variables: HTTP_PROXY: 10.20.30.40:8080 HTTPS_PROXY: http://10.20.30.40:8080 NO_PROXY: <unset>. // Proxy configured in Agent: proxy=10.20.30.40:8080'
+    }, {
       name: 'detect both http_proxy and HTTPS_PROXY envvar, agent proxy set to an authenticated proxy, same as the envvar',
       isWarn: false,
       httpproxy: '10.20.30.40:8080',
       HTTPSPROXY: 'http://10.20.30.40:8080',
-      agentOptions: {
-        keepalive: true,
-        host: '10.20.30.40',
-        port: 8080,
-        user: 'PRX',
-        password: 'proxypass',
-      },
-      shouldLog:
-        ' // PROXY environment variables: HTTP_PROXY: 10.20.30.40:8080 HTTPS_PROXY: http://10.20.30.40:8080 NO_PROXY: <unset>. // Proxy configured in Agent: proxy=10.20.30.40:8080 user=PRX',
-    },
-    {
+      agentOptions: { 'keepalive': true, 'host': '10.20.30.40', 'port': 8080, 'user': 'PRX', 'password': 'proxypass' },
+      shouldLog: ' // PROXY environment variables: HTTP_PROXY: 10.20.30.40:8080 HTTPS_PROXY: http://10.20.30.40:8080 NO_PROXY: <unset>. // Proxy configured in Agent: proxy=10.20.30.40:8080 user=PRX'
+    }, {
       name: 'detect both http_proxy and HTTPS_PROXY envvar, agent proxy set to an authenticated proxy, same as the envvar, with the protocol set',
       isWarn: false,
       httpproxy: '10.20.30.40:8080',
       HTTPSPROXY: 'http://10.20.30.40:8080',
-      agentOptions: {
-        keepalive: true,
-        host: '10.20.30.40',
-        port: 8080,
-        user: 'PRX',
-        password: 'proxypass',
-        protocol: 'http',
-      },
-      shouldLog:
-        ' // PROXY environment variables: HTTP_PROXY: 10.20.30.40:8080 HTTPS_PROXY: http://10.20.30.40:8080 NO_PROXY: <unset>. // Proxy configured in Agent: protocol=http proxy=10.20.30.40:8080 user=PRX',
-    },
-    {
+      agentOptions: { 'keepalive': true, 'host': '10.20.30.40', 'port': 8080, 'user': 'PRX', 'password': 'proxypass', 'protocol': 'http' },
+      shouldLog: ' // PROXY environment variables: HTTP_PROXY: 10.20.30.40:8080 HTTPS_PROXY: http://10.20.30.40:8080 NO_PROXY: <unset>. // Proxy configured in Agent: protocol=http proxy=10.20.30.40:8080 user=PRX'
+    }, {
       // now some WARN level messages
       name: 'detect HTTPS_PROXY envvar, agent proxy set to an unauthenticated proxy, different from the envvar',
       isWarn: true,
       httpproxy: '',
       HTTPSPROXY: 'http://pro.xy:3128',
-      agentOptions: { keepalive: true, host: '10.20.30.40', port: 8080 },
-      shouldLog:
-        ' Using both the HTTPS_PROXY (proxyHost: pro.xy, proxyPort: 3128, proxyProtocol: http:, noProxy: undefined) and the Connection proxy (proxyHost: 10.20.30.40, proxyPort: 8080, proxyProtocol: undefined, noProxy: undefined) settings to connect, but with different values. If you experience connectivity issues, try unsetting one of them.',
-    },
-    {
+      agentOptions: { 'keepalive': true, 'host': '10.20.30.40', 'port': 8080 },
+      shouldLog: ' Using both the HTTPS_PROXY (proxyHost: pro.xy, proxyPort: 3128, proxyProtocol: http:, noProxy: undefined) and the Connection proxy (proxyHost: 10.20.30.40, proxyPort: 8080, proxyProtocol: undefined, noProxy: undefined) settings to connect, but with different values. If you experience connectivity issues, try unsetting one of them.'
+    }, {
       name: 'detect both http_proxy and HTTPS_PROXY envvar, different from each other, agent proxy set to an unauthenticated proxy, different from the envvars',
       isWarn: true,
       httpproxy: '169.254.169.254:8080',
       HTTPSPROXY: 'http://pro.xy:3128',
-      agentOptions: { keepalive: true, host: '10.20.30.40', port: 8080 },
-      shouldLog:
-        ' Using both the HTTP_PROXY (proxyHost: 169.254.169.254, proxyPort: 8080, proxyProtocol: http:, noProxy: undefined) and the Connection proxy (proxyHost: 10.20.30.40, proxyPort: 8080, proxyProtocol: undefined, noProxy: undefined), but with different values. If you experience connectivity issues, try unsetting one of them. Using both the HTTPS_PROXY (proxyHost: pro.xy, proxyPort: 3128, proxyProtocol: http:, noProxy: undefined) and the Connection proxy (proxyHost: 10.20.30.40, proxyPort: 8080, proxyProtocol: undefined, noProxy: undefined) settings to connect, but with different values. If you experience connectivity issues, try unsetting one of them.',
+      agentOptions: { 'keepalive': true, 'host': '10.20.30.40', 'port': 8080 },
+      shouldLog: ' Using both the HTTP_PROXY (proxyHost: 169.254.169.254, proxyPort: 8080, proxyProtocol: http:, noProxy: undefined) and the Connection proxy (proxyHost: 10.20.30.40, proxyPort: 8080, proxyProtocol: undefined, noProxy: undefined), but with different values. If you experience connectivity issues, try unsetting one of them. Using both the HTTPS_PROXY (proxyHost: pro.xy, proxyPort: 3128, proxyProtocol: http:, noProxy: undefined) and the Connection proxy (proxyHost: 10.20.30.40, proxyPort: 8080, proxyProtocol: undefined, noProxy: undefined) settings to connect, but with different values. If you experience connectivity issues, try unsetting one of them.'
     },
     {
       name: 'detect both http_proxy and HTTPS_PROXY envvar, different from each other, agent proxy set to an authenticated proxy, different from the envvars',
       isWarn: true,
       httpproxy: 'abc:def@169.254.169.254:8080',
       HTTPSPROXY: 'http://cde:fge@pro.xy:3128',
-      agentOptions: {
-        keepalive: true,
-        host: '10.20.30.40',
-        user: 'cde',
-        password: 'fge',
-        port: 8080,
-      },
-      shouldLog:
-        ' Using both the HTTP_PROXY (proxyHost: 169.254.169.254, proxyPort: 8080, proxyUser: abc, proxyPassword is provided, proxyProtocol: http:, noProxy: undefined) and the Connection proxy (proxyHost: 10.20.30.40, proxyPort: 8080, proxyUser: cde, proxyPassword is provided, proxyProtocol: undefined, noProxy: undefined), but with different values. If you experience connectivity issues, try unsetting one of them. Using both the HTTPS_PROXY (proxyHost: pro.xy, proxyPort: 3128, proxyUser: cde, proxyPassword is provided, proxyProtocol: http:, noProxy: undefined) and the Connection proxy (proxyHost: 10.20.30.40, proxyPort: 8080, proxyUser: cde, proxyPassword is provided, proxyProtocol: undefined, noProxy: undefined) settings to connect, but with different values. If you experience connectivity issues, try unsetting one of them.',
-    },
+      agentOptions: { 'keepalive': true, 'host': '10.20.30.40', 'user': 'cde', 'password': 'fge', 'port': 8080 },
+      shouldLog: ' Using both the HTTP_PROXY (proxyHost: 169.254.169.254, proxyPort: 8080, proxyUser: abc, proxyPassword is provided, proxyProtocol: http:, noProxy: undefined) and the Connection proxy (proxyHost: 10.20.30.40, proxyPort: 8080, proxyUser: cde, proxyPassword is provided, proxyProtocol: undefined, noProxy: undefined), but with different values. If you experience connectivity issues, try unsetting one of them. Using both the HTTPS_PROXY (proxyHost: pro.xy, proxyPort: 3128, proxyUser: cde, proxyPassword is provided, proxyProtocol: http:, noProxy: undefined) and the Connection proxy (proxyHost: 10.20.30.40, proxyPort: 8080, proxyUser: cde, proxyPassword is provided, proxyProtocol: undefined, noProxy: undefined) settings to connect, but with different values. If you experience connectivity issues, try unsetting one of them.'
+    }
   ].forEach(({ name, isWarn, httpproxy, HTTPSPROXY, agentOptions, shouldLog }) => {
     it(`${name}`, () => {
       process.env.HTTP_PROXY = httpproxy;
       process.env.HTTPS_PROXY = HTTPSPROXY;
 
-      const compareAndLogEnvAndAgentProxies =
-        ProxyUtil.getCompareAndLogEnvAndAgentProxies(agentOptions);
+      const compareAndLogEnvAndAgentProxies = ProxyUtil.getCompareAndLogEnvAndAgentProxies(agentOptions);
       if (!isWarn) {
-        assert.deepEqual(
-          compareAndLogEnvAndAgentProxies.messages,
-          shouldLog,
-          'expected log message does not match!',
-        );
+        assert.deepEqual(compareAndLogEnvAndAgentProxies.messages, shouldLog, 'expected log message does not match!');
       } else {
-        assert.deepEqual(
-          compareAndLogEnvAndAgentProxies.warnings,
-          shouldLog,
-          'expected warning message does not match!',
-        );
+        assert.deepEqual(compareAndLogEnvAndAgentProxies.warnings, shouldLog, 'expected warning message does not match!');
       }
     });
   });
@@ -205,7 +135,7 @@ describe('getProxyEnv function test ', function () {
   before(() => {
     originalHttpProxy = process.env.HTTP_PROXY;
     originalHttpsProxy = process.env.HTTPS_PROXY;
-    originalNoProxy = process.env.NO_PROXY;
+    originalNoProxy = process.env.NO_PROXY; 
   });
 
   beforeEach(() => {
@@ -215,13 +145,9 @@ describe('getProxyEnv function test ', function () {
   });
 
   after(() => {
-    originalHttpProxy
-      ? (process.env.HTTP_PROXY = originalHttpProxy)
-      : delete process.env.HTTP_PROXY;
-    originalHttpsProxy
-      ? (process.env.HTTPS_PROXY = originalHttpsProxy)
-      : delete process.env.HTTPS_PROXY;
-    originalNoProxy ? (process.env.NO_PROXY = originalNoProxy) : delete process.env.NO_PROXY;
+    originalHttpProxy ? process.env.HTTP_PROXY = originalHttpProxy : delete process.env.HTTP_PROXY;
+    originalHttpsProxy ? process.env.HTTPS_PROXY = originalHttpsProxy : delete process.env.HTTPS_PROXY;
+    originalNoProxy ? process.env.NO_PROXY = originalNoProxy : delete process.env.NO_PROXY; 
   });
 
   const testCases = [
@@ -236,8 +162,8 @@ describe('getProxyEnv function test ', function () {
         port: 8080,
         protocol: 'http:',
         noProxy: '*.amazonaws.com',
-        useForOCSP: true,
-      },
+        useForOCSP: true
+      }
     },
     {
       name: 'HTTP PROXY with authentication',
@@ -252,8 +178,8 @@ describe('getProxyEnv function test ', function () {
         port: 8080,
         protocol: 'http:',
         noProxy: '*.amazonaws.com|*.my_company.com',
-        useForOCSP: true,
-      },
+        useForOCSP: true
+      }
     },
     {
       name: 'HTTPS PROXY with authentication without NO proxy',
@@ -266,7 +192,7 @@ describe('getProxyEnv function test ', function () {
         port: 1234,
         protocol: 'https:',
         noProxy: undefined,
-        useForOCSP: false,
+        useForOCSP: false
       },
     },
     {
@@ -279,7 +205,7 @@ describe('getProxyEnv function test ', function () {
         port: 1234,
         protocol: 'http:',
         noProxy: '*.amazonaws.com|*.my_company.com|*.test.com',
-        useForOCSP: false,
+        useForOCSP: false
       },
     },
     {
@@ -292,7 +218,7 @@ describe('getProxyEnv function test ', function () {
         port: 80,
         protocol: 'http:',
         noProxy: '*.amazonaws.com|*.my_company.com|*.test.com',
-        useForOCSP: false,
+        useForOCSP: false
       },
     },
     {
@@ -305,7 +231,7 @@ describe('getProxyEnv function test ', function () {
         port: 80,
         protocol: 'http:',
         noProxy: '*.amazonaws.com|*.my_company.com|*.test.com',
-        useForOCSP: true,
+        useForOCSP: true
       },
     },
     {
@@ -318,23 +244,24 @@ describe('getProxyEnv function test ', function () {
         port: 443,
         protocol: 'https:',
         noProxy: '*.amazonaws.com|*.my_company.com|*.test.com',
-        useForOCSP: false,
-      },
-    },
+        useForOCSP: false
+      }
+    }
   ];
 
   testCases.forEach(({ name, isHttps, httpsProxy, httpProxy, noProxy, result }) => {
-    it(name, function () {
-      if (httpProxy) {
+    it(name, function (){
+
+      if (httpProxy){
         process.env.HTTP_PROXY = httpProxy;
       }
       if (httpsProxy) {
-        process.env.HTTPS_PROXY = httpsProxy;
+        process.env.HTTPS_PROXY = httpsProxy; 
       }
       if (noProxy) {
-        process.env.NO_PROXY = noProxy;
+        process.env.NO_PROXY = noProxy; 
       }
-      const proxy = ProxyUtil.getProxyFromEnv(isHttps);
+      const proxy =  ProxyUtil.getProxyFromEnv(isHttps);
       const keys = Object.keys(result);
       assert.strictEqual(keys.length, Object.keys(proxy).length);
 
@@ -348,8 +275,8 @@ describe('getProxyEnv function test ', function () {
 describe('getNoProxyEnv function Test', function () {
   let original = null;
 
-  before(function () {
-    original = process.env.NO_PROXY;
+  before( function (){
+    original = process.env.NO_PROXY; 
     process.env.NO_PROXY = '*.amazonaws.com,*.my_company.com';
   });
 
@@ -357,7 +284,7 @@ describe('getNoProxyEnv function Test', function () {
     process.env.NO_PROXY = original;
   });
 
-  it('test noProxy conversion', function () {
+  it('test noProxy conversion', function (){
     assert.strictEqual(ProxyUtil.getNoProxyEnv(), '*.amazonaws.com|*.my_company.com');
   });
 });
@@ -374,36 +301,30 @@ describe('Proxy Util for Azure', function () {
     GlobalConfig.setEnvProxy(false);
     originalHttpProxy = process.env.HTTP_PROXY;
     originalHttpsProxy = process.env.HTTPS_PROXY;
-    originalNoProxy = process.env.NO_PROXY;
+    originalNoProxy = process.env.NO_PROXY; 
     if (!Util.isWindows()) {
       originalhttpProxy = process.env.http_proxy;
       originalhttpsProxy = process.env.https_proxy;
-      originalnoProxy = process.env.no_proxy;
+      originalnoProxy = process.env.no_proxy; 
     }
   });
 
   after(() => {
     GlobalConfig.setEnvProxy(true);
-    originalHttpProxy
-      ? (process.env.HTTP_PROXY = originalHttpProxy)
-      : delete process.env.HTTP_PROXY;
-    originalHttpsProxy
-      ? (process.env.HTTPS_PROXY = originalHttpsProxy)
-      : delete process.env.HTTPS_PROXY;
-    originalNoProxy ? (process.env.NO_PROXY = originalNoProxy) : delete process.env.NO_PROXY;
+    originalHttpProxy ? process.env.HTTP_PROXY = originalHttpProxy : delete process.env.HTTP_PROXY;
+    originalHttpsProxy ? process.env.HTTPS_PROXY = originalHttpsProxy : delete process.env.HTTPS_PROXY;
+    originalNoProxy ? process.env.NO_PROXY = originalNoProxy : delete process.env.NO_PROXY; 
     if (!Util.isWindows()) {
-      originalhttpProxy
-        ? (process.env['http_proxy'] = originalhttpProxy)
-        : delete process.env.http_proxy;
-      originalhttpsProxy
-        ? (process.env['https_proxy'] = originalhttpsProxy)
-        : delete process.env.https_proxy;
-      originalnoProxy ? (process.env['no_proxy'] = originalnoProxy) : delete process.env.no_proxy;
+      originalhttpProxy ? process.env['http_proxy'] = originalhttpProxy : delete process.env.http_proxy;
+      originalhttpsProxy ? process.env['https_proxy'] = originalhttpsProxy : delete process.env.https_proxy;
+      originalnoProxy ? process.env['no_proxy'] = originalnoProxy : delete process.env.no_proxy; 
     }
   });
 
+  
   it('test hide and restore environment proxy', function () {
-    const testCases = {
+    const testCases = 
+    {
       httpProxy: 'https://user:pass@myproxy.server.com:1234', //# pragma: allowlist secret
       httpsProxy: 'https://user:pass@myproxy.server.com:1234', //# pragma: allowlist secret
       noProxy: '*.amazonaws.com,*.my_company.com',
@@ -414,17 +335,17 @@ describe('Proxy Util for Azure', function () {
 
     process.env.HTTP_PROXY = testCases.HttpProxy;
     process.env.HTTPS_PROXY = testCases.HttpsProxy;
-    process.env.NO_PROXY = testCases.NoProxy;
+    process.env.NO_PROXY = testCases.NoProxy; 
     if (!Util.isWindows()) {
       process.env['http_proxy'] = testCases.httpProxy;
       process.env['https_proxy'] = testCases.httpsProxy;
       process.env['no_proxy'] = testCases.noProxy;
     }
-
+    
     ProxyUtil.hideEnvironmentProxy();
     assert.strictEqual(process.env.HTTP_PROXY, undefined);
     assert.strictEqual(process.env.HTTPS_PROXY, undefined);
-    assert.strictEqual(process.env.NO_PROXY, undefined);
+    assert.strictEqual(process.env.NO_PROXY, undefined); 
     if (!Util.isWindows()) {
       assert.strictEqual(process.env['http_proxy'], undefined);
       assert.strictEqual(process.env['https_proxy'], undefined);
@@ -434,7 +355,7 @@ describe('Proxy Util for Azure', function () {
     ProxyUtil.restoreEnvironmentProxy();
     assert.strictEqual(process.env.HTTP_PROXY, testCases.HttpProxy);
     assert.strictEqual(process.env.HTTPS_PROXY, testCases.HttpsProxy);
-    assert.strictEqual(process.env.NO_PROXY, testCases.NoProxy);
+    assert.strictEqual(process.env.NO_PROXY, testCases.NoProxy); 
     if (!Util.isWindows()) {
       assert.strictEqual(process.env.http_proxy, testCases.httpProxy);
       assert.strictEqual(process.env.https_proxy, testCases.httpsProxy);

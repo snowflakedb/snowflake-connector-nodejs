@@ -19,6 +19,7 @@ describe('Azure client', function () {
     accessUrl: 'http://fakeaccount.snowflakecomputing.com',
   };
 
+
   let Azure = null;
   let client = null;
   let filestream = null;
@@ -27,14 +28,14 @@ describe('Azure client', function () {
     stageInfo: {
       location: mockLocation,
       path: mockTable + '/' + mockPath + '/',
-      creds: {},
+      creds: {}
     },
     SHA256_DIGEST: mockDigest,
   };
   const encryptionMetadata = {
     key: mockKey,
     iv: mockIv,
-    matDesc: mockMatDesc,
+    matDesc: mockMatDesc
   };
 
   function getClientMock(getPropertiesFn, uploadFn) {
@@ -47,20 +48,20 @@ describe('Azure client', function () {
                 this.getBlobClient = function () {
                   function getBlobClient() {
                     this.getProperties = function () {
-                      function getProperties() {
+                      function getProperties() { 
                         this.then = getPropertiesFn;
                       }
-                      return new getProperties();
+                      return new getProperties;
                     };
                   }
-                  return new getBlobClient();
+                  return new getBlobClient;
                 };
               }
-              return new getContainerClient();
+              return new getContainerClient;
             };
           }
-          return new BlobServiceClient();
-        },
+          return new BlobServiceClient;
+        }
       };
     }
 
@@ -74,14 +75,14 @@ describe('Azure client', function () {
                   function getBlockBlobClient() {
                     this.upload = uploadFn;
                   }
-                  return new getBlockBlobClient();
+                  return new getBlockBlobClient;
                 };
               }
-              return new getContainerClient();
+              return new getContainerClient;
             };
           }
-          return new BlobServiceClient();
-        },
+          return new BlobServiceClient;
+        }
       };
     }
   }
@@ -93,21 +94,19 @@ describe('Azure client', function () {
   }
 
   before(function () {
-    mock(
-      'client',
-      getClientMock(function (callback) {
+    mock('client', getClientMock(
+      function (callback) {
         callback({
-          metadata: {},
+          metadata: {}
         });
-      }),
-    );
+      }));
 
     mock('filestream', {
       readFileSync: async function (data) {
         return data;
-      },
+      }
     });
-
+    
     client = require('client');
     filestream = require('filestream');
     Azure = new SnowflakeAzureUtil(noProxyConnectionConfig, client, filestream);
@@ -115,11 +114,7 @@ describe('Azure client', function () {
 
   it('extract bucket name and path', async function () {
     verifyNameAndPath('sfc-eng-regression/test_sub_dir/', 'sfc-eng-regression', 'test_sub_dir/');
-    verifyNameAndPath(
-      'sfc-eng-regression/stakeda/test_stg/test_sub_dir/',
-      'sfc-eng-regression',
-      'stakeda/test_stg/test_sub_dir/',
-    );
+    verifyNameAndPath('sfc-eng-regression/stakeda/test_stg/test_sub_dir/', 'sfc-eng-regression', 'stakeda/test_stg/test_sub_dir/');
     verifyNameAndPath('sfc-eng-regression/', 'sfc-eng-regression', '');
     verifyNameAndPath('sfc-eng-regression//', 'sfc-eng-regression', '/');
     verifyNameAndPath('sfc-eng-regression///', 'sfc-eng-regression', '//');
@@ -131,14 +126,12 @@ describe('Azure client', function () {
   });
 
   it('get file header - fail expired token', async function () {
-    mock(
-      'client',
-      getClientMock(function () {
+    mock('client', getClientMock(
+      function () {
         const err = new Error();
         err.code = 'ExpiredToken';
         throw err;
-      }, null),
-    );
+      }, null));
 
     client = require('client');
     Azure = new SnowflakeAzureUtil(noProxyConnectionConfig, client);
@@ -148,14 +141,12 @@ describe('Azure client', function () {
   });
 
   it('get file header - fail HTTP 400', async function () {
-    mock(
-      'client',
-      getClientMock(function () {
+    mock('client', getClientMock(
+      function () {
         const err = new Error();
         err.statusCode = 404;
         throw err;
-      }, null),
-    );
+      }, null));
 
     client = require('client');
     const Azure = new SnowflakeAzureUtil(noProxyConnectionConfig, client);
@@ -165,14 +156,12 @@ describe('Azure client', function () {
   });
 
   it('get file header - fail HTTP 400', async function () {
-    mock(
-      'client',
-      getClientMock(function () {
+    mock('client', getClientMock(
+      function () {
         const err = new Error();
         err.statusCode = 400;
         throw err;
-      }, null),
-    );
+      }, null));
 
     client = require('client');
     Azure = new SnowflakeAzureUtil(noProxyConnectionConfig, client);
@@ -181,15 +170,13 @@ describe('Azure client', function () {
     assert.strictEqual(meta['resultStatus'], resultStatus.RENEW_TOKEN);
   });
 
-  it('get file header - fail unknown', async function () {
-    mock(
-      'client',
-      getClientMock(function () {
+  it('get file header - fail unknown', async function () { 
+    mock('client', getClientMock(
+      function () {
         const err = new Error();
         err.code = 'unknown';
         throw err;
-      }, null),
-    );
+      }, null));
 
     client = require('client');
     Azure = new SnowflakeAzureUtil(noProxyConnectionConfig, client);
@@ -199,14 +186,13 @@ describe('Azure client', function () {
   });
 
   it('upload - success', async function () {
-    mock(
-      'client',
-      getClientMock(null, function () {
+    mock('client', getClientMock (
+      null,
+      function () {
         function upload() {}
-        return new upload();
-      }),
-    );
-
+        return new upload;
+      }));
+    
     client = require('client');
     filestream = require('filestream');
     Azure = new SnowflakeAzureUtil(noProxyConnectionConfig, client, filestream);
@@ -216,18 +202,17 @@ describe('Azure client', function () {
   });
 
   it('upload - fail expired token', async function () {
-    mock(
-      'client',
-      getClientMock(null, function () {
+    mock('client', getClientMock (
+      null,
+      function () {
         function upload() {
           const err = new Error('Server failed to authenticate the request.');
           err.statusCode = 403;
           throw err;
         }
-        return new upload();
-      }),
-    );
-
+        return new upload;
+      }));
+    
     client = require('client');
     filestream = require('filestream');
     Azure = new SnowflakeAzureUtil(noProxyConnectionConfig, client, filestream);
@@ -237,18 +222,17 @@ describe('Azure client', function () {
   });
 
   it('upload - fail HTTP 400', async function () {
-    mock(
-      'client',
-      getClientMock(null, function () {
+    mock('client', getClientMock (
+      null,
+      function () {
         function upload() {
           const err = new Error();
           err.statusCode = 400;
           throw err;
         }
-        return new upload();
-      }),
-    );
-
+        return new upload;
+      }));
+    
     client = require('client');
     filestream = require('filestream');
     Azure = new SnowflakeAzureUtil(noProxyConnectionConfig, client, filestream);

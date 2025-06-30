@@ -34,7 +34,7 @@ describe('ExecuteAsync test', function () {
               const status = await connection.getQueryStatus(queryId);
               assert.ok(connection.isStillRunning(status));
               callback();
-            },
+            }
           });
         },
         // Get results using query id
@@ -42,21 +42,18 @@ describe('ExecuteAsync test', function () {
           const statement = await connection.getResultsFromQueryId({ queryId: queryId });
 
           await new Promise((resolve, reject) => {
-            statement
-              .streamRows()
+            statement.streamRows()
               .on('error', (err) => reject(err))
-              .on('data', (row) =>
-                assert.strictEqual(row['SYSTEM$WAIT'], `waited ${expectedSeconds} seconds`),
-              )
+              .on('data', (row) => assert.strictEqual(row['SYSTEM$WAIT'], `waited ${expectedSeconds} seconds`))
               .on('end', async () => {
                 const status = await connection.getQueryStatus(queryId);
                 assert.strictEqual(QueryStatus[status], QueryStatus.SUCCESS);
                 resolve();
               });
           });
-        },
+        }
       ],
-      done,
+      done
     );
   });
 
@@ -78,7 +75,7 @@ describe('ExecuteAsync test', function () {
               const status = await connection.getQueryStatus(queryId);
               assert.ok(connection.isStillRunning(status));
               callback();
-            },
+            }
           });
         },
         // Get results using query id
@@ -91,11 +88,11 @@ describe('ExecuteAsync test', function () {
               assert.strictEqual(QueryStatus[status], QueryStatus.SUCCESS);
               assert.strictEqual(rows[0]['SYSTEM$WAIT'], `waited ${expectedSeconds} seconds`);
               callback();
-            },
+            }
           });
-        },
+        }
       ],
-      done,
+      done
     );
   });
 
@@ -115,7 +112,7 @@ describe('ExecuteAsync test', function () {
               assert.ok(!err);
               queryId = stmt.getQueryId();
               callback();
-            },
+            }
           });
         },
         async function () {
@@ -146,9 +143,9 @@ describe('ExecuteAsync test', function () {
           } catch (err) {
             assert.strictEqual(err.name, 'OperationFailedError');
           }
-        },
+        }
       ],
-      done,
+      done
     );
   });
 
@@ -171,7 +168,7 @@ describe('ExecuteAsync test', function () {
               const status = await connection.getQueryStatus(queryId);
               assert.ok(connection.isStillRunning(status));
               callback();
-            },
+            }
           });
         },
         // Execute a different query in non-async mode
@@ -187,11 +184,11 @@ describe('ExecuteAsync test', function () {
               assert.strictEqual(QueryStatus[status], QueryStatus.SUCCESS);
               assert.strictEqual(rows[0]['SYSTEM$WAIT'], `waited ${expectedSeconds} seconds`);
               callback();
-            },
+            }
           });
-        },
+        }
       ],
-      done,
+      done
     );
   });
 

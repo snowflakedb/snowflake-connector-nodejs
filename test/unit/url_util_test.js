@@ -13,7 +13,7 @@ describe('URLUtil', function () {
     assert.ok(!URLUtil.isValidURL('This is random text'));
     assert.ok(!URLUtil.isValidURL('file://TestForFile'));
   });
-
+    
   it('Encode URL', function () {
     assert.equal(URLUtil.urlEncode('Hello @World'), 'Hello+%40World');
     assert.equal(URLUtil.urlEncode('Test//String'), 'Test%2F%2FString');

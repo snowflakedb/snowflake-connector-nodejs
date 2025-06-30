@@ -17,7 +17,7 @@ if (os.platform !== 'win32')  {
       authTest = new AuthTest();
     });
     afterEach(async () => {
-      wireMock.scenarios.resetAllScenarios();
+      await wireMock.scenarios.resetAllScenarios();
     });
     after(async () => {
       await wireMock.global.shutdown();

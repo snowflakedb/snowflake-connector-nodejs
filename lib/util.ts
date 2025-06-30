@@ -1,10 +1,20 @@
-const util = require('util');
-const Url = require('url');
-const os = require('os');
-const Logger = require('./logger');
-const fs = require('fs');
+import util from 'util';
+import Url from 'url';
+import os from 'os';
+import * as Logger from './logger';
+import fs from 'fs';
+// NOTE: keeping require as it's a circular dependency so * as Errors doesn't work
 const Errors = require('./errors');
-const net = require('net');
+import net from 'net';
+import { name as driverName, version as driverVersion } from '../package.json';
+
+const nodeJSVersion = process.version?.startsWith('v')
+  ? process.version.substring(1)
+  : process.version;
+
+export { driverName, driverVersion };
+
+export const userAgent = `JavaScript/${driverVersion} (${process.platform}-${process.arch}) NodeJS/${nodeJSVersion}`;
 
 /**
  * Note: A simple wrapper around util.inherits() for now, but this might change
@@ -19,7 +29,7 @@ const net = require('net');
  *
  * @returns {Object}
  */
-exports.inherits = function (constructor, superConstructor) {
+export function inherits(constructor: any, superConstructor: any) {
   return util.inherits.apply(util, [constructor, superConstructor]);
 };
 
@@ -48,21 +58,15 @@ exports.inherits = function (constructor, superConstructor) {
  * If the first argument is not a format string then util.format() returns a
  * string that is the concatenation of all its arguments separated by spaces.
  * Each argument is converted to a string with util.inspect().
- *
- * @returns {String}
  */
-exports.format = function (format, ...params) {
+export function format(format: string, ...params: any[]): string {
   return util.format.apply(util, [format, ...params]);
 };
 
 /**
  * Determines if a given value is a function.
- *
- * @param value
- *
- * @returns {Boolean}
  */
-exports.isFunction = function (value) {
+export function isFunction(value: any) {
   return !!value && typeof value === 'function';
 };
 
@@ -70,78 +74,50 @@ const toString = Object.prototype.toString;
 
 /**
  * Determines if a given value is an object.
- *
- * @param value
- *
- * @returns {Boolean}
  */
-exports.isObject = function (value) {
+export function isObject(value: any) {
   return toString.call(value) === '[object Object]';
 };
 
 /**
  * Determines if a given value is a Date.
- *
- * @param value
- *
- * @returns {Boolean}
  */
-exports.isDate = function (value) {
+export function isDate(value: any) {
   return toString.call(value) === '[object Date]';
 };
 
 /**
  * Determines if a given value is an array.
- *
- * @param value
- *
- * @returns {Boolean}
  */
-exports.isArray = function (value) {
+export function isArray(value: any) {
   return toString.call(value) === '[object Array]';
 };
 
 /**
  * Determines if a given value is a string.
- *
- * @param value
- *
- * @returns {Boolean}
  */
-exports.isString = function (value) {
+export function isString(value: any) {
   return typeof value === 'string';
 };
 
 /**
  * Determines if a given value is a boolean.
- *
- * @param value
- *
- * @returns {Boolean}
  */
-exports.isBoolean = function (value) {
+export function isBoolean(value: any) {
   return typeof value === 'boolean';
 };
 
 /**
  * Determines if a given value is a number.
- *
- * @param value
- *
- * @returns {Boolean}
  */
-exports.isNumber = function (value) {
+export function isNumber(value: any) {
   return typeof value === 'number' && isFinite(value);
 };
 
 /**
  * Determines if a given value is a private key string in pem format of type pkcs8.
- *
- * @param value
- *
- * @returns {Boolean}
  */
-exports.isPrivateKey = function (value) {
+export function isPrivateKey(value: string) {
   const trimmedValue = value.trim();
   // The private key is expected to be decrypted when set in the connection string
   // secret scanner complains about first check since it looks like private key, but it's only check
@@ -153,60 +129,40 @@ exports.isPrivateKey = function (value) {
 /**
  * A collection of number-related utility functions.
  */
-exports.number =
+export const number =
   {
     /**
      * Determines if a given value is a positive number.
-     *
-     * @param value
-     *
-     * @returns {Boolean}
      */
-    isPositive: function (value) {
-      return exports.isNumber(value) && (value > 0);
+    isPositive: function (value: any) {
+      return isNumber(value) && (value > 0);
     },
 
     /**
      * Determines if a given value is a non-negative number.
-     *
-     * @param value
-     *
-     * @returns {Boolean}
      */
-    isNonNegative: function (value) {
-      return exports.isNumber(value) && (value >= 0);
+    isNonNegative: function (value: any) {
+      return isNumber(value) && (value >= 0);
     },
 
     /**
      * Determines if a given value is an integer.
-     *
-     * @param value
-     *
-     * @returns {Boolean}
      */
-    isInteger: function (value) {
-      return exports.isNumber(value) && (Math.floor(value) === value);
+    isInteger: function (value: any) {
+      return isNumber(value) && (Math.floor(value) === value);
     },
 
     /**
      * Determines if a given value is a positive integer.
-     *
-     * @param value
-     *
-     * @returns {Boolean}
      */
-    isPositiveInteger: function (value) {
+    isPositiveInteger: function (value: any) {
       return this.isInteger(value) && (value > 0);
     },
 
     /**
      * Determines if a given value is a non-negative integer.
-     *
-     * @param value
-     *
-     * @returns {Boolean}
      */
-    isNonNegativeInteger: function (value) {
+    isNonNegativeInteger: function (value: any) {
       return this.isInteger(value) && (value >= 0);
     }
   };
@@ -214,17 +170,13 @@ exports.number =
 /**
  * A collection of string-related utility functions.
  */
-exports.string =
+export const string =
   {
     /**
      * Determines if a given string is not null or empty.
-     *
-     * @param {*} value
-     *
-     * @returns {Boolean}
      */
-    isNotNullOrEmpty: function (value) {
-      return exports.isString(value) && value;
+    isNotNullOrEmpty: function (value: any) {
+      return isString(value) && value;
     },
 
     /**
@@ -233,15 +185,10 @@ exports.string =
      * function will return NaN, otherwise, it will return -1 if the first
      * version is smaller, 1 if the first version is bigger, and 0 if the two
      * versions are equal.
-     *
-     * @param {String} version1
-     * @param {String} version2
-     *
-     * @returns {Number}
      */
-    compareVersions: function (version1, version2) {
+    compareVersions: function (version1: string, version2: string) {
       // if one or both inputs are valid, return NaN
-      if (!exports.isString(version1) || !exports.isString(version2)) {
+      if (!isString(version1) || !isString(version2)) {
         return NaN;
       }
 
@@ -266,7 +213,7 @@ exports.string =
         version2Part = Number(version2Parts[index]);
 
         // if one or both values are not numerical, consider the input invalid
-        if (!exports.isNumber(version1Part) || !exports.isNumber(version2Part)) {
+        if (!isNumber(version1Part) || !isNumber(version2Part)) {
           result = NaN;
           break;
         }
@@ -286,30 +233,26 @@ exports.string =
 /**
  * Determines if a given value is not null or undefined.
  *
- * @param value
- *
- * @returns {Boolean}
+ * @deprecated Just use if (!value) instead
  */
-exports.exists = function (value) {
+export function exists(value: any) {
   return (value !== null) && (value !== undefined);
 };
 
 /**
  * A collection of url-related utility functions.
  */
-exports.url =
+export const url =
   {
     /**
      * Appends a query parameter to a url. If an invalid url is specified, an
      * exception is thrown.
      *
-     * @param {String} url
-     * @param {String} paramName the name of the query parameter.
-     * @param {String} paramValue the value of the query parameter.
-     *
-     * @returns {String}
+     * @param url
+     * @param paramName the name of the query parameter.
+     * @param paramValue the value of the query parameter.
      */
-    appendParam: function (url, paramName, paramValue) {
+    appendParam: function (url: string, paramName: string, paramValue: any) {
       // if the specified url is valid
       const urlAsObject = Url.parse(url);
       if (urlAsObject) {
@@ -321,7 +264,7 @@ exports.url =
       return url;
     },
 
-    appendRetryParam: function (option) {
+    appendRetryParam: function (option: { url: string, retryCount: number, includeRetryReason: boolean, retryReason: string }) {
       let retryUrl = this.appendParam(option.url, 'retryCount', option.retryCount);
       if (option.includeRetryReason) {
         retryUrl = this.appendParam(retryUrl, 'retryReason', option.retryReason);
@@ -336,12 +279,10 @@ exports.url =
  *
  * @param {Object} dst the object to copy properties to.
  * @param {Object} src the object to copy properties from.
- *
- * @returns {Object} the destination object.
  */
-exports.apply = function (dst, src) {
+export function apply(dst: any, src: any) {
   // if both dst and src are objects, copy everything from src to dst
-  if (this.isObject(dst) && this.isObject(src)) {
+  if (isObject(dst) && isObject(src)) {
     for (const key in src) {
       if (Object.prototype.hasOwnProperty.call(src, key)) {
         dst[key] = src[key];
@@ -355,20 +296,17 @@ exports.apply = function (dst, src) {
 /**
  * Returns true if the code is currently being run in the browser, false
  * otherwise.
- *
- * @returns {Boolean}
  */
-exports.isBrowser = function () {
+export function isBrowser() {
+  // @ts-ignore TS2339: Property 'browser' does not exist on type 'Process'
   return !!(process && process.browser);
 };
 
 /**
  * Returns true if the code is currently being run in node, false otherwise.
- *
- * @returns {Boolean}
  */
-exports.isNode = function () {
-  return !this.isBrowser();
+export function isNode() {
+  return !isBrowser();
 };
 
 /**
@@ -380,10 +318,8 @@ exports.isNode = function () {
  * @param base minimum seconds
  * @param cap maximum seconds
  * @param previousSleep previous sleep time
- * @returns {number} next sleep time
  */
-exports.nextSleepTime = function (
-  base, cap, previousSleep) {
+export function nextSleepTime(base: number, cap: number, previousSleep: number) {
   return Math.min(cap, Math.abs(previousSleep * 3 - base) * Math.random() +
     Math.min(base, previousSleep * 3));
 };
@@ -391,14 +327,8 @@ exports.nextSleepTime = function (
 
 /**
  * Return next sleep time calculated by the jitter rule.
- *
- * @param {Number} numofRetries
- * @param {Number} currentSleepTime
- * @param {Number} totalElapsedTime
- * @param {Number} maxRetryTimeout
- * @returns {JSON} return next sleep Time and totalTime.
  */
-exports.getJitteredSleepTime = function (numofRetries, currentSleepTime, totalElapsedTime, maxRetryTimeout) {
+export function getJitteredSleepTime(numofRetries: number, currentSleepTime: number, totalElapsedTime: number, maxRetryTimeout: number) {
   const nextsleep = getNextSleepTime(numofRetries, currentSleepTime);
   const sleep = maxRetryTimeout !== 0 ? Math.min((maxRetryTimeout - totalElapsedTime), nextsleep) : nextsleep;
   totalElapsedTime += sleep;
@@ -407,49 +337,31 @@ exports.getJitteredSleepTime = function (numofRetries, currentSleepTime, totalEl
 
 /**
  * Choose one of the number between two numbers.
- *
- * @param {Number} firstNumber
- * @param {Number} secondNumber
- * @returns {Number} return a random number between two numbers.
  */
-function chooseRandom(firstNumber, secondNumber) {
+export function chooseRandom(firstNumber: number, secondNumber: number) {
   return Math.random() * (firstNumber - secondNumber) + secondNumber;
 }
 
-exports.chooseRandom = chooseRandom;
-
 /**
  * return the next sleep Time.
- * @param {Number} numofRetries
- * @param {Number} currentSleepTime
- * @returns {Number} return jitter.
  */
-function getNextSleepTime(numofRetries,  currentSleepTime) {
+export function getNextSleepTime(numofRetries: number,  currentSleepTime: number) {
   const nextSleep = (2 ** (numofRetries));
   return chooseRandom(currentSleepTime + getJitter(currentSleepTime), nextSleep + getJitter(currentSleepTime));
 }
 
-exports.getNextSleepTime = getNextSleepTime;
-
 /**
  * return the jitter value.
- * @param {Number} currentSleepTime
- * @returns {Number} return jitter.
  */
-function getJitter(currentSleepTime) {
+export function getJitter(currentSleepTime: number) {
   const multiplicationFactor = chooseRandom(1, -1);
   return 0.5 * currentSleepTime * multiplicationFactor;
 }
 
-exports.getJitter = getJitter;
-
 /**
  * Check whether the request is the login-request or not.
- *
- * @param loginUrl HTTP request url
- * @returns {Boolean} true if it is loginRequest, otherwise false.
  */
-exports.isLoginRequest = function (loginUrl) {
+export function isLoginRequest(loginUrl: string) {
   const endPoints = ['/v1/login-request', '/authenticator-request',];
   return endPoints.some((endPoint) => loginUrl.includes(endPoint));
 };
@@ -459,9 +371,8 @@ exports.isLoginRequest = function (loginUrl) {
  *
  * @param response HTTP response object
  * @param retry403 will retry HTTP 403?
- * @returns {*|boolean} true if retryable otherwise false
  */
-exports.isRetryableHttpError = function (response, retry403) {
+export function isRetryableHttpError(response: any, retry403: boolean) {
   return response &&
     ((response.statusCode >= 500 && response.statusCode < 600) ||
       (retry403 && response.statusCode === 403) ||
@@ -469,7 +380,7 @@ exports.isRetryableHttpError = function (response, retry403) {
       (response.statusCode === 429));
 };
 
-exports.validateClientSessionKeepAliveHeartbeatFrequency = function (input, masterValidity) {
+export function validateClientSessionKeepAliveHeartbeatFrequency(input: number, masterValidity: number) {
   let heartbeatFrequency = input;
   const realMax = Math.floor(masterValidity / 4);
   const realMin = Math.floor(realMax / 4);
@@ -483,33 +394,13 @@ exports.validateClientSessionKeepAliveHeartbeatFrequency = function (input, mast
   return heartbeatFrequency;
 };
 
-// driver name
-const driverName = require('./../package.json').name;
-exports.driverName = driverName;
-
-// driver version
-const driverVersion = require('./../package.json').version;
-exports.driverVersion = driverVersion;
-
-// nodeJS version
-let nodeJSVersion = process.version;
-if (nodeJSVersion && nodeJSVersion.startsWith('v')) {
-  nodeJSVersion = nodeJSVersion.substring(1);
-}
-// user-agent HTTP header
-const userAgent = 'JavaScript' + '/' + driverVersion
-  + ' (' + process.platform + '-' + process.arch + ') ' + 'NodeJS' + '/' + nodeJSVersion;
-
-exports.userAgent = userAgent;
-
 /**
  * Constructs host name using region and account
  *
  * @param region where the account is located
  * @param account which account to connect to
- * @returns {string} host name
  */
-exports.constructHostname = function (region, account) {
+export function constructHostname(region: string, account: string) {
   let host;
   if (region === 'us-west-2') {
     host = account + '.snowflakecomputing.com';
@@ -531,39 +422,28 @@ exports.constructHostname = function (region, account) {
 
 /**
  * Returns true if host indicates private link
- *
- * @returns {boolean}
  */
-exports.isPrivateLink = function (host) {
-  Errors.checkArgumentExists(this.exists(host), Errors.codes.ERR_CONN_CREATE_MISSING_HOST);
+export function isPrivateLink(host: string) {
+  Errors.checkArgumentExists(exists(host), Errors.codes.ERR_CONN_CREATE_MISSING_HOST);
   return host.toLowerCase().includes('privatelink.snowflakecomputing.');
 };
-/**
- * Returns true if host indicates private link
- *
- * @returns {boolean}
- */
-exports.createOcspResponseCacheServerUrl = function (host) {
+
+
+export function createOcspResponseCacheServerUrl(host: string) {
   return `http://ocsp.${host}/ocsp_response_cache.json`;
 };
 
 /**
  * Returns if command is a PUT command
- *
- * @param sqlText the query command
- * @returns {boolean}
  */
-exports.isPutCommand = function (sqlText) {
+export function isPutCommand(sqlText: string) {
   return (sqlText.trim().substring(0, 3).toUpperCase() === 'PUT');
 };
 
 /**
  * Returns if command is a GET command
- *
- * @param sqlText the query command
- * @returns {boolean}
  */
-exports.isGetCommand = function (sqlText) {
+export function isGetCommand(sqlText: string) {
   return (sqlText.trim().substring(0, 3).toUpperCase() === 'GET');
 };
 
@@ -573,9 +453,8 @@ exports.isGetCommand = function (sqlText) {
  * e.g (inputting 32621973126123526	outputs 32621973126123530)
  *
  * @param body the data in JSON
- * @returns {string}
  */
-exports.convertSmkIdToString = function (body) {
+export function convertSmkIdToString(body: string) {
   return body.replace(/"smkId"(\s*):(\s*)([0-9]+)/g, '"smkId"$1:$2"$3"');
 };
 
@@ -583,16 +462,16 @@ exports.convertSmkIdToString = function (body) {
  * Under some circumstances the object passed to JSON.stringify in exception handling
  * can contain circular reference, on which JSON.stringify bails out
  * MDN way of handling such error
- * @returns string
  */
-exports.getCircularReplacer = function () {
-  const ancestors = [];
-  return function (key, value) {
+export function getCircularReplacer() {
+  const ancestors: string[] = [];
+  return function(key: string, value: any): string {
     if (typeof value !== 'object' || value === null) {
       return value;
     }
     // `this` is the object that value is contained in,
     // i.e., its direct parent.
+    // @ts-ignore TS2683: 'this' implicitly has type 'any' because it does not have a type annotation.
     while (ancestors.length > 0 && ancestors[ancestors.length - 1] !== this) {
       ancestors.pop();
     }
@@ -606,15 +485,13 @@ exports.getCircularReplacer = function () {
 
 /**
  * Returns if the provided string is a valid subdomain.
- * @param value
- * @returns {boolean}
  */
-exports.isCorrectSubdomain = function (value) {
+export function isCorrectSubdomain(value: string) {
   const subdomainRegex = RegExp(/^\w+([.-]\w+)*$/i);
   return subdomainRegex.test(value);
 };
 
-exports.buildCredentialCacheKey = function (host, username, credType) {
+export function buildCredentialCacheKey(host: string, username: string, credType: string) {
   if (!host || !username || !credType) {
     Logger.getInstance().debug('Cannot build the credential cache key because one of host, username, and credType is null');
     return null;
@@ -622,12 +499,7 @@ exports.buildCredentialCacheKey = function (host, username, credType) {
   return `{${host.toUpperCase()}}:{${username.toUpperCase()}}:{${credType.toUpperCase()}}`;
 };
 
-/**
- * 
- * @param {Object} customCredentialManager 
- * @returns 
- */
-exports.checkValidCustomCredentialManager = function (customCredentialManager) {
+export function checkValidCustomCredentialManager(customCredentialManager: any) {
   if ( typeof customCredentialManager !== 'object') {
     return false;
   }
@@ -642,11 +514,11 @@ exports.checkValidCustomCredentialManager = function (customCredentialManager) {
   return true;
 };
 
-exports.checkParametersDefined = function (...parameters) {
+export function checkParametersDefined(...parameters: any[]) {
   return parameters.every((element) => element !== undefined && element !== null);
 };
 
-exports.shouldPerformGCPBucket = function (accessToken) {
+export function shouldPerformGCPBucket(accessToken: string) {
   return !!accessToken && process.env.SNOWFLAKE_FORCE_GCP_USE_DOWNSCOPED_CREDENTIAL !== 'true';
 };
 
@@ -657,11 +529,11 @@ exports.shouldPerformGCPBucket = function (accessToken) {
  * @param fsPromises
  * @returns {Promise<boolean>} resolves always to true for Windows
  */
-exports.isFileModeCorrect = async function (filePath, expectedMode, fsPromises) {
+export async function isFileModeCorrect(filePath: string, expectedMode: number, fsPromises: any) {
   if (os.platform() === 'win32') {
     return true;
   }
-  return await fsPromises.stat(filePath).then((stats) => {
+  return await fsPromises.stat(filePath).then((stats: any) => {
     // we have to limit the number of LSB bits to 9 with the mask, as the stats.mode starts with the file type,
     // e.g. the directory with permissions 755 will have stats.mask of 40755.
     const mask = (1 << 9) - 1;
@@ -671,11 +543,9 @@ exports.isFileModeCorrect = async function (filePath, expectedMode, fsPromises) 
 
 /**
  * Checks if the provided file or directory is writable only by the user.
- * @param configFilePath
- * @param fsPromises
  * @returns {Promise<boolean>} resolves always to true for Windows
  */
-exports.isFileNotWritableByGroupOrOthers = async function (configFilePath, fsPromises) {
+export async function isFileNotWritableByGroupOrOthers(configFilePath: string, fsPromises: any) {
   if (os.platform() === 'win32') {
     return true;
   }
@@ -683,15 +553,15 @@ exports.isFileNotWritableByGroupOrOthers = async function (configFilePath, fsPro
   return (stats.mode & (1 << 4)) === 0 && (stats.mode & (1 << 1)) === 0;
 };
 
-exports.shouldRetryOktaAuth = function ({ maxRetryTimeout, maxRetryCount, numRetries, startTime, remainingTimeout }) {
+export function shouldRetryOktaAuth({ maxRetryTimeout, maxRetryCount, numRetries, startTime, remainingTimeout }: { maxRetryTimeout: number, maxRetryCount: number, numRetries: number, startTime: number, remainingTimeout: number }) {
   return  (maxRetryTimeout === 0 || Date.now() < startTime + remainingTimeout) && numRetries <= maxRetryCount;
 };
 
-exports.getDriverDirectory = function () {
+export function getDriverDirectory() {
   return __dirname;
 };
 
-exports.validatePath = function (dir) {
+export function validatePath(dir: string) {
   try {
     const stat = fs.statSync(dir);
     return stat.isDirectory();
@@ -701,31 +571,30 @@ exports.validatePath = function (dir) {
   }
 };
 
-exports.getEnvVar = function (variable) {
+export function getEnvVar(variable: string) {
   return process.env[variable.toLowerCase()] || process.env[variable.toUpperCase()];
 };
 
-exports.validateEmptyString = function (value) {
+export function validateEmptyString(value: string) {
   return value !== '' ? value : undefined;
 };
 
-exports.isNotEmptyAsString = function (variable) {
+export function isNotEmptyAsString(variable: string) {
   if (typeof variable === 'string') {
     return variable;
   }
-  return exports.exists(variable);
+  return exists(variable);
 };
 
-exports.isNotEmptyString = function (variable) {
-  return exports.exists(variable) && variable !== '';
+export function isNotEmptyString(variable: string) {
+  return exists(variable) && variable !== '';
 };
+
 /**
  * Checks Whether the object is empty (can be null or undefined) or not.
- * @param object
- * @returns {boolean} 
  */
-exports.isEmptyObject = (object) => {
-  if (!exports.exists(object)) {
+export function isEmptyObject(object: object) {
+  if (!exists(object)) {
     return true;
   }
   if (typeof object !== 'object') {
@@ -734,24 +603,25 @@ exports.isEmptyObject = (object) => {
   return Object.keys(object).length === 0;
 };
 
-exports.isWindows = function () {
+export function isWindows() {
   return os.platform() === 'win32';
 };
 
-exports.getFreePort = async function () {
+export async function getFreePort() {
   return new Promise(res => {
     const srv = net.createServer();
     srv.listen(0, () => {
+      // @ts-ignore TS2339: Property 'port' does not exist on type 'string | AddressInfo'
       const port = srv.address().port;
       srv.close(() => res(port));
     });
   });
 };
 
-exports.isPortOpen = async (port) => {
+export async function isPortOpen(port: number) {
   return new Promise((resolve, reject) => {
     const s = net.createServer();
-    s.once('error', (err) => {
+    s.once('error', (err: NodeJS.ErrnoException) => {
       s.close();
       if (err['code'] === 'EADDRINUSE') {
         Logger.getInstance().trace(`Port: ${port} is not available. Verification failed`);
@@ -772,13 +642,8 @@ exports.isPortOpen = async (port) => {
 
 /**
 * Left strip the specified character from a string.
-*
-* @param {String} str
-* @param {Character} remove
-*
-* @returns {String}
 */
-exports.lstrip = function (str, remove) {
+export function lstrip(str: string, remove: string) {
   while (str.length > 0 && remove.indexOf(str.charAt(0)) !== -1) {
     str = str.substr(1);
   }
@@ -788,13 +653,9 @@ exports.lstrip = function (str, remove) {
 
 /**
  * This method transforms HTML special characters into their corresponding entity representations.
- *
- * @param {String} value
- *
- * @returns {String}
  */
-exports.escapeHTML = function (value) {
-  if (!exports.exists(value)) {
+export function escapeHTML(value: string) {
+  if (!exists(value)) {
     return value;
   }
   return value.replace(/&/g, '&amp;')
@@ -803,3 +664,17 @@ exports.escapeHTML = function (value) {
     .replace(/"/g, '&quot;')
     .replace(/'/g, '&#39;');
 };
+
+/**
+ * Typescript with "module": "commonjs" will transform every import() to a require() statement.
+ *
+ * This will break ESM dynamic imports resulting in a runtime error:
+ * -require() of ES Module... from ... not supported.
+ *
+ * A hacky solution - https://github.com/microsoft/TypeScript/issues/43329
+ *
+ * This could be removed once we drop node 18 support as Node 20+ support esm in require()
+ */
+export async function dynamicImportESMInTypescriptWithCommonJS(moduleName: string) {
+  return Function(`return import("${moduleName}")`)()
+}

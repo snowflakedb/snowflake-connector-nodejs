@@ -3,7 +3,13 @@
   "version": "2.1.0",
   "description": "Node.js driver for Snowflake",
   "dependencies": {
+    "@aws-crypto/sha256-js": "^5.2.0",
     "@aws-sdk/client-s3": "^3.726.0",
+    "@aws-sdk/credential-provider-node": "^3.823.0",
+    "@aws-sdk/ec2-metadata-service": "^3.826.0",
+    "@aws-sdk/protocol-http": "^3.370.0",
+    "@aws-sdk/signature-v4": "^3.370.0",
+    "@azure/identity": "^4.10.1",
     "@azure/storage-blob": "12.26.x",
     "@google-cloud/storage": "^7.7.0",
     "@smithy/node-http-handler": "^4.0.1",
@@ -21,6 +27,7 @@
     "fastest-levenshtein": "^1.0.16",
     "generic-pool": "^3.8.2",
     "glob": "^10.0.0",
+    "google-auth-library": "^10.1.0",
     "https-proxy-agent": "^7.0.2",
     "jsonwebtoken": "^9.0.0",
     "mime-types": "^2.1.29",
@@ -33,11 +40,13 @@
     "simple-lru-cache": "^0.0.2",
     "toml": "^3.0.0",
     "uuid": "^8.3.2",
-    "winston": "^3.1.0",
-    "wiremock-rest-client": "^1.11.0"
+    "winston": "^3.1.0"
   },
   "devDependencies": {
     "@aws-sdk/types": "^3.387.0",
+    "@types/mocha": "^10.0.10",
+    "@types/node": "^22.15.18",
+    "@types/sinon": "^17.0.4",
     "async": "^3.2.3",
     "check-dts": "^0.8.2",
     "eslint": "^8.41.0",
@@ -47,8 +56,13 @@
     "mock-require": "^3.0.3",
     "nyc": "^15.1.0",
     "prettier": "^3.5.3",
+    "rewiremock": "^3.14.6",
+    "sinon": "^20.0.0",
     "test-console": "^2.0.0",
-    "wiremock": "^3.10.0"
+    "ts-node": "^10.9.2",
+    "typescript": "^5.8.3",
+    "wiremock": "^3.10.0",
+    "wiremock-rest-client": "^1.11.0"
   },
   "peerDependencies": {
     "asn1.js": "^5.4.1"
@@ -60,31 +74,33 @@
     "type": "git",
     "url": "https://github.com/snowflakedb/snowflake-connector-nodejs"
   },
-  "typings": "./index.d.ts",
+  "main": "./dist/index.js",
+  "typings": "./dist/index.d.ts",
   "lint-staged": {
     "*": "npm run prettier:format",
     "*.{js,ts}": "npm run lint:check"
   },
   "scripts": {
+    "prepack": "node ci/build_typescript.js",
+    "prepare": "husky",
     "lint:check": "eslint . && check-dts index.d.ts",
     "lint:fix": "eslint --fix",
     "prettier:check": "prettier --check .",
     "prettier:format": "prettier -w",
-    "test": "mocha --exit -timeout 180000 --recursive --full-trace test/unit/**/*.js test/unit/*.js",
-    "test:authentication": "mocha --exit -timeout 180000 --recursive --full-trace test/authentication/**/*.js test/authentication/*.js",
-    "test:integration": "mocha --exit -timeout 180000 --recursive --full-trace test/integration/**/*.js test/integration/*.js",
-    "test:single": "mocha --exit -timeout 180000 --full-trace",
-    "test:system": "mocha --exit -timeout 180000 --recursive --full-trace system_test/*.js",
-    "test:unit": "mocha --exit -timeout 180000 --recursive --full-trace test/unit/**/*.js test/unit/*.js",
+    "test": "mocha 'test/unit/**/*.{js,ts}'",
+    "test:authentication": "mocha 'test/authentication/**/*.{js,ts}'",
+    "test:integration": "mocha 'test/integration/**/*.{js,ts}'",
+    "test:single": "mocha",
+    "test:system": "mocha 'system_test/**/*.{js,ts}'",
+    "test:unit": "mocha 'test/unit/**/*.{js,ts}'",
     "test:unit:coverage": "nyc npm run test:unit",
-    "test:ci": "mocha --exit -timeout 180000 --recursive --full-trace 'test/{unit,integration}/**/*.js'",
+    "test:ci": "mocha 'test/{unit,integration}/**/*.{js,ts}'",
     "test:ci:coverage": "nyc npm run test:ci",
-    "test:ci:withSystemTests": "mocha --exit -timeout 180000 --recursive --full-trace 'test/{unit,integration}/**/*.js' system_test/*.js",
+    "test:ci:withSystemTests": "mocha 'test/{unit,integration}/**/*.{js,ts}' 'system_test/**/*.{js,ts}'",
     "test:ci:withSystemTests:coverage": "nyc npm run test:ci:withSystemTests",
-    "test:manual": "mocha --exit -timeout 180000 --full-trace --full-trace test/integration/testManualConnection.js",
-    "serve-wiremock": "wiremock --enable-browser-proxying --proxy-pass-through  false --port 8081 ",
-    "wiremock": "npm run serve-wiremock",
-    "prepare": "husky"
+    "test:manual": "mocha test/integration/testManualConnection.js",
+    "serve-wiremock": "wiremock --enable-browser-proxying --proxy-pass-through  false --port 8081",
+    "wiremock": "npm run serve-wiremock"
   },
   "author": {
     "name": "Snowflake Computing, Inc.",

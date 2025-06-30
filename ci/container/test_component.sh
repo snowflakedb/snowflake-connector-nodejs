@@ -24,11 +24,12 @@ if [[ "$LOCAL_USER_NAME" == "jenkins" ]]; then
 else
     export PATH=$WORKSPACE/node_modules/.bin:$PATH
 fi
-cp $SOURCE_ROOT/ci/container/package.json .
 npm install
 
 PACKAGE_NAME=$(cd $WORKSPACE && ls snowflake-sdk*.tgz)
+echo "[INFO] Test $PACKAGE_NAME installation"
 npm install $WORKSPACE/${PACKAGE_NAME}
+node $SOURCE_ROOT/ci/container/test_npm_package.js
 
 echo "[INFO] Setting test parameters"
 if [[ "$LOCAL_USER_NAME" == "jenkins" ]]; then
@@ -70,11 +71,11 @@ python3 $THIS_DIR/hang_webserver.py 12345 > hang_webserver.out 2>&1 &
 if [[ "$SHOULD_GENERATE_COVERAGE_REPORT" == "1" ]];
   then
     MOCHA_CMD=(
-       "npx" "nyc" "--reporter=lcov" "--reporter=text" "mocha" "--exit" "--timeout" "$TIMEOUT" "--recursive" "--full-trace"
+       "npx" "nyc" "--reporter=lcov" "--reporter=text" "mocha" "--timeout" "$TIMEOUT"
     )
   else
     MOCHA_CMD=(
-        "mocha" "--exit" "--timeout" "$TIMEOUT" "--recursive" "--full-trace"
+        "mocha" "--timeout" "$TIMEOUT"
     )
 fi
 
@@ -93,7 +94,7 @@ fi
 
 if [[ -z "$GITHUB_ACTIONS" ]]; then
     echo "[INFO] Running Internal Tests. Test result: $WORKSPACE/junit-system-test.xml"
-    if ! ${MOCHA_CMD[@]} "$SOURCE_ROOT/system_test/**/*.js"; then
+    if ! ${MOCHA_CMD[@]} "$SOURCE_ROOT/system_test/**/*.{js,ts}"; then
         echo "[ERROR] Test failed"
         [[ -f "$WORKSPACE/junit.xml" ]] && cat $WORKSPACE/junit.xml
         exit 1
@@ -103,7 +104,7 @@ if [[ -z "$GITHUB_ACTIONS" ]]; then
 fi
 
 echo "[INFO] Running Tests: Test result: $WORKSPACE/junit.xml"
-if ! ${MOCHA_CMD[@]} 'test/{unit,integration}/**/*.js'; then
+if ! ${MOCHA_CMD[@]} 'test/{unit,integration}/**/*.{js,ts}'; then
     echo "[ERROR] Test failed"
     [[ -f "$WORKSPACE/junit.xml" ]] && cat $WORKSPACE/junit.xml
     exit 1

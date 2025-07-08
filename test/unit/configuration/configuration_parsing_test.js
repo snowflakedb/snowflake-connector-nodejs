@@ -79,7 +79,7 @@ describe('should parse toml connection configuration', function () {
 
 describe('toml file Permission Verification', function () {
   if (isWindows()) {
-      return;
+    return;
   }
 
   let configurationPath;
@@ -93,7 +93,7 @@ describe('toml file Permission Verification', function () {
     delete process.env.SNOWFLAKE_HOME;
   });
 
-   it('should accept the minimum permission 0644 (Others can read)', async function () {
+  it('should accept the minimum permission 0644 (Others can read)', async function () {
     await fsPromises.chmod(configurationPath, '644');
     const configuration = await loadConnectionConfiguration();
     assert.strictEqual(configuration['account'], 'snowdriverswarsaw.us-west-2.aws');
@@ -119,53 +119,51 @@ describe('toml file Permission Verification', function () {
     assert.strictEqual(configuration['port'], '443');
   });
 
-describe('should throw exception for executable permissions', function () {
-  const testCasesWithExecutablePermissions = [
- { name: 'Owner has execute (700)', permission: '700' },
- { name: 'Group has execute (650)', permission: '650' },
- { name: 'All have execute (777)', permission: '777' },
- { name: 'Group has execute (670)', permission: '670' },
- { name: 'Owner and others have execute (701)', permission: '701' },
- { name: 'Owner and group have execute (710)', permission: '710' },
-];
-  testCasesWithExecutablePermissions.forEach(({ name, permission }) => {
-    it(name, async function () {
-      await fsPromises.chmod(configurationPath, permission);
-      try {
-      loadConnectionConfiguration();
-      assert.fail();
-    } catch (error) {
-      assert.strictEqual(
-        error.message,
-        `file ${configurationPath} is executable — this poses a security risk because the file could be misused as a script or executed unintentionally. Your Permission: 770`,
-      );
-    }
+  describe('should throw exception for executable permissions', function () {
+    const testCasesWithExecutablePermissions = [
+      { name: 'Owner has execute (700)', permission: '700' },
+      { name: 'Group has execute (650)', permission: '650' },
+      { name: 'All have execute (777)', permission: '777' },
+      { name: 'Group has execute (670)', permission: '670' },
+      { name: 'Owner and others have execute (701)', permission: '701' },
+      { name: 'Owner and group have execute (710)', permission: '710' },
+    ];
+    testCasesWithExecutablePermissions.forEach(({ name, permission }) => {
+      it(name, async function () {
+        await fsPromises.chmod(configurationPath, permission);
+        try {
+          loadConnectionConfiguration();
+          assert.fail();
+        } catch (error) {
+          assert.strictEqual(
+            error.message,
+            `file ${configurationPath} is executable — this poses a security risk because the file could be misused as a script or executed unintentionally. Your Permission: ${permission.toString(8)}`,
+          );
+        }
+      });
+    });
+
+    const testCasesWithWritePermissions = [
+      { name: 'Group has write (660)', permission: '660' },
+      { name: 'Others have write (662)', permission: '662' },
+      { name: 'Group and others have write (666)', permission: '666' },
+    ];
+
+    testCasesWithWritePermissions.forEach(({ name, permission }) => {
+      it(name, async function () {
+        await fsPromises.chmod(configurationPath, permission);
+        try {
+          loadConnectionConfiguration();
+          assert.fail();
+        } catch (error) {
+          assert.strictEqual(
+            error.message,
+            `file ${configurationPath} is writable by group or others — this poses a security risk because the file could be misused as a script or executed unintentionally. Your Permission: ${permission.toString(8)}`,
+          );
+        }
+      });
+    });
   });
-});
-
-const testCasesWithWritePermissions = [
- { name: 'Group has write (660)', permission: '660' },
- { name: 'Others have write (662)', permission: '662' },
- { name: 'Group and others have write (666)', permission: '666' },
-]
-
-  testCasesWithWritePermissions.forEach(({ name, permission }) => {
-    it(name, async function () {
-
-    await fsPromises.chmod(configurationPath, permission);
-  try {
-      loadConnectionConfiguration();
-      assert.fail();
-    } catch (error) {
-      assert.strictEqual(
-        error.message,
-        `file ${configurationPath} is writable by group or others — this poses a security risk because the file could be misused as a script or executed unintentionally. Your Permission: 770`,
-      );
-    }
-  });
-});
-
-});
 });
 
 describe('Configuration parsing tests', function () {

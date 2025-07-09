@@ -731,7 +731,7 @@ declare module 'snowflake-sdk' {
   }
 
   export interface SnowflakeError extends Error {
-    code?: ErrorCode;
+    code?: typeof ErrorCode;
     sqlState?: string;
     data?: Record<string, any>;
     response?: Record<string, any>;

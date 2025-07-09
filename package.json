@@ -64,16 +64,20 @@
   "peerDependencies": {
     "asn1.js": "^5.4.1",
     "@aws-sdk/client-s3": "^3.726.0",
-
     "@azure/storage-blob": "12.26.x",
     "@google-cloud/storage": "^7.7.0"
   },
   "peerDependenciesMeta": {
-    "@aws-sdk/client-s3": { "optional": true },
-    "@azure/storage-blob": { "optional": true },
-    "@google-cloud/storage": { "optional": true }
+    "@aws-sdk/client-s3": {
+      "optional": true
+    },
+    "@azure/storage-blob": {
+      "optional": true
+    },
+    "@google-cloud/storage": {
+      "optional": true
+    }
   },
-
   "overrides": {
     "semver": "^7.5.2"
   },

@@ -70,6 +70,61 @@ if (hasAzure){
       });
       sinonSandbox.stub(fs, 'readFileSync').returnsArg(0);
       Azure = new SnowflakeAzureUtil(noProxyConnectionConfig);
+
+describe('Azure client', function () {
+  const mockDataFile = 'mockDataFile';
+  const mockLocation = 'mockLocation';
+  const mockTable = 'mockTable';
+  const mockPath = 'mockPath';
+  const mockDigest = 'mockDigest';
+  const mockKey = 'mockKey';
+  const mockIv = 'mockIv';
+  const mockMatDesc = 'mockMatDesc';
+  const noProxyConnectionConfig = {
+    getProxy: function () {
+      return null;
+    },
+    accessUrl: 'http://fakeaccount.snowflakecomputing.com',
+  };
+
+  let Azure = null;
+  const dataFile = mockDataFile;
+  const meta = {
+    stageInfo: {
+      location: mockLocation,
+      path: mockTable + '/' + mockPath + '/',
+      creds: {},
+    },
+    SHA256_DIGEST: mockDigest,
+  };
+  const encryptionMetadata = {
+    key: mockKey,
+    iv: mockIv,
+    matDesc: mockMatDesc,
+  };
+
+  let sinonSandbox;
+  const getPropertiesStub = sinon.stub();
+  const uploadStub = sinon.stub();
+
+  function verifyNameAndPath(bucketPath, containerName, path) {
+    const result = Azure.extractContainerNameAndPath(bucketPath);
+    assert.strictEqual(result.containerName, containerName);
+    assert.strictEqual(result.path, path);
+  }
+
+  before(function () {
+    sinonSandbox = sinon.createSandbox();
+    sinonSandbox.stub(AZURE, 'BlobServiceClient').returns({
+      getContainerClient: () => ({
+        getBlobClient: () => ({
+          getProperties: getPropertiesStub,
+        }),
+        getBlockBlobClient: () => ({
+          upload: uploadStub,
+        }),
+      }),
+
     });
 
     afterEach(() => {
@@ -88,6 +143,19 @@ if (hasAzure){
       verifyNameAndPath('sfc-eng-regression//', 'sfc-eng-regression', '/');
       verifyNameAndPath('sfc-eng-regression///', 'sfc-eng-regression', '//');
     });
+
+  it('extract bucket name and path', async function () {
+    verifyNameAndPath('sfc-eng-regression/test_sub_dir/', 'sfc-eng-regression', 'test_sub_dir/');
+    verifyNameAndPath(
+      'sfc-eng-regression/stakeda/test_stg/test_sub_dir/',
+      'sfc-eng-regression',
+      'stakeda/test_stg/test_sub_dir/',
+    );
+    verifyNameAndPath('sfc-eng-regression/', 'sfc-eng-regression', '');
+    verifyNameAndPath('sfc-eng-regression//', 'sfc-eng-regression', '/');
+    verifyNameAndPath('sfc-eng-regression///', 'sfc-eng-regression', '//');
+  });
+
 
     it('get file header - success', async function () {
       getPropertiesStub.resolves({ metadata: {} });

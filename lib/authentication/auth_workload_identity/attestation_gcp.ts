@@ -7,7 +7,7 @@ export async function getGcpAttestationToken() {
   const auth = new GoogleAuth();
 
   try {
-    Logger().debug("Getting GCP auth token");
+    Logger().debug('Getting GCP auth token');
     const client = await auth.getIdTokenClient(SNOWFLAKE_AUDIENCE);
     const idToken = await client.idTokenProvider.fetchIdToken(SNOWFLAKE_AUDIENCE);
     return idToken;

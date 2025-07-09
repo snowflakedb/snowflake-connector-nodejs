@@ -1,6 +1,6 @@
 {
   "name": "snowflake-sdk",
-  "version": "2.1.0",
+  "version": "2.1.1",
   "description": "Node.js driver for Snowflake",
   "dependencies": {
     "@aws-sdk/signature-v4": "^3.370.0",
@@ -47,9 +47,12 @@
     "async": "^3.2.3",
     "check-dts": "^0.8.2",
     "eslint": "^8.41.0",
+    "husky": "^9.1.7",
+    "lint-staged": "^16.0.0",
     "mocha": "^11.1.0",
     "mock-require": "^3.0.3",
     "nyc": "^15.1.0",
+    "prettier": "^3.5.3",
     "rewiremock": "^3.14.6",
     "sinon": "^20.0.0",
     "test-console": "^2.0.0",
@@ -80,12 +83,17 @@
   },
   "main": "./dist/index.js",
   "typings": "./dist/index.d.ts",
+  "lint-staged": {
+    "*": "npm run prettier:format",
+    "*.{js,ts}": "npm run lint:check"
+  },
   "scripts": {
     "prepack": "node ci/build_typescript.js",
-    "lint:check": "eslint && check-dts index.d.ts",
-    "lint:check:all": "eslint lib samples system_test test && check-dts index.d.ts",
-    "lint:check:all:errorsOnly": "npm run lint:check:all -- --quiet",
+    "prepare": "husky",
+    "lint:check": "eslint . && check-dts index.d.ts",
     "lint:fix": "eslint --fix",
+    "prettier:check": "prettier --check .",
+    "prettier:format": "prettier -w .",
     "test": "mocha 'test/unit/**/*.{js,ts}'",
     "test:authentication": "mocha 'test/authentication/**/*.{js,ts}'",
     "test:integration": "mocha 'test/integration/**/*.{js,ts}'",

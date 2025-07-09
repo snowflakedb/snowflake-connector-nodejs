@@ -5,7 +5,6 @@ const path = require('path');
 const assert = require('node:assert');
 const fs = require('fs').promises;
 
-
 describe('Key-pair authentication', function () {
   let authTest;
 
@@ -20,7 +19,7 @@ describe('Key-pair authentication', function () {
   describe('Private key', function () {
     it('Successful connection', async function () {
       const privateKey = await getFileContent(connParameters.snowflakeAuthTestPrivateKeyPath);
-      const connectionOption = { ... connParameters.keypairPrivateKey, privateKey: privateKey };
+      const connectionOption = { ...connParameters.keypairPrivateKey, privateKey: privateKey };
       authTest.createConnection(connectionOption);
       await authTest.connectAsync();
       authTest.verifyNoErrorWasThrown();
@@ -29,22 +28,32 @@ describe('Key-pair authentication', function () {
 
     it('Invalid private key format', async function () {
       const invalidPrivateKeyFormat = 'invalidKey';
-      const connectionOption = { ... connParameters.keypairPrivateKey, privateKey: invalidPrivateKeyFormat };
+      const connectionOption = {
+        ...connParameters.keypairPrivateKey,
+        privateKey: invalidPrivateKeyFormat,
+      };
       try {
         snowflake.createConnection(connectionOption);
         assert.fail('Expected error was not thrown');
       } catch (err) {
-        assert.strictEqual(err.message, 'Invalid private key. The specified value must be a string in pem format of type pkcs8');
+        assert.strictEqual(
+          err.message,
+          'Invalid private key. The specified value must be a string in pem format of type pkcs8',
+        );
       }
     });
 
     it('Invalid private key', async function () {
-      const privateKey = await getFileContent(connParameters.snowflakeAuthTestInvalidPrivateKeyPath);
-      const connectionOption = { ... connParameters.keypairPrivateKey, privateKey: privateKey };
+      const privateKey = await getFileContent(
+        connParameters.snowflakeAuthTestInvalidPrivateKeyPath,
+      );
+      const connectionOption = { ...connParameters.keypairPrivateKey, privateKey: privateKey };
       authTest.createConnection(connectionOption);
       await authTest.connectAsync();
       assert.match(authTest.error?.message, /JWT token is invalid./);
-      await authTest.verifyConnectionIsNotUp('Unable to perform operation using terminated connection.');
+      await authTest.verifyConnectionIsNotUp(
+        'Unable to perform operation using terminated connection.',
+      );
     });
   });
 
@@ -58,11 +67,16 @@ describe('Key-pair authentication', function () {
     });
 
     it('Invalid private key', async function () {
-      const connectionOption = { ...connParameters.keypairPrivateKeyPath, privateKeyPath: connParameters.snowflakeAuthTestInvalidPrivateKeyPath };
+      const connectionOption = {
+        ...connParameters.keypairPrivateKeyPath,
+        privateKeyPath: connParameters.snowflakeAuthTestInvalidPrivateKeyPath,
+      };
       authTest.createConnection(connectionOption);
       await authTest.connectAsync();
       assert.match(authTest.error?.message, /JWT token is invalid./);
-      await authTest.verifyConnectionIsNotUp('Unable to perform operation using terminated connection.');
+      await authTest.verifyConnectionIsNotUp(
+        'Unable to perform operation using terminated connection.',
+      );
     });
 
     it('Successful connection using encrypted private key', async function () {
@@ -75,7 +89,10 @@ describe('Key-pair authentication', function () {
 
     //todo SNOW-1844747 improve error message
     it('Invalid private key password', async function () {
-      const connectionOption = { ...connParameters.keypairEncryptedPrivateKeyPath, privateKeyPass: 'invalid' };
+      const connectionOption = {
+        ...connParameters.keypairEncryptedPrivateKeyPath,
+        privateKeyPass: 'invalid',
+      };
       authTest.createConnection(connectionOption);
       await authTest.connectAsync();
       assert.match(authTest.error?.message, /bad decrypt/);

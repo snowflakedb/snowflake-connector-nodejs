@@ -81,7 +81,7 @@
     "*.{js,ts}": "npm run lint:check"
   },
   "scripts": {
-    "tsc": "npm -g install typescript && echo \"import * as snowflake from 'snowflake-sdk';\" > canicompile.ts && tsc --noEmit canicompile.ts",
+    "tsc": "echo -n \"import * as snowflake from './';\" > canicompile.ts && tsc --noEmit canicompile.ts",
     "prepack": "node ci/build_typescript.js",
     "prepare": "husky",
     "lint:check": "eslint . && check-dts index.d.ts",

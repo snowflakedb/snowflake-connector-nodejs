@@ -7,7 +7,6 @@ const os = require('os');
 let tempDir = null;
 
 describe('Logger node tests', function () {
-
   before(async function () {
     tempDir = await fsPromises.mkdtemp(path.join(os.tmpdir(), 'node_logger_tests_'));
   });
@@ -30,27 +29,27 @@ describe('Logger node tests', function () {
 
   const OBJ_LOG_MSG_ERROR = {
     level: ERROR,
-    message: LOG_MSG_ERROR
+    message: LOG_MSG_ERROR,
   };
 
   const OBJ_LOG_MSG_WARN = {
     level: WARN,
-    message: LOG_MSG_WARN
+    message: LOG_MSG_WARN,
   };
 
   const OBJ_LOG_MSG_INFO = {
     level: INFO,
-    message: LOG_MSG_INFO
+    message: LOG_MSG_INFO,
   };
 
   const OBJ_LOG_MSG_DEBUG = {
     level: DEBUG,
-    message: LOG_MSG_DEBUG
+    message: LOG_MSG_DEBUG,
   };
 
   const OBJ_LOG_MSG_TRACE = {
     level: TRACE,
-    message: LOG_MSG_TRACE
+    message: LOG_MSG_TRACE,
   };
 
   const millisTimeoutToFlushLogFile = 30;
@@ -167,7 +166,8 @@ describe('Logger node tests', function () {
         assert.strictEqual(err.name, 'Error');
         assert.match(err.message, /ENOENT: no such file or directory./);
         return true;
-      });
+      },
+    );
   });
 
   it('should change log level and log file path', async function () {
@@ -180,7 +180,7 @@ describe('Logger node tests', function () {
     logMessages(logger);
     logger.configure({
       level: logTagToLevel(LOG_LEVEL_TAGS.INFO),
-      filePath: filePathChanged
+      filePath: filePathChanged,
     });
     logMessages(logger);
 
@@ -198,18 +198,18 @@ describe('Logger node tests', function () {
 
   async function readLogs(filePath) {
     const logs = await fsPromises.readFile(filePath, { encoding: 'utf8' });
-    return logs.split('\n')
-      .filter(s => s)
-      .map(s => JSON.parse(s));
+    return logs
+      .split('\n')
+      .filter((s) => s)
+      .map((s) => JSON.parse(s));
   }
 
   function createLogger(level, filePath) {
-    return new NodeLogger(
-      {
-        includeTimestamp: false,
-        level: level,
-        filePath: filePath
-      });
+    return new NodeLogger({
+      includeTimestamp: false,
+      level: level,
+      filePath: filePath,
+    });
   }
 
   function logMessages(logger) {

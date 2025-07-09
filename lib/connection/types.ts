@@ -1,4 +1,4 @@
-import { WorkloadIdentityProviderKey } from "../authentication/auth_workload_identity/types";
+import { WorkloadIdentityProviderKey } from '../authentication/auth_workload_identity/types';
 
 /**
  * Work In Progress typing for ConnectionOptions
@@ -122,4 +122,4 @@ export type WIP_ConnectionConfig = {
   getOauthHttpAllowed(): boolean;
   getOauthClientId(): string;
   getOauthClientSecret(): string;
-}
+};

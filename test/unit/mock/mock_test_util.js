@@ -1,120 +1,106 @@
 const Core = require('./../../../lib/core');
 const MockHttpClient = require('./mock_http_client');
 
-const clientInfo =
-  {
-    version: require('./../../../package.json').version,
-    environment: process.versions
-  };
+const clientInfo = {
+  version: require('./../../../package.json').version,
+  environment: process.versions,
+};
 
 // create a snowflake instance that operates in qa mode and is configured to
 // use a mock http client
-const snowflake = Core(
-  {
-    qaMode: true,
-    httpClient: new MockHttpClient(clientInfo),
-    loggerClass: require('./../../../lib/logger/node'),
-    client: clientInfo
-  });
+const snowflake = Core({
+  qaMode: true,
+  httpClient: new MockHttpClient(clientInfo),
+  loggerClass: require('./../../../lib/logger/node'),
+  client: clientInfo,
+});
 
 exports.snowflake = snowflake;
 
-const connectionOptions =
-  {
-    accessUrl: 'http://fakeaccount.snowflakecomputing.com',
-    username: 'fakeusername',
-    password: 'fakepassword',
-    account: 'fakeaccount',
-    getPasscodeInPassword: () => false,
-    getPasscode: () => null,  
-    authenticator: 'SNOWFLAKE',
-    getAuthenticator: () => 'SNOWFLAKE',
-  };
-
-const connectionOptionsDeserialize =
-  {
-    accessUrl: 'http://fakeaccount.snowflakecomputing.com'
-  };
-
-const connectionOptionsWithServiceName =
-  {
-    accessUrl: 'http://fakeaccount.snowflakecomputing.com',
-    username: 'fakeuserservicename',
-    password: 'fakepassword',
-    account: 'fakeaccount'
-  };
-
-const connectionOptionsWithClientSessionKeepAlive =
-  {
-    accessUrl: 'http://fakeaccount.snowflakecomputing.com',
-    username: 'fakeusername',
-    password: 'fakepassword',
-    account: 'fakeaccount',
-    clientSessionKeepAlive: true,
-    clientSessionKeepAliveHeartbeatFrequency: 1800
-  };
-
-const connectionOptionsForSessionGone =
-  {
-    accessUrl: 'http://fakeaccount.snowflakecomputing.com',
-    username: 'fakesessiongone',
-    password: 'fakepassword',
-    account: 'fakeaccount'
-  };
-
-const connectionOptionsForSessionExpired =
-  {
-    accessUrl: 'http://fakeaccount.snowflakecomputing.com',
-    username: 'fakesessionexpired',
-    password: 'fakepassword',
-    account: 'fakeaccount'
-  };
-
-const connectionOptions504 =
-  {
-    accessUrl: 'http://fake504.snowflakecomputing.com',
-    username: 'fake504user',
-    password: 'fakepassword',
-    account: 'fake504'
-  };
-
-const connectionOptionsWithTreatIntAsBigInt =
-  {
-    accessUrl: 'http://fakeaccount.snowflakecomputing.com',
-    username: 'fakeusername',
-    password: 'fakepassword',
-    account: 'fakeaccount',
-    jsTreatIntegerAsBigInt: true
-  };
-
-const connectionOptionsDefault =
-{
+const connectionOptions = {
   accessUrl: 'http://fakeaccount.snowflakecomputing.com',
   username: 'fakeusername',
   password: 'fakepassword',
   account: 'fakeaccount',
-  authenticator: 'SNOWFLAKE'
+  getPasscodeInPassword: () => false,
+  getPasscode: () => null,
+  authenticator: 'SNOWFLAKE',
+  getAuthenticator: () => 'SNOWFLAKE',
 };
 
-const connectionOptionsExternalBrowser =
-{
+const connectionOptionsDeserialize = {
+  accessUrl: 'http://fakeaccount.snowflakecomputing.com',
+};
+
+const connectionOptionsWithServiceName = {
+  accessUrl: 'http://fakeaccount.snowflakecomputing.com',
+  username: 'fakeuserservicename',
+  password: 'fakepassword',
+  account: 'fakeaccount',
+};
+
+const connectionOptionsWithClientSessionKeepAlive = {
+  accessUrl: 'http://fakeaccount.snowflakecomputing.com',
+  username: 'fakeusername',
+  password: 'fakepassword',
+  account: 'fakeaccount',
+  clientSessionKeepAlive: true,
+  clientSessionKeepAliveHeartbeatFrequency: 1800,
+};
+
+const connectionOptionsForSessionGone = {
+  accessUrl: 'http://fakeaccount.snowflakecomputing.com',
+  username: 'fakesessiongone',
+  password: 'fakepassword',
+  account: 'fakeaccount',
+};
+
+const connectionOptionsForSessionExpired = {
+  accessUrl: 'http://fakeaccount.snowflakecomputing.com',
+  username: 'fakesessionexpired',
+  password: 'fakepassword',
+  account: 'fakeaccount',
+};
+
+const connectionOptions504 = {
+  accessUrl: 'http://fake504.snowflakecomputing.com',
+  username: 'fake504user',
+  password: 'fakepassword',
+  account: 'fake504',
+};
+
+const connectionOptionsWithTreatIntAsBigInt = {
+  accessUrl: 'http://fakeaccount.snowflakecomputing.com',
+  username: 'fakeusername',
+  password: 'fakepassword',
+  account: 'fakeaccount',
+  jsTreatIntegerAsBigInt: true,
+};
+
+const connectionOptionsDefault = {
+  accessUrl: 'http://fakeaccount.snowflakecomputing.com',
+  username: 'fakeusername',
+  password: 'fakepassword',
+  account: 'fakeaccount',
+  authenticator: 'SNOWFLAKE',
+};
+
+const connectionOptionsExternalBrowser = {
   accessUrl: 'http://fakeaccount.snowflakecomputing.com',
   username: 'fakeusername',
   account: 'fakeaccount',
-  authenticator: 'EXTERNALBROWSER'
+  authenticator: 'EXTERNALBROWSER',
 };
 
-const connectionOptionsidToken =
-{
+const connectionOptionsidToken = {
   accessUrl: 'http://fakeaccount.snowflakecomputing.com',
   username: 'fakeusername',
   account: 'fakeaccount',
   idToken: 'fakeIdToken',
-  authenticator: 'EXTERNALBROWSER'
+  authenticator: 'EXTERNALBROWSER',
 };
 
-const connectionOptionsKeyPair =
-{
+const connectionOptionsKeyPair = {
   accessUrl: 'http://fakeaccount.snowflakecomputing.com',
   username: 'fakeusername',
   account: 'fakeaccount',
@@ -123,31 +109,28 @@ const connectionOptionsKeyPair =
   getPrivateKeyPass: () => '',
   getAuthenticator: () => 'SNOWFLAKE_JWT',
   getServiceName: () => '',
-  authenticator: 'SNOWFLAKE_JWT'
+  authenticator: 'SNOWFLAKE_JWT',
 };
 
-const connectionOptionsKeyPairPath =
-{
+const connectionOptionsKeyPairPath = {
   accessUrl: 'http://fakeaccount.snowflakecomputing.com',
   username: 'fakeusername',
   account: 'fakeaccount',
   getPrivateKey: () => '',
   getPrivateKeyPath: () => 'fakeprivatekeypath',
   getPrivateKeyPass: () => 'fakeprivatekeypass',
-  authenticator: 'SNOWFLAKE_JWT'
+  authenticator: 'SNOWFLAKE_JWT',
 };
 
-const connectionOptionsOauth =
-{
+const connectionOptionsOauth = {
   accessUrl: 'http://fakeaccount.snowflakecomputing.com',
   username: 'fakeusername',
   account: 'fakeaccount',
   token: 'faketoken',
-  authenticator: 'OAUTH'
+  authenticator: 'OAUTH',
 };
 
-const connectionOptionsOkta =
-{
+const connectionOptionsOkta = {
   accessUrl: 'http://fakeaccount.snowflakecomputing.com',
   username: 'fakeusername',
   account: 'fakeaccount',
@@ -161,24 +144,23 @@ const connectionOptionsOkta =
   getTimeout: () => 90,
   getRetryTimeout: () => 300,
   getRetrySfMaxLoginRetries: () => 7,
-  getDisableSamlURLCheck: () => false
+  getDisableSamlURLCheck: () => false,
 };
 
-exports.connectionOptions =
-  {
-    default: connectionOptions,
-    deserialize: connectionOptionsDeserialize,
-    serviceName: connectionOptionsWithServiceName,
-    clientSessionKeepAlive: connectionOptionsWithClientSessionKeepAlive,
-    sessionGone: connectionOptionsForSessionGone,
-    sessionExpired: connectionOptionsForSessionExpired,
-    http504: connectionOptions504,
-    treatIntAsBigInt: connectionOptionsWithTreatIntAsBigInt,
-    authDefault: connectionOptionsDefault,
-    authExternalBrowser: connectionOptionsExternalBrowser,
-    authKeyPair: connectionOptionsKeyPair,
-    authKeyPairPath: connectionOptionsKeyPairPath,
-    authOauth: connectionOptionsOauth,
-    authOkta: connectionOptionsOkta,
-    authIdToken: connectionOptionsidToken,
-  };
+exports.connectionOptions = {
+  default: connectionOptions,
+  deserialize: connectionOptionsDeserialize,
+  serviceName: connectionOptionsWithServiceName,
+  clientSessionKeepAlive: connectionOptionsWithClientSessionKeepAlive,
+  sessionGone: connectionOptionsForSessionGone,
+  sessionExpired: connectionOptionsForSessionExpired,
+  http504: connectionOptions504,
+  treatIntAsBigInt: connectionOptionsWithTreatIntAsBigInt,
+  authDefault: connectionOptionsDefault,
+  authExternalBrowser: connectionOptionsExternalBrowser,
+  authKeyPair: connectionOptionsKeyPair,
+  authKeyPairPath: connectionOptionsKeyPairPath,
+  authOauth: connectionOptionsOauth,
+  authOkta: connectionOptionsOkta,
+  authIdToken: connectionOptionsidToken,
+};

@@ -11,57 +11,57 @@ describe('getProxtAgent', function () {
     {
       destination: 'test.destination.com',
       isNewAgent: true,
-      keepAlive: true
+      keepAlive: true,
     },
     {
       destination: '://test.destination.com',
       isNewAgent: true,
-      keepAlive: true
+      keepAlive: true,
     },
     {
       destination: 'This is not a URL',
       isNewAgent: true,
-      keepAlive: true
+      keepAlive: true,
     },
     {
       destination: 's4.amazonaws.com',
       isNewAgent: true,
-      keepAlive: true
+      keepAlive: true,
     },
     {
       destination: 'http://test.destination.com/login/somewhere',
       isNewAgent: false,
-      keepAlive: true
+      keepAlive: true,
     },
     {
       destination: 'http://s4.amazonaws.com',
       isNewAgent: false,
-      keepAlive: true
+      keepAlive: true,
     },
     {
       destination: 'https://s4.amazonaws.com',
       isNewAgent: true,
-      keepAlive: false
+      keepAlive: false,
     },
     {
       destination: 'https://test.destination.com/login/somewhere',
       isNewAgent: true,
-      keepAlive: false
+      keepAlive: false,
     },
     {
       destination: 'https://fakeaccounttesting.snowflakecomputing.com/login/sessionId=something',
       isNewAgent: true,
-      keepAlive: true
+      keepAlive: true,
     },
     {
       destination: 'https://fakeaccounttesting.snowflakecomputing.com/other/request',
       isNewAgent: false,
-      keepAlive: true
+      keepAlive: true,
     },
     {
       destination: 'http://fakeaccounttesting.snowflakecomputing.com/another/request',
       isNewAgent: true,
-      keepAlive: false
+      keepAlive: false,
     },
   ];
 
@@ -77,4 +77,3 @@ describe('getProxtAgent', function () {
     });
   });
 });
-  

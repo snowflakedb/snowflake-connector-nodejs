@@ -1,11 +1,15 @@
 const assert = require('assert');
 const connParameters = require('./connectionParameters');
 const axios = require('axios');
-const { snowflakeAuthTestOktaUser, snowflakeAuthTestOktaPass, snowflakeAuthTestRole, snowflakeAuthTestOauthClientId,
-  snowflakeAuthTestOauthClientSecret, snowflakeAuthTestOauthUrl
+const {
+  snowflakeAuthTestOktaUser,
+  snowflakeAuthTestOktaPass,
+  snowflakeAuthTestRole,
+  snowflakeAuthTestOauthClientId,
+  snowflakeAuthTestOauthClientSecret,
+  snowflakeAuthTestOauthUrl,
 } = require('./connectionParameters');
 const AuthTest = require('./authTestsBaseClass');
-
 
 describe('Oauth authentication', function () {
   let authTest;
@@ -32,28 +36,38 @@ describe('Oauth authentication', function () {
     authTest.createConnection(connectionOption);
     await authTest.connectAsync();
     authTest.verifyErrorWasThrown('Invalid OAuth access token. ');
-    await authTest.verifyConnectionIsNotUp('Unable to perform operation using terminated connection.');
+    await authTest.verifyConnectionIsNotUp(
+      'Unable to perform operation using terminated connection.',
+    );
   });
 
   it('Mismatched username', async function () {
     const token = await getToken();
-    const connectionOption = { ...connParameters.oauth, username: 'itsnotanaccount.com', token: token };
+    const connectionOption = {
+      ...connParameters.oauth,
+      username: 'itsnotanaccount.com',
+      token: token,
+    };
     authTest.createConnection(connectionOption);
     await authTest.connectAsync();
-    authTest.verifyErrorWasThrown('The user you were trying to authenticate as differs from the user tied to the access token.');
-    await authTest.verifyConnectionIsNotUp('Unable to perform operation using terminated connection.');
+    authTest.verifyErrorWasThrown(
+      'The user you were trying to authenticate as differs from the user tied to the access token.',
+    );
+    await authTest.verifyConnectionIsNotUp(
+      'Unable to perform operation using terminated connection.',
+    );
   });
 });
 
 async function getToken() {
-  const response =  await axios.post(snowflakeAuthTestOauthUrl, data, {
+  const response = await axios.post(snowflakeAuthTestOauthUrl, data, {
     headers: {
-      'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8'
+      'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8',
     },
     auth: {
       username: snowflakeAuthTestOauthClientId,
-      password: snowflakeAuthTestOauthClientSecret
-    }
+      password: snowflakeAuthTestOauthClientSecret,
+    },
   });
   assert.strictEqual(response.status, 200, 'Failed to get access token');
   return response.data.access_token;
@@ -63,5 +77,5 @@ const data = [
   `username=${snowflakeAuthTestOktaUser}`,
   `password=${snowflakeAuthTestOktaPass}`,
   'grant_type=password',
-  `scope=session:role:${snowflakeAuthTestRole.toLowerCase()}`
+  `scope=session:role:${snowflakeAuthTestRole.toLowerCase()}`,
 ].join('&');

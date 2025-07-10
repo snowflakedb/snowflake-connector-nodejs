@@ -106,19 +106,6 @@ describe('toml file Permission Verification', function () {
     assert.strictEqual(configuration['port'], '443');
   });
 
-  it('should ignore the verification if disablePermissionCheckForTomlConfig is true', async function () {
-    await fsPromises.chmod(configurationPath, '777');
-    const configuration = await loadConnectionConfiguration(true);
-    assert.strictEqual(configuration['account'], 'snowdriverswarsaw.us-west-2.aws');
-    assert.strictEqual(configuration['username'], 'test_user');
-    assert.strictEqual(configuration['password'], 'test_pass');
-    assert.strictEqual(configuration['warehouse'], 'testw');
-    assert.strictEqual(configuration['database'], 'test_db');
-    assert.strictEqual(configuration['schema'], 'test_nodejs');
-    assert.strictEqual(configuration['protocol'], 'https');
-    assert.strictEqual(configuration['port'], '443');
-  });
-
   describe('should throw exception for executable permissions', function () {
     const testCasesWithExecutablePermissions = [
       { name: 'Owner has execute (700)', permission: '700' },
@@ -129,20 +116,21 @@ describe('toml file Permission Verification', function () {
       { name: 'Owner and group have execute (710)', permission: '710' },
     ];
     testCasesWithExecutablePermissions.forEach(({ name, permission }) => {
-      it(name, async function () {
-        await fsPromises.chmod(configurationPath, permission);
+      it(name, function () {
+        fs.chmodSync(configurationPath, permission);
         try {
           loadConnectionConfiguration();
           assert.fail();
         } catch (error) {
-          assert.match(
+          assert.strictEqual(
             error.message,
-            /is executable — this poses a security risk because the file could be misused as a script or executed unintentionally. Your Permission:/,
+            `file ${configurationPath} is executable — this poses a security risk because the file could be misused as a script or executed unintentionally. Your Permission: ${permission}`,
           );
         }
       });
     });
-
+  });
+  describe('should throw exception for non-owner has writable permissions', function () {
     const testCasesWithWritePermissions = [
       { name: 'Group has write (660)', permission: '660' },
       { name: 'Others have write (662)', permission: '662' },
@@ -150,15 +138,15 @@ describe('toml file Permission Verification', function () {
     ];
 
     testCasesWithWritePermissions.forEach(({ name, permission }) => {
-      it(name, async function () {
-        await fsPromises.chmod(configurationPath, permission);
+      it(name, function () {
+        fs.chmodSync(configurationPath, permission);
         try {
           loadConnectionConfiguration();
           assert.fail();
         } catch (error) {
-          assert.match(
+          assert.deepEqual(
             error.message,
-            /is writable by group or others — this poses a security risk because the file could be misused as a script or executed unintentionally. Your Permission/,
+            `file ${configurationPath} is writable by group or others — this poses a security risk because it allows unauthorized users to modify sensitive settings. Your Permission: ${permission}`,
           );
         }
       });

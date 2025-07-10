@@ -25,7 +25,7 @@ describe('Validate cache permissions test', async function () {
       await assert.rejects(
         validateOnlyUserReadWritePermissionAndOwner(invalidPermissionsFilePath),
         (err) => {
-          assert.match(err.message, /Invalid file permissions/);
+          assert.match(err.message, /this poses a security risk/);
           return true;
         },
       );

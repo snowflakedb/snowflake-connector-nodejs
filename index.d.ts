@@ -1,5 +1,5 @@
 import { WIP_ConnectionOptions } from './lib/connection/types';
-import ErrorCodeEnum from './lib/error_code';
+import ErrorCodeEnum2 from './lib/error_code';
 
 /**
  * The snowflake-sdk module provides an instance to connect to the Snowflake server

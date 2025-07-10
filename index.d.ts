@@ -1,12 +1,11 @@
 import { WIP_ConnectionOptions } from './lib/connection/types';
+import ErrorCodeEnum from './lib/error_code';
 
 /**
  * The snowflake-sdk module provides an instance to connect to the Snowflake server
  * @see [source] {@link https://docs.snowflake.com/en/developer-guide/node-js/nodejs-driver}
  */
 declare module 'snowflake-sdk' {
-  export const ErrorCode: typeof import('./lib/error_code').default;
-
   export type CustomParser = (rawColumnValue: string) => any;
   export type Bind = string | number;
   export type InsertBinds = Bind[][];
@@ -731,7 +730,7 @@ declare module 'snowflake-sdk' {
   }
 
   export interface SnowflakeError extends Error {
-    code?: typeof ErrorCode;
+    code?: ErrorCodeEnum;
     sqlState?: string;
     data?: Record<string, any>;
     response?: Record<string, any>;
@@ -746,6 +745,8 @@ declare module 'snowflake-sdk' {
     end?: number;
     fetchAsString?: DataType[];
   }
+
+  export const ErrorCode: typeof ErrorCodeEnum;
 
   /**
    * Online Certificate Status Protocol (OCSP), detailed information: https://docs.snowflake.com/en/user-guide/ocsp.

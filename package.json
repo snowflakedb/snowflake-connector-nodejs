@@ -1,6 +1,6 @@
 {
   "name": "snowflake-sdk",
-  "version": "2.1.1",
+  "version": "2.1.2",
   "description": "Node.js driver for Snowflake",
   "dependencies": {
     "@aws-crypto/sha256-js": "^5.2.0",
@@ -48,7 +48,6 @@
     "@types/node": "^22.15.18",
     "@types/sinon": "^17.0.4",
     "async": "^3.2.3",
-    "check-dts": "^0.8.2",
     "eslint": "^8.41.0",
     "husky": "^9.1.7",
     "lint-staged": "^16.0.0",
@@ -78,12 +77,13 @@
   "typings": "./dist/index.d.ts",
   "lint-staged": {
     "*": "npm run prettier:format",
-    "*.{js,ts}": "npm run lint:check"
+    "*.js": "npm run lint:check"
   },
   "scripts": {
     "prepack": "node ci/build_typescript.js",
     "prepare": "husky",
-    "lint:check": "eslint . && check-dts index.d.ts",
+    "check-ts": "tsc --noEmit ci/typescript-test.ts",
+    "lint:check": "eslint .",
     "lint:fix": "eslint --fix",
     "prettier:check": "prettier --check .",
     "prettier:format": "prettier -w .",

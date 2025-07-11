@@ -49,15 +49,16 @@ describe('Connection test with OCSP Mock', function () {
     valid.agentClass = HttpsMockAgent.HttpsMockAgentOcspRevoked;
     const connection = snowflake.createConnection(valid);
 
-    async.series([
-      function (callback) {
-        connect(ErrorCodes.ERR_OCSP_REVOKED, connection, callback);
-      },
-      function (callback) {
-        destroy(connection, callback);
-      }
-    ],
-    done
+    async.series(
+      [
+        function (callback) {
+          connect(ErrorCodes.ERR_OCSP_REVOKED, connection, callback);
+        },
+        function (callback) {
+          destroy(connection, callback);
+        },
+      ],
+      done,
     );
   });
 
@@ -65,15 +66,16 @@ describe('Connection test with OCSP Mock', function () {
     valid.agentClass = HttpsMockAgent.HttpsMockAgentOcspUnkwown;
     const connection = snowflake.createConnection(valid);
 
-    async.series([
-      function (callback) {
-        connect(ErrorCodes.ERR_OCSP_UNKNOWN, connection, callback);
-      },
-      function (callback) {
-        destroy(connection, callback);
-      }
-    ],
-    done
+    async.series(
+      [
+        function (callback) {
+          connect(ErrorCodes.ERR_OCSP_UNKNOWN, connection, callback);
+        },
+        function (callback) {
+          destroy(connection, callback);
+        },
+      ],
+      done,
     );
   });
 
@@ -81,15 +83,16 @@ describe('Connection test with OCSP Mock', function () {
     valid.agentClass = HttpsMockAgent.HttpsMockAgentOcspInvalid;
     const connection = snowflake.createConnection(valid);
 
-    async.series([
-      function (callback) {
-        connect(ErrorCodes.ERR_OCSP_INVALID_VALIDITY, connection, callback);
-      },
-      function (callback) {
-        destroy(connection, callback);
-      }
-    ],
-    done
+    async.series(
+      [
+        function (callback) {
+          connect(ErrorCodes.ERR_OCSP_INVALID_VALIDITY, connection, callback);
+        },
+        function (callback) {
+          destroy(connection, callback);
+        },
+      ],
+      done,
     );
   });
 });

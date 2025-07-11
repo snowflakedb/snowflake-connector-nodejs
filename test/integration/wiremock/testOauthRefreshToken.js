@@ -6,12 +6,13 @@ const GlobalConfig = require('../../../lib/global_config');
 const authUtil = require('../../../lib/authentication/authentication_util');
 const { get } = require('axios');
 const AuthenticationTypes = require('../../../lib/authentication/authentication_types');
-const { JsonCredentialManager } = require('../../../lib/authentication/secure_storage/json_credential_manager');
+const {
+  JsonCredentialManager,
+} = require('../../../lib/authentication/secure_storage/json_credential_manager');
 const assert = require('node:assert');
 
 describe('Oauth Refresh token for Autorization Code', function () {
-  let accessTokenKey, refreshTokenKey, connectionOptionAuthorizationCode,
-    authTest, port, wireMock;
+  let accessTokenKey, refreshTokenKey, connectionOptionAuthorizationCode, authTest, port, wireMock;
 
   before(async () => {
     const defaultCredentialManager = new JsonCredentialManager();
@@ -24,13 +25,19 @@ describe('Oauth Refresh token for Autorization Code', function () {
         port: port,
         oauthAuthorizationUrl: `https://127.0.0.1:${port}/oauth/authorize`,
         oauthTokenRequestUrl: `http://127.0.0.1:${port}/oauth/token-request`,
-        clientStoreTemporaryCredential: true
-      }
+        clientStoreTemporaryCredential: true,
+      },
     };
-    accessTokenKey = authUtil.buildOauthAccessTokenCacheKey(new URL(connectionOptionAuthorizationCode.oauthAuthorizationUrl).host,
-      connectionOptionAuthorizationCode.username, AuthenticationTypes.OAUTH_AUTHORIZATION_CODE);
-    refreshTokenKey = authUtil.buildOauthRefreshTokenCacheKey(new URL(connectionOptionAuthorizationCode.oauthTokenRequestUrl).host,
-      connectionOptionAuthorizationCode.username, AuthenticationTypes.OAUTH_AUTHORIZATION_CODE);
+    accessTokenKey = authUtil.buildOauthAccessTokenCacheKey(
+      new URL(connectionOptionAuthorizationCode.oauthAuthorizationUrl).host,
+      connectionOptionAuthorizationCode.username,
+      AuthenticationTypes.OAUTH_AUTHORIZATION_CODE,
+    );
+    refreshTokenKey = authUtil.buildOauthRefreshTokenCacheKey(
+      new URL(connectionOptionAuthorizationCode.oauthTokenRequestUrl).host,
+      connectionOptionAuthorizationCode.username,
+      AuthenticationTypes.OAUTH_AUTHORIZATION_CODE,
+    );
   });
   beforeEach(async () => {
     authTest = new AuthTest();
@@ -52,7 +59,10 @@ describe('Oauth Refresh token for Autorization Code', function () {
       return authUtil.withBrowserActionTimeout(3000, get(url));
     });
 
-    await addWireMockMappingsFromFile(wireMock, 'wiremock/mappings/oauth/token_cache_and_refresh/caching_refreshed_access_token_and_new_refresh_token.json');
+    await addWireMockMappingsFromFile(
+      wireMock,
+      'wiremock/mappings/oauth/token_cache_and_refresh/caching_refreshed_access_token_and_new_refresh_token.json',
+    );
     await authUtil.writeToCache(accessTokenKey, 'expired_token');
 
     await authTest.createConnection(connectionOptionAuthorizationCode);
@@ -61,12 +71,14 @@ describe('Oauth Refresh token for Autorization Code', function () {
   });
 
   it('Save oauth tokens after idp authorization', async function () {
-    await addWireMockMappingsFromFile(wireMock, 'wiremock/mappings/oauth/token_cache_and_refresh/caching_tokens_after_connecting.json');
+    await addWireMockMappingsFromFile(
+      wireMock,
+      'wiremock/mappings/oauth/token_cache_and_refresh/caching_tokens_after_connecting.json',
+    );
     GlobalConfig.setCustomRedirectingClient((redirectUri) => {
       const url = `${redirectUri.searchParams.get('redirect_uri')}?code=9s6wFkGDOjmgNEdwJMlDzv1AwxDjDVBxiT6wVqXjG5s&state=${redirectUri.searchParams.get('state')}`;
       return authUtil.withBrowserActionTimeout(3000, get(url));
-    }
-    );
+    });
     await authTest.createConnection(connectionOptionAuthorizationCode);
     await authTest.connectAsync();
     authTest.verifyNoErrorWasThrown();
@@ -76,10 +88,12 @@ describe('Oauth Refresh token for Autorization Code', function () {
     assert.strictEqual(refreshTokenInCache, 'new-refresh-token-123');
   });
 
-
   it('Use refresh token to get new access token', async function () {
     await authUtil.writeToCache(refreshTokenKey, 'first_refresh_token');
-    await addWireMockMappingsFromFile(wireMock, 'wiremock/mappings/oauth/token_cache_and_refresh/refreshing_expired_access_token.json');
+    await addWireMockMappingsFromFile(
+      wireMock,
+      'wiremock/mappings/oauth/token_cache_and_refresh/refreshing_expired_access_token.json',
+    );
     await authTest.createConnection(connectionOptionAuthorizationCode);
     await authTest.connectAsync();
     authTest.verifyNoErrorWasThrown();
@@ -96,7 +110,10 @@ describe('Oauth Refresh token for Autorization Code', function () {
     });
     await authUtil.writeToCache(accessTokenKey, 'expired_token');
     await authUtil.writeToCache(refreshTokenKey, 'first_refresh_token');
-    await addWireMockMappingsFromFile(wireMock, 'wiremock/mappings/oauth/token_cache_and_refresh/restarting_full_flow_on_refresh_token_error.json');
+    await addWireMockMappingsFromFile(
+      wireMock,
+      'wiremock/mappings/oauth/token_cache_and_refresh/restarting_full_flow_on_refresh_token_error.json',
+    );
     await authTest.createConnection(connectionOptionAuthorizationCode);
     await authTest.connectAsync();
     authTest.verifyNoErrorWasThrown();
@@ -108,7 +125,10 @@ describe('Oauth Refresh token for Autorization Code', function () {
 
   it('Using cached token for successful authentication ', async function () {
     await authUtil.writeToCache(accessTokenKey, 'reused-access-token-123');
-    await addWireMockMappingsFromFile(wireMock, 'wiremock/mappings/oauth/token_cache_and_refresh/reusing_cached_access_token_to_authenticate.json');
+    await addWireMockMappingsFromFile(
+      wireMock,
+      'wiremock/mappings/oauth/token_cache_and_refresh/reusing_cached_access_token_to_authenticate.json',
+    );
     authTest.createConnection(connectionOptionAuthorizationCode);
     await authTest.connectAsync();
     authTest.verifyNoErrorWasThrown();

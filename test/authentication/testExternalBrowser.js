@@ -21,48 +21,93 @@ describe('External browser authentication tests', function () {
 
   describe('External browser tests', async () => {
     it('Successful connection', async () => {
-      const connectionOption = { ...connParameters.externalBrowser, clientStoreTemporaryCredential: false };
+      const connectionOption = {
+        ...connParameters.externalBrowser,
+        clientStoreTemporaryCredential: false,
+      };
       authTest.createConnection(connectionOption);
-      const provideCredentialsPromise = authTest.execWithTimeout('node', [provideBrowserCredentialsPath, 'success', login, password], 15000);
+      const provideCredentialsPromise = authTest.execWithTimeout(
+        'node',
+        [provideBrowserCredentialsPath, 'success', login, password],
+        15000,
+      );
       await authTest.connectAndProvideCredentials(provideCredentialsPromise);
       authTest.verifyNoErrorWasThrown();
       await authTest.verifyConnectionIsUp();
     });
 
     it('Mismatched Username', async () => {
-      const connectionOption = { ...connParameters.externalBrowser, username: 'differentUsername', clientStoreTemporaryCredential: false };
+      const connectionOption = {
+        ...connParameters.externalBrowser,
+        username: 'differentUsername',
+        clientStoreTemporaryCredential: false,
+      };
       authTest.createConnection(connectionOption);
-      const provideCredentialsPromise = authTest.execWithTimeout('node', [provideBrowserCredentialsPath, 'success', login, password], 15000);
+      const provideCredentialsPromise = authTest.execWithTimeout(
+        'node',
+        [provideBrowserCredentialsPath, 'success', login, password],
+        15000,
+      );
       await authTest.connectAndProvideCredentials(provideCredentialsPromise);
-      authTest.verifyErrorWasThrown('The user you were trying to authenticate as differs from the user currently logged in at the IDP.');
-      await authTest.verifyConnectionIsNotUp('Unable to perform operation using terminated connection.');
+      authTest.verifyErrorWasThrown(
+        'The user you were trying to authenticate as differs from the user currently logged in at the IDP.',
+      );
+      await authTest.verifyConnectionIsNotUp(
+        'Unable to perform operation using terminated connection.',
+      );
     });
 
     it('Wrong credentials', async () => {
       const login = 'itsnotanaccount.com';
       const password = 'fakepassword';
-      const connectionOption = { ...connParameters.externalBrowser, browserActionTimeout: 10000, clientStoreTemporaryCredential: false };
+      const connectionOption = {
+        ...connParameters.externalBrowser,
+        browserActionTimeout: 10000,
+        clientStoreTemporaryCredential: false,
+      };
       authTest.createConnection(connectionOption);
-      const provideCredentialsPromise = authTest.execWithTimeout('node', [provideBrowserCredentialsPath, 'fail', login, password]);
+      const provideCredentialsPromise = authTest.execWithTimeout('node', [
+        provideBrowserCredentialsPath,
+        'fail',
+        login,
+        password,
+      ]);
       await authTest.connectAndProvideCredentials(provideCredentialsPromise);
-      authTest.verifyErrorWasThrown('Error while getting SAML token: Browser action timed out after 10000 ms.');
+      authTest.verifyErrorWasThrown(
+        'Error while getting SAML token: Browser action timed out after 10000 ms.',
+      );
       await authTest.verifyConnectionIsNotUp();
     });
 
     it('External browser timeout', async () => {
-      const connectionOption = { ...connParameters.externalBrowser, browserActionTimeout: 100, clientStoreTemporaryCredential: false };
+      const connectionOption = {
+        ...connParameters.externalBrowser,
+        browserActionTimeout: 100,
+        clientStoreTemporaryCredential: false,
+      };
       authTest.createConnection(connectionOption);
-      const connectToBrowserPromise = authTest.execWithTimeout('node', [provideBrowserCredentialsPath, 'timeout']);
+      const connectToBrowserPromise = authTest.execWithTimeout('node', [
+        provideBrowserCredentialsPath,
+        'timeout',
+      ]);
       await authTest.connectAndProvideCredentials(connectToBrowserPromise);
-      authTest.verifyErrorWasThrown('Error while getting SAML token: Browser action timed out after 100 ms.');
+      authTest.verifyErrorWasThrown(
+        'Error while getting SAML token: Browser action timed out after 100 ms.',
+      );
       await authTest.verifyConnectionIsNotUp();
     });
   });
 
   describe('ID Token authentication tests', async () => {
-    const connectionOption = { ...connParameters.externalBrowser, clientStoreTemporaryCredential: true };
-    const idTokenKey = authUtil.buildOauthAccessTokenCacheKey(connectionOption.host,
-      connectionOption.username, AuthenticationTypes.ID_TOKEN_AUTHENTICATOR);
+    const connectionOption = {
+      ...connParameters.externalBrowser,
+      clientStoreTemporaryCredential: true,
+    };
+    const idTokenKey = authUtil.buildOauthAccessTokenCacheKey(
+      connectionOption.host,
+      connectionOption.username,
+      AuthenticationTypes.ID_TOKEN_AUTHENTICATOR,
+    );
 
     let firstIdToken;
 
@@ -76,7 +121,11 @@ describe('External browser authentication tests', function () {
 
     it('obtains the id token from the server and saves it on the local storage', async function () {
       authTest.createConnection(connectionOption);
-      const provideCredentialsPromise = authTest.execWithTimeout('node', [provideBrowserCredentialsPath, 'success', login, password], 15000);
+      const provideCredentialsPromise = authTest.execWithTimeout(
+        'node',
+        [provideBrowserCredentialsPath, 'success', login, password],
+        15000,
+      );
       await authTest.connectAndProvideCredentials(provideCredentialsPromise);
       authTest.verifyNoErrorWasThrown();
       await authTest.verifyConnectionIsUp();
@@ -87,17 +136,21 @@ describe('External browser authentication tests', function () {
       assert.notStrictEqual(firstIdToken, null);
     });
 
-    it('authenticates by token, browser credentials not needed',  async function () {
+    it('authenticates by token, browser credentials not needed', async function () {
       authTest.createConnection(connectionOption);
       await authTest.connectAsync();
       authTest.verifyNoErrorWasThrown();
       await authTest.verifyConnectionIsUp();
     });
 
-    it('opens browser again when token is incorrect',  async function () {
+    it('opens browser again when token is incorrect', async function () {
       await authUtil.removeFromCache(idTokenKey);
       authTest.createConnection(connectionOption);
-      const provideCredentialsPromise = authTest.execWithTimeout('node', [provideBrowserCredentialsPath, 'success', login, password], 15000);
+      const provideCredentialsPromise = authTest.execWithTimeout(
+        'node',
+        [provideBrowserCredentialsPath, 'success', login, password],
+        15000,
+      );
       await authTest.connectAndProvideCredentials(provideCredentialsPromise);
       authTest.verifyNoErrorWasThrown();
       await authTest.verifyConnectionIsUp();

@@ -12,7 +12,6 @@ const { configureLogger } = require('../configureLogger');
 let tempDir = null;
 
 describe('Easy logging tests', function () {
-
   before(async function () {
     tempDir = await fsPromises.mkdtemp(path.join(os.tmpdir(), 'easy_logging_connect_tests_'));
   });
@@ -37,7 +36,10 @@ describe('Easy logging tests', function () {
         } else {
           Logger.getInstance().info('Logging something');
           assert.strictEqual(Logger.getInstance().getLevelTag(), logLevel);
-          assert.strictEqual(Logger.getInstance().getTransportLabels().toString(), ['File'].toString());
+          assert.strictEqual(
+            Logger.getInstance().getTransportLabels().toString(),
+            ['File'].toString(),
+          );
           done();
         }
       });
@@ -52,7 +54,10 @@ describe('Easy logging tests', function () {
       connection.connect((err) => {
         if (err) {
           try {
-            assert.strictEqual(err.message, errorMessages[codes.ERR_CONN_CONNECT_INVALID_CLIENT_CONFIG]);
+            assert.strictEqual(
+              err.message,
+              errorMessages[codes.ERR_CONN_CONNECT_INVALID_CLIENT_CONFIG],
+            );
             assert.strictEqual(err.code, codes.ERR_CONN_CONNECT_INVALID_CLIENT_CONFIG);
             done();
           } catch (e) {
@@ -65,7 +70,7 @@ describe('Easy logging tests', function () {
     });
   });
 
-  it('Should apply easy logging config when connection is being opened asynchronously', async function (){
+  it('Should apply easy logging config when connection is being opened asynchronously', async function () {
     // given
     const logLevel = 'ERROR';
     const configFilePath = await createConfigFile(logLevel);
@@ -79,7 +84,7 @@ describe('Easy logging tests', function () {
     assert.strictEqual(Logger.getInstance().getLevelTag(), logLevel);
   });
 
-  it('Should fail to connect asynchronously with wrong easy logging config', async function (){
+  it('Should fail to connect asynchronously with wrong easy logging config', async function () {
     // given
     const logLevel = 'something weird';
     const configFilePath = await createConfigFile(logLevel);
@@ -90,10 +95,13 @@ describe('Easy logging tests', function () {
     await assert.rejects(
       async () => await connection.connectAsync(),
       (err) => {
-        assert.strictEqual(err.message, errorMessages[codes.ERR_CONN_CONNECT_INVALID_CLIENT_CONFIG]);
+        assert.strictEqual(
+          err.message,
+          errorMessages[codes.ERR_CONN_CONNECT_INVALID_CLIENT_CONFIG],
+        );
         assert.strictEqual(err.code, codes.ERR_CONN_CONNECT_INVALID_CLIENT_CONFIG);
         return true;
-      }
+      },
     );
   });
 

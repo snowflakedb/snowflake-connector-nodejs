@@ -4,7 +4,6 @@ const os = require('os');
 const fs = require('fs/promises');
 const SnowflakeEncryptionUtil = require('../../lib/file_transfer_agent/encrypt_util').EncryptUtil;
 
-
 describe('Test Encryption/Decryption', function () {
   const BASE64 = 'base64';
   const UTF8 = 'utf-8';
@@ -30,9 +29,9 @@ describe('Test Encryption/Decryption', function () {
     const data = 'abc';
 
     const encryptionMaterial = {
-      'queryStageMasterKey': 'YWJjZGVmMTIzNDU2Nzg5MA==',
-      'queryId': 'unused',
-      'smkId': '123'
+      queryStageMasterKey: 'YWJjZGVmMTIzNDU2Nzg5MA==',
+      queryId: 'unused',
+      smkId: '123',
     };
 
     const { dataStream, encryptionMetadata } = encryptUtil.encryptDataGCM(encryptionMaterial, data);
@@ -54,29 +53,51 @@ describe('Test Encryption/Decryption', function () {
 
   it('GCM - Encrypt and decrypt file', async function () {
     await encryptAndDecryptFile('gcm', async function (encryptionMaterial, inputFilePath) {
-      const output = await encryptUtil.encryptFileGCM(encryptionMaterial, inputFilePath, os.tmpdir());
-      return await encryptUtil.decryptFileGCM(output.encryptionMetadata, encryptionMaterial, output.dataFile, os.tmpdir());
+      const output = await encryptUtil.encryptFileGCM(
+        encryptionMaterial,
+        inputFilePath,
+        os.tmpdir(),
+      );
+      return await encryptUtil.decryptFileGCM(
+        output.encryptionMetadata,
+        encryptionMaterial,
+        output.dataFile,
+        os.tmpdir(),
+      );
     });
   });
 
   it('CBC - Encrypt and decrypt file', async function () {
     await encryptAndDecryptFile('cbc', async function (encryptionMaterial, inputFilePath) {
-      const output = await encryptUtil.encryptFileCBC(encryptionMaterial, inputFilePath, os.tmpdir());
-      return await encryptUtil.decryptFileCBC(output.encryptionMetadata, encryptionMaterial, output.dataFile, os.tmpdir());
+      const output = await encryptUtil.encryptFileCBC(
+        encryptionMaterial,
+        inputFilePath,
+        os.tmpdir(),
+      );
+      return await encryptUtil.decryptFileCBC(
+        output.encryptionMetadata,
+        encryptionMaterial,
+        output.dataFile,
+        os.tmpdir(),
+      );
     });
   });
-  
+
   async function encryptAndDecryptFile(encryptionTypeName, encryptAndDecrypt) {
     const data = 'abc';
     const inputFilePath = path.join(os.tmpdir(), `${encryptionTypeName}_file_encryption_test`);
     await fs.writeFile(inputFilePath, data);
 
     const encryptionMaterial = {
-      'queryStageMasterKey': 'YWJjZGVmMTIzNDU2Nzg5MA==',
-      'queryId': 'unused',
-      'smkId': '123'
+      queryStageMasterKey: 'YWJjZGVmMTIzNDU2Nzg5MA==',
+      queryId: 'unused',
+      smkId: '123',
     };
-    const decryptedFilePath = await encryptAndDecrypt(encryptionMaterial, inputFilePath, os.tmpdir());
+    const decryptedFilePath = await encryptAndDecrypt(
+      encryptionMaterial,
+      inputFilePath,
+      os.tmpdir(),
+    );
     const decryptedContent = await fs.readFile(decryptedFilePath);
     assert.strictEqual(decryptedContent.toString('utf-8'), data);
   }

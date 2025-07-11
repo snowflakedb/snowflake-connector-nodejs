@@ -5,4 +5,4 @@ module.exports = {
   fullTrace: true,
   recursive: true,
   extension: ['js', 'ts'],
-}
+};

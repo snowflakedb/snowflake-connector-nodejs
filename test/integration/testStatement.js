@@ -17,16 +17,14 @@ describe('Statement Tests', function () {
   });
 
   it('with a valid token', function (done) {
-
     const coreInst = Core({
       qaMode: true,
       httpClientClass: require('./../../lib/http/node').NodeHttpClient,
       loggerClass: require('./../../lib/logger/node'),
-      client:
-          {
-            version: Util.driverVersion,
-            environment: process.versions
-          }
+      client: {
+        version: Util.driverVersion,
+        environment: process.versions,
+      },
     });
 
     const tokenConn = coreInst.createConnection(connectionOptions.valid);
@@ -39,37 +37,43 @@ describe('Statement Tests', function () {
             assert.ok(!err, 'there should be no error');
             const sessionToken = tokenConn.getTokens().sessionToken;
             assert.ok(sessionToken);
-            goodConnection = snowflake.createConnection(Object.assign({}, connectionOptions.valid, {
-              username: undefined, password: undefined, sessionToken
-            }));
+            goodConnection = snowflake.createConnection(
+              Object.assign({}, connectionOptions.valid, {
+                username: undefined,
+                password: undefined,
+                sessionToken,
+              }),
+            );
 
             callback();
           });
         },
         function (callback) {
-          statement = goodConnection.execute(
-            {
-              sqlText: sqlText,
-              complete: function (err, stmt) {
-                assert.ok(!err, 'there should be no error');
-                assert.strictEqual(stmt, statement,
-                  'the execute() callback should be invoked with the statement');
+          statement = goodConnection.execute({
+            sqlText: sqlText,
+            complete: function (err, stmt) {
+              assert.ok(!err, 'there should be no error');
+              assert.strictEqual(
+                stmt,
+                statement,
+                'the execute() callback should be invoked with the statement',
+              );
 
-                // we should only have one column c1
-                const columns = statement.getColumns();
-                assert.ok(columns);
-                assert.strictEqual(columns.length, 1);
-                assert.ok(columns[0]);
-                assert.strictEqual(columns[0].getName(), 'c1');
+              // we should only have one column c1
+              const columns = statement.getColumns();
+              assert.ok(columns);
+              assert.strictEqual(columns.length, 1);
+              assert.ok(columns[0]);
+              assert.strictEqual(columns[0].getName(), 'c1');
 
-                assert.strictEqual(statement.getNumRows(), 1);
-                assert.ok(statement.getSessionState());
-                assert.ok(statement.getStatementId());
-                assert.ok(statement.getQueryId());
+              assert.strictEqual(statement.getNumRows(), 1);
+              assert.ok(statement.getSessionState());
+              assert.ok(statement.getStatementId());
+              assert.ok(statement.getQueryId());
 
-                callback();
-              }
-            });
+              callback();
+            },
+          });
 
           // the sql text should be the same as what was passed in
           assert.strictEqual(statement.getSqlText(), sqlText);
@@ -81,7 +85,6 @@ describe('Statement Tests', function () {
           assert.strictEqual(statement.getSessionState(), undefined);
           assert.strictEqual(statement.getStatementId(), undefined);
           assert.strictEqual(statement.getQueryId(), undefined);
-            
         },
         function (callback) {
           assert.ok(goodConnection.isUp(), 'not active');
@@ -89,48 +92,58 @@ describe('Statement Tests', function () {
         },
         function (callback) {
           const rows = [];
-          statement.fetchRows(
-            {
-              each: function (row) {
-                rows.push(row);
-              },
-              end: function (err, stmt) {
-                assert.ok(!err, 'there should be no error');
-                assert.strictEqual(stmt, statement,
-                  'the end() callback should be invoked with the statement');
-                assert.strictEqual(rows.length, 1, 'there should only be one row');
-                assert.strictEqual(rows[0].getColumnValue('c1'), 1,
-                  'the row should only have one column c1 and its value ' +
-                    'should be 1');
+          statement.fetchRows({
+            each: function (row) {
+              rows.push(row);
+            },
+            end: function (err, stmt) {
+              assert.ok(!err, 'there should be no error');
+              assert.strictEqual(
+                stmt,
+                statement,
+                'the end() callback should be invoked with the statement',
+              );
+              assert.strictEqual(rows.length, 1, 'there should only be one row');
+              assert.strictEqual(
+                rows[0].getColumnValue('c1'),
+                1,
+                'the row should only have one column c1 and its value ' + 'should be 1',
+              );
 
-                callback();
-              }
-            });
-        }
+              callback();
+            },
+          });
+        },
       ],
       function () {
         done();
-      });
-  }
-  );
+      },
+    );
+  });
 
   it('with an invalid token', function (done) {
-    const badConnection = snowflake.createConnection(Object.assign({}, connectionOptions.valid, {
-      username: undefined, password: undefined, sessionToken: 'invalid token'
-    }));
+    const badConnection = snowflake.createConnection(
+      Object.assign({}, connectionOptions.valid, {
+        username: undefined,
+        password: undefined,
+        sessionToken: 'invalid token',
+      }),
+    );
     let statement;
     async.series(
       [
         function (callback) {
-          statement = badConnection.execute(
-            {
-              sqlText: sqlText,
-              complete: function (err) {
-                assert.ok(err !== undefined, 'expect an error');
-                assert.ok(err.code === ErrorCodes.ERR_SF_RESPONSE_INVALID_TOKEN, 'Should throw invalid token error');
-                callback();
-              }
-            });
+          statement = badConnection.execute({
+            sqlText: sqlText,
+            complete: function (err) {
+              assert.ok(err !== undefined, 'expect an error');
+              assert.ok(
+                err.code === ErrorCodes.ERR_SF_RESPONSE_INVALID_TOKEN,
+                'Should throw invalid token error',
+              );
+              callback();
+            },
+          });
 
           // the sql text should be the same as what was passed in
           assert.strictEqual(statement.getSqlText(), sqlText);
@@ -150,7 +163,8 @@ describe('Statement Tests', function () {
       ],
       function () {
         done();
-      });
+      },
+    );
   });
 
   it('statement api', function (done) {
@@ -161,36 +175,41 @@ describe('Statement Tests', function () {
         function (callback) {
           connection.connect(function (err, conn) {
             assert.ok(!err, 'there should be no error');
-            assert.strictEqual(conn, connection,
-              'the connect() callback should be invoked with the statement');
+            assert.strictEqual(
+              conn,
+              connection,
+              'the connect() callback should be invoked with the statement',
+            );
 
             callback();
           });
         },
         function (callback) {
-          statement = connection.execute(
-            {
-              sqlText: sqlText,
-              complete: function (err, stmt) {
-                assert.ok(!err, 'there should be no error');
-                assert.strictEqual(stmt, statement,
-                  'the execute() callback should be invoked with the statement');
+          statement = connection.execute({
+            sqlText: sqlText,
+            complete: function (err, stmt) {
+              assert.ok(!err, 'there should be no error');
+              assert.strictEqual(
+                stmt,
+                statement,
+                'the execute() callback should be invoked with the statement',
+              );
 
-                // we should only have one column c1
-                const columns = statement.getColumns();
-                assert.ok(columns);
-                assert.strictEqual(columns.length, 1);
-                assert.ok(columns[0]);
-                assert.strictEqual(columns[0].getName(), 'c1');
+              // we should only have one column c1
+              const columns = statement.getColumns();
+              assert.ok(columns);
+              assert.strictEqual(columns.length, 1);
+              assert.ok(columns[0]);
+              assert.strictEqual(columns[0].getName(), 'c1');
 
-                assert.strictEqual(statement.getNumRows(), 1);
-                assert.ok(statement.getSessionState());
-                assert.ok(statement.getStatementId());
-                assert.ok(statement.getQueryId());
+              assert.strictEqual(statement.getNumRows(), 1);
+              assert.ok(statement.getSessionState());
+              assert.ok(statement.getStatementId());
+              assert.ok(statement.getQueryId());
 
-                callback();
-              }
-            });
+              callback();
+            },
+          });
 
           // the sql text should be the same as what was passed in
           assert.strictEqual(statement.getSqlText(), sqlText);
@@ -209,28 +228,33 @@ describe('Statement Tests', function () {
         },
         function (callback) {
           const rows = [];
-          statement.fetchRows(
-            {
-              each: function (row) {
-                rows.push(row);
-              },
-              end: function (err, stmt) {
-                assert.ok(!err, 'there should be no error');
-                assert.strictEqual(stmt, statement,
-                  'the end() callback should be invoked with the statement');
-                assert.strictEqual(rows.length, 1, 'there should only be one row');
-                assert.strictEqual(rows[0].getColumnValue('c1'), 1,
-                  'the row should only have one column c1 and its value ' +
-                  'should be 1');
+          statement.fetchRows({
+            each: function (row) {
+              rows.push(row);
+            },
+            end: function (err, stmt) {
+              assert.ok(!err, 'there should be no error');
+              assert.strictEqual(
+                stmt,
+                statement,
+                'the end() callback should be invoked with the statement',
+              );
+              assert.strictEqual(rows.length, 1, 'there should only be one row');
+              assert.strictEqual(
+                rows[0].getColumnValue('c1'),
+                1,
+                'the row should only have one column c1 and its value ' + 'should be 1',
+              );
 
-                callback();
-              }
-            });
-        }
+              callback();
+            },
+          });
+        },
       ],
       function () {
         done();
-      });
+      },
+    );
   });
 });
 
@@ -259,18 +283,19 @@ describe('Call Statement', function () {
                 assert.strictEqual(true, row.status.includes('success'));
                 callback();
               });
-            }
+            },
           });
         },
         function (callback) {
           const statement = connection.execute({
-            sqlText: 'create or replace procedure\n'
-              + 'TEST_SP_CALL_STMT_ENABLED(in1 float, in2 variant)\n'
-              + 'returns string language javascript as $$\n'
-              + 'let res = snowflake.execute({sqlText: \'select ? c1, ? c2\', binds:[IN1, JSON.stringify(IN2)]});\n'
-              + 'res.next();\n'
-              + 'return res.getColumnValueAsString(1) + \' \' + res.getColumnValueAsString(2) + \' \' + IN2;\n'
-              + '$$;',
+            sqlText:
+              'create or replace procedure\n' +
+              'TEST_SP_CALL_STMT_ENABLED(in1 float, in2 variant)\n' +
+              'returns string language javascript as $$\n' +
+              "let res = snowflake.execute({sqlText: 'select ? c1, ? c2', binds:[IN1, JSON.stringify(IN2)]});\n" +
+              'res.next();\n' +
+              "return res.getColumnValueAsString(1) + ' ' + res.getColumnValueAsString(2) + ' ' + IN2;\n" +
+              '$$;',
             complete: function () {
               const stream = statement.streamRows();
               stream.on('error', function (err) {
@@ -282,7 +307,7 @@ describe('Call Statement', function () {
               stream.on('end', function () {
                 callback();
               });
-            }
+            },
           });
         },
         function (callback) {
@@ -301,7 +326,7 @@ describe('Call Statement', function () {
               stream.on('end', function () {
                 callback();
               });
-            }
+            },
           });
         },
         function (callback) {
@@ -318,12 +343,13 @@ describe('Call Statement', function () {
               stream.on('end', function () {
                 callback();
               });
-            }
+            },
           });
-        }
+        },
       ],
       function () {
         done();
-      });
+      },
+    );
   });
 });

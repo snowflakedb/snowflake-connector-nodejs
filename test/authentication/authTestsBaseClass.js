@@ -4,10 +4,9 @@ const snowflake = require('../../lib/snowflake');
 const { spawn } = require('child_process');
 
 class AuthTest {
-
   runAuthTestsManually = process.env.RUN_AUTH_TESTS_MANUALLY === 'true';
   cleanBrowserProcessesPath = '/externalbrowser/cleanBrowserProcesses.js';
-  
+
   constructor() {
     this.connection = null;
     this.error = null;
@@ -24,14 +23,14 @@ class AuthTest {
   async waitForCallbackCompletion() {
     const timeout = Date.now() + 5000;
     while (Date.now() < timeout) {
-      await new Promise(resolve => setTimeout(resolve, 100));
+      await new Promise((resolve) => setTimeout(resolve, 100));
       if (this.callbackCompleted) {
         return;
       }
     }
     throw new Error('Connection callback did not complete');
   }
-  
+
   async createConnection(connectionOption) {
     try {
       const connection = snowflake.createConnection(connectionOption);
@@ -57,8 +56,10 @@ class AuthTest {
     await testUtil.executeCmdAsync(this.connection, 'Select 1');
   }
 
-  async verifyConnectionIsNotUp(message = 'Unable to perform operation because a connection was never established.') {
-    assert.ok(!(this.connection.isUp()), 'Connection should not be up');
+  async verifyConnectionIsNotUp(
+    message = 'Unable to perform operation because a connection was never established.',
+  ) {
+    assert.ok(!this.connection.isUp(), 'Connection should not be up');
     try {
       await testUtil.executeCmdAsync(this.connection, 'Select 1');
       assert.fail('Expected error was not thrown');

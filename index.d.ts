@@ -348,7 +348,7 @@ declare module 'snowflake-sdk' {
     /**
      *  The option to pass passcode from DUO.
      */
-    passcode?: string
+    passcode?: string;
 
     /**
      * Optional string that can be used to tag queries and other SQL statements executed within a connection. The tags are displayed in the output of the QUERY_HISTORY , QUERY_HISTORY_BY_* functions.

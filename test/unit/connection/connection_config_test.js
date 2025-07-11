@@ -773,6 +773,28 @@ describe('ConnectionConfig: basic', function () {
       },
       errorCode: ErrorCodes.ERR_CONN_CREATE_INVALID_OUATH_AUTHORIZATION_URL,
     },
+    {
+      name: 'invalid query tag - not a string',
+
+      options: {
+        account: 'account',
+        username: 'username',
+        password: 'password',
+        queryTag: 1234,
+      },
+      errorCode: ErrorCodes.ERR_CONN_CREATE_INVALID_QUERY_TAG,
+    },
+    {
+      name: 'invalid query tag - too long',
+
+      options: {
+        account: 'account',
+        username: 'username',
+        password: 'password',
+        queryTag: 'a'.repeat(2001),
+      },
+      errorCode: ErrorCodes.ERR_CONN_CREATE_INVALID_QUERY_TAG,
+    },
   ];
 
   const createNegativeITCallback = function (testCase) {
@@ -1134,73 +1156,6 @@ describe('ConnectionConfig: basic', function () {
         username: 'username',
         password: 'password',
       },
-      {
-        name: 'invalid query tag - not a string',
-
-        options: {
-          account: 'account',
-          username: 'username',
-          password: 'password',
-          queryTag: 1234
-
-        },
-        errorCode: ErrorCodes.ERR_CONN_CREATE_INVALID_QUERY_TAG
-      },
-      {
-        name: 'invalid query tag - too long',
-
-        options: {
-          account: 'account',
-          username: 'username',
-          password: 'password',
-          queryTag: 'a'.repeat(2001)
-        },
-        errorCode: ErrorCodes.ERR_CONN_CREATE_INVALID_QUERY_TAG
-      },
-    ];
-
-  const createNegativeITCallback = function (testCase) {
-    return function () {
-      let error;
-
-      try {
-        new ConnectionConfig(testCase.options);
-      } catch (err) {
-        error = err;
-      } finally {
-        assert.ok(error);
-        assert.strictEqual(error.code, testCase.errorCode);
-      }
-    };
-  };
-
-  let index, length, testCase;
-  for (index = 0, length = negativeTestCases.length; index < length; index++) {
-    testCase = negativeTestCases[index];
-    it(testCase.name, createNegativeITCallback(testCase));
-  }
-
-  ///////////////////////////////////////////////////////////////////////////
-  //// Test valid arguments                                              ////
-  ///////////////////////////////////////////////////////////////////////////
-
-  const testCases =
-    [
-      {
-        name: 'basic',
-        input:
-          {
-            username: 'username',
-            password: 'password',
-            account: 'account'
-          },
-        options:
-          {
-            accessUrl: 'https://account.snowflakecomputing.com',
-            username: 'username',
-            password: 'password',
-            account: 'account'
-          }
     },
     {
       name: 'oauth without username',

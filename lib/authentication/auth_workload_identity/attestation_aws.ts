@@ -1,16 +1,16 @@
 import Logger from '../../logger';
-let defaultProvider: typeof import('@aws-sdk/credential-provider-node') | null = null;
-let MetadataService: typeof import('@aws-sdk/ec2-metadata-service').MetadataService | null = null;
-let HttpRequest: typeof import('@aws-sdk/protocol-http').HttpRequest | null = null;
-let SignatureV4: typeof import('@aws-sdk/signature-v4').SignatureV4 | null = null;
-let Sha256: typeof import('@aws-crypto/sha256-js').Sha256 | null = null;
+let CredentialProvider: typeof import('@aws-sdk/credential-provider-node') | null = null;
+let MetadataServiceModule: typeof import('@aws-sdk/ec2-metadata-service') | null = null;
+let HttpRequestModule: typeof import('@aws-sdk/protocol-http') | null = null;
+let SignatureV4Module: typeof import('@aws-sdk/signature-v4') | null = null;
+let Sha256Module: typeof import('@aws-crypto/sha256-js') | null = null;
 
 try {
-  defaultProvider = require('@aws-sdk/credential-provider-node');
-  MetadataService = require('@aws-sdk/ec2-metadata-service');
-  HttpRequest = require('@aws-sdk/protocol-http');
-  SignatureV4 = require('@aws-sdk/signature-v4');
-  Sha256 = require('@aws-crypto/sha256-js');
+  CredentialProvider = require('@aws-sdk/credential-provider-node');
+  MetadataServiceModule = require('@aws-sdk/ec2-metadata-service');
+  HttpRequestModule = require('@aws-sdk/protocol-http');
+  SignatureV4Module = require('@aws-sdk/signature-v4');
+  Sha256Module = require('@aws-crypto/sha256-js');
 } catch (error) {
   Logger().info(
     'one of @aws-sdk workload identity packages is not installed, skipping aws-sdk workload identity features.',
@@ -20,7 +20,8 @@ try {
 export async function getAwsCredentials() {
   try {
     Logger().debug('Getting AWS credentials from default provider');
-    return await defaultProvider?.defaultProvider()();
+    const defaultProvider = await CredentialProvider?.defaultProvider()();
+    return defaultProvider;
   } catch (error) {
     Logger().debug('No AWS credentials were found.');
     return null;
@@ -34,7 +35,8 @@ export async function getAwsRegion() {
   } else {
     try {
       Logger().debug('Getting AWS region from EC2 metadata service');
-      if (MetadataService != null) {
+      if (MetadataServiceModule != null) {
+        const MetadataService = MetadataServiceModule.MetadataService;
         return await new MetadataService().request('/latest/meta-data/placement/region', {}); // EC2
       } else {
         Logger().debug(`EC2 metadata service package does not exist. Return null`);
@@ -68,7 +70,8 @@ export async function getAwsAttestationToken() {
   }
 
   const stsHostname = getStsHostname(region);
-  if (HttpRequest != null && SignatureV4 != null && Sha256 != null) {
+  if (HttpRequestModule && SignatureV4Module && Sha256Module) {
+    const HttpRequest = HttpRequestModule.HttpRequest;
     const request = new HttpRequest({
       method: 'POST',
       protocol: 'https',
@@ -84,6 +87,8 @@ export async function getAwsAttestationToken() {
       },
     });
 
+    const SignatureV4 = SignatureV4Module.SignatureV4;
+    const Sha256 = Sha256Module.Sha256;
     const signedRequest = await new SignatureV4({
       credentials,
       applyChecksum: false,

@@ -1,7 +1,7 @@
 import Logger from '../../logger';
-let mod: typeof import('google-auth-library') | null = null;
+let AuthLibrary: typeof import('google-auth-library') | null = null;
 try {
-  mod = require('google-auth-library');
+  AuthLibrary = require('google-auth-library');
 } catch (error) {
   Logger().info('oogle-auth-library is not installed, skipping google-auth-library.');
 }
@@ -9,8 +9,8 @@ try {
 export const SNOWFLAKE_AUDIENCE = 'snowflakecomputing.com';
 
 export async function getGcpAttestationToken() {
-  if (mod != null) {
-    const GoogleAuth = mod.GoogleAuth;
+  if (AuthLibrary != null) {
+    const GoogleAuth = AuthLibrary.GoogleAuth;
     const auth = new GoogleAuth();
 
     try {

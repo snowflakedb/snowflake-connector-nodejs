@@ -1,8 +1,8 @@
 import Logger from '../../logger';
-let DefaultAzureCredential: typeof import('@azure/identity').DefaultAzureCredential | null = null;
+let AzureIdentity: typeof import('@azure/identity') | null = null;
 
 try {
-  DefaultAzureCredential = require('@azure/identity');
+  AzureIdentity = require('@azure/identity');
 } catch (error) {
   Logger().info('@azure/identity is not installed, skipping azure/identity.');
 }
@@ -10,7 +10,8 @@ try {
 export const DEFAULT_AZURE_ENTRA_ID_RESOURCE = 'api://fd3f753b-eed3-462c-b6a7-a4b5bb650aad';
 
 export async function getAzureAttestationToken(entraIdResource = DEFAULT_AZURE_ENTRA_ID_RESOURCE) {
-  if (DefaultAzureCredential != null) {
+  if (AzureIdentity != null) {
+    const DefaultAzureCredential = AzureIdentity.DefaultAzureCredential;
     const credential = new DefaultAzureCredential({
       // NOTE:
       // We don't want retries because it makes auto-detect mode slow

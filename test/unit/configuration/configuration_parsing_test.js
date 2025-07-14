@@ -124,7 +124,7 @@ describe('toml file Permission Verification', function () {
         } catch (error) {
           assert.strictEqual(
             error.message,
-            `file ${configurationPath} is executable — this poses a security risk because the file could be misused as a script or executed unintentionally. Your Permission: ${permission}`,
+            `file ${configurationPath} is executable — this poses a security risk because the file could be misused as a script or executed unintentionally. File Permission: ${permission}`,
           );
         }
       });
@@ -146,7 +146,7 @@ describe('toml file Permission Verification', function () {
         } catch (error) {
           assert.deepEqual(
             error.message,
-            `file ${configurationPath} is writable by group or others — this poses a security risk because it allows unauthorized users to modify sensitive settings. Your Permission: ${permission}`,
+            `file ${configurationPath} is writable by group or others — this poses a security risk because it allows unauthorized users to modify sensitive settings. File Permission: ${permission}`,
           );
         }
       });

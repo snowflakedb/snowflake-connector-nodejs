@@ -18,13 +18,13 @@ npm install
 echo "[DEBUG] Installing Cloud Dependencies"
 if [[ "$CLOUD_PROVIDER" == "AZURE" ]]; then
     echo "Install Azure"
-    npm install @azure/storage-blob
+    npm install @azure/storage-blob @azure/identity
 elif [[ "$CLOUD_PROVIDER" == "GCP" ]]; then
     echo "Install GCP"
-    npm install @google-cloud/storage
+    npm install @google-cloud/storage google-auth-library
 elif [[ "$CLOUD_PROVIDER" == "AWS" ]]; then
     echo "Install AWS"
-    npm install @aws-sdk/client-s3 
+     npm install @aws-sdk/client-s3 @aws-sdk/signature-v4 @aws-crypto/sha256-js @aws-sdk/credential-provider-node @aws-sdk/ec2-metadata-service @aws-sdk/protocol-http
 else
     echo "[ERROR] unknown cloud provider"
 fi

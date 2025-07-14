@@ -65,13 +65,13 @@ if %ERRORLEVEL% NEQ 0 (
 echo [INFO] Install file_transfer module
 if "%CLOUD_PROVIDER%"=="AZURE" (
   echo [INFO] Install Azure
-  npm install @azure/storage-blob
+  npm install @azure/storage-blob @azure/identity
 ) else if "%CLOUD_PROVIDER%"=="GCP" (
   echo [INFO] Install Google Cloud
-  npm install @google-cloud/storage
+  npm install @google-cloud/storage google-auth-library
 ) else if "%CLOUD_PROVIDER%"=="AWS" (
   echo [INFO] Install AWS SDK
-  npm install @aws-sdk/client-s3 
+  npm install @aws-sdk/client-s3 @aws-sdk/signature-v4 @aws-crypto/sha256-js @aws-sdk/credential-provider-node @aws-sdk/ec2-metadata-service @aws-sdk/protocol-http
 ) else (
   echo === unknown cloud provider
   exit /b 1

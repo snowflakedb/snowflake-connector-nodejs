@@ -3,12 +3,6 @@
   "version": "2.1.2",
   "description": "Node.js driver for Snowflake",
   "dependencies": {
-    "@aws-sdk/signature-v4": "^3.370.0",
-    "@aws-crypto/sha256-js": "^5.2.0",
-    "@aws-sdk/credential-provider-node": "^3.823.0",
-    "@aws-sdk/ec2-metadata-service": "^3.826.0",
-    "@aws-sdk/protocol-http": "^3.370.0",
-    "@azure/identity": "^4.10.1",
     "@smithy/node-http-handler": "^4.0.1",
     "@techteamer/ocsp": "1.0.1",
     "asn1.js-rfc2560": "^5.0.0",
@@ -24,7 +18,6 @@
     "fastest-levenshtein": "^1.0.16",
     "generic-pool": "^3.8.2",
     "glob": "^10.0.0",
-    "google-auth-library": "^10.1.0",
     "https-proxy-agent": "^7.0.2",
     "jsonwebtoken": "^9.0.0",
     "mime-types": "^2.1.29",
@@ -64,7 +57,14 @@
     "asn1.js": "^5.4.1",
     "@aws-sdk/client-s3": "^3.726.0",
     "@azure/storage-blob": "12.26.x",
-    "@google-cloud/storage": "^7.7.0"
+    "@google-cloud/storage": "^7.7.0",
+    "@aws-sdk/signature-v4": "^3.370.0",
+    "@aws-crypto/sha256-js": "^5.2.0",
+    "@aws-sdk/credential-provider-node": "^3.823.0",
+    "@aws-sdk/ec2-metadata-service": "^3.826.0",
+    "@aws-sdk/protocol-http": "^3.370.0",
+    "@azure/identity": "^4.10.1",
+    "google-auth-library": "^10.1.0"
   },
   "peerDependenciesMeta": {
     "@aws-sdk/client-s3": {

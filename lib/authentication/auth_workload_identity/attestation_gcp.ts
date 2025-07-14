@@ -23,5 +23,6 @@ export async function getGcpAttestationToken() {
       return null;
     }
   } else {
+    return null;
   }
 }

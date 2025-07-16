@@ -170,3 +170,5 @@ The build and test pipeline supports TypeScript. You can:
     - If the fix is time consuming - use `// @ts-ignore Error Description` e.g. `// @ts-ignore TS2451: Cannot redeclare block-scoped variable 'toString'.`
     - Do your best to avoid fixing strict mode errors with `(var: any)`
 - Feel free to add more compilation rules to `tsconfig.json`
+
+diff

@@ -2,7 +2,6 @@ const assert = require('assert');
 const sinon = require('sinon');
 const fs = require('fs');
 const SnowflakeGCSUtil = require('./../../../lib/file_transfer_agent/gcs_util');
-const Util = require('../../../lib/util');
 const resultStatus = require('../../../lib/file_util').resultStatus;
 
 describe('GCS client', function () {
@@ -443,13 +442,10 @@ describe('GCS client', function () {
           const util = new SnowflakeGCSUtil(connectionConfig, httpClient());
           util.createClient(meta.stageInfo);
 
-          process.nextTick(() => {
-            const result = util.shouldUseJsonApi(meta);
+          const result = util.shouldUseJsonApi(meta);
+          assert.strictEqual(result, expectedResult);
 
-            assert.strictEqual(result, expectedResult);
-
-            delete process.env.SNOWFLAKE_FORCE_GCP_USE_DOWNSCOPED_CREDENTIAL;
-          });
+          delete process.env.SNOWFLAKE_FORCE_GCP_USE_DOWNSCOPED_CREDENTIAL;
         });
       },
     );

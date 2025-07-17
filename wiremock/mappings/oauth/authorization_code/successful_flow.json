@@ -34,9 +34,7 @@
       "response": {
         "status": 302,
         "headers": {
-          "Content-Type": "application/json"
-        },
-        "headers": {
+          "Content-Type": "application/json",
           "Location": "http://localhost:8009/snowflake/oauth-redirect?code=123&state=abc123"
         }
       }

@@ -1,34 +1,23 @@
 {
   "mappings": [
     {
-      "scenarioName": "Successful OAuth client credentials flow",
+      "scenarioName": "Successful OAuth authorization code flow",
       "requiredScenarioState": "Started",
       "newScenarioState": "Acquired access token",
       "request": {
         "urlPathPattern": "/oauth/token-request.*",
         "method": "POST",
-        "headers": {
-          "Content-Type": {
-            "contains": "application/x-www-form-urlencoded;charset=UTF-8"
+        "bodyPatterns": [
+          {
+            "contains": "grant_type=authorization_code"
+          },
+          {
+            "contains": "code=123"
+          },
+          {
+            "contains": "enable_single_use_refresh_tokens=true"
           }
-        },
-        "formParameters": {
-          "enable_single_use_refresh_tokens": {
-            "equalTo": "true"
-          },
-          "scope": {
-            "equalTo": "session:role:ANALYST"
-          },
-          "grant_type": {
-            "equalTo": "client_credentials"
-          },
-          "client_id": {
-            "equalTo": "123"
-          },
-          "client_secret": {
-            "equalTo": "clientSecret"
-          }
-        }
+        ]
       },
       "response": {
         "status": 200,
@@ -62,7 +51,7 @@
                 "TOKEN": "access-token-123",
                 "LOGIN_NAME": "MOCK_USERNAME",
                 "AUTHENTICATOR": "OAUTH",
-                "OAUTH_TYPE": "OAUTH_CLIENT_CREDENTIALS"
+                "OAUTH_TYPE": "OAUTH_AUTHORIZATION_CODE"
               }
             },
             "ignoreExtraElements": true

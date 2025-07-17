@@ -540,10 +540,6 @@ export function checkParametersDefined(...parameters: any[]) {
   return parameters.every((element) => element !== undefined && element !== null);
 }
 
-export function shouldPerformGCPBucket(accessToken: string) {
-  return !!accessToken && process.env.SNOWFLAKE_FORCE_GCP_USE_DOWNSCOPED_CREDENTIAL !== 'true';
-}
-
 /**
  * Checks if the provided file or directory permissions are correct.
  * @param filePath

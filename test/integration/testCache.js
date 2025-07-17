@@ -3,7 +3,7 @@ const path = require('path');
 const os = require('os');
 const assert = require('assert');
 const { createFsMock, wrongOwner, mockFiles } = require('../unit/mock/mock_file');
-const { validateOnlyUserReadWritePermissionAndOwner } = require('../../lib/file_util');
+const { validateNoExtraPermissionsForOthers } = require('../../lib/file_util');
 const mock = require('mock-require');
 
 describe('Validate cache permissions test', async function () {
@@ -23,9 +23,9 @@ describe('Validate cache permissions test', async function () {
 
     it('should return error on insecure permissions', async function () {
       await assert.rejects(
-        validateOnlyUserReadWritePermissionAndOwner(invalidPermissionsFilePath),
+        validateNoExtraPermissionsForOthers(invalidPermissionsFilePath),
         (err) => {
-          assert.match(err.message, /Invalid file permissions/);
+          assert.match(err.message, /this poses a security risk/);
           return true;
         },
       );
@@ -37,7 +37,7 @@ describe('Validate cache permissions test', async function () {
       mockFiles(fsMock);
       const fsPromises = require('fs/promises');
       await assert.rejects(
-        validateOnlyUserReadWritePermissionAndOwner(anotherFileOwnerPath, fsPromises),
+        validateNoExtraPermissionsForOthers(anotherFileOwnerPath, fsPromises),
         (err) => {
           assert.match(err.message, /Invalid file owner/);
           return true;
@@ -48,7 +48,7 @@ describe('Validate cache permissions test', async function () {
 
     it('should execute successfully on secure permissions', async function () {
       await assert.doesNotReject(
-        async () => await validateOnlyUserReadWritePermissionAndOwner(validPermissionsFilePath),
+        async () => await validateNoExtraPermissionsForOthers(validPermissionsFilePath),
       );
     });
   }

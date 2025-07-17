@@ -375,4 +375,88 @@ if (hasGCP) {
       assert.strictEqual(meta['resultStatus'], resultStatus.RENEW_TOKEN);
     });
   });
+
+  describe('shouldUseJsonApi', () => {
+    const testCases = [
+      {
+        name: 'be true by default',
+        httpClient: () => httpClient,
+        updateMeta: (meta) => {
+          meta.client = { gcsToken: mockAccessToken };
+        },
+        forceGCPUseDownscopedCredential: false,
+        expectedResult: true,
+      },
+      {
+        name: 'be false when token is present and the forceGCPUseDownscopedCredential is enabled',
+        httpClient: () => httpClient,
+        updateMeta: () => {
+          meta.client = { gcsToken: mockAccessToken };
+        },
+        forceGCPUseDownscopedCredential: true,
+        expectedResult: false,
+      },
+      {
+        name: 'by false when token is empty but the forceGCPUseDownscopedCredential is enabled',
+        httpClient: () => httpClient,
+        updateMeta: () => {},
+        forceGCPUseDownscopedCredential: true,
+        expectedResult: false,
+      },
+      {
+        name: 'be false when token is empty and the forceGCPUseDownscopedCredential is disabled',
+        httpClient: () => httpClient,
+        updateMeta: () => {},
+        forceGCPUseDownscopedCredential: false,
+        expectedResult: false,
+      },
+      {
+        name: 'be false when token is empty and the forceGCPUseDownscopedCredential is disabled',
+        httpClient: () => httpClient,
+        updateMeta: () => {},
+        forceGCPUseDownscopedCredential: false,
+        expectedResult: false,
+      },
+      {
+        name: 'be false when proxy',
+        httpClient: () => undefined,
+        updateMeta: (meta) => {
+          meta.client = { gcsToken: mockAccessToken };
+          meta.stageInfo.creds['GCS_ACCESS_TOKEN'] = mockAccessToken;
+        },
+        forceGCPUseDownscopedCredential: false,
+        expectedResult: false,
+      },
+      {
+        name: 'be false when virtual url',
+        httpClient: () => httpClient,
+        updateMeta: (meta) => {
+          meta.stageInfo.useVirtualUrl = true;
+          meta.client = { gcsToken: mockAccessToken };
+          meta.stageInfo.creds['GCS_ACCESS_TOKEN'] = mockAccessToken;
+        },
+        forceGCPUseDownscopedCredential: false,
+        expectedResult: false,
+      },
+    ];
+
+    testCases.forEach(
+      ({ name, httpClient, updateMeta, forceGCPUseDownscopedCredential, expectedResult }) => {
+        it(name, () => {
+          process.env.SNOWFLAKE_FORCE_GCP_USE_DOWNSCOPED_CREDENTIAL =
+            forceGCPUseDownscopedCredential;
+          meta.stageInfo.creds = {};
+          updateMeta(meta);
+          const util = new SnowflakeGCSUtil(connectionConfig, httpClient());
+          util.createClient(meta.stageInfo);
+
+          const result = util.shouldUseJsonApi(meta);
+          assert.strictEqual(result, expectedResult);
+
+          delete process.env.SNOWFLAKE_FORCE_GCP_USE_DOWNSCOPED_CREDENTIAL;
+        });
+      },
+    );
+  });
+});
 }

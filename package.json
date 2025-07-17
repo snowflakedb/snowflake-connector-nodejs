@@ -54,7 +54,6 @@
     "wiremock-rest-client": "^1.11.0"
   },
   "peerDependencies": {
-    "asn1.js": "^5.4.1",
     "@aws-sdk/client-s3": "^3.726.0",
     "@azure/storage-blob": "12.26.x",
     "@google-cloud/storage": "^7.7.0",
@@ -74,6 +73,27 @@
       "optional": true
     },
     "@google-cloud/storage": {
+      "optional": true
+    },
+    "@aws-sdk/signature-v4": {
+      "optional": true
+    },
+    "@aws-crypto/sha256-js": {
+      "optional": true
+    },
+    "@aws-sdk/credential-provider-node": {
+      "optional": true
+    },
+    "@aws-sdk/ec2-metadata-service": {
+      "optional": true
+    },
+    "@aws-sdk/protocol-http": {
+      "optional": true
+    },
+    "@azure/identity": {
+      "optional": true
+    },
+    "google-auth-library": {
       "optional": true
     }
   },

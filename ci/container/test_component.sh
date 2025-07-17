@@ -26,6 +26,22 @@ else
 fi
 npm install
 
+if [[ "$LOCAL_USER_NAME" == "jenkins" ]]; then
+    echo "Jenkins detected, download all modules"
+    npm install @azure/storage-blob @azure/identity @google-cloud/storage google-auth-library @aws-sdk/client-s3 @aws-sdk/signature-v4 @aws-crypto/sha256-js @aws-sdk/credential-provider-node @aws-sdk/ec2-metadata-service @aws-sdk/protocol-http
+elif [[ "$CLOUD_PROVIDER" == "AZURE" ]]; then
+    echo "Install Azure"
+    npm install @azure/storage-blob @azure/identity
+elif [[ "$CLOUD_PROVIDER" == "GCP" ]]; then
+    echo "Install GCP"
+    npm install @google-cloud/storage google-auth-library
+elif [[ "$CLOUD_PROVIDER" == "AWS" ]]; then
+    echo "Install AWS"
+    npm install @aws-sdk/client-s3 @aws-sdk/signature-v4 @aws-crypto/sha256-js @aws-sdk/credential-provider-node @aws-sdk/ec2-metadata-service @aws-sdk/protocol-http
+else
+    echo "[ERROR] unknown cloud provider"
+fi
+
 PACKAGE_NAME=$(cd $WORKSPACE && ls snowflake-sdk*.tgz)
 echo "[INFO] Test $PACKAGE_NAME installation"
 npm install $WORKSPACE/${PACKAGE_NAME}

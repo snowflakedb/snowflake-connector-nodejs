@@ -1,14 +1,27 @@
-import { defaultProvider } from '@aws-sdk/credential-provider-node';
-import { MetadataService } from '@aws-sdk/ec2-metadata-service';
-import { HttpRequest } from '@aws-sdk/protocol-http';
-import { SignatureV4 } from '@aws-sdk/signature-v4';
-import { Sha256 } from '@aws-crypto/sha256-js';
 import Logger from '../../logger';
+let CredentialProvider: typeof import('@aws-sdk/credential-provider-node') | null = null;
+let MetadataServiceModule: typeof import('@aws-sdk/ec2-metadata-service') | null = null;
+let HttpRequestModule: typeof import('@aws-sdk/protocol-http') | null = null;
+let SignatureV4Module: typeof import('@aws-sdk/signature-v4') | null = null;
+let Sha256Module: typeof import('@aws-crypto/sha256-js') | null = null;
+
+try {
+  CredentialProvider = require('@aws-sdk/credential-provider-node');
+  MetadataServiceModule = require('@aws-sdk/ec2-metadata-service');
+  HttpRequestModule = require('@aws-sdk/protocol-http');
+  SignatureV4Module = require('@aws-sdk/signature-v4');
+  Sha256Module = require('@aws-crypto/sha256-js');
+} catch (error) {
+  Logger().info(
+    'one of @aws-sdk workload identity packages is not installed, skipping aws-sdk workload identity features.',
+  );
+}
 
 export async function getAwsCredentials() {
   try {
     Logger().debug('Getting AWS credentials from default provider');
-    return await defaultProvider()();
+    const defaultProvider = await CredentialProvider?.defaultProvider()();
+    return defaultProvider;
   } catch (error) {
     Logger().debug('No AWS credentials were found.');
     return null;
@@ -22,7 +35,13 @@ export async function getAwsRegion() {
   } else {
     try {
       Logger().debug('Getting AWS region from EC2 metadata service');
-      return await new MetadataService().request('/latest/meta-data/placement/region', {}); // EC2
+      if (MetadataServiceModule != null) {
+        const MetadataService = MetadataServiceModule.MetadataService;
+        return await new MetadataService().request('/latest/meta-data/placement/region', {}); // EC2
+      } else {
+        Logger().debug(`EC2 metadata service package does not exist. Return null`);
+        return null;
+      }
     } catch (error) {
       Logger().debug(`Failed to fetch AWS region from EC2 metadata service: ${error}`);
       return null;
@@ -51,32 +70,41 @@ export async function getAwsAttestationToken() {
   }
 
   const stsHostname = getStsHostname(region);
-  const request = new HttpRequest({
-    method: 'POST',
-    protocol: 'https',
-    hostname: stsHostname,
-    path: '/',
-    headers: {
-      host: stsHostname,
-      'x-snowflake-audience': 'snowflakecomputing.com',
-    },
-    query: {
-      Action: 'GetCallerIdentity',
-      Version: '2011-06-15',
-    },
-  });
-  const signedRequest = await new SignatureV4({
-    credentials,
-    applyChecksum: false,
-    region,
-    service: 'sts',
-    sha256: Sha256,
-  }).sign(request);
+  if (HttpRequestModule && SignatureV4Module && Sha256Module) {
+    const HttpRequest = HttpRequestModule.HttpRequest;
+    const request = new HttpRequest({
+      method: 'POST',
+      protocol: 'https',
+      hostname: stsHostname,
+      path: '/',
+      headers: {
+        host: stsHostname,
+        'x-snowflake-audience': 'snowflakecomputing.com',
+      },
+      query: {
+        Action: 'GetCallerIdentity',
+        Version: '2011-06-15',
+      },
+    });
 
-  const token = {
-    url: `https://${stsHostname}/?Action=GetCallerIdentity&Version=2011-06-15`,
-    method: 'POST',
-    headers: signedRequest.headers,
-  };
-  return btoa(JSON.stringify(token));
+    const SignatureV4 = SignatureV4Module.SignatureV4;
+    const Sha256 = Sha256Module.Sha256;
+    const signedRequest = await new SignatureV4({
+      credentials,
+      applyChecksum: false,
+      region,
+      service: 'sts',
+      sha256: Sha256,
+    }).sign(request);
+
+    const token = {
+      url: `https://${stsHostname}/?Action=GetCallerIdentity&Version=2011-06-15`,
+      method: 'POST',
+      headers: signedRequest.headers,
+    };
+    return btoa(JSON.stringify(token));
+  } else {
+    Logger().debug(`HttpRequest, SignatureV4, and Sha256 packages do not exist. Return null`);
+    return null;
+  }
 }

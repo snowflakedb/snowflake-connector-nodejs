@@ -773,6 +773,28 @@ describe('ConnectionConfig: basic', function () {
       },
       errorCode: ErrorCodes.ERR_CONN_CREATE_INVALID_OUATH_AUTHORIZATION_URL,
     },
+    {
+      name: 'invalid query tag - not a string',
+
+      options: {
+        account: 'account',
+        username: 'username',
+        password: 'password',
+        queryTag: 1234,
+      },
+      errorCode: ErrorCodes.ERR_CONN_CREATE_INVALID_QUERY_TAG,
+    },
+    {
+      name: 'invalid query tag - too long',
+
+      options: {
+        account: 'account',
+        username: 'username',
+        password: 'password',
+        queryTag: 'a'.repeat(2001),
+      },
+      errorCode: ErrorCodes.ERR_CONN_CREATE_INVALID_QUERY_TAG,
+    },
   ];
 
   const createNegativeITCallback = function (testCase) {

@@ -7,17 +7,17 @@
       "request": {
         "urlPathPattern": "/oauth/token-request.*",
         "method": "POST",
-        "bodyPatterns": [
-          {
-            "contains": "grant_type=authorization_code"
+        "formParameters": {
+          "grant_type": {
+            "equalTo": "authorization_code"
           },
-          {
-            "contains": "code=123"
+          "code": {
+            "equalTo": "123"
           },
-          {
-            "contains": "enable_single_use_refresh_tokens=true"
+          "enable_single_use_refresh_tokens": {
+            "equalTo": "true"
           }
-        ]
+        }
       },
       "response": {
         "status": 200,

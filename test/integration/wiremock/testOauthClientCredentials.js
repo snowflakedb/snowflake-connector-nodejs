@@ -67,20 +67,4 @@ describe('Oauth Client Credentials authentication', function () {
       'Error while getting access token. Message: "response" body "access_token" property must be a string',
     );
   });
-
-  //no token in response
-  it('Successful flow scenario with single use refresh token - no token', async function () {
-    await addWireMockMappingsFromFile(
-      wireMock,
-      'wiremock/mappings/oauth/client_credentials/successful_flow_with_single_use_refresh_tokens.json',
-    );
-    const extendedConnectionOption = {
-      ...connectionOption,
-      oauthEnableSingleUseRefreshTokens: true,
-    };
-    authTest.createConnection(extendedConnectionOption);
-    await authTest.connectAsync();
-    authTest.verifyNoErrorWasThrown();
-    await authTest.verifyConnectionIsUp();
-  });
 });

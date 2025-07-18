@@ -37,9 +37,6 @@ class AuthOauthClientCredentials implements AuthClass {
 
     const parameters = new URLSearchParams();
     parameters.set('scope', scope);
-    if (this.connectionConfig.oauthEnableSingleUseRefreshTokens) {
-      parameters.set('enable_single_use_refresh_tokens', 'true');
-    }
 
     this.token = await this.requestToken(clientId, clientSecret, parameters);
   }

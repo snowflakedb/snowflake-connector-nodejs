@@ -11,9 +11,17 @@ export function setInstance(newInstance: BrowserLogger) {
 
 /**
  * Returns the current logger instance.
- * @deprecated Use default import:
+ * @deprecated
+ *
+ * In TypeScript, use default import:
  * ```
  *  import Logger from './Logger';
+ *  Logger().info(...)
+ * ```
+ *
+ * In JavaScript, use:
+ * ```
+ *  const Logger = require('./Logger').default;
  *  Logger().info(...)
  * ```
  */

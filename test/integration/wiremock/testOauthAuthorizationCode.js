@@ -122,6 +122,24 @@ describe('Oauth Authorization Code authentication', function () {
     );
   });
 
+  //no token in response
+  it('Successful flow scenario with single use refresh token - no token', async function () {
+    GlobalConfig.setCustomRedirectingClient((redirectUri) => {
+      const url = `${redirectUri.searchParams.get('redirect_uri')}?code=123&state=${redirectUri.searchParams.get('state')}`;
+      return authUtil.withBrowserActionTimeout(3000, get(url));
+    });
+    await addWireMockMappingsFromFile(
+      wireMock,
+      'wiremock/mappings/oauth/authorization_code/successful_flow_with_single_use_refresh_tokens.json',
+    );
+    authTest.createConnection({
+      ...connectionOption,
+      oauthEnableSingleUseRefreshTokens: true,
+    });
+    await authTest.connectAsync();
+    authTest.verifyNoErrorWasThrown();
+  });
+
   it('Should not open browser when the port is unavailable', async function () {
     const PORT = 8011;
 

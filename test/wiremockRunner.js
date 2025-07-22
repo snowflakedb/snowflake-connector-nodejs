@@ -1,29 +1,46 @@
 const WireMockRestClient = require('wiremock-rest-client').WireMockRestClient;
-const { exec } = require('child_process');
+const { spawn } = require('child_process');
 const Logger = require('../lib/logger');
 const fs = require('fs');
 
 async function runWireMockAsync(port) {
   let timeoutHandle;
   const counter = 0;
+  let child;
+
   const waitingWireMockPromise = new Promise((resolve, reject) => {
     try {
-      exec(`npx wiremock --enable-browser-proxying --proxy-pass-through  false --port ${port} `);
+      child = spawn(
+        'npx',
+        [
+          'wiremock',
+          '--enable-browser-proxying',
+          '--proxy-pass-through',
+          'false',
+          '--port',
+          String(port),
+        ],
+        {
+          stdio: 'inherit',
+          shell: true, // For Windows
+        },
+      );
+
+      child.on('exit', () => {});
       const wireMock = new WireMockRestClient(`http://localhost:${port}`, { logLevel: 'debug' });
-      const readyWireMock = waitForWiremockStarted(wireMock, counter);
-      resolve(readyWireMock);
+      waitForWiremockStarted(wireMock, counter).then(resolve).catch(reject);
     } catch (err) {
       reject(err);
     }
   });
 
-  const timeout = new Promise(
-    (resolve, reject) =>
-      (timeoutHandle = setTimeout(() => reject('Wiremock unavailable after 30s.'), 30000)),
-  );
-  return Promise.race([waitingWireMockPromise, timeout]).then((result) => {
+  const timeout = new Promise((_, reject) => {
+    timeoutHandle = setTimeout(() => reject('Wiremock unavailable after 30s.'), 30000);
+  });
+
+  return Promise.race([waitingWireMockPromise, timeout]).finally(() => {
     clearTimeout(timeoutHandle);
-    return result;
+    child.kill();
   });
 }
 

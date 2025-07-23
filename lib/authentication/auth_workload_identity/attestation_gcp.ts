@@ -1,5 +1,5 @@
 import Logger from '../../logger';
-let AuthLibrary: typeof import('google-auth-library') | null = null;
+let AuthLibrary: any = null;
 try {
   AuthLibrary = require('google-auth-library');
 } catch (error) {

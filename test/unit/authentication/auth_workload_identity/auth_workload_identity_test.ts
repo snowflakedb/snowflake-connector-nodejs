@@ -6,7 +6,6 @@ import { AuthRequestBody } from '../../../../lib/authentication/types';
 import OriginalAuthWorkloadIdentity from '../../../../lib/authentication/auth_workload_identity';
 import { assertAwsAttestationToken, AWS_CREDENTIALS, AWS_REGION } from './test_utils';
 import ConnectionConfig from '../../../../lib/connection/connection_config';
-import { has } from 'core-js/core/dict';
 
 let hasGoogleAuth = true;
 let hasAzureIdentity = true;

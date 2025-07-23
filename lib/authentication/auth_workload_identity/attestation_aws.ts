@@ -20,8 +20,11 @@ try {
 export async function getAwsCredentials() {
   try {
     Logger().debug('Getting AWS credentials from default provider');
-    const defaultProvider = await CredentialProvider?.defaultProvider()();
-    return defaultProvider;
+    if (CredentialProvider) {
+      const defaultProvider = await CredentialProvider.defaultProvider()();
+      return defaultProvider;
+    }
+    return null;
   } catch (error) {
     Logger().debug('No AWS credentials were found.');
     return null;

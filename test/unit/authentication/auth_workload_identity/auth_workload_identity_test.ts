@@ -9,6 +9,8 @@ import ConnectionConfig from '../../../../lib/connection/connection_config';
 
 let hasGoogleAuth = true;
 let hasAzureIdentity = true;
+let hasAWSCredential = true;
+
 try {
   require.resolve('google-auth-library');
 } catch (err) {
@@ -21,7 +23,17 @@ try {
   hasAzureIdentity = false;
 }
 
-if (hasGoogleAuth || hasAzureIdentity) {
+try {
+  require.resolve('@aws-sdk/credential-provider-node');
+  require.resolve('@aws-sdk/ec2-metadata-service');
+  require.resolve('@aws-sdk/protocol-http');
+  require.resolve('@aws-sdk/signature-v4');
+  require.resolve('@aws-crypto/sha256-js');
+} catch (err) {
+  hasAWSCredential = false;
+}
+
+if (hasGoogleAuth || hasAzureIdentity || hasAWSCredential) {
   describe('Workload Identity Authentication', async () => {
     const cloudSdkStubs = sinon.createSandbox();
     const awsSdkMock = {
@@ -43,15 +55,18 @@ if (hasGoogleAuth || hasAzureIdentity) {
     before(async () => {
       // NOTE:
       // Sinon can't stub frozen AWS SDK properties, so we need to mock entire require
-      rewiremock('@aws-sdk/credential-provider-node').with({
-        defaultProvider: () => awsSdkMock.getCredentials,
-      });
-      rewiremock('@aws-sdk/ec2-metadata-service').with({
-        MetadataService: class {
-          request = () => awsSdkMock.getMetadataRegion();
-        },
-      });
-      rewiremock.enable();
+      if (hasAWSCredential) {
+        rewiremock('@aws-sdk/credential-provider-node').with({
+          defaultProvider: () => awsSdkMock.getCredentials,
+        });
+        rewiremock('@aws-sdk/ec2-metadata-service').with({
+          MetadataService: class {
+            request = () => awsSdkMock.getMetadataRegion();
+          },
+        });
+
+        rewiremock.enable();
+      }
       AuthWorkloadIdentity = (await import('../../../../lib/authentication/auth_workload_identity'))
         .default;
     });

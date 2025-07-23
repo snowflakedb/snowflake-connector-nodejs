@@ -1,45 +1,54 @@
 import sinon from 'sinon';
 import assert from 'assert';
-import * as AzureIdentity from '@azure/identity';
 import {
   getAzureAttestationToken,
   DEFAULT_AZURE_ENTRA_ID_RESOURCE,
 } from '../../../../lib/authentication/auth_workload_identity/attestation_azure';
 
-describe('Attestation AZURE', () => {
-  const sinonSandbox = sinon.createSandbox();
-  let getAzureTokenStub: sinon.SinonStub;
+let hasAzureIdentity = true;
+try {
+  require.resolve('@azure/identity');
+} catch (err) {
+  hasAzureIdentity = false;
+}
 
-  beforeEach(() => {
-    getAzureTokenStub = sinonSandbox.stub();
-    sinonSandbox
-      .stub(AzureIdentity.DefaultAzureCredential.prototype, 'getToken')
-      .get(() => getAzureTokenStub);
-  });
+if (hasAzureIdentity) {
+  describe('Attestation AZURE', () => {
+    const AzureIdentity = require('@azure/identity');
+    const sinonSandbox = sinon.createSandbox();
+    let getAzureTokenStub: sinon.SinonStub;
 
-  afterEach(() => {
-    sinonSandbox.restore();
-  });
+    beforeEach(() => {
+      getAzureTokenStub = sinonSandbox.stub();
+      sinonSandbox
+        .stub(AzureIdentity.DefaultAzureCredential.prototype, 'getToken')
+        .get(() => getAzureTokenStub);
+    });
 
-  it('uses default Azure Entra Id Resource when none provided', async () => {
-    await getAzureAttestationToken();
-    assert.strictEqual(getAzureTokenStub.firstCall.args[0], DEFAULT_AZURE_ENTRA_ID_RESOURCE);
-  });
+    afterEach(() => {
+      sinonSandbox.restore();
+    });
 
-  it('uses custom Azure Entra Id Resource when provided', async () => {
-    await getAzureAttestationToken('custom-token');
-    assert.strictEqual(getAzureTokenStub.firstCall.args[0], 'custom-token');
-  });
+    it('uses default Azure Entra Id Resource when none provided', async () => {
+      await getAzureAttestationToken();
+      assert.strictEqual(getAzureTokenStub.firstCall.args[0], DEFAULT_AZURE_ENTRA_ID_RESOURCE);
+    });
 
-  it('returns null when fails to get token (missing credentials, no access)', async () => {
-    getAzureTokenStub.throws(new Error('Failed to get token'));
-    const token = await getAzureAttestationToken();
-    assert.strictEqual(token, null);
-  });
+    it('uses custom Azure Entra Id Resource when provided', async () => {
+      await getAzureAttestationToken('custom-token');
+      assert.strictEqual(getAzureTokenStub.firstCall.args[0], 'custom-token');
+    });
 
-  it('returns valid token', async () => {
-    getAzureTokenStub.returns({ token: 'test-token' });
-    const token = await getAzureAttestationToken();
-    assert.strictEqual(token, 'test-token');
+    it('returns null when fails to get token (missing credentials, no access)', async () => {
+      getAzureTokenStub.throws(new Error('Failed to get token'));
+      const token = await getAzureAttestationToken();
+      assert.strictEqual(token, null);
+    });
+
+    it('returns valid token', async () => {
+      getAzureTokenStub.returns({ token: 'test-token' });
+      const token = await getAzureAttestationToken();
+      assert.strictEqual(token, 'test-token');
+    });
   });
-});
+}

@@ -1,9 +1,9 @@
 import Logger from '../../logger';
-let CredentialProvider: typeof import('@aws-sdk/credential-provider-node') | null = null;
-let MetadataServiceModule: typeof import('@aws-sdk/ec2-metadata-service') | null = null;
-let HttpRequestModule: typeof import('@aws-sdk/protocol-http') | null = null;
-let SignatureV4Module: typeof import('@aws-sdk/signature-v4') | null = null;
-let Sha256Module: typeof import('@aws-crypto/sha256-js') | null = null;
+let CredentialProvider: any = null;
+let MetadataServiceModule: any = null;
+let HttpRequestModule: any = null;
+let SignatureV4Module: any | null = null;
+let Sha256Module: any = null;
 
 try {
   CredentialProvider = require('@aws-sdk/credential-provider-node');

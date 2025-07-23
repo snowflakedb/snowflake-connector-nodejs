@@ -1,5 +1,5 @@
 import Logger from '../../logger';
-let AzureIdentity: typeof import('@azure/identity') | null = null;
+let AzureIdentity: any = null;
 
 try {
   AzureIdentity = require('@azure/identity');

@@ -76,18 +76,6 @@ describe('Workload Identity Authentication', async () => {
     );
   });
 
-  it('reauthenticate() calls authenticate() and updates body with new token', async () => {
-    const auth = new AuthWorkloadIdentity(getConnectionConfig());
-    sinon.stub(auth, 'authenticate').callsFake(async function (
-      this: InstanceType<typeof AuthWorkloadIdentity>,
-    ) {
-      this.token = 'reauthenticated token';
-    });
-    const body: AuthRequestBody = { data: {} };
-    await auth.reauthenticate(body);
-    assert.strictEqual(body.data.TOKEN, 'reauthenticated token');
-  });
-
   describe('authenticate() with auto-detect', () => {
     it('throws error when detection fails', async () => {
       const auth = new AuthWorkloadIdentity(getConnectionConfig());

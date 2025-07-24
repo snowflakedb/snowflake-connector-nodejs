@@ -137,7 +137,10 @@ if (hasGoogleAuth || hasAzureIdentity || hasAWSCredential) {
         assert.strictEqual(auth.token, 'test-token');
       });
 
-      it('uses AWS when AWS credentials are found', async () => {
+      it('uses AWS when AWS credentials are found', async function (this: Mocha.Context) {
+        if (!hasAWSCredential) {
+          this.skip();
+        }
         awsSdkMock.getCredentials.returns(AWS_CREDENTIALS);
         awsSdkMock.getMetadataRegion.returns(AWS_REGION);
         const auth = new AuthWorkloadIdentity(getConnectionConfig());
@@ -146,7 +149,10 @@ if (hasGoogleAuth || hasAzureIdentity || hasAWSCredential) {
         assertAwsAttestationToken(auth.token, AWS_REGION);
       });
 
-      it('uses AZURE when Azure credentials are found', async () => {
+      it('uses AZURE when Azure credentials are found', async function (this: Mocha.Context) {
+        if (!hasAzureIdentity) {
+          this.skip();
+        }
         getAzureTokenMock.returns({ token: 'test-token' });
         const auth = new AuthWorkloadIdentity(getConnectionConfig());
         await auth.authenticate();
@@ -154,7 +160,10 @@ if (hasGoogleAuth || hasAzureIdentity || hasAWSCredential) {
         assert.strictEqual(auth.token, 'test-token');
       });
 
-      it('uses GCP when GCP credentials are found', async () => {
+      it('uses GCP when GCP credentials are found', async function (this: Mocha.Context) {
+        if (!hasGoogleAuth) {
+          this.skip();
+        }
         getGcpTokenMock.returns('test-token');
         const auth = new AuthWorkloadIdentity(getConnectionConfig());
         await auth.authenticate();
@@ -189,6 +198,9 @@ if (hasGoogleAuth || hasAzureIdentity || hasAWSCredential) {
     });
 
     describe('authenticate() with AWS', () => {
+      if (!hasAWSCredential) {
+        return;
+      }
       const connectionConfig = getConnectionConfig({
         workloadIdentityProvider: 'AWS',
       });
@@ -215,6 +227,9 @@ if (hasGoogleAuth || hasAzureIdentity || hasAWSCredential) {
     });
 
     describe('authenticate() with AZURE', () => {
+      if (!hasAzureIdentity) {
+        return;
+      }
       const connectionConfig = getConnectionConfig({
         workloadIdentityProvider: 'AZURE',
       });
@@ -241,6 +256,9 @@ if (hasGoogleAuth || hasAzureIdentity || hasAWSCredential) {
     });
 
     describe('authenticate() with GCP', () => {
+      if (!hasGoogleAuth) {
+        return;
+      }
       const connectionConfig = getConnectionConfig({
         workloadIdentityProvider: 'GCP',
       });

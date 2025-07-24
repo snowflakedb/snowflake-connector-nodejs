@@ -44,9 +44,6 @@ describe('Workload Identity Authentication', async () => {
   });
 
   beforeEach(() => {
-    sinon.stub(process, 'env').value({
-      SF_ENABLE_EXPERIMENTAL_AUTHENTICATION: 'true',
-    });
     sinon
       .stub(AzureIdentity.DefaultAzureCredential.prototype, 'getToken')
       .get(() => getAzureTokenMock);
@@ -64,16 +61,6 @@ describe('Workload Identity Authentication', async () => {
 
   after(() => {
     rewiremock.disable();
-  });
-
-  it('throws error when instance is created without SF_ENABLE_EXPERIMENTAL_AUTHENTICATION=true', () => {
-    sinon.stub(process, 'env').value({
-      SF_ENABLE_EXPERIMENTAL_AUTHENTICATION: false,
-    });
-    assert.throws(
-      () => new AuthWorkloadIdentity(getConnectionConfig()),
-      /Experimental Workload identity authentication is not enabled/,
-    );
   });
 
   it('reauthenticate() calls authenticate() and updates body with new token', async () => {

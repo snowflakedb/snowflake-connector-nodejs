@@ -843,15 +843,6 @@ describe('test getAuthenticator()', () => {
     },
     { name: 'unknown', providedAuth: 'unknown', expectedAuth: 'AuthDefault' },
   ].forEach(({ name, providedAuth, expectedAuth, idToken }) => {
-    before(() => {
-      sinon.stub(process, 'env').value({
-        SF_ENABLE_EXPERIMENTAL_AUTHENTICATION: 'true',
-      });
-    });
-    after(() => {
-      sinon.restore();
-    });
-
     it(`${name}`, () => {
       const connectionConfig = {
         getBrowserActionTimeout: () => 100,

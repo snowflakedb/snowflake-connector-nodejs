@@ -171,7 +171,7 @@ describe('Connection test', function () {
     await testUtil.assertActiveConnectionDestroyedCorrectlyAsync(connection);
   });
 
-  it.only('test query tag', function (done) {
+  it('test query tag', function (done) {
     const expectedQueryTag = 'Test QUERY_TAG 12345';
     const connection = snowflake.createConnection({
       ...connOption.valid,

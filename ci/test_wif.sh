@@ -37,6 +37,7 @@ run_tests_and_set_result() {
             fi
             mv snowflake-connector-nodejs-* snowflake-connector-nodejs
             cd snowflake-connector-nodejs
+            npm install
             npm run test:auth-workload-identity-e2e
           "
 EOF

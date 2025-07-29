@@ -101,11 +101,6 @@ declare module 'snowflake-sdk' {
     //Detail information: https://docs.snowflake.com/en/developer-guide/node-js/nodejs-driver-options
 
     /**
-     * Your account identifier.
-     */
-    account: string;
-
-    /**
      * Specifies the name of the client application connecting to Snowflake.
      */
     application?: string;
@@ -116,11 +111,6 @@ declare module 'snowflake-sdk' {
      * end of account parameter after a dot, e.g., account=<account>.<region>.
      */
     region?: string;
-
-    /**
-     * Host address to which the driver should connect.
-     */
-    host?: string;
 
     /**
      * Specifies a fully-qualified endpoint for connecting to Snowflake.

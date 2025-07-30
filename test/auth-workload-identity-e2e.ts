@@ -54,8 +54,8 @@ describe('Workload Identity Authentication E2E', () => {
   }
 });
 
-async function connectAndVerify(connectionOption: WIP_ConnectionOptions) {
-  const connection = snowflake.createConnection(connectionOption);
+async function connectAndVerify(connectionOptions: WIP_ConnectionOptions) {
+  const connection = snowflake.createConnection(connectionOptions);
   await new Promise((resolve, reject) => {
     connection.connect((err?: Error) => {
       if (err) {

@@ -105,7 +105,7 @@ fi
 
 echo "[INFO] Running Tests: Test result: $WORKSPACE/junit.xml"
 echo "[INFO] Listing test directory contents:"
-ls -l test/
+ls -l
 
 if ! ${MOCHA_CMD[@]} 'test/{unit,integration}/**/*.{js,ts}'; then
     echo "[ERROR] Test failed"

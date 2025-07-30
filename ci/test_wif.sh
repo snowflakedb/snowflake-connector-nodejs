@@ -13,7 +13,6 @@ run_tests_and_set_result() {
   local snowflake_host="$3"
   local rsa_key_path="$4"
 
-  # TODO: remove SF_ENABLE_EXPERIMENTAL_AUTHENTICATION=true
   # NOTE: /home/user is the only dir we can write to (SNOW-2232143 to improve WORKDIR)
   # NOTE: Intentionally using lowest supported node version as it has higher risk of issues
   ssh -i "$rsa_key_path" -o IdentitiesOnly=yes -p 443 "$host" env BRANCH="$BRANCH" SNOWFLAKE_TEST_WIF_HOST="$snowflake_host" SNOWFLAKE_TEST_WIF_PROVIDER="$provider" SNOWFLAKE_TEST_WIF_ACCOUNT="$SNOWFLAKE_TEST_WIF_ACCOUNT" bash << EOF
@@ -27,7 +26,6 @@ run_tests_and_set_result() {
         -e SNOWFLAKE_TEST_WIF_PROVIDER \
         -e SNOWFLAKE_TEST_WIF_HOST \
         -e SNOWFLAKE_TEST_WIF_ACCOUNT \
-        -e SF_ENABLE_EXPERIMENTAL_AUTHENTICATION=true \
         snowflakedb/client-nodejs-chainguard-node18-test:1 \
           bash -c "
             cd /home/user

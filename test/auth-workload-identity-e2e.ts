@@ -1,6 +1,6 @@
-// import assert from 'assert';
+import assert from 'assert';
+import { execSync } from 'child_process';
 import { WIP_ConnectionOptions } from '../lib/connection/types';
-// import { WorkloadIdentityProviderKey } from '../lib/authentication/auth_workload_identity/types';
 // NOTE:
 // Using require() as we can't pull types from index.d.ts
 const snowflake = require('../lib/snowflake');
@@ -28,10 +28,29 @@ describe('Workload Identity Authentication E2E', () => {
     await connectAndVerify(baseConnectionOptions);
   });
 
-  it.skip('connects with explicit provider', () => {});
+  it('connects with explicit provider', async () => {
+    await connectAndVerify({
+      ...baseConnectionOptions,
+      workloadIdentityProvider: provider as WIP_ConnectionOptions['workloadIdentityProvider'],
+    });
+  });
 
   if (provider === 'GCP') {
-    it.skip('connects using OIDC', () => {});
+    it('connects using OIDC', async () => {
+      const token = execSync(
+        'wget -O - --header="Metadata-Flavor: Google" "http://169.254.169.254/computeMetadata/v1/instance/service-accounts/default/identity?audience=snowflakecomputing.com"',
+      )
+        .toString()
+        .trim();
+      if (!token) {
+        throw new Error('Failed to retrieve GCP access token: empty response');
+      }
+      await connectAndVerify({
+        ...baseConnectionOptions,
+        workloadIdentityProvider: 'OIDC',
+        token,
+      });
+    });
   }
 });
 
@@ -46,20 +65,17 @@ async function connectAndVerify(connectionOption: WIP_ConnectionOptions) {
       }
     });
   });
-  const { statement, rows } = await new Promise<{ statement: object; rows: object[] }>(
-    (resolve, reject) => {
-      connection.execute({
-        sqlText: 'select 1',
-        complete: (err: Error | null, statement: any, rows: any) => {
-          if (err) {
-            reject(err);
-          } else {
-            resolve({ statement, rows });
-          }
-        },
-      });
-    },
-  );
-  console.log('statement', statement);
-  console.log('rows', rows);
+  const { rows } = await new Promise<{ statement: object; rows: object[] }>((resolve, reject) => {
+    connection.execute({
+      sqlText: 'select 1',
+      complete: (err: Error | null, statement: any, rows: any) => {
+        if (err) {
+          reject(err);
+        } else {
+          resolve({ statement, rows });
+        }
+      },
+    });
+  });
+  assert.deepEqual(rows, [{ 1: 1 }]);
 }

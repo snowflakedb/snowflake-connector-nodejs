@@ -89,6 +89,7 @@
     "prettier:format": "prettier -w .",
     "test": "mocha 'test/unit/**/*.{js,ts}'",
     "test:authentication": "mocha 'test/authentication/**/*.{js,ts}'",
+    "test:auth-workload-identity-e2e": "mocha test/auth-workload-identity-e2e.ts",
     "test:integration": "mocha 'test/integration/**/*.{js,ts}'",
     "test:single": "mocha",
     "test:system": "mocha 'system_test/**/*.{js,ts}'",

@@ -19,7 +19,9 @@ describe('Workload Identity Authentication', async () => {
   const getGcpTokenMock = cloudSdkStubs.stub();
   let AuthWorkloadIdentity: typeof OriginalAuthWorkloadIdentity;
 
-  function getConnectionConfig(options: WIP_ConnectionOptions = {}): WIP_ConnectionConfig {
+  function getConnectionConfig(
+    options: Omit<WIP_ConnectionOptions, 'account'> = {},
+  ): WIP_ConnectionConfig {
     return new ConnectionConfig({
       authenticator: 'WORKLOAD_IDENTITY',
       account: 'test-account',

@@ -51,7 +51,7 @@ timestamps {
               '''.stripMargin()
           }
         }
-      }
+      },
       'Test WIF Auth': {
         stage('Test WIF Auth') {
           withCredentials([

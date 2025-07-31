@@ -64,7 +64,9 @@
                 "TOKEN": "new-refreshed-access-token-123",
                 "LOGIN_NAME": "MOCK_USERNAME",
                 "AUTHENTICATOR": "OAUTH",
-                "OAUTH_TYPE": "OAUTH_AUTHORIZATION_CODE"
+                "CLIENT_ENVIRONMENT": {
+                  "OAUTH_TYPE": "OAUTH_AUTHORIZATION_CODE"
+                }
               }
             },
             "ignoreExtraElements": true

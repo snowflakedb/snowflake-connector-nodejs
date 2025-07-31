@@ -82,7 +82,7 @@ export interface WIP_ConnectionOptions {
 
   /**
    * URI to use for authorization code redirection (Snowflake security integration metadata).
-   * Default: `http://127.0.0.1:{randomAvailablePort}/`.
+   * Default: `http://127.0.0.1:{randomAvailablePort}`.
    */
   oauthRedirectUri?: string;
 

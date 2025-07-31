@@ -5,6 +5,16 @@ import { WorkloadIdentityProviderKey } from '../authentication/auth_workload_ide
  */
 export interface WIP_ConnectionOptions {
   /**
+   * Your account identifier.
+   */
+  account: string;
+
+  /**
+   * Host address to which the driver should connect.
+   */
+  host?: string;
+
+  /**
    * Specifies the authenticator to use for verifying user login credentials.
    *
    * Available options:

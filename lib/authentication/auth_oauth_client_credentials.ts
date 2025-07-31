@@ -24,10 +24,10 @@ class AuthOauthClientCredentials implements AuthClass {
 
   updateBody(body: AuthRequestBody) {
     if (this.token) {
-      body['data']['TOKEN'] = this.token;
+      body.data.TOKEN = this.token;
     }
-    body['data']['AUTHENTICATOR'] = AuthenticationTypes.OAUTH_AUTHENTICATOR;
-    body['data']['OAUTH_TYPE'] = AuthenticationTypes.OAUTH_CLIENT_CREDENTIALS;
+    body.data.AUTHENTICATOR = AuthenticationTypes.OAUTH_AUTHENTICATOR;
+    body.data.CLIENT_ENVIRONMENT.OAUTH_TYPE = AuthenticationTypes.OAUTH_CLIENT_CREDENTIALS;
   }
 
   async authenticate() {

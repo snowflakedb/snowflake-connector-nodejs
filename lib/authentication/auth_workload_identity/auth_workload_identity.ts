@@ -82,11 +82,6 @@ class AuthWorkloadIdentity implements AuthClass {
       this.token = token;
     }
   }
-
-  async reauthenticate(body: AuthRequestBody) {
-    await this.authenticate();
-    this.updateBody(body);
-  }
 }
 
 export default AuthWorkloadIdentity;

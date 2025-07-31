@@ -41,11 +41,6 @@ class AuthOauthClientCredentials implements AuthClass {
     this.token = await this.requestToken(clientId, clientSecret, parameters);
   }
 
-  async reauthenticate(body: AuthRequestBody) {
-    await this.authenticate();
-    this.updateBody(body);
-  }
-
   async requestToken(clientId: string, clientSecret: string, parameters: URLSearchParams) {
     const oauth = await this.getOauth4webapi();
     const tokenUrl = authUtil.getTokenUrl(this.connectionConfig);

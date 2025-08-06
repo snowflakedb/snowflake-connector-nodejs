@@ -10,7 +10,7 @@ export async function getAwsCredentials() {
     Logger().debug('Getting AWS credentials from default provider');
     return await defaultProvider()();
   } catch (error) {
-    Logger().debug('No AWS credentials were found.');
+    Logger().debug(`Failed to get AWS credentials. ${error}`);
     return null;
   }
 }

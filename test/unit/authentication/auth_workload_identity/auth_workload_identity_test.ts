@@ -65,45 +65,25 @@ describe('Workload Identity Authentication', async () => {
     rewiremock.disable();
   });
 
-  describe('authenticate() with auto-detect', () => {
-    it('throws error when detection fails', async () => {
-      const auth = new AuthWorkloadIdentity(getConnectionConfig());
+  [
+    {
+      name: 'missing workloadIdentityProvider',
+      config: {},
+    },
+    {
+      name: 'invalid workloadIdentityProvider',
+      config: {
+        workloadIdentityProvider: 'invalid' as WIP_ConnectionOptions['workloadIdentityProvider'],
+      },
+    },
+  ].forEach((testCase) => {
+    it(`authenticate() throws error for ${testCase.name}`, async () => {
+      const connectionConfig = getConnectionConfig(testCase.config);
+      const auth = new AuthWorkloadIdentity(connectionConfig);
       await assert.rejects(
         auth.authenticate(),
-        /No workload identity credentials were found. Provider: auto-detect/,
+        /InvalidParameterError: Invalid authenticator: WORKLOAD_IDENTITY parameters. workloadIdentityProvider must be one of: AWS, AZURE, GCP, OIDC/,
       );
-    });
-
-    it('uses OIDC when token is provided', async () => {
-      const auth = new AuthWorkloadIdentity(getConnectionConfig({ token: 'test-token' }));
-      await auth.authenticate();
-      assert.strictEqual(auth.tokenProvider, 'OIDC');
-      assert.strictEqual(auth.token, 'test-token');
-    });
-
-    it('uses AWS when AWS credentials are found', async () => {
-      awsSdkMock.getCredentials.returns(AWS_CREDENTIALS);
-      awsSdkMock.getMetadataRegion.returns(AWS_REGION);
-      const auth = new AuthWorkloadIdentity(getConnectionConfig());
-      await auth.authenticate();
-      assert.strictEqual(auth.tokenProvider, 'AWS');
-      assertAwsAttestationToken(auth.token, AWS_REGION);
-    });
-
-    it('uses AZURE when Azure credentials are found', async () => {
-      getAzureTokenMock.returns({ token: 'test-token' });
-      const auth = new AuthWorkloadIdentity(getConnectionConfig());
-      await auth.authenticate();
-      assert.strictEqual(auth.tokenProvider, 'AZURE');
-      assert.strictEqual(auth.token, 'test-token');
-    });
-
-    it('uses GCP when GCP credentials are found', async () => {
-      getGcpTokenMock.returns('test-token');
-      const auth = new AuthWorkloadIdentity(getConnectionConfig());
-      await auth.authenticate();
-      assert.strictEqual(auth.tokenProvider, 'GCP');
-      assert.strictEqual(auth.token, 'test-token');
     });
   });
 
@@ -117,7 +97,7 @@ describe('Workload Identity Authentication', async () => {
       const auth = new AuthWorkloadIdentity({ ...connectionConfig, token: undefined });
       await assert.rejects(
         auth.authenticate(),
-        /No workload identity credentials were found. Provider: OIDC/,
+        /workloadIdentityProvider: OIDC requires token in connection options/,
       );
     });
 
@@ -141,7 +121,7 @@ describe('Workload Identity Authentication', async () => {
       const auth = new AuthWorkloadIdentity(connectionConfig);
       await assert.rejects(
         auth.authenticate(),
-        /No workload identity credentials were found. Provider: AWS/,
+        /ClientError: Failed to fetch workload identity credentials from cloud provider/,
       );
     });
 
@@ -168,7 +148,7 @@ describe('Workload Identity Authentication', async () => {
       const auth = new AuthWorkloadIdentity(connectionConfig);
       await assert.rejects(
         auth.authenticate(),
-        /No workload identity credentials were found. Provider: AZURE/,
+        /ClientError: Failed to fetch workload identity credentials from cloud provider/,
       );
     });
 
@@ -193,7 +173,7 @@ describe('Workload Identity Authentication', async () => {
       const auth = new AuthWorkloadIdentity(connectionConfig);
       await assert.rejects(
         auth.authenticate(),
-        /No workload identity credentials were found. Provider: GCP/,
+        /ClientError: Failed to fetch workload identity credentials from cloud provider/,
       );
     });
 

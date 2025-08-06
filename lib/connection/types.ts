@@ -103,8 +103,6 @@ export interface WIP_ConnectionOptions {
    * * AZURE - Uses `@azure/identity` to find credentials and get JWT token
    * * GCP - Uses `google-auth-library` to find credentials and get JWT token
    * * OIDC - Reads JWT token from `ConnectionOptions.token`
-   *
-   * When none is passed, the driver will try to auto-detect the provider.
    */
   workloadIdentityProvider?: WorkloadIdentityProviderKey;
 

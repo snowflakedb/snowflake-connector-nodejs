@@ -16,7 +16,7 @@ export async function getAwsRegion() {
     return process.env.AWS_REGION; // Lambda
   } else {
     Logger().debug('Getting AWS region from EC2 metadata service');
-    return await new MetadataService().request('/latest/meta-data/placement/region', {}); // EC2
+    return new MetadataService().request('/latest/meta-data/placement/region', {}); // EC2
   }
 }
 

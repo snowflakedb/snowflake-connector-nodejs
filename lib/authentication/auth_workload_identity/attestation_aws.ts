@@ -6,13 +6,8 @@ import { Sha256 } from '@aws-crypto/sha256-js';
 import Logger from '../../logger';
 
 export async function getAwsCredentials() {
-  try {
-    Logger().debug('Getting AWS credentials from default provider');
-    return await defaultProvider()();
-  } catch (error) {
-    Logger().debug('No AWS credentials were found.');
-    return null;
-  }
+  Logger().debug('Getting AWS credentials from default provider');
+  return await defaultProvider()();
 }
 
 export async function getAwsRegion() {
@@ -20,13 +15,8 @@ export async function getAwsRegion() {
     Logger().debug('Getting AWS region from AWS_REGION');
     return process.env.AWS_REGION; // Lambda
   } else {
-    try {
-      Logger().debug('Getting AWS region from EC2 metadata service');
-      return await new MetadataService().request('/latest/meta-data/placement/region', {}); // EC2
-    } catch (error) {
-      Logger().debug(`Failed to fetch AWS region from EC2 metadata service: ${error}`);
-      return null;
-    }
+    Logger().debug('Getting AWS region from EC2 metadata service');
+    return new MetadataService().request('/latest/meta-data/placement/region', {}); // EC2
   }
 }
 
@@ -35,20 +25,9 @@ export function getStsHostname(region: string) {
   return `sts.${region}.${domain}`;
 }
 
-/**
- * Tries to create a workload identity attestation for AWS.
- * If the application isn't running on AWS or no credentials were found, returns null.
- */
 export async function getAwsAttestationToken() {
   const credentials = await getAwsCredentials();
-  if (!credentials) {
-    return null;
-  }
-
   const region = await getAwsRegion();
-  if (!region) {
-    return null;
-  }
 
   const stsHostname = getStsHostname(region);
   const request = new HttpRequest({

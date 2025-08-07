@@ -22,7 +22,7 @@ class AuthWorkloadIdentity implements AuthClass {
 
   async authenticate() {
     let provider = this.connectionConfig.workloadIdentityProvider;
-    let token: string | null = null;
+    let token: string;
 
     if (provider === WorkloadIdentityProvider.AWS) {
       token = await getAwsAttestationToken();
@@ -45,12 +45,6 @@ class AuthWorkloadIdentity implements AuthClass {
       throw createInvalidParameterError(
         ErrorCode.ERR_CONN_CREATE_INVALID_WORKLOAD_IDENTITY_PARAMETERS,
         `workloadIdentityProvider must be one of: ${Object.values(WorkloadIdentityProvider).join(', ')}`,
-      );
-    }
-
-    if (!token) {
-      throw createClientError(
-        ErrorCode.ERR_CONN_CONNECT_FAILED_TO_FETCH_WORKLOAD_IDENTITY_CREDENTIALS,
       );
     }
 

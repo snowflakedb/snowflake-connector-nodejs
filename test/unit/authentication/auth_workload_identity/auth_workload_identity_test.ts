@@ -118,11 +118,10 @@ describe('Workload Identity Authentication', async () => {
     });
 
     it('throws error when credentials are not found', async () => {
+      const err = new Error('No credentials found');
+      awsSdkMock.getCredentials.throws(err);
       const auth = new AuthWorkloadIdentity(connectionConfig);
-      await assert.rejects(
-        auth.authenticate(),
-        /ClientError: Failed to fetch workload identity credentials from cloud provider/,
-      );
+      await assert.rejects(auth.authenticate(), err);
     });
 
     it('sets valid fields for updateBody() to use', async () => {
@@ -144,12 +143,10 @@ describe('Workload Identity Authentication', async () => {
     });
 
     it('throws error when credentials are not found', async () => {
-      getAzureTokenMock.throws(new Error('no credentials'));
+      const err = new Error('no credentials');
+      getAzureTokenMock.throws(err);
       const auth = new AuthWorkloadIdentity(connectionConfig);
-      await assert.rejects(
-        auth.authenticate(),
-        /ClientError: Failed to fetch workload identity credentials from cloud provider/,
-      );
+      await assert.rejects(auth.authenticate(), err);
     });
 
     it('sets valid fields for updateBody() to use', async () => {
@@ -170,11 +167,10 @@ describe('Workload Identity Authentication', async () => {
     });
 
     it('throws error when credentials are not found', async () => {
+      const err = new Error('no credentials');
+      getGcpTokenMock.throws(err);
       const auth = new AuthWorkloadIdentity(connectionConfig);
-      await assert.rejects(
-        auth.authenticate(),
-        /ClientError: Failed to fetch workload identity credentials from cloud provider/,
-      );
+      await assert.rejects(auth.authenticate(), err);
     });
 
     it('sets valid fields for updateBody() to use', async () => {

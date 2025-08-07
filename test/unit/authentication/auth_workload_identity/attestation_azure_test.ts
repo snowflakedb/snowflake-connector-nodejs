@@ -17,6 +17,10 @@ describe('Attestation AZURE', () => {
       .get(() => getAzureTokenStub);
   });
 
+  beforeEach(() => {
+    getAzureTokenStub.returns({ token: 'test-token' });
+  });
+
   afterEach(() => {
     sinonSandbox.restore();
   });
@@ -31,14 +35,13 @@ describe('Attestation AZURE', () => {
     assert.strictEqual(getAzureTokenStub.firstCall.args[0], 'custom-token');
   });
 
-  it('returns null when fails to get token (missing credentials, no access)', async () => {
-    getAzureTokenStub.throws(new Error('Failed to get token'));
-    const token = await getAzureAttestationToken();
-    assert.strictEqual(token, null);
+  it('throws error when fails to get token (missing credentials, no access)', async () => {
+    const err = new Error('Failed to get token');
+    getAzureTokenStub.throws(err);
+    assert.rejects(getAzureAttestationToken(), err);
   });
 
   it('returns valid token', async () => {
-    getAzureTokenStub.returns({ token: 'test-token' });
     const token = await getAzureAttestationToken();
     assert.strictEqual(token, 'test-token');
   });

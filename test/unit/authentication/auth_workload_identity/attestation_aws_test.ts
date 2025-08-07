@@ -11,6 +11,8 @@ describe('Attestation AWS', () => {
     getMetadataRegion: sinonSandbox.stub(),
   };
   let AttestationAws: typeof OriginalAttestationAws;
+  const noCredentialsError = new Error('No credentials found');
+  const noRegionError = new Error('No region found');
 
   before(async () => {
     // NOTE:
@@ -31,8 +33,8 @@ describe('Attestation AWS', () => {
 
   beforeEach(() => {
     sinonSandbox.restore();
-    awsSdkMock.getCredentials.throws(new Error('No credentials found'));
-    awsSdkMock.getMetadataRegion.throws(new Error('No region found'));
+    awsSdkMock.getCredentials.throws(noCredentialsError);
+    awsSdkMock.getMetadataRegion.throws(noRegionError);
   });
 
   after(() => {
@@ -40,8 +42,8 @@ describe('Attestation AWS', () => {
   });
 
   describe('getAwsCredentials', () => {
-    it('returns null when no credentials are found', async () => {
-      assert.strictEqual(await AttestationAws.getAwsCredentials(), null);
+    it('throws error when no credentials are found', async () => {
+      assert.rejects(AttestationAws.getAwsCredentials(), noCredentialsError);
     });
 
     it('returns credentials when credentials are found', async () => {
@@ -56,8 +58,8 @@ describe('Attestation AWS', () => {
       assert.strictEqual(await AttestationAws.getAwsRegion(), 'region-from-env');
     });
 
-    it('returns null when metadata service fails', async () => {
-      assert.strictEqual(await AttestationAws.getAwsRegion(), null);
+    it('throws error when metadata service fails', async () => {
+      assert.rejects(AttestationAws.getAwsRegion(), noRegionError);
     });
 
     it('returns region when metadata service returns a region', async () => {
@@ -80,13 +82,13 @@ describe('Attestation AWS', () => {
   });
 
   describe('getAwsAttestationToken', () => {
-    it('returns null when no credentials are found', async () => {
-      assert.strictEqual(await AttestationAws.getAwsAttestationToken(), null);
+    it('throws error when no credentials are found', async () => {
+      assert.rejects(AttestationAws.getAwsAttestationToken(), noCredentialsError);
     });
 
-    it('returns null when no region is found', async () => {
+    it('returns error when no region is found', async () => {
       awsSdkMock.getCredentials.returns(AWS_CREDENTIALS);
-      assert.strictEqual(await AttestationAws.getAwsAttestationToken(), null);
+      assert.rejects(AttestationAws.getAwsAttestationToken(), noRegionError);
     });
 
     it('returns a valid attestation token', async () => {

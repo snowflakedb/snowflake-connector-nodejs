@@ -9,7 +9,7 @@ export { NodeHttpClient, getAgentCacheSize, isBypassProxy } from './node_untyped
  * Work In Progress TypeScript migration for http/node_untyped.js
  */
 export function getProxyAgent(config: {
-  proxyOptions: { [key: string]: any };
+  proxyOptions: ReturnType<WIP_ConnectionConfig['getProxy']>;
   connectionConfig: WIP_ConnectionConfig;
   parsedUrl: URL;
   destination: string;

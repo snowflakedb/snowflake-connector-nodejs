@@ -1,7 +1,7 @@
-const GlobalConfig = require('./../../lib/global_config');
-const getProxyAgent = require('./../../lib/http/node').getProxyAgent;
-const getAgentCacheSize = require('./../../lib/http/node').getAgentCacheSize;
-const assert = require('assert');
+import assert from 'assert';
+import { getProxyAgent, getAgentCacheSize } from './../../lib/http/node';
+import { WIP_ConnectionConfig } from '../../lib/connection/types';
+import * as GlobalConfig from './../../lib/global_config';
 
 describe('getProxtAgent', function () {
   const mockProxy = new URL('https://user:pass@myproxy.server.com:1234');
@@ -69,7 +69,12 @@ describe('getProxtAgent', function () {
     let numofAgent = getAgentCacheSize();
     testCases.forEach(({ destination, isNewAgent, keepAlive }) => {
       GlobalConfig.setKeepAlive(keepAlive);
-      getProxyAgent(mockProxy, fakeAccessUrl, destination);
+      getProxyAgent({
+        proxyOptions: mockProxy,
+        parsedUrl: fakeAccessUrl,
+        destination,
+        connectionConfig: {} as WIP_ConnectionConfig,
+      });
       if (isNewAgent) {
         numofAgent++;
       }

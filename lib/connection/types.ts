@@ -110,24 +110,69 @@ export interface WIP_ConnectionOptions {
    * Customize Azure Entra Id Resource used to obtain workload identity auth token
    */
   workloadIdentityAzureEntraIdResource?: string;
+
+  /**
+   * Enables Certificate Revocation List (CRL) validation.
+   *
+   * When "ADVISORY" is set, it fails only if the certificate is revoked. Any other network error will assume that the certificate is not revoked and allow the connection.
+   *
+   * @default false
+   */
+  certRevocationCheckMode?: boolean | 'ADVISORY';
+
+  /**
+   * When certRevocationCheckMode is enabled, allows to connect when certificate doesn't have CRL URL.
+   *
+   * @default true
+   */
+  crlAllowCertificatesWithoutCrlURL?: boolean;
+
+  /**
+   * When certRevocationCheckMode is enabled, allows to cache CRLs in memory.
+   *
+   * @default true
+   */
+  crlInMemoryCache?: boolean;
+
+  /**
+   * When certRevocationCheckMode is enabled, allows to cache CRLs on disk.
+   *
+   * @default true
+   */
+  crlOnDiskCache?: boolean;
+
+  /**
+   * When certRevocationCheckMode is enabled, allows to set timeout for CRL download.
+   *
+   * @default 10000
+   */
+  crlDownloadTimeoutMs?: number;
 }
 
 /**
  * Work In Progress typing for ConnectionConfig instance
  */
-export type WIP_ConnectionConfig = {
+export type WIP_ConnectionConfig =
   // NOTE:
   // Temporary explicit mapping as not every option is available on ConnectionConfig instance
   // e.g. instead of oauthClientId we have getOauthClientId().
   //
   // Future plan is to remove this type and let TypeScript to infer types automatically from
   // ConnectionConfig code.
-  token: WIP_ConnectionOptions['token'];
-  workloadIdentityProvider: WIP_ConnectionOptions['workloadIdentityProvider'];
-  workloadIdentityAzureEntraIdResource: WIP_ConnectionOptions['workloadIdentityAzureEntraIdResource'];
-  oauthEnableSingleUseRefreshTokens: WIP_ConnectionOptions['oauthEnableSingleUseRefreshTokens'];
-
-  getOauthHttpAllowed(): boolean;
-  getOauthClientId(): string;
-  getOauthClientSecret(): string;
-};
+  Pick<
+    WIP_ConnectionOptions,
+    | 'token'
+    | 'workloadIdentityProvider'
+    | 'workloadIdentityAzureEntraIdResource'
+    | 'oauthEnableSingleUseRefreshTokens'
+    | 'certRevocationCheckMode'
+    | 'crlAllowCertificatesWithoutCrlURL'
+    | 'crlInMemoryCache'
+    | 'crlOnDiskCache'
+    | 'crlDownloadTimeoutMs'
+  > & {
+    getOauthHttpAllowed(): boolean;
+    getOauthClientId(): string;
+    getOauthClientSecret(): string;
+    getProxy(): { [key: string]: any }; // TODO: return a proper object shape when typing connection_config.js
+  };

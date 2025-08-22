@@ -8,6 +8,10 @@ export type CRLConfig = {
   downloadTimeoutMs: number;
 };
 
+export function isCrlValidationEnabled(config: CRLConfig) {
+  return config.checkMode === true || config.checkMode === 'ADVISORY';
+}
+
 export function validateCrl(socket: TLSSocket, config: CRLConfig) {
   socket.once('secureConnect', () => {
     throw new Error('Validation not implemented');

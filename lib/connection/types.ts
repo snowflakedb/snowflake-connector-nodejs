@@ -117,7 +117,7 @@ export interface WIP_ConnectionOptions {
    *
    * When "ADVISORY" is set, it fails only if the certificate is revoked. Any other network error will assume that the certificate is not revoked and allow the connection.
    *
-   * @default false
+   * @default "DISABLED"
    */
   certRevocationCheckMode?: CRLConfig['checkMode'];
 

@@ -1,7 +1,7 @@
 import { TLSSocket } from 'tls';
 
 export type CRLConfig = {
-  checkMode: boolean | 'ADVISORY';
+  checkMode: 'DISABLED' | 'ENABLED' | 'ADVISORY';
   allowCertificatesWithoutCrlURL: boolean;
   inMemoryCache: boolean;
   onDiskCache: boolean;
@@ -9,7 +9,7 @@ export type CRLConfig = {
 };
 
 export function isCrlValidationEnabled(config: CRLConfig) {
-  return config.checkMode === true || config.checkMode === 'ADVISORY';
+  return config.checkMode !== 'DISABLED';
 }
 
 export function validateCrl(socket: TLSSocket, config: CRLConfig) {

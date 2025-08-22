@@ -740,6 +740,7 @@ declare module 'snowflake-sdk' {
     start?: number;
     end?: number;
     fetchAsString?: DataType[];
+    each?: (row: any) => boolean | void;
   }
 
   export const ErrorCode: typeof ErrorCodeEnum;

@@ -31,10 +31,10 @@ describe('Attestation GCP', () => {
     assert.strictEqual(fetchIdTokenStub.firstCall.args[0], SNOWFLAKE_AUDIENCE);
   });
 
-  it('returns null when the token is not found', async () => {
-    fetchIdTokenStub.throws(new Error('Token not found'));
-    const token = await getGcpAttestationToken();
-    assert.strictEqual(token, null);
+  it('throws error when the token is not found', async () => {
+    const err = new Error('Token not found');
+    fetchIdTokenStub.throws(err);
+    assert.rejects(getGcpAttestationToken(), err);
   });
 
   it('returns the token when it is found', async () => {

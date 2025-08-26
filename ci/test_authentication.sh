@@ -9,6 +9,8 @@ gpg --quiet --batch --yes --decrypt --passphrase="$PARAMETERS_SECRET" --output $
 gpg --quiet --batch --yes --decrypt --passphrase="$PARAMETERS_SECRET" --output $THIS_DIR/../.github/workflows/rsa_keys/rsa_key.p8 "$THIS_DIR/../.github/workflows/rsa_keys/rsa_key.p8.gpg"
 gpg --quiet --batch --yes --decrypt --passphrase="$PARAMETERS_SECRET" --output $THIS_DIR/../.github/workflows/rsa_keys/rsa_key_invalid.p8 "$THIS_DIR/../.github/workflows/rsa_keys/rsa_key_invalid.p8.gpg"
 
+# NOTE:
+# To run on MacOS, add -mac suffix to the image name or build it manually from snowflakedb/snowdrivers-test-commons
 docker run \
   -v $(cd $THIS_DIR/.. && pwd):/mnt/host \
   -v $WORKSPACE:/mnt/workspace \

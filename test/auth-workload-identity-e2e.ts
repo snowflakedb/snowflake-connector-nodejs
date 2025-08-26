@@ -18,21 +18,15 @@ describe('Workload Identity Authentication E2E', () => {
     throw new Error('Test can run only on cloud VM with env variables set');
   }
 
-  const baseConnectionOptions: WIP_ConnectionOptions = {
+  const connectionOptions: WIP_ConnectionOptions = {
     authenticator: 'WORKLOAD_IDENTITY',
     account,
     host,
+    workloadIdentityProvider: provider as WIP_ConnectionOptions['workloadIdentityProvider'],
   };
 
-  it('connects in auto-detect mode', async () => {
-    await connectAndVerify(baseConnectionOptions);
-  });
-
-  it('connects with explicit provider', async () => {
-    await connectAndVerify({
-      ...baseConnectionOptions,
-      workloadIdentityProvider: provider as WIP_ConnectionOptions['workloadIdentityProvider'],
-    });
+  it(`connects using ${provider}`, async () => {
+    await connectAndVerify(connectionOptions);
   });
 
   if (provider === 'GCP') {
@@ -46,7 +40,7 @@ describe('Workload Identity Authentication E2E', () => {
         throw new Error('Failed to retrieve GCP access token: empty response');
       }
       await connectAndVerify({
-        ...baseConnectionOptions,
+        ...connectionOptions,
         workloadIdentityProvider: 'OIDC',
         token,
       });

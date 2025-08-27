@@ -2,15 +2,29 @@ import { DetailedPeerCertificate } from 'tls';
 import { CRLDistributionPoint } from '../../../lib/agent/crl_utils';
 const ASN1 = require('asn1.js-rfc5280');
 
-export function createTestCertificate({
-  crlDistributionPoints,
-  validFrom,
-  validTo,
-}: {
-  crlDistributionPoints?: CRLDistributionPoint[];
+export interface CreateTestCertificateOptions {
+  crlDistributionPoints?: CRLDistributionPoint[] | null;
   validFrom?: string;
   validTo?: string;
-} = {}): DetailedPeerCertificate {
+}
+
+export function createTestCertificate(
+  options: CreateTestCertificateOptions = {},
+): DetailedPeerCertificate {
+  const defaultOptions = {
+    validFrom: '2023-01-01',
+    validTo: '2024-01-01',
+    crlDistributionPoints: [
+      {
+        distributionPoint: {
+          type: 'fullName',
+          value: [{ type: 'uniformResourceIdentifier', value: 'http://crl.example.com/cert.crl' }],
+        },
+      },
+    ],
+  };
+  const { crlDistributionPoints, validFrom, validTo } = { ...defaultOptions, ...options };
+
   // NOTE: Generated using AI based on ASN1.js cert validation
   const cert = {
     tbsCertificate: {
@@ -48,15 +62,16 @@ export function createTestCertificate({
           data: Buffer.from('00', 'hex'),
         },
       },
-      extensions: crlDistributionPoints
-        ? [
-            {
-              extnID: 'cRLDistributionPoints',
-              critical: false,
-              extnValue: crlDistributionPoints,
-            },
-          ]
-        : [],
+      extensions:
+        crlDistributionPoints === null
+          ? []
+          : [
+              {
+                extnID: 'cRLDistributionPoints',
+                critical: false,
+                extnValue: crlDistributionPoints,
+              },
+            ],
     },
     signatureAlgorithm: {
       algorithm: [1, 2, 840, 113549, 1, 1, 11],
@@ -88,4 +103,15 @@ export function createTestCertificate({
   certObj.issuerCertificate = certObj;
 
   return certObj;
+}
+
+export function createCertificateChain(
+  ...certificates: DetailedPeerCertificate[]
+): DetailedPeerCertificate {
+  for (let i = 0; i < certificates.length - 1; i++) {
+    certificates[i].issuerCertificate = certificates[i + 1];
+  }
+  certificates[certificates.length - 1].issuerCertificate = certificates[certificates.length - 1];
+
+  return certificates[0];
 }

@@ -34,20 +34,29 @@ export function corkSocketAndValidateCrl(socket: TLSSocket, config: CRLConfig) {
 }
 
 export function validateCrl(certChain: DetailedPeerCertificate, config: CRLConfig) {
-  for (
-    let currentCertificate = certChain;
-    currentCertificate && currentCertificate !== currentCertificate.issuerCertificate;
-    currentCertificate = currentCertificate.issuerCertificate
-  ) {
-    if (isShortLivedCertificate(currentCertificate)) {
+  for (const certificate of iterateCertChain(certChain)) {
+    if (isShortLivedCertificate(certificate)) {
       continue;
     }
-    const crlUrls = getCertificateCrlUrls(currentCertificate);
-    if (!crlUrls && config.allowCertificatesWithoutCrlURL) {
-      continue;
+
+    const crlUrls = getCertificateCrlUrls(certificate);
+    if (!crlUrls) {
+      if (config.allowCertificatesWithoutCrlURL) {
+        continue;
+      }
+      throw createCrlError(
+        certificate,
+        'Certificate does not have CRL http URL. This could be disabled with allowCertificatesWithoutCrlURL',
+      );
     }
-    if (1 > 2) {
-      throw createCrlError('TODO');
-    }
+  }
+}
+
+function* iterateCertChain(cert: DetailedPeerCertificate) {
+  let current = cert;
+  while (current) {
+    yield current;
+    if (current === current.issuerCertificate) break;
+    current = current.issuerCertificate;
   }
 }

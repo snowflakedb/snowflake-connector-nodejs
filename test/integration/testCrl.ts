@@ -5,9 +5,10 @@ import * as connectionOptions from './connectionOptions';
 import ErrorCode from '../../lib/error_code';
 import { CRL_VALIDATOR_INTERNAL } from '../../lib/agent/crl_validator';
 import { createCrlError } from '../../lib/errors';
+import { createTestCertificate } from '../unit/agent/test_utils';
 const snowflake = require('../../lib/snowflake');
 
-describe('CRL validation', () => {
+describe('connection with CRL validation', () => {
   afterEach(() => {
     sinon.restore();
   });
@@ -19,7 +20,7 @@ describe('CRL validation', () => {
   });
 
   it('throws error for invalid certificate', async () => {
-    const error = createCrlError('CRL validation failed');
+    const error = createCrlError(createTestCertificate(), 'CRL validation failed');
     sinon.stub(CRL_VALIDATOR_INTERNAL, 'validateCrl').throws(error);
     await assert.rejects(
       connect(connectionOptions.valid as WIP_ConnectionOptions),

@@ -4,17 +4,17 @@ import {
   getCertificateCrlUrls,
   isShortLivedCertificate,
 } from '../../../lib/agent/crl_utils';
-import { createTestCertificate } from './test_utils';
-import { DetailedPeerCertificate } from 'tls';
+import { createTestCertificate, CreateTestCertificateOptions } from './test_utils';
 
 describe('getCertificateCrlUrls', () => {
   const testCases: {
     name: string;
     expectedResult: string[] | null;
-    crlDistributionPoints?: CRLDistributionPoint[];
+    crlDistributionPoints?: CreateTestCertificateOptions['crlDistributionPoints'];
   }[] = [
     {
       name: 'returns null for certificate without cRLDistributionPoints',
+      crlDistributionPoints: null,
       expectedResult: null,
     },
     {

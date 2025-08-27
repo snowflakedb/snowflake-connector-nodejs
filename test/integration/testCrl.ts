@@ -6,10 +6,13 @@ import ErrorCode from '../../lib/error_code';
 import { CRL_VALIDATOR_INTERNAL } from '../../lib/agent/crl_validator';
 import { createCrlError } from '../../lib/errors';
 import { createTestCertificate } from '../unit/agent/test_utils';
+import { connectAsync, destroyConnectionAsync } from './testUtil';
+import { httpsAgentCache } from '../../lib/http/node';
 const snowflake = require('../../lib/snowflake');
 
 describe('connection with CRL validation', () => {
   afterEach(() => {
+    httpsAgentCache.clear();
     sinon.restore();
   });
 
@@ -38,14 +41,6 @@ async function connect(connectionOptions: WIP_ConnectionOptions) {
     certRevocationCheckMode: 'ENABLED',
     ...connectionOptions,
   });
-  return new Promise((resolve, reject) => {
-    connection.connect((err?: Error) => {
-      if (err) {
-        reject(err);
-      } else {
-        connection.destroy();
-        resolve(null);
-      }
-    });
-  });
+  await connectAsync(connection);
+  await destroyConnectionAsync(connection);
 }

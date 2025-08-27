@@ -3,7 +3,7 @@ import * as https from 'https';
 import { WIP_ConnectionConfig } from '../connection/types';
 import { getProxyAgent as getProxyAgentUntyped } from './node_untyped';
 
-export { NodeHttpClient, getAgentCacheSize, isBypassProxy } from './node_untyped';
+export { NodeHttpClient, httpsAgentCache, isBypassProxy } from './node_untyped';
 
 /**
  * Work In Progress TypeScript migration for http/node_untyped.js

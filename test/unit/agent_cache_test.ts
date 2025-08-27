@@ -1,5 +1,5 @@
 import assert from 'assert';
-import { getProxyAgent, getAgentCacheSize } from './../../lib/http/node';
+import { getProxyAgent, httpsAgentCache } from './../../lib/http/node';
 import { WIP_ConnectionConfig } from '../../lib/connection/types';
 import * as GlobalConfig from './../../lib/global_config';
 
@@ -12,6 +12,12 @@ describe('getProxtAgent', function () {
       destination: 'test.destination.com',
       isNewAgent: true,
       keepAlive: true,
+    },
+    {
+      destination: 'test.destination.com',
+      isNewAgent: true,
+      keepAlive: true,
+      crlCheckMode: 'ENABLED',
     },
     {
       destination: '://test.destination.com',
@@ -66,8 +72,8 @@ describe('getProxtAgent', function () {
   ];
 
   it('test http(s) agent cache', () => {
-    let numofAgent = getAgentCacheSize();
-    testCases.forEach(({ destination, isNewAgent, keepAlive }) => {
+    let numofAgent = httpsAgentCache.size;
+    testCases.forEach(({ destination, isNewAgent, keepAlive, crlCheckMode }) => {
       GlobalConfig.setKeepAlive(keepAlive);
       getProxyAgent({
         proxyOptions: mockProxy,
@@ -75,14 +81,14 @@ describe('getProxtAgent', function () {
         destination,
         connectionConfig: {
           crlValidatorConfig: {
-            checkMode: 'DISABLED',
+            checkMode: crlCheckMode ?? 'DISABLED',
           },
         } as WIP_ConnectionConfig,
       });
       if (isNewAgent) {
         numofAgent++;
       }
-      assert.strictEqual(getAgentCacheSize(), numofAgent);
+      assert.strictEqual(httpsAgentCache.size, numofAgent);
     });
   });
 });

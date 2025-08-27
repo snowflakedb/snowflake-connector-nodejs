@@ -20,12 +20,16 @@ describe('connection with CRL validation', () => {
   });
 
   it('throws error for invalid certificate', async () => {
-    const error = createCrlError(createTestCertificate(), 'CRL validation failed');
+    const certificate = createTestCertificate();
+    const error = createCrlError(certificate, 'CRL validation failed');
     sinon.stub(CRL_VALIDATOR_INTERNAL, 'validateCrl').throws(error);
-    await assert.rejects(
-      connect(connectionOptions.valid as WIP_ConnectionOptions),
-      assertNetworkErrorCausedByCrl(new RegExp(error.message)),
-    );
+    await assert.rejects(connect(connectionOptions.valid as WIP_ConnectionOptions), (err: any) => {
+      assert.strictEqual(err.name, 'NetworkError');
+      assert.strictEqual(err.message, error.message);
+      assert.strictEqual(err['cause']?.['certificate'], certificate);
+      assert.strictEqual(err['cause']?.['code'], ErrorCode.ERR_CRL_ERROR);
+      return true;
+    });
   });
 });
 
@@ -44,13 +48,4 @@ async function connect(connectionOptions: WIP_ConnectionOptions) {
       }
     });
   });
-}
-
-function assertNetworkErrorCausedByCrl(msg: RegExp) {
-  return (err: any) => {
-    assert.strictEqual(err.name, 'NetworkError');
-    assert.match(err.message, msg);
-    assert.strictEqual(err['cause']?.['code'], ErrorCode.ERR_CRL_ERROR);
-    return true;
-  };
 }

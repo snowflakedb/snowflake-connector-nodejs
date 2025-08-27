@@ -1,4 +1,5 @@
 import { TLSSocket } from 'tls';
+import { createCrlError } from '../errors';
 
 export type CRLConfig = {
   checkMode: 'DISABLED' | 'ENABLED' | 'ADVISORY';
@@ -14,7 +15,7 @@ export function isCrlValidationEnabled(config: CRLConfig) {
 
 export function validateCrl(socket: TLSSocket, config: CRLConfig) {
   socket.once('secureConnect', () => {
-    throw new Error('CRL validation not implemented');
+    socket.destroy(createCrlError('CRL validation not implemented'));
   });
   socket.cork();
 }

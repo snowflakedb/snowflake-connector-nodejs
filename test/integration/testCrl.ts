@@ -1,5 +1,6 @@
 import assert from 'assert';
 import sinon from 'sinon';
+import os from 'os';
 import { WIP_ConnectionOptions } from '../../lib/connection/types';
 import * as connectionOptions from './connectionOptions';
 import ErrorCode from '../../lib/error_code';
@@ -21,6 +22,16 @@ describe('connection with CRL validation', () => {
     await assert.doesNotReject(connect(connectionOptions.valid as WIP_ConnectionOptions));
     assert.strictEqual(validateCrlSpy.callCount, 1);
   });
+
+  if (os.platform() === 'linux' && !process.env.SHOULD_SKIP_PROXY_TESTS) {
+    it('allows proxy connection with CRL validation', async () => {
+      const validateCrlSpy = sinon.spy(CRL_VALIDATOR_INTERNAL, 'validateCrl');
+      await assert.doesNotReject(
+        connect(connectionOptions.connectionWithProxy as WIP_ConnectionOptions),
+      );
+      assert.strictEqual(validateCrlSpy.callCount, 1);
+    });
+  }
 
   it('throws error for invalid certificate', async () => {
     const certificate = createTestCertificate();

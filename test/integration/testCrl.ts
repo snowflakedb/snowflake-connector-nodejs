@@ -7,9 +7,17 @@ import ErrorCode from '../../lib/error_code';
 import { CRL_VALIDATOR_INTERNAL } from '../../lib/agent/crl_validator';
 import { createCrlError } from '../../lib/errors';
 import { createTestCertificate } from '../unit/agent/test_utils';
-import { connectAsync, destroyConnectionAsync } from './testUtil';
+import { createConnection, connectAsync, destroyConnectionAsync } from './testUtil';
 import { httpsAgentCache } from '../../lib/http/node';
-const snowflake = require('../../lib/snowflake');
+
+async function testCrlConnection(connectionOptions?: WIP_ConnectionOptions) {
+  const connection = createConnection({
+    certRevocationCheckMode: 'ENABLED',
+    ...connectionOptions,
+  });
+  await connectAsync(connection);
+  await destroyConnectionAsync(connection);
+}
 
 describe('connection with CRL validation', () => {
   afterEach(() => {
@@ -19,15 +27,15 @@ describe('connection with CRL validation', () => {
 
   it('allows connection for valid certificate', async () => {
     const validateCrlSpy = sinon.spy(CRL_VALIDATOR_INTERNAL, 'validateCrl');
-    await assert.doesNotReject(connect(connectionOptions.valid as WIP_ConnectionOptions));
+    await assert.doesNotReject(testCrlConnection());
     assert.strictEqual(validateCrlSpy.callCount, 1);
   });
 
   if (os.platform() === 'linux' && !process.env.SHOULD_SKIP_PROXY_TESTS) {
-    it('allows proxy connection with CRL validation', async () => {
+    it('allows proxy connection for valid certificate', async () => {
       const validateCrlSpy = sinon.spy(CRL_VALIDATOR_INTERNAL, 'validateCrl');
       await assert.doesNotReject(
-        connect(connectionOptions.connectionWithProxy as WIP_ConnectionOptions),
+        testCrlConnection(connectionOptions.connectionWithProxy as WIP_ConnectionOptions),
       );
       assert.strictEqual(validateCrlSpy.callCount, 1);
     });
@@ -37,21 +45,15 @@ describe('connection with CRL validation', () => {
     const certificate = createTestCertificate();
     const error = createCrlError(certificate, 'CRL validation failed');
     sinon.stub(CRL_VALIDATOR_INTERNAL, 'validateCrl').throws(error);
-    await assert.rejects(connect(connectionOptions.valid as WIP_ConnectionOptions), (err: any) => {
-      assert.strictEqual(err.name, 'NetworkError');
-      assert.strictEqual(err.message, error.message);
-      assert.strictEqual(err['cause']?.['certificate'], certificate);
-      assert.strictEqual(err['cause']?.['code'], ErrorCode.ERR_CRL_ERROR);
-      return true;
-    });
+    await assert.rejects(
+      testCrlConnection(connectionOptions.valid as WIP_ConnectionOptions),
+      (err: any) => {
+        assert.strictEqual(err.name, 'NetworkError');
+        assert.strictEqual(err.message, error.message);
+        assert.strictEqual(err['cause']?.['certificate'], certificate);
+        assert.strictEqual(err['cause']?.['code'], ErrorCode.ERR_CRL_ERROR);
+        return true;
+      },
+    );
   });
 });
-
-async function connect(connectionOptions: WIP_ConnectionOptions) {
-  const connection = snowflake.createConnection({
-    certRevocationCheckMode: 'ENABLED',
-    ...connectionOptions,
-  });
-  await connectAsync(connection);
-  await destroyConnectionAsync(connection);
-}

@@ -82,7 +82,7 @@
   "scripts": {
     "prepack": "node ci/build_typescript.js",
     "prepare": "husky",
-    "check-ts": "tsc --noEmit ci/typescript-test.ts",
+    "check-ts": "ls -l && tsc --noEmit ci/typescript-test.ts",
     "lint:check": "eslint .",
     "lint:fix": "eslint --fix",
     "prettier:check": "prettier --check .",

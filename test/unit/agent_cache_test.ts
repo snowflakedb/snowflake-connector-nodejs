@@ -73,7 +73,11 @@ describe('getProxtAgent', function () {
         proxyOptions: mockProxy,
         parsedUrl: fakeAccessUrl,
         destination,
-        connectionConfig: {} as WIP_ConnectionConfig,
+        connectionConfig: {
+          crlValidatorConfig: {
+            checkMode: 'DISABLED',
+          },
+        } as WIP_ConnectionConfig,
       });
       if (isNewAgent) {
         numofAgent++;

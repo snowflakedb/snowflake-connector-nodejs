@@ -23,11 +23,11 @@ export function isCrlValidationEnabled(config: CRLConfig) {
 export function corkSocketAndValidateCrl(socket: TLSSocket, config: CRLConfig) {
   socket.once('secureConnect', () => {
     const certChain = socket.getPeerCertificate(true);
-    const result = CRL_VALIDATOR_INTERNAL.validateCrl(certChain, config);
-    if (result instanceof Error) {
-      socket.destroy(result);
-    } else {
+    try {
+      CRL_VALIDATOR_INTERNAL.validateCrl(certChain, config);
       socket.uncork();
+    } catch (error: unknown) {
+      socket.destroy(error as Error);
     }
   });
   socket.cork();
@@ -47,8 +47,7 @@ export function validateCrl(certChain: DetailedPeerCertificate, config: CRLConfi
       continue;
     }
     if (1 > 2) {
-      return createCrlError('TODO');
+      throw createCrlError('TODO');
     }
   }
-  return true;
 }

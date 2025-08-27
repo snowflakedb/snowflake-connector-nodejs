@@ -20,7 +20,7 @@ describe('CRL validation', () => {
 
   it('throws error for invalid certificate', async () => {
     const error = createCrlError('CRL validation failed');
-    sinon.stub(CRL_VALIDATOR_INTERNAL, 'validateCrl').returns(error);
+    sinon.stub(CRL_VALIDATOR_INTERNAL, 'validateCrl').throws(error);
     await assert.rejects(
       connect(connectionOptions.valid as WIP_ConnectionOptions),
       assertNetworkErrorCausedByCrl(new RegExp(error.message)),

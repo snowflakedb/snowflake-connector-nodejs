@@ -4,8 +4,12 @@ const ASN1 = require('asn1.js-rfc5280');
 
 export function createTestCertificate({
   crlDistributionPoints,
+  validFrom,
+  validTo,
 }: {
   crlDistributionPoints?: CRLDistributionPoint[];
+  validFrom?: string;
+  validTo?: string;
 } = {}): DetailedPeerCertificate {
   // NOTE: Generated using AI based on ASN1.js cert validation
   const cert = {
@@ -67,8 +71,8 @@ export function createTestCertificate({
   const encoded = ASN1.Certificate.encode(cert, 'der');
   const certObj = {
     raw: encoded,
-    valid_from: new Date(),
-    valid_to: new Date(),
+    valid_from: validFrom ?? new Date().toUTCString(),
+    valid_to: validTo ?? new Date().toUTCString(),
     serialNumber: '01',
     subject: {},
     issuer: {},

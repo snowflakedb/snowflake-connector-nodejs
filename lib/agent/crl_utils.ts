@@ -76,3 +76,24 @@ export function getCertificateCrlUrls(certChain: DetailedPeerCertificate) {
     return null;
   }
 }
+
+// https://cabforum.org/working-groups/server/baseline-requirements/requirements/
+// See Short-lived Subscriber Certificate section
+export function isShortLivedCertificate(cert: DetailedPeerCertificate) {
+  const validFrom = new Date(cert.valid_from);
+  const validTo = new Date(cert.valid_to);
+
+  // Certificates issued before March 15, 2024 are not considered short-lived
+  if (validFrom < new Date('2024-03-15T00:00:00.000Z')) {
+    return false;
+  }
+
+  let maximumValidityPeriod = 7 * 24 * 60 * 60 * 1000; // 7 days in milliseconds
+  if (validFrom < new Date('2026-03-15T00:00:00.000Z')) {
+    maximumValidityPeriod = 10 * 24 * 60 * 60 * 1000; // 10 days in milliseconds
+  }
+  maximumValidityPeriod += 60 * 1000; // Fix inclusion start and end time (1 minute)
+
+  const certValidityPeriod = validTo.getTime() - validFrom.getTime();
+  return maximumValidityPeriod > certValidityPeriod;
+}

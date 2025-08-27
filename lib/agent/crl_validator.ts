@@ -2,7 +2,7 @@ import { DetailedPeerCertificate, TLSSocket } from 'tls';
 import { createCrlError } from '../errors';
 import { getCertificateCrlUrls, isShortLivedCertificate } from './crl_utils';
 
-// Allows to mock/spy internal calls in integration tests
+// Allows to mock/spy internal calls in tests
 export const CRL_VALIDATOR_INTERNAL = {
   validateCrl: (...args: Parameters<typeof validateCrl>) => validateCrl(...args),
 };

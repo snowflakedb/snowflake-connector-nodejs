@@ -1,6 +1,6 @@
 import { Agent, AgentOptions } from 'https';
 import { TLSSocket } from 'tls';
-import { validateCrl, CRLConfig } from './crl_validator';
+import { corkSocketAndValidateCrl, CRLConfig } from './crl_validator';
 
 interface HttpsCrlAgentOptions extends AgentOptions {
   crlConfig: CRLConfig;
@@ -21,7 +21,7 @@ export default class HttpsCrlAgent extends Agent {
       ...args: any[]
     ) => TLSSocket;
     const socket = createConnection.apply(this, args);
-    validateCrl(socket, this.crlConfig);
+    corkSocketAndValidateCrl(socket, this.crlConfig);
     return socket;
   }
 }

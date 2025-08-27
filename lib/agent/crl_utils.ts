@@ -68,7 +68,7 @@ export function getCertificateCrlUrls(certChain: DetailedPeerCertificate) {
       }
     }
     Logger().debug('getCertificateCrlUrls: found URLs %j', result);
-    return result.length > 0 ? result : null;
+    return result.length > 0 ? (result as [string, ...string[]]) : null;
   } else {
     Logger().debug(
       'getCertificateCrlUrls: certificate doesnt have cRLDistributionPoints extension',

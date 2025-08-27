@@ -3,7 +3,7 @@ import * as http from 'http';
 import { URL } from 'url';
 import { HttpsProxyAgent } from 'https-proxy-agent';
 import { AgentConnectOpts } from 'agent-base';
-import { CRLConfig, isCrlValidationEnabled, validateCrl } from './crl_validator';
+import { CRLConfig, isCrlValidationEnabled, corkSocketAndValidateCrl } from './crl_validator';
 import SocketUtil from './socket_util';
 import ProxyUtil from '../proxy_util';
 import Logger from '../logger';
@@ -47,7 +47,7 @@ class SnowflakeHttpsProxyAgent extends HttpsProxyAgent<string> {
     const socket = await super.connect(req, opts);
     if (socket instanceof tls.TLSSocket) {
       if (isCrlValidationEnabled(this.crlConfig)) {
-        validateCrl(socket, this.crlConfig);
+        corkSocketAndValidateCrl(socket, this.crlConfig);
       } else {
         const isProxyRequiredForOCSP =
           this.useForOCSP &&

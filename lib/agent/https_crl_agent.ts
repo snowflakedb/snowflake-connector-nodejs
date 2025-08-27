@@ -1,19 +1,19 @@
 import { Agent, AgentOptions } from 'https';
 import { TLSSocket } from 'tls';
-import { corkSocketAndValidateCrl, CRLConfig } from './crl_validator';
+import { corkSocketAndValidateCrl, CRLValidatorConfig } from './crl_validator';
 
 interface HttpsCrlAgentOptions extends AgentOptions {
-  crlConfig: CRLConfig;
+  crlValidatorConfig: CRLValidatorConfig;
 }
 
 // TODO: when OCSP is removed, rename to HttpsAgent
 export default class HttpsCrlAgent extends Agent {
-  private crlConfig: CRLConfig;
+  private crlValidatorConfig: CRLValidatorConfig;
 
   constructor(opts: HttpsCrlAgentOptions) {
-    const { crlConfig, ...agentOptions } = opts;
+    const { crlValidatorConfig, ...agentOptions } = opts;
     super(agentOptions);
-    this.crlConfig = crlConfig;
+    this.crlValidatorConfig = crlValidatorConfig;
   }
 
   createConnection(...args: any[]) {
@@ -21,7 +21,7 @@ export default class HttpsCrlAgent extends Agent {
       ...args: any[]
     ) => TLSSocket;
     const socket = createConnection.apply(this, args);
-    corkSocketAndValidateCrl(socket, this.crlConfig);
+    corkSocketAndValidateCrl(socket, this.crlValidatorConfig);
     return socket;
   }
 }

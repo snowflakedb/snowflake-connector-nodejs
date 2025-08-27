@@ -7,8 +7,7 @@ export const CRL_VALIDATOR_INTERNAL = {
   validateCrl: (...args: Parameters<typeof validateCrl>) => validateCrl(...args),
 };
 
-// TODO: consider naming it CRLValidatorConfig
-export type CRLConfig = {
+export type CRLValidatorConfig = {
   checkMode: 'DISABLED' | 'ENABLED' | 'ADVISORY';
   allowCertificatesWithoutCrlURL: boolean;
   inMemoryCache: boolean;
@@ -16,11 +15,11 @@ export type CRLConfig = {
   downloadTimeoutMs: number;
 };
 
-export function isCrlValidationEnabled(config: CRLConfig) {
+export function isCrlValidationEnabled(config: CRLValidatorConfig) {
   return config.checkMode !== 'DISABLED';
 }
 
-export function corkSocketAndValidateCrl(socket: TLSSocket, config: CRLConfig) {
+export function corkSocketAndValidateCrl(socket: TLSSocket, config: CRLValidatorConfig) {
   socket.once('secureConnect', () => {
     const certChain = socket.getPeerCertificate(true);
     try {
@@ -33,7 +32,7 @@ export function corkSocketAndValidateCrl(socket: TLSSocket, config: CRLConfig) {
   socket.cork();
 }
 
-export function validateCrl(certChain: DetailedPeerCertificate, config: CRLConfig) {
+export function validateCrl(certChain: DetailedPeerCertificate, config: CRLValidatorConfig) {
   for (const certificate of iterateCertChain(certChain)) {
     if (isShortLivedCertificate(certificate)) {
       continue;

@@ -3,13 +3,17 @@ import * as http from 'http';
 import { URL } from 'url';
 import { HttpsProxyAgent } from 'https-proxy-agent';
 import { AgentConnectOpts } from 'agent-base';
-import { CRLConfig, isCrlValidationEnabled, corkSocketAndValidateCrl } from './crl_validator';
+import {
+  CRLValidatorConfig,
+  isCrlValidationEnabled,
+  corkSocketAndValidateCrl,
+} from './crl_validator';
 import SocketUtil from './socket_util';
 import ProxyUtil from '../proxy_util';
 import Logger from '../logger';
 
 export type SnowflakeHttpsProxyAgentOptions = AgentConnectOpts & {
-  crlConfig: CRLConfig;
+  crlValidatorConfig: CRLValidatorConfig;
   host: string;
   port: string;
   protocol: string;
@@ -20,7 +24,7 @@ export type SnowflakeHttpsProxyAgentOptions = AgentConnectOpts & {
 
 class SnowflakeHttpsProxyAgent extends HttpsProxyAgent<string> {
   private useForOCSP: boolean;
-  private crlConfig: CRLConfig;
+  private crlValidatorConfig: CRLValidatorConfig;
 
   constructor(opts: SnowflakeHttpsProxyAgentOptions) {
     const {
@@ -30,7 +34,7 @@ class SnowflakeHttpsProxyAgent extends HttpsProxyAgent<string> {
       password,
       protocol: rawProtocol,
       useForOCSP,
-      crlConfig,
+      crlValidatorConfig,
       ...agentOptions
     } = opts;
     const protocol = rawProtocol.endsWith(':') ? rawProtocol : `${rawProtocol}:`;
@@ -39,15 +43,15 @@ class SnowflakeHttpsProxyAgent extends HttpsProxyAgent<string> {
     proxyUrl.password = password ?? '';
     super(proxyUrl, agentOptions);
     this.useForOCSP = useForOCSP;
-    this.crlConfig = crlConfig;
+    this.crlValidatorConfig = crlValidatorConfig;
   }
 
   async connect(req: http.ClientRequest, opts: AgentConnectOpts) {
     Logger().debug('Using proxy=%s for host %s', this.proxy.hostname, opts.host);
     const socket = await super.connect(req, opts);
     if (socket instanceof tls.TLSSocket) {
-      if (isCrlValidationEnabled(this.crlConfig)) {
-        corkSocketAndValidateCrl(socket, this.crlConfig);
+      if (isCrlValidationEnabled(this.crlValidatorConfig)) {
+        corkSocketAndValidateCrl(socket, this.crlValidatorConfig);
       } else {
         const isProxyRequiredForOCSP =
           this.useForOCSP &&

@@ -1,9 +1,9 @@
 import assert from 'assert';
-import { validateCrl, CRLConfig } from '../../../lib/agent/crl_validator';
+import { validateCrl, CRLValidatorConfig } from '../../../lib/agent/crl_validator';
 import { createTestCertificate, createCertificateChain } from './test_utils';
 
 describe('validateCrl', () => {
-  const baseCrlConfig: CRLConfig = {
+  const validatorConfig: CRLValidatorConfig = {
     checkMode: 'ENABLED',
     allowCertificatesWithoutCrlURL: false,
     inMemoryCache: true,
@@ -18,17 +18,17 @@ describe('validateCrl', () => {
       crlDistributionPoints: null,
     });
     assert.doesNotThrow(() => {
-      validateCrl(certificate, baseCrlConfig);
+      validateCrl(certificate, validatorConfig);
     });
   });
 
   it('handles certificate without CRL URL', () => {
     const certificate = createTestCertificate({ crlDistributionPoints: null });
     assert.throws(() => {
-      validateCrl(certificate, baseCrlConfig);
+      validateCrl(certificate, validatorConfig);
     }, /Certificate does not have CRL http URL/);
     assert.doesNotThrow(() => {
-      validateCrl(certificate, { ...baseCrlConfig, allowCertificatesWithoutCrlURL: true });
+      validateCrl(certificate, { ...validatorConfig, allowCertificatesWithoutCrlURL: true });
     });
   });
 
@@ -38,7 +38,7 @@ describe('validateCrl', () => {
     const chain = createCertificateChain(validCertificate, invalidCertificate);
     assert.throws(
       () => {
-        validateCrl(chain, baseCrlConfig);
+        validateCrl(chain, validatorConfig);
       },
       (err: any) => {
         assert.strictEqual(err.certificate, invalidCertificate);

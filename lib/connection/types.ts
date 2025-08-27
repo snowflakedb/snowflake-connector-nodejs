@@ -1,5 +1,5 @@
 import { WorkloadIdentityProviderKey } from '../authentication/auth_workload_identity/types';
-import { CRLConfig } from '../agent/crl_validator';
+import { CRLValidatorConfig } from '../agent/crl_validator';
 
 /**
  * Work In Progress typing for ConnectionOptions
@@ -119,35 +119,35 @@ export interface WIP_ConnectionOptions {
    *
    * @default "DISABLED"
    */
-  certRevocationCheckMode?: CRLConfig['checkMode'];
+  certRevocationCheckMode?: CRLValidatorConfig['checkMode'];
 
   /**
    * When certRevocationCheckMode is enabled, allows to connect when certificate doesn't have CRL URL.
    *
    * @default true
    */
-  crlAllowCertificatesWithoutCrlURL?: CRLConfig['allowCertificatesWithoutCrlURL'];
+  crlAllowCertificatesWithoutCrlURL?: CRLValidatorConfig['allowCertificatesWithoutCrlURL'];
 
   /**
    * When certRevocationCheckMode is enabled, allows to cache CRLs in memory.
    *
    * @default true
    */
-  crlInMemoryCache?: CRLConfig['inMemoryCache'];
+  crlInMemoryCache?: CRLValidatorConfig['inMemoryCache'];
 
   /**
    * When certRevocationCheckMode is enabled, allows to cache CRLs on disk.
    *
    * @default true
    */
-  crlOnDiskCache?: CRLConfig['onDiskCache'];
+  crlOnDiskCache?: CRLValidatorConfig['onDiskCache'];
 
   /**
    * When certRevocationCheckMode is enabled, allows to set timeout for CRL download.
    *
    * @default 10000
    */
-  crlDownloadTimeoutMs?: CRLConfig['downloadTimeoutMs'];
+  crlDownloadTimeoutMs?: CRLValidatorConfig['downloadTimeoutMs'];
 }
 
 /**
@@ -167,7 +167,7 @@ export type WIP_ConnectionConfig =
     | 'workloadIdentityAzureEntraIdResource'
     | 'oauthEnableSingleUseRefreshTokens'
   > & {
-    crlConfig: CRLConfig;
+    crlValidatorConfig: CRLValidatorConfig;
     getOauthHttpAllowed(): boolean;
     getOauthClientId(): string;
     getOauthClientSecret(): string;

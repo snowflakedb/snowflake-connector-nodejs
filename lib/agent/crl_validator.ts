@@ -1,5 +1,6 @@
 import { DetailedPeerCertificate, TLSSocket } from 'tls';
 import { createCrlError } from '../errors';
+import Logger from '../logger';
 import { getCertificateCrlUrls, isShortLivedCertificate } from './crl_utils';
 
 // Allows to mock/spy internal calls in tests
@@ -34,13 +35,16 @@ export function corkSocketAndValidateCrl(socket: TLSSocket, config: CRLValidator
 
 export function validateCrl(certChain: DetailedPeerCertificate, config: CRLValidatorConfig) {
   for (const certificate of iterateCertChain(certChain)) {
+    Logger().debug('validateCrl: checking certificate %j', certificate.subject);
     if (isShortLivedCertificate(certificate)) {
+      Logger().debug('validateCrl: certificate is short-lived, skipping.');
       continue;
     }
 
     const crlUrls = getCertificateCrlUrls(certificate);
     if (!crlUrls) {
       if (config.allowCertificatesWithoutCrlURL) {
+        Logger().debug('validateCrl: certificate has no CRL distribution points, skipping.');
         continue;
       }
       throw createCrlError(

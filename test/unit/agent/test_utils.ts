@@ -86,10 +86,15 @@ export function createTestCertificate(
   const encoded = ASN1.Certificate.encode(cert, 'der');
   const certObj = {
     raw: encoded,
-    valid_from: validFrom ?? new Date().toUTCString(),
-    valid_to: validTo ?? new Date().toUTCString(),
+    valid_from: validFrom,
+    valid_to: validTo,
     serialNumber: '01',
-    subject: {},
+    subject: {
+      C: 'US',
+      O: 'DigiCert Inc',
+      OU: 'www.digicert.com',
+      CN: 'DigiCert Global Root G2',
+    },
     issuer: {},
     subjectaltname: '',
     infoAccess: {},

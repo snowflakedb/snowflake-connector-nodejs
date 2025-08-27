@@ -1,9 +1,5 @@
 import assert from 'assert';
-import {
-  CRLDistributionPoint,
-  getCertificateCrlUrls,
-  isShortLivedCertificate,
-} from '../../../lib/agent/crl_utils';
+import { getCertificateCrlUrls, isShortLivedCertificate } from '../../../lib/agent/crl_utils';
 import { createTestCertificate, CreateTestCertificateOptions } from './test_utils';
 
 describe('getCertificateCrlUrls', () => {

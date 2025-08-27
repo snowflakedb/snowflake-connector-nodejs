@@ -53,7 +53,7 @@ export function getCertificateCrlUrls(certChain: DetailedPeerCertificate) {
       for (const fullNameEntry of entry.distributionPoint.value) {
         if (fullNameEntry.type !== 'uniformResourceIdentifier') {
           Logger().debug(
-            'getCertificateCrlUrlss: skipping non-uniformResourceIdentifier entry %j',
+            'getCertificateCrlUrls: skipping non-uniformResourceIdentifier entry %j',
             fullNameEntry,
           );
           continue;

@@ -10,6 +10,7 @@ describe('validateCrl', () => {
     onDiskCache: false,
     downloadTimeoutMs: 5000,
   };
+  const rootCertificate = createTestCertificate();
 
   it('passes for short-lived certificate', () => {
     const certificate = createTestCertificate({
@@ -17,25 +18,27 @@ describe('validateCrl', () => {
       validTo: 'Mar 22 2024 00:00:00 GMT',
       crlDistributionPoints: null,
     });
+    const chain = createCertificateChain(certificate, rootCertificate);
     assert.doesNotThrow(() => {
-      validateCrl(certificate, validatorConfig);
+      validateCrl(chain, validatorConfig);
     });
   });
 
   it('handles certificate without CRL URL', () => {
     const certificate = createTestCertificate({ crlDistributionPoints: null });
+    const chain = createCertificateChain(certificate, rootCertificate);
     assert.throws(() => {
       validateCrl(certificate, validatorConfig);
     }, /Certificate does not have CRL http URL/);
     assert.doesNotThrow(() => {
-      validateCrl(certificate, { ...validatorConfig, allowCertificatesWithoutCrlURL: true });
+      validateCrl(chain, { ...validatorConfig, allowCertificatesWithoutCrlURL: true });
     });
   });
 
   it('fails for chain with invalid certificate', () => {
     const validCertificate = createTestCertificate();
     const invalidCertificate = createTestCertificate({ crlDistributionPoints: null });
-    const chain = createCertificateChain(validCertificate, invalidCertificate);
+    const chain = createCertificateChain(validCertificate, invalidCertificate, rootCertificate);
     assert.throws(
       () => {
         validateCrl(chain, validatorConfig);

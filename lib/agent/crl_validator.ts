@@ -58,8 +58,8 @@ export function validateCrl(certChain: DetailedPeerCertificate, config: CRLValid
 function* iterateCertChain(cert: DetailedPeerCertificate) {
   let current = cert;
   while (current) {
+    if (current === current.issuerCertificate) break; // Root is self-signed, ignoring
     yield current;
-    if (current === current.issuerCertificate) break;
     current = current.issuerCertificate;
   }
 }

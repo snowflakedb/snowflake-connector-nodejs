@@ -124,7 +124,7 @@ export interface WIP_ConnectionOptions {
   /**
    * When certRevocationCheckMode is enabled, allows to connect when certificate doesn't have CRL URL.
    *
-   * @default true
+   * @default false
    */
   crlAllowCertificatesWithoutCrlURL?: CRLValidatorConfig['allowCertificatesWithoutCrlURL'];
 

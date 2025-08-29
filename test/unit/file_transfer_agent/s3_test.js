@@ -387,6 +387,9 @@ describe('S3 client', function () {
       getProxy: function () {
         return proxyOptions;
       },
+      crlValidatorConfig: {
+        checkMode: 'DISABLED',
+      },
     };
     s3 = require('s3');
     const AWS = new SnowflakeS3Util(proxyConnectionConfig, s3);

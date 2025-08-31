@@ -1,7 +1,7 @@
 import { AuthClass, AuthRequestBody } from '../types';
 import { getAwsAttestationToken } from './attestation_aws';
 import { WorkloadIdentityProvider, WorkloadIdentityProviderKey } from './types';
-import { createClientError, createInvalidParameterError, ErrorCode } from '../../errors';
+import { createInvalidParameterError, ErrorCode } from '../../errors';
 import { WIP_ConnectionConfig } from '../../connection/types';
 import Logger from '../../logger';
 import { getAzureAttestationToken } from './attestation_azure';

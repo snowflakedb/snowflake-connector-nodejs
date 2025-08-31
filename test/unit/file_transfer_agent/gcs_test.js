@@ -21,6 +21,9 @@ describe('GCS client', function () {
       return this.proxy;
     },
     accessUrl: 'http://fakeaccount.snowflakecomputing.com',
+    crlValidatorConfig: {
+      checkMode: 'DISABLED',
+    },
   };
 
   let GCS;

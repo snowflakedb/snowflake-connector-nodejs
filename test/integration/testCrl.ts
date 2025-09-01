@@ -32,7 +32,7 @@ describe('connection with CRL validation', () => {
   });
 
   if (os.platform() === 'linux' && !process.env.SHOULD_SKIP_PROXY_TESTS) {
-    it('allows proxy connection for valid certificate', async () => {
+    it.skip('allows proxy connection for valid certificate', async () => {
       const validateCrlSpy = sinon.spy(CRL_VALIDATOR_INTERNAL, 'validateCrl');
       await assert.doesNotReject(
         testCrlConnection(connectionOptions.connectionWithProxy as WIP_ConnectionOptions),

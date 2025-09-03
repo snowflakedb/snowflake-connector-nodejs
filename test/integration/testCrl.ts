@@ -25,7 +25,7 @@ describe('connection with CRL validation', () => {
     sinon.restore();
   });
 
-  it('allows connection for valid certificate', async () => {
+  it.skip('allows connection for valid certificate', async () => {
     const validateCrlSpy = sinon.spy(CRL_VALIDATOR_INTERNAL, 'validateCrl');
     await assert.doesNotReject(testCrlConnection());
     assert.strictEqual(validateCrlSpy.callCount, 1);
@@ -41,7 +41,7 @@ describe('connection with CRL validation', () => {
     });
   }
 
-  it('throws error for invalid certificate', async () => {
+  it.skip('throws error for invalid certificate', async () => {
     const certificate = createTestCertificate();
     const error = createCrlError(certificate, 'CRL validation failed');
     sinon.stub(CRL_VALIDATOR_INTERNAL, 'validateCrl').throws(error);

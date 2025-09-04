@@ -10,6 +10,7 @@ import {
   isCrlSignatureValid,
   isShortLivedCertificate,
 } from './crl_utils';
+import { createCrlError } from '../errors';
 
 // Allows to mock/spy internal calls in tests
 export const CRL_VALIDATOR_INTERNAL = {
@@ -35,7 +36,8 @@ export function corkSocketAndValidateCrl(socket: TLSSocket, config: CRLValidator
       await CRL_VALIDATOR_INTERNAL.validateCrl(certChain, config);
       socket.uncork();
     } catch (error: unknown) {
-      socket.destroy(error as Error);
+      // NOTE: Wrap error into CrlError to prevent retries
+      socket.destroy(createCrlError(error as Error));
     }
   });
   socket.cork();

@@ -70,8 +70,6 @@ export function createTestCertificate(
     parameters: Buffer.from([0x05, 0x00]),
   };
 
-  // TODO: ensure the proper shape of actual certificate with
-  // multiple distribution points
   const extensions = options.extensions ?? [];
   if (options.crlUrls) {
     extensions.push({

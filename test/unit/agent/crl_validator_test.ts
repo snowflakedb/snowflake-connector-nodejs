@@ -2,7 +2,6 @@ import assert from 'assert';
 import { WireMockRestClient } from 'wiremock-rest-client';
 import { validateCrl, CRLValidatorConfig } from '../../../lib/agent/crl_validator';
 import { createCertificateKeyPair, createTestCertificate, createTestCRL } from './test_utils';
-import { CRLDistributionPointsExtension, X509Crl } from '@peculiar/x509';
 import { getFreePort } from '../../../lib/util';
 import { runWireMockAsync } from '../../wiremockRunner';
 import ASN1 from 'asn1.js-rfc5280';

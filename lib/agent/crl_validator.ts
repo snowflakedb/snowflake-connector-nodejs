@@ -50,6 +50,11 @@ function* iterateCertChain(cert: DetailedPeerCertificate) {
   }
 }
 
+// NOTE:
+// Sticking with asn1.js-rfc5280 + custom signature validation, because popular libraries have issues:
+// - jsrsasign: has outdated crypto library with CEV issues
+// - pkijs: takes 4 seconds to parse 9Mb CRL
+// - @peculiar/x509: takes 8 seconds to parse 9Mb CRL
 export async function validateCrl(certChain: DetailedPeerCertificate, config: CRLValidatorConfig) {
   for (const certificate of iterateCertChain(certChain)) {
     const decodedCertificate = ASN1.Certificate.decode(certificate.raw, 'der');

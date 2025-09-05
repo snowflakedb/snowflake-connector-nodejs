@@ -4,13 +4,13 @@ import os from 'os';
 import { WIP_ConnectionOptions } from '../../lib/connection/types';
 import * as connectionOptions from './connectionOptions';
 import ErrorCode from '../../lib/error_code';
-import { CRL_VALIDATOR_INTERNAL } from '../../lib/agent/crl_validator';
+import { CertificateRevokedError, CRL_VALIDATOR_INTERNAL } from '../../lib/agent/crl_validator';
 import { createCrlError } from '../../lib/errors';
 import { createTestCertificate } from '../unit/agent/test_utils';
 import { createConnection, connectAsync, destroyConnectionAsync } from './testUtil';
 import { httpsAgentCache } from '../../lib/http/node';
 
-async function testCrlConnection(connectionOptions?: WIP_ConnectionOptions) {
+async function testCrlConnection(connectionOptions?: Partial<WIP_ConnectionOptions>) {
   const connection = createConnection({
     certRevocationCheckMode: 'ENABLED',
     ...connectionOptions,
@@ -20,38 +20,69 @@ async function testCrlConnection(connectionOptions?: WIP_ConnectionOptions) {
 }
 
 describe('connection with CRL validation', () => {
+  const certificateRevokedError = new CertificateRevokedError('Certificate is revoked');
+  const regularError = new Error('CRL validation failed');
+
   afterEach(() => {
     httpsAgentCache.clear();
     sinon.restore();
   });
 
-  it.skip('allows connection for valid certificate', async () => {
+  it('allows connection for valid certificate', async () => {
     const validateCrlSpy = sinon.spy(CRL_VALIDATOR_INTERNAL, 'validateCrl');
     await assert.doesNotReject(testCrlConnection());
     assert.strictEqual(validateCrlSpy.callCount, 1);
   });
 
   if (os.platform() === 'linux' && !process.env.SHOULD_SKIP_PROXY_TESTS) {
-    it.skip('allows proxy connection for valid certificate', async () => {
+    it('allows proxy connection for valid certificate', async () => {
       const validateCrlSpy = sinon.spy(CRL_VALIDATOR_INTERNAL, 'validateCrl');
-      await assert.doesNotReject(
-        testCrlConnection(connectionOptions.connectionWithProxy as WIP_ConnectionOptions),
-      );
+      await assert.doesNotReject(testCrlConnection(connectionOptions.connectionWithProxy));
       assert.strictEqual(validateCrlSpy.callCount, 1);
     });
   }
 
-  it.skip('throws error for invalid certificate', async () => {
-    const error = new Error('CRL validation failed');
-    sinon.stub(CRL_VALIDATOR_INTERNAL, 'validateCrl').throws(error);
-    await assert.rejects(
-      testCrlConnection(connectionOptions.valid as WIP_ConnectionOptions),
-      (err: any) => {
-        assert.strictEqual(err.name, 'NetworkError');
-        assert.strictEqual(err.message, error.message);
-        assert.strictEqual(err['cause']?.['code'], ErrorCode.ERR_CRL_ERROR);
-        return true;
-      },
-    );
+  [
+    {
+      name: 'fails for CertificateRevokedError in ENABLED mode',
+      isAdvisory: false,
+      throwError: certificateRevokedError,
+      expectsWrappedError: certificateRevokedError,
+    },
+    {
+      name: 'fails for regular Error in ENABLED mode',
+      isAdvisory: false,
+      throwError: regularError,
+      expectsWrappedError: regularError,
+    },
+    {
+      name: 'fails for CertificateRevokedError in ADVISORY mode',
+      isAdvisory: true,
+      throwError: certificateRevokedError,
+      expectsWrappedError: certificateRevokedError,
+    },
+    {
+      name: 'passes for regular Error in ADVISORY mode',
+      isAdvisory: true,
+      throwError: regularError,
+      expectsWrappedError: false,
+    },
+  ].forEach(({ name, isAdvisory, throwError, expectsWrappedError }) => {
+    it(name, async () => {
+      sinon.stub(CRL_VALIDATOR_INTERNAL, 'validateCrl').throws(throwError);
+      const testConnectionPromise = testCrlConnection({
+        certRevocationCheckMode: isAdvisory ? 'ADVISORY' : 'ENABLED',
+      });
+      if (expectsWrappedError) {
+        await assert.rejects(testConnectionPromise, (err: any) => {
+          assert.strictEqual(err.name, 'NetworkError');
+          assert.strictEqual(err.message, throwError.message);
+          assert.strictEqual(err['cause']?.['code'], ErrorCode.ERR_CRL_ERROR);
+          return true;
+        });
+      } else {
+        await assert.doesNotReject(testConnectionPromise);
+      }
+    });
   });
 });

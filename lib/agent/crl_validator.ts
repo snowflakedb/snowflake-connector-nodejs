@@ -25,6 +25,13 @@ export type CRLValidatorConfig = {
   downloadTimeoutMs: number;
 };
 
+export class CertificateRevokedError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = 'CertificateRevokedError';
+  }
+}
+
 export function isCrlValidationEnabled(config: CRLValidatorConfig) {
   return config.checkMode !== 'DISABLED';
 }
@@ -34,11 +41,18 @@ export function corkSocketAndValidateCrl(socket: TLSSocket, config: CRLValidator
     const certChain = socket.getPeerCertificate(true);
     try {
       await CRL_VALIDATOR_INTERNAL.validateCrl(certChain, config);
-      socket.uncork();
     } catch (error: unknown) {
-      // NOTE: Wrap error into CrlError to prevent retries
-      socket.destroy(createCrlError(error as Error));
+      if (!(error instanceof CertificateRevokedError) && config.checkMode === 'ADVISORY') {
+        Logger().debug(
+          'Failed to check CRL revocation, but checkMode=ADVISORY. Allowing connection. Error: %j',
+          error,
+        );
+      } else {
+        // NOTE: Wrap error into CrlError to prevent retries
+        socket.destroy(createCrlError(error as Error));
+      }
     }
+    socket.uncork();
   });
   socket.cork();
 }
@@ -102,7 +116,7 @@ export async function validateCrl(certChain: DetailedPeerCertificate, config: CR
 
       logDebug(`checking if certificate is revoked in ${crlUrl}`);
       if (isCertificateRevoked(decodedCertificate, crl)) {
-        throw new Error(`Certificate ${name} is revoked in ${crlUrl}`);
+        throw new CertificateRevokedError(`Certificate ${name} is revoked in ${crlUrl}`);
       }
     }
   }

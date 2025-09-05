@@ -16,7 +16,7 @@ export function createCertificateKeyPair(algorithmOid = DEFAULT_SIGNATURE_ALGORI
   // RSA
   if (algorithmOid.startsWith('1.2.840.113549.1.1.')) {
     const pair = crypto.generateKeyPairSync('rsa', {
-      modulusLength: 1024,
+      modulusLength: crypto.getFips() ? 2048 : 512, // faster test runs
       publicExponent: 0x10001,
     });
     return {

@@ -4,7 +4,7 @@ import crypto from 'crypto';
 import Logger from '../logger';
 import {
   getCertificateCrlUrls,
-  getCertificateName,
+  getCertificateDebugName,
   getCrl,
   isCertificateRevoked,
   isCrlSignatureValid,
@@ -60,7 +60,7 @@ function* iterateCertChain(cert: DetailedPeerCertificate) {
 export async function validateCrl(certChain: DetailedPeerCertificate, config: CRLValidatorConfig) {
   for (const certificate of iterateCertChain(certChain)) {
     const decodedCertificate = ASN1.Certificate.decode(certificate.raw, 'der');
-    const name = getCertificateName(certificate);
+    const name = getCertificateDebugName(certificate);
     const logDebug = (msg: string) => Logger().debug(`validateCrl[${name}]: ${msg}`);
 
     logDebug('starting validation');
@@ -96,7 +96,7 @@ export async function validateCrl(certChain: DetailedPeerCertificate, config: CR
       logDebug(`validating ${crlUrl} signature`);
       if (!isCrlSignatureValid(crl, crlIssuerPublicKey)) {
         throw new Error(
-          `CRL ${crlUrl} signature is invalid. Expected signature by ${getCertificateName(certificate.issuerCertificate)}`,
+          `CRL ${crlUrl} signature is invalid. Expected signature by ${getCertificateDebugName(certificate.issuerCertificate)}`,
         );
       }
 

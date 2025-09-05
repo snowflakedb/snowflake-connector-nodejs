@@ -28,11 +28,11 @@ export function createCertificateKeyPair(algorithmOid = DEFAULT_SIGNATURE_ALGORI
   // ECDSA
   if (algorithmOid.startsWith('1.2.840.10045.4.3.')) {
     let namedCurve: string;
-    if (algorithm.includes('SHA256')) {
+    if (algorithm === 'SHA256') {
       namedCurve = 'prime256v1'; // P-256
-    } else if (algorithm.includes('SHA384')) {
+    } else if (algorithm === 'SHA384') {
       namedCurve = 'secp384r1'; // P-384
-    } else if (algorithm.includes('SHA512')) {
+    } else if (algorithm === 'SHA512') {
       namedCurve = 'secp521r1'; // P-521
     } else {
       namedCurve = 'prime256v1'; // Default to P-256

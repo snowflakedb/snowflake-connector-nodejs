@@ -13,7 +13,7 @@ export const SUPPORTED_CRL_VERIFICATION_ALGORITHMS: Record<string, string> = {
   '1.2.840.10045.4.3.4': 'SHA512',
 };
 
-export function getCertificateName(certificate: DetailedPeerCertificate) {
+export function getCertificateDebugName(certificate: DetailedPeerCertificate) {
   return [
     `O:${certificate.subject.O}`,
     `CN:${certificate.subject.CN}`,
@@ -68,11 +68,6 @@ export const getCertificateCrlUrls = (
 export function isShortLivedCertificate(decodedCertificate: ASN1.CertificateDecoded) {
   const notBefore = new Date(decodedCertificate.tbsCertificate.validity.notBefore.value);
   const notAfter = new Date(decodedCertificate.tbsCertificate.validity.notAfter.value);
-
-  // Certificates issued before March 15, 2024 are not considered short-lived
-  if (notBefore < new Date('2024-03-15T00:00:00.000Z')) {
-    return false;
-  }
 
   let maximumValidityPeriod = 7 * 24 * 60 * 60 * 1000; // 7 days in milliseconds
   if (notBefore < new Date('2026-03-15T00:00:00.000Z')) {

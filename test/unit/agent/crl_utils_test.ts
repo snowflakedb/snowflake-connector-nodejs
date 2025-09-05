@@ -15,12 +15,6 @@ describe('isShortLivedCertificate', () => {
     notAfter: string;
     expectedResult: boolean;
   }[] = [
-    {
-      name: 'returns false for certificate issued before March 15, 2024',
-      notBefore: 'Mar 14 2024 23:59:59 GMT',
-      notAfter: 'Mar 15 2024 23:59:59 GMT',
-      expectedResult: false,
-    },
     // Certificates issued between March 15, 2024 and March 15, 2026 (10 days + 1 minute limit)
     {
       name: 'returns true for 7-day certificate in 2024-2026 period',

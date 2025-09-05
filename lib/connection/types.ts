@@ -115,7 +115,8 @@ export interface WIP_ConnectionOptions {
   /**
    * Enables Certificate Revocation List (CRL) validation.
    *
-   * When "ADVISORY" is set, it fails only if the certificate is revoked. Any other network error will assume that the certificate is not revoked and allow the connection.
+   * When "ADVISORY" is set, it fails only if the certificate is revoked.
+   * Any other error (network, parsing, etc.) will assume that the certificate is not revoked and allow the connection.
    *
    * @default "DISABLED"
    */

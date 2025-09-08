@@ -105,7 +105,11 @@ export async function validateCrl(certChain: DetailedPeerCertificate, config: CR
 
     for (const crlUrl of crlUrls) {
       logDebug(`fetching ${crlUrl}`);
-      const crl = await getCrl(crlUrl);
+      const crl = await getCrl(crlUrl, {
+        timeoutMs: config.downloadTimeoutMs,
+        inMemoryCache: config.inMemoryCache,
+        onDiskCache: config.onDiskCache,
+      });
 
       logDebug(`validating ${crlUrl} signature`);
       if (!isCrlSignatureValid(crl, crlIssuerPublicKey)) {

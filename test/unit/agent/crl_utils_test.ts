@@ -1,11 +1,18 @@
 import assert from 'assert';
+import sinon from 'sinon';
+import fs from 'fs/promises';
+import axios from 'axios';
+import ASN1 from 'asn1.js-rfc5280';
 import {
   getCertificateCrlUrls,
+  getCrl,
   isCertificateRevoked,
   isCrlSignatureValid,
   isShortLivedCertificate,
+  PENDING_FETCH_REQUESTS,
   SUPPORTED_CRL_VERIFICATION_ALGORITHMS,
 } from '../../../lib/agent/crl_utils';
+import * as crlCacheModule from '../../../lib/agent/crl_cache';
 import { createCertificateKeyPair, createTestCertificate, createTestCRL } from './test_utils';
 
 describe('isShortLivedCertificate', () => {
@@ -249,5 +256,88 @@ describe('isCertificateRevoked', () => {
     const crl = createTestCRL();
     const isRevoked = isCertificateRevoked(certificate, crl);
     assert.strictEqual(isRevoked, false);
+  });
+});
+
+describe('fetchCrl', () => {
+  const crlUrl = 'http://example.com/crl.crl';
+  const testCrl = createTestCRL();
+  const testCrlRaw = Buffer.from(ASN1.CertificateList.encode(testCrl, 'der'));
+  let axiosGetStub: sinon.SinonStub;
+
+  beforeEach(() => {
+    axiosGetStub = sinon.stub(axios, 'get');
+  });
+
+  afterEach(async () => {
+    crlCacheModule.CRL_MEMORY_CACHE.clear();
+    await fs.rm(crlCacheModule.getCrlCacheDir(), { recursive: true, force: true });
+    sinon.restore();
+  });
+
+  it('returns CRL from fetched URL', async () => {
+    axiosGetStub.resolves({ data: testCrlRaw });
+    const fetchedCrl = await getCrl(crlUrl, {
+      timeoutMs: 1000,
+      inMemoryCache: false,
+      onDiskCache: false,
+    });
+    assert(axiosGetStub.calledOnceWith(crlUrl, { timeout: 1000, responseType: 'arraybuffer' }));
+    assert.deepEqual(fetchedCrl, testCrl);
+  });
+
+  it('fetches only once if multiple requests are made at the same time', async () => {
+    axiosGetStub.resolves({ data: testCrlRaw });
+    const [crl1, crl2] = await Promise.all([
+      getCrl(crlUrl, {
+        timeoutMs: 1000,
+        inMemoryCache: false,
+        onDiskCache: false,
+      }),
+      getCrl(crlUrl, {
+        timeoutMs: 1000,
+        inMemoryCache: false,
+        onDiskCache: false,
+      }),
+    ]);
+    assert.strictEqual(axiosGetStub.callCount, 1);
+    assert.strictEqual(PENDING_FETCH_REQUESTS.size, 0);
+    assert.deepEqual(crl1, testCrl);
+    assert.deepEqual(crl2, testCrl);
+  });
+
+  it('writes fetched data to cache', async () => {
+    axiosGetStub.resolves({ data: testCrlRaw });
+    await getCrl(crlUrl, {
+      timeoutMs: 1000,
+      inMemoryCache: true,
+      onDiskCache: true,
+    });
+    assert.strictEqual(axiosGetStub.callCount, 1);
+    assert.deepEqual(crlCacheModule.getCrlFromMemory(crlUrl), testCrl);
+    assert.deepEqual(await crlCacheModule.getCrlFromDisk(crlUrl), testCrl);
+  });
+
+  it('returns from memory cache if entry exists', async () => {
+    crlCacheModule.setCrlInMemory(crlUrl, testCrl);
+    const fetchedCrl = await getCrl(crlUrl, {
+      timeoutMs: 1000,
+      inMemoryCache: true,
+      onDiskCache: false,
+    });
+    assert.strictEqual(axiosGetStub.callCount, 0);
+    assert.deepEqual(fetchedCrl, testCrl);
+  });
+
+  it('returns from disk cache and adds to memory cache if entry exists', async () => {
+    await crlCacheModule.writeCrlToDisk(crlUrl, testCrlRaw);
+    const fetchedCrl = await getCrl(crlUrl, {
+      timeoutMs: 1000,
+      inMemoryCache: true,
+      onDiskCache: true,
+    });
+    assert.strictEqual(axiosGetStub.callCount, 0);
+    assert.deepEqual(fetchedCrl, testCrl);
+    assert.deepEqual(crlCacheModule.getCrlFromMemory(crlUrl), testCrl);
   });
 });

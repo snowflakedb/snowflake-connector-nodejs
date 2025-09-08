@@ -1,8 +1,9 @@
 import { DetailedPeerCertificate } from 'tls';
 import crypto from 'crypto';
 import ASN1 from 'asn1.js-rfc5280';
-import axios, { AxiosRequestConfig } from 'axios';
+import axios from 'axios';
 import Logger from '../logger';
+import { getCrlFromDisk, getCrlFromMemory, setCrlInMemory, writeCrlToDisk } from './crl_cache';
 
 export const SUPPORTED_CRL_VERIFICATION_ALGORITHMS: Record<string, string> = {
   '1.2.840.113549.1.1.11': 'sha256WithRSAEncryption',
@@ -104,25 +105,72 @@ export function isCertificateRevoked(
   return false;
 }
 
-// TODO: in next PRs
-// - prevent multiple http requests for the same CRL
-// - in-memory caching for parsed certificate lists
-// - on-disk caching
-export async function getCrl(url: string, axiosOptions: AxiosRequestConfig = {}) {
+export const PENDING_FETCH_REQUESTS = new Map<string, Promise<ASN1.CertificateListDecoded>>();
+
+export async function getCrl(
+  url: string,
+  options: {
+    timeoutMs: number;
+    inMemoryCache: boolean;
+    onDiskCache: boolean;
+  },
+) {
   const logDebug = (msg: string) => Logger().debug(`getCrl[${url}]: ${msg}`);
 
-  logDebug(`Download Started`);
-  const downloadStartedAt = Date.now();
-  const { data } = await axios.get(url, {
-    ...axiosOptions,
-    responseType: 'arraybuffer',
+  const pendingFetchRequest = PENDING_FETCH_REQUESTS.get(url);
+  if (pendingFetchRequest) {
+    logDebug(`Returning pending fetch request`);
+    return pendingFetchRequest;
+  }
+
+  if (options.inMemoryCache) {
+    const cachedCrl = getCrlFromMemory(url);
+    if (cachedCrl) {
+      logDebug(`Returning CRL from in-memory cache`);
+      return cachedCrl;
+    }
+  }
+
+  if (options.onDiskCache) {
+    const cachedCrl = await getCrlFromDisk(url);
+    if (cachedCrl) {
+      if (options.inMemoryCache) {
+        setCrlInMemory(url, cachedCrl);
+      }
+      logDebug(`Returning CRL from disk cache`);
+      return cachedCrl;
+    }
+  }
+
+  const fetchPromise = new Promise<ASN1.CertificateListDecoded>(async (resolve, reject) => {
+    try {
+      logDebug(`Downloading CRL`);
+      const { data } = await axios.get(url, {
+        timeout: options.timeoutMs,
+        responseType: 'arraybuffer',
+      });
+
+      logDebug(`Parsing CRL`);
+      const parsedCrl = ASN1.CertificateList.decode(data, 'der');
+
+      if (options.inMemoryCache) {
+        logDebug('Saving to memory cache');
+        setCrlInMemory(url, parsedCrl);
+      }
+
+      if (options.onDiskCache) {
+        logDebug('Saving to disk cache');
+        await writeCrlToDisk(url, data, parsedCrl.tbsCertList.nextUpdate?.value);
+      }
+
+      PENDING_FETCH_REQUESTS.delete(url);
+      return resolve(parsedCrl);
+    } catch (error: unknown) {
+      reject(error);
+    }
   });
-  logDebug(`Download Completed in ${Date.now() - downloadStartedAt}ms`);
 
-  logDebug(`CRL Parsing Started`);
-  const crlParsingStartedAt = Date.now();
-  const parsedCrl = ASN1.CertificateList.decode(data, 'der');
-  logDebug(`CRL Parsing Completed in ${Date.now() - crlParsingStartedAt}ms`);
+  PENDING_FETCH_REQUESTS.set(url, fetchPromise);
 
-  return parsedCrl;
+  return fetchPromise;
 }

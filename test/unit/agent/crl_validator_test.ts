@@ -1,9 +1,8 @@
 import assert from 'assert';
-import { WireMockRestClient } from 'wiremock-rest-client';
+import axios from 'axios';
+import sinon from 'sinon';
 import { validateCrl, CRLValidatorConfig } from '../../../lib/agent/crl_validator';
 import { createCertificateKeyPair, createTestCertificate, createTestCRL } from './test_utils';
-import { getFreePort } from '../../../lib/util';
-import { runWireMockAsync } from '../../wiremockRunner';
 import ASN1 from 'asn1.js-rfc5280';
 import { createCertificateChain } from './test_utils';
 
@@ -11,39 +10,25 @@ describe('validateCrl', () => {
   const validatorConfig: CRLValidatorConfig = {
     checkMode: 'ENABLED',
     allowCertificatesWithoutCrlURL: false,
-    inMemoryCache: true,
+    inMemoryCache: false,
     onDiskCache: false,
     downloadTimeoutMs: 5000,
   };
-  let wireMock: WireMockRestClient;
-  let wireMockCrlUrl: string;
+  const crlUrl = 'http://example.com/crl.crl';
+  let axiosGetStub: sinon.SinonStub;
 
-  before(async () => {
-    const port = await getFreePort();
-    wireMock = await runWireMockAsync(port, { logLevel: 'warn' });
-    wireMockCrlUrl = `http://127.0.0.1:${port}/crl/cert.crl`;
+  beforeEach(() => {
+    axiosGetStub = sinon.stub(axios, 'get');
   });
 
-  beforeEach(async () => {
-    await wireMock.mappings.resetAllMappings();
+  afterEach(() => {
+    sinon.restore();
   });
 
-  after(async () => {
-    await wireMock.global.shutdown();
-  });
-
-  async function addWireMockCrlMapping(crl: ASN1.CertificateListDecoded) {
-    const encodedCrl = ASN1.CertificateList.encode(crl, 'der');
-    return wireMock.mappings.createMapping({
-      request: {
-        urlPath: '/crl/cert.crl',
-        method: 'GET',
-      },
-      response: {
-        status: 200,
-        base64Body: Buffer.from(new Uint8Array(encodedCrl)).toString('base64'),
-      },
-    });
+  function setCrlResponse(crl: ASN1.CertificateListDecoded) {
+    axiosGetStub
+      .withArgs(crlUrl)
+      .resolves({ data: Buffer.from(ASN1.CertificateList.encode(crl, 'der')) });
   }
 
   it('passes for short-lived certificate', async () => {
@@ -70,10 +55,10 @@ describe('validateCrl', () => {
   it('passes validation', async () => {
     const rootKeyPair = createCertificateKeyPair();
     const crl = createTestCRL({ issuerKeyPair: rootKeyPair });
-    await addWireMockCrlMapping(crl);
+    setCrlResponse(crl);
     const chain = createCertificateChain(
       createTestCertificate({
-        crlUrls: [wireMockCrlUrl],
+        crlUrls: [crlUrl],
       }),
       createTestCertificate({ keyPair: rootKeyPair }),
     );
@@ -83,17 +68,17 @@ describe('validateCrl', () => {
 
   it('fails for crl with invalid signature', async () => {
     const crl = createTestCRL();
-    await addWireMockCrlMapping(crl);
+    setCrlResponse(crl);
     const chain = createCertificateChain(
       createTestCertificate({
-        crlUrls: [wireMockCrlUrl],
+        crlUrls: [crlUrl],
       }),
       createTestCertificate(),
     );
     await assert.rejects(
       validateCrl(chain, validatorConfig),
       new RegExp(
-        `CRL ${wireMockCrlUrl} signature is invalid. Expected signature by O:CERT#2,CN:CERT#2,SN:CERT#2`,
+        `CRL ${crlUrl} signature is invalid. Expected signature by O:CERT#2,CN:CERT#2,SN:CERT#2`,
       ),
     );
   });
@@ -105,17 +90,17 @@ describe('validateCrl', () => {
       issuerKeyPair: rootKeyPair,
       revokedCertificates: [revokedSerialNumber],
     });
-    await addWireMockCrlMapping(crl);
+    setCrlResponse(crl);
     const chain = createCertificateChain(
       createTestCertificate({
         serialNumber: revokedSerialNumber,
-        crlUrls: [wireMockCrlUrl],
+        crlUrls: [crlUrl],
       }),
       createTestCertificate({ keyPair: rootKeyPair }),
     );
     await assert.rejects(
       validateCrl(chain, validatorConfig),
-      new RegExp(`Certificate O:CERT#1,CN:CERT#1,SN:CERT#1 is revoked in ${wireMockCrlUrl}`),
+      new RegExp(`Certificate O:CERT#1,CN:CERT#1,SN:CERT#1 is revoked in ${crlUrl}`),
     );
   });
 });

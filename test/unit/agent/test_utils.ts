@@ -150,11 +150,13 @@ export function createTestCRL(
   sign.update(ASN1.TBSCertList.encode(tbsCertList, 'der'));
   const signature = sign.sign(issuerKeyPair.privateKey);
 
-  return {
+  const crl = {
     tbsCertList,
     signatureAlgorithm: issuerCertificate.signatureAlgorithm,
     signature: { unused: 0, data: signature },
   };
+  // Encoding + Decoding to ensure all fields are set correctly
+  return ASN1.CertificateList.decode(ASN1.CertificateList.encode(crl, 'der'), 'der');
 }
 
 export function createCertificateChain(...chain: ASN1.CertificateDecoded[]) {

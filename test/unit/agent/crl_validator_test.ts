@@ -43,9 +43,9 @@ describe('validateCrl', () => {
   it('handles certificate without CRL URL', async () => {
     const certificate = createTestCertificate();
     const chain = createCertificateChain(certificate, createTestCertificate());
-    assert.rejects(
+    await assert.rejects(
       validateCrl(chain, validatorConfig),
-      /Certificate CN=Test Certificate does not have CRL http URL/,
+      /Certificate O:CERT#1,CN:CERT#1,SN:CERT#1 does not have CRL http URL/,
     );
     assert.doesNotReject(() =>
       validateCrl(chain, { ...validatorConfig, allowCertificatesWithoutCrlURL: true }),

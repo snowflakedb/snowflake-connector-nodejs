@@ -3,7 +3,14 @@ import crypto from 'crypto';
 import ASN1 from 'asn1.js-rfc5280';
 import axios from 'axios';
 import Logger from '../logger';
-import { getCrlFromDisk, getCrlFromMemory, setCrlInMemory, writeCrlToDisk } from './crl_cache';
+import {
+  clearExpiredCrlFromDiskCache,
+  clearExpiredCrlFromMemoryCache,
+  getCrlFromDisk,
+  getCrlFromMemory,
+  setCrlInMemory,
+  writeCrlToDisk,
+} from './crl_cache';
 
 export const SUPPORTED_CRL_VERIFICATION_ALGORITHMS: Record<string, string> = {
   '1.2.840.113549.1.1.11': 'sha256WithRSAEncryption',
@@ -106,6 +113,7 @@ export function isCertificateRevoked(
 }
 
 export const PENDING_FETCH_REQUESTS = new Map<string, Promise<ASN1.CertificateListDecoded>>();
+let crlCacheCleanerCreated = false;
 
 export async function getCrl(
   url: string,
@@ -116,6 +124,22 @@ export async function getCrl(
   },
 ) {
   const logDebug = (msg: string) => Logger().debug(`getCrl[${url}]: ${msg}`);
+
+  if (!crlCacheCleanerCreated) {
+    crlCacheCleanerCreated = true;
+    const oneHour = 1000 * 60 * 60;
+
+    if (options.inMemoryCache) {
+      logDebug('Starting memory cache cleaner');
+      clearExpiredCrlFromMemoryCache();
+      setInterval(clearExpiredCrlFromMemoryCache, oneHour).unref();
+    }
+    if (options.onDiskCache) {
+      logDebug('Starting disk cache cleaner');
+      clearExpiredCrlFromDiskCache();
+      setInterval(clearExpiredCrlFromDiskCache, oneHour).unref();
+    }
+  }
 
   const pendingFetchRequest = PENDING_FETCH_REQUESTS.get(url);
   if (pendingFetchRequest) {
@@ -160,7 +184,7 @@ export async function getCrl(
 
       if (options.onDiskCache) {
         logDebug('Saving to disk cache');
-        await writeCrlToDisk(url, data, parsedCrl.tbsCertList.nextUpdate?.value);
+        await writeCrlToDisk(url, data);
       }
 
       PENDING_FETCH_REQUESTS.delete(url);

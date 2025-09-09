@@ -275,6 +275,34 @@ describe('fetchCrl', () => {
     sinon.restore();
   });
 
+  it('starts periodic cache cleaners on first call when caches are enabled', async () => {
+    axiosGetStub.resolves({ data: testCrlRaw });
+    const setIntervalSpy = sinon.spy(global, 'setInterval');
+    const clearExpiredCrlFromMemoryCacheSpy = sinon.spy(
+      crlCacheModule,
+      'clearExpiredCrlFromMemoryCache',
+    );
+    const clearExpiredCrlFromDiskCacheSpy = sinon.spy(
+      crlCacheModule,
+      'clearExpiredCrlFromDiskCache',
+    );
+    await getCrl(crlUrl, {
+      timeoutMs: 1000,
+      inMemoryCache: true,
+      onDiskCache: true,
+    });
+    await getCrl(crlUrl, {
+      timeoutMs: 1000,
+      inMemoryCache: true,
+      onDiskCache: true,
+    });
+    assert.strictEqual(setIntervalSpy.callCount, 2);
+    assert(setIntervalSpy.calledWith(clearExpiredCrlFromMemoryCacheSpy, 1000 * 60 * 60));
+    assert(setIntervalSpy.calledWith(clearExpiredCrlFromDiskCacheSpy, 1000 * 60 * 60));
+    assert.strictEqual(clearExpiredCrlFromMemoryCacheSpy.callCount, 1);
+    assert.strictEqual(clearExpiredCrlFromDiskCacheSpy.callCount, 1);
+  });
+
   it('returns CRL from fetched URL', async () => {
     axiosGetStub.resolves({ data: testCrlRaw });
     const fetchedCrl = await getCrl(crlUrl, {

@@ -1,141 +1,169 @@
 import assert from 'assert';
 import sinon from 'sinon';
 import fs from 'fs/promises';
+import path from 'path';
 import ASN1 from 'asn1.js-rfc5280';
 import {
   CRL_MEMORY_CACHE,
   MEMORY_CACHE_DEFAULT_EXPIRATION_TIME,
-  DISK_CACHE_REMOVE_DELAY,
+  getCrlCacheDir,
   getCrlFromMemory,
   setCrlInMemory,
-  getCrlCacheDir,
   getCrlFromDisk,
   writeCrlToDisk,
+  clearExpiredCrlFromMemoryCache,
+  clearExpiredCrlFromDiskCache,
 } from '../../../lib/agent/crl_cache';
 import { createTestCRL } from './test_utils';
+import { writeCacheFile } from '../../../lib/disk_cache';
 
 describe('CRL cache', () => {
   const fakeNow = new Date('2025-01-01T00:00:00Z').getTime();
   const crlUrl = 'http://example.com/file.crl';
-  const testCrl = createTestCRL();
-  const testCrlRaw = ASN1.CertificateList.encode(testCrl, 'der');
+  let testCrl: ASN1.CertificateListDecoded;
+  let testCrlRaw: Buffer;
 
-  beforeEach(() => {
+  beforeEach(async () => {
+    CRL_MEMORY_CACHE.clear();
+    await fs.rm(getCrlCacheDir(), { recursive: true, force: true });
     sinon.useFakeTimers(fakeNow);
+    testCrl = createTestCRL();
+    testCrl.tbsCertList.nextUpdate.value = fakeNow + 1000;
+    testCrlRaw = ASN1.CertificateList.encode(testCrl, 'der');
   });
 
-  afterEach(() => {
+  afterEach(async () => {
+    await fs.rm(getCrlCacheDir(), { recursive: true, force: true });
+    CRL_MEMORY_CACHE.clear();
     sinon.restore();
   });
 
   describe('setCrlInMemory', () => {
-    beforeEach(() => {
-      CRL_MEMORY_CACHE.clear();
-    });
-
-    it('adds crl to cache with expiration time', () => {
+    it('adds crl to cache with expiration time equal to crl nextUpdate when nextUpdate < 24 hours', () => {
       setCrlInMemory(crlUrl, testCrl);
       const cachedEntry = CRL_MEMORY_CACHE.get(crlUrl);
-      assert.strictEqual(cachedEntry, testCrl);
+      assert.strictEqual(cachedEntry?.expireAt, testCrl.tbsCertList.nextUpdate.value);
+      assert.strictEqual(cachedEntry?.crl, testCrl);
+    });
+
+    it('adds crl to cache with expiration time equal to default expiration when default is sooner', () => {
+      testCrl.tbsCertList.nextUpdate.value = fakeNow + MEMORY_CACHE_DEFAULT_EXPIRATION_TIME * 2;
+      setCrlInMemory(crlUrl, testCrl);
+      const cachedEntry = CRL_MEMORY_CACHE.get(crlUrl);
+      assert.strictEqual(cachedEntry?.expireAt, fakeNow + MEMORY_CACHE_DEFAULT_EXPIRATION_TIME);
+      assert.strictEqual(cachedEntry?.crl, testCrl);
     });
   });
 
   describe('getCrlFromMemory', () => {
-    beforeEach(() => {
-      CRL_MEMORY_CACHE.clear();
-    });
-
     it('returns null when CRL is not in cache', () => {
       const result = getCrlFromMemory(crlUrl);
       assert.strictEqual(result, null);
     });
 
     it('returns null when crl is in cache and is expired + deletes expired entry', () => {
-      const crl = createTestCRL();
-      crl.tbsCertList.nextUpdate.value = fakeNow - 1;
-      CRL_MEMORY_CACHE.set(crlUrl, crl);
+      const expireAt = fakeNow - 1;
+      testCrl.tbsCertList.nextUpdate.value = expireAt;
+      CRL_MEMORY_CACHE.set(crlUrl, {
+        expireAt,
+        crl: testCrl,
+      });
       const result = getCrlFromMemory(crlUrl);
       assert.strictEqual(result, null);
       assert.strictEqual(CRL_MEMORY_CACHE.size, 0);
     });
 
     it('returns crl when crl is in cache and is not expired', () => {
-      CRL_MEMORY_CACHE.set(crlUrl, testCrl);
+      CRL_MEMORY_CACHE.set(crlUrl, {
+        crl: testCrl,
+        expireAt: testCrl.tbsCertList.nextUpdate.value,
+      });
       const result = getCrlFromMemory(crlUrl);
       assert.strictEqual(result, testCrl);
     });
   });
 
-  describe('writeCrlToDisk', () => {
-    afterEach(async () => {
-      await fs.rm(getCrlCacheDir(), { recursive: true, force: true });
-    });
-
-    [
-      {
-        expirationTime: undefined,
-        expectedFileName: `${fakeNow + DISK_CACHE_REMOVE_DELAY}__${encodeURIComponent(crlUrl)}`,
-      },
-      {
-        expirationTime: fakeNow + 1000,
-        expectedFileName: `${fakeNow + 1000}__${encodeURIComponent(crlUrl)}`,
-      },
-    ].forEach(({ expirationTime, expectedFileName }) => {
-      it(`writes crl to disk with ${expirationTime ? 'explicit' : 'default'} expiration time`, async () => {
-        await writeCrlToDisk(crlUrl, testCrlRaw, expirationTime);
-        const cacheDirFiles = await fs.readdir(getCrlCacheDir());
-        assert.strictEqual(cacheDirFiles.length, 1);
-        assert.strictEqual(cacheDirFiles[0], expectedFileName);
+  describe('clearExpiredCrlFromMemoryCache', () => {
+    it('removes expired entries from memory cache', () => {
+      const expiredCrl = createTestCRL();
+      const validCrl = createTestCRL();
+      CRL_MEMORY_CACHE.set('http://expired.example.com/crl', {
+        expireAt: fakeNow - 1000,
+        crl: expiredCrl,
       });
+      CRL_MEMORY_CACHE.set('https://valid.example.com/crl', {
+        expireAt: fakeNow + 1000,
+        crl: validCrl,
+      });
+      assert.strictEqual(CRL_MEMORY_CACHE.size, 2);
+      clearExpiredCrlFromMemoryCache();
+      assert.strictEqual(CRL_MEMORY_CACHE.size, 1);
+      assert.strictEqual(CRL_MEMORY_CACHE.has('http://expired.example.com/crl'), false);
+      assert.strictEqual(CRL_MEMORY_CACHE.has('https://valid.example.com/crl'), true);
+    });
+  });
+
+  describe('writeCrlToDisk', () => {
+    it('writes to disk with encoded url as file name', async () => {
+      await writeCrlToDisk(crlUrl, testCrlRaw);
+      const cacheDirFiles = await fs.readdir(getCrlCacheDir());
+      assert.strictEqual(cacheDirFiles.length, 1);
+      assert.strictEqual(cacheDirFiles[0], encodeURIComponent(crlUrl));
     });
   });
 
   describe('getCrlFromDisk', () => {
-    beforeEach(async () => {
-      await fs.mkdir(getCrlCacheDir(), { recursive: true });
-    });
-
-    afterEach(async () => {
-      await fs.rm(getCrlCacheDir(), { recursive: true, force: true });
-    });
-
-    it('return null when cache dir doesnt exist', async () => {
-      await fs.rm(getCrlCacheDir(), { recursive: true, force: true });
-      const result = await getCrlFromDisk(crlUrl);
-      assert.strictEqual(result, null);
-    });
-
     it('returns null when no CRL is found', async () => {
       const result = await getCrlFromDisk(crlUrl);
       assert.strictEqual(result, null);
     });
 
     it('returns null when CRL is expired', async () => {
-      await writeCrlToDisk(crlUrl, testCrlRaw, fakeNow - 1);
+      testCrl.tbsCertList.nextUpdate.value = fakeNow - 1000;
+      testCrlRaw = ASN1.CertificateList.encode(testCrl, 'der');
+      await writeCrlToDisk(crlUrl, testCrlRaw);
       const result = await getCrlFromDisk(crlUrl);
       assert.strictEqual(result, null);
     });
 
-    it('returns null CRL is on diskt, but now > nextUpdate', async () => {
-      const crl = createTestCRL();
-      crl.tbsCertList.nextUpdate.value = fakeNow - 1;
-      const crlRaw = Buffer.from(ASN1.CertificateList.encode(crl, 'der'));
-      await writeCrlToDisk(crlUrl, crlRaw);
+    it('returns null CRL is on disk, but now > nextUpdate', async () => {
+      testCrl.tbsCertList.nextUpdate.value = fakeNow - 1000;
+      testCrlRaw = ASN1.CertificateList.encode(testCrl, 'der');
+      await writeCrlToDisk(crlUrl, testCrlRaw);
       const result = await getCrlFromDisk(crlUrl);
       assert.strictEqual(result, null);
     });
 
     it('returns parsed CRL when found on disk with nextUpdate > now', async () => {
+      testCrl.tbsCertList.nextUpdate.value = fakeNow + 1000;
+      testCrlRaw = ASN1.CertificateList.encode(testCrl, 'der');
       await writeCrlToDisk(crlUrl, testCrlRaw);
       const result = await getCrlFromDisk(crlUrl);
       assert.deepEqual(result, testCrl);
     });
+  });
 
-    it('clears expired CRLs from disk after delay', async () => {
-      await writeCrlToDisk(crlUrl, testCrlRaw, fakeNow - DISK_CACHE_REMOVE_DELAY - 1);
-      const result = await getCrlFromDisk(crlUrl);
-      assert.strictEqual((await fs.readdir(getCrlCacheDir())).length, 0);
-      assert.strictEqual(result, null);
+  describe('clearExpiredCrlFromDiskCache', () => {
+    it('removes files older than 30 days from disk cache', async () => {
+      const oldFilePath = path.join(getCrlCacheDir(), 'old_file.crl');
+      const newFilePath = path.join(getCrlCacheDir(), 'new_file.crl');
+      const thirtyOneDaysAgo = fakeNow - 1000 * 60 * 60 * 24 * 31;
+
+      await writeCacheFile(oldFilePath, testCrlRaw);
+      await fs.utimes(oldFilePath, new Date(thirtyOneDaysAgo), new Date(thirtyOneDaysAgo));
+      await writeCacheFile(newFilePath, testCrlRaw);
+      const filesBefore = await fs.readdir(getCrlCacheDir());
+      assert.strictEqual(filesBefore.length, 2);
+
+      await clearExpiredCrlFromDiskCache();
+      const filesAfter = await fs.readdir(getCrlCacheDir());
+      assert.strictEqual(filesAfter.length, 1);
+      assert.strictEqual(filesAfter[0], 'new_file.crl');
+    });
+
+    it('handles errors when accessing disk cache gracefully', async () => {
+      sinon.stub(fs, 'readdir').rejects(new Error('ENOENT: no such file or directory'));
+      await assert.doesNotReject(clearExpiredCrlFromDiskCache());
     });
   });
 });

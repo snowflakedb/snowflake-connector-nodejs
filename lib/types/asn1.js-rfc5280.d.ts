@@ -69,7 +69,7 @@ declare module 'asn1.js-rfc5280' {
     signature: AlgorithmIdentifier;
     issuer: any;
     thisUpdate: Time;
-    nextUpdate?: Time;
+    nextUpdate: Time;
     revokedCertificates: {
       userCertificate: BN;
       revocationDate: Time;

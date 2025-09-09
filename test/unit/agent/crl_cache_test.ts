@@ -36,17 +36,7 @@ describe('CRL cache', () => {
     it('adds crl to cache with expiration time', () => {
       setCrlInMemory(crlUrl, testCrl);
       const cachedEntry = CRL_MEMORY_CACHE.get(crlUrl);
-      assert.strictEqual(cachedEntry?.expireAt, testCrl.tbsCertList.nextUpdate!.value);
-      assert.strictEqual(cachedEntry?.crl, testCrl);
-    });
-
-    it('adds crl to cache with default expiration time if nextUpdate is not set', () => {
-      const crlWithoutNextUpdate = createTestCRL();
-      crlWithoutNextUpdate.tbsCertList.nextUpdate = undefined;
-      setCrlInMemory(crlUrl, crlWithoutNextUpdate);
-      const cachedEntry = CRL_MEMORY_CACHE.get(crlUrl);
-      assert.strictEqual(cachedEntry?.expireAt, fakeNow + MEMORY_CACHE_DEFAULT_EXPIRATION_TIME);
-      assert.strictEqual(cachedEntry?.crl, crlWithoutNextUpdate);
+      assert.strictEqual(cachedEntry, testCrl);
     });
   });
 
@@ -61,20 +51,16 @@ describe('CRL cache', () => {
     });
 
     it('returns null when crl is in cache and is expired + deletes expired entry', () => {
-      CRL_MEMORY_CACHE.set(crlUrl, {
-        expireAt: Date.now() - 1,
-        crl: testCrl,
-      });
+      const crl = createTestCRL();
+      crl.tbsCertList.nextUpdate.value = fakeNow - 1;
+      CRL_MEMORY_CACHE.set(crlUrl, crl);
       const result = getCrlFromMemory(crlUrl);
       assert.strictEqual(result, null);
       assert.strictEqual(CRL_MEMORY_CACHE.size, 0);
     });
 
     it('returns crl when crl is in cache and is not expired', () => {
-      CRL_MEMORY_CACHE.set(crlUrl, {
-        expireAt: Date.now() + 100_000,
-        crl: testCrl,
-      });
+      CRL_MEMORY_CACHE.set(crlUrl, testCrl);
       const result = getCrlFromMemory(crlUrl);
       assert.strictEqual(result, testCrl);
     });
@@ -130,17 +116,26 @@ describe('CRL cache', () => {
       assert.strictEqual(result, null);
     });
 
+    it('returns null CRL is on diskt, but now > nextUpdate', async () => {
+      const crl = createTestCRL();
+      crl.tbsCertList.nextUpdate.value = fakeNow - 1;
+      const crlRaw = Buffer.from(ASN1.CertificateList.encode(crl, 'der'));
+      await writeCrlToDisk(crlUrl, crlRaw);
+      const result = await getCrlFromDisk(crlUrl);
+      assert.strictEqual(result, null);
+    });
+
+    it('returns parsed CRL when found on disk with nextUpdate > now', async () => {
+      await writeCrlToDisk(crlUrl, testCrlRaw);
+      const result = await getCrlFromDisk(crlUrl);
+      assert.deepEqual(result, testCrl);
+    });
+
     it('clears expired CRLs from disk after delay', async () => {
       await writeCrlToDisk(crlUrl, testCrlRaw, fakeNow - DISK_CACHE_REMOVE_DELAY - 1);
       const result = await getCrlFromDisk(crlUrl);
       assert.strictEqual((await fs.readdir(getCrlCacheDir())).length, 0);
       assert.strictEqual(result, null);
-    });
-
-    it('returns parsed CRL when found valid on disk', async () => {
-      await writeCrlToDisk(crlUrl, testCrlRaw);
-      const result = await getCrlFromDisk(crlUrl);
-      assert.deepEqual(result, testCrl);
     });
   });
 });

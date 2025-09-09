@@ -6,19 +6,13 @@ import Logger from '../logger';
 
 export const MEMORY_CACHE_DEFAULT_EXPIRATION_TIME = 1000 * 60 * 60 * 24; // 24 hours
 export const DISK_CACHE_REMOVE_DELAY = 1000 * 60 * 60 * 24 * 7; // 7 days
-export const CRL_MEMORY_CACHE = new Map<
-  string,
-  {
-    expireAt: number;
-    crl: ASN1.CertificateListDecoded;
-  }
->();
+export const CRL_MEMORY_CACHE = new Map<string, ASN1.CertificateListDecoded>();
 
 export function getCrlFromMemory(url: string) {
   const cachedEntry = CRL_MEMORY_CACHE.get(url);
   if (cachedEntry) {
-    if (cachedEntry.expireAt > Date.now()) {
-      return cachedEntry.crl;
+    if (cachedEntry.tbsCertList.nextUpdate.value > Date.now()) {
+      return cachedEntry;
     } else {
       CRL_MEMORY_CACHE.delete(url);
       return null;
@@ -29,11 +23,7 @@ export function getCrlFromMemory(url: string) {
 }
 
 export function setCrlInMemory(url: string, crl: ASN1.CertificateListDecoded) {
-  CRL_MEMORY_CACHE.set(url, {
-    expireAt:
-      crl.tbsCertList.nextUpdate?.value ?? Date.now() + MEMORY_CACHE_DEFAULT_EXPIRATION_TIME,
-    crl,
-  });
+  CRL_MEMORY_CACHE.set(url, crl);
 }
 
 export function getCrlCacheDir() {
@@ -61,7 +51,11 @@ export async function getCrlFromDisk(url: string) {
       } else if (crlFileName === encodeURIComponent(url)) {
         const rawCrl = await fs.readFile(path.join(cacheDir, fileName));
         const decodedCrl = ASN1.CertificateList.decode(rawCrl, 'der');
-        return decodedCrl;
+        if (decodedCrl.tbsCertList.nextUpdate.value > now) {
+          return decodedCrl;
+        } else {
+          return null;
+        }
       }
     }
   } catch (error: unknown) {

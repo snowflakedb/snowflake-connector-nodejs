@@ -11,7 +11,6 @@ import {
   getCrlCacheDir,
   getCrlFromDisk,
   writeCrlToDisk,
-  crlUrlToFileName,
 } from '../../../lib/agent/crl_cache';
 import { createTestCRL } from './test_utils';
 
@@ -81,13 +80,6 @@ describe('CRL cache', () => {
     });
   });
 
-  it('crlUrlToFileName encodes url as a valid file name', () => {
-    assert.strictEqual(
-      crlUrlToFileName('http://example.com/file.crl'),
-      'http_3A_2F_2Fexample.com_2Ffile.crl',
-    );
-  });
-
   describe('writeCrlToDisk', () => {
     afterEach(async () => {
       await fs.rm(getCrlCacheDir(), { recursive: true, force: true });
@@ -96,11 +88,11 @@ describe('CRL cache', () => {
     [
       {
         expirationTime: undefined,
-        expectedFileName: `${fakeNow + DISK_CACHE_REMOVE_DELAY}__${crlUrlToFileName(crlUrl)}`,
+        expectedFileName: `${fakeNow + DISK_CACHE_REMOVE_DELAY}__${encodeURIComponent(crlUrl)}`,
       },
       {
         expirationTime: fakeNow + 1000,
-        expectedFileName: `${fakeNow + 1000}__${crlUrlToFileName(crlUrl)}`,
+        expectedFileName: `${fakeNow + 1000}__${encodeURIComponent(crlUrl)}`,
       },
     ].forEach(({ expirationTime, expectedFileName }) => {
       it(`writes crl to disk with ${expirationTime ? 'explicit' : 'default'} expiration time`, async () => {

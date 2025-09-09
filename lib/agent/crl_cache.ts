@@ -40,10 +40,6 @@ export function getCrlCacheDir() {
   return path.join(getDefaultCacheDir(), 'crls');
 }
 
-export function crlUrlToFileName(url: string) {
-  return encodeURIComponent(url).replace(/%/g, '_');
-}
-
 // NOTE:
 // Parsing CRLs is expensive, so we store expiration time in the file name
 export async function getCrlFromDisk(url: string) {
@@ -62,7 +58,7 @@ export async function getCrlFromDisk(url: string) {
           await fs.rm(path.join(cacheDir, fileName));
         }
         continue;
-      } else if (crlFileName === crlUrlToFileName(url)) {
+      } else if (crlFileName === encodeURIComponent(url)) {
         const rawCrl = await fs.readFile(path.join(cacheDir, fileName));
         const decodedCrl = ASN1.CertificateList.decode(rawCrl, 'der');
         return decodedCrl;
@@ -80,7 +76,7 @@ export async function writeCrlToDisk(
   rawCrl: Buffer,
   expireAt = Date.now() + DISK_CACHE_REMOVE_DELAY,
 ) {
-  const filePath = path.join(getCrlCacheDir(), `${expireAt}__${crlUrlToFileName(url)}`);
+  const filePath = path.join(getCrlCacheDir(), `${expireAt}__${encodeURIComponent(url)}`);
   try {
     return writeCacheFile(filePath, rawCrl);
   } catch (error: unknown) {

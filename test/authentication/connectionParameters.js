@@ -48,6 +48,8 @@ const snowflakeAuthTestSnowflakeWildcardsClientId =
   process.env.SNOWFLAKE_AUTH_TEST_INTERNAL_OAUTH_SNOWFLAKE_WILDCARDS_CLIENT_ID;
 const snowflakeAuthTestSnowflakeWildcardsClientSecret =
   process.env.SNOWFLAKE_AUTH_TEST_INTERNAL_OAUTH_SNOWFLAKE_WILDCARDS_CLIENT_SECRET;
+const snowflakeAuthTestMfaUser = process.env.SNOWFLAKE_AUTH_TEST_MFA_USER;
+const snowflakeAuthTestMfaPassword = process.env.SNOWFLAKE_AUTH_TEST_MFA_PASSWORD;
 
 const accessUrlAuthTests =
   snowflakeAuthTestProtocol + '://' + snowflakeAuthTestHost + ':' + snowflakeAuthTestPort;
@@ -188,6 +190,13 @@ const oauthOktaAuthorizationCode = {
   authenticator: 'OAUTH_AUTHORIZATION_CODE',
 };
 
+const mfa = {
+  ...baseParameters,
+  username: snowflakeAuthTestMfaUser,
+  password: snowflakeAuthTestMfaPassword,
+  authenticator: 'USERNAME_PASSWORD_MFA',
+};
+
 exports.externalBrowser = externalBrowser;
 exports.okta = okta;
 exports.oauth = oauth;
@@ -217,3 +226,6 @@ exports.snowflakeAuthTestOauthOktaPassword = snowflakeAuthTestOauthOktaPassword;
 exports.snowflakeAuthTestOauthOktaClientId = snowflakeAuthTestOauthOktaClientId;
 exports.oauthSnowflakeWildcardsAuthorizationCode = oauthSnowflakeWildcardsAuthorizationCode;
 exports.oauthOktaAuthorizationCode = oauthOktaAuthorizationCode;
+exports.mfa = mfa;
+exports.snowflakeAuthTestMfaUser = snowflakeAuthTestMfaUser;
+exports.snowflakeAuthTestMfaPassword = snowflakeAuthTestMfaPassword;

@@ -2,7 +2,12 @@ import assert from 'assert';
 import axios from 'axios';
 import sinon from 'sinon';
 import { validateCrl, CRLValidatorConfig } from '../../../lib/agent/crl_validator';
-import { createCertificateKeyPair, createTestCertificate, createTestCRL } from './test_utils';
+import {
+  createCertificateKeyPair,
+  createCertificateNameField,
+  createTestCertificate,
+  createTestCRL,
+} from './test_utils';
 import ASN1 from 'asn1.js-rfc5280';
 import { createCertificateChain } from './test_utils';
 
@@ -15,6 +20,8 @@ describe('validateCrl', () => {
     downloadTimeoutMs: 5000,
   };
   const crlUrl = 'http://example.com/crl.crl';
+  const rootKeyPair = createCertificateKeyPair();
+  const rootCertificate = createTestCertificate({ keyPair: rootKeyPair });
   let axiosGetStub: sinon.SinonStub;
 
   beforeEach(() => {
@@ -36,13 +43,12 @@ describe('validateCrl', () => {
       notBefore: 'Mar 15 2024 00:00:00 GMT',
       notAfter: 'Mar 22 2024 00:00:00 GMT',
     });
-    const chain = createCertificateChain(certificate, createTestCertificate());
+    const chain = createCertificateChain(certificate, rootCertificate);
     assert.doesNotThrow(() => validateCrl(chain, validatorConfig));
   });
 
   it('handles certificate without CRL URL', async () => {
-    const certificate = createTestCertificate();
-    const chain = createCertificateChain(certificate, createTestCertificate());
+    const chain = createCertificateChain(createTestCertificate(), rootCertificate);
     await assert.rejects(
       validateCrl(chain, validatorConfig),
       /Certificate O:CERT#1,CN:CERT#1,SN:CERT#1 does not have CRL http URL/,
@@ -53,27 +59,24 @@ describe('validateCrl', () => {
   });
 
   it('passes validation', async () => {
-    const rootKeyPair = createCertificateKeyPair();
-    const crl = createTestCRL({ issuerKeyPair: rootKeyPair });
-    setCrlResponse(crl);
+    setCrlResponse(createTestCRL({ issuerKeyPair: rootKeyPair }));
     const chain = createCertificateChain(
       createTestCertificate({
         crlUrls: [crlUrl],
       }),
-      createTestCertificate({ keyPair: rootKeyPair }),
+      rootCertificate,
     );
     const result = await validateCrl(chain, validatorConfig);
     assert.strictEqual(result, true);
   });
 
   it('fails for crl with invalid signature', async () => {
-    const crl = createTestCRL();
-    setCrlResponse(crl);
+    setCrlResponse(createTestCRL());
     const chain = createCertificateChain(
       createTestCertificate({
         crlUrls: [crlUrl],
       }),
-      createTestCertificate(),
+      rootCertificate,
     );
     await assert.rejects(
       validateCrl(chain, validatorConfig),
@@ -83,9 +86,37 @@ describe('validateCrl', () => {
     );
   });
 
+  it('fails for crl with invalid issuer', async () => {
+    const issuerCertificate = createTestCertificate({
+      subject: createCertificateNameField({ commonName: 'Wont match' }),
+    });
+    const crl = createTestCRL({ issuerKeyPair: rootKeyPair, issuerCertificate });
+    setCrlResponse(crl);
+    const chain = createCertificateChain(
+      createTestCertificate({ crlUrls: [crlUrl] }),
+      rootCertificate,
+    );
+    await assert.rejects(
+      validateCrl(chain, validatorConfig),
+      new RegExp(`CRL ${crlUrl} issuer is invalid`),
+    );
+  });
+
+  it('fails for crl with expired nextUpdate', async () => {
+    const crl = createTestCRL({ issuerKeyPair: rootKeyPair, nextUpdate: Date.now() - 1000 });
+    setCrlResponse(crl);
+    const chain = createCertificateChain(
+      createTestCertificate({ crlUrls: [crlUrl] }),
+      rootCertificate,
+    );
+    await assert.rejects(
+      validateCrl(chain, validatorConfig),
+      new RegExp(`CRL ${crlUrl} nextUpdate is expired`),
+    );
+  });
+
   it('fails for revoked certificate in crl', async () => {
     const revokedSerialNumber = 666_666;
-    const rootKeyPair = createCertificateKeyPair();
     const crl = createTestCRL({
       issuerKeyPair: rootKeyPair,
       revokedCertificates: [revokedSerialNumber],
@@ -96,7 +127,7 @@ describe('validateCrl', () => {
         serialNumber: revokedSerialNumber,
         crlUrls: [crlUrl],
       }),
-      createTestCertificate({ keyPair: rootKeyPair }),
+      rootCertificate,
     );
     await assert.rejects(
       validateCrl(chain, validatorConfig),

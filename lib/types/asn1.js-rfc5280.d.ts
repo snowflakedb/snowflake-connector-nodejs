@@ -43,7 +43,7 @@ declare module 'asn1.js-rfc5280' {
     subjectPublicKey: BitString;
   }
 
-  interface NameRDNSequence {
+  export interface NameRDNSequence {
     type: 'rdnSequence';
     value: any[];
   }
@@ -69,7 +69,7 @@ declare module 'asn1.js-rfc5280' {
     signature: AlgorithmIdentifier;
     issuer: any;
     thisUpdate: Time;
-    nextUpdate?: Time;
+    nextUpdate: Time;
     revokedCertificates: {
       userCertificate: BN;
       revocationDate: Time;

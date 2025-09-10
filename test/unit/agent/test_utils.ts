@@ -48,11 +48,51 @@ export function createCertificateKeyPair(algorithmOid = DEFAULT_SIGNATURE_ALGORI
   throw new Error(`Unsupported algorithm: ${algorithm}`);
 }
 
+export function createCertificateNameField(
+  options: {
+    organizationName?: string;
+    commonName?: string;
+    countryName?: string;
+    stateOrProvinceName?: string;
+    localityName?: string;
+    organizationalUnitName?: string;
+  } = {},
+): ASN1.NameRDNSequence {
+  const {
+    organizationName = 'Test Organization',
+    commonName = 'Common Name',
+    countryName = 'US',
+    stateOrProvinceName = 'California',
+    localityName = 'San Francisco',
+    organizationalUnitName = 'Engineering',
+  } = options;
+
+  const fields = [
+    [countryName, [2, 5, 4, 6]],
+    [stateOrProvinceName, [2, 5, 4, 8]],
+    [localityName, [2, 5, 4, 7]],
+    [organizationName, [2, 5, 4, 10]],
+    [organizationalUnitName, [2, 5, 4, 11]],
+    [commonName, [2, 5, 4, 3]],
+  ] as const;
+
+  return {
+    type: 'rdnSequence',
+    value: fields.map(([value, oid]) => [
+      {
+        type: oid,
+        value: [19, value.length, ...Array.from(Buffer.from(value, 'utf8'))],
+      },
+    ]),
+  };
+}
+
 export function createTestCertificate(
   options: {
     serialNumber?: number;
     notBefore?: string;
     notAfter?: string;
+    subject?: ASN1.NameRDNSequence;
     keyPair?: crypto.KeyPairKeyObjectResult;
     signatureAlgorithmOid?: string;
     crlUrls?: string[];
@@ -62,6 +102,7 @@ export function createTestCertificate(
   const serialNumber = options.serialNumber ?? serialNumberCounter++;
   const notBefore = options.notBefore ?? '2026-01-01T00:00:00Z';
   const notAfter = options.notAfter ?? '2026-12-31T00:00:00Z';
+  const subject = options.subject ?? createCertificateNameField();
   const signatureAlgorithmOid = options.signatureAlgorithmOid ?? DEFAULT_SIGNATURE_ALGORITHM_OID;
   const keyPair = options.keyPair ?? createCertificateKeyPair(signatureAlgorithmOid);
 
@@ -93,18 +134,14 @@ export function createTestCertificate(
       version: 'v3',
       serialNumber: new BN(serialNumber),
       signature: signatureAlgorithm,
-      issuer: {
-        type: 'rdnSequence',
-        value: [],
-      },
+      issuer: createCertificateNameField({
+        commonName: 'Issuer',
+      }),
       validity: {
         notBefore: { type: 'utcTime', value: new Date(notBefore).getTime() },
         notAfter: { type: 'utcTime', value: new Date(notAfter).getTime() },
       },
-      subject: {
-        type: 'rdnSequence',
-        value: [],
-      },
+      subject,
       subjectPublicKeyInfo: ASN1.SubjectPublicKeyInfo.decode(
         keyPair.publicKey.export({ type: 'spki', format: 'der' }),
         'der',
@@ -120,6 +157,7 @@ export function createTestCRL(
   options: {
     issuerCertificate?: ASN1.CertificateDecoded;
     issuerKeyPair?: crypto.KeyPairKeyObjectResult;
+    nextUpdate?: number;
     revokedCertificates?: number[];
   } = {},
 ): ASN1.CertificateListDecoded {
@@ -127,13 +165,14 @@ export function createTestCRL(
   const issuerCertificate =
     options.issuerCertificate ?? createTestCertificate({ keyPair: issuerKeyPair });
   const revokedCertificates = options.revokedCertificates ?? ['0'];
+  const nextUpdate = options.nextUpdate ?? new Date('2026-06-08T00:00:00Z').getTime();
 
   const tbsCertList: ASN1.TBSCertList = {
     version: new BN(1),
     signature: issuerCertificate.signatureAlgorithm,
-    issuer: issuerCertificate.tbsCertificate.issuer,
+    issuer: issuerCertificate.tbsCertificate.subject,
     thisUpdate: { type: 'utcTime', value: new Date('2026-06-01T00:00:00Z').getTime() },
-    nextUpdate: { type: 'utcTime', value: new Date('2026-06-08T00:00:00Z').getTime() },
+    nextUpdate: { type: 'utcTime', value: nextUpdate },
     revokedCertificates: revokedCertificates.map((serialNumber) => ({
       userCertificate: new BN(serialNumber),
       revocationDate: {

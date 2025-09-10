@@ -70,7 +70,7 @@ function* iterateCertChain(cert: DetailedPeerCertificate) {
 // Sticking with asn1.js-rfc5280 + custom signature validation, because popular libraries have issues:
 // - jsrsasign: has outdated crypto library with CEV issues
 // - pkijs: takes 4 seconds to parse 9Mb CRL
-// - @peculiar/x509: takes 8 seconds to parse 9Mb CRL
+// - @peculiar/x509: takes 2.5 seconds to parse 9Mb CRL
 export async function validateCrl(certChain: DetailedPeerCertificate, config: CRLValidatorConfig) {
   for (const certificate of iterateCertChain(certChain)) {
     const decodedCertificate = ASN1.Certificate.decode(certificate.raw, 'der');
@@ -95,7 +95,12 @@ export async function validateCrl(certChain: DetailedPeerCertificate, config: CR
       );
     }
 
-    const crlIssuerPublicKey = crypto
+    const decodedIssuerCertificate = ASN1.Certificate.decode(
+      certificate.issuerCertificate.raw,
+      'der',
+    );
+    const issuerSubject = JSON.stringify(decodedIssuerCertificate.tbsCertificate.subject);
+    const issuerPublicKey = crypto
       .createPublicKey({
         key: certificate.issuerCertificate.pubkey as Buffer,
         format: 'der',
@@ -108,10 +113,23 @@ export async function validateCrl(certChain: DetailedPeerCertificate, config: CR
       const crl = await getCrl(crlUrl);
 
       logDebug(`validating ${crlUrl} signature`);
-      if (!isCrlSignatureValid(crl, crlIssuerPublicKey)) {
+      if (!isCrlSignatureValid(crl, issuerPublicKey)) {
         throw new Error(
           `CRL ${crlUrl} signature is invalid. Expected signature by ${getCertificateDebugName(certificate.issuerCertificate)}`,
         );
+      }
+
+      logDebug(`validating ${crlUrl} issuer`);
+      const crlIssuer = JSON.stringify(crl.tbsCertList.issuer);
+      if (issuerSubject !== crlIssuer) {
+        throw new Error(
+          `CRL ${crlUrl} issuer is invalid. Expected ${issuerSubject} but got ${crlIssuer}`,
+        );
+      }
+
+      logDebug(`validating ${crlUrl} nextUpdate`);
+      if (crl.tbsCertList.nextUpdate.value < Date.now()) {
+        throw new Error(`CRL ${crlUrl} nextUpdate is expired`);
       }
 
       logDebug(`checking if certificate is revoked in ${crlUrl}`);

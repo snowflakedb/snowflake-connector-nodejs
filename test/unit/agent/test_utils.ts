@@ -2,13 +2,13 @@ import { DetailedPeerCertificate } from 'tls';
 import crypto from 'crypto';
 import ASN1 from 'asn1.js-rfc5280';
 import BN from 'bn.js';
-import { SUPPORTED_CRL_VERIFICATION_ALGORITHMS } from '../../../lib/agent/crl_utils';
+import { CRL_SIGNATURE_OID_TO_CRYPTO_DIGEST_ALGORITHM } from '../../../lib/agent/crl_utils';
 
 const DEFAULT_SIGNATURE_ALGORITHM_OID = '1.2.840.113549.1.1.11';
 let serialNumberCounter = 10000;
 
 export function createCertificateKeyPair(algorithmOid = DEFAULT_SIGNATURE_ALGORITHM_OID) {
-  const algorithm = SUPPORTED_CRL_VERIFICATION_ALGORITHMS[algorithmOid];
+  const algorithm = CRL_SIGNATURE_OID_TO_CRYPTO_DIGEST_ALGORITHM[algorithmOid];
   if (!algorithm) {
     throw new Error(`Unsupported algorithm OID: ${algorithmOid}`);
   }
@@ -201,9 +201,9 @@ export function createTestCRL(
   };
 
   const signatureOid = issuerCertificate.signatureAlgorithm.algorithm.join('.');
-  const signatureAlgorithm = SUPPORTED_CRL_VERIFICATION_ALGORITHMS[signatureOid];
+  const digestAlgorithm = CRL_SIGNATURE_OID_TO_CRYPTO_DIGEST_ALGORITHM[signatureOid];
 
-  const sign = crypto.createSign(signatureAlgorithm);
+  const sign = crypto.createSign(digestAlgorithm);
   sign.update(ASN1.TBSCertList.encode(tbsCertList, 'der'));
   const signature = sign.sign(issuerKeyPair.privateKey);
 

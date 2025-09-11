@@ -5,7 +5,7 @@ import {
   isCrlDistributionPointExtensionValid,
   isCrlSignatureValid,
   isShortLivedCertificate,
-  SUPPORTED_CRL_VERIFICATION_ALGORITHMS,
+  CRL_SIGNATURE_OID_TO_CRYPTO_DIGEST_ALGORITHM,
 } from '../../../lib/agent/crl_utils';
 import { createCertificateKeyPair, createTestCertificate, createTestCRL } from './test_utils';
 
@@ -209,7 +209,7 @@ describe('getCertificateCrlUrls', () => {
 });
 
 describe('isCrlSignatureValid', () => {
-  Object.keys(SUPPORTED_CRL_VERIFICATION_ALGORITHMS).forEach((oid) => {
+  Object.keys(CRL_SIGNATURE_OID_TO_CRYPTO_DIGEST_ALGORITHM).forEach((oid) => {
     it(`passes validation for algorithm oid=${oid}`, () => {
       const issuerKeyPair = createCertificateKeyPair(oid);
       const crl = createTestCRL({ issuerKeyPair });

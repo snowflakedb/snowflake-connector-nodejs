@@ -107,7 +107,7 @@ export function isCertificateRevoked(
   return false;
 }
 
-export function isCrlDistributionPointExtensionValid(
+export function isIssuingDistributionPointExtensionValid(
   crl: ASN1.CertificateListDecoded,
   expectedCrlUrl: string,
 ) {

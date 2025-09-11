@@ -7,7 +7,7 @@ import {
   getCertificateDebugName,
   getCrl,
   isCertificateRevoked,
-  isCrlDistributionPointExtensionValid,
+  isIssuingDistributionPointExtensionValid,
   isCrlSignatureValid,
   isShortLivedCertificate,
 } from './crl_utils';
@@ -121,7 +121,7 @@ export async function validateCrl(certChain: DetailedPeerCertificate, config: CR
       }
 
       logDebug(`validating ${crlUrl} issuingDistributionPoint extension`);
-      if (!isCrlDistributionPointExtensionValid(crl, crlUrl)) {
+      if (!isIssuingDistributionPointExtensionValid(crl, crlUrl)) {
         throw new Error(`CRL ${crlUrl} issuingDistributionPoint extension is invalid`);
       }
 

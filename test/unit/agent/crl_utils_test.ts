@@ -2,7 +2,7 @@ import assert from 'assert';
 import {
   getCertificateCrlUrls,
   isCertificateRevoked,
-  isCrlDistributionPointExtensionValid,
+  isIssuingDistributionPointExtensionValid,
   isCrlSignatureValid,
   isShortLivedCertificate,
   CRL_SIGNATURE_OID_TO_CRYPTO_DIGEST_ALGORITHM,
@@ -253,10 +253,13 @@ describe('isCertificateRevoked', () => {
   });
 });
 
-describe('isCrlDistributionPointExtensionValid', () => {
+describe('isIssuingDistributionPointExtensionValid', () => {
   it('returns true for crl without issuingDistributionPoint extension', () => {
     const crl = createTestCRL();
-    const isValid = isCrlDistributionPointExtensionValid(crl, 'http://crl.example.com/cert.crl');
+    const isValid = isIssuingDistributionPointExtensionValid(
+      crl,
+      'http://crl.example.com/cert.crl',
+    );
     assert.strictEqual(isValid, true);
   });
 
@@ -264,7 +267,10 @@ describe('isCrlDistributionPointExtensionValid', () => {
     const crl = createTestCRL({
       issuingDistributionPointUrls: ['http://crl.example.com/cert.crl'],
     });
-    const isValid = isCrlDistributionPointExtensionValid(crl, 'http://crl.example.com/cert.crl');
+    const isValid = isIssuingDistributionPointExtensionValid(
+      crl,
+      'http://crl.example.com/cert.crl',
+    );
     assert.strictEqual(isValid, true);
   });
 
@@ -272,7 +278,10 @@ describe('isCrlDistributionPointExtensionValid', () => {
     const crl = createTestCRL({
       issuingDistributionPointUrls: ['http://crl.example.com/cert.crl'],
     });
-    const isValid = isCrlDistributionPointExtensionValid(crl, 'http://crl.example.com/cert2.crl');
+    const isValid = isIssuingDistributionPointExtensionValid(
+      crl,
+      'http://crl.example.com/cert2.crl',
+    );
     assert.strictEqual(isValid, false);
   });
 });

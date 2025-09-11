@@ -157,6 +157,7 @@ export function createTestCRL(
   options: {
     issuerCertificate?: ASN1.CertificateDecoded;
     issuerKeyPair?: crypto.KeyPairKeyObjectResult;
+    issuingDistributionPointUrls?: string[];
     nextUpdate?: number;
     revokedCertificates?: number[];
   } = {},
@@ -164,6 +165,7 @@ export function createTestCRL(
   const issuerKeyPair = options.issuerKeyPair ?? createCertificateKeyPair();
   const issuerCertificate =
     options.issuerCertificate ?? createTestCertificate({ keyPair: issuerKeyPair });
+  const issuingDistributionPointUrls = options.issuingDistributionPointUrls ?? null;
   const revokedCertificates = options.revokedCertificates ?? ['0'];
   const nextUpdate = options.nextUpdate ?? new Date('2026-06-08T00:00:00Z').getTime();
 
@@ -180,6 +182,22 @@ export function createTestCRL(
         value: new Date('2026-06-01T00:00:00Z').getTime(),
       },
     })),
+    crlExtensions: issuingDistributionPointUrls
+      ? [
+          {
+            extnID: 'issuingDistributionPoint',
+            extnValue: {
+              distributionPoint: {
+                type: 'fullName',
+                value: issuingDistributionPointUrls.map((url) => ({
+                  type: 'uniformResourceIdentifier',
+                  value: url,
+                })),
+              },
+            },
+          },
+        ]
+      : [],
   };
 
   const signatureOid = issuerCertificate.signatureAlgorithm.algorithm.join('.');

@@ -33,9 +33,7 @@ describe('validateCrl', () => {
   });
 
   function setCrlResponse(crl: ASN1.CertificateListDecoded) {
-    axiosGetStub
-      .withArgs(crlUrl)
-      .resolves({ data: Buffer.from(ASN1.CertificateList.encode(crl, 'der')) });
+    axiosGetStub.resolves({ data: Buffer.from(ASN1.CertificateList.encode(crl, 'der')) });
   }
 
   it('passes for short-lived certificate', async () => {
@@ -83,6 +81,22 @@ describe('validateCrl', () => {
       new RegExp(
         `CRL ${crlUrl} signature is invalid. Expected signature by O:CERT#2,CN:CERT#2,SN:CERT#2`,
       ),
+    );
+  });
+
+  it('fails for crl with invalid issuingDistributionPoint extension', async () => {
+    const crl = createTestCRL({
+      issuerKeyPair: rootKeyPair,
+      issuingDistributionPointUrls: ['http://crl.example.com/cert-miss.crl'],
+    });
+    setCrlResponse(crl);
+    const chain = createCertificateChain(
+      createTestCertificate({ crlUrls: [crlUrl] }),
+      rootCertificate,
+    );
+    await assert.rejects(
+      validateCrl(chain, validatorConfig),
+      new RegExp(`CRL ${crlUrl} issuingDistributionPoint extension is invalid`),
     );
   });
 

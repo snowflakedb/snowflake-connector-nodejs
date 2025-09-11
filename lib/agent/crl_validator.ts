@@ -7,6 +7,7 @@ import {
   getCertificateDebugName,
   getCrl,
   isCertificateRevoked,
+  isCrlDistributionPointExtensionValid,
   isCrlSignatureValid,
   isShortLivedCertificate,
 } from './crl_utils';
@@ -117,6 +118,11 @@ export async function validateCrl(certChain: DetailedPeerCertificate, config: CR
         throw new Error(
           `CRL ${crlUrl} signature is invalid. Expected signature by ${getCertificateDebugName(certificate.issuerCertificate)}`,
         );
+      }
+
+      logDebug(`validating ${crlUrl} issuingDistributionPoint extension`);
+      if (!isCrlDistributionPointExtensionValid(crl, crlUrl)) {
+        throw new Error(`CRL ${crlUrl} issuingDistributionPoint extension is invalid`);
       }
 
       logDebug(`validating ${crlUrl} issuer`);

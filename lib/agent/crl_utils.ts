@@ -104,6 +104,32 @@ export function isCertificateRevoked(
   return false;
 }
 
+export function isCrlDistributionPointExtensionValid(
+  crl: ASN1.CertificateListDecoded,
+  expectedCrlUrl: string,
+) {
+  const issuingDistributionPointExtension = crl.tbsCertList.crlExtensions?.find(
+    (ext) => ext.extnID === 'issuingDistributionPoint',
+  ) as ASN1.IssuingDistributionPointExtension | undefined;
+
+  if (!issuingDistributionPointExtension) {
+    Logger().debug(
+      `CRL ${expectedCrlUrl} doesnt have issuingDistributionPoint extension, ignoring`,
+    );
+    return true;
+  }
+
+  for (const fullNameEntry of issuingDistributionPointExtension.extnValue.distributionPoint.value) {
+    if (
+      fullNameEntry.type === 'uniformResourceIdentifier' &&
+      fullNameEntry.value === expectedCrlUrl
+    ) {
+      return true;
+    }
+  }
+  return false;
+}
+
 // TODO: in next PRs
 // - prevent multiple http requests for the same CRL
 // - in-memory caching for parsed certificate lists

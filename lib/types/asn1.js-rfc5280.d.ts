@@ -31,6 +31,23 @@ declare module 'asn1.js-rfc5280' {
     }[]
   >;
 
+  export type IssuingDistributionPointExtension = BaseExtension<
+    'issuingDistributionPoint',
+    {
+      distributionPoint: {
+        type: 'fullName';
+        value: {
+          type: 'uniformResourceIdentifier' | 'dNSName';
+          value: string;
+        }[];
+      };
+      onlyContainsUserCerts?: boolean;
+      onlyContainsCACerts?: boolean;
+      indirectCRL?: boolean;
+      onlyContainsAttributeCerts?: boolean;
+    }
+  >;
+
   type Time = { type: 'utcTime' | 'generalTime'; value: number };
 
   interface BitString {
@@ -75,6 +92,7 @@ declare module 'asn1.js-rfc5280' {
       revocationDate: Time;
       crlEntryExtensions?: Extension[];
     }[];
+    crlExtensions?: (IssuingDistributionPointExtension | UnknownExtension)[];
   }
 
   export interface CertificateDecoded {

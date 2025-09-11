@@ -48,6 +48,7 @@ declare module 'asn1.js-rfc5280' {
     }
   >;
 
+  // Value is in milliseconds since epoch
   type Time = { type: 'utcTime' | 'generalTime'; value: number };
 
   interface BitString {
@@ -84,7 +85,7 @@ declare module 'asn1.js-rfc5280' {
   export interface TBSCertList {
     version?: BN;
     signature: AlgorithmIdentifier;
-    issuer: any;
+    issuer: NameRDNSequence;
     thisUpdate: Time;
     nextUpdate: Time;
     revokedCertificates: {

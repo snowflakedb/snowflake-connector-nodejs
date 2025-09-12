@@ -87,6 +87,8 @@ export function createCertificateNameField(
   };
 }
 
+type TestCertificateCrlDistributionPointValue = string | { type: string; value: string } | null;
+
 export function createTestCertificate(
   options: {
     serialNumber?: number;
@@ -95,8 +97,10 @@ export function createTestCertificate(
     subject?: ASN1.NameRDNSequence;
     keyPair?: crypto.KeyPairKeyObjectResult;
     signatureAlgorithmOid?: string;
-    crlUrls?: string[];
-    extensions?: ASN1.TBSCertificate['extensions'];
+    crlDistributionPoints?: (
+      | TestCertificateCrlDistributionPointValue
+      | TestCertificateCrlDistributionPointValue[]
+    )[];
   } = {},
 ): ASN1.CertificateDecoded {
   const serialNumber = options.serialNumber ?? serialNumberCounter++;
@@ -111,21 +115,28 @@ export function createTestCertificate(
     parameters: Buffer.from([0x05, 0x00]),
   };
 
-  const extensions = options.extensions ?? [];
-  if (options.crlUrls) {
+  const extensions: ASN1.TBSCertificate['extensions'] = [];
+  if (options.crlDistributionPoints) {
     extensions.push({
       extnID: 'cRLDistributionPoints',
-      extnValue: [
-        {
-          distributionPoint: {
-            type: 'fullName',
-            value: options.crlUrls.map((url) => ({
-              type: 'uniformResourceIdentifier',
-              value: url,
-            })),
-          },
-        },
-      ],
+      extnValue: options.crlDistributionPoints.map((crlDistributionPoint) => {
+        const values = Array.isArray(crlDistributionPoint)
+          ? crlDistributionPoint
+          : [crlDistributionPoint];
+        return crlDistributionPoint === null
+          ? {}
+          : {
+              distributionPoint: {
+                type: 'fullName',
+                value: values.map((value) => {
+                  if (typeof value === 'string') {
+                    return { type: 'uniformResourceIdentifier', value };
+                  }
+                  return value;
+                }),
+              },
+            };
+      }),
     });
   }
 

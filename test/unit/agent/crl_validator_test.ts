@@ -60,7 +60,7 @@ describe('validateCrl', () => {
     setCrlResponse(createTestCRL({ issuerKeyPair: rootKeyPair }));
     const chain = createCertificateChain(
       createTestCertificate({
-        crlUrls: [crlUrl],
+        crlDistributionPoints: [crlUrl],
       }),
       rootCertificate,
     );
@@ -72,7 +72,7 @@ describe('validateCrl', () => {
     setCrlResponse(createTestCRL());
     const chain = createCertificateChain(
       createTestCertificate({
-        crlUrls: [crlUrl],
+        crlDistributionPoints: [crlUrl],
       }),
       rootCertificate,
     );
@@ -91,7 +91,7 @@ describe('validateCrl', () => {
     });
     setCrlResponse(crl);
     const chain = createCertificateChain(
-      createTestCertificate({ crlUrls: [crlUrl] }),
+      createTestCertificate({ crlDistributionPoints: [crlUrl] }),
       rootCertificate,
     );
     await assert.rejects(
@@ -107,7 +107,7 @@ describe('validateCrl', () => {
     const crl = createTestCRL({ issuerKeyPair: rootKeyPair, issuerCertificate });
     setCrlResponse(crl);
     const chain = createCertificateChain(
-      createTestCertificate({ crlUrls: [crlUrl] }),
+      createTestCertificate({ crlDistributionPoints: [crlUrl] }),
       rootCertificate,
     );
     await assert.rejects(
@@ -120,7 +120,7 @@ describe('validateCrl', () => {
     const crl = createTestCRL({ issuerKeyPair: rootKeyPair, nextUpdate: Date.now() - 1000 });
     setCrlResponse(crl);
     const chain = createCertificateChain(
-      createTestCertificate({ crlUrls: [crlUrl] }),
+      createTestCertificate({ crlDistributionPoints: [crlUrl] }),
       rootCertificate,
     );
     await assert.rejects(
@@ -139,7 +139,7 @@ describe('validateCrl', () => {
     const chain = createCertificateChain(
       createTestCertificate({
         serialNumber: revokedSerialNumber,
-        crlUrls: [crlUrl],
+        crlDistributionPoints: [crlUrl],
       }),
       rootCertificate,
     );

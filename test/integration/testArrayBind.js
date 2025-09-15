@@ -280,7 +280,7 @@ describe('Test Array Bind', function () {
                   const NABDataE = new Date(NABData['COLE']).getTime();
                   const NABDataF = new Date(NABData['COLF']).getTime();
 
-                  assert.equal(ABData['COLA'], '');
+                  assert.equal(ABData['COLA'], null);
                   assert.equal(ABData['COLB'], NABData['COLB']);
                   assert.equal(ABDate.toString(), NABDate.toString());
                   assert.equal(ABDataD.toString(), NABDataD.toString());

@@ -8,6 +8,7 @@ const {
   isFileNotWritableByGroupOrOthers,
   validateOnlyUserReadWritePermissionAndOwner,
   isFileModeCorrect,
+  FileUtil,
 } = require('../../../lib/file_util');
 const path = require('path');
 
@@ -216,3 +217,69 @@ if (os.platform() !== 'win32') {
     });
   });
 }
+
+describe('FileUtil.normalizeGzipHeader()', function () {
+  let fileUtil;
+  let tempDir;
+
+  before(async function () {
+    fileUtil = new FileUtil();
+    tempDir = await fsPromises.mkdtemp(path.join(os.tmpdir(), 'gzip_test_'));
+  });
+
+  after(async function () {
+    if (tempDir) {
+      await fsPromises.rm(tempDir, { recursive: true, force: true });
+    }
+  });
+
+  it('resets timestamp bytes to zero in gzip header', async function () {
+    const testFile = path.join(tempDir, 'test.gz');
+
+    // Create a mock gzip file with a non-zero timestamp
+    // Gzip header: ID1(0x1f) + ID2(0x8b) + CM(0x08) + FLG(0x00) + MTIME(4 bytes) + XFL + OS
+    const gzipHeader = Buffer.from([
+      0x1f,
+      0x8b,
+      0x08,
+      0x00, // Standard gzip header
+      0x12,
+      0x34,
+      0x56,
+      0x78, // Timestamp (non-zero)
+      0x00,
+      0x03, // XFL + OS
+    ]);
+
+    // Add some dummy compressed data to make it a valid-ish gzip file
+    const dummyData = Buffer.from([0x01, 0x00, 0x00, 0xff, 0xff, 0x00, 0x00, 0x00, 0x00]);
+    const gzipFile = Buffer.concat([gzipHeader, dummyData]);
+
+    await fsPromises.writeFile(testFile, gzipFile);
+
+    // Verify the timestamp bytes are non-zero before normalization
+    const beforeBuffer = await fsPromises.readFile(testFile);
+    assert.notStrictEqual(beforeBuffer[4], 0);
+    assert.notStrictEqual(beforeBuffer[5], 0);
+    assert.notStrictEqual(beforeBuffer[6], 0);
+    assert.notStrictEqual(beforeBuffer[7], 0);
+
+    // Normalize the header
+    await fileUtil.normalizeGzipHeader(testFile);
+
+    // Verify the timestamp bytes are now zero
+    const afterBuffer = await fsPromises.readFile(testFile);
+    assert.strictEqual(afterBuffer[4], 0);
+    assert.strictEqual(afterBuffer[5], 0);
+    assert.strictEqual(afterBuffer[6], 0);
+    assert.strictEqual(afterBuffer[7], 0);
+
+    // Verify other header bytes remain unchanged
+    assert.strictEqual(afterBuffer[0], 0x1f);
+    assert.strictEqual(afterBuffer[1], 0x8b);
+    assert.strictEqual(afterBuffer[2], 0x08);
+    assert.strictEqual(afterBuffer[3], 0x00);
+    assert.strictEqual(afterBuffer[8], 0x00);
+    assert.strictEqual(afterBuffer[9], 0x03);
+  });
+});

@@ -3,6 +3,7 @@ import crypto from 'crypto';
 import ASN1 from 'asn1.js-rfc5280';
 import axios, { AxiosRequestConfig } from 'axios';
 import Logger from '../logger';
+import GlobalConfigTyped from '../global_config_typed';
 
 // TODO:
 // Implement RSASSA-PSS signature verification
@@ -144,6 +145,7 @@ export async function getCrl(url: string, axiosOptions: AxiosRequestConfig = {})
   const downloadStartedAt = Date.now();
   const { data } = await axios.get(url, {
     ...axiosOptions,
+    timeout: GlobalConfigTyped.crlDownloadTimeout,
     responseType: 'arraybuffer',
   });
   logDebug(`Download Completed in ${Date.now() - downloadStartedAt}ms`);

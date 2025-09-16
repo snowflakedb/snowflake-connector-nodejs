@@ -21,9 +21,6 @@ export const CRL_VALIDATOR_INTERNAL = {
 export type CRLValidatorConfig = {
   checkMode: 'DISABLED' | 'ENABLED' | 'ADVISORY';
   allowCertificatesWithoutCrlURL: boolean;
-  inMemoryCache: boolean;
-  onDiskCache: boolean;
-  downloadTimeoutMs: number;
 };
 
 export class CertificateRevokedError extends Error {

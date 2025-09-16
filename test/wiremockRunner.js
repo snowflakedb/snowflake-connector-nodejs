@@ -3,7 +3,7 @@ const { spawn } = require('child_process');
 const Logger = require('../lib/logger');
 const fs = require('fs');
 
-async function runWireMockAsync(port) {
+async function runWireMockAsync(port, options = {}) {
   let timeoutHandle;
   const counter = 0;
   let child;
@@ -27,7 +27,10 @@ async function runWireMockAsync(port) {
       );
 
       child.on('exit', () => {});
-      const wireMock = new WireMockRestClient(`http://localhost:${port}`, { logLevel: 'debug' });
+      const wireMock = new WireMockRestClient(`http://localhost:${port}`, {
+        logLevel: 'debug',
+        ...options,
+      });
       waitForWiremockStarted(wireMock, counter).then(resolve).catch(reject);
     } catch (err) {
       reject(err);

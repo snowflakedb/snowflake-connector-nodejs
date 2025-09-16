@@ -514,9 +514,9 @@ declare module 'snowflake-sdk' {
     getStatus(): StatementStatus;
 
     /**
-     * Returns the columns produced by this statement.
+     * Returns the columns produced by this statement or undefined if Columns not available
      */
-    getColumns(): Column[];
+    getColumns(): Column[] | undefined;
 
     /**
      * Given a column identifier, returns the corresponding column.

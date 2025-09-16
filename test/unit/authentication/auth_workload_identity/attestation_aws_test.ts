@@ -43,7 +43,7 @@ describe('Attestation AWS', () => {
 
   describe('getAwsCredentials', () => {
     it('throws error when no credentials are found', async () => {
-      assert.rejects(AttestationAws.getAwsCredentials(), noCredentialsError);
+      await assert.rejects(AttestationAws.getAwsCredentials(), noCredentialsError);
     });
 
     it('returns credentials when credentials are found', async () => {
@@ -59,7 +59,7 @@ describe('Attestation AWS', () => {
     });
 
     it('throws error when metadata service fails', async () => {
-      assert.rejects(AttestationAws.getAwsRegion(), noRegionError);
+      await assert.rejects(AttestationAws.getAwsRegion(), noRegionError);
     });
 
     it('returns region when metadata service returns a region', async () => {
@@ -83,12 +83,12 @@ describe('Attestation AWS', () => {
 
   describe('getAwsAttestationToken', () => {
     it('throws error when no credentials are found', async () => {
-      assert.rejects(AttestationAws.getAwsAttestationToken(), noCredentialsError);
+      await assert.rejects(AttestationAws.getAwsAttestationToken(), noCredentialsError);
     });
 
     it('returns error when no region is found', async () => {
       awsSdkMock.getCredentials.returns(AWS_CREDENTIALS);
-      assert.rejects(AttestationAws.getAwsAttestationToken(), noRegionError);
+      await assert.rejects(AttestationAws.getAwsAttestationToken(), noRegionError);
     });
 
     it('returns a valid attestation token', async () => {

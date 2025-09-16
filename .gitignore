@@ -8,7 +8,6 @@ dist
 junit*.xml
 node_modules
 coverage
-package-lock.json
 snowflake.log
 __pycache__/
 wss-*-agent.config
@@ -20,3 +19,6 @@ rsa_*.p8
 # SSH private key for WIF tests
 ci/wif/rsa_wif_aws_azure
 ci/wif/rsa_wif_gcp
+
+# We want CI/Devs to install latest available versions to catch issues early
+package-lock.json

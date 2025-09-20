@@ -15,6 +15,8 @@ describe('validateCrl', () => {
   const validatorConfig: CRLValidatorConfig = {
     checkMode: 'ENABLED',
     allowCertificatesWithoutCrlURL: false,
+    inMemoryCache: false,
+    onDiskCache: false,
   };
   const crlUrl = 'http://example.com/crl.crl';
   const rootKeyPair = createCertificateKeyPair();

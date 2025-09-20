@@ -43,27 +43,54 @@ export interface GlobalConfigOptionsTyped {
    * @default 86400000 (24 hours in ms)
    */
   crlCacheValidityTime: number;
+
+  /**
+   * Directory path to store CRL cache when crlOnDiskCache is true.
+   *
+   * @default
+   * Reads from process.env.SNOWFLAKE_CRL_ON_DISK_CACHE_DIR if available.
+   * Otherwise, defaults to:
+   * - Windows: %USERPROFILE%/AppData/Local/Snowflake/Caches/crls
+   * - Linux: $HOME/.cache/snowflake/crls
+   * - macOS: $HOME/Library/Caches/Snowflake/crls
+   */
+  crlResponseCacheDir: string;
 }
 
-export const GLOBAL_CONFIG_DEFAULTS: GlobalConfigOptionsTyped = {
+type GlobalConfigOptionsTypedWithGetters = {
+  [K in keyof GlobalConfigOptionsTyped]:
+    | GlobalConfigOptionsTyped[K]
+    | (() => GlobalConfigOptionsTyped[K]);
+};
+
+export const GLOBAL_CONFIG_DEFAULTS: GlobalConfigOptionsTypedWithGetters = {
   crlInMemoryCache: true,
   crlOnDiskCache: true,
   crlDownloadTimeout: 10000,
   crlCacheValidityTime: 86400000,
+  crlResponseCacheDir: () => {
+    return process.env.SNOWFLAKE_CRL_ON_DISK_CACHE_DIR ?? 'TODO';
+  },
 };
 
-const GlobalConfigTyped: GlobalConfigOptionsTyped = {
-  ...GLOBAL_CONFIG_DEFAULTS,
-};
+export const globalConfigSetOptions: Partial<GlobalConfigOptionsTyped> = {};
 
-export default GlobalConfigTyped;
-
-export const setGlobalConfigTypedOptions = (options: Partial<GlobalConfigOptionsTyped>) => {
-  const filteredOptions = Object.fromEntries(
-    Object.entries(options).filter(
-      ([key, value]) => key in GLOBAL_CONFIG_DEFAULTS && value !== undefined,
-    ),
-  );
-  Logger().debug('Setting global config typed options: %j', filteredOptions);
-  Object.assign(GlobalConfigTyped, filteredOptions);
+export default {
+  setOptions: (options: Partial<GlobalConfigOptionsTyped>) => {
+    const filteredOptions = Object.fromEntries(
+      Object.entries(options).filter(
+        ([key, value]) => key in GLOBAL_CONFIG_DEFAULTS && value !== undefined,
+      ),
+    );
+    Logger().debug('Setting global config typed values: %j', filteredOptions);
+    Object.assign(globalConfigSetOptions, filteredOptions);
+  },
+  getValue: <K extends keyof GlobalConfigOptionsTyped>(key: K) => {
+    const value = globalConfigSetOptions[key] ?? GLOBAL_CONFIG_DEFAULTS[key];
+    if (typeof value === 'function') {
+      return value();
+    } else {
+      return value as GlobalConfigOptionsTyped[K];
+    }
+  },
 };

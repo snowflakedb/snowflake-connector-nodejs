@@ -1,28 +1,41 @@
 import assert from 'assert';
 import GlobalConfigTyped, {
   GLOBAL_CONFIG_DEFAULTS,
-  setGlobalConfigTypedOptions,
+  globalConfigSetOptions,
 } from '../../lib/global_config_typed';
 
 describe('GlobalConfig', () => {
-  afterEach(() => {
-    setGlobalConfigTypedOptions(GLOBAL_CONFIG_DEFAULTS);
+  beforeEach(() => {
+    for (const key in globalConfigSetOptions) {
+      delete globalConfigSetOptions[key as keyof typeof globalConfigSetOptions];
+    }
   });
 
-  it('returns GlobalConfig with default values', () => {
-    assert.deepStrictEqual(GlobalConfigTyped, GLOBAL_CONFIG_DEFAULTS);
+  it('getValue returns default value if not configured', () => {
+    assert.strictEqual(
+      GlobalConfigTyped.getValue('crlInMemoryCache'),
+      GLOBAL_CONFIG_DEFAULTS.crlInMemoryCache,
+    );
+  });
+
+  it('getValue returns configured value', () => {
+    GlobalConfigTyped.setOptions({ crlResponseCacheDir: 'test' });
+    assert.strictEqual(GlobalConfigTyped.getValue('crlResponseCacheDir'), 'test');
   });
 
   it('setGlobalConfigTypedOptions sets only valid options and skipps undefined options', () => {
-    setGlobalConfigTypedOptions({
+    GlobalConfigTyped.setOptions({
       crlInMemoryCache: false,
       crlDownloadTimeout: undefined,
       // @ts-expect-error invalid key
       invalidKey: 'invalidValue',
     });
-    assert.deepStrictEqual(GlobalConfigTyped, {
-      ...GLOBAL_CONFIG_DEFAULTS,
-      crlInMemoryCache: false,
-    });
+    assert.strictEqual(GlobalConfigTyped.getValue('crlInMemoryCache'), false);
+    assert.strictEqual(
+      GlobalConfigTyped.getValue('crlDownloadTimeout'),
+      GLOBAL_CONFIG_DEFAULTS.crlDownloadTimeout,
+    );
+    // @ts-expect-error invalid key
+    assert.strictEqual(GlobalConfigTyped.getValue('invalidKey'), undefined);
   });
 });

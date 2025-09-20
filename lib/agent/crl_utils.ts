@@ -145,7 +145,7 @@ export async function getCrl(url: string, axiosOptions: AxiosRequestConfig = {})
   const downloadStartedAt = Date.now();
   const { data } = await axios.get(url, {
     ...axiosOptions,
-    timeout: GlobalConfigTyped.crlDownloadTimeout,
+    timeout: GlobalConfigTyped.getValue('crlDownloadTimeout'),
     responseType: 'arraybuffer',
   });
   logDebug(`Download Completed in ${Date.now() - downloadStartedAt}ms`);

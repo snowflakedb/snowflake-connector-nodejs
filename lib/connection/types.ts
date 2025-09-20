@@ -128,6 +128,20 @@ export interface WIP_ConnectionOptions {
    * @default false
    */
   crlAllowCertificatesWithoutCrlURL?: CRLValidatorConfig['allowCertificatesWithoutCrlURL'];
+
+  /**
+   * When certRevocationCheckMode is enabled, allows to cache CRLs in memory.
+   *
+   * @default true
+   */
+  crlInMemoryCache?: CRLValidatorConfig['inMemoryCache'];
+
+  /**
+   * When certRevocationCheckMode is enabled, allows to cache CRLs on disk.
+   *
+   * @default true
+   */
+  crlOnDiskCache?: CRLValidatorConfig['onDiskCache'];
 }
 
 /**

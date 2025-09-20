@@ -17,7 +17,6 @@ describe('validateCrl', () => {
     allowCertificatesWithoutCrlURL: false,
     inMemoryCache: false,
     onDiskCache: false,
-    downloadTimeoutMs: 5000,
   };
   const crlUrl = 'http://example.com/crl.crl';
   const rootKeyPair = createCertificateKeyPair();

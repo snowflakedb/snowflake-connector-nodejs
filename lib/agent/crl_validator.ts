@@ -23,7 +23,6 @@ export type CRLValidatorConfig = {
   allowCertificatesWithoutCrlURL: boolean;
   inMemoryCache: boolean;
   onDiskCache: boolean;
-  downloadTimeoutMs: number;
 };
 
 export class CertificateRevokedError extends Error {

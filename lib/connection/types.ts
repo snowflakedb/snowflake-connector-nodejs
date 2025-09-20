@@ -142,13 +142,6 @@ export interface WIP_ConnectionOptions {
    * @default true
    */
   crlOnDiskCache?: CRLValidatorConfig['onDiskCache'];
-
-  /**
-   * When certRevocationCheckMode is enabled, allows to set timeout for CRL download.
-   *
-   * @default 10000
-   */
-  crlDownloadTimeoutMs?: CRLValidatorConfig['downloadTimeoutMs'];
 }
 
 /**

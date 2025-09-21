@@ -1,17 +1,7 @@
 import { DetailedPeerCertificate } from 'tls';
 import crypto from 'crypto';
 import ASN1 from 'asn1.js-rfc5280';
-import axios from 'axios';
 import Logger from '../logger';
-import GlobalConfigTyped from '../global_config_typed';
-import {
-  clearExpiredCrlFromDiskCache,
-  clearExpiredCrlFromMemoryCache,
-  getCrlFromDisk,
-  getCrlFromMemory,
-  setCrlInMemory,
-  writeCrlToDisk,
-} from './crl_cache';
 
 // TODO:
 // Implement RSASSA-PSS signature verification

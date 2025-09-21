@@ -19,7 +19,7 @@ import { writeCacheFile } from '../../../lib/disk_cache';
 
 describe('CRL cache', () => {
   const fakeNow = new Date('2025-01-01T00:00:00Z').getTime();
-  const crlCacheDir = GlobalConfigTyped.getValue('crlResponseCacheDir');
+  const crlCacheDir = GlobalConfigTyped.getValue('crlCacheDir');
   const crlUrl = 'http://example.com/file.crl';
   let testCrl: ASN1.CertificateListDecoded;
   let testCrlRaw: Buffer;
@@ -155,7 +155,7 @@ describe('CRL cache', () => {
 
   describe('clearExpiredCrlFromDiskCache', () => {
     it('removes files older than 30 days from disk cache', async () => {
-      const crlCacheDir = GlobalConfigTyped.getValue('crlResponseCacheDir');
+      const crlCacheDir = GlobalConfigTyped.getValue('crlCacheDir');
       const oldFilePath = path.join(crlCacheDir, 'old_file.crl');
       const newFilePath = path.join(crlCacheDir, 'new_file.crl');
       const thirtyOneDaysAgo = fakeNow - 1000 * 60 * 60 * 24 * 31;

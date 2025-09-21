@@ -40,7 +40,7 @@ export interface GlobalConfigOptionsTyped {
    * - Linux: $HOME/.cache/snowflake/crls
    * - macOS: $HOME/Library/Caches/Snowflake/crls
    */
-  crlResponseCacheDir: string;
+  crlCacheDir: string;
 }
 
 type GlobalConfigOptionsTypedWithGetters = {
@@ -52,7 +52,7 @@ type GlobalConfigOptionsTypedWithGetters = {
 export const GLOBAL_CONFIG_DEFAULTS = {
   crlDownloadTimeout: 10000,
   crlCacheValidityTime: 86400000,
-  crlResponseCacheDir: () => {
+  crlCacheDir: () => {
     return process.env.SNOWFLAKE_CRL_ON_DISK_CACHE_DIR || path.join(getDefaultCacheDir(), 'crls');
   },
 } satisfies GlobalConfigOptionsTypedWithGetters;

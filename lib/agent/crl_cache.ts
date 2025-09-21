@@ -42,7 +42,7 @@ export function clearExpiredCrlFromMemoryCache() {
 
 export async function clearExpiredCrlFromDiskCache() {
   try {
-    const cacheDir = GlobalConfigTyped.getValue('crlResponseCacheDir');
+    const cacheDir = GlobalConfigTyped.getValue('crlCacheDir');
     for (const fileName of await fs.readdir(cacheDir)) {
       const filePath = path.join(cacheDir, fileName);
       const stats = await fs.stat(filePath);
@@ -60,10 +60,7 @@ export async function clearExpiredCrlFromDiskCache() {
 }
 
 export async function getCrlFromDisk(url: string) {
-  const filePath = path.join(
-    GlobalConfigTyped.getValue('crlResponseCacheDir'),
-    encodeURIComponent(url),
-  );
+  const filePath = path.join(GlobalConfigTyped.getValue('crlCacheDir'), encodeURIComponent(url));
 
   try {
     const stats = await fs.stat(filePath);
@@ -92,10 +89,7 @@ export async function getCrlFromDisk(url: string) {
 }
 
 export async function writeCrlToDisk(url: string, rawCrl: Buffer) {
-  const filePath = path.join(
-    GlobalConfigTyped.getValue('crlResponseCacheDir'),
-    encodeURIComponent(url),
-  );
+  const filePath = path.join(GlobalConfigTyped.getValue('crlCacheDir'), encodeURIComponent(url));
   try {
     return writeCacheFile(filePath, rawCrl);
   } catch (error: unknown) {

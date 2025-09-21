@@ -10,7 +10,7 @@ import { createTestCRL } from './test_utils';
 
 describe('getCrl', () => {
   const crlUrl = 'http://example.com/crl.crl';
-  const crlCacheDir = GlobalConfigTyped.getValue('crlResponseCacheDir');
+  const crlCacheDir = GlobalConfigTyped.getValue('crlCacheDir');
   const testCrl = createTestCRL();
   const testCrlRaw = Buffer.from(ASN1.CertificateList.encode(testCrl, 'der'));
   let axiosGetStub: sinon.SinonStub;

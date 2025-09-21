@@ -5,12 +5,12 @@ import Logger from '../logger';
 import {
   getCertificateCrlUrls,
   getCertificateDebugName,
-  getCrl,
   isCertificateRevoked,
   isIssuingDistributionPointExtensionValid,
   isCrlSignatureValid,
   isShortLivedCertificate,
 } from './crl_utils';
+import { getCrl } from './crl_fetcher';
 import { createCrlError } from '../errors';
 
 // Allows to mock/spy internal calls in tests

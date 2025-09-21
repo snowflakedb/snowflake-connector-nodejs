@@ -1,7 +1,8 @@
 import path from 'path';
 import fs from 'fs/promises';
 import ASN1 from 'asn1.js-rfc5280';
-import { getDefaultCacheDir, writeCacheFile } from '../disk_cache';
+import { writeCacheFile } from '../disk_cache';
+import GlobalConfigTyped from '../global_config_typed';
 import Logger from '../logger';
 
 export const MEMORY_CACHE_DEFAULT_EXPIRATION_TIME = 1000 * 60 * 60 * 24; // 24 hours
@@ -43,10 +44,6 @@ export function clearExpiredCrlFromMemoryCache() {
   });
 }
 
-export function getCrlCacheDir() {
-  return path.join(getDefaultCacheDir(), 'crls');
-}
-
 export async function clearExpiredCrlFromDiskCache() {
   // NOTE:
   // Ideally we'd like to delete files where now > nextUpdate + CRL_DISK_CACHE_REMOVE_DELAY
@@ -57,7 +54,7 @@ export async function clearExpiredCrlFromDiskCache() {
   //
   // So assuming that anything older than 30 days is expired and should be deleted.
   try {
-    const cacheDir = getCrlCacheDir();
+    const cacheDir = GlobalConfigTyped.getValue('crlResponseCacheDir');
     for (const fileName of await fs.readdir(cacheDir)) {
       const filePath = path.join(cacheDir, fileName);
       const stats = await fs.stat(filePath);
@@ -73,7 +70,10 @@ export async function clearExpiredCrlFromDiskCache() {
 }
 
 export async function getCrlFromDisk(url: string) {
-  const filePath = path.join(getCrlCacheDir(), encodeURIComponent(url));
+  const filePath = path.join(
+    GlobalConfigTyped.getValue('crlResponseCacheDir'),
+    encodeURIComponent(url),
+  );
 
   try {
     const rawCrl = await fs.readFile(filePath);
@@ -96,7 +96,10 @@ export async function getCrlFromDisk(url: string) {
 }
 
 export async function writeCrlToDisk(url: string, rawCrl: Buffer) {
-  const filePath = path.join(getCrlCacheDir(), encodeURIComponent(url));
+  const filePath = path.join(
+    GlobalConfigTyped.getValue('crlResponseCacheDir'),
+    encodeURIComponent(url),
+  );
   try {
     return writeCacheFile(filePath, rawCrl);
   } catch (error: unknown) {

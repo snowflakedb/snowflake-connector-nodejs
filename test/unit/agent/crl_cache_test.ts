@@ -6,7 +6,6 @@ import ASN1 from 'asn1.js-rfc5280';
 import {
   CRL_MEMORY_CACHE,
   MEMORY_CACHE_DEFAULT_EXPIRATION_TIME,
-  getCrlCacheDir,
   getCrlFromMemory,
   setCrlInMemory,
   getCrlFromDisk,
@@ -14,18 +13,18 @@ import {
   clearExpiredCrlFromMemoryCache,
   clearExpiredCrlFromDiskCache,
 } from '../../../lib/agent/crl_cache';
+import GlobalConfigTyped from '../../../lib/global_config_typed';
 import { createTestCRL } from './test_utils';
 import { writeCacheFile } from '../../../lib/disk_cache';
 
 describe('CRL cache', () => {
   const fakeNow = new Date('2025-01-01T00:00:00Z').getTime();
+  const crlCacheDir = GlobalConfigTyped.getValue('crlResponseCacheDir');
   const crlUrl = 'http://example.com/file.crl';
   let testCrl: ASN1.CertificateListDecoded;
   let testCrlRaw: Buffer;
 
   beforeEach(async () => {
-    CRL_MEMORY_CACHE.clear();
-    await fs.rm(getCrlCacheDir(), { recursive: true, force: true });
     sinon.useFakeTimers(fakeNow);
     testCrl = createTestCRL();
     testCrl.tbsCertList.nextUpdate.value = fakeNow + 1000;
@@ -33,7 +32,7 @@ describe('CRL cache', () => {
   });
 
   afterEach(async () => {
-    await fs.rm(getCrlCacheDir(), { recursive: true, force: true });
+    await fs.rm(crlCacheDir, { recursive: true, force: true });
     CRL_MEMORY_CACHE.clear();
     sinon.restore();
   });
@@ -106,7 +105,7 @@ describe('CRL cache', () => {
   describe('writeCrlToDisk', () => {
     it('writes to disk with encoded url as file name', async () => {
       await writeCrlToDisk(crlUrl, testCrlRaw);
-      const cacheDirFiles = await fs.readdir(getCrlCacheDir());
+      const cacheDirFiles = await fs.readdir(crlCacheDir);
       assert.strictEqual(cacheDirFiles.length, 1);
       assert.strictEqual(cacheDirFiles[0], encodeURIComponent(crlUrl));
     });
@@ -145,18 +144,19 @@ describe('CRL cache', () => {
 
   describe('clearExpiredCrlFromDiskCache', () => {
     it('removes files older than 30 days from disk cache', async () => {
-      const oldFilePath = path.join(getCrlCacheDir(), 'old_file.crl');
-      const newFilePath = path.join(getCrlCacheDir(), 'new_file.crl');
+      const crlCacheDir = GlobalConfigTyped.getValue('crlResponseCacheDir');
+      const oldFilePath = path.join(crlCacheDir, 'old_file.crl');
+      const newFilePath = path.join(crlCacheDir, 'new_file.crl');
       const thirtyOneDaysAgo = fakeNow - 1000 * 60 * 60 * 24 * 31;
 
       await writeCacheFile(oldFilePath, testCrlRaw);
       await fs.utimes(oldFilePath, new Date(thirtyOneDaysAgo), new Date(thirtyOneDaysAgo));
       await writeCacheFile(newFilePath, testCrlRaw);
-      const filesBefore = await fs.readdir(getCrlCacheDir());
+      const filesBefore = await fs.readdir(crlCacheDir);
       assert.strictEqual(filesBefore.length, 2);
 
       await clearExpiredCrlFromDiskCache();
-      const filesAfter = await fs.readdir(getCrlCacheDir());
+      const filesAfter = await fs.readdir(crlCacheDir);
       assert.strictEqual(filesAfter.length, 1);
       assert.strictEqual(filesAfter[0], 'new_file.crl');
     });

@@ -1,5 +1,4 @@
 import path from 'path';
-import os from 'os';
 import Logger from './logger';
 import { getDefaultCacheDir } from './disk_cache';
 
@@ -56,7 +55,7 @@ export const GLOBAL_CONFIG_DEFAULTS = {
   crlResponseCacheDir: () => {
     return process.env.SNOWFLAKE_CRL_ON_DISK_CACHE_DIR || path.join(getDefaultCacheDir(), 'crls');
   },
-};
+} satisfies GlobalConfigOptionsTypedWithGetters;
 
 export const globalConfigSetOptions: Partial<GlobalConfigOptionsTyped> = {};
 
@@ -71,11 +70,8 @@ export default {
     Object.assign(globalConfigSetOptions, filteredOptions);
   },
   getValue: <K extends keyof GlobalConfigOptionsTyped>(key: K) => {
-    const value = globalConfigSetOptions[key] ?? GLOBAL_CONFIG_DEFAULTS[key];
-    if (typeof value === 'function') {
-      return value();
-    } else {
-      return value as GlobalConfigOptionsTyped[K];
-    }
+    const valueOrGetter = globalConfigSetOptions[key] ?? GLOBAL_CONFIG_DEFAULTS[key];
+    const value = typeof valueOrGetter === 'function' ? valueOrGetter() : valueOrGetter;
+    return value as GlobalConfigOptionsTyped[K];
   },
 };

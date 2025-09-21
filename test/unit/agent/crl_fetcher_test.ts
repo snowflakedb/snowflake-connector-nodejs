@@ -47,7 +47,6 @@ describe('getCrl', () => {
     assert.strictEqual(setIntervalSpy.callCount, 2);
     assert(setIntervalSpy.calledWith(clearExpiredCrlFromMemoryCacheSpy, 1000 * 60 * 60));
     assert(setIntervalSpy.calledWith(clearExpiredCrlFromDiskCacheSpy, 1000 * 60 * 60));
-    assert.strictEqual(clearExpiredCrlFromMemoryCacheSpy.callCount, 1);
     assert.strictEqual(clearExpiredCrlFromDiskCacheSpy.callCount, 1);
   });
 

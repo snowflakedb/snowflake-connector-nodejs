@@ -26,17 +26,11 @@ export async function getCrl(
   if (!crlCacheCleanerCreated) {
     crlCacheCleanerCreated = true;
     const oneHour = 1000 * 60 * 60;
-
-    if (options.inMemoryCache) {
-      logDebug('Starting memory cache cleaner');
-      clearExpiredCrlFromMemoryCache();
-      setInterval(clearExpiredCrlFromMemoryCache, oneHour).unref();
-    }
-    if (options.onDiskCache) {
-      logDebug('Starting disk cache cleaner');
-      clearExpiredCrlFromDiskCache();
-      setInterval(clearExpiredCrlFromDiskCache, oneHour).unref();
-    }
+    logDebug('Starting periodic memory cache cleaner');
+    setInterval(clearExpiredCrlFromMemoryCache, oneHour).unref();
+    logDebug('Starting periodic disk cache cleaner');
+    clearExpiredCrlFromDiskCache();
+    setInterval(clearExpiredCrlFromDiskCache, oneHour).unref();
   }
 
   const pendingFetchRequest = PENDING_FETCH_REQUESTS.get(url);
@@ -46,20 +40,22 @@ export async function getCrl(
   }
 
   if (options.inMemoryCache) {
+    logDebug(`Checking in-memory cache`);
     const cachedCrl = getCrlFromMemory(url);
     if (cachedCrl) {
-      logDebug(`Returning CRL from in-memory cache`);
+      logDebug(`Returning from in-memory cache`);
       return cachedCrl;
     }
   }
 
   if (options.onDiskCache) {
+    logDebug(`Checking on-disk cache`);
     const cachedCrl = await getCrlFromDisk(url);
     if (cachedCrl) {
       if (options.inMemoryCache) {
         setCrlInMemory(url, cachedCrl);
       }
-      logDebug(`Returning CRL from disk cache`);
+      logDebug(`Returning from disk cache`);
       return cachedCrl;
     }
   }

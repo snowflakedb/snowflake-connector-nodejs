@@ -21,6 +21,10 @@ export function getDefaultCacheDir() {
   }
 }
 
+export function isFileNotFoundError(error: unknown) {
+  return error && typeof error === 'object' && 'code' in error && error.code === 'ENOENT';
+}
+
 export async function createCacheDirIfNotExists(cacheDir: string) {
   const options: Parameters<typeof fs.mkdir>[1] = { recursive: true };
   if (process.platform !== 'win32') {

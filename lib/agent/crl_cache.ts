@@ -1,7 +1,7 @@
 import path from 'path';
 import fs from 'fs/promises';
 import ASN1 from 'asn1.js-rfc5280';
-import { writeCacheFile } from '../disk_cache';
+import { writeCacheFile, isFileNotFoundError } from '../disk_cache';
 import GlobalConfigTyped from '../global_config_typed';
 import Logger from '../logger';
 
@@ -57,7 +57,11 @@ export async function clearExpiredCrlFromDiskCache() {
       }
     }
   } catch (error: unknown) {
-    Logger().warn(`Failed to clear expired entries from disk cache: ${error}.`);
+    if (isFileNotFoundError(error)) {
+      Logger().debug('CRL cache directory does not exist, skipping cleanup.');
+    } else {
+      Logger().warn(`Failed to clear expired CRL entries from disk cache: ${error}.`);
+    }
   }
 }
 
@@ -80,7 +84,7 @@ export async function getCrlFromDisk(url: string) {
       return null;
     }
   } catch (error: unknown) {
-    if (error && typeof error === 'object' && 'code' in error && error.code === 'ENOENT') {
+    if (isFileNotFoundError(error)) {
       Logger().debug(`CRL ${url} not found on disk cache.`);
     } else {
       Logger().warn(`Failed to read CRL ${filePath} from disk cache: ${error}.`);

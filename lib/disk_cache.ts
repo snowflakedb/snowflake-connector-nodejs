@@ -8,20 +8,14 @@ import os from 'os';
 // - authentication/secure_storage/json_credential_manager.js
 //
 // We should refactor the code so every place is using utils from this file
-export const DEFAULT_CACHE_DIR = {
-  win32: ['AppData', 'Local', 'Snowflake', 'Caches'],
-  linux: ['.cache', 'snowflake'],
-  darwin: ['Library', 'Caches', 'Snowflake'],
-};
-
 export function getDefaultCacheDir() {
   switch (process.platform) {
     case 'win32':
-      return path.join(os.homedir(), ...DEFAULT_CACHE_DIR.win32);
+      return path.join(os.homedir(), 'AppData', 'Local', 'Snowflake', 'Caches');
     case 'linux':
-      return path.join(os.homedir(), ...DEFAULT_CACHE_DIR.linux);
+      return path.join(os.homedir(), '.cache', 'snowflake');
     case 'darwin':
-      return path.join(os.homedir(), ...DEFAULT_CACHE_DIR.darwin);
+      return path.join(os.homedir(), 'Library');
     default:
       throw new Error(`Unsupported platform: ${process.platform}`);
   }

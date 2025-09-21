@@ -1,4 +1,5 @@
 import assert from 'assert';
+import sinon from 'sinon';
 import GlobalConfigTyped, {
   GLOBAL_CONFIG_DEFAULTS,
   globalConfigSetOptions,
@@ -11,29 +12,45 @@ describe('GlobalConfig', () => {
     }
   });
 
+  afterEach(() => {
+    sinon.restore();
+  });
+
+  describe('default values', () => {
+    it('crlResponseCacheDir reads from env variable when available', () => {
+      sinon.stub(process, 'env').value({ SNOWFLAKE_CRL_ON_DISK_CACHE_DIR: 'test' });
+      assert.strictEqual(GLOBAL_CONFIG_DEFAULTS.crlResponseCacheDir(), 'test');
+    });
+
+    it('crlResponseCacheDir builds correct cache path when no env variable set', () => {
+      sinon.stub(process, 'env').value({ SNOWFLAKE_CRL_ON_DISK_CACHE_DIR: '' });
+      assert(GLOBAL_CONFIG_DEFAULTS.crlResponseCacheDir().includes('crls'));
+    });
+  });
+
   it('getValue returns default value if not configured', () => {
     assert.strictEqual(
-      GlobalConfigTyped.getValue('crlInMemoryCache'),
-      GLOBAL_CONFIG_DEFAULTS.crlInMemoryCache,
+      GlobalConfigTyped.getValue('crlDownloadTimeout'),
+      GLOBAL_CONFIG_DEFAULTS.crlDownloadTimeout,
     );
   });
 
   it('getValue returns configured value', () => {
-    GlobalConfigTyped.setOptions({ crlResponseCacheDir: 'test' });
+    GlobalConfigTyped.setValues({ crlResponseCacheDir: 'test' });
     assert.strictEqual(GlobalConfigTyped.getValue('crlResponseCacheDir'), 'test');
   });
 
-  it('setGlobalConfigTypedOptions sets only valid options and skipps undefined options', () => {
-    GlobalConfigTyped.setOptions({
-      crlInMemoryCache: false,
-      crlDownloadTimeout: undefined,
+  it('setValues sets only valid options and skipps undefined options', () => {
+    GlobalConfigTyped.setValues({
+      crlDownloadTimeout: 3000,
+      crlResponseCacheDir: undefined,
       // @ts-expect-error invalid key
       invalidKey: 'invalidValue',
     });
-    assert.strictEqual(GlobalConfigTyped.getValue('crlInMemoryCache'), false);
+    assert.strictEqual(GlobalConfigTyped.getValue('crlDownloadTimeout'), 3000);
     assert.strictEqual(
-      GlobalConfigTyped.getValue('crlDownloadTimeout'),
-      GLOBAL_CONFIG_DEFAULTS.crlDownloadTimeout,
+      GlobalConfigTyped.getValue('crlResponseCacheDir'),
+      GLOBAL_CONFIG_DEFAULTS.crlResponseCacheDir(),
     );
     // @ts-expect-error invalid key
     assert.strictEqual(GlobalConfigTyped.getValue('invalidKey'), undefined);

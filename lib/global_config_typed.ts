@@ -1,4 +1,7 @@
+import path from 'path';
+import os from 'os';
 import Logger from './logger';
+import { getDefaultCacheDir } from './disk_cache';
 
 /*
  * NOTE:
@@ -14,22 +17,6 @@ import Logger from './logger';
  * - removed "typed" from variable & function names
  */
 export interface GlobalConfigOptionsTyped {
-  /**
-   * Enable CRL caching in memory. Cached entries are removed after crlCacheValidityTime.
-   *
-   * @default true
-   */
-  crlInMemoryCache: boolean;
-
-  /**
-   * Enable CRL caching on disk. Cached entries are removed after crlCacheValidityTime.
-   *
-   * Disk read/write failures are ignored.
-   *
-   * @default true
-   */
-  crlOnDiskCache: boolean;
-
   /**
    * HTTP request timeout for CRL download.
    *
@@ -63,20 +50,18 @@ type GlobalConfigOptionsTypedWithGetters = {
     | (() => GlobalConfigOptionsTyped[K]);
 };
 
-export const GLOBAL_CONFIG_DEFAULTS: GlobalConfigOptionsTypedWithGetters = {
-  crlInMemoryCache: true,
-  crlOnDiskCache: true,
+export const GLOBAL_CONFIG_DEFAULTS = {
   crlDownloadTimeout: 10000,
   crlCacheValidityTime: 86400000,
   crlResponseCacheDir: () => {
-    return process.env.SNOWFLAKE_CRL_ON_DISK_CACHE_DIR ?? 'TODO';
+    return process.env.SNOWFLAKE_CRL_ON_DISK_CACHE_DIR || path.join(getDefaultCacheDir(), 'crls');
   },
 };
 
 export const globalConfigSetOptions: Partial<GlobalConfigOptionsTyped> = {};
 
 export default {
-  setOptions: (options: Partial<GlobalConfigOptionsTyped>) => {
+  setValues: (options: Partial<GlobalConfigOptionsTyped>) => {
     const filteredOptions = Object.fromEntries(
       Object.entries(options).filter(
         ([key, value]) => key in GLOBAL_CONFIG_DEFAULTS && value !== undefined,

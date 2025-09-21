@@ -5,7 +5,7 @@ import path from 'path';
 import ASN1 from 'asn1.js-rfc5280';
 import {
   CRL_MEMORY_CACHE,
-  MEMORY_CACHE_DEFAULT_EXPIRATION_TIME,
+  CRL_CACHE_EXPIRATION_TIME,
   getCrlFromMemory,
   setCrlInMemory,
   getCrlFromDisk,
@@ -46,10 +46,10 @@ describe('CRL cache', () => {
     });
 
     it('adds crl to cache with expiration time equal to default expiration when default is sooner', () => {
-      testCrl.tbsCertList.nextUpdate.value = fakeNow + MEMORY_CACHE_DEFAULT_EXPIRATION_TIME * 2;
+      testCrl.tbsCertList.nextUpdate.value = fakeNow + CRL_CACHE_EXPIRATION_TIME * 2;
       setCrlInMemory(crlUrl, testCrl);
       const cachedEntry = CRL_MEMORY_CACHE.get(crlUrl);
-      assert.strictEqual(cachedEntry?.expireAt, fakeNow + MEMORY_CACHE_DEFAULT_EXPIRATION_TIME);
+      assert.strictEqual(cachedEntry?.expireAt, fakeNow + CRL_CACHE_EXPIRATION_TIME);
       assert.strictEqual(cachedEntry?.crl, testCrl);
     });
   });
@@ -129,6 +129,17 @@ describe('CRL cache', () => {
       testCrl.tbsCertList.nextUpdate.value = fakeNow - 1000;
       testCrlRaw = ASN1.CertificateList.encode(testCrl, 'der');
       await writeCrlToDisk(crlUrl, testCrlRaw);
+      const result = await getCrlFromDisk(crlUrl);
+      assert.strictEqual(result, null);
+    });
+
+    it('returns null when file mtime is older than CACHE_DEFAULT_EXPIRATION_TIME', async () => {
+      const crlWrittenAt = new Date(fakeNow - CRL_CACHE_EXPIRATION_TIME - 1000);
+      const crlFilePath = path.join(crlCacheDir, encodeURIComponent(crlUrl));
+      testCrl.tbsCertList.nextUpdate.value = fakeNow + 1000;
+      testCrlRaw = ASN1.CertificateList.encode(testCrl, 'der');
+      await writeCrlToDisk(crlUrl, testCrlRaw);
+      await fs.utimes(crlFilePath, crlWrittenAt, crlWrittenAt);
       const result = await getCrlFromDisk(crlUrl);
       assert.strictEqual(result, null);
     });

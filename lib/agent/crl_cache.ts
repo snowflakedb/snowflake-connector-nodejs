@@ -5,8 +5,7 @@ import { writeCacheFile } from '../disk_cache';
 import GlobalConfigTyped from '../global_config_typed';
 import Logger from '../logger';
 
-export const MEMORY_CACHE_DEFAULT_EXPIRATION_TIME = 1000 * 60 * 60 * 24; // 24 hours
-export const DISK_CACHE_REMOVE_DELAY = 1000 * 60 * 60 * 24 * 7; // 7 days
+export const CRL_CACHE_EXPIRATION_TIME = 1000 * 60 * 60 * 24; // 24 hours
 export const CRL_MEMORY_CACHE = new Map<
   string,
   { expireAt: number; crl: ASN1.CertificateListDecoded }
@@ -28,10 +27,7 @@ export function getCrlFromMemory(url: string) {
 
 export function setCrlInMemory(url: string, crl: ASN1.CertificateListDecoded) {
   CRL_MEMORY_CACHE.set(url, {
-    expireAt: Math.min(
-      Date.now() + MEMORY_CACHE_DEFAULT_EXPIRATION_TIME,
-      crl.tbsCertList.nextUpdate.value,
-    ),
+    expireAt: Math.min(Date.now() + CRL_CACHE_EXPIRATION_TIME, crl.tbsCertList.nextUpdate.value),
     crl,
   });
 }
@@ -45,20 +41,14 @@ export function clearExpiredCrlFromMemoryCache() {
 }
 
 export async function clearExpiredCrlFromDiskCache() {
-  // NOTE:
-  // Ideally we'd like to delete files where now > nextUpdate + CRL_DISK_CACHE_REMOVE_DELAY
-  //
-  // This is problematic due to:
-  // - reading CRL nextUpdate is expensive IO blocking operation
-  // - we can't store nextUpdate in file name to be consistent with other drivers
-  //
-  // So assuming that anything older than 30 days is expired and should be deleted.
   try {
     const cacheDir = GlobalConfigTyped.getValue('crlResponseCacheDir');
     for (const fileName of await fs.readdir(cacheDir)) {
       const filePath = path.join(cacheDir, fileName);
       const stats = await fs.stat(filePath);
       const thirtyDaysAgo = Date.now() - 1000 * 60 * 60 * 24 * 30;
+      // NOTE:
+      // Keeping expired CRLs on disk for 30 days for debugging purposes
       if (stats.mtime.getTime() < thirtyDaysAgo) {
         Logger().debug(`Deleting CRL file ${fileName} older than 30 days.`);
         await fs.rm(filePath);
@@ -76,6 +66,12 @@ export async function getCrlFromDisk(url: string) {
   );
 
   try {
+    const stats = await fs.stat(filePath);
+    if (Date.now() - stats.mtime.getTime() > CRL_CACHE_EXPIRATION_TIME) {
+      Logger().debug(`CRL ${filePath} is older than default expiration time, ignoring.`);
+      return null;
+    }
+
     const rawCrl = await fs.readFile(filePath);
     const decodedCrl = ASN1.CertificateList.decode(rawCrl, 'der');
     if (decodedCrl.tbsCertList.nextUpdate.value > Date.now()) {

@@ -13,7 +13,7 @@ export const CRL_MEMORY_CACHE = new Map<
 export function getCrlFromMemory(url: string) {
   const cachedEntry = CRL_MEMORY_CACHE.get(url);
   if (cachedEntry) {
-    if (cachedEntry.crl.tbsCertList.nextUpdate.value > Date.now()) {
+    if (cachedEntry.expireAt > Date.now()) {
       return cachedEntry.crl;
     } else {
       CRL_MEMORY_CACHE.delete(url);
@@ -67,7 +67,7 @@ export async function getCrlFromDisk(url: string) {
   try {
     const stats = await fs.stat(filePath);
     if (Date.now() - stats.mtime.getTime() > GlobalConfigTyped.getValue('crlCacheValidityTime')) {
-      Logger().debug(`CRL ${filePath} is older than default expiration time, ignoring.`);
+      Logger().debug(`CRL ${filePath} is older than crlCacheValidityTime, ignoring.`);
       return null;
     }
 

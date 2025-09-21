@@ -61,10 +61,8 @@ describe('CRL cache', () => {
     });
 
     it('returns null when crl is in cache and is expired + deletes expired entry', () => {
-      const expireAt = fakeNow - 1;
-      testCrl.tbsCertList.nextUpdate.value = expireAt;
       CRL_MEMORY_CACHE.set(crlUrl, {
-        expireAt,
+        expireAt: fakeNow - 1000,
         crl: testCrl,
       });
       const result = getCrlFromMemory(crlUrl);
@@ -75,7 +73,7 @@ describe('CRL cache', () => {
     it('returns crl when crl is in cache and is not expired', () => {
       CRL_MEMORY_CACHE.set(crlUrl, {
         crl: testCrl,
-        expireAt: testCrl.tbsCertList.nextUpdate.value,
+        expireAt: fakeNow + 1000,
       });
       const result = getCrlFromMemory(crlUrl);
       assert.strictEqual(result, testCrl);

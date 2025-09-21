@@ -5,7 +5,6 @@ import { writeCacheFile } from '../disk_cache';
 import GlobalConfigTyped from '../global_config_typed';
 import Logger from '../logger';
 
-export const CRL_CACHE_EXPIRATION_TIME = 1000 * 60 * 60 * 24; // 24 hours
 export const CRL_MEMORY_CACHE = new Map<
   string,
   { expireAt: number; crl: ASN1.CertificateListDecoded }
@@ -27,7 +26,10 @@ export function getCrlFromMemory(url: string) {
 
 export function setCrlInMemory(url: string, crl: ASN1.CertificateListDecoded) {
   CRL_MEMORY_CACHE.set(url, {
-    expireAt: Math.min(Date.now() + CRL_CACHE_EXPIRATION_TIME, crl.tbsCertList.nextUpdate.value),
+    expireAt: Math.min(
+      Date.now() + GlobalConfigTyped.getValue('crlCacheValidityTime'),
+      crl.tbsCertList.nextUpdate.value,
+    ),
     crl,
   });
 }
@@ -64,7 +66,7 @@ export async function getCrlFromDisk(url: string) {
 
   try {
     const stats = await fs.stat(filePath);
-    if (Date.now() - stats.mtime.getTime() > CRL_CACHE_EXPIRATION_TIME) {
+    if (Date.now() - stats.mtime.getTime() > GlobalConfigTyped.getValue('crlCacheValidityTime')) {
       Logger().debug(`CRL ${filePath} is older than default expiration time, ignoring.`);
       return null;
     }

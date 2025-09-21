@@ -5,7 +5,6 @@ import path from 'path';
 import ASN1 from 'asn1.js-rfc5280';
 import {
   CRL_MEMORY_CACHE,
-  CRL_CACHE_EXPIRATION_TIME,
   getCrlFromMemory,
   setCrlInMemory,
   getCrlFromDisk,
@@ -20,6 +19,7 @@ import { writeCacheFile } from '../../../lib/disk_cache';
 describe('CRL cache', () => {
   const fakeNow = new Date('2025-01-01T00:00:00Z').getTime();
   const crlCacheDir = GlobalConfigTyped.getValue('crlCacheDir');
+  const crlCacheValidityTime = GlobalConfigTyped.getValue('crlCacheValidityTime');
   const crlUrl = 'http://example.com/file.crl';
   let testCrl: ASN1.CertificateListDecoded;
   let testCrlRaw: Buffer;
@@ -46,10 +46,10 @@ describe('CRL cache', () => {
     });
 
     it('adds crl to cache with expiration time equal to default expiration when default is sooner', () => {
-      testCrl.tbsCertList.nextUpdate.value = fakeNow + CRL_CACHE_EXPIRATION_TIME * 2;
+      testCrl.tbsCertList.nextUpdate.value = fakeNow + crlCacheValidityTime * 2;
       setCrlInMemory(crlUrl, testCrl);
       const cachedEntry = CRL_MEMORY_CACHE.get(crlUrl);
-      assert.strictEqual(cachedEntry?.expireAt, fakeNow + CRL_CACHE_EXPIRATION_TIME);
+      assert.strictEqual(cachedEntry?.expireAt, fakeNow + crlCacheValidityTime);
       assert.strictEqual(cachedEntry?.crl, testCrl);
     });
   });
@@ -133,8 +133,8 @@ describe('CRL cache', () => {
       assert.strictEqual(result, null);
     });
 
-    it('returns null when file mtime is older than CACHE_DEFAULT_EXPIRATION_TIME', async () => {
-      const crlWrittenAt = new Date(fakeNow - CRL_CACHE_EXPIRATION_TIME - 1000);
+    it('returns null when file mtime is older than GlobalConfig.crlCacheValidityTime', async () => {
+      const crlWrittenAt = new Date(fakeNow - crlCacheValidityTime - 1000);
       const crlFilePath = path.join(crlCacheDir, encodeURIComponent(crlUrl));
       testCrl.tbsCertList.nextUpdate.value = fakeNow + 1000;
       testCrlRaw = ASN1.CertificateList.encode(testCrl, 'der');

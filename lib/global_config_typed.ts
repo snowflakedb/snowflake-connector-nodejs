@@ -43,21 +43,15 @@ export interface GlobalConfigOptionsTyped {
   crlCacheDir: string;
 }
 
-type GlobalConfigOptionsTypedWithGetters = {
-  [K in keyof GlobalConfigOptionsTyped]:
-    | GlobalConfigOptionsTyped[K]
-    | (() => GlobalConfigOptionsTyped[K]);
-};
-
-export const GLOBAL_CONFIG_DEFAULTS = {
+export const GLOBAL_CONFIG_DEFAULTS: GlobalConfigOptionsTyped = {
   crlDownloadTimeout: 10000,
   crlCacheValidityTime: 86400000,
-  crlCacheDir: () => {
+  get crlCacheDir() {
     return process.env.SNOWFLAKE_CRL_ON_DISK_CACHE_DIR || path.join(getDefaultCacheDir(), 'crls');
   },
-} satisfies GlobalConfigOptionsTypedWithGetters;
+};
 
-export const globalConfigSetOptions: Partial<GlobalConfigOptionsTyped> = {};
+export const globalConfigCustomValues: Partial<GlobalConfigOptionsTyped> = {};
 
 export default {
   setValues: (options: Partial<GlobalConfigOptionsTyped>) => {
@@ -67,11 +61,9 @@ export default {
       ),
     );
     Logger().debug('Setting global config typed values: %j', filteredOptions);
-    Object.assign(globalConfigSetOptions, filteredOptions);
+    Object.assign(globalConfigCustomValues, filteredOptions);
   },
   getValue: <K extends keyof GlobalConfigOptionsTyped>(key: K) => {
-    const valueOrGetter = globalConfigSetOptions[key] ?? GLOBAL_CONFIG_DEFAULTS[key];
-    const value = typeof valueOrGetter === 'function' ? valueOrGetter() : valueOrGetter;
-    return value as GlobalConfigOptionsTyped[K];
+    return globalConfigCustomValues[key] ?? GLOBAL_CONFIG_DEFAULTS[key];
   },
 };

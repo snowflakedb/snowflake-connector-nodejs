@@ -1,8 +1,9 @@
 import { DetailedPeerCertificate } from 'tls';
 import crypto from 'crypto';
 import ASN1 from 'asn1.js-rfc5280';
-import axios from 'axios';
+import axios, { AxiosRequestConfig } from 'axios';
 import Logger from '../logger';
+import GlobalConfigTyped from '../global_config_typed';
 import {
   clearExpiredCrlFromDiskCache,
   clearExpiredCrlFromMemoryCache,
@@ -12,13 +13,16 @@ import {
   writeCrlToDisk,
 } from './crl_cache';
 
-export const SUPPORTED_CRL_VERIFICATION_ALGORITHMS: Record<string, string> = {
-  '1.2.840.113549.1.1.11': 'sha256WithRSAEncryption',
-  '1.2.840.113549.1.1.12': 'sha384WithRSAEncryption',
-  '1.2.840.113549.1.1.13': 'sha512WithRSAEncryption',
-  '1.2.840.10045.4.3.2': 'SHA256',
-  '1.2.840.10045.4.3.3': 'SHA384',
-  '1.2.840.10045.4.3.4': 'SHA512',
+// TODO:
+// Implement RSASSA-PSS signature verification
+// https://snowflakecomputing.atlassian.net/browse/SNOW-2333028
+export const CRL_SIGNATURE_OID_TO_CRYPTO_DIGEST_ALGORITHM: Record<string, string> = {
+  '1.2.840.113549.1.1.11': 'sha256',
+  '1.2.840.113549.1.1.12': 'sha384',
+  '1.2.840.113549.1.1.13': 'sha512',
+  '1.2.840.10045.4.3.2': 'sha256',
+  '1.2.840.10045.4.3.3': 'sha384',
+  '1.2.840.10045.4.3.4': 'sha512',
 };
 
 export function getCertificateDebugName(certificate: DetailedPeerCertificate) {
@@ -89,12 +93,12 @@ export function isShortLivedCertificate(decodedCertificate: ASN1.CertificateDeco
 
 export function isCrlSignatureValid(crl: ASN1.CertificateListDecoded, issuerPublicKey: string) {
   const signatureAlgOid = crl.signatureAlgorithm.algorithm.join('.');
-  const signatureAlg = SUPPORTED_CRL_VERIFICATION_ALGORITHMS[signatureAlgOid];
-  if (!signatureAlg) {
+  const digestAlg = CRL_SIGNATURE_OID_TO_CRYPTO_DIGEST_ALGORITHM[signatureAlgOid];
+  if (!digestAlg) {
     throw new Error(`Unsupported signature algorithm: ${signatureAlgOid}`);
   }
 
-  const verify = crypto.createVerify(signatureAlg);
+  const verify = crypto.createVerify(digestAlg);
   const tbsEncoded = ASN1.TBSCertList.encode(crl.tbsCertList, 'der');
   verify.update(tbsEncoded);
   return verify.verify(issuerPublicKey, crl.signature.data);
@@ -112,13 +116,38 @@ export function isCertificateRevoked(
   return false;
 }
 
+export function isIssuingDistributionPointExtensionValid(
+  crl: ASN1.CertificateListDecoded,
+  expectedCrlUrl: string,
+) {
+  const issuingDistributionPointExtension = crl.tbsCertList.crlExtensions?.find(
+    (ext) => ext.extnID === 'issuingDistributionPoint',
+  ) as ASN1.IssuingDistributionPointExtension | undefined;
+
+  if (!issuingDistributionPointExtension) {
+    Logger().debug(
+      `CRL ${expectedCrlUrl} doesnt have issuingDistributionPoint extension, ignoring`,
+    );
+    return true;
+  }
+
+  for (const fullNameEntry of issuingDistributionPointExtension.extnValue.distributionPoint.value) {
+    if (
+      fullNameEntry.type === 'uniformResourceIdentifier' &&
+      fullNameEntry.value === expectedCrlUrl
+    ) {
+      return true;
+    }
+  }
+  return false;
+}
+
 export const PENDING_FETCH_REQUESTS = new Map<string, Promise<ASN1.CertificateListDecoded>>();
 let crlCacheCleanerCreated = false;
 
 export async function getCrl(
   url: string,
   options: {
-    timeoutMs: number;
     inMemoryCache: boolean;
     onDiskCache: boolean;
   },
@@ -170,7 +199,7 @@ export async function getCrl(
     try {
       logDebug(`Downloading CRL`);
       const { data } = await axios.get(url, {
-        timeout: options.timeoutMs,
+        timeout: GlobalConfigTyped.getValue('crlDownloadTimeout'),
         responseType: 'arraybuffer',
       });
 

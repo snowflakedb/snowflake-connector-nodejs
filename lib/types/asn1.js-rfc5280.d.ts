@@ -31,6 +31,24 @@ declare module 'asn1.js-rfc5280' {
     }[]
   >;
 
+  export type IssuingDistributionPointExtension = BaseExtension<
+    'issuingDistributionPoint',
+    {
+      distributionPoint: {
+        type: 'fullName';
+        value: {
+          type: 'uniformResourceIdentifier' | 'dNSName';
+          value: string;
+        }[];
+      };
+      onlyContainsUserCerts?: boolean;
+      onlyContainsCACerts?: boolean;
+      indirectCRL?: boolean;
+      onlyContainsAttributeCerts?: boolean;
+    }
+  >;
+
+  // Value is in milliseconds since epoch
   type Time = { type: 'utcTime' | 'generalTime'; value: number };
 
   interface BitString {
@@ -43,7 +61,7 @@ declare module 'asn1.js-rfc5280' {
     subjectPublicKey: BitString;
   }
 
-  interface NameRDNSequence {
+  export interface NameRDNSequence {
     type: 'rdnSequence';
     value: any[];
   }
@@ -67,7 +85,7 @@ declare module 'asn1.js-rfc5280' {
   export interface TBSCertList {
     version?: BN;
     signature: AlgorithmIdentifier;
-    issuer: any;
+    issuer: NameRDNSequence;
     thisUpdate: Time;
     nextUpdate: Time;
     revokedCertificates: {
@@ -75,6 +93,7 @@ declare module 'asn1.js-rfc5280' {
       revocationDate: Time;
       crlEntryExtensions?: Extension[];
     }[];
+    crlExtensions?: (IssuingDistributionPointExtension | UnknownExtension)[];
   }
 
   export interface CertificateDecoded {

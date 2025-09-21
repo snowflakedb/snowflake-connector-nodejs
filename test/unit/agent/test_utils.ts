@@ -2,13 +2,13 @@ import { DetailedPeerCertificate } from 'tls';
 import crypto from 'crypto';
 import ASN1 from 'asn1.js-rfc5280';
 import BN from 'bn.js';
-import { SUPPORTED_CRL_VERIFICATION_ALGORITHMS } from '../../../lib/agent/crl_utils';
+import { CRL_SIGNATURE_OID_TO_CRYPTO_DIGEST_ALGORITHM } from '../../../lib/agent/crl_utils';
 
 const DEFAULT_SIGNATURE_ALGORITHM_OID = '1.2.840.113549.1.1.11';
 let serialNumberCounter = 10000;
 
 export function createCertificateKeyPair(algorithmOid = DEFAULT_SIGNATURE_ALGORITHM_OID) {
-  const algorithm = SUPPORTED_CRL_VERIFICATION_ALGORITHMS[algorithmOid];
+  const algorithm = CRL_SIGNATURE_OID_TO_CRYPTO_DIGEST_ALGORITHM[algorithmOid];
   if (!algorithm) {
     throw new Error(`Unsupported algorithm OID: ${algorithmOid}`);
   }
@@ -48,20 +48,65 @@ export function createCertificateKeyPair(algorithmOid = DEFAULT_SIGNATURE_ALGORI
   throw new Error(`Unsupported algorithm: ${algorithm}`);
 }
 
+export function createCertificateNameField(
+  options: {
+    organizationName?: string;
+    commonName?: string;
+    countryName?: string;
+    stateOrProvinceName?: string;
+    localityName?: string;
+    organizationalUnitName?: string;
+  } = {},
+): ASN1.NameRDNSequence {
+  const {
+    organizationName = 'Test Organization',
+    commonName = 'Common Name',
+    countryName = 'US',
+    stateOrProvinceName = 'California',
+    localityName = 'San Francisco',
+    organizationalUnitName = 'Engineering',
+  } = options;
+
+  const fields = [
+    [countryName, [2, 5, 4, 6]],
+    [stateOrProvinceName, [2, 5, 4, 8]],
+    [localityName, [2, 5, 4, 7]],
+    [organizationName, [2, 5, 4, 10]],
+    [organizationalUnitName, [2, 5, 4, 11]],
+    [commonName, [2, 5, 4, 3]],
+  ] as const;
+
+  return {
+    type: 'rdnSequence',
+    value: fields.map(([value, oid]) => [
+      {
+        type: oid,
+        value: [19, value.length, ...Array.from(Buffer.from(value, 'utf8'))],
+      },
+    ]),
+  };
+}
+
+type TestCertificateCrlDistributionPointValue = string | { type: string; value: string } | null;
+
 export function createTestCertificate(
   options: {
     serialNumber?: number;
     notBefore?: string;
     notAfter?: string;
+    subject?: ASN1.NameRDNSequence;
     keyPair?: crypto.KeyPairKeyObjectResult;
     signatureAlgorithmOid?: string;
-    crlUrls?: string[];
-    extensions?: ASN1.TBSCertificate['extensions'];
+    crlDistributionPoints?: (
+      | TestCertificateCrlDistributionPointValue
+      | TestCertificateCrlDistributionPointValue[]
+    )[];
   } = {},
 ): ASN1.CertificateDecoded {
   const serialNumber = options.serialNumber ?? serialNumberCounter++;
   const notBefore = options.notBefore ?? '2026-01-01T00:00:00Z';
   const notAfter = options.notAfter ?? '2026-12-31T00:00:00Z';
+  const subject = options.subject ?? createCertificateNameField();
   const signatureAlgorithmOid = options.signatureAlgorithmOid ?? DEFAULT_SIGNATURE_ALGORITHM_OID;
   const keyPair = options.keyPair ?? createCertificateKeyPair(signatureAlgorithmOid);
 
@@ -70,21 +115,28 @@ export function createTestCertificate(
     parameters: Buffer.from([0x05, 0x00]),
   };
 
-  const extensions = options.extensions ?? [];
-  if (options.crlUrls) {
+  const extensions: ASN1.TBSCertificate['extensions'] = [];
+  if (options.crlDistributionPoints) {
     extensions.push({
       extnID: 'cRLDistributionPoints',
-      extnValue: [
-        {
-          distributionPoint: {
-            type: 'fullName',
-            value: options.crlUrls.map((url) => ({
-              type: 'uniformResourceIdentifier',
-              value: url,
-            })),
-          },
-        },
-      ],
+      extnValue: options.crlDistributionPoints.map((crlDistributionPoint) => {
+        const values = Array.isArray(crlDistributionPoint)
+          ? crlDistributionPoint
+          : [crlDistributionPoint];
+        return crlDistributionPoint === null
+          ? {}
+          : {
+              distributionPoint: {
+                type: 'fullName',
+                value: values.map((value) => {
+                  if (typeof value === 'string') {
+                    return { type: 'uniformResourceIdentifier', value };
+                  }
+                  return value;
+                }),
+              },
+            };
+      }),
     });
   }
 
@@ -93,18 +145,14 @@ export function createTestCertificate(
       version: 'v3',
       serialNumber: new BN(serialNumber),
       signature: signatureAlgorithm,
-      issuer: {
-        type: 'rdnSequence',
-        value: [],
-      },
+      issuer: createCertificateNameField({
+        commonName: 'Issuer',
+      }),
       validity: {
         notBefore: { type: 'utcTime', value: new Date(notBefore).getTime() },
         notAfter: { type: 'utcTime', value: new Date(notAfter).getTime() },
       },
-      subject: {
-        type: 'rdnSequence',
-        value: [],
-      },
+      subject,
       subjectPublicKeyInfo: ASN1.SubjectPublicKeyInfo.decode(
         keyPair.publicKey.export({ type: 'spki', format: 'der' }),
         'der',
@@ -120,20 +168,24 @@ export function createTestCRL(
   options: {
     issuerCertificate?: ASN1.CertificateDecoded;
     issuerKeyPair?: crypto.KeyPairKeyObjectResult;
+    issuingDistributionPointUrls?: string[];
+    nextUpdate?: number;
     revokedCertificates?: number[];
   } = {},
 ): ASN1.CertificateListDecoded {
   const issuerKeyPair = options.issuerKeyPair ?? createCertificateKeyPair();
   const issuerCertificate =
     options.issuerCertificate ?? createTestCertificate({ keyPair: issuerKeyPair });
+  const issuingDistributionPointUrls = options.issuingDistributionPointUrls ?? null;
   const revokedCertificates = options.revokedCertificates ?? ['0'];
+  const nextUpdate = options.nextUpdate ?? new Date('2026-06-08T00:00:00Z').getTime();
 
   const tbsCertList: ASN1.TBSCertList = {
     version: new BN(1),
     signature: issuerCertificate.signatureAlgorithm,
-    issuer: issuerCertificate.tbsCertificate.issuer,
+    issuer: issuerCertificate.tbsCertificate.subject,
     thisUpdate: { type: 'utcTime', value: new Date('2026-06-01T00:00:00Z').getTime() },
-    nextUpdate: { type: 'utcTime', value: new Date('2026-06-08T00:00:00Z').getTime() },
+    nextUpdate: { type: 'utcTime', value: nextUpdate },
     revokedCertificates: revokedCertificates.map((serialNumber) => ({
       userCertificate: new BN(serialNumber),
       revocationDate: {
@@ -141,12 +193,28 @@ export function createTestCRL(
         value: new Date('2026-06-01T00:00:00Z').getTime(),
       },
     })),
+    crlExtensions: issuingDistributionPointUrls
+      ? [
+          {
+            extnID: 'issuingDistributionPoint',
+            extnValue: {
+              distributionPoint: {
+                type: 'fullName',
+                value: issuingDistributionPointUrls.map((url) => ({
+                  type: 'uniformResourceIdentifier',
+                  value: url,
+                })),
+              },
+            },
+          },
+        ]
+      : [],
   };
 
   const signatureOid = issuerCertificate.signatureAlgorithm.algorithm.join('.');
-  const signatureAlgorithm = SUPPORTED_CRL_VERIFICATION_ALGORITHMS[signatureOid];
+  const digestAlgorithm = CRL_SIGNATURE_OID_TO_CRYPTO_DIGEST_ALGORITHM[signatureOid];
 
-  const sign = crypto.createSign(signatureAlgorithm);
+  const sign = crypto.createSign(digestAlgorithm);
   sign.update(ASN1.TBSCertList.encode(tbsCertList, 'der'));
   const signature = sign.sign(issuerKeyPair.privateKey);
 

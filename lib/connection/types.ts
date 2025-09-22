@@ -139,6 +139,8 @@ export interface WIP_ConnectionOptions {
   /**
    * When certRevocationCheckMode is enabled, allows to cache CRLs on disk.
    *
+   * Disk read/write failures are ignored.
+   *
    * @default true
    */
   crlOnDiskCache?: CRLValidatorConfig['onDiskCache'];

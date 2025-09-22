@@ -1,9 +1,7 @@
 import { DetailedPeerCertificate } from 'tls';
 import crypto from 'crypto';
 import ASN1 from 'asn1.js-rfc5280';
-import axios, { AxiosRequestConfig } from 'axios';
 import Logger from '../logger';
-import GlobalConfigTyped from '../global_config_typed';
 
 // TODO:
 // Implement RSASSA-PSS signature verification
@@ -132,28 +130,4 @@ export function isIssuingDistributionPointExtensionValid(
     }
   }
   return false;
-}
-
-// TODO: in next PRs
-// - prevent multiple http requests for the same CRL
-// - in-memory caching for parsed certificate lists
-// - on-disk caching
-export async function getCrl(url: string, axiosOptions: AxiosRequestConfig = {}) {
-  const logDebug = (msg: string) => Logger().debug(`getCrl[${url}]: ${msg}`);
-
-  logDebug(`Download Started`);
-  const downloadStartedAt = Date.now();
-  const { data } = await axios.get(url, {
-    ...axiosOptions,
-    timeout: GlobalConfigTyped.getValue('crlDownloadTimeout'),
-    responseType: 'arraybuffer',
-  });
-  logDebug(`Download Completed in ${Date.now() - downloadStartedAt}ms`);
-
-  logDebug(`CRL Parsing Started`);
-  const crlParsingStartedAt = Date.now();
-  const parsedCrl = ASN1.CertificateList.decode(data, 'der');
-  logDebug(`CRL Parsing Completed in ${Date.now() - crlParsingStartedAt}ms`);
-
-  return parsedCrl;
 }

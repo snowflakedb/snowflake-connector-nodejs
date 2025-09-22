@@ -5,12 +5,12 @@ import Logger from '../logger';
 import {
   getCertificateCrlUrls,
   getCertificateDebugName,
-  getCrl,
   isCertificateRevoked,
   isIssuingDistributionPointExtensionValid,
   isCrlSignatureValid,
   isShortLivedCertificate,
 } from './crl_utils';
+import { getCrl } from './crl_fetcher';
 import { createCrlError } from '../errors';
 
 // Allows to mock/spy internal calls in tests
@@ -110,7 +110,10 @@ export async function validateCrl(certChain: DetailedPeerCertificate, config: CR
 
     for (const crlUrl of crlUrls) {
       logDebug(`fetching ${crlUrl}`);
-      const crl = await getCrl(crlUrl);
+      const crl = await getCrl(crlUrl, {
+        inMemoryCache: config.inMemoryCache,
+        onDiskCache: config.onDiskCache,
+      });
 
       logDebug(`validating ${crlUrl} signature`);
       if (!isCrlSignatureValid(crl, issuerPublicKey)) {

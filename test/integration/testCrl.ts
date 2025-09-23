@@ -34,7 +34,7 @@ describe('connection with CRL validation', () => {
     assert.strictEqual(validateCrlSpy.callCount, 1);
     const loginRequestData = axiosRequestSpy.getCall(0).args[0].data as any;
     assert.strictEqual(
-      loginRequestData.data.CLIENT_ENVIRONMENT.CRL_REVOCATION_CHECK_MODE,
+      loginRequestData.data.CLIENT_ENVIRONMENT.CERT_REVOCATION_CHECK_MODE,
       'ENABLED',
     );
   });

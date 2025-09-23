@@ -1,4 +1,5 @@
 import { WIP_ConnectionOptions } from './lib/connection/types';
+import { GlobalConfigOptionsTyped } from './lib/global_config_typed';
 import ErrorCodeEnum from './lib/error_code';
 
 /**
@@ -46,7 +47,7 @@ declare module 'snowflake-sdk' {
     attributesGroupName?: false | null | string;
   }
 
-  export interface ConfigureOptions {
+  export type ConfigureOptions = Partial<GlobalConfigOptionsTyped> & {
     /**
      * Set the logLevel and logFilePath,
      * https://docs.snowflake.com/en/developer-guide/node-js/nodejs-driver-logs.
@@ -95,7 +96,7 @@ declare module 'snowflake-sdk' {
      * The default value is true. If false, the driver will not get the proxy from the environment variable.
      */
     useEnvProxy?: boolean;
-  }
+  };
 
   export type ConnectionOptions = WIP_ConnectionOptions & {
     //Detail information: https://docs.snowflake.com/en/developer-guide/node-js/nodejs-driver-options

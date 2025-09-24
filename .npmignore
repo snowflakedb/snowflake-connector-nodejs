@@ -1,5 +1,6 @@
 *
 !dist/**/*
+dist/test/**/*
 !LICENSE
 !README.md
 !SECURITY.md

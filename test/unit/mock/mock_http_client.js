@@ -149,7 +149,13 @@ function serializeRequest(request) {
   // different values for { method: 'GET', url: 'foo' } and
   // { url: 'foo', method: 'GET' } even though they are semantically equivalent
   // requests, i.e. they should produce the same output
-  return JSON.stringify(createSortedClone(request));
+  const clonedRequest = createSortedClone(request);
+  // Ignore CLIENT_ENVIRONMENT for now,
+  // in future we should migrate this entire thing to wiremock for better matchers
+  if (clonedRequest.json && clonedRequest.json.data && clonedRequest.json.data.CLIENT_ENVIRONMENT) {
+    clonedRequest.json.data.CLIENT_ENVIRONMENT = {};
+  }
+  return JSON.stringify(clonedRequest);
 }
 
 /**

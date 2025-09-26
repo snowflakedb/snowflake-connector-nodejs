@@ -31,8 +31,8 @@ describe('Attestation AZURE', () => {
   });
 
   it('uses custom Azure Entra Id Resource when provided', async () => {
-    await getAzureAttestationToken('custom-token');
-    assert.strictEqual(getAzureTokenStub.firstCall.args[0], 'custom-token');
+    await getAzureAttestationToken({ entraIdResource: 'custom-entra-id-resource' });
+    assert.strictEqual(getAzureTokenStub.firstCall.args[0], 'custom-entra-id-resource');
   });
 
   it('throws error when fails to get token (missing credentials, no access)', async () => {

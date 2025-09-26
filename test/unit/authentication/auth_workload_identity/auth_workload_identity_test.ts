@@ -2,6 +2,7 @@ import sinon from 'sinon';
 import rewiremock from 'rewiremock/node';
 import assert from 'assert';
 import * as AzureIdentity from '@azure/identity';
+import * as AttestationAzureModule from '../../../../lib/authentication/auth_workload_identity/attestation_azure';
 import { GoogleAuth } from 'google-auth-library';
 import { WIP_ConnectionConfig, WIP_ConnectionOptions } from '../../../../lib/connection/types';
 import { AuthRequestBody } from '../../../../lib/authentication/types';
@@ -147,6 +148,24 @@ describe('Workload Identity Authentication', async () => {
       getAzureTokenMock.throws(err);
       const auth = new AuthWorkloadIdentity(connectionConfig);
       await assert.rejects(auth.authenticate(), err);
+    });
+
+    it('passes azure-specific config options to getAzureAttestationToken', async () => {
+      getAzureTokenMock.returns({ token: 'test-token' });
+      const getAzureAttestionTokenSpy = sinon.spy(
+        AttestationAzureModule,
+        'getAzureAttestationToken',
+      );
+      const auth = new AuthWorkloadIdentity({
+        ...connectionConfig,
+        workloadIdentityAzureClientId: 'custom-managed-identity-client-id',
+        workloadIdentityAzureEntraIdResource: 'custom-entra-id-resource',
+      });
+      await auth.authenticate();
+      assert.deepEqual(getAzureAttestionTokenSpy.firstCall.args[0], {
+        managedIdentityClientId: 'custom-managed-identity-client-id',
+        entraIdResource: 'custom-entra-id-resource',
+      });
     });
 
     it('sets valid fields for updateBody() to use', async () => {

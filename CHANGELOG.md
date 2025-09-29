@@ -1,5 +1,7 @@
 # Changelog
 
+## 2.4.0 (TBD)
+
 ## 2.3.0
 
 - Added CRL validation. Disabled by default, see `certRevocationCheckMode` config option for details.

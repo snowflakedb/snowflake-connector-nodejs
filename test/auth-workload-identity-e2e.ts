@@ -13,10 +13,11 @@ describe('Workload Identity Authentication E2E', () => {
   const account = getValueFromEnv('SNOWFLAKE_TEST_WIF_ACCOUNT');
   const host = getValueFromEnv('SNOWFLAKE_TEST_WIF_HOST');
   const provider = getValueFromEnv('SNOWFLAKE_TEST_WIF_PROVIDER');
-  const impersonationPath = getValueFromEnv('SNOWFLAKE_TEST_WIF_IMPERSONATION_PATH');
   const expectedUsername = getValueFromEnv('SNOWFLAKE_TEST_WIF_USERNAME');
+  const impersonationPath = getValueFromEnv('SNOWFLAKE_TEST_WIF_IMPERSONATION_PATH', true);
   const expectedUsernameImpersonation = getValueFromEnv(
     'SNOWFLAKE_TEST_WIF_USERNAME_IMPERSONATION',
+    true,
   );
 
   const connectionOptions: WIP_ConnectionOptions = {
@@ -83,9 +84,11 @@ async function connectAndVerify(
   assert.deepEqual(rows, [{ 'CURRENT_USER()': expectedUsername }]);
 }
 
-function getValueFromEnv(key: string) {
+function getValueFromEnv(key: string): string;
+function getValueFromEnv(key: string, allowEmpty: true): string | undefined;
+function getValueFromEnv(key: string, allowEmpty = false) {
   const value = process.env[key];
-  if (!value) {
+  if (!value && !allowEmpty) {
     throw new Error(`Test requires ${key} variable to be set`);
   }
   return value;

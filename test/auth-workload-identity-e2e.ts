@@ -22,8 +22,8 @@ describe('Workload Identity Authentication E2E', () => {
 
   const connectionOptions: WIP_ConnectionOptions = {
     authenticator: 'WORKLOAD_IDENTITY',
-    account: account,
-    host: host,
+    account,
+    host,
     workloadIdentityProvider: provider as WIP_ConnectionOptions['workloadIdentityProvider'],
   };
 

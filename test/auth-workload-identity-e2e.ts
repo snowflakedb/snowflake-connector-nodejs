@@ -56,7 +56,7 @@ describe('Workload Identity Authentication E2E', () => {
           workloadIdentityProvider: 'OIDC',
           token,
         },
-        expectedUsername,
+        'TEST_WIF_E2E_OIDC',
       );
     });
   }

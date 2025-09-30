@@ -108,6 +108,13 @@ export interface WIP_ConnectionOptions {
   workloadIdentityProvider?: WorkloadIdentityProviderKey;
 
   /**
+   * When authenticator=WORKLOAD_IDENTITY, specifies a chain of service accounts for transitive impersonation.
+   * Each element represents a service account to impersonate in sequence, allowing workloads to authenticate
+   * as a different identity than their default attached service account.
+   */
+  workloadIdentityImpersonationPath?: string[];
+
+  /**
    * Customize Azure Entra Id Resource used to obtain workload identity auth token
    */
   workloadIdentityAzureEntraIdResource?: string;
@@ -160,6 +167,7 @@ export type WIP_ConnectionConfig =
     WIP_ConnectionOptions,
     | 'token'
     | 'workloadIdentityProvider'
+    | 'workloadIdentityImpersonationPath'
     | 'workloadIdentityAzureEntraIdResource'
     | 'oauthEnableSingleUseRefreshTokens'
   > & {

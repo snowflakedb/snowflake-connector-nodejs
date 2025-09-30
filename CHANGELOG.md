@@ -2,6 +2,8 @@
 
 ## 2.4.0 (TBD)
 
+- Added `workloadIdentityImpersonationPath` config option for `authenticator=WORKLOAD_IDENTITY` allowing workloads to authenticate as a different identity through transitive service account impersonation.
+
 ## 2.3.0
 
 - Added CRL validation. Disabled by default, see `certRevocationCheckMode` config option for details.

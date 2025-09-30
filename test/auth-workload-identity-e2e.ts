@@ -13,20 +13,31 @@ describe('Workload Identity Authentication E2E', () => {
   const account = process.env.SNOWFLAKE_TEST_WIF_ACCOUNT;
   const host = process.env.SNOWFLAKE_TEST_WIF_HOST;
   const provider = process.env.SNOWFLAKE_TEST_WIF_PROVIDER;
+  const impersonationPath = process.env.SNOWFLAKE_TEST_WIF_IMPERSONATION_PATH;
+  const expectedUsername = process.env.SNOWFLAKE_TEST_WIF_USERNAME;
+  const expectedUsernameImpersonation = process.env.SNOWFLAKE_TEST_WIF_USERNAME_IMPERSONATION;
 
-  if (!account || !host || !provider) {
-    throw new Error('Test can run only on cloud VM with env variables set');
+  // NOTE: TypeScript needs such if instead of loop for proper type checking
+  if (
+    !account ||
+    !host ||
+    !provider ||
+    !impersonationPath ||
+    !expectedUsername ||
+    !expectedUsernameImpersonation
+  ) {
+    throw new Error(`Test can run only on cloud VM with env variables set.`);
   }
 
   const connectionOptions: WIP_ConnectionOptions = {
     authenticator: 'WORKLOAD_IDENTITY',
-    account,
-    host,
+    account: account,
+    host: host,
     workloadIdentityProvider: provider as WIP_ConnectionOptions['workloadIdentityProvider'],
   };
 
   it(`connects using ${provider}`, async () => {
-    await connectAndVerify(connectionOptions);
+    await connectAndVerify(connectionOptions, expectedUsername);
   });
 
   if (provider === 'GCP') {
@@ -39,16 +50,22 @@ describe('Workload Identity Authentication E2E', () => {
       if (!token) {
         throw new Error('Failed to retrieve GCP access token: empty response');
       }
-      await connectAndVerify({
-        ...connectionOptions,
-        workloadIdentityProvider: 'OIDC',
-        token,
-      });
+      await connectAndVerify(
+        {
+          ...connectionOptions,
+          workloadIdentityProvider: 'OIDC',
+          token,
+        },
+        expectedUsername,
+      );
     });
   }
 });
 
-async function connectAndVerify(connectionOptions: WIP_ConnectionOptions) {
+async function connectAndVerify(
+  connectionOptions: WIP_ConnectionOptions,
+  expectedUsername: string,
+) {
   const connection = snowflake.createConnection(connectionOptions);
   await new Promise((resolve, reject) => {
     connection.connect((err?: Error) => {
@@ -61,7 +78,7 @@ async function connectAndVerify(connectionOptions: WIP_ConnectionOptions) {
   });
   const { rows } = await new Promise<{ statement: object; rows: object[] }>((resolve, reject) => {
     connection.execute({
-      sqlText: 'select 1',
+      sqlText: 'select current_user();',
       complete: (err: Error | null, statement: any, rows: any) => {
         if (err) {
           reject(err);
@@ -71,5 +88,5 @@ async function connectAndVerify(connectionOptions: WIP_ConnectionOptions) {
       },
     });
   });
-  assert.deepEqual(rows, [{ 1: 1 }]);
+  assert.deepEqual(rows, [{ 'CURRENT_USER()': expectedUsername }]);
 }

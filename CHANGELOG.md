@@ -2,6 +2,8 @@
 
 ## 2.4.0 (TBD)
 
+- Added `workloadIdentityAzureClientId` config option allowing to customize Azure Client for `WORKLOAD_IDENTITY` authentication (snowflakedb/snowflake-connector-nodejs#1174)
+
 ## 2.3.0
 
 - Added CRL validation. Disabled by default, see `certRevocationCheckMode` config option for details.

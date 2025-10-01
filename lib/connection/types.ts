@@ -115,9 +115,14 @@ export interface WIP_ConnectionOptions {
   workloadIdentityImpersonationPath?: string[];
 
   /**
-   * Customize Azure Entra Id Resource used to obtain workload identity auth token
+   * When workloadIdentityProvider=AZURE, customize Azure Entra Id Resource
    */
   workloadIdentityAzureEntraIdResource?: string;
+
+  /**
+   * When workloadIdentityProvider=AZURE, customize Azure Managed Identity Client Id
+   */
+  workloadIdentityAzureClientId?: string;
 
   /**
    * Enables Certificate Revocation List (CRL) validation.
@@ -169,6 +174,7 @@ export type WIP_ConnectionConfig =
     | 'workloadIdentityProvider'
     | 'workloadIdentityImpersonationPath'
     | 'workloadIdentityAzureEntraIdResource'
+    | 'workloadIdentityAzureClientId'
     | 'oauthEnableSingleUseRefreshTokens'
   > & {
     crlValidatorConfig: CRLValidatorConfig;

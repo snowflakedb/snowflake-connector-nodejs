@@ -12,10 +12,21 @@ run_tests_and_set_result() {
   local host="$2"
   local snowflake_host="$3"
   local rsa_key_path="$4"
+  local snowflake_user="$5"
+  local impersonation_path="$6"
+  local snowflake_user_for_impersonation="$7"
 
   # NOTE: /home/user is the only dir we can write to (SNOW-2232143 to improve WORKDIR)
   # NOTE: Intentionally using lowest supported node version as it has higher risk of issues
-  ssh -i "$rsa_key_path" -o IdentitiesOnly=yes -p 443 "$host" env BRANCH="$BRANCH" SNOWFLAKE_TEST_WIF_HOST="$snowflake_host" SNOWFLAKE_TEST_WIF_PROVIDER="$provider" SNOWFLAKE_TEST_WIF_ACCOUNT="$SNOWFLAKE_TEST_WIF_ACCOUNT" bash << EOF
+  ssh -i "$rsa_key_path" -o IdentitiesOnly=yes -p 443 "$host" \
+    BRANCH="$BRANCH" \
+    SNOWFLAKE_TEST_WIF_HOST="$snowflake_host" \
+    SNOWFLAKE_TEST_WIF_PROVIDER="$provider" \
+    SNOWFLAKE_TEST_WIF_ACCOUNT="$SNOWFLAKE_TEST_WIF_ACCOUNT" \
+    SNOWFLAKE_TEST_WIF_USERNAME="$snowflake_user" \
+    SNOWFLAKE_TEST_WIF_IMPERSONATION_PATH="$impersonation_path" \
+    SNOWFLAKE_TEST_WIF_USERNAME_IMPERSONATION="$snowflake_user_for_impersonation" \
+    bash << EOF
       set -e
       set -o pipefail
       docker run \
@@ -26,6 +37,9 @@ run_tests_and_set_result() {
         -e SNOWFLAKE_TEST_WIF_PROVIDER \
         -e SNOWFLAKE_TEST_WIF_HOST \
         -e SNOWFLAKE_TEST_WIF_ACCOUNT \
+        -e SNOWFLAKE_TEST_WIF_USERNAME \
+        -e SNOWFLAKE_TEST_WIF_IMPERSONATION_PATH \
+        -e SNOWFLAKE_TEST_WIF_USERNAME_IMPERSONATION \
         snowflakedb/client-nodejs-chainguard-node18-test:1 \
           bash -c "
             cd /home/user
@@ -79,9 +93,9 @@ setup_parameters
 # Run tests for all cloud providers
 EXIT_STATUS=0
 set +e  # Don't exit on first failure
-run_tests_and_set_result "AZURE" "$HOST_AZURE" "$SNOWFLAKE_TEST_WIF_HOST_AZURE" "$RSA_KEY_PATH_AWS_AZURE"
-run_tests_and_set_result "AWS" "$HOST_AWS" "$SNOWFLAKE_TEST_WIF_HOST_AWS" "$RSA_KEY_PATH_AWS_AZURE"
-run_tests_and_set_result "GCP" "$HOST_GCP" "$SNOWFLAKE_TEST_WIF_HOST_GCP" "$RSA_KEY_PATH_GCP"
+run_tests_and_set_result "AZURE" "$HOST_AZURE" "$SNOWFLAKE_TEST_WIF_HOST_AZURE" "$RSA_KEY_PATH_AWS_AZURE" "$SNOWFLAKE_TEST_WIF_USERNAME_AZURE" "$SNOWFLAKE_TEST_WIF_IMPERSONATION_PATH_AZURE" "$SNOWFLAKE_TEST_WIF_USERNAME_AZURE_IMPERSONATION"
+run_tests_and_set_result "AWS" "$HOST_AWS" "$SNOWFLAKE_TEST_WIF_HOST_AWS" "$RSA_KEY_PATH_AWS_AZURE" "$SNOWFLAKE_TEST_WIF_USERNAME_AWS" "$SNOWFLAKE_TEST_WIF_IMPERSONATION_PATH_AWS" "$SNOWFLAKE_TEST_WIF_USERNAME_AWS_IMPERSONATION"
+run_tests_and_set_result "GCP" "$HOST_GCP" "$SNOWFLAKE_TEST_WIF_HOST_GCP" "$RSA_KEY_PATH_GCP" "$SNOWFLAKE_TEST_WIF_USERNAME_GCP" "$SNOWFLAKE_TEST_WIF_IMPERSONATION_PATH_GCP" "$SNOWFLAKE_TEST_WIF_USERNAME_GCP_IMPERSONATION"
 set -e  # Re-enable exit on error
 echo "Exit status: $EXIT_STATUS"
 exit $EXIT_STATUS

@@ -5,6 +5,10 @@ import { WIP_ConnectionOptions } from '../lib/connection/types';
 // Using require() as we can't pull types from index.d.ts
 const snowflake = require('../lib/snowflake');
 
+snowflake.configure({
+  logLevel: 'TRACE',
+});
+
 // Running this test locally:
 // * Push branch to repository
 // * Set environment variable PARAMETERS_SECRET
@@ -14,11 +18,6 @@ describe('Workload Identity Authentication E2E', () => {
   const host = getValueFromEnv('SNOWFLAKE_TEST_WIF_HOST');
   const provider = getValueFromEnv('SNOWFLAKE_TEST_WIF_PROVIDER');
   const expectedUsername = getValueFromEnv('SNOWFLAKE_TEST_WIF_USERNAME');
-  const impersonationPath = getValueFromEnv('SNOWFLAKE_TEST_WIF_IMPERSONATION_PATH', true);
-  const expectedUsernameImpersonation = getValueFromEnv(
-    'SNOWFLAKE_TEST_WIF_USERNAME_IMPERSONATION',
-    true,
-  );
 
   const connectionOptions: WIP_ConnectionOptions = {
     authenticator: 'WORKLOAD_IDENTITY',
@@ -30,6 +29,19 @@ describe('Workload Identity Authentication E2E', () => {
   it(`connects using ${provider}`, async () => {
     await connectAndVerify(connectionOptions, expectedUsername);
   });
+
+  if (provider === 'AWS') {
+    it('connects using transitive impersonation', async () => {
+      const impersonationPath = getValueFromEnv('SNOWFLAKE_TEST_WIF_IMPERSONATION_PATH').split(',');
+      const expectedUsernameImpersonation = getValueFromEnv(
+        'SNOWFLAKE_TEST_WIF_USERNAME_IMPERSONATION',
+      );
+      await connectAndVerify(
+        { ...connectionOptions, workloadIdentityImpersonationPath: impersonationPath },
+        expectedUsernameImpersonation,
+      );
+    });
+  }
 
   // NOTE:
   // GCP token works as OIDC token, so we test it on GCP VM but with different username
@@ -84,11 +96,9 @@ async function connectAndVerify(
   assert.deepEqual(rows, [{ 'CURRENT_USER()': expectedUsername }]);
 }
 
-function getValueFromEnv(key: string): string;
-function getValueFromEnv(key: string, allowEmpty: true): string | undefined;
-function getValueFromEnv(key: string, allowEmpty = false) {
+function getValueFromEnv(key: string) {
   const value = process.env[key];
-  if (!value && !allowEmpty) {
+  if (!value) {
     throw new Error(`Test requires ${key} variable to be set`);
   }
   return value;

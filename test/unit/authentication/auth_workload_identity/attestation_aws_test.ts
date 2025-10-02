@@ -7,8 +7,9 @@ import { assertAwsAttestationToken, AWS_CREDENTIALS, AWS_REGION } from './test_u
 describe('Attestation AWS', () => {
   const sinonSandbox = sinon.createSandbox();
   const awsSdkMock = {
-    getCredentials: sinonSandbox.stub(),
+    getDefaultCredentials: sinonSandbox.stub(),
     getMetadataRegion: sinonSandbox.stub(),
+    sendStsCommand: sinonSandbox.stub().returns({ Credentials: null }),
   };
   let AttestationAws: typeof OriginalAttestationAws;
   const noCredentialsError = new Error('No credentials found');
@@ -18,7 +19,13 @@ describe('Attestation AWS', () => {
     // NOTE:
     // Sinon can't stub frozen AWS SDK properties, so we need to mock entire require
     rewiremock('@aws-sdk/credential-provider-node').with({
-      defaultProvider: () => awsSdkMock.getCredentials,
+      defaultProvider: () => awsSdkMock.getDefaultCredentials,
+    });
+    rewiremock('@aws-sdk/client-sts').with({
+      AssumeRoleCommand: class {},
+      STSClient: class {
+        send = () => awsSdkMock.sendStsCommand();
+      },
     });
     rewiremock('@aws-sdk/ec2-metadata-service').with({
       MetadataService: class {
@@ -33,7 +40,7 @@ describe('Attestation AWS', () => {
 
   beforeEach(() => {
     sinonSandbox.restore();
-    awsSdkMock.getCredentials.throws(noCredentialsError);
+    awsSdkMock.getDefaultCredentials.throws(noCredentialsError);
     awsSdkMock.getMetadataRegion.throws(noRegionError);
   });
 
@@ -43,12 +50,34 @@ describe('Attestation AWS', () => {
 
   describe('getAwsCredentials', () => {
     it('throws error when no credentials are found', async () => {
-      await assert.rejects(AttestationAws.getAwsCredentials(), noCredentialsError);
+      await assert.rejects(AttestationAws.getAwsCredentials(AWS_REGION), noCredentialsError);
     });
 
-    it('returns credentials when credentials are found', async () => {
-      awsSdkMock.getCredentials.returns(AWS_CREDENTIALS);
-      assert.strictEqual(await AttestationAws.getAwsCredentials(), AWS_CREDENTIALS);
+    it('throws error when fails to fetch impersonation role credentials', async () => {
+      awsSdkMock.getDefaultCredentials.returns(AWS_CREDENTIALS);
+      await assert.rejects(
+        AttestationAws.getAwsCredentials(AWS_REGION, ['impersonation-role']),
+        /Failed to get credentials from impersonation role impersonation-role/,
+      );
+    });
+
+    it('returns credentials from default provider', async () => {
+      awsSdkMock.getDefaultCredentials.returns(AWS_CREDENTIALS);
+      assert.strictEqual(await AttestationAws.getAwsCredentials(AWS_REGION), AWS_CREDENTIALS);
+    });
+
+    it('returns credentials from impersonation role', async () => {
+      const impersonationCredentials = {
+        AccessKeyId: 'impersonation-access-key-id',
+        SecretAccessKey: 'impersonation-secret-access-key',
+      };
+      awsSdkMock.getDefaultCredentials.returns(AWS_CREDENTIALS);
+      awsSdkMock.sendStsCommand.returns({ Credentials: impersonationCredentials });
+      assert.deepEqual(await AttestationAws.getAwsCredentials(AWS_REGION, ['impersonation-role']), {
+        accessKeyId: impersonationCredentials.AccessKeyId,
+        secretAccessKey: impersonationCredentials.SecretAccessKey,
+        sessionToken: undefined,
+      });
     });
   });
 
@@ -83,16 +112,16 @@ describe('Attestation AWS', () => {
 
   describe('getAwsAttestationToken', () => {
     it('throws error when no credentials are found', async () => {
+      awsSdkMock.getMetadataRegion.returns(AWS_REGION);
       await assert.rejects(AttestationAws.getAwsAttestationToken(), noCredentialsError);
     });
 
     it('returns error when no region is found', async () => {
-      awsSdkMock.getCredentials.returns(AWS_CREDENTIALS);
       await assert.rejects(AttestationAws.getAwsAttestationToken(), noRegionError);
     });
 
     it('returns a valid attestation token', async () => {
-      awsSdkMock.getCredentials.returns(AWS_CREDENTIALS);
+      awsSdkMock.getDefaultCredentials.returns(AWS_CREDENTIALS);
       awsSdkMock.getMetadataRegion.returns(AWS_REGION);
       const token = await AttestationAws.getAwsAttestationToken();
       assertAwsAttestationToken(token, AWS_REGION);

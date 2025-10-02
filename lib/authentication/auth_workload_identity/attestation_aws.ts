@@ -1,13 +1,38 @@
 import { defaultProvider } from '@aws-sdk/credential-provider-node';
+import { STSClient, AssumeRoleCommand } from '@aws-sdk/client-sts';
 import { MetadataService } from '@aws-sdk/ec2-metadata-service';
 import { HttpRequest } from '@smithy/protocol-http';
 import { SignatureV4 } from '@smithy/signature-v4';
 import { Sha256 } from '@aws-crypto/sha256-js';
 import Logger from '../../logger';
 
-export async function getAwsCredentials() {
+export async function getAwsCredentials(region: string, impersonationPath: string[] = []) {
   Logger().debug('Getting AWS credentials from default provider');
-  return await defaultProvider()();
+  let credentials = await defaultProvider()();
+
+  for (const roleArn of impersonationPath) {
+    Logger().debug(`Getting AWS credentials from impersonation role: ${roleArn}`);
+    const stsClient = new STSClient({
+      credentials,
+      region,
+    });
+    const command = new AssumeRoleCommand({
+      RoleArn: roleArn,
+      RoleSessionName: 'identity-federation-session',
+    });
+    const { Credentials } = await stsClient.send(command);
+    if (Credentials?.AccessKeyId && Credentials?.SecretAccessKey) {
+      credentials = {
+        accessKeyId: Credentials.AccessKeyId,
+        secretAccessKey: Credentials.SecretAccessKey,
+        sessionToken: Credentials.SessionToken,
+      };
+    } else {
+      throw new Error(`Failed to get credentials from impersonation role ${roleArn}`);
+    }
+  }
+
+  return credentials;
 }
 
 export async function getAwsRegion() {
@@ -25,9 +50,9 @@ export function getStsHostname(region: string) {
   return `sts.${region}.${domain}`;
 }
 
-export async function getAwsAttestationToken() {
-  const credentials = await getAwsCredentials();
+export async function getAwsAttestationToken(impersonationPath?: string[]) {
   const region = await getAwsRegion();
+  const credentials = await getAwsCredentials(region, impersonationPath);
 
   const stsHostname = getStsHostname(region);
   const request = new HttpRequest({

@@ -21,15 +21,18 @@ class AuthWorkloadIdentity implements AuthClass {
   }
 
   async authenticate() {
-    let provider = this.connectionConfig.workloadIdentityProvider;
+    const {
+      workloadIdentityProvider: provider,
+      workloadIdentityImpersonationPath: impersonationPath,
+    } = this.connectionConfig;
     let token: string;
 
-    if (this.connectionConfig.workloadIdentityImpersonationPath) {
-      throw new Error('workloadIdentityImpersonationPath is not supported yet');
+    if (impersonationPath && provider !== WorkloadIdentityProvider.AWS) {
+      throw new Error(`workloadIdentityImpersonationPath for ${provider} not supported yet`);
     }
 
     if (provider === WorkloadIdentityProvider.AWS) {
-      token = await getAwsAttestationToken();
+      token = await getAwsAttestationToken(impersonationPath);
     } else if (provider === WorkloadIdentityProvider.AZURE) {
       token = await getAzureAttestationToken({
         managedIdentityClientId: this.connectionConfig.workloadIdentityAzureClientId,

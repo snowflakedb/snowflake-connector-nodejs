@@ -1715,12 +1715,13 @@ describe('connection.destroy()', function () {
 
     const tryDestroy = () => {
       connection.destroy(function (err, conn) {
-        if (err && err.code === 406501) { // ERR_CONN_DESTROY_STATUS_PRISTINE
+        if (err && err.code === 406501) {
+          // ERR_CONN_DESTROY_STATUS_PRISTINE
           // Still in pristine state, try again
           setImmediate(tryDestroy);
           return;
         }
-        
+
         assert.ok(!err, 'there should be no error');
         assert.strictEqual(
           conn,

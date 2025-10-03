@@ -9,14 +9,13 @@ export async function getGcpAttestationToken(impersonationPath: string[] = []) {
   let impersonated: Impersonated | null = null;
   for (const serviceAccount of impersonationPath) {
     impersonated = new Impersonated({
+      sourceClient: await auth.getClient(),
       targetPrincipal: serviceAccount,
     });
   }
 
   if (impersonated) {
-    const idToken = await impersonated.fetchIdToken(SNOWFLAKE_AUDIENCE, {
-      includeEmail: true,
-    });
+    const idToken = await impersonated.fetchIdToken(SNOWFLAKE_AUDIENCE);
     return idToken;
   }
 

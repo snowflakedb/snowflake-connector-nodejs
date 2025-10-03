@@ -6,16 +6,18 @@ export const SNOWFLAKE_AUDIENCE = 'snowflakecomputing.com';
 export async function getGcpAttestationToken(impersonationPath: string[] = []) {
   let auth = new GoogleAuth();
 
-  let impersonated: Impersonated | null = null;
+  let currentClient = await auth.getClient();
   for (const serviceAccount of impersonationPath) {
-    impersonated = new Impersonated({
-      sourceClient: await auth.getClient(),
+    Logger().debug(`Getting GCP auth token from service account: ${serviceAccount}`);
+    currentClient = new Impersonated({
+      sourceClient: currentClient,
       targetPrincipal: serviceAccount,
+      // targetScopes: ['https://www.googleapis.com/auth/cloud-platform'],
     });
   }
 
-  if (impersonated) {
-    const idToken = await impersonated.fetchIdToken(SNOWFLAKE_AUDIENCE);
+  if (impersonationPath.length > 0) {
+    const idToken = await (currentClient as Impersonated).fetchIdToken(SNOWFLAKE_AUDIENCE);
     return idToken;
   }
 

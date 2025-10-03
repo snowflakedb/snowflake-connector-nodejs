@@ -94,6 +94,17 @@ describe('Workload Identity Authentication', async () => {
       workloadIdentityProvider: 'OIDC',
     });
 
+    it('throws error when impersonation path is provided', async () => {
+      const auth = new AuthWorkloadIdentity({
+        ...connectionConfig,
+        workloadIdentityImpersonationPath: ['test-path'],
+      });
+      await assert.rejects(
+        auth.authenticate(),
+        /workloadIdentityImpersonationPath for OIDC is not supported/,
+      );
+    });
+
     it('throws error when token is not provided', async () => {
       const auth = new AuthWorkloadIdentity({ ...connectionConfig, token: undefined });
       await assert.rejects(
@@ -148,6 +159,17 @@ describe('Workload Identity Authentication', async () => {
       getAzureTokenMock.throws(err);
       const auth = new AuthWorkloadIdentity(connectionConfig);
       await assert.rejects(auth.authenticate(), err);
+    });
+
+    it('throws error when impersonation path is provided', async () => {
+      const auth = new AuthWorkloadIdentity({
+        ...connectionConfig,
+        workloadIdentityImpersonationPath: ['test-path'],
+      });
+      await assert.rejects(
+        auth.authenticate(),
+        /workloadIdentityImpersonationPath for AZURE is not supported/,
+      );
     });
 
     it('passes azure-specific config options to getAzureAttestationToken', async () => {

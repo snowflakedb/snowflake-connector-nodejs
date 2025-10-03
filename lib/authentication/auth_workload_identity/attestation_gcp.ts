@@ -20,6 +20,5 @@ export async function getGcpAttestationToken(impersonationPath?: string[]) {
 
   Logger().debug('Getting GCP auth token from default credentials');
   const client = await auth.getIdTokenClient(SNOWFLAKE_AUDIENCE);
-  const idToken = await client.idTokenProvider.fetchIdToken(SNOWFLAKE_AUDIENCE);
-  return idToken;
+  return await client.idTokenProvider.fetchIdToken(SNOWFLAKE_AUDIENCE);
 }

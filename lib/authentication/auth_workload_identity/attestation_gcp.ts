@@ -4,7 +4,7 @@ import Logger from '../../logger';
 export const SNOWFLAKE_AUDIENCE = 'snowflakecomputing.com';
 
 export async function getGcpAttestationToken(impersonationPath?: string[]) {
-  let auth = new GoogleAuth();
+  const auth = new GoogleAuth();
 
   if (impersonationPath) {
     Logger().debug(

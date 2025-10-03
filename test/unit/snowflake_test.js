@@ -1713,22 +1713,27 @@ describe('connection.destroy()', function () {
       }
     });
 
-    setTimeout(
-      () =>
-        connection.destroy(function (err, conn) {
-          assert.ok(!err, 'there should be no error');
-          assert.strictEqual(
-            conn,
-            connection,
-            'the logout() callback should be invoked with the connection',
-          );
-          context.destroycomplete = true;
-          if (context.connectcomplete) {
-            done();
-          }
-        }),
-      10, // if destroy executes when connect is still in pristine state the error occurs. Destroy has to be slowed down a bit.
-    );
+    const tryDestroy = () => {
+      connection.destroy(function (err, conn) {
+        if (err && err.code === 406501) { // ERR_CONN_DESTROY_STATUS_PRISTINE
+          // Still in pristine state, try again
+          setImmediate(tryDestroy);
+          return;
+        }
+        
+        assert.ok(!err, 'there should be no error');
+        assert.strictEqual(
+          conn,
+          connection,
+          'the destroy() callback should be invoked with the connection',
+        );
+        context.destroycomplete = true;
+        if (context.connectcomplete) {
+          done();
+        }
+      });
+    };
+    setImmediate(tryDestroy);
   });
 
   it('destroy after connected', function (done) {

@@ -9,7 +9,6 @@ export async function getGcpAttestationToken(impersonationPath: string[] = []) {
   let impersonated: Impersonated | null = null;
   for (const serviceAccount of impersonationPath) {
     impersonated = new Impersonated({
-      sourceClient: await auth.getClient(),
       targetPrincipal: serviceAccount,
     });
   }

@@ -3,6 +3,42 @@ import Logger from '../../logger';
 
 export const SNOWFLAKE_AUDIENCE = 'snowflakecomputing.com';
 
+import gaxios from 'gaxios';
+
+gaxios.instance.interceptors.request.add({
+  resolved: (config) => {
+    console.log('🔄 REQUEST');
+    console.log('➡️ URL:', config.url);
+    console.log('➡️ Method:', config.method);
+    console.log('➡️ Headers:', config.headers);
+    if (config.data) {
+      console.log('➡️ Data:', config.data);
+    }
+    return Promise.resolve(config);
+  },
+});
+
+gaxios.instance.interceptors.response.add({
+  resolved: (response) => {
+    console.log('✅ RESPONSE');
+    console.log('⬅️ Status:', response.status);
+    console.log('⬅️ Headers:', response.headers);
+    console.log('⬅️ Data:', response.data);
+    return Promise.resolve(response);
+  },
+  rejected: (error) => {
+    // Handle error globally
+    if (error.response) {
+      console.log('❌ RESPONSE ERROR');
+      console.log('Status:', error.response.status);
+      console.log('Data:', error.response.data);
+    } else {
+      console.log('❌ ERROR:', error.message);
+    }
+    return Promise.reject(error);
+  },
+});
+
 export async function getGcpAttestationToken(impersonationPath: string[] = []) {
   let auth = new GoogleAuth();
 

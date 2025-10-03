@@ -39,7 +39,7 @@ class AuthWorkloadIdentity implements AuthClass {
         entraIdResource: this.connectionConfig.workloadIdentityAzureEntraIdResource,
       });
     } else if (provider === WorkloadIdentityProvider.GCP) {
-      token = await getGcpAttestationToken();
+      token = await getGcpAttestationToken(impersonationPath);
     } else if (provider === WorkloadIdentityProvider.OIDC) {
       if (this.connectionConfig.token) {
         token = this.connectionConfig.token;

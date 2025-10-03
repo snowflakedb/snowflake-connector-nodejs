@@ -3,24 +3,16 @@ import Logger from '../../logger';
 
 export const SNOWFLAKE_AUDIENCE = 'snowflakecomputing.com';
 
-process.env.GOOGLE_SDK_NODE_LOGGING = '*';
-
 export async function getGcpAttestationToken(impersonationPath: string[] = []) {
   let auth = new GoogleAuth();
 
-  let currentClient = await auth.getClient();
-  for (const serviceAccount of impersonationPath) {
-    Logger().debug(`Getting GCP auth token from service account: ${serviceAccount}`);
-    currentClient = new Impersonated({
-      sourceClient: currentClient,
-      targetPrincipal: serviceAccount,
-      // targetScopes: ['https://www.googleapis.com/auth/cloud-platform'],
-    });
-  }
-
   if (impersonationPath.length > 0) {
-    const idToken = await (currentClient as Impersonated).fetchIdToken(SNOWFLAKE_AUDIENCE);
-    return idToken;
+    const impersonated = new Impersonated({
+      sourceClient: await auth.getClient(),
+      targetPrincipal: impersonationPath[impersonationPath.length - 1],
+      delegates: impersonationPath.slice(0, -1),
+    });
+    return await impersonated.fetchIdToken(SNOWFLAKE_AUDIENCE);
   }
 
   Logger().debug('Getting GCP auth token');

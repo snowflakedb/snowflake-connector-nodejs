@@ -3,7 +3,7 @@ import Logger from '../../logger';
 
 export const SNOWFLAKE_AUDIENCE = 'snowflakecomputing.com';
 
-import gaxios from 'gaxios';
+import * as gaxios from 'gaxios';
 
 gaxios.instance.interceptors.request.add({
   resolved: (config) => {

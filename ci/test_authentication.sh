@@ -4,6 +4,8 @@ set -o pipefail
 THIS_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 export WORKSPACE=${WORKSPACE:-/tmp}
 
+source "$THIS_DIR/setup_gpg_home.sh"
+
 gpg --quiet --batch --yes --decrypt --passphrase="$PARAMETERS_SECRET" --output $THIS_DIR/../.github/workflows/parameters_aws_auth_tests.json "$THIS_DIR/../.github/workflows/parameters_aws_auth_tests.json.gpg"
 gpg --quiet --batch --yes --decrypt --passphrase="$PARAMETERS_SECRET" --output $THIS_DIR/../.github/workflows/rsa_keys/rsa_encrypted_key.p8 "$THIS_DIR/../.github/workflows/rsa_keys/rsa_encrypted_key.p8.gpg"
 gpg --quiet --batch --yes --decrypt --passphrase="$PARAMETERS_SECRET" --output $THIS_DIR/../.github/workflows/rsa_keys/rsa_key.p8 "$THIS_DIR/../.github/workflows/rsa_keys/rsa_key.p8.gpg"

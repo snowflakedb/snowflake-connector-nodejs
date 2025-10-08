@@ -30,7 +30,7 @@ describe('Workload Identity Authentication E2E', () => {
     await connectAndVerify(connectionOptions, expectedUsername);
   });
 
-  if (provider === 'AWS') {
+  if (provider === 'AWS' || provider === 'GCP') {
     it('connects using transitive impersonation', async () => {
       const impersonationPath = getValueFromEnv('SNOWFLAKE_TEST_WIF_IMPERSONATION_PATH').split(',');
       const expectedUsernameImpersonation = getValueFromEnv(

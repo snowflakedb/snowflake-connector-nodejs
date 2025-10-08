@@ -27,8 +27,12 @@ class AuthWorkloadIdentity implements AuthClass {
     } = this.connectionConfig;
     let token: string;
 
-    if (impersonationPath && provider !== WorkloadIdentityProvider.AWS) {
-      throw new Error(`workloadIdentityImpersonationPath for ${provider} not supported yet`);
+    if (
+      impersonationPath &&
+      provider !== WorkloadIdentityProvider.AWS &&
+      provider !== WorkloadIdentityProvider.GCP
+    ) {
+      throw new Error(`workloadIdentityImpersonationPath for ${provider} is not supported`);
     }
 
     if (provider === WorkloadIdentityProvider.AWS) {
@@ -39,7 +43,7 @@ class AuthWorkloadIdentity implements AuthClass {
         entraIdResource: this.connectionConfig.workloadIdentityAzureEntraIdResource,
       });
     } else if (provider === WorkloadIdentityProvider.GCP) {
-      token = await getGcpAttestationToken();
+      token = await getGcpAttestationToken(impersonationPath);
     } else if (provider === WorkloadIdentityProvider.OIDC) {
       if (this.connectionConfig.token) {
         token = this.connectionConfig.token;

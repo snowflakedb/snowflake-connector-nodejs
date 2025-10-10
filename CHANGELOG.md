@@ -8,7 +8,9 @@
 - Added `workloadIdentityAzureClientId` config option allowing to customize Azure Client for `WORKLOAD_IDENTITY` authentication (snowflakedb/snowflake-connector-nodejs#1174)
 - Added `workloadIdentityImpersonationPath` config option for `authenticator=WORKLOAD_IDENTITY` allowing workloads to authenticate as a different identity through transitive service account impersonation (snowflakedb/snowflake-connector-nodejs#1178, snowflakedb/snowflake-connector-nodejs#1179, snowflakedb/snowflake-connector-nodejs#1182)
 
-## 2.3.0
+## 2.3.0 (Deprecated)
+
+> **⚠️ WARNING: This version has been deprecated due to critical code issue. All changes from 2.3.0 available in 2.3.1**
 
 - Added CRL validation. Disabled by default, see `certRevocationCheckMode` config option for details.
 - Improved debug logs when dowloading query result chunks (snowflakedb/snowflake-connector-nodejs#1142)

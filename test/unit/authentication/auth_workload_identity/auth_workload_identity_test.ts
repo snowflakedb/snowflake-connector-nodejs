@@ -1,6 +1,7 @@
 import sinon from 'sinon';
 import rewiremock from 'rewiremock/node';
 import assert from 'assert';
+// @ts-ignore
 import * as AzureIdentity from '@azure/identity';
 import * as AttestationAzureModule from '../../../../lib/authentication/auth_workload_identity/attestation_azure';
 import { GoogleAuth } from 'google-auth-library';

@@ -1,5 +1,6 @@
 import sinon from 'sinon';
 import assert from 'assert';
+// @ts-ignore
 import * as AzureIdentity from '@azure/identity';
 import {
   getAzureAttestationToken,

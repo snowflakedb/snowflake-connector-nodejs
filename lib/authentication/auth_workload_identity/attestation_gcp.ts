@@ -1,3 +1,4 @@
+//@ts-ignore
 import { GoogleAuth, Impersonated } from 'google-auth-library';
 import Logger from '../../logger';
 

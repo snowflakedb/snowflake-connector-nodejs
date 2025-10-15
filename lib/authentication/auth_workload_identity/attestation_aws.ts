@@ -1,8 +1,14 @@
+// @ts-ignore
 import { defaultProvider } from '@aws-sdk/credential-provider-node';
+// @ts-ignore
 import { STSClient, AssumeRoleCommand } from '@aws-sdk/client-sts';
+// @ts-ignore
 import { MetadataService } from '@aws-sdk/ec2-metadata-service';
+// @ts-ignore
 import { HttpRequest } from '@smithy/protocol-http';
+// @ts-ignore
 import { SignatureV4 } from '@smithy/signature-v4';
+// @ts-ignore
 import { Sha256 } from '@aws-crypto/sha256-js';
 import Logger from '../../logger';
 

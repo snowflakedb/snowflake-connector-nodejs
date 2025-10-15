@@ -1,3 +1,4 @@
+// @ts-ignore
 import { DefaultAzureCredential } from '@azure/identity';
 import Logger from '../../logger';
 

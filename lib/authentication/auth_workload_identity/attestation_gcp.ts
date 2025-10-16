@@ -1,10 +1,13 @@
-//@ts-ignore
-import { GoogleAuth, Impersonated } from 'google-auth-library';
 import Logger from '../../logger';
 
 export const SNOWFLAKE_AUDIENCE = 'snowflakecomputing.com';
 
 export async function getGcpAttestationToken(impersonationPath?: string[]) {
+  //@ts-ignore
+  const { GoogleAuth, Impersonated } = await import('google-auth-library').then((i) => ({
+    GoogleAuth: i.GoogleAuth,
+    Impersonated: i.Impersonated,
+  }));
   const auth = new GoogleAuth();
 
   if (impersonationPath) {

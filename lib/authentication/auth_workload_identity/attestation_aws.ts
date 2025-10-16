@@ -1,18 +1,16 @@
-// @ts-ignore
-import { defaultProvider } from '@aws-sdk/credential-provider-node';
-// @ts-ignore
-import { STSClient, AssumeRoleCommand } from '@aws-sdk/client-sts';
-// @ts-ignore
-import { MetadataService } from '@aws-sdk/ec2-metadata-service';
-// @ts-ignore
-import { HttpRequest } from '@smithy/protocol-http';
-// @ts-ignore
-import { SignatureV4 } from '@smithy/signature-v4';
-// @ts-ignore
-import { Sha256 } from '@aws-crypto/sha256-js';
 import Logger from '../../logger';
 
 export async function getAwsCredentials(region: string, impersonationPath: string[] = []) {
+  // @ts-ignore
+  const defaultProvider = await import('@aws-sdk/credential-provider-node').then(
+    (i) => i.defaultProvider,
+  );
+  // @ts-ignore
+  const { STSClient, AssumeRoleCommand } = await import('@aws-sdk/client-sts').then((i) => ({
+    STSClient: i.STSClient,
+    AssumeRoleCommand: i.AssumeRoleCommand,
+  }));
+
   Logger().debug('Getting AWS credentials from default provider');
   let credentials = await defaultProvider()();
 
@@ -42,6 +40,11 @@ export async function getAwsCredentials(region: string, impersonationPath: strin
 }
 
 export async function getAwsRegion() {
+  // @ts-ignore
+  const MetadataService = await import('@aws-sdk/ec2-metadata-service').then(
+    (i) => i.MetadataService,
+  );
+
   if (process.env.AWS_REGION) {
     Logger().debug('Getting AWS region from AWS_REGION');
     return process.env.AWS_REGION; // Lambda
@@ -57,6 +60,13 @@ export function getStsHostname(region: string) {
 }
 
 export async function getAwsAttestationToken(impersonationPath?: string[]) {
+  // @ts-ignore
+  const HttpRequest = await import('@smithy/protocol-http').then((i) => i.HttpRequest);
+  // @ts-ignore
+  const SignatureV4 = await import('@smithy/signature-v4').then((i) => i.SignatureV4);
+  // @ts-ignore
+  const Sha256 = await import('@aws-crypto/sha256-js').then((i) => i.Sha256);
+
   const region = await getAwsRegion();
   const credentials = await getAwsCredentials(region, impersonationPath);
 

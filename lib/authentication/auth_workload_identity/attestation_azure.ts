@@ -8,10 +8,7 @@ export async function getAzureAttestationToken(
     entraIdResource?: string;
   } = {},
 ) {
-  // @ts-ignore
-  const DefaultAzureCredential = await import('@azure/identity').then(
-    (e) => e.DefaultAzureCredential,
-  );
+  const { DefaultAzureCredential } = await import('@azure/identity');
   const credential = new DefaultAzureCredential({
     managedIdentityClientId: options.managedIdentityClientId,
   });

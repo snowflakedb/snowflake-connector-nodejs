@@ -1,15 +1,8 @@
 import Logger from '../../logger';
 
 export async function getAwsCredentials(region: string, impersonationPath: string[] = []) {
-  // @ts-ignore
-  const defaultProvider = await import('@aws-sdk/credential-provider-node').then(
-    (i) => i.defaultProvider,
-  );
-  // @ts-ignore
-  const { STSClient, AssumeRoleCommand } = await import('@aws-sdk/client-sts').then((i) => ({
-    STSClient: i.STSClient,
-    AssumeRoleCommand: i.AssumeRoleCommand,
-  }));
+  const { defaultProvider } = await import('@aws-sdk/credential-provider-node');
+  const { STSClient, AssumeRoleCommand } = await import('@aws-sdk/client-sts');
 
   Logger().debug('Getting AWS credentials from default provider');
   let credentials = await defaultProvider()();
@@ -40,10 +33,7 @@ export async function getAwsCredentials(region: string, impersonationPath: strin
 }
 
 export async function getAwsRegion() {
-  // @ts-ignore
-  const MetadataService = await import('@aws-sdk/ec2-metadata-service').then(
-    (i) => i.MetadataService,
-  );
+  const { MetadataService } = await import('@aws-sdk/ec2-metadata-service');
 
   if (process.env.AWS_REGION) {
     Logger().debug('Getting AWS region from AWS_REGION');
@@ -60,12 +50,9 @@ export function getStsHostname(region: string) {
 }
 
 export async function getAwsAttestationToken(impersonationPath?: string[]) {
-  // @ts-ignore
-  const HttpRequest = await import('@smithy/protocol-http').then((i) => i.HttpRequest);
-  // @ts-ignore
-  const SignatureV4 = await import('@smithy/signature-v4').then((i) => i.SignatureV4);
-  // @ts-ignore
-  const Sha256 = await import('@aws-crypto/sha256-js').then((i) => i.Sha256);
+  const { HttpRequest } = await import('@smithy/protocol-http');
+  const { SignatureV4 } = await import('@smithy/signature-v4');
+  const { Sha256 } = await import('@aws-crypto/sha256-js');
 
   const region = await getAwsRegion();
   const credentials = await getAwsCredentials(region, impersonationPath);

@@ -2,6 +2,8 @@
 
 ## 2.4.0 (TBD)
 
+- .
+
 ## 2.3.1
 
 - Fixed a regression introduced in 2.3.0 causing PUT operations to encrypt files with wrong smkId (snowflakedb/snowflake-connector-nodejs#1184)

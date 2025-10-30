@@ -1,6 +1,7 @@
 # Changelog
 
 ## 2.4.0 (TBD)
+
 - Fixed a regression introduced in v2.1.1 where instantiating SnowflakeHttpsProxyAgent was attempted without the `new` keyword, breaking the driver when both OCSP was enabled and HTTP_PROXY environmental variable was used to set proxy (bug did not affect HTTPS_PROXY)
 
 ## 2.3.1

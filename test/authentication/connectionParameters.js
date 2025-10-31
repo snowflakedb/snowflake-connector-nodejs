@@ -83,6 +83,14 @@ const oauth = {
   authenticator: 'OAUTH',
 };
 
+const wiremockAuth = {
+  username: 'MOCK_USERNAME',
+  password: 'MOCK_PASSWORD',
+  account: 'MOCK_ACCOUNT_NAME',
+  host: 'localhost',
+  protocol: 'http',
+};
+
 const oauthPATOnWiremock = {
   ...baseParameters,
   accessUrl: null,
@@ -200,6 +208,7 @@ const mfa = {
 exports.externalBrowser = externalBrowser;
 exports.okta = okta;
 exports.oauth = oauth;
+exports.wiremockAuth = wiremockAuth;
 exports.oauthAuthorizationCodeOnWiremock = oauthAuthorizationCodeOnWiremock;
 exports.oauthClientCredentialsOnWiremock = oauthClientCredentialsOnWiremock;
 exports.oauthAuthorizationCode = authorizationCodeSnowflake;

@@ -103,15 +103,26 @@ env | grep SNOWFLAKE_ | grep -v PASS
 echo "[INFO] Starting hang_webserver.py 12345"
 python3 ${CONNECTOR_DIR}/ci/container/hang_webserver.py 12345 > hang_webserver.out 2>&1 &
 
+# Configure Wiremock for RHEL9 environment
 # Pre-warm Java JVM to help Wiremock start faster
-# This reduces cold start time when Wiremock tests begin
 if command -v java &> /dev/null; then
     echo "[INFO] Pre-warming Java JVM for faster Wiremock startup"
     java -version > /dev/null 2>&1 || true
 fi
 
+# Set environment variables for optimized Wiremock startup on RHEL9
+# Increase timeout to 60s for slower RHEL9 Java startup
+export WIREMOCK_STARTUP_TIMEOUT_MS=60000
+echo "[INFO] Wiremock startup timeout set to ${WIREMOCK_STARTUP_TIMEOUT_MS}ms for RHEL9"
+
 # Run tests using npm test:ci (unit and integration tests)
 cd ${CONNECTOR_DIR}
 echo "[INFO] Running Tests"
 npm run test:ci
+
+# Restore original wiremockRunner.js if backup exists
+if [[ -f "${WIREMOCK_RUNNER}.bak" ]]; then
+    echo "[INFO] Restoring original wiremockRunner.js"
+    mv "${WIREMOCK_RUNNER}.bak" "$WIREMOCK_RUNNER" 2>/dev/null || true
+fi
 

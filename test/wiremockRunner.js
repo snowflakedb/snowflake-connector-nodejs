@@ -8,71 +8,104 @@ async function runWireMockAsync(port, options = {}) {
   const counter = 0;
   let child;
 
+  // Configurable timeout via environment variable (default 30s, 60s for slower environments like RHEL9)
+  const startupTimeoutMs = parseInt(
+    process.env.WIREMOCK_STARTUP_TIMEOUT_MS || '30000',
+    10,
+  );
+  const maxRetries = Math.floor(startupTimeoutMs / 1000); // One retry per second
+
+  const wiremockArgs = [
+    'wiremock',
+    '--enable-browser-proxying',
+    '--proxy-pass-through',
+    'false',
+    '--port',
+    String(port),
+  ];
+
   const waitingWireMockPromise = new Promise((resolve, reject) => {
     try {
-      child = spawn(
-        'npx',
-        [
-          'wiremock',
-          '--enable-browser-proxying',
-          '--proxy-pass-through',
-          'false',
-          '--port',
-          String(port),
-        ],
-        {
-          stdio: 'inherit',
-          shell: true, // For Windows
-        },
-      );
+      // Wiremock npm package automatically picks up JAVA_OPTS from environment
+      // JAVA_OPTS should be set in the environment (e.g., in Dockerfile) for JVM optimization
+      const spawnEnv = { ...process.env };
 
-      child.on('exit', () => {});
+      child = spawn('npx', wiremockArgs, {
+        stdio: 'inherit',
+        shell: true, // For Windows
+        env: spawnEnv,
+      });
+
+      child.on('exit', (code) => {
+        if (code !== 0 && code !== null) {
+          Logger.getInstance().warn(`Wiremock process exited with code ${code}`);
+        }
+      });
+
+      child.on('error', (err) => {
+        Logger.getInstance().error(`Failed to start Wiremock: ${err.message}`);
+        reject(err);
+      });
+
       const wireMock = new WireMockRestClient(`http://localhost:${port}`, {
         logLevel: 'debug',
         ...options,
       });
-      waitForWiremockStarted(wireMock, counter).then(resolve).catch(reject);
+      waitForWiremockStarted(wireMock, counter, maxRetries)
+        .then(resolve)
+        .catch(reject);
     } catch (err) {
       reject(err);
     }
   });
 
   const timeout = new Promise((_, reject) => {
-    timeoutHandle = setTimeout(() => reject('Wiremock unavailable after 30s.'), 30000);
+    timeoutHandle = setTimeout(
+      () =>
+        reject(
+          `Wiremock unavailable after ${startupTimeoutMs / 1000}s. Consider increasing WIREMOCK_STARTUP_TIMEOUT_MS environment variable.`,
+        ),
+      startupTimeoutMs,
+    );
   });
 
   return Promise.race([waitingWireMockPromise, timeout]).finally(() => {
     clearTimeout(timeoutHandle);
-    child.kill();
+    if (child) {
+      child.kill();
+    }
   });
 }
 
-async function waitForWiremockStarted(wireMock, counter) {
+async function waitForWiremockStarted(wireMock, counter, maxRetries = 30) {
   return fetch(wireMock.baseUri)
     .then(async (resp) => {
       if (resp.ok) {
+        Logger.getInstance().info(
+          `Wiremock is ready at ${wireMock.baseUri} (after ${counter} retries)`,
+        );
         return Promise.resolve(wireMock);
       } else {
         await new Promise((resolve) => setTimeout(resolve, 1000));
         Logger.getInstance().info(
-          `Retry connection to WireMock after wrong response status: ${resp.status}`,
+          `Retry connection to WireMock after wrong response status: ${resp.status} (attempt ${counter + 1}/${maxRetries})`,
         );
-        if (++counter < 30) {
-          //stop after 30s
-          return await waitForWiremockStarted(wireMock, counter);
+        if (++counter < maxRetries) {
+          return await waitForWiremockStarted(wireMock, counter, maxRetries);
         } else {
-          Promise.reject('Wiremock: Waiting time has expired');
+          return Promise.reject('Wiremock: Waiting time has expired');
         }
       }
     })
     .catch(async (err) => {
       await new Promise((resolve) => setTimeout(resolve, 1000));
-      Logger.getInstance().info(`Retry connection to WireMock after error: ${err}`);
-      if (++counter < 30) {
-        //stop after 30s
-        return await waitForWiremockStarted(wireMock, counter);
+      Logger.getInstance().info(
+        `Retry connection to WireMock after error: ${err.message || err} (attempt ${counter + 1}/${maxRetries})`,
+      );
+      if (++counter < maxRetries) {
+        return await waitForWiremockStarted(wireMock, counter, maxRetries);
       } else {
-        Promise.reject('Wiremock: Waiting time has expired');
+        return Promise.reject('Wiremock: Waiting time has expired');
       }
     });
 }

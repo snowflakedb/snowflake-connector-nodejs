@@ -19,9 +19,11 @@ RUN dnf install -y --allowerasing \
 
 # Set UTF-8 locale to ensure proper string/character handling in tests
 # This is critical for array bind and bind variable tests
+# Generate locale as root before switching to user
+RUN localedef -i en_US -f UTF-8 en_US.UTF-8 2>&1 || \
+    (echo "Locale generation note (may already exist)" && locale -a | grep -i en_us || true)
 ENV LANG=en_US.UTF-8
 ENV LC_ALL=en_US.UTF-8
-RUN localedef -i en_US -f UTF-8 en_US.UTF-8 || true
 
 # Install snowflake-connector-python for schema management
 RUN pip3 install -U snowflake-connector-python

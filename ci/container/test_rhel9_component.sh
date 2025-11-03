@@ -23,6 +23,16 @@ if [[ ! -f "${CONNECTOR_DIR}/parameters.json" ]]; then
     exit 1
 fi
 
+# Setup locale explicitly to ensure UTF-8 encoding (critical for bind tests)
+export LANG=en_US.UTF-8
+export LC_ALL=en_US.UTF-8
+# Ensure Node.js uses UTF-8 encoding for all operations
+export NODE_OPTIONS="--max-old-space-size=4096"
+echo "[INFO] Locale settings: LANG=${LANG}, LC_ALL=${LC_ALL}"
+locale
+echo "[INFO] Verifying locale is available:"
+locale -a | grep -i "en_us.utf" || echo "[WARN] en_US.UTF-8 locale not found in available locales"
+
 # Setup Node.js environment
 echo "[INFO] Using Node.js major version ${NODE_VERSION}"
 
@@ -56,6 +66,12 @@ if [[ ! -f "$PARAMETER_FILE" ]]; then
     exit 1
 fi
 eval $(jq -r '.testconnection | to_entries | map("export \(.key)=\(.value|tostring)")|.[]' $PARAMETER_FILE)
+
+# Sanitize RUNNER_TRACKING_ID to handle spaces (e.g., "GitHub Actions" -> "GitHub_Actions")
+# This ensures schema names are SQL-safe when used by both shell and Python scripts
+if [[ -n "$RUNNER_TRACKING_ID" ]]; then
+    export RUNNER_TRACKING_ID=$(echo "$RUNNER_TRACKING_ID" | tr ' ' '_' | tr -cd '[:alnum:]_')
+fi
 
 export TARGET_SCHEMA_NAME=${RUNNER_TRACKING_ID//-/_}_${GITHUB_SHA}
 export DRIVER_NAME=nodejs

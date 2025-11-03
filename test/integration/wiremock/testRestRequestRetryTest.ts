@@ -1,12 +1,16 @@
-const connParameters = require('../../authentication/connectionParameters');
-const AuthTest = require('../../authentication/authTestsBaseClass');
-const { runWireMockAsync, addWireMockMappingsFromFile } = require('../../wiremockRunner');
-const { getFreePort } = require('../../../lib/util');
-const testUtil = require('../testUtil');
-const assert = require('node:assert');
+import connParameters from '../../authentication/connectionParameters';
+import AuthTest from '../../authentication/authTestsBaseClass';
+import { runWireMockAsync, addWireMockMappingsFromFile } from '../../wiremockRunner';
+import { getFreePort } from '../../../lib/util';
+import testUtil from '../testUtil';
+import assert from 'node:assert';
+import { ConnectionOptions } from '../../../index';
 
 describe('HTTP 3XX codes Retry', function () {
-  let port, authTest, wireMock, connectionOption;
+  let port;
+  let authTest: AuthTest;
+  let wireMock: any;
+  let connectionOption: ConnectionOptions;
 
   before(async () => {
     port = await getFreePort();

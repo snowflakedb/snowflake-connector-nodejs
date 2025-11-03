@@ -10,15 +10,20 @@ RUN dnf install -y --allowerasing \
     python3-pip \
     jq \
     gpg \
+    git \
     && dnf clean all
 
 # Install snowflake-connector-python for schema management
 RUN pip3 install -U snowflake-connector-python
 
-# Create user for running tests (no need to match host IDs for containerized tests)
-RUN groupadd user && \
-    useradd -g user -m -s /bin/bash user && \
-    mkdir -p /home/user && \
+# Accept user ID as build argument to match host permissions
+ARG USER_ID=1001
+ARG GROUP_ID=1001
+
+# Create user for proper permission testing
+RUN groupadd -g ${GROUP_ID} user && \
+    useradd -u ${USER_ID} -g ${GROUP_ID} -m -s /bin/bash user && \
+    mkdir -p /home/user/snowflake-connector-nodejs && \
     chown -R user:user /home/user
 
 # Accept Node.js major version as build argument (e.g., NODE_VERSION=18, 20, 22)
@@ -38,5 +43,5 @@ RUN echo "Installing Node.js ${NODE_VERSION} via dnf..." && \
     dnf clean all
 
 USER user
-WORKDIR /home/user
+WORKDIR /home/user/snowflake-connector-nodejs
 

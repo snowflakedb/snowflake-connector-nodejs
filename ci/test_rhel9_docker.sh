@@ -26,9 +26,15 @@ CONTAINER_NAME=test_nodejs_rockylinux9
 
 echo "[INFO] Building docker image for Rocky Linux 9 with Node.js ${NODE_VERSION} (major version)"
 
+# Get current user/group IDs to match host permissions
+USER_ID=$(id -u)
+GROUP_ID=$(id -g)
+
 docker build --pull -t ${CONTAINER_NAME}:1.0 \
     --build-arg BASE_IMAGE=rockylinux:9 \
     --build-arg NODE_VERSION=$NODE_VERSION \
+    --build-arg USER_ID=$USER_ID \
+    --build-arg GROUP_ID=$GROUP_ID \
     . -f Dockerfile.rhel9
 
 # Setup connection parameters - decrypt parameters.json before running container
@@ -69,6 +75,7 @@ else
 fi
 
 # Run the container
+# Mount source directory directly - permissions work because container user matches host user IDs
 docker run --network=host \
     -e TERM=vt102 \
     -e JENKINS_HOME \

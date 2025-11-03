@@ -1,0 +1,42 @@
+ARG BASE_IMAGE=rockylinux:9
+FROM $BASE_IMAGE
+
+ARG TARGETARCH
+
+# Install minimal required packages + dependencies for Node.js and testing
+# Note: Node.js will be installed via dnf module system
+RUN dnf install -y --allowerasing \
+    python3 \
+    python3-pip \
+    jq \
+    gpg \
+    && dnf clean all
+
+# Install snowflake-connector-python for schema management
+RUN pip3 install -U snowflake-connector-python
+
+# Create user for running tests (no need to match host IDs for containerized tests)
+RUN groupadd user && \
+    useradd -g user -m -s /bin/bash user && \
+    mkdir -p /home/user && \
+    chown -R user:user /home/user
+
+# Accept Node.js major version as build argument (e.g., NODE_VERSION=18, 20, 22)
+ARG NODE_VERSION
+
+# Install Node.js via dnf module system (Rocky Linux 9 uses AppStream modules)
+# Note: In RHEL 9/Rocky Linux 9, Node.js is delivered through AppStream modules.
+# NODE_VERSION should be the major version (18, 20, 22, etc.)
+RUN echo "Installing Node.js ${NODE_VERSION} via dnf..." && \
+    # Enable the Node.js module stream first
+    dnf module enable -y nodejs:${NODE_VERSION} && \
+    # Install Node.js and npm from the enabled module (common profile includes both)
+    dnf install -y nodejs npm && \
+    # Verify installation
+    node --version && \
+    npm --version && \
+    dnf clean all
+
+USER user
+WORKDIR /home/user
+

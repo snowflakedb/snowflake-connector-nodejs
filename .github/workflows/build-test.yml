@@ -170,3 +170,27 @@ jobs:
           # without the token code cov may fail because of Github limits https://github.com/codecov/codecov-action/issues/557
           token: ${{ secrets.CODE_COV_UPLOAD_TOKEN }}
           fail_ci_if_error: true
+
+  test-rockylinux9:
+    needs: build
+    name: ${{ matrix.cloud }} Node.js ${{ matrix.nodeVersion }} on Rocky Linux 9
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        cloud: ['AWS', 'AZURE', 'GCP']
+        nodeVersion: ['18', '20', '22']
+    steps:
+      - uses: actions/checkout@v4
+      - name: Test
+        shell: bash
+        env:
+          PARAMETERS_SECRET: ${{ secrets.PARAMETERS_SECRET }}
+          CLOUD_PROVIDER: ${{ matrix.cloud }}
+          GITHUB_ACTIONS: true
+          GITHUB_SHA: ${{ github.sha }}
+          GITHUB_REF: ${{ github.ref }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+          GITHUB_EVENT_NAME: ${{ github.event_name }}
+          RUNNER_TRACKING_ID: ${{ runner.name }}
+        run: ./ci/test_rhel9_docker.sh ${{ matrix.nodeVersion }}

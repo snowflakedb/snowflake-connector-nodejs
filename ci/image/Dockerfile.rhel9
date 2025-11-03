@@ -29,6 +29,9 @@ RUN pip3 install -U snowflake-connector-python
 # Set Java 11 as the default using environment variables
 ENV JAVA_HOME=/usr/lib/jvm/java-11-openjdk
 ENV PATH="${JAVA_HOME}/bin:${PATH}"
+# Optimize Java startup for faster Wiremock initialization
+# Use server VM for better performance, reduce initial heap to start faster
+ENV JAVA_OPTS="-server -Xms64m -Xmx512m -XX:+UseG1GC -XX:+UseStringDeduplication"
 
 # Accept user ID as build argument to match host permissions
 ARG USER_ID=1001

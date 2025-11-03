@@ -5,16 +5,22 @@ ARG TARGETARCH
 
 # Install minimal required packages + dependencies for Node.js and testing
 # Note: Node.js will be installed via dnf module system
+# Java is required for Wiremock tests
 RUN dnf install -y --allowerasing \
     python3 \
     python3-pip \
     jq \
     gpg \
     git \
+    java-11-openjdk \
     && dnf clean all
 
 # Install snowflake-connector-python for schema management
 RUN pip3 install -U snowflake-connector-python
+
+# Set Java 11 as the default using environment variables
+ENV JAVA_HOME=/usr/lib/jvm/java-11-openjdk
+ENV PATH="${JAVA_HOME}/bin:${PATH}"
 
 # Accept user ID as build argument to match host permissions
 ARG USER_ID=1001

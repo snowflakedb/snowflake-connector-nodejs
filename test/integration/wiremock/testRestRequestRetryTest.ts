@@ -4,7 +4,7 @@ import { runWireMockAsync, addWireMockMappingsFromFile } from '../../wiremockRun
 import { getFreePort } from '../../../lib/util';
 import testUtil from '../testUtil';
 import assert from 'node:assert';
-import { ConnectionOptions } from '../../../index';
+import type { ConnectionOptions } from '../../../index';
 
 describe('HTTP 3XX codes Retry', function () {
   let port;

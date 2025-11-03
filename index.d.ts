@@ -411,7 +411,7 @@ declare module 'snowflake-sdk' {
      *  Gets the results from a previously ran query based on queryId.
      */
     getResultsFromQueryId(
-      options: StatementOption,
+      options: { queryId: string } & Partial<StatementOption>,
     ): Promise<RowStatement | FileAndStageBindStatement>;
 
     /**

@@ -12,6 +12,10 @@ const net = require('net');
 module.exports.createConnection = function (validConnectionOptionsOverride = {}, coreInstance) {
   coreInstance = coreInstance || snowflake;
 
+  coreInstance.configure({
+    logLevel: 'TRACE',
+  });
+
   return coreInstance.createConnection({
     ...connOptions.valid,
     ...validConnectionOptionsOverride,

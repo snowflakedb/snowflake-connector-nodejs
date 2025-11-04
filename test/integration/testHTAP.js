@@ -76,7 +76,7 @@ if (process.env.CLOUD_PROVIDER === 'AWS') {
               connection.execute({
                 sqlText: sqlTexts[k],
                 complete: function (err) {
-                  assert.ok(!err, 'There should be no error!');
+                  assert.ok(!err, `There should be no error!, but got: ${err}`);
                   callback();
                 },
               });
@@ -86,7 +86,7 @@ if (process.env.CLOUD_PROVIDER === 'AWS') {
               connection.execute({
                 sqlText: sqlTexts[k],
                 complete: function (err, stmt) {
-                  assert.ok(!err, 'There should be no error!');
+                  assert.ok(!err, `There should be no error!, but got: ${err}`);
                   assert.strictEqual(stmt.getQueryContextCacheSize(), QccSize);
                   assert.strictEqual(stmt.getQueryContextDTOSize(), QccSize);
                   callback();

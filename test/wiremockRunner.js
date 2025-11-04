@@ -5,6 +5,7 @@ const fs = require('fs');
 
 async function runWireMockAsync(port, options = {}) {
   let child;
+  let timeoutHandle;
   const startupTimeoutMs = parseInt(
     process.env.WIREMOCK_STARTUP_TIMEOUT_MS || '30000',
     10,
@@ -59,7 +60,7 @@ async function runWireMockAsync(port, options = {}) {
   });
 
   const timeout = new Promise((_, reject) => {
-    setTimeout(
+    timeoutHandle = setTimeout(
       () =>
         reject(
           new Error(
@@ -71,6 +72,7 @@ async function runWireMockAsync(port, options = {}) {
   });
 
   return Promise.race([waitingWireMockPromise, timeout]).finally(() => {
+    clearTimeout(timeoutHandle);
     if (child) {
       child.kill();
     }

@@ -4,7 +4,7 @@ const connOption = require('./connectionOptions').valid;
 const testUtil = require('./testUtil');
 
 function getRandomDBNames() {
-  const dbName = 'qcc_test_db';
+  const dbName = `qcc_test_db_${Date.now()}_`;
   const arr = [];
   const randomNumber = Math.floor(Math.random() * 10000);
   for (let i = 0; i < 3; i++) {

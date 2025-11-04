@@ -104,14 +104,21 @@ echo "[INFO] Starting hang_webserver.py 12345"
 python3 ${CONNECTOR_DIR}/ci/container/hang_webserver.py 12345 > hang_webserver.out 2>&1 &
 
 # Configure Wiremock for RHEL9 environment
-# Pre-warm Java JVM to help Wiremock start faster
+# Verify Java is accessible before tests
 if command -v java &> /dev/null; then
     echo "[INFO] Pre-warming Java JVM for faster Wiremock startup"
-    java -version > /dev/null 2>&1 || true
+    echo "[INFO] Java version:"
+    java -version 2>&1 || echo "[WARN] Java version check failed"
+    echo "[INFO] JAVA_HOME: ${JAVA_HOME:-'not set'}"
+    echo "[INFO] JAVA_OPTS: ${JAVA_OPTS:-'not set'}"
+    echo "[INFO] Java executable: $(which java)"
+else
+    echo "[ERROR] Java not found in PATH! Wiremock will not work."
+    echo "[ERROR] PATH: $PATH"
+    exit 1
 fi
 
 # Set environment variables for optimized Wiremock startup on RHEL9
-# Increase timeout to 60s for slower RHEL9 Java startup
 export WIREMOCK_STARTUP_TIMEOUT_MS=60000
 echo "[INFO] Wiremock startup timeout set to ${WIREMOCK_STARTUP_TIMEOUT_MS}ms for RHEL9"
 

@@ -1,42 +1,58 @@
+const ProxyUtil = require('./../../lib/proxy_util');
 const ProxyAgent = require('./../../lib/agent/https_proxy_agent');
 
 const assert = require('assert');
 
 describe('SocketUtil Test - simulating ProxyAgent creation', () => {
-  const HttpProxyUtilFromEnvProxy = {
-    host: 'localhost',
-    port: 8080,
-    protocol: 'http:',
-    noProxy: undefined,
-    useForOCSP: true,
-  };
-  const HttpsProxyUtilFromEnvProxy = {
-    host: 'localhost',
-    port: 8080,
-    protocol: 'https:',
-    noProxy: undefined,
-    useForOCSP: true,
-  };
+  let originalHttpProxy = null;
+  let originalHttpsProxy = null;
+
+  before(() => {
+    originalHttpProxy = process.env.HTTP_PROXY;
+    originalHttpsProxy = process.env.HTTPS_PROXY;
+  });
+
+  after(() => {
+    originalHttpProxy
+      ? (process.env.HTTP_PROXY = originalHttpProxy)
+      : delete process.env.HTTP_PROXY;
+    originalHttpsProxy
+      ? (process.env.HTTPS_PROXY = originalHttpsProxy)
+      : delete process.env.HTTPS_PROXY;
+  });
 
   [
     {
-      name: 'create agent with HTTP_PROXY',
-      agent: new ProxyAgent(HttpProxyUtilFromEnvProxy),
-      shouldMatch: HttpProxyUtilFromEnvProxy,
+      name: 'create agent with proxy envvar set to http proxy',
+      isHttps: false,
+      shouldMatch: 'http://my.http.pro.xy:8080',
     },
     {
-      name: 'create agent with HTTPS_PROXY',
-      agent: new ProxyAgent(HttpsProxyUtilFromEnvProxy),
-      shouldMatch: HttpsProxyUtilFromEnvProxy,
+      name: 'create agent with proxy envvar set to https proxy',
+      isHttps: true,
+      shouldMatch: 'https://my.https.pro.xy:8080',
     },
-  ].forEach(({ name, agent, shouldMatch }) => {
-    let agentWithoutClosingSlash;
-    agentWithoutClosingSlash = agent.proxy.href.slice(0, -1);
+  ].forEach(({ name, isHttps, shouldMatch }) => {
     it(`${name}`, () => {
+      process.env.HTTP_PROXY = shouldMatch;
+      process.env.HTTPS_PROXY = shouldMatch;
+
+      const proxyToUse = ProxyUtil.getProxyFromEnv(isHttps);
+      const proxyProtocol = isHttps ? 'https:' : 'http:';
+
+      const agent = new ProxyAgent(proxyToUse);
+      const agentProxyUrlWithoutClosingSlash = agent.proxy.href.slice(0, -1);
+      const agentProxyProtocol = agent.proxy.protocol;
+
       assert.deepEqual(
-        agentWithoutClosingSlash,
+        agentProxyUrlWithoutClosingSlash,
         shouldMatch,
-        `proxy string from within ProxyAgent was ${agentWithoutClosingSlash}, expected ${shouldMatch}`,
+        `proxy string from within ProxyAgent was ${agentProxyUrlWithoutClosingSlash}, expected ${shouldMatch}`,
+      );
+      assert.deepEqual(
+        agentProxyProtocol,
+        proxyProtocol,
+        `proxy protocol from within ProxyAgent was ${agentProxyProtocol}, expected ${proxyProtocol}`,
       );
     });
   });

@@ -381,21 +381,6 @@ const sleepAsync = function (ms) {
 
 module.exports.sleepAsync = sleepAsync;
 
-module.exports.waitForCondition = async function (
-  conditionCallable,
-  { maxWaitTimeInMs = 20000, waitTimeBetweenChecksInMs = 1000 } = {},
-) {
-  let waitedTimeInMs = 0;
-  while (!conditionCallable()) {
-    await sleepAsync(waitTimeBetweenChecksInMs);
-    waitedTimeInMs += waitTimeBetweenChecksInMs;
-
-    if (waitedTimeInMs > maxWaitTimeInMs) {
-      throw Error(`Condition was not met after max wait time = ${maxWaitTimeInMs}`);
-    }
-  }
-};
-
 module.exports.assertConnectionActive = function (connection) {
   assert.ok(connection.isUp(), 'Connection expected to be active, but was inactive.');
 };

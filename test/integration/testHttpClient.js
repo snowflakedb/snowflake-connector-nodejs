@@ -44,8 +44,6 @@ describe('HttpClient Tests', () => {
       // Abort the request immediately
       requestObject.abort();
 
-      //Due to usage of 'nextTick' in the httpClient requestPromise may be undefined for some time, only to be set when scheduled sending took place.
-      await testUtil.waitForCondition(() => requestObject.requestPromise);
       await requestObject.requestPromise;
 
       assert.ok(
@@ -80,8 +78,6 @@ describe('HttpClient Tests', () => {
       await testUtil.sleepAsync(TIME_IN_MS_TO_WAIT_BEFORE_ABORT);
       requestObject.abort();
 
-      //Due to usage of 'nextTick' in the httpClient requestPromise may be undefined for some time, only to be set when scheduled sending took place.
-      await testUtil.waitForCondition(() => requestObject.requestPromise);
       await requestObject.requestPromise;
 
       assert.ok(
@@ -121,8 +117,6 @@ describe('HttpClient Tests', () => {
           }
         },
       });
-      //Due to usage of 'nextTick' in the httpClient requestPromise may be undefined for some time, only to be set when scheduled sending took place.
-      await testUtil.waitForCondition(() => requestObject.requestPromise);
       await requestObject.requestPromise;
 
       assert.ok(

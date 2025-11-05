@@ -352,7 +352,28 @@ describe('Test Stream Rows HighWaterMark', function () {
   });
 
   after(function (done) {
-    testUtil.destroyConnection(connection, done);
+    // Add timeout to prevent hanging if destroy doesn't complete
+    // This can happen if large result set streams are still processing
+    const timeout = setTimeout(() => {
+      // Force cleanup if destroy hangs
+      if (connection && connection.destroy) {
+        try {
+          connection.destroy(() => {});
+        } catch (e) {
+          // Ignore errors during forced cleanup
+        }
+      }
+      done(new Error('Connection destroy timed out after 30s'));
+    }, 30000);
+
+    testUtil.destroyConnection(connection, (err) => {
+      clearTimeout(timeout);
+      if (err) {
+        // Log error but still call done to allow test suite to continue
+        console.error('Error destroying connection:', err);
+      }
+      done(err);
+    });
   });
 
   const testingFunc = function (highWaterMark, expectedRowCount, callback) {

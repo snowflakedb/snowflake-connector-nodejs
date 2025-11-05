@@ -230,9 +230,15 @@ describe('Test updated rows', function () {
             connection.execute({
               sqlText: sqlText,
               complete: function (err, statement) {
-                assert.ok(!err);
-                assert.strictEqual(statement.getNumUpdatedRows(), -1);
-                callback();
+                if (err) {
+                  return callback(err);
+                }
+                try {
+                  assert.strictEqual(statement.getNumUpdatedRows(), -1);
+                  callback();
+                } catch (e) {
+                  callback(e);
+                }
               },
             });
           },
@@ -241,10 +247,16 @@ describe('Test updated rows', function () {
             connection.execute({
               sqlText: sqlText,
               complete: function (err, statement) {
-                // 'number of rows inserted': 3
-                assert.ok(!err);
-                assert.strictEqual(statement.getNumUpdatedRows(), 3);
-                callback();
+                if (err) {
+                  return callback(err);
+                }
+                try {
+                  // 'number of rows inserted': 3
+                  assert.strictEqual(statement.getNumUpdatedRows(), 3);
+                  callback();
+                } catch (e) {
+                  callback(e);
+                }
               },
             });
           },
@@ -253,9 +265,15 @@ describe('Test updated rows', function () {
             connection.execute({
               sqlText: sqlText,
               complete: function (err, statement) {
-                assert.ok(!err);
-                assert.strictEqual(statement.getNumUpdatedRows(), -1);
-                callback();
+                if (err) {
+                  return callback(err);
+                }
+                try {
+                  assert.strictEqual(statement.getNumUpdatedRows(), -1);
+                  callback();
+                } catch (e) {
+                  callback(e);
+                }
               },
             });
           },
@@ -264,9 +282,15 @@ describe('Test updated rows', function () {
             connection.execute({
               sqlText: sqlText,
               complete: function (err, statement) {
-                assert.ok(!err);
-                assert.strictEqual(statement.getNumUpdatedRows(), -1);
-                callback();
+                if (err) {
+                  return callback(err);
+                }
+                try {
+                  assert.strictEqual(statement.getNumUpdatedRows(), -1);
+                  callback();
+                } catch (e) {
+                  callback(e);
+                }
               },
             });
           },
@@ -275,11 +299,17 @@ describe('Test updated rows', function () {
             connection.execute({
               sqlText: sqlText,
               complete: function (err, statement) {
-                // 'number of rows inserted into FOO': 3
-                // 'number of rows inserted into BAR': 3
-                assert.ok(!err);
-                assert.strictEqual(statement.getNumUpdatedRows(), 6);
-                callback();
+                if (err) {
+                  return callback(err);
+                }
+                try {
+                  // 'number of rows inserted into FOO': 3
+                  // 'number of rows inserted into BAR': 3
+                  assert.strictEqual(statement.getNumUpdatedRows(), 6);
+                  callback();
+                } catch (e) {
+                  callback(e);
+                }
               },
             });
           },

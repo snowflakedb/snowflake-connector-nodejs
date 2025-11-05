@@ -1,24 +1,12 @@
+import assert from 'assert';
+import sinon from 'sinon';
+
 const ProxyUtil = require('./../../lib/proxy_util');
 const ProxyAgent = require('./../../lib/agent/https_proxy_agent');
 
-const assert = require('assert');
-
 describe('SocketUtil Test - simulating ProxyAgent creation', () => {
-  let originalHttpProxy = null;
-  let originalHttpsProxy = null;
-
-  before(() => {
-    originalHttpProxy = process.env.HTTP_PROXY;
-    originalHttpsProxy = process.env.HTTPS_PROXY;
-  });
-
-  after(() => {
-    originalHttpProxy
-      ? (process.env.HTTP_PROXY = originalHttpProxy)
-      : delete process.env.HTTP_PROXY;
-    originalHttpsProxy
-      ? (process.env.HTTPS_PROXY = originalHttpsProxy)
-      : delete process.env.HTTPS_PROXY;
+  afterEach(() => {
+    sinon.restore();
   });
 
   [

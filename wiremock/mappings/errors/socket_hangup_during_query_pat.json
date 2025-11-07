@@ -1,0 +1,63 @@
+{
+  "mappings": [
+    {
+      "scenarioName": "Successful PAT authentication flow",
+      "request": {
+        "urlPathPattern": "/session/v1/login-request.*",
+        "method": "POST"
+      },
+      "response": {
+        "status": 200,
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "jsonBody": {
+          "data": {
+            "masterToken": "master token",
+            "token": "session token",
+            "validityInSeconds": 3600,
+            "masterValidityInSeconds": 14400,
+            "displayUserName": "PAT_TEST_USER",
+            "serverVersion": "8.48.0",
+            "firstLogin": false,
+            "remMeToken": null,
+            "remMeValidityInSeconds": 0,
+            "healthCheckInterval": 45,
+            "newClientForUpgrade": "3.12.3",
+            "sessionId": 1172562260498,
+            "parameters": [
+              { "name": "CLIENT_PREFETCH_THREADS", "value": 4 },
+              { "name": "QUERY_CONTEXT_CACHE_SIZE", "value": 5 },
+              { "name": "CLIENT_RESULT_PREFETCH_THREADS", "value": 1 }
+            ],
+            "sessionInfo": {
+              "databaseName": "TEST_DATABASE",
+              "schemaName": "TEST_SCHEMA",
+              "warehouseName": "TEST_WAREHOUSE",
+              "roleName": "ANALYST"
+            },
+            "idToken": null,
+            "idTokenValidityInSeconds": 0,
+            "responseData": null,
+            "mfaToken": null,
+            "mfaTokenValidityInSeconds": 0
+          },
+          "code": null,
+          "message": null,
+          "success": true
+        }
+      }
+    },
+    {
+      "scenarioName": "Query socket hangup",
+      "request": {
+        "urlPathPattern": "/queries/v1/query-request*",
+        "method": "POST"
+      },
+      "response": {
+        "fault": "CONNECTION_RESET_BY_PEER"
+      }
+    }
+  ]
+}
+

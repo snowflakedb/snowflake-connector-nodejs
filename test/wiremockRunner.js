@@ -7,7 +7,7 @@ async function runWireMockAsync(port, options = {}) {
   let timeoutHandle;
   const counter = 0;
   let child;
-  
+
   // Use environment variable for timeout (default 30s, can be increased for slower environments like RHEL9)
   const startupTimeoutMs = parseInt(process.env.WIREMOCK_STARTUP_TIMEOUT_MS || '30000', 10);
   const maxRetries = Math.floor(startupTimeoutMs / 1000);

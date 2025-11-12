@@ -25,15 +25,28 @@ describe('Large result Set Tests', function () {
         testUtil.checkError(err);
         const stream = stmt.streamRows();
         let rowCount = 0;
+        let doneCalled = false;
+        const safeDone = (err) => {
+          if (!doneCalled) {
+            doneCalled = true;
+            done(err);
+          }
+        };
         stream.on('data', function () {
           rowCount++;
         });
         stream.on('error', function (err) {
-          testUtil.checkError(err);
+          // checkError throws if err is truthy, so we catch and call safeDone
+          // This ensures done() is only called once even if stream also emits 'end'
+          try {
+            testUtil.checkError(err);
+          } catch (e) {
+            return safeDone(e);
+          }
         });
         stream.on('end', function () {
           assert.strictEqual(rowCount, sourceRowCount);
-          done();
+          safeDone();
         });
       },
     });
@@ -46,6 +59,13 @@ describe('Large result Set Tests', function () {
       complete: function (err, stmt) {
         testUtil.checkError(err);
         let rowCount = 0;
+        let doneCalled = false;
+        const safeDone = (err) => {
+          if (!doneCalled) {
+            doneCalled = true;
+            done(err);
+          }
+        };
         const stream = stmt.streamRows({
           start: offset,
         });
@@ -53,11 +73,17 @@ describe('Large result Set Tests', function () {
           rowCount++;
         });
         stream.on('error', function (err) {
-          testUtil.checkError(err);
+          // checkError throws if err is truthy, so we catch and call safeDone
+          // This ensures done() is only called once even if stream also emits 'end'
+          try {
+            testUtil.checkError(err);
+          } catch (e) {
+            return safeDone(e);
+          }
         });
         stream.on('end', function () {
           assert.strictEqual(rowCount, sourceRowCount - offset);
-          done();
+          safeDone();
         });
       },
     });
@@ -70,6 +96,13 @@ describe('Large result Set Tests', function () {
       complete: function (err, stmt) {
         testUtil.checkError(err);
         let rowCount = 0;
+        let doneCalled = false;
+        const safeDone = (err) => {
+          if (!doneCalled) {
+            doneCalled = true;
+            done(err);
+          }
+        };
         const stream = stmt.streamRows({
           start: offset,
         });
@@ -77,11 +110,17 @@ describe('Large result Set Tests', function () {
           rowCount++;
         });
         stream.on('error', function (err) {
-          testUtil.checkError(err);
+          // checkError throws if err is truthy, so we catch and call safeDone
+          // This ensures done() is only called once even if stream also emits 'end'
+          try {
+            testUtil.checkError(err);
+          } catch (e) {
+            return safeDone(e);
+          }
         });
         stream.on('end', function () {
           assert.strictEqual(rowCount, sourceRowCount - offset);
-          done();
+          safeDone();
         });
       },
     });

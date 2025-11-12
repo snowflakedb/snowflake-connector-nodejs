@@ -29,11 +29,17 @@ describe('ExecuteAsync test', function () {
             sqlText: sqlText,
             asyncExec: true,
             complete: async function (err, stmt) {
-              assert.ok(!err);
-              queryId = stmt.getQueryId();
-              const status = await connection.getQueryStatus(queryId);
-              assert.ok(connection.isStillRunning(status));
-              callback();
+              if (err) {
+                return callback(err);
+              }
+              try {
+                queryId = stmt.getQueryId();
+                const status = await connection.getQueryStatus(queryId);
+                assert.ok(connection.isStillRunning(status));
+                callback();
+              } catch (e) {
+                callback(e);
+              }
             },
           });
         },

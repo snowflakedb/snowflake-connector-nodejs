@@ -1,0 +1,67 @@
+{
+  "mappings": [
+    {
+      "scenarioName": "Login server failure",
+      "newScenarioState": "ServerFailed1",
+      "requiredScenarioState": "Started",
+      "request": {
+        "urlPathPattern": "/session/v1/login-request*",
+        "method": "POST"
+      },
+      "response": {
+        "status": {{httpStatusCode}},
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "jsonBody": {
+          "code": null,
+          "data": null,
+          "message": null,
+          "success": false
+        }
+      }
+    },
+    {
+      "scenarioName": "Login server failure",
+      "newScenarioState": "ServerFailed2",
+      "requiredScenarioState": "ServerFailed1",
+      "request": {
+        "urlPathPattern": "/session/v1/login-request*",
+        "method": "POST"
+      },
+      "response": {
+        "status": {{httpStatusCode}},
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "jsonBody": {
+          "code": null,
+          "data": null,
+          "message": null,
+          "success": false
+        }
+      }
+    },
+    {
+      "scenarioName": "Login server failure",
+      "requiredScenarioState": "ServerFailed2",
+      "newScenarioState": "ServerFailedDone",
+      "request": {
+        "urlPathPattern": "/session/v1/login-request*",
+        "method": "POST"
+      },
+      "response": {
+        "status": {{httpStatusCode}},
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "jsonBody": {
+          "code": null,
+          "data": null,
+          "message": null,
+          "success": false
+        }
+      }
+    }
+  ]
+}

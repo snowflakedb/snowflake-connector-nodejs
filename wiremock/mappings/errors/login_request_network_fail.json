@@ -1,0 +1,40 @@
+{
+  "mappings": [
+    {
+      "scenarioName": "Login network failure",
+      "newScenarioState": "Login1Failed",
+      "requiredScenarioState": "Started",
+      "request": {
+        "urlPathPattern": "/session/v1/login-request*",
+        "method": "POST"
+      },
+      "response": {
+        "fault": "{{responseFault}}"
+      }
+    },
+    {
+      "scenarioName": "Login network failure",
+      "newScenarioState": "Login2Failed",
+      "requiredScenarioState": "Login1Failed",
+      "request": {
+        "urlPathPattern": "/session/v1/login-request*",
+        "method": "POST"
+      },
+      "response": {
+        "fault": "{{responseFault}}"
+      }
+    },
+    {
+      "scenarioName": "Login network failure",
+      "requiredScenarioState": "Login2Failed",
+      "newScenarioState": "FailsDone",
+      "request": {
+        "urlPathPattern": "/session/v1/login-request*",
+        "method": "POST"
+      },
+      "response": {
+        "fault": "{{responseFault}}"
+      }
+    }
+  ]
+}

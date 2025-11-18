@@ -9,7 +9,7 @@
         "method": "POST"
       },
       "response": {
-        "status": {{httpStatusCode}},
+        "status": "{{httpStatusCode}}",
         "headers": {
           "Content-Type": "application/json"
         },
@@ -30,7 +30,7 @@
         "method": "POST"
       },
       "response": {
-        "status": {{httpStatusCode}},
+        "status": "{{httpStatusCode}}",
         "headers": {
           "Content-Type": "application/json"
         },
@@ -51,7 +51,7 @@
         "method": "POST"
       },
       "response": {
-        "status": {{httpStatusCode}},
+        "status": "{{httpStatusCode}}",
         "headers": {
           "Content-Type": "application/json"
         },

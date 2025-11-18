@@ -10,7 +10,6 @@ import * as Util from '../../../lib/util';
 const snowflake = require('../../../lib/snowflake');
 snowflake.configure({
   logLevel: 'TRACE',
-  disableOCSPChecks: true,
 });
 
 const RETRYABABLE_NETWORK_FAULTS = [
@@ -30,6 +29,11 @@ describe('Request retries', () => {
   before(async () => {
     port = await testUtil.getFreePort();
     wiremock = await runWireMockAsync(port);
+
+    // TODO: temporary
+    snowflake.configure({
+      disableOCSPChecks: true,
+    });
   });
 
   beforeEach(async () => {
@@ -69,6 +73,10 @@ describe('Request retries', () => {
 
   after(async () => {
     await wiremock.global.shutdown();
+    // TODO: temporary
+    snowflake.configure({
+      disableOCSPChecks: false,
+    });
   });
 
   function getAxiosRequestsCount(matchingPath: string) {

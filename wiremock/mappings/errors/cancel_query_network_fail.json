@@ -1,0 +1,70 @@
+{
+  "mappings": [
+    {
+      "scenarioName": "Cancel query network failure",
+      "request": {
+        "urlPathPattern": "/queries/v1/query-request*",
+        "method": "POST"
+      },
+      "response": {
+        "fixedDelayMilliseconds": 30000
+      }
+    },
+    {
+      "scenarioName": "Cancel query network failure",
+      "newScenarioState": "CancelFailed1",
+      "request": {
+        "urlPathPattern": "/queries/v1/abort-request*",
+        "method": "POST"
+      },
+      "response": {
+        "fault": "{{responseFault}}"
+      }
+    },
+    {
+      "scenarioName": "Cancel query network failure",
+      "newScenarioState": "CancelFailed2",
+      "requiredScenarioState": "CancelFailed1",
+      "request": {
+        "urlPathPattern": "/queries/v1/abort-request*",
+        "method": "POST"
+      },
+      "response": {
+        "fault": "{{responseFault}}"
+      }
+    },
+    {
+      "scenarioName": "Cancel query network failure",
+      "requiredScenarioState": "CancelFailed2",
+      "newScenarioState": "CancelFailed3",
+      "request": {
+        "urlPathPattern": "/queries/v1/abort-request*",
+        "method": "POST"
+      },
+      "response": {
+        "fault": "{{responseFault}}"
+      }
+    },
+    {
+      "scenarioName": "Cancel query network failure",
+      "requiredScenarioState": "CancelFailed3",
+      "newScenarioState": "FailsDone",
+      "request": {
+        "urlPathPattern": "/queries/v1/abort-request*",
+        "method": "POST"
+      },
+      "response": {
+        "status": 200,
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "jsonBody": {
+          "code": null,
+          "data": null,
+          "message": null,
+          "success": true
+        }
+      }
+    }
+  ]
+}

@@ -5,6 +5,7 @@ import sinon from 'sinon';
 import { runWireMockAsync, addWireMockMappingsFromFile } from '../../wiremockRunner';
 import * as testUtil from '../testUtil';
 import * as Util from '../../../lib/util';
+import axiosInstance from '../../../lib/http/axiosInstance';
 
 // TODO: remove this after done debugging
 const snowflake = require('../../../lib/snowflake');
@@ -20,6 +21,10 @@ const RETRYABABLE_NETWORK_FAULTS = [
 ];
 const RETRYABLE_HTTP_CODES = [408, 429, 500, 503];
 
+// NOTE:
+// For every wiremock scenario, we do 4 retries: 3 failures and 1 success.
+// This ensures that the full retry flow with backoff is working correctly, as we had bugs
+// where the retry would be executed only once.
 describe('Request retries', () => {
   let wiremock: WireMockRestClient;
   let port: number;
@@ -37,7 +42,7 @@ describe('Request retries', () => {
   });
 
   beforeEach(async () => {
-    axiosRequestSpy = sinon.spy(axios, 'request');
+    axiosRequestSpy = sinon.spy(axiosInstance, 'request');
     // NOTE:
     // retryTimeout config has 300s minimum, so mock backoff for fast test retries
     sinon
@@ -96,6 +101,28 @@ describe('Request retries', () => {
       await testUtil.connectAsync(connection);
       testUtil.assertConnectionActive(connection);
       assert.strictEqual(getAxiosRequestsCount('/session/v1/login-request'), 4);
+    });
+
+    it(`Cancel query retries on network fault=${responseFault}`, async () => {
+      await addWireMockMappingsFromFile(
+        wiremock,
+        'wiremock/mappings/errors/cancel_query_network_fail.json',
+        {
+          responseFault,
+        },
+      );
+      await testUtil.connectAsync(connection);
+      const statement = connection.execute({ sqlText: 'SELECT 1' });
+      await new Promise((resolve, reject) => {
+        statement.cancel((err: any) => {
+          if (err) {
+            reject(err);
+          } else {
+            resolve(null);
+          }
+        });
+      });
+      assert.strictEqual(getAxiosRequestsCount('/queries/v1/abort-request'), 4);
     });
   });
 

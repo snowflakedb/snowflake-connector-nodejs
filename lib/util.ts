@@ -703,6 +703,10 @@ export function escapeHTML(value: string) {
     .replace(/'/g, '&#39;');
 }
 
+export function sleep(sleepTimeMs: number) {
+  return new Promise((resolve) => setTimeout(resolve, sleepTimeMs));
+}
+
 /**
  * Typescript with "module": "commonjs" will transform every import() to a require() statement.
  *

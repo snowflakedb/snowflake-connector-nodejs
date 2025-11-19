@@ -1,7 +1,7 @@
 {
   "mappings": [
     {
-      "scenarioName": "Cancel query fails 3 times due to network fault before success",
+      "scenarioName": "Cancel query fails 3 times due to server error before success",
       "request": {
         "urlPathPattern": "/queries/v1/query-request*",
         "method": "POST"
@@ -18,19 +18,37 @@
         "method": "POST"
       },
       "response": {
-        "fault": "{{responseFault}}"
+        "status": "{{httpStatusCode}}",
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "jsonBody": {
+          "code": null,
+          "data": null,
+          "message": null,
+          "success": false
+        }
       }
     },
     {
       "scenarioName": "Cancel query fails 3 times due to network fault before success",
-      "newScenarioState": "CancelFailed2",
       "requiredScenarioState": "CancelFailed1",
+      "newScenarioState": "CancelFailed2",
       "request": {
         "urlPathPattern": "/queries/v1/abort-request*",
         "method": "POST"
       },
       "response": {
-        "fault": "{{responseFault}}"
+        "status": "{{httpStatusCode}}",
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "jsonBody": {
+          "code": null,
+          "data": null,
+          "message": null,
+          "success": false
+        }
       }
     },
     {
@@ -42,7 +60,16 @@
         "method": "POST"
       },
       "response": {
-        "fault": "{{responseFault}}"
+        "status": "{{httpStatusCode}}",
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "jsonBody": {
+          "code": null,
+          "data": null,
+          "message": null,
+          "success": false
+        }
       }
     },
     {

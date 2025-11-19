@@ -1,7 +1,7 @@
 {
   "mappings": [
     {
-      "scenarioName": "Login network failure",
+      "scenarioName": "Login fails 3 times due to network fault before success",
       "newScenarioState": "Login1Failed",
       "requiredScenarioState": "Started",
       "request": {
@@ -13,7 +13,7 @@
       }
     },
     {
-      "scenarioName": "Login network failure",
+      "scenarioName": "Login fails 3 times due to network fault before success",
       "newScenarioState": "Login2Failed",
       "requiredScenarioState": "Login1Failed",
       "request": {
@@ -25,9 +25,9 @@
       }
     },
     {
-      "scenarioName": "Login network failure",
+      "scenarioName": "Login fails 3 times due to network fault before success",
       "requiredScenarioState": "Login2Failed",
-      "newScenarioState": "FailsDone",
+      "newScenarioState": "PlaceholderToForceDefaultLoginSuccess",
       "request": {
         "urlPathPattern": "/session/v1/login-request*",
         "method": "POST"

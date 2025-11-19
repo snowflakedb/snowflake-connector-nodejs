@@ -1,7 +1,7 @@
 {
   "mappings": [
     {
-      "scenarioName": "Login server failure",
+      "scenarioName": "Login fails 3 times due to server error before success",
       "newScenarioState": "ServerFailed1",
       "requiredScenarioState": "Started",
       "request": {
@@ -22,7 +22,7 @@
       }
     },
     {
-      "scenarioName": "Login server failure",
+      "scenarioName": "Login fails 3 times due to server error before success",
       "newScenarioState": "ServerFailed2",
       "requiredScenarioState": "ServerFailed1",
       "request": {
@@ -43,9 +43,9 @@
       }
     },
     {
-      "scenarioName": "Login server failure",
+      "scenarioName": "Login fails 3 times due to server error before success",
       "requiredScenarioState": "ServerFailed2",
-      "newScenarioState": "ServerFailedDone",
+      "newScenarioState": "PlaceholderToForceDefaultLoginSuccess",
       "request": {
         "urlPathPattern": "/session/v1/login-request*",
         "method": "POST"

@@ -89,6 +89,7 @@ describe('Request retries', () => {
       .length;
   }
 
+  // TODO: test difference is only wiremock mapping, so .forEach blocks should be merged
   RETRYABABLE_NETWORK_FAULTS.forEach((responseFault) => {
     it(`Login request retries on network fault=${responseFault}`, async () => {
       await addWireMockMappingsFromFile(
@@ -114,13 +115,7 @@ describe('Request retries', () => {
       await testUtil.connectAsync(connection);
       const statement = connection.execute({ sqlText: 'SELECT 1' });
       await new Promise((resolve, reject) => {
-        statement.cancel((err: any) => {
-          if (err) {
-            reject(err);
-          } else {
-            resolve(null);
-          }
-        });
+        statement.cancel((err: any) => (err ? reject(err) : resolve(null)));
       });
       assert.strictEqual(getAxiosRequestsCount('/queries/v1/abort-request'), 4);
     });
@@ -138,6 +133,22 @@ describe('Request retries', () => {
       await testUtil.connectAsync(connection);
       testUtil.assertConnectionActive(connection);
       assert.strictEqual(getAxiosRequestsCount('/session/v1/login-request'), 4);
+    });
+
+    it(`Cancel query retries on network status=${httpStatusCode}`, async () => {
+      await addWireMockMappingsFromFile(
+        wiremock,
+        'wiremock/mappings/errors/cancel_query_server_fail.json',
+        {
+          httpStatusCode,
+        },
+      );
+      await testUtil.connectAsync(connection);
+      const statement = connection.execute({ sqlText: 'SELECT 1' });
+      await new Promise((resolve, reject) => {
+        statement.cancel((err: any) => (err ? reject(err) : resolve(null)));
+      });
+      assert.strictEqual(getAxiosRequestsCount('/queries/v1/abort-request'), 4);
     });
   });
 

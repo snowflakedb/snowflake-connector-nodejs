@@ -38,7 +38,7 @@ axios.interceptors.response.use(
     }
 
     config.__snowflakeRetryConfig ??= {
-      numRetries: 0,
+      numRetries: 1,
       totalElapsedTime: 0,
       startingSleepTime: 1,
       maxNumRetries: 7,
@@ -54,21 +54,20 @@ axios.interceptors.response.use(
       : true; // TODO: ['ERR_CANCELED', 'ECONNABORTED']; this 2 should be ignored
 
     if (isRetryable && numRetries <= maxNumRetries && totalElapsedTime <= maxRetryTimeout) {
-      const newNumRetries = numRetries + 1;
       const jitter = Util.getJitteredSleepTime(
-        newNumRetries,
+        numRetries,
         startingSleepTime,
         totalElapsedTime,
         maxRetryTimeout,
       );
       config.__snowflakeRetryConfig.totalElapsedTime = jitter.totalElapsedTime;
-      config.__snowflakeRetryConfig.numRetries = newNumRetries;
+      config.__snowflakeRetryConfig.numRetries++;
 
       Logger().debug(
         'useExperimentalRetryMiddleware: Retrying request%s - error=%s, attempt=%s, delay=%ss',
         requestUtil.describeRequestFromOptions(config),
         err.message,
-        newNumRetries,
+        numRetries,
         jitter.sleep,
       );
       await Util.sleep(jitter.sleep * 1000);

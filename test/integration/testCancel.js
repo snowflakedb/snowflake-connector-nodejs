@@ -1,6 +1,9 @@
 const async = require('async');
 const testUtil = require('./testUtil');
 
+const snowflake = require('./../../lib/snowflake');
+snowflake.configure({ logLevel: 'trace' });
+
 describe('Test Cancel Query', function () {
   let connection;
   const longQuery = 'select count(*) from table(generator(timeLimit => 3600))';

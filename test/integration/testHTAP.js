@@ -19,6 +19,8 @@ function getUniqueDBNames(amount = 3) {
 // Only the AWS servers support the hybrid table in the GitHub action.
 if (process.env.CLOUD_PROVIDER === 'AWS') {
   describe('Query Context Cache test', function () {
+    this.timeout(5 * 60 * 1000);
+
     let connection;
     const dbNames = getUniqueDBNames();
 

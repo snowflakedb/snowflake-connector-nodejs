@@ -4,16 +4,19 @@ const uuid = require('uuid');
 const connOption = require('./connectionOptions').valid;
 const testUtil = require('./testUtil');
 
+function getUniqueDBNames(amount = 3) {
+  const arr = [];
+  for (let i = 0; i < amount; i++) {
+    arr.push(`qcc_test_db_${Date.now()}_${uuid.v4().replace('-', '_')}`);
+  }
+  return arr;
+}
+
 // Only the AWS servers support the hybrid table in the GitHub action.
 if (process.env.CLOUD_PROVIDER === 'AWS') {
   describe('Query Context Cache test', function () {
-    this.retries(3);
     let connection;
-    const dbNames = [
-      `qcc_test_db_${Date.now()}_${uuid.v4()}`,
-      `qcc_test_db_${Date.now()}_${uuid.v4()}`,
-      `qcc_test_db_${Date.now()}_${uuid.v4()}`,
-    ];
+    const dbNames = getUniqueDBNames();
 
     beforeEach(async () => {
       connection = testUtil.createConnection(connOption);

@@ -7,7 +7,7 @@ const testUtil = require('./testUtil');
 function getUniqueDBNames(amount = 3) {
   const arr = [];
   for (let i = 0; i < amount; i++) {
-    arr.push(`qcc_test_db_${Date.now()}_${uuid.v4().replace('-', '_')}`);
+    arr.push(`qcc_test_db_${Date.now()}_${uuid.v4().replaceAll('-', '_')}`);
   }
   return arr;
 }

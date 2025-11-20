@@ -2,7 +2,7 @@
 
 ## 2.4.0 (TBD)
 
-- Bumped dependency `glob` to address CVE-2025-64756 (snowflakedb/snowflake-connector-nodejs#1205)
+- Bumped dependency `glob` to address CVE-2025-64756 (snowflakedb/snowflake-connector-nodejs#1206)
 
 ## 2.3.1
 

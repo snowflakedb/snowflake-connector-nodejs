@@ -4,6 +4,10 @@ const uuid = require('uuid');
 const connOption = require('./connectionOptions').valid;
 const testUtil = require('./testUtil');
 
+// TODO: remove me
+const snowflake = require('./../../lib/snowflake');
+snowflake.configure({ logLevel: 'trace' });
+
 function getUniqueDBNames(amount = 3) {
   const arr = [];
   for (let i = 0; i < amount; i++) {

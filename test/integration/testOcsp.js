@@ -25,13 +25,9 @@ describe('OCSP validation', function () {
     async.series(
       [
         function (callback) {
-          connection.connect(function (err) {
-            assert.ok(!err, JSON.stringify(err));
-            callback();
-          });
+          connection.connect(callback);
         },
         function (callback) {
-          let numErrors = 0;
           let numStmtsExecuted = 0;
           const numStmtsTotal = 20;
 
@@ -42,12 +38,11 @@ describe('OCSP validation', function () {
               sqlText: 'select 1;',
               complete: function (err) {
                 if (err) {
-                  numErrors++;
+                  callback(err);
                 }
 
                 numStmtsExecuted++;
-                if (numStmtsExecuted === numStmtsTotal - 1) {
-                  assert.strictEqual(numErrors, 0);
+                if (numStmtsExecuted === numStmtsTotal) {
                   callback();
                 }
               },
@@ -71,13 +66,9 @@ describe('OCSP validation', function () {
     async.series(
       [
         function (callback) {
-          connection.connect(function (err) {
-            assert.ok(!err, JSON.stringify(err));
-            callback();
-          });
+          connection.connect(callback);
         },
         function (callback) {
-          let numErrors = 0;
           let numStmtsExecuted = 0;
           const numStmtsTotal = 5;
 
@@ -89,13 +80,12 @@ describe('OCSP validation', function () {
                 sqlText: 'select 1;',
                 complete: function (err) {
                   if (err) {
-                    numErrors++;
+                    callback(err);
                   }
 
                   numStmtsExecuted++;
-                  if (numStmtsExecuted === numStmtsTotal - 1) {
+                  if (numStmtsExecuted === numStmtsTotal) {
                     delete process.env['SF_OCSP_TEST_CACHE_MAXAGE'];
-                    assert.strictEqual(numErrors, 0);
                     callback();
                   }
                 },

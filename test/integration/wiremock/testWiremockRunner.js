@@ -35,7 +35,7 @@ if (os.platform !== 'win32') {
       }
       const mappings = await wireMock.mappings.getAllMappings();
       assert.strictEqual(mappings.mappings.length, 2);
-      const response = await axios.get(`http://localhost:${port}/test/authorize.html`);
+      const response = await axios.get(`http://127.0.0.1:${port}/test/authorize.html`);
       assert.strictEqual(response.status, 200);
     });
   });

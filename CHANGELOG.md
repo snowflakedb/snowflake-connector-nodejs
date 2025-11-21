@@ -2,7 +2,7 @@
 
 ## Upcoming Release
 
-- Fixed TypeScript definition for `getResultsFromQueryId`: `queryId` should be required and `sqlText` should be optional (snowflakedb/snowflake-connector-nodejs#1197)
+- Fixed TypeScript definition for `getResultsFromQueryId` - `queryId` should be required and `sqlText` should be optional (snowflakedb/snowflake-connector-nodejs#1197)
 
 ## 2.3.1
 

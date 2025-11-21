@@ -259,7 +259,7 @@ describe('SNOW-743920:Large result set with ~35 chunks', function () {
         } else {
           stmt
             .streamRows()
-            .on('error', () => done(err))
+            .on('error', done)
             .on('data', (row) => rows.push(row))
             .on('end', () => {
               try {

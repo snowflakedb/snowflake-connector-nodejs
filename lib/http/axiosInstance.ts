@@ -48,12 +48,16 @@ axios.interceptors.response.use(
       config.__snowflakeRetryConfig;
 
     // TODO:
-    // ensure test coverage for isRetryableNetworkError and isRetryableHttpError
+    // - ensure test coverage for isRetryableNetworkError and isRetryableHttpError
+    // - check if we handle redirects
+    // - probably need to retry timeouts + test coverage
     const isRetryable = err.response
       ? Util.isRetryableHttpError({ statusCode: err.response.status }, false)
       : true; // TODO: ['ERR_CANCELED', 'ECONNABORTED']; this 2 should be ignored
 
     if (isRetryable && numRetries <= maxNumRetries && totalElapsedTime <= maxRetryTimeout) {
+      // TODO:
+      // Util.nextSleepTime mighe be better?
       const jitter = Util.getJitteredSleepTime(
         numRetries,
         startingSleepTime,

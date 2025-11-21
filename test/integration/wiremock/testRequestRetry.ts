@@ -21,6 +21,8 @@ const RETRYABABLE_NETWORK_FAULTS = [
 ];
 const RETRYABLE_HTTP_CODES = [408, 429, 500, 503];
 
+// TODO: should test network timeouts???
+
 // NOTE:
 // For every wiremock scenario, we do 4 retries: 3 failures and 1 success.
 // This ensures that the full retry flow with backoff is working correctly, as we had bugs

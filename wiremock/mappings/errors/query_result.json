@@ -1,0 +1,159 @@
+{
+  "mappings": [
+    {
+      "request": {
+        "urlPathPattern": "/session/v1/login-request*",
+        "method": "POST"
+      },
+      "response": {
+        "status": 200,
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "jsonBody": {
+          "data": {
+            "masterToken": "master token",
+            "token": "session token",
+            "validityInSeconds": 3600,
+            "masterValidityInSeconds": 14400,
+            "displayUserName": "PAT_TEST_USER",
+            "serverVersion": "8.48.0",
+            "firstLogin": false,
+            "remMeToken": null,
+            "remMeValidityInSeconds": 0,
+            "healthCheckInterval": 45,
+            "newClientForUpgrade": "3.12.3",
+            "sessionId": 1172562260498,
+            "parameters": [
+              { "name": "CLIENT_PREFETCH_THREADS", "value": 4 },
+              { "name": "QUERY_CONTEXT_CACHE_SIZE", "value": 5 },
+              { "name": "CLIENT_RESULT_PREFETCH_THREADS", "value": 1 }
+            ],
+            "sessionInfo": {
+              "databaseName": "TEST_DATABASE",
+              "schemaName": "TEST_SCHEMA",
+              "warehouseName": "TEST_WAREHOUSE",
+              "roleName": "ANALYST"
+            },
+            "idToken": null,
+            "idTokenValidityInSeconds": 0,
+            "responseData": null,
+            "mfaToken": null,
+            "mfaTokenValidityInSeconds": 0
+          },
+          "code": null,
+          "message": null,
+          "success": true
+        }
+      }
+    },
+    {
+      "request": {
+        "urlPathPattern": "/session*",
+        "method": "POST"
+      },
+      "response": {
+        "status": 200,
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "jsonBody": {
+          "code": null,
+          "data": null,
+          "message": null,
+          "success": true
+        }
+      }
+    },
+    {
+      "scenarioName": "Query fails multiple times",
+      "newScenarioState": "Monitoring1Failed",
+      "request": {
+        "urlPathPattern": "/monitoring/queries/01234567-89ab-cdef-0123-456789abcdef*",
+        "method": "GET"
+      },
+      "response": {
+        "fault": "{{queryResultNetworkErrorFault}}"
+      }
+    },
+    {
+      "scenarioName": "Query fails multiple times",
+      "requiredScenarioState": "Monitoring1Failed",
+      "newScenarioState": "MonitoringSucceeded",
+      "request": {
+        "urlPathPattern": "/monitoring/queries/01234567-89ab-cdef-0123-456789abcdef*",
+        "method": "GET"
+      },
+      "response": {
+        "status": 200,
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "jsonBody": {
+          "success": true,
+          "code": null,
+          "message": null,
+          "data": {
+            "queries": [
+              {
+                "status": "SUCCESS"
+              }
+            ],
+            "sqlState": null
+          }
+        }
+      }
+    },
+    {
+      "scenarioName": "Query fails multiple times",
+      "requiredScenarioState": "MonitoringSucceeded",
+      "newScenarioState": "Result1Failed",
+      "request": {
+        "urlPathPattern": "/queries/01234567-89ab-cdef-0123-456789abcdef/result*",
+        "method": "GET"
+      },
+      "response": {
+        "fault": "{{queryResultNetworkErrorFault}}"
+      }
+    },
+    {
+      "scenarioName": "Query fails multiple times",
+      "requiredScenarioState": "Result1Failed",
+      "request": {
+        "urlPathPattern": "/queries/01234567-89ab-cdef-0123-456789abcdef/result*",
+        "method": "GET"
+      },
+      "response": {
+        "status": 200,
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "jsonBody": {
+          "data": {
+            "parameters": [],
+            "rowtype": [
+              {
+                "name": "1",
+                "type": "fixed",
+                "scale": 0,
+                "precision": 1,
+                "nullable": false
+              }
+            ],
+            "rowset": [["1"]],
+            "total": 1,
+            "returned": 1,
+            "queryId": "01234567-89ab-cdef-0123-456789abcdef",
+            "numberOfBinds": 0,
+            "arrayBindSupported": false,
+            "statementTypeId": 4096,
+            "version": 1,
+            "queryResultFormat": "json",
+            "queryContext": { "entries": [] }
+          },
+          "success": true
+        }
+      }
+    }
+  ]
+}

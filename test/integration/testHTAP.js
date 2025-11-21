@@ -1,14 +1,13 @@
 const assert = require('assert');
 const async = require('async');
+const uuid = require('uuid');
 const connOption = require('./connectionOptions').valid;
 const testUtil = require('./testUtil');
 
-function getRandomDBNames() {
-  const dbName = 'qcc_test_db';
+function getUniqueDBNames(amount = 3) {
   const arr = [];
-  const randomNumber = Math.floor(Math.random() * 10000);
-  for (let i = 0; i < 3; i++) {
-    arr.push(dbName + (randomNumber + i));
+  for (let i = 0; i < amount; i++) {
+    arr.push(`qcc_test_db_${Date.now()}_${uuid.v4().replaceAll('-', '_')}`);
   }
   return arr;
 }
@@ -16,9 +15,11 @@ function getRandomDBNames() {
 // Only the AWS servers support the hybrid table in the GitHub action.
 if (process.env.CLOUD_PROVIDER === 'AWS') {
   describe('Query Context Cache test', function () {
-    this.retries(3);
+    // Longer timeout as each create hybrid table takes ~45s to complete
+    this.timeout(5 * 60 * 1000);
+
     let connection;
-    const dbNames = getRandomDBNames();
+    const dbNames = getUniqueDBNames();
 
     beforeEach(async () => {
       connection = testUtil.createConnection(connOption);
@@ -75,10 +76,7 @@ if (process.env.CLOUD_PROVIDER === 'AWS') {
             testingfunction = function (callback) {
               connection.execute({
                 sqlText: sqlTexts[k],
-                complete: function (err) {
-                  assert.ok(!err, 'There should be no error!');
-                  callback();
-                },
+                complete: callback,
               });
             };
           } else {
@@ -86,10 +84,13 @@ if (process.env.CLOUD_PROVIDER === 'AWS') {
               connection.execute({
                 sqlText: sqlTexts[k],
                 complete: function (err, stmt) {
-                  assert.ok(!err, 'There should be no error!');
-                  assert.strictEqual(stmt.getQueryContextCacheSize(), QccSize);
-                  assert.strictEqual(stmt.getQueryContextDTOSize(), QccSize);
-                  callback();
+                  if (err) {
+                    callback(err);
+                  } else {
+                    assert.strictEqual(stmt.getQueryContextCacheSize(), QccSize);
+                    assert.strictEqual(stmt.getQueryContextDTOSize(), QccSize);
+                    callback();
+                  }
                 },
               });
             };

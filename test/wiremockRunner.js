@@ -77,8 +77,32 @@ async function waitForWiremockStarted(wireMock, counter) {
     });
 }
 
-async function addWireMockMappingsFromFile(wireMock, filePath) {
-  const requests = JSON.parse(fs.readFileSync(filePath, 'utf8'));
+/**
+ * Adds WireMock mappings from a JSON file with support for template variable replacement.
+ *
+ * Template variables in the file can be specified using double curly braces with optional spaces:
+ * - {{variable1}} - no spaces around variable name
+ * - {{ variable1 }} - spaces around variable name
+ *
+ * @param {Object} wireMock - The WireMock REST client instance
+ * @param {string} filePath - Path to the JSON file containing WireMock mappings
+ * @param {Object} [fileVariables={}] - Object containing key-value pairs for template variable replacement
+ */
+async function addWireMockMappingsFromFile(wireMock, filePath, fileVariables = {}) {
+  let fileContent = fs.readFileSync(filePath, 'utf8');
+
+  // Replace template variables in the file content
+  // Regex matches {{variable}} or {{ variable }} with optional whitespace
+  fileContent = fileContent.replace(/\{\{\s*([^}]+)\s*\}\}/g, (match, variableName) => {
+    const trimmedVariableName = variableName.trim();
+    if (fileVariables[trimmedVariableName]) {
+      return fileVariables[trimmedVariableName];
+    }
+    // If variable is not found, leave the placeholder unchanged
+    return match;
+  });
+
+  const requests = JSON.parse(fileContent);
   for (const mapping of requests.mappings) {
     await wireMock.mappings.createMapping(mapping);
   }

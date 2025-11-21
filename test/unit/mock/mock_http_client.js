@@ -255,7 +255,11 @@ function buildRequestOutputMappings(clientInfo) {
         err: null,
         response: {
           statusCode: 200,
+          request: {
+            isRedirect: false,
+          },
           statusMessage: 'OK',
+
           body: {
             code: null,
             data: {
@@ -354,6 +358,9 @@ function buildRequestOutputMappings(clientInfo) {
         err: null,
         response: {
           statusCode: 200,
+          request: {
+            isRedirect: false,
+          },
           statusMessage: 'OK',
           body: {
             code: null,
@@ -379,6 +386,9 @@ function buildRequestOutputMappings(clientInfo) {
         err: null,
         response: {
           statusCode: 200,
+          request: {
+            isRedirect: false,
+          },
           statusMessage: 'OK',
           body: {
             code: null,
@@ -408,6 +418,9 @@ function buildRequestOutputMappings(clientInfo) {
         err: null,
         response: {
           statusCode: 200,
+          request: {
+            isRedirect: false,
+          },
           statusMessage: 'OK',
           body: {
             data: {
@@ -502,6 +515,9 @@ function buildRequestOutputMappings(clientInfo) {
         err: null,
         response: {
           statusCode: 200,
+          request: {
+            isRedirect: false,
+          },
           statusMessage: 'OK',
           body: {
             data: {
@@ -602,6 +618,9 @@ function buildRequestOutputMappings(clientInfo) {
         err: null,
         response: {
           statusCode: 200,
+          request: {
+            isRedirect: false,
+          },
           statusMessage: 'OK',
           body: {
             data: {
@@ -732,6 +751,9 @@ function buildRequestOutputMappings(clientInfo) {
         err: null,
         response: {
           statusCode: 200,
+          request: {
+            isRedirect: false,
+          },
           statusMessage: 'OK',
           body: {
             data: {
@@ -770,6 +792,9 @@ function buildRequestOutputMappings(clientInfo) {
         err: null,
         response: {
           statusCode: 200,
+          request: {
+            isRedirect: false,
+          },
           statusMessage: 'OK',
           body: {
             data: {
@@ -805,6 +830,9 @@ function buildRequestOutputMappings(clientInfo) {
       output: {
         err: null,
         response: {
+          request: {
+            isRedirect: false,
+          },
           body: {
             message:
               'The specified sqlText should not be overwritten when resubmitting the request',
@@ -827,6 +855,9 @@ function buildRequestOutputMappings(clientInfo) {
         err: null,
         response: {
           statusCode: 200,
+          request: {
+            isRedirect: false,
+          },
           statusMessage: 'OK',
           body: {
             data: {
@@ -917,6 +948,9 @@ function buildRequestOutputMappings(clientInfo) {
         err: null,
         response: {
           statusCode: 200,
+          request: {
+            isRedirect: false,
+          },
           statusMessage: 'OK',
           body: {
             data: {
@@ -950,6 +984,9 @@ function buildRequestOutputMappings(clientInfo) {
         err: null,
         response: {
           statusCode: 200,
+          request: {
+            isRedirect: false,
+          },
           statusMessage: 'OK',
           body: {
             code: '',
@@ -980,6 +1017,9 @@ function buildRequestOutputMappings(clientInfo) {
         err: null,
         response: {
           statusCode: 306,
+          request: {
+            isRedirect: false,
+          },
           statusMessage: '306',
           body: '',
         },
@@ -999,6 +1039,9 @@ function buildRequestOutputMappings(clientInfo) {
         err: null,
         response: {
           statusCode: 306,
+          request: {
+            isRedirect: false,
+          },
           statusMessage: '306',
           body: '',
         },
@@ -1018,6 +1061,9 @@ function buildRequestOutputMappings(clientInfo) {
         err: null,
         response: {
           statusCode: 200,
+          request: {
+            isRedirect: false,
+          },
           statusMessage: 'OK',
           data: {
             code: null,
@@ -1044,6 +1090,9 @@ function buildRequestOutputMappings(clientInfo) {
         err: null,
         response: {
           statusCode: 400,
+          request: {
+            isRedirect: false,
+          },
           statusMessage: 'Bad Request',
           body: '"foobar" is not a UUID.',
         },
@@ -1063,6 +1112,9 @@ function buildRequestOutputMappings(clientInfo) {
         err: null,
         response: {
           statusCode: 400,
+          request: {
+            isRedirect: false,
+          },
           statusMessage: 'Bad Request',
           body: '"foobar" is not a UUID.',
         },
@@ -1088,6 +1140,9 @@ function buildRequestOutputMappings(clientInfo) {
         err: null,
         response: {
           statusCode: 200,
+          request: {
+            isRedirect: false,
+          },
           statusMessage: 'OK',
           body: {
             code: '000604',
@@ -1121,6 +1176,9 @@ function buildRequestOutputMappings(clientInfo) {
         err: null,
         response: {
           statusCode: 200,
+          request: {
+            isRedirect: false,
+          },
           statusMessage: 'OK',
           body: {
             code: null,
@@ -1150,6 +1208,9 @@ function buildRequestOutputMappings(clientInfo) {
         err: null,
         response: {
           statusCode: 200,
+          request: {
+            isRedirect: false,
+          },
           statusMessage: 'OK',
           body: {
             data: null,
@@ -1191,6 +1252,9 @@ function buildRequestOutputMappings(clientInfo) {
         err: null,
         response: {
           statusCode: 200,
+          request: {
+            isRedirect: false,
+          },
           statusMessage: 'OK',
           body: {
             code: null,
@@ -1300,6 +1364,9 @@ function buildRequestOutputMappings(clientInfo) {
         err: null,
         response: {
           statusCode: 200,
+          request: {
+            isRedirect: false,
+          },
           statusMessage: 'OK',
           body: {
             data: {
@@ -1412,6 +1479,9 @@ function buildRequestOutputMappings(clientInfo) {
         err: null,
         response: {
           statusCode: 200,
+          request: {
+            isRedirect: false,
+          },
           statusMessage: 'OK',
           body: {
             code: null,
@@ -1528,6 +1598,9 @@ function buildRequestOutputMappings(clientInfo) {
         err: null,
         response: {
           statusCode: 200,
+          request: {
+            isRedirect: false,
+          },
           statusMessage: 'OK',
           body: {
             code: null,
@@ -1644,6 +1717,9 @@ function buildRequestOutputMappings(clientInfo) {
         err: null,
         response: {
           statusCode: 200,
+          request: {
+            isRedirect: false,
+          },
           statusMessage: 'OK',
           body: {
             code: null,
@@ -1683,6 +1759,9 @@ function buildRequestOutputMappings(clientInfo) {
         err: null,
         response: {
           statusCode: 200,
+          request: {
+            isRedirect: false,
+          },
           statusMessage: 'OK',
           body: {
             code: '390111',
@@ -1724,6 +1803,9 @@ function buildRequestOutputMappings(clientInfo) {
         err: null,
         response: {
           statusCode: 200,
+          request: {
+            isRedirect: false,
+          },
           statusMessage: 'OK',
           body: {
             code: null,
@@ -1763,6 +1845,9 @@ function buildRequestOutputMappings(clientInfo) {
         err: null,
         response: {
           statusCode: 200,
+          request: {
+            isRedirect: false,
+          },
           statusMessage: 'OK',
           body: {
             code: '390112',
@@ -1803,6 +1888,9 @@ function buildRequestOutputMappings(clientInfo) {
         err: null,
         response: {
           statusCode: 504,
+          request: {
+            isRedirect: false,
+          },
           statusMessage: 'ERROR',
           body: {},
         },
@@ -1838,6 +1926,9 @@ function buildRequestOutputMappings(clientInfo) {
         err: null,
         response: {
           statusCode: 504,
+          request: {
+            isRedirect: false,
+          },
           statusMessage: 'ERROR',
           body: {},
         },
@@ -1873,6 +1964,9 @@ function buildRequestOutputMappings(clientInfo) {
         err: null,
         response: {
           statusCode: 200,
+          request: {
+            isRedirect: false,
+          },
           statusMessage: 'OK',
           body: {
             code: null,
@@ -1912,6 +2006,9 @@ function buildRequestOutputMappings(clientInfo) {
         err: null,
         response: {
           statusCode: 200,
+          request: {
+            isRedirect: false,
+          },
           statusMessage: 'OK',
           body: {
             code: null,
@@ -1936,6 +2033,9 @@ function buildRequestOutputMappings(clientInfo) {
         err: null,
         response: {
           statusCode: 200,
+          request: {
+            isRedirect: false,
+          },
           statusMessage: 'OK',
           body: {
             code: null,

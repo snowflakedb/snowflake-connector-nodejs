@@ -9,11 +9,4 @@ module.exports = {
   parallel: true,
   jobs: 4,
   retries: 1,
-  rootHooks: {
-    beforeEach: () => {
-      // NOTE:
-      // Some tests change it, so beforeAll is not enough to force trace for every test
-      snowflake.configure({ logLevel: 'trace' });
-    },
-  },
 };

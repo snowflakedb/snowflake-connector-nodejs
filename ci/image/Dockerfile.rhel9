@@ -1,0 +1,66 @@
+ARG BASE_IMAGE=rockylinux:9
+FROM $BASE_IMAGE
+
+ARG TARGETARCH
+
+# Install minimal required packages + dependencies for Node.js and testing
+# Note: Node.js will be installed via dnf module system
+# Java is required for Wiremock tests
+# glibc-langpack-en for UTF-8 locale support
+RUN dnf install -y --allowerasing \
+    python3 \
+    python3-pip \
+    jq \
+    gpg \
+    git \
+    java-11-openjdk \
+    glibc-langpack-en \
+    && dnf clean all
+
+# Set UTF-8 locale to ensure proper string/character handling in tests
+# This is critical for array bind and bind variable tests
+# Generate locale as root before switching to user
+RUN localedef -i en_US -f UTF-8 en_US.UTF-8 2>&1 || \
+    (echo "Locale generation note (may already exist)" && locale -a | grep -i en_us || true)
+ENV LANG=en_US.UTF-8
+ENV LC_ALL=en_US.UTF-8
+
+# Install snowflake-connector-python for schema management
+RUN pip3 install -U snowflake-connector-python
+
+# Set Java 11 as the default using environment variables
+ENV JAVA_HOME=/usr/lib/jvm/java-11-openjdk
+ENV PATH="${JAVA_HOME}/bin:${PATH}"
+# Optimize Java startup for faster Wiremock initialization
+# Use server VM for better performance, reduce initial heap to start faster
+ENV JAVA_OPTS="-server -Xms64m -Xmx512m -XX:+UseG1GC -XX:+UseStringDeduplication"
+
+# Accept user ID as build argument to match host permissions
+ARG USER_ID=1001
+ARG GROUP_ID=1001
+
+# Create user for proper permission testing
+RUN groupadd -g ${GROUP_ID} user && \
+    useradd -u ${USER_ID} -g ${GROUP_ID} -m -s /bin/bash user && \
+    mkdir -p /home/user/snowflake-connector-nodejs && \
+    chown -R user:user /home/user
+
+# Accept Node.js major version as build argument (e.g., NODE_VERSION=18, 20, 22)
+ARG NODE_VERSION
+
+# Install Node.js via dnf module system (Rocky Linux 9 uses AppStream modules)
+# Note: In RHEL 9/Rocky Linux 9, Node.js is delivered through AppStream modules.
+# NODE_VERSION should be the major version (18, 20, 22, etc.)
+RUN echo "Installing Node.js ${NODE_VERSION} via dnf..." && \
+    # Enable the Node.js module stream first
+    dnf module enable -y nodejs:${NODE_VERSION} && \
+    # Install Node.js and npm from the enabled module (common profile includes both)
+    dnf install -y nodejs npm && \
+    # Verify installation
+    node --version && \
+    npm --version && \
+    dnf clean all
+
+USER user
+WORKDIR /home/user/snowflake-connector-nodejs
+

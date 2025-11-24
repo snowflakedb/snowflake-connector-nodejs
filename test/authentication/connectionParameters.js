@@ -88,7 +88,7 @@ const oauthPATOnWiremock = {
   accessUrl: null,
   username: 'MOCK_USERNAME',
   account: 'MOCK_ACCOUNT_NAME',
-  host: 'localhost',
+  host: '127.0.0.1',
   protocol: 'http',
   authenticator: 'PROGRAMMATIC_ACCESS_TOKEN',
 };

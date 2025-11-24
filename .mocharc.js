@@ -5,6 +5,8 @@ module.exports = {
   recursive: true,
   extension: ['js', 'ts'],
   parallel: true,
-  jobs: 2,
+  jobs: 3,
+  // TODO:
+  // Consider removing retries once connectivity issues resolved in SNOW-2679711
   retries: 1,
 };

@@ -1,5 +1,3 @@
-const snowflake = require('./lib/snowflake');
-
 module.exports = {
   require: ['ts-node/register'],
   timeout: 180000,

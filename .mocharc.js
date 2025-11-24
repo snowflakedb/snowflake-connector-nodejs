@@ -5,6 +5,6 @@ module.exports = {
   recursive: true,
   extension: ['js', 'ts'],
   parallel: true,
-  jobs: 8, // Default warehouse concurrency is 8
+  jobs: 2,
   retries: 1,
 };

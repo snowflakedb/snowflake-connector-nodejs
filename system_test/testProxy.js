@@ -17,7 +17,7 @@ describe.skip('testProxy', function () {
       ],
       done,
     );
-  });
+  }).timeout(360000);
 
   it('testSimpleSelectWithProxy', function (done) {
     const connection = snowflake.createConnection(connOptions.connectionWithProxy);

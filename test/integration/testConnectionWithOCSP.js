@@ -1,4 +1,5 @@
 const assert = require('assert');
+const http = require('http');
 const sinon = require('sinon');
 const snowflake = require('./../../lib/snowflake');
 const Errors = require('./../../lib/errors');
@@ -8,7 +9,7 @@ const sharedLogger = require('./sharedLogger');
 const Logger = require('./../../lib/logger');
 const { hangWebServerUrl } = require('../hangWebserver');
 const testUtil = require('./testUtil');
-const ProxyUtil = require('./../../lib/proxy_util');
+const ProxyAgent = require('./../../lib/agent/https_proxy_agent');
 const { runWireMockAsync } = require('../wiremockRunner');
 
 Logger.getInstance().setLogger(sharedLogger.logger);
@@ -19,7 +20,7 @@ const testConnectionOptions = {
   username: 'fakeuser',
   password: 'fakepasword',
   account: 'fakeaccount',
-  sfRetryMaxLoginRetries: 2,
+  sfRetryMaxLoginRetries: 1,
 };
 
 const testRevokedConnectionOptions = {
@@ -66,7 +67,7 @@ describe('Connection with OCSP test', function () {
   describe('Proxy environment', () => {
     const connectionOptions = getConnectionOptions();
     let wiremockClient;
-    let ocspSecureSocketSpy;
+    let httpRequestSpy;
 
     before(async () => {
       const port = await testUtil.getFreePort();
@@ -77,7 +78,7 @@ describe('Connection with OCSP test', function () {
         ...process.env,
         HTTP_PROXY: wiremockClient.rootUrl,
       });
-      ocspSecureSocketSpy = sinon.spy(SocketUtil, 'secureSocket');
+      httpRequestSpy = sinon.spy(http, 'request');
     });
 
     after(async () => {
@@ -85,22 +86,24 @@ describe('Connection with OCSP test', function () {
       sinon.restore();
     });
 
-    it('OCSP check is performed in a proxy environment', (done) => {
-      assert.ok(ProxyUtil.getProxyFromEnv(false), 'expect http proxy to be set in env');
-      const connection = snowflake.createConnection(connectionOptions);
-      connection.connect((err) => {
-        try {
-          assert.strictEqual(
-            err.code,
-            Errors.codes.ERR_SF_RESPONSE_FAILURE,
-            `Expected error code to be ERR_SF_RESPONSE_FAILURE, but got error ${err}`,
-          );
-          done();
-        } catch (assertionError) {
-          done(assertionError);
-        }
+    it('OCSP check is performed using a proxy agent when HTTP_PROXY is set', async () => {
+      const connection = snowflake.createConnection(getConnectionOptions());
+      await new Promise((resolve, reject) => {
+        connection.connect((err) => {
+          try {
+            assert.strictEqual(
+              err.code,
+              Errors.codes.ERR_SF_RESPONSE_FAILURE,
+              `Expected error code to be ERR_SF_RESPONSE_FAILURE, but got error ${err}`,
+            );
+            resolve();
+          } catch (assertionError) {
+            reject(assertionError);
+          }
+        });
       });
-      assert.strictEqual(ocspSecureSocketSpy.callCount, 1);
+      assert.strictEqual(httpRequestSpy.firstCall.args[0].path, '/ocsp_response_cache.json');
+      assert.ok(httpRequestSpy.firstCall.args[0].agent instanceof ProxyAgent);
     });
   });
 

@@ -3,13 +3,15 @@ const testUtil = require('./testUtil');
 const os = require('os');
 
 const snowflake = require('../../lib/snowflake');
-snowflake.configure({
-  logLevel: 'trace',
-});
 
 describe('Execute proxy test', function () {
   const platform = os.platform();
+  // const platform = 'linux';
   if (platform === 'linux' && !process.env.SHOULD_SKIP_PROXY_TESTS) {
+    snowflake.configure({
+      logLevel: 'trace',
+    });
+
     let connection;
     const createNodeTSQL = 'create or replace table NodeT(colA number, colB varchar)';
     const selectAllSQL = 'select * from NodeT';

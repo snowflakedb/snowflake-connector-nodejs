@@ -23,6 +23,7 @@ async function runWireMockAsync(port, options = {}) {
           'false',
           '--port',
           String(port),
+          ...(options.wiremockJarArgs || []),
         ],
         {
           stdio: 'inherit',
@@ -32,11 +33,17 @@ async function runWireMockAsync(port, options = {}) {
 
       child.on('exit', () => {});
       // Use 127.0.0.1 instead of localhost to avoid IPv6/IPv4 resolution issues on Node.js 18 + RHEL9
-      const wireMock = new WireMockRestClient(`http://127.0.0.1:${port}`, {
+      const baseUri = `http://127.0.0.1:${port}`;
+      const wireMock = new WireMockRestClient(baseUri, {
         logLevel: 'debug',
         ...options,
       });
-      waitForWiremockStarted(wireMock, counter, maxRetries).then(resolve).catch(reject);
+      waitForWiremockStarted(wireMock, counter, maxRetries)
+        .then((restClient) => {
+          restClient.rootUrl = baseUri;
+          resolve(restClient);
+        })
+        .catch(reject);
     } catch (err) {
       reject(err);
     }

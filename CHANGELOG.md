@@ -5,6 +5,8 @@
 - Fixed TypeScript definition for `getResultsFromQueryId` - `queryId` should be required and `sqlText` should be optional (snowflakedb/snowflake-connector-nodejs#1197)
 - Bumped dependency `glob` to address CVE-2025-64756 (snowflakedb/snowflake-connector-nodejs#1206)
 
+- Fixed a regression introduced in v2.1.1 where instantiating SnowflakeHttpsProxyAgent was attempted without the `new` keyword, breaking the driver when both OCSP was enabled and HTTP_PROXY environmental variable was used to set proxy (bug did not affect HTTPS_PROXY)
+
 ## 2.3.1
 
 - Fixed a regression introduced in 2.3.0 causing PUT operations to encrypt files with wrong smkId (snowflakedb/snowflake-connector-nodejs#1184)

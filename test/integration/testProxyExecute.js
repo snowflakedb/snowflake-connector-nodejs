@@ -2,6 +2,11 @@ const async = require('async');
 const testUtil = require('./testUtil');
 const os = require('os');
 
+const snowflake = require('../../lib/snowflake');
+snowflake.configure({
+  logLevel: 'trace',
+});
+
 describe('Execute proxy test', function () {
   const platform = os.platform();
   if (platform === 'linux' && !process.env.SHOULD_SKIP_PROXY_TESTS) {
@@ -12,16 +17,9 @@ describe('Execute proxy test', function () {
     const updateNodeTSQL = "update NodeT set COLA = 2, COLB = 'b' where COLA = 1";
     const dropNodeTSQL = 'drop table if exists NodeT';
 
-    before(function (done) {
+    before(async () => {
       connection = testUtil.createProxyConnection();
-      async.series(
-        [
-          function (callback) {
-            testUtil.connect(connection, callback);
-          },
-        ],
-        done,
-      );
+      await testUtil.connectAsync(connection);
     });
 
     after(function (done) {

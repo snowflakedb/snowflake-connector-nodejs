@@ -33,9 +33,8 @@ describe('Attestation AWS', () => {
       },
     });
     rewiremock.enable();
-    AttestationAws = await import(
-      '../../../../lib/authentication/auth_workload_identity/attestation_aws'
-    );
+    AttestationAws =
+      await import('../../../../lib/authentication/auth_workload_identity/attestation_aws');
   });
 
   beforeEach(() => {

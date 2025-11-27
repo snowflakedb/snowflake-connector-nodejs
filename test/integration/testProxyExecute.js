@@ -2,16 +2,11 @@ const async = require('async');
 const testUtil = require('./testUtil');
 const os = require('os');
 
-const snowflake = require('../../lib/snowflake');
-
+// TODO:
+// a btter way to test proxy on every OS would be to spawn wiremock with a --proxy-all
 describe('Execute proxy test', function () {
   const platform = os.platform();
-  // const platform = 'linux';
   if (platform === 'linux' && !process.env.SHOULD_SKIP_PROXY_TESTS) {
-    snowflake.configure({
-      logLevel: 'trace',
-    });
-
     let connection;
     const createNodeTSQL = 'create or replace table NodeT(colA number, colB varchar)';
     const selectAllSQL = 'select * from NodeT';
@@ -19,9 +14,16 @@ describe('Execute proxy test', function () {
     const updateNodeTSQL = "update NodeT set COLA = 2, COLB = 'b' where COLA = 1";
     const dropNodeTSQL = 'drop table if exists NodeT';
 
-    before(async () => {
+    before(function (done) {
       connection = testUtil.createProxyConnection();
-      await testUtil.connectAsync(connection);
+      async.series(
+        [
+          function (callback) {
+            testUtil.connect(connection, callback);
+          },
+        ],
+        done,
+      );
     });
 
     after(function (done) {

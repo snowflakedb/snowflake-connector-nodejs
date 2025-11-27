@@ -1,13 +1,16 @@
 const assert = require('assert');
-
+const sinon = require('sinon');
 const snowflake = require('./../../lib/snowflake');
 const Errors = require('./../../lib/errors');
 const SocketUtil = require('./../../lib/agent/socket_util');
 const OcspResponseCache = require('./../../lib/agent/ocsp_response_cache');
-
 const sharedLogger = require('./sharedLogger');
 const Logger = require('./../../lib/logger');
 const { hangWebServerUrl } = require('../hangWebserver');
+const testUtil = require('./testUtil');
+const ProxyUtil = require('./../../lib/proxy_util');
+const { runWireMockAsync } = require('../wiremockRunner');
+
 Logger.getInstance().setLogger(sharedLogger.logger);
 
 let testCounter = 0;
@@ -58,6 +61,47 @@ describe('Connection with OCSP test', function () {
       'SF_OCSP_TEST_OCSP_RESPONDER_TIMEOUT',
       'SF_OCSP_TEST_OCSP_RESPONSE_CACHE_SERVER_TIMEOUT',
     ].forEach((envVariable) => delete process.env[envVariable]);
+  });
+
+  describe('Proxy environment', () => {
+    const connectionOptions = getConnectionOptions();
+    let wiremockClient;
+    let ocspSecureSocketSpy;
+
+    before(async () => {
+      const port = await testUtil.getFreePort();
+      wiremockClient = await runWireMockAsync(port, {
+        wiremockJarArgs: ['--proxy-all', connectionOptions.accessUrl],
+      });
+      sinon.stub(process, 'env').value({
+        ...process.env,
+        HTTP_PROXY: wiremockClient.rootUrl,
+      });
+      ocspSecureSocketSpy = sinon.spy(SocketUtil, 'secureSocket');
+    });
+
+    after(async () => {
+      await wiremockClient.global.shutdown();
+      sinon.restore();
+    });
+
+    it('OCSP check is performed in a proxy environment', (done) => {
+      assert.ok(ProxyUtil.getProxyFromEnv(false), 'expect http proxy to be set in env');
+      const connection = snowflake.createConnection(connectionOptions);
+      connection.connect((err) => {
+        try {
+          assert.strictEqual(
+            err.code,
+            Errors.codes.ERR_SF_RESPONSE_FAILURE,
+            `Expected error code to be ERR_SF_RESPONSE_FAILURE, but got error ${err}`,
+          );
+          done();
+        } catch (assertionError) {
+          done(assertionError);
+        }
+      });
+      assert.strictEqual(ocspSecureSocketSpy.callCount, 1);
+    });
   });
 
   it('OCSP NOP - Fail Open', function (done) {

@@ -16,16 +16,17 @@ function getMinicoreModule() {
 
   try {
     const { platform, arch } = process;
-    let suffix = '';
+    const suffix: string[] = [platform, arch];
     if (platform === 'linux') {
-      suffix = isMusl() ? '-musl' : '-gnu';
+      suffix.push(isMusl() ? 'musl' : 'gnu');
     } else if (platform === 'win32') {
-      suffix = 'msvc';
+      suffix.push('msvc');
     }
     // TODO:
-    // we don't collect enough telemetry to understand which binary is from this list
-    // https://github.com/napi-rs/napi-rs/blob/main/triples/target-list
-    minicoreModule = require(`./dist/sf_mini_core.${platform}-${arch}${suffix}.node`);
+    // - we don't collect enough telemetry to understand which binary is from this list
+    //   https://github.com/napi-rs/napi-rs/blob/main/triples/target-list
+    // - we need heavy test for this string builder
+    minicoreModule = require(`./dist/sf_mini_core.${suffix.join('-')}.node`);
   } catch (error) {
     minicoreModule = null;
     Logger().debug('Error loading minicore:', error);

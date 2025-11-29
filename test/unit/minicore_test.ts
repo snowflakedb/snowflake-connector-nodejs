@@ -3,7 +3,21 @@ import sinon from 'sinon';
 import Module from 'module';
 import { getMinicoreVersion } from '../../lib/minicore';
 
+const snowflake = require('../../lib/snowflake');
+
 describe('Minicore', () => {
+  before(() => {
+    snowflake.configure({
+      logLevel: 'TRACE',
+    });
+  });
+
+  after(() => {
+    snowflake.configure({
+      logLevel: 'INFO',
+    });
+  });
+
   afterEach(() => {
     sinon.restore();
   });

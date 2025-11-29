@@ -59,7 +59,8 @@
     "ts-node": "^10.9.2",
     "typescript": "^5.8.3",
     "wiremock": "^3.10.0",
-    "wiremock-rest-client": "^1.11.0"
+    "wiremock-rest-client": "^1.11.0",
+    "@napi-rs/cli": "^3.2.0"
   },
   "peerDependencies": {
     "asn1.js": "^5.4.1"
@@ -99,7 +100,11 @@
     "test:ci:withSystemTests:coverage": "nyc npm run test:ci:withSystemTests",
     "test:manual": "mocha test/integration/testManualConnection.js",
     "serve-wiremock": "wiremock --enable-browser-proxying --proxy-pass-through  false --port 8081",
-    "wiremock": "npm run serve-wiremock"
+    "wiremock": "npm run serve-wiremock",
+    "minicore:build": "node ci/build_minicore.js"
+  },
+  "napi": {
+    "binaryName": "sf_mini_core"
   },
   "author": {
     "name": "Snowflake Computing, Inc.",

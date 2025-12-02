@@ -1,1 +1,1 @@
-export * from './minicore';
+export { getMinicoreStatus } from './minicore';

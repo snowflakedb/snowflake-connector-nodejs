@@ -1,4 +1,3 @@
-// TODO: move this to top-level test utils
 module.exports.sleepAsync = function (ms) {
   return new Promise((resolve) => setTimeout(resolve, ms));
 };

@@ -2,7 +2,7 @@ import assert from 'assert';
 import sinon from 'sinon';
 import fs from 'fs';
 import path from 'path';
-import { getBinaryName, getMinicoreStatus } from '../../lib/minicore';
+import { getBinaryName, getMinicoreStatus } from '../../lib/minicore/minicore';
 import { clearRequireCache } from './test_util';
 
 describe('getBinaryName()', () => {

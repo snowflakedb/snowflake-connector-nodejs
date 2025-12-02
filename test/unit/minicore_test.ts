@@ -3,6 +3,7 @@ import sinon from 'sinon';
 import fs from 'fs';
 import path from 'path';
 import { getBinaryName, getMinicoreStatus } from '../../lib/minicore';
+import { clearRequireCache } from './test_util';
 
 describe('getBinaryName()', () => {
   afterEach(() => sinon.restore());
@@ -78,7 +79,7 @@ describe('getMinicoreStatus()', () => {
   });
 
   it('returns false when minicore loading is disabled via SNOWFLAKE_DISABLE_MINICORE env variable', () => {
-    delete require.cache[require.resolve('../../lib/minicore')];
+    clearRequireCache();
     sinon.stub(process, 'env').value({ SNOWFLAKE_DISABLE_MINICORE: 'true' });
     const minicoreModule = require('../../lib/minicore') as typeof import('../../lib/minicore');
     const minicoreStatus = minicoreModule.getMinicoreStatus();
@@ -90,7 +91,7 @@ describe('getMinicoreStatus()', () => {
   });
 
   it('returns false when minicore fails to load', () => {
-    delete require.cache[require.resolve('../../lib/minicore')];
+    clearRequireCache();
     sinon.stub(process, 'platform').value('dummy-test-platform-to-force-load-error');
     const minicoreModule = require('../../lib/minicore') as typeof import('../../lib/minicore');
     const minicoreStatus = minicoreModule.getMinicoreStatus();

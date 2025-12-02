@@ -19,7 +19,8 @@ try {
 }
 
 // NOTE:
-// Building on developer Mac - https://napi.rs/docs/cross-build
+// In the future, we want to build on CI, but for now it's built on dev Mac
+// using cross-build mode - https://napi.rs/docs/cross-build
 const BUILD_TARGETS = [
   // macOS
   'aarch64-apple-darwin',

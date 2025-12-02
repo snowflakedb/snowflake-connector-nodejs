@@ -1,22 +1,103 @@
 import assert from 'assert';
 import sinon from 'sinon';
-import { getMinicoreVersion } from '../../lib/minicore';
+import fs from 'fs';
+import path from 'path';
+import { getBinaryName, getMinicoreStatus } from '../../lib/minicore';
 
-describe('Minicore', () => {
-  afterEach(() => {
-    sinon.restore();
+describe('getBinaryName()', () => {
+  afterEach(() => sinon.restore());
+
+  [
+    {
+      platform: 'darwin',
+      arch: 'arm64',
+      expectBinaryName: 'sf_mini_core_0.0.1.darwin-arm64.node',
+    },
+    {
+      platform: 'darwin',
+      arch: 'x64',
+      expectBinaryName: 'sf_mini_core_0.0.1.darwin-x64.node',
+    },
+    {
+      platform: 'linux',
+      arch: 'arm64',
+      expectBinaryName: 'sf_mini_core_0.0.1.linux-arm64-gnu.node',
+    },
+    {
+      platform: 'linux',
+      arch: 'x64',
+      expectBinaryName: 'sf_mini_core_0.0.1.linux-x64-gnu.node',
+    },
+    {
+      platform: 'linux',
+      arch: 'arm64',
+      withMusl: true,
+      expectBinaryName: 'sf_mini_core_0.0.1.linux-arm64-musl.node',
+    },
+    {
+      platform: 'linux',
+      arch: 'x64',
+      withMusl: true,
+      expectBinaryName: 'sf_mini_core_0.0.1.linux-x64-musl.node',
+    },
+    {
+      platform: 'win32',
+      arch: 'arm64',
+      expectBinaryName: 'sf_mini_core_0.0.1.win32-arm64-msvc.node',
+    },
+    {
+      platform: 'win32',
+      arch: 'x64',
+      expectBinaryName: 'sf_mini_core_0.0.1.win32-x64-msvc.node',
+    },
+  ].forEach(({ platform, arch, withMusl, expectBinaryName }) => {
+    it(`returns ${expectBinaryName} for ${platform}-${arch}${withMusl ? ' with musl' : ''}`, () => {
+      sinon.stub(process, 'platform').value(platform);
+      sinon.stub(process, 'arch').value(arch);
+      if (withMusl) {
+        sinon.stub(fs, 'readFileSync').withArgs('/usr/bin/ldd', 'utf-8').returns('musl libc');
+      }
+      const binaryName = getBinaryName();
+      const expectBinaryPath = path.join(__dirname, '../../lib/minicore/dist', expectBinaryName);
+      assert.strictEqual(binaryName, expectBinaryName);
+      assert.ok(fs.existsSync(expectBinaryPath), `Binary should exist at ${expectBinaryPath}`);
+    });
+  });
+});
+
+describe('getMinicoreStatus()', () => {
+  afterEach(() => sinon.restore());
+
+  it('returns correct status metadata', () => {
+    const minicoreStatus = getMinicoreStatus();
+    assert.deepStrictEqual(minicoreStatus, {
+      version: '0.0.1',
+      binaryName: getBinaryName(),
+      error: null,
+    });
   });
 
-  it('returns correct version', () => {
-    const version = getMinicoreVersion();
-    assert.strictEqual(version, '0.0.1');
-  });
-
-  it('returns failed-to-load when binary fails to load', () => {
+  it('returns false when minicore loading is disabled via SNOWFLAKE_DISABLE_MINICORE env variable', () => {
     delete require.cache[require.resolve('../../lib/minicore')];
-    sinon.stub(process, 'platform').value('dummy-test-platform');
+    sinon.stub(process, 'env').value({ SNOWFLAKE_DISABLE_MINICORE: 'true' });
     const minicoreModule = require('../../lib/minicore') as typeof import('../../lib/minicore');
-    const version = minicoreModule.getMinicoreVersion();
-    assert.strictEqual(version, 'failed-to-load');
+    const minicoreStatus = minicoreModule.getMinicoreStatus();
+    assert.deepStrictEqual(minicoreStatus, {
+      version: null,
+      binaryName: null,
+      error: 'Minicore is disabled with SNOWFLAKE_DISABLE_MINICORE env variable',
+    });
+  });
+
+  it('returns false when minicore fails to load', () => {
+    delete require.cache[require.resolve('../../lib/minicore')];
+    sinon.stub(process, 'platform').value('dummy-test-platform-to-force-load-error');
+    const minicoreModule = require('../../lib/minicore') as typeof import('../../lib/minicore');
+    const minicoreStatus = minicoreModule.getMinicoreStatus();
+    assert.deepStrictEqual(minicoreStatus, {
+      version: null,
+      binaryName: null,
+      error: 'Failed to load binary',
+    });
   });
 });

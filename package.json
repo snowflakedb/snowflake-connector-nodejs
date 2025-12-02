@@ -104,7 +104,7 @@
     "minicore:build": "node ci/build_minicore.js"
   },
   "napi": {
-    "binaryName": "sf_mini_core"
+    "binaryName": "sf_mini_core_0.0.1"
   },
   "author": {
     "name": "Snowflake Computing, Inc.",

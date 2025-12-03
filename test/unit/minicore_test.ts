@@ -1,9 +1,9 @@
+import { proxy, proxyRequire } from 'proxyrequire';
 import assert from 'assert';
 import sinon from 'sinon';
 import fs from 'fs';
 import path from 'path';
 import { getBinaryName, getMinicoreStatus } from '../../lib/minicore/minicore';
-import { clearRequireCache } from './test_util';
 
 describe('getBinaryName()', () => {
   afterEach(() => sinon.restore());
@@ -69,6 +69,12 @@ describe('getBinaryName()', () => {
 describe('getMinicoreStatus()', () => {
   afterEach(() => sinon.restore());
 
+  function getFreshMinicoreModule() {
+    return proxy(() => {
+      return proxyRequire(require, '../../lib/minicore/minicore');
+    }, {}) as typeof import('../../lib/minicore/minicore');
+  }
+
   it('returns correct status metadata', () => {
     const minicoreStatus = getMinicoreStatus();
     assert.deepStrictEqual(minicoreStatus, {
@@ -79,9 +85,8 @@ describe('getMinicoreStatus()', () => {
   });
 
   it('returns false when minicore loading is disabled via SNOWFLAKE_DISABLE_MINICORE env variable', () => {
-    clearRequireCache();
     sinon.stub(process, 'env').value({ SNOWFLAKE_DISABLE_MINICORE: 'true' });
-    const minicoreModule = require('../../lib/minicore') as typeof import('../../lib/minicore');
+    const minicoreModule = getFreshMinicoreModule();
     const minicoreStatus = minicoreModule.getMinicoreStatus();
     assert.deepStrictEqual(minicoreStatus, {
       version: null,
@@ -91,9 +96,8 @@ describe('getMinicoreStatus()', () => {
   });
 
   it('returns false when minicore fails to load', () => {
-    clearRequireCache();
     sinon.stub(process, 'platform').value('dummy-test-platform-to-force-load-error');
-    const minicoreModule = require('../../lib/minicore') as typeof import('../../lib/minicore');
+    const minicoreModule = getFreshMinicoreModule();
     const minicoreStatus = minicoreModule.getMinicoreStatus();
     assert.deepStrictEqual(minicoreStatus, {
       version: null,

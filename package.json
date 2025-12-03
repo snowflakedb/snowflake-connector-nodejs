@@ -42,6 +42,7 @@
   },
   "devDependencies": {
     "@aws-sdk/types": "^3.387.0",
+    "@napi-rs/cli": "^3.2.0",
     "@types/mocha": "^10.0.10",
     "@types/node": "^22.15.18",
     "@types/sinon": "^17.0.4",
@@ -53,14 +54,14 @@
     "mock-require": "^3.0.3",
     "nyc": "^15.1.0",
     "prettier": "^3.7.1",
+    "proxyrequire": "^1.0.21",
     "rewiremock": "^3.14.6",
     "sinon": "^20.0.0",
     "test-console": "^2.0.0",
     "ts-node": "^10.9.2",
     "typescript": "^5.8.3",
     "wiremock": "^3.10.0",
-    "wiremock-rest-client": "^1.11.0",
-    "@napi-rs/cli": "^3.2.0"
+    "wiremock-rest-client": "^1.11.0"
   },
   "peerDependencies": {
     "asn1.js": "^5.4.1"

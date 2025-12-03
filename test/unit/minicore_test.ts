@@ -88,7 +88,7 @@ describe('getMinicoreStatus()', () => {
     });
   });
 
-  it('returns false when minicore loading is disabled via SNOWFLAKE_DISABLE_MINICORE env variable', () => {
+  it('returns error when minicore loading is disabled via SNOWFLAKE_DISABLE_MINICORE env variable', () => {
     sinon.stub(process, 'env').value({ SNOWFLAKE_DISABLE_MINICORE: 'true' });
     const minicoreModule = getFreshMinicoreModule();
     const minicoreStatus = minicoreModule.getMinicoreStatus();
@@ -99,7 +99,7 @@ describe('getMinicoreStatus()', () => {
     });
   });
 
-  it('returns false when minicore fails to load', () => {
+  it('returns error when minicore fails to load', () => {
     sinon.stub(process, 'platform').value('dummy-test-platform-to-force-load-error');
     const minicoreModule = getFreshMinicoreModule();
     const minicoreStatus = minicoreModule.getMinicoreStatus();

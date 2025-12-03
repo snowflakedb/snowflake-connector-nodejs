@@ -67,7 +67,10 @@ describe('CLIENT_ENVIRONMENT for /login-request', () => {
     await initConnection(freshCoreInstance);
     const clientEnvironment = getClientEnvironment();
     assert.strictEqual(clientEnvironment.CORE_VERSION, null);
-    assert.strictEqual(clientEnvironment.CORE_BINARY_NAME, null);
+    assert.ok(
+      clientEnvironment.CORE_BINARY_NAME.includes('sf_mini_core_0.0.1'),
+      `Unexpected CORE_BINARY_NAME: ${clientEnvironment.CORE_BINARY_NAME}`,
+    );
     assert.strictEqual(clientEnvironment.CORE_LOAD_ERROR, 'Failed to load binary');
   });
 });

@@ -59,7 +59,11 @@ describe('getBinaryName()', () => {
         sinon.stub(fs, 'readFileSync').withArgs('/usr/bin/ldd', 'utf-8').returns('musl libc');
       }
       const binaryName = getBinaryName();
-      const expectBinaryPath = path.join(__dirname, '../../lib/minicore/dist', expectBinaryName);
+      const expectBinaryPath = path.join(
+        __dirname,
+        '../../lib/minicore/binaries',
+        expectBinaryName,
+      );
       assert.strictEqual(binaryName, expectBinaryName);
       assert.ok(fs.existsSync(expectBinaryPath), `Binary should exist at ${expectBinaryPath}`);
     });

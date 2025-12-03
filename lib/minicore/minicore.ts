@@ -19,7 +19,7 @@ if (process.env.SNOWFLAKE_DISABLE_MINICORE) {
 } else {
   try {
     const binaryName = getBinaryName();
-    const minicoreModule = require(`./dist/${binaryName}`) as typeof import('./dist');
+    const minicoreModule = require(`./binaries/${binaryName}`) as typeof import('./binaries');
     minicoreStatus.version = minicoreModule.sfCoreFullVersion();
     minicoreStatus.binaryName = binaryName;
   } catch (error: unknown) {

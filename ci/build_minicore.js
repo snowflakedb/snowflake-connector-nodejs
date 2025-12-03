@@ -50,7 +50,7 @@ for (const target of BUILD_TARGETS) {
         '--manifest-path',
         'lib/minicore/rust_minicore/Cargo.toml',
         '--output-dir',
-        'lib/minicore/dist',
+        'lib/minicore/binaries',
         '--cross-compile',
         '--target',
         target,

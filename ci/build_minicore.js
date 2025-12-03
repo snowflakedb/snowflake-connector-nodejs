@@ -8,13 +8,13 @@ const projectRoot = path.resolve(__dirname, '..');
 process.chdir(projectRoot);
 console.log(`Working directory set to project root: ${projectRoot}`);
 
-// Clear lib/minicore/dist folder
+// Clear lib/minicore/binaries folder
 try {
   const distPath = path.join(projectRoot, 'lib', 'minicore', 'binaries');
   fs.rmSync(distPath, { recursive: true, force: true });
-  console.log('Cleared lib/minicore/dist');
+  console.log('Cleared lib/minicore/binaries');
 } catch (err) {
-  console.error('Failed to clear lib/minicore/dist:', err);
+  console.error('Failed to clear lib/minicore/binaries:', err);
   process.exit(1);
 }
 

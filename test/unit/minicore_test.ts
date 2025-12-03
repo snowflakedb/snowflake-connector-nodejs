@@ -1,4 +1,4 @@
-import { proxy, proxyRequire } from 'proxyrequire';
+import rewiremock from 'rewiremock/node';
 import assert from 'assert';
 import sinon from 'sinon';
 import fs from 'fs';
@@ -74,9 +74,9 @@ describe('getMinicoreStatus()', () => {
   afterEach(() => sinon.restore());
 
   function getFreshMinicoreModule() {
-    return proxy(() => {
-      return proxyRequire(require, '../../lib/minicore/minicore');
-    }, {}) as typeof import('../../lib/minicore/minicore');
+    return rewiremock.proxy(
+      '../../lib/minicore/minicore',
+    ) as typeof import('../../lib/minicore/minicore');
   }
 
   it('returns correct status metadata', () => {

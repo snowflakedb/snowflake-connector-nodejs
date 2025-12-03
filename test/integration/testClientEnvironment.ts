@@ -1,7 +1,7 @@
 import sinon from 'sinon';
 import assert from 'assert';
 import axios from 'axios';
-import { proxy, proxyRequire } from 'proxyrequire';
+import rewiremock from 'rewiremock/node';
 import { runWireMockAsync, addWireMockMappingsFromFile } from '../wiremockRunner';
 import * as testUtil from './testUtil';
 
@@ -61,8 +61,9 @@ describe('CLIENT_ENVIRONMENT for /login-request', () => {
 
   it('contains CORE_LOAD_ERROR when minicore fails to load', async () => {
     sinon.stub(process, 'platform').value('dummy-test-platform-to-force-load-error');
-    const freshCoreInstance = proxy(() => proxyRequire(require, '../../lib/snowflake'), { axios });
-
+    const freshCoreInstance = rewiremock.proxy('../../lib/snowflake', {
+      '../../lib/minicore': rewiremock.proxy('../../lib/minicore/minicore'),
+    });
     await initConnection(freshCoreInstance);
     const clientEnvironment = getClientEnvironment();
     assert.strictEqual(clientEnvironment.CORE_VERSION, null);

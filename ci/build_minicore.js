@@ -3,6 +3,8 @@ const fs = require('fs');
 const path = require('path');
 const { execSync } = require('child_process');
 
+const BINARIES_DIR = path.join('lib', 'minicore', 'binaries');
+
 // Ensure we run from the project root
 const projectRoot = path.resolve(__dirname, '..');
 process.chdir(projectRoot);
@@ -10,11 +12,11 @@ console.log(`Working directory set to project root: ${projectRoot}`);
 
 // Clear lib/minicore/binaries folder
 try {
-  const distPath = path.join(projectRoot, 'lib', 'minicore', 'binaries');
+  const distPath = path.join(projectRoot, BINARIES_DIR);
   fs.rmSync(distPath, { recursive: true, force: true });
-  console.log('Cleared lib/minicore/binaries');
+  console.log(`Cleared ${BINARIES_DIR}`);
 } catch (err) {
-  console.error('Failed to clear lib/minicore/binaries:', err);
+  console.error(`Failed to clear ${BINARIES_DIR}:`, err);
   process.exit(1);
 }
 
@@ -50,7 +52,7 @@ for (const target of BUILD_TARGETS) {
         '--manifest-path',
         'lib/minicore/rust_minicore/Cargo.toml',
         '--output-dir',
-        'lib/minicore/binaries',
+        BINARIES_DIR,
         '--cross-compile',
         '--target',
         target,

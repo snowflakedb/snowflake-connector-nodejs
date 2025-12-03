@@ -18,10 +18,11 @@ if (process.env.SNOWFLAKE_DISABLE_MINICORE) {
   minicoreStatus.error = 'Minicore is disabled with SNOWFLAKE_DISABLE_MINICORE env variable';
 } else {
   try {
-    const binaryName = getBinaryName();
-    const minicoreModule = require(`./binaries/${binaryName}`) as typeof import('./binaries');
+    minicoreStatus.binaryName = getBinaryName();
+    const minicoreModule = require(
+      `./binaries/${minicoreStatus.binaryName}`,
+    ) as typeof import('./binaries');
     minicoreStatus.version = minicoreModule.sfCoreFullVersion();
-    minicoreStatus.binaryName = binaryName;
   } catch (error: unknown) {
     // NOTE:
     // minicoreStatus is pushed to telemetry, so we don't want the original error there as it might

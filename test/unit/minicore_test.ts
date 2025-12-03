@@ -105,7 +105,7 @@ describe('getMinicoreStatus()', () => {
     const minicoreStatus = minicoreModule.getMinicoreStatus();
     assert.deepStrictEqual(minicoreStatus, {
       version: null,
-      binaryName: null,
+      binaryName: minicoreModule.getBinaryName(),
       error: 'Failed to load binary',
     });
   });

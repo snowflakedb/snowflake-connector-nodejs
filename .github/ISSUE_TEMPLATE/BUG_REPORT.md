@@ -7,7 +7,6 @@ labels: bug
 :exclamation: If you need **urgent assistance** then [file a case with Snowflake Support](https://community.snowflake.com/s/article/How-To-Submit-a-Support-Case-in-Snowflake-Lodge).
 Otherwise continue here.
 
-
 Please answer these questions before submitting your issue.
 In order to accurately debug the issue this information is required. Thanks!
 

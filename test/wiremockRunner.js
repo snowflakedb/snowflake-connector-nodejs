@@ -123,6 +123,8 @@ async function addWireMockMappingsFromFile(wireMock, filePath, options = {}) {
     return match;
   });
 
+  console.log('fileContent after replacement---------------->', fileContent);
+
   if (sendRaw) {
     const result = await fetch(`${wireMock.rootUrl}/__admin/mappings/import`, {
       method: 'POST',

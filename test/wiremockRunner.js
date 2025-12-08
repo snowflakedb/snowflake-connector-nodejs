@@ -20,6 +20,7 @@ async function runWireMockAsync(port, options = {}) {
           'wiremock',
           '--enable-browser-proxying',
           '--proxy-pass-through',
+          '--verbose',
           'false',
           '--port',
           String(port),
@@ -108,6 +109,8 @@ async function waitForWiremockStarted(wireMock, counter, maxRetries = 30) {
 async function addWireMockMappingsFromFile(wireMock, filePath, options = {}) {
   const { replaceVariables = {}, sendRaw = false } = options;
   let fileContent = fs.readFileSync(filePath, 'utf8').replace(/\r\n/g, '\n');
+
+  console.log('fileContent---------------->', fileContent);
 
   // Replace template variables in the file content
   // Regex matches {{variable}} or {{ variable }} with optional whitespace

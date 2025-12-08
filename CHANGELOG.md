@@ -6,10 +6,11 @@
 
 ## 2.3.2
 
+- Added official support for RHEL 9 (snowflakedb/snowflake-connector-nodejs#1196)
+- Added official support for NodeJS 24 (snowflakedb/snowflake-connector-nodejs#1202)
 - Fixed TypeScript definition for `getResultsFromQueryId` - `queryId` should be required and `sqlText` should be optional (snowflakedb/snowflake-connector-nodejs#1197)
 - Bumped dependency `glob` to address CVE-2025-64756 (snowflakedb/snowflake-connector-nodejs#1206)
-
-- Fixed a regression introduced in v2.1.1 where instantiating SnowflakeHttpsProxyAgent was attempted without the `new` keyword, breaking the driver when both OCSP was enabled and HTTP_PROXY environmental variable was used to set proxy (bug did not affect HTTPS_PROXY)
+- Fixed a regression introduced in v2.3.1 where instantiating SnowflakeHttpsProxyAgent was attempted without the `new` keyword, breaking the driver when both OCSP was enabled and HTTP_PROXY environmental variable was used to set proxy (bug did not affect HTTPS_PROXY)
 
 ## 2.3.1
 

@@ -1,6 +1,6 @@
 {
   "name": "snowflake-sdk",
-  "version": "2.3.1",
+  "version": "2.3.2",
   "description": "Node.js driver for Snowflake",
   "dependencies": {
     "@aws-crypto/sha256-js": "^5.2.0",
@@ -42,6 +42,7 @@
   },
   "devDependencies": {
     "@aws-sdk/types": "^3.387.0",
+    "@napi-rs/cli": "^3.2.0",
     "@types/mocha": "^10.0.10",
     "@types/node": "^22.15.18",
     "@types/sinon": "^17.0.4",
@@ -99,7 +100,11 @@
     "test:ci:withSystemTests:coverage": "nyc npm run test:ci:withSystemTests",
     "test:manual": "mocha test/integration/testManualConnection.js",
     "serve-wiremock": "wiremock --enable-browser-proxying --proxy-pass-through  false --port 8081",
-    "wiremock": "npm run serve-wiremock"
+    "wiremock": "npm run serve-wiremock",
+    "minicore:build": "node ci/build_minicore.js"
+  },
+  "napi": {
+    "binaryName": "sf_mini_core_0.0.1"
   },
   "author": {
     "name": "Snowflake Computing, Inc.",

@@ -108,7 +108,7 @@ async function waitForWiremockStarted(wireMock, counter, maxRetries = 30) {
  */
 async function addWireMockMappingsFromFile(wireMock, filePath, options = {}) {
   const { replaceVariables = {}, sendRaw = false } = options;
-  let fileContent = fs.readFileSync(filePath, 'utf8').replace(/\r\n/g, '\n');
+  let fileContent = fs.readFileSync(filePath, 'utf8'); //.replace(/\r\n/g, '\n');
 
   console.log('fileContent---------------->', fileContent);
 
@@ -124,6 +124,7 @@ async function addWireMockMappingsFromFile(wireMock, filePath, options = {}) {
   });
 
   console.log('fileContent after replacement---------------->', fileContent);
+  console.log('JSON', JSON.parse(fileContent));
 
   if (sendRaw) {
     const result = await fetch(`${wireMock.rootUrl}/__admin/mappings/import`, {

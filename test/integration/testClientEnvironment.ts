@@ -53,7 +53,7 @@ describe('CLIENT_ENVIRONMENT for /login-request', () => {
     const clientEnvironment = getClientEnvironment();
     assert.strictEqual(clientEnvironment.CORE_VERSION, '0.0.1');
     assert.ok(
-      clientEnvironment.CORE_BINARY_NAME.includes('sf_mini_core_0.0.1'),
+      clientEnvironment.CORE_FILE_NAME.includes('sf_mini_core_0.0.1'),
       `Unexpected CORE_BINARY_NAME: ${clientEnvironment.CORE_BINARY_NAME}`,
     );
     assert.strictEqual(clientEnvironment.CORE_LOAD_ERROR, null);
@@ -68,7 +68,7 @@ describe('CLIENT_ENVIRONMENT for /login-request', () => {
     const clientEnvironment = getClientEnvironment();
     assert.strictEqual(clientEnvironment.CORE_VERSION, null);
     assert.ok(
-      clientEnvironment.CORE_BINARY_NAME.includes('sf_mini_core_0.0.1'),
+      clientEnvironment.CORE_FILE_NAME.includes('sf_mini_core_0.0.1'),
       `Unexpected CORE_BINARY_NAME: ${clientEnvironment.CORE_BINARY_NAME}`,
     );
     assert.strictEqual(clientEnvironment.CORE_LOAD_ERROR, 'Failed to load binary');

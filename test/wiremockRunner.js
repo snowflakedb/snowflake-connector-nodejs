@@ -110,11 +110,10 @@ async function addWireMockMappingsFromFile(wireMock, filePath, options = {}) {
   const { replaceVariables = {}, sendRaw = false } = options;
   const fileContent = fs
     .readFileSync(filePath, 'utf8')
-    .replace(/\\/g, '\\\\') // Escape backslashes in the file content for JSON compatibility on Windows
     .replaceAll(/\{\{\s*([^}]+)\s*\}\}/g, (match, variableName) => {
       const trimmedVariableName = variableName.trim();
       if (replaceVariables[trimmedVariableName]) {
-        return replaceVariables[trimmedVariableName];
+        return replaceVariables[trimmedVariableName].replaceAll('\\', '\\\\');
       }
       // If variable is not found, leave the placeholder unchanged
       return match;

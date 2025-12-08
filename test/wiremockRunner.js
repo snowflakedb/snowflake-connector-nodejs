@@ -92,10 +92,46 @@ async function waitForWiremockStarted(wireMock, counter, maxRetries = 30) {
     });
 }
 
-async function addWireMockMappingsFromFile(wireMock, filePath) {
-  const requests = JSON.parse(fs.readFileSync(filePath, 'utf8'));
-  for (const mapping of requests.mappings) {
-    await wireMock.mappings.createMapping(mapping);
+/**
+ * Adds WireMock mappings from a JSON file with support for template variable replacement.
+ *
+ * Template variables in the file can be specified using double curly braces with optional spaces:
+ * - {{variable1}} - no spaces around variable name
+ * - {{ variable1 }} - spaces around variable name
+ *
+ * @param {Object} wireMock - The WireMock REST client instance
+ * @param {string} filePath - Path to the JSON file containing WireMock mappings
+ * @param {Object} [options={}] - Options object
+ * @param {Object} [options.replaceVariables={}] - Object containing key-value pairs for template variable replacement
+ * @param {boolean} [options.sendRaw=false] - Allows to send the wiremock contents as is to bypass JSON validation
+ */
+async function addWireMockMappingsFromFile(wireMock, filePath, options = {}) {
+  const { replaceVariables = {}, sendRaw = false } = options;
+  const fileContent = fs
+    .readFileSync(filePath, 'utf8')
+    .replaceAll(/\{\{\s*([^}]+)\s*\}\}/g, (match, variableName) => {
+      const trimmedVariableName = variableName.trim();
+      if (replaceVariables[trimmedVariableName]) {
+        return replaceVariables[trimmedVariableName].replaceAll('\\', '\\\\');
+      }
+      // If variable is not found, leave the placeholder unchanged
+      return match;
+    });
+
+  if (sendRaw) {
+    const result = await fetch(`${wireMock.rootUrl}/__admin/mappings/import`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: fileContent,
+    });
+    if (!result.ok) {
+      throw new Error(`Failed to add WireMock mappings: ${result}. Content: ${fileContent}`);
+    }
+  } else {
+    const requests = JSON.parse(fileContent);
+    for (const mapping of requests.mappings) {
+      await wireMock.mappings.createMapping(mapping);
+    }
   }
 }
 

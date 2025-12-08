@@ -4,6 +4,10 @@
 
 - TBA
 
+## 2.3.3
+
+- Fixed a bug in build script resulting in minicore binaries to not be present in a dist folder (snowflakedb/snowflake-connector-nodejs#1221)
+
 ## 2.3.2
 
 - Added official support for RHEL 9 (snowflakedb/snowflake-connector-nodejs#1196)

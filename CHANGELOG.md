@@ -6,7 +6,7 @@
 
 ## 2.3.3
 
-- Fixed a bug in build script resulting in minicore binaries to not be present in a dist folder (snowflakedb/snowflake-connector-nodejs#1221)
+- Fixed a bug in build script resulting in minicore binaries to not be present in the dist folder (snowflakedb/snowflake-connector-nodejs#1221)
 
 ## 2.3.2
 

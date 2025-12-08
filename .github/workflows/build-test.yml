@@ -43,7 +43,7 @@ jobs:
   test-mac:
     needs: build
     name: Tests on Mac
-    runs-on: macos-13
+    runs-on: macos-latest
     strategy:
       fail-fast: false
       matrix:

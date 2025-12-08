@@ -6,6 +6,11 @@ import { runWireMockAsync, addWireMockMappingsFromFile } from '../wiremockRunner
 
 const OriginalFileTransferAgent = require('../../lib/file_transfer_agent/file_transfer_agent');
 
+const snowflake = require('../../lib/snowflake');
+snowflake.configure({
+  logLevel: 'TRACE',
+});
+
 describe('smkId patching in PUT statements', () => {
   let testUtil: any;
   let fileTransferAgentUsedContext: any;

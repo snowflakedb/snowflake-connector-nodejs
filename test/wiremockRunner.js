@@ -107,7 +107,7 @@ async function waitForWiremockStarted(wireMock, counter, maxRetries = 30) {
  */
 async function addWireMockMappingsFromFile(wireMock, filePath, options = {}) {
   const { replaceVariables = {}, sendRaw = false } = options;
-  let fileContent = fs.readFileSync(filePath, 'utf8');
+  let fileContent = fs.readFileSync(filePath, 'utf8').replace(/\r\n/g, '\n');
 
   // Replace template variables in the file content
   // Regex matches {{variable}} or {{ variable }} with optional whitespace

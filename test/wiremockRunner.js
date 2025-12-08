@@ -121,11 +121,12 @@ async function addWireMockMappingsFromFile(wireMock, filePath, options = {}) {
   });
 
   if (sendRaw) {
-    await fetch(`${wireMock.rootUrl}/__admin/mappings/import`, {
+    const result = await fetch(`${wireMock.rootUrl}/__admin/mappings/import`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: fileContent,
     });
+    console.log('result---------------->', result);
   } else {
     const requests = JSON.parse(fileContent);
     for (const mapping of requests.mappings) {

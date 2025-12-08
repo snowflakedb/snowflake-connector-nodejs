@@ -4,7 +4,7 @@ about: Something isn't working as expected? Here is the right place to report.
 labels: bug
 ---
 
-If you need **urgent assistance** then [file a case with Snowflake Support](https://community.snowflake.com/s/article/How-To-Submit-a-Support-Case-in-Snowflake-Lodge).
+:exclamation: If you need **urgent assistance** then [file a case with Snowflake Support](https://community.snowflake.com/s/article/How-To-Submit-a-Support-Case-in-Snowflake-Lodge).
 Otherwise continue here.
 
 Please answer these questions before submitting your issue.

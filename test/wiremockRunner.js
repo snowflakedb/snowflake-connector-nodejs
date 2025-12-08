@@ -108,20 +108,17 @@ async function waitForWiremockStarted(wireMock, counter, maxRetries = 30) {
  */
 async function addWireMockMappingsFromFile(wireMock, filePath, options = {}) {
   const { replaceVariables = {}, sendRaw = false } = options;
-  let fileContent = fs.readFileSync(filePath, 'utf8'); //.replace(/\r\n/g, '\n');
-
-  console.log('fileContent---------------->', fileContent);
-
-  // Replace template variables in the file content
-  // Regex matches {{variable}} or {{ variable }} with optional whitespace
-  fileContent = fileContent.replaceAll(/\{\{\s*([^}]+)\s*\}\}/g, (match, variableName) => {
-    const trimmedVariableName = variableName.trim();
-    if (replaceVariables[trimmedVariableName]) {
-      return replaceVariables[trimmedVariableName];
-    }
-    // If variable is not found, leave the placeholder unchanged
-    return match;
-  });
+  const fileContent = fs
+    .readFileSync(filePath, 'utf8')
+    .replace(/\\/g, '\\\\') // Escape backslashes in the file content for JSON compatibility on Windows
+    .replaceAll(/\{\{\s*([^}]+)\s*\}\}/g, (match, variableName) => {
+      const trimmedVariableName = variableName.trim();
+      if (replaceVariables[trimmedVariableName]) {
+        return replaceVariables[trimmedVariableName];
+      }
+      // If variable is not found, leave the placeholder unchanged
+      return match;
+    });
 
   console.log('fileContent after replacement---------------->', fileContent);
   console.log('JSON', JSON.parse(fileContent));
@@ -132,7 +129,9 @@ async function addWireMockMappingsFromFile(wireMock, filePath, options = {}) {
       headers: { 'Content-Type': 'application/json' },
       body: fileContent,
     });
-    console.log('result---------------->', result);
+    if (!result.ok) {
+      throw new Error(`Failed to add WireMock mappings: ${result}. Content: ${fileContent}`);
+    }
   } else {
     const requests = JSON.parse(fileContent);
     for (const mapping of requests.mappings) {

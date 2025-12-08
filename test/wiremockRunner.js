@@ -20,7 +20,6 @@ async function runWireMockAsync(port, options = {}) {
           'wiremock',
           '--enable-browser-proxying',
           '--proxy-pass-through',
-          '--verbose',
           'false',
           '--port',
           String(port),
@@ -118,9 +117,6 @@ async function addWireMockMappingsFromFile(wireMock, filePath, options = {}) {
       // If variable is not found, leave the placeholder unchanged
       return match;
     });
-
-  console.log('fileContent after replacement---------------->', fileContent);
-  console.log('JSON', JSON.parse(fileContent));
 
   if (sendRaw) {
     const result = await fetch(`${wireMock.rootUrl}/__admin/mappings/import`, {

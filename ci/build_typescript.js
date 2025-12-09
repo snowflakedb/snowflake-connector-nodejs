@@ -44,3 +44,14 @@ try {
   console.error('Error copying index.d.ts to /dist folder:', err);
   process.exit(1);
 }
+
+// Copy minicore binaries to dist folder
+try {
+  const srcPath = path.join(process.cwd(), 'lib', 'minicore', 'binaries');
+  const destPath = path.join(process.cwd(), 'dist', 'lib', 'minicore', 'binaries');
+  fs.cpSync(srcPath, destPath, { recursive: true });
+  console.log('Successfully copied minicore binaries to /dist folder');
+} catch (err) {
+  console.error('Error copying minicore binaries to /dist folder:', err);
+  process.exit(1);
+}

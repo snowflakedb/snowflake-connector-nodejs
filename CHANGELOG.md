@@ -6,6 +6,7 @@
 
 ## 2.3.3
 
+- Replaced `glob` dependency used in `PUT` queries with a custom wildcard matching implementation (snowflakedb/snowflake-connector-nodejs#1223)
 - Fixed misleading debug messages during login request (snowflakedb/snowflake-connector-nodejs#1213)
 - Fixed a bug in build script resulting in minicore binaries to not be present in the dist folder (snowflakedb/snowflake-connector-nodejs#1221)
 

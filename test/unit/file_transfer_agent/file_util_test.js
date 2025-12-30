@@ -252,6 +252,42 @@ if (os.platform() !== 'win32') {
   });
 }
 
+describe('FileUtil.getDigestAndSizeForFile()', function () {
+  const fileUtil = new FileUtil();
+  let testFilePath;
+
+  afterEach(async function () {
+    if (testFilePath) {
+      await fsPromises.rm(testFilePath, { force: true });
+      testFilePath = null;
+    }
+  });
+
+  it('should return sha256 digest (base64) and file size', async function () {
+    const content = Buffer.from('snowflake-nodejs-digest-test');
+    testFilePath = path.join(os.tmpdir(), `digest_test_${crypto.randomUUID()}`);
+    await fsPromises.writeFile(testFilePath, content);
+
+    const expectedDigest = crypto.createHash('sha256').update(content).digest('base64');
+    const result = await fileUtil.getDigestAndSizeForFile(testFilePath);
+
+    assert.strictEqual(result.digest, expectedDigest);
+    assert.strictEqual(result.size, content.length);
+  });
+
+  it('should handle empty files', async function () {
+    const content = Buffer.alloc(0);
+    testFilePath = path.join(os.tmpdir(), `digest_test_${crypto.randomUUID()}`);
+    await fsPromises.writeFile(testFilePath, content);
+
+    const expectedDigest = crypto.createHash('sha256').update(content).digest('base64');
+    const result = await fileUtil.getDigestAndSizeForFile(testFilePath);
+
+    assert.strictEqual(result.digest, expectedDigest);
+    assert.strictEqual(result.size, 0);
+  });
+});
+
 describe('FileUtil.normalizeGzipHeader()', function () {
   let fileUtil;
   let tempDir;

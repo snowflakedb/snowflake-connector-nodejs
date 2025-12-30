@@ -2,6 +2,7 @@ const assert = require('assert');
 const AZURE = require('@azure/storage-blob');
 const fs = require('fs');
 const sinon = require('sinon');
+const { Readable } = require('stream');
 const SnowflakeAzureUtil = require('./../../../lib/file_transfer_agent/azure_util');
 const resultStatus = require('../../../lib/file_util').resultStatus;
 
@@ -56,10 +57,11 @@ describe('Azure client', function () {
         }),
         getBlockBlobClient: () => ({
           upload: uploadStub,
+          uploadStream: uploadStub,
         }),
       }),
     });
-    sinonSandbox.stub(fs, 'readFileSync').returnsArg(0);
+    sinonSandbox.stub(fs, 'createReadStream').callsFake(() => Readable.from([Buffer.from('mock')]));
     Azure = new SnowflakeAzureUtil(noProxyConnectionConfig);
   });
 

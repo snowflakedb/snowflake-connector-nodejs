@@ -71,8 +71,9 @@ describe('S3 client', function () {
       },
     });
     mock('filesystem', {
-      readFileSync: async function (data) {
-        return data;
+      createReadStream: function () {
+        const { Readable } = require('stream');
+        return Readable.from([Buffer.from('mock')]);
       },
     });
     s3 = require('s3');
@@ -289,8 +290,9 @@ describe('S3 client', function () {
       },
     });
     mock('filesystem', {
-      readFileSync: async function (data) {
-        return data;
+      createReadStream: function () {
+        const { Readable } = require('stream');
+        return Readable.from([Buffer.from('mock')]);
       },
     });
     s3 = require('s3');
@@ -321,8 +323,9 @@ describe('S3 client', function () {
       },
     });
     mock('filesystem', {
-      readFileSync: async function (data) {
-        return data;
+      createReadStream: function () {
+        const { Readable } = require('stream');
+        return Readable.from([Buffer.from('mock')]);
       },
     });
     s3 = require('s3');
@@ -353,8 +356,9 @@ describe('S3 client', function () {
       },
     });
     mock('filesystem', {
-      readFileSync: async function (data) {
-        return data;
+      createReadStream: function () {
+        const { Readable } = require('stream');
+        return Readable.from([Buffer.from('mock')]);
       },
     });
     s3 = require('s3');

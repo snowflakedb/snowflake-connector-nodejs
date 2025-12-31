@@ -1,6 +1,7 @@
 const assert = require('assert');
 const sinon = require('sinon');
 const fs = require('fs');
+const { Readable, Writable } = require('stream');
 const SnowflakeGCSUtil = require('./../../../lib/file_transfer_agent/gcs_util');
 const resultStatus = require('../../../lib/file_util').resultStatus;
 
@@ -39,7 +40,10 @@ describe('GCS client', function () {
 
   beforeEach(() => {
     sinonSandbox = sinon.createSandbox();
-    sinonSandbox.stub(fs, 'readFileSync').returnsArg(0);
+    sinonSandbox.stub(fs, 'statSync').returns({ size: 1 });
+    sinonSandbox
+      .stub(fs, 'createReadStream')
+      .callsFake(() => Readable.from([Buffer.from('mock')]));
     meta = {
       stageInfo: {
         location: mockLocation + '/' + mockTable + '/' + mockPath + '/',
@@ -354,11 +358,14 @@ describe('GCS client', function () {
     const gcsClient = {
       bucket: () => ({
         file: () => ({
-          save: () => {
-            const err = new Error();
-            err.code = 401;
-            throw err;
-          },
+          createWriteStream: () =>
+            new Writable({
+              write(_chunk, _encoding, callback) {
+                const err = new Error();
+                err.code = 401;
+                callback(err);
+              },
+            }),
         }),
       }),
     };

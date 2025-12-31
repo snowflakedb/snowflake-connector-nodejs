@@ -41,9 +41,7 @@ describe('GCS client', function () {
   beforeEach(() => {
     sinonSandbox = sinon.createSandbox();
     sinonSandbox.stub(fs, 'statSync').returns({ size: 1 });
-    sinonSandbox
-      .stub(fs, 'createReadStream')
-      .callsFake(() => Readable.from([Buffer.from('mock')]));
+    sinonSandbox.stub(fs, 'createReadStream').callsFake(() => Readable.from([Buffer.from('mock')]));
     meta = {
       stageInfo: {
         location: mockLocation + '/' + mockTable + '/' + mockPath + '/',

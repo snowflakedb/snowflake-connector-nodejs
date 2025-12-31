@@ -61,9 +61,7 @@ describe('Azure client', function () {
         }),
       }),
     });
-    sinonSandbox
-      .stub(fs, 'createReadStream')
-      .callsFake(() => Readable.from([Buffer.from('mock')]));
+    sinonSandbox.stub(fs, 'createReadStream').callsFake(() => Readable.from([Buffer.from('mock')]));
     Azure = new SnowflakeAzureUtil(noProxyConnectionConfig);
   });
 

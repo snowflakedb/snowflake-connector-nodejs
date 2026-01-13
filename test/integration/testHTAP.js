@@ -4,10 +4,6 @@ const uuid = require('uuid');
 const connOption = require('./connectionOptions').valid;
 const testUtil = require('./testUtil');
 
-// TODO: remove me
-const snowflake = require('./../../lib/snowflake');
-snowflake.configure({ logLevel: 'trace' });
-
 function getUniqueDBNames(amount = 3) {
   const arr = [];
   for (let i = 0; i < amount; i++) {
@@ -19,6 +15,7 @@ function getUniqueDBNames(amount = 3) {
 // Only the AWS servers support the hybrid table in the GitHub action.
 if (process.env.CLOUD_PROVIDER === 'AWS') {
   describe('Query Context Cache test', function () {
+    // Longer timeout as each create hybrid table takes ~45s to complete
     this.timeout(5 * 60 * 1000);
 
     let connection;

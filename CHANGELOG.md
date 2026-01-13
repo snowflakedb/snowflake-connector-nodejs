@@ -1,6 +1,23 @@
 # Changelog
 
-## 2.4.0 (TBD)
+## Upcoming Release
+
+- TBA
+
+## 2.3.3
+
+- Replaced `glob` dependency used in `PUT` queries with a custom wildcard matching implementation (snowflakedb/snowflake-connector-nodejs#1223)
+- Fixed misleading debug messages during login request (snowflakedb/snowflake-connector-nodejs#1213)
+- Fixed a bug in build script resulting in minicore binaries to not be present in the dist folder (snowflakedb/snowflake-connector-nodejs#1221)
+
+## 2.3.2
+
+- Added official support for RHEL 9 (snowflakedb/snowflake-connector-nodejs#1196)
+- Added official support for NodeJS 24 (snowflakedb/snowflake-connector-nodejs#1202)
+- Fixed TypeScript definition for `getResultsFromQueryId` - `queryId` should be required and `sqlText` should be optional (snowflakedb/snowflake-connector-nodejs#1197)
+- Bumped dependency `glob` to address CVE-2025-64756 (snowflakedb/snowflake-connector-nodejs#1206)
+- Fixed a regression introduced in v2.3.1 where instantiating SnowflakeHttpsProxyAgent was attempted without the `new` keyword, breaking the driver when both OCSP was enabled and HTTP_PROXY environmental variable was used to set proxy (bug did not affect HTTPS_PROXY) (snowflakedb/snowflake-connector-nodejs#1192)
+- Introduced shared library for extended telemetry to identify and prepare testing platform for native node addons (snowflakedb/snowflake-connector-nodejs#1212)
 
 ## 2.3.1
 

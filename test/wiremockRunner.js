@@ -8,6 +8,10 @@ async function runWireMockAsync(port, options = {}) {
   const counter = 0;
   let child;
 
+  // Use environment variable for timeout (default 30s, can be increased for slower environments like RHEL9)
+  const startupTimeoutMs = parseInt(process.env.WIREMOCK_STARTUP_TIMEOUT_MS || '30000', 10);
+  const maxRetries = Math.floor(startupTimeoutMs / 1000);
+
   const waitingWireMockPromise = new Promise((resolve, reject) => {
     try {
       child = spawn(
@@ -19,6 +23,7 @@ async function runWireMockAsync(port, options = {}) {
           'false',
           '--port',
           String(port),
+          ...(options.wiremockJarArgs || []),
         ],
         {
           stdio: 'inherit',
@@ -27,18 +32,28 @@ async function runWireMockAsync(port, options = {}) {
       );
 
       child.on('exit', () => {});
-      const wireMock = new WireMockRestClient(`http://localhost:${port}`, {
+      // Use 127.0.0.1 instead of localhost to avoid IPv6/IPv4 resolution issues on Node.js 18 + RHEL9
+      const baseUri = `http://127.0.0.1:${port}`;
+      const wireMock = new WireMockRestClient(baseUri, {
         logLevel: 'debug',
         ...options,
       });
-      waitForWiremockStarted(wireMock, counter).then(resolve).catch(reject);
+      waitForWiremockStarted(wireMock, counter, maxRetries)
+        .then((restClient) => {
+          restClient.rootUrl = baseUri;
+          resolve(restClient);
+        })
+        .catch(reject);
     } catch (err) {
       reject(err);
     }
   });
 
   const timeout = new Promise((_, reject) => {
-    timeoutHandle = setTimeout(() => reject('Wiremock unavailable after 30s.'), 30000);
+    timeoutHandle = setTimeout(
+      () => reject(`Wiremock unavailable after ${startupTimeoutMs / 1000}s.`),
+      startupTimeoutMs,
+    );
   });
 
   return Promise.race([waitingWireMockPromise, timeout]).finally(() => {
@@ -47,7 +62,7 @@ async function runWireMockAsync(port, options = {}) {
   });
 }
 
-async function waitForWiremockStarted(wireMock, counter) {
+async function waitForWiremockStarted(wireMock, counter, maxRetries = 30) {
   return fetch(wireMock.baseUri)
     .then(async (resp) => {
       if (resp.ok) {
@@ -55,24 +70,24 @@ async function waitForWiremockStarted(wireMock, counter) {
       } else {
         await new Promise((resolve) => setTimeout(resolve, 1000));
         Logger.getInstance().info(
-          `Retry connection to WireMock after wrong response status: ${resp.status}`,
+          `Retry connection to WireMock after wrong response status: ${resp.status} (attempt ${counter + 1}/${maxRetries})`,
         );
-        if (++counter < 30) {
-          //stop after 30s
-          return await waitForWiremockStarted(wireMock, counter);
+        if (++counter < maxRetries) {
+          return await waitForWiremockStarted(wireMock, counter, maxRetries);
         } else {
-          Promise.reject('Wiremock: Waiting time has expired');
+          return Promise.reject('Wiremock: Waiting time has expired');
         }
       }
     })
     .catch(async (err) => {
       await new Promise((resolve) => setTimeout(resolve, 1000));
-      Logger.getInstance().info(`Retry connection to WireMock after error: ${err}`);
-      if (++counter < 30) {
-        //stop after 30s
-        return await waitForWiremockStarted(wireMock, counter);
+      Logger.getInstance().info(
+        `Retry connection to WireMock after error: ${err.message || err} (attempt ${counter + 1}/${maxRetries})`,
+      );
+      if (++counter < maxRetries) {
+        return await waitForWiremockStarted(wireMock, counter, maxRetries);
       } else {
-        Promise.reject('Wiremock: Waiting time has expired');
+        return Promise.reject('Wiremock: Waiting time has expired');
       }
     });
 }
@@ -86,25 +101,37 @@ async function waitForWiremockStarted(wireMock, counter) {
  *
  * @param {Object} wireMock - The WireMock REST client instance
  * @param {string} filePath - Path to the JSON file containing WireMock mappings
- * @param {Object} [fileVariables={}] - Object containing key-value pairs for template variable replacement
+ * @param {Object} [options={}] - Options object
+ * @param {Object} [options.replaceVariables={}] - Object containing key-value pairs for template variable replacement
+ * @param {boolean} [options.sendRaw=false] - Allows to send the wiremock contents as is to bypass JSON validation
  */
-async function addWireMockMappingsFromFile(wireMock, filePath, fileVariables = {}) {
-  let fileContent = fs.readFileSync(filePath, 'utf8');
+async function addWireMockMappingsFromFile(wireMock, filePath, options = {}) {
+  const { replaceVariables = {}, sendRaw = false } = options;
+  const fileContent = fs
+    .readFileSync(filePath, 'utf8')
+    .replaceAll(/\{\{\s*([^}]+)\s*\}\}/g, (match, variableName) => {
+      const trimmedVariableName = variableName.trim();
+      if (replaceVariables[trimmedVariableName]) {
+        return replaceVariables[trimmedVariableName].replaceAll('\\', '\\\\');
+      }
+      // If variable is not found, leave the placeholder unchanged
+      return match;
+    });
 
-  // Replace template variables in the file content
-  // Regex matches {{variable}} or {{ variable }} with optional whitespace
-  fileContent = fileContent.replace(/\{\{\s*([^}]+)\s*\}\}/g, (match, variableName) => {
-    const trimmedVariableName = variableName.trim();
-    if (fileVariables[trimmedVariableName]) {
-      return fileVariables[trimmedVariableName];
+  if (sendRaw) {
+    const result = await fetch(`${wireMock.rootUrl}/__admin/mappings/import`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: fileContent,
+    });
+    if (!result.ok) {
+      throw new Error(`Failed to add WireMock mappings: ${result}. Content: ${fileContent}`);
     }
-    // If variable is not found, leave the placeholder unchanged
-    return match;
-  });
-
-  const requests = JSON.parse(fileContent);
-  for (const mapping of requests.mappings) {
-    await wireMock.mappings.createMapping(mapping);
+  } else {
+    const requests = JSON.parse(fileContent);
+    for (const mapping of requests.mappings) {
+      await wireMock.mappings.createMapping(mapping);
+    }
   }
 }
 

@@ -2,6 +2,8 @@ const async = require('async');
 const testUtil = require('./testUtil');
 const os = require('os');
 
+// TODO:
+// a btter way to test proxy on every OS would be to spawn wiremock with a --proxy-all
 describe('Execute proxy test', function () {
   const platform = os.platform();
   if (platform === 'linux' && !process.env.SHOULD_SKIP_PROXY_TESTS) {

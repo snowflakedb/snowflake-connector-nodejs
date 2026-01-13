@@ -1,6 +1,6 @@
 {
   "name": "snowflake-sdk",
-  "version": "2.3.1",
+  "version": "2.3.3",
   "description": "Node.js driver for Snowflake",
   "dependencies": {
     "@aws-crypto/sha256-js": "^5.2.0",
@@ -26,7 +26,6 @@
     "fast-xml-parser": "^4.2.5",
     "fastest-levenshtein": "^1.0.16",
     "generic-pool": "^3.8.2",
-    "glob": "^10.0.0",
     "google-auth-library": "^10.1.0",
     "https-proxy-agent": "^7.0.2",
     "jsonwebtoken": "^9.0.0",
@@ -42,6 +41,7 @@
   },
   "devDependencies": {
     "@aws-sdk/types": "^3.387.0",
+    "@napi-rs/cli": "^3.2.0",
     "@types/mocha": "^10.0.10",
     "@types/node": "^22.15.18",
     "@types/sinon": "^17.0.4",
@@ -52,7 +52,7 @@
     "mocha": "^11.1.0",
     "mock-require": "^3.0.3",
     "nyc": "^15.1.0",
-    "prettier": "^3.5.3",
+    "prettier": "^3.7.1",
     "rewiremock": "^3.14.6",
     "sinon": "^20.0.0",
     "test-console": "^2.0.0",
@@ -99,7 +99,11 @@
     "test:ci:withSystemTests:coverage": "nyc npm run test:ci:withSystemTests",
     "test:manual": "mocha test/integration/testManualConnection.js",
     "serve-wiremock": "wiremock --enable-browser-proxying --proxy-pass-through  false --port 8081",
-    "wiremock": "npm run serve-wiremock"
+    "wiremock": "npm run serve-wiremock",
+    "minicore:build": "node ci/build_minicore.js"
+  },
+  "napi": {
+    "binaryName": "sf_mini_core_0.0.1"
   },
   "author": {
     "name": "Snowflake Computing, Inc.",

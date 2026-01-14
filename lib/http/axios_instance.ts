@@ -37,7 +37,6 @@ axios.interceptors.response.use(
       return Promise.reject(err);
     }
 
-    // NOTE:
     // Hardcoded values for now, later might allow to configure
     config.__snowflakeRetryConfig ??= {
       numRetries: 0,

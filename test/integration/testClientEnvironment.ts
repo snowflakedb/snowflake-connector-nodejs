@@ -1,9 +1,9 @@
 import sinon from 'sinon';
 import assert from 'assert';
-import axios from 'axios';
 import rewiremock from 'rewiremock/node';
 import { runWireMockAsync, addWireMockMappingsFromFile } from '../wiremockRunner';
 import * as testUtil from './testUtil';
+import axiosInstance from '../../lib/http/axios_instance';
 
 describe('CLIENT_ENVIRONMENT for /login-request', () => {
   let wiremock: any;
@@ -32,7 +32,7 @@ describe('CLIENT_ENVIRONMENT for /login-request', () => {
   });
 
   beforeEach(async () => {
-    axiosRequestSpy = sinon.spy(axios, 'request');
+    axiosRequestSpy = sinon.spy(axiosInstance, 'request');
   });
 
   afterEach(async () => {

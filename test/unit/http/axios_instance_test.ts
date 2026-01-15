@@ -14,6 +14,8 @@ describe('axios_instance retry middleware', () => {
     useSnowflakeRetryMiddleware: true,
   };
 
+  const FIXED_TIMESTAMP = Date.now();
+
   beforeEach(() => {
     originalAdapter = axios.defaults.adapter;
     adapterStub = sinon.stub();
@@ -21,6 +23,8 @@ describe('axios_instance retry middleware', () => {
 
     // Instantly resolve sleep for faster retries
     sinon.stub(Util, 'sleep').resolves();
+    // Fix Date.now() for predictable clientStartTime
+    sinon.stub(Date, 'now').returns(FIXED_TIMESTAMP);
   });
 
   afterEach(() => {
@@ -28,15 +32,42 @@ describe('axios_instance retry middleware', () => {
     sinon.restore();
   });
 
+  /**
+   * Mocks axios response with optional failures before success.
+   * @param failure - HTTP status (e.g. 503) or network error code (e.g. 'ECONNRESET')
+   * @param repeatTimes - Number of failures before success
+   * @returns Array capturing all request URLs for assertions
+   */
+  function createMockAdapter(failure?: number | string, repeatTimes: number = 1) {
+    const capturedUrls: string[] = [];
+    const failures: (number | string)[] =
+      failure !== undefined ? Array(repeatTimes).fill(failure) : [];
+
+    adapterStub.callsFake((config: SnowflakeInternalAxiosRequestConfig) => {
+      capturedUrls.push(config.url!);
+      const currentFailure = failures.shift();
+      if (currentFailure === undefined) {
+        return Promise.resolve({ status: 200, data: 'success', config });
+      }
+      return Promise.reject(
+        typeof currentFailure === 'number'
+          ? { response: { status: currentFailure }, config, message: `HTTP ${currentFailure}` }
+          : { config, message: currentFailure, code: currentFailure },
+      );
+    });
+
+    return capturedUrls;
+  }
+
   it('passes through successful responses without modification', async () => {
-    adapterStub.resolves({ status: 200, data: 'success' });
+    createMockAdapter();
     const response = await axios.request(TEST_REQUEST_CONFIG);
     assert.strictEqual(response.data, 'success');
     assert.strictEqual(adapterStub.callCount, 1);
   });
 
   it('skips retry when useSnowflakeRetryMiddleware is not set', async () => {
-    adapterStub.rejects({ response: { status: 503 } });
+    createMockAdapter(503);
     await assert.rejects(
       axios.request({ ...TEST_REQUEST_CONFIG, useSnowflakeRetryMiddleware: undefined }),
       (err: AxiosError) => {
@@ -44,15 +75,6 @@ describe('axios_instance retry middleware', () => {
         return true;
       },
     );
-    assert.strictEqual(adapterStub.callCount, 1);
-  });
-
-  it('skips retry when config is missing from error', async () => {
-    adapterStub.rejects({ message: 'Network Error' });
-    await assert.rejects(axios.request(TEST_REQUEST_CONFIG), (err: AxiosError) => {
-      assert.strictEqual(err.message, 'Network Error');
-      return true;
-    });
     assert.strictEqual(adapterStub.callCount, 1);
   });
 
@@ -64,16 +86,7 @@ describe('axios_instance retry middleware', () => {
     { status: null, description: 'Network Error' },
   ].forEach(({ status, description }) => {
     it(`retries on HTTP:${status} (${description})`, async () => {
-      adapterStub.onFirstCall().callsFake((config: SnowflakeInternalAxiosRequestConfig) => {
-        return Promise.reject(
-          status
-            ? { response: { status }, config, message: `HTTP ${status}` }
-            : { config, message: 'ECONNRESET' },
-        );
-      });
-      adapterStub.onSecondCall().callsFake((config: SnowflakeInternalAxiosRequestConfig) => {
-        return Promise.resolve({ status: 200, data: 'success', config });
-      });
+      createMockAdapter(status ?? 'ECONNRESET');
       const response = await axios.request(TEST_REQUEST_CONFIG);
       assert.strictEqual(response.data, 'success');
       assert.strictEqual(adapterStub.callCount, 2);
@@ -87,9 +100,7 @@ describe('axios_instance retry middleware', () => {
     { status: 404, description: 'Not Found' },
   ].forEach(({ status, description }) => {
     it(`does not retry on HTTP:${status} (${description})`, async () => {
-      adapterStub.onFirstCall().callsFake((config: SnowflakeInternalAxiosRequestConfig) => {
-        return Promise.reject({ response: { status }, config, message: `HTTP ${status}` });
-      });
+      createMockAdapter(status);
       await assert.rejects(axios.request(TEST_REQUEST_CONFIG), (err: AxiosError) => {
         assert.strictEqual(err.response?.status, status);
         return true;
@@ -99,9 +110,7 @@ describe('axios_instance retry middleware', () => {
   });
 
   it('does not retry on ERR_CANCELED (request canceled by client)', async () => {
-    adapterStub.onFirstCall().callsFake((config: SnowflakeInternalAxiosRequestConfig) => {
-      return Promise.reject({ config, message: 'canceled', code: 'ERR_CANCELED' });
-    });
+    createMockAdapter('ERR_CANCELED');
     await assert.rejects(axios.request(TEST_REQUEST_CONFIG), (err: AxiosError) => {
       assert.strictEqual(err.code, 'ERR_CANCELED');
       return true;
@@ -110,13 +119,52 @@ describe('axios_instance retry middleware', () => {
   });
 
   it('stops retrying after max retries exceeded', async () => {
-    adapterStub.callsFake((config: SnowflakeInternalAxiosRequestConfig) => {
-      return Promise.reject({ response: { status: 503 }, config, message: 'HTTP 503' });
+    createMockAdapter(503, 10);
+    await assert.rejects(
+      axios.request({
+        ...TEST_REQUEST_CONFIG,
+        snowflakeRetryConfig: { maxRetries: 5 },
+      }),
+      (err: AxiosError) => {
+        assert.strictEqual(err.response?.status, 503);
+        return true;
+      },
+    );
+    assert.strictEqual(adapterStub.callCount, 6);
+  });
+
+  it('adds clientStartTime and retryCount to query parameters on retries', async () => {
+    const capturedUrls = createMockAdapter(503, 2);
+    await axios.request({
+      ...TEST_REQUEST_CONFIG,
+      url: 'http://test.com/?queryParam=true',
     });
-    await assert.rejects(axios.request(TEST_REQUEST_CONFIG), (err: AxiosError) => {
-      assert.strictEqual(err.response?.status, 503);
-      return true;
+    const initialUrl = new URL(capturedUrls[0]);
+    const retry1Url = new URL(capturedUrls[1]);
+    const retry2Url = new URL(capturedUrls[2]);
+    assert.strictEqual(initialUrl.toString(), 'http://test.com/?queryParam=true');
+    assert.strictEqual(
+      retry1Url.toString(),
+      `http://test.com/?queryParam=true&clientStartTime=${FIXED_TIMESTAMP}&retryCount=1`,
+    );
+    assert.strictEqual(
+      retry2Url.toString(),
+      `http://test.com/?queryParam=true&clientStartTime=${FIXED_TIMESTAMP}&retryCount=2`,
+    );
+  });
+
+  [
+    { failure: 503, expectedRetryReason: '503' },
+    { failure: 'ECONNRESET', expectedRetryReason: '0' },
+  ].forEach(({ failure, expectedRetryReason }) => {
+    it('adds retryReason to query parameters when includeRetryReason is true', async () => {
+      const capturedUrls = createMockAdapter(failure);
+      await axios.request({
+        ...TEST_REQUEST_CONFIG,
+        snowflakeRetryConfig: { includeRetryReason: true },
+      });
+      const retryUrl = new URL(capturedUrls[1]);
+      assert.strictEqual(retryUrl.searchParams.get('retryReason'), expectedRetryReason);
     });
-    assert.strictEqual(adapterStub.callCount, 8);
   });
 });

@@ -90,7 +90,23 @@ describe('Request Retries', () => {
       assert.strictEqual(getAxiosRequestsCount('/queries/v1/abort-request'), expectedRequestCount);
     });
 
-    it.skip(`cancel query with id ${expectedActionText}`);
+    it(`cancel query with id ${expectedActionText}`, async () => {
+      await registerRetryMappings(error, 'cancel_query_byid');
+      await testUtil.connectAsync(connection);
+      const statement = await new Promise<any>((resolve, reject) => {
+        connection.execute({
+          asyncExec: true,
+          sqlText: 'SELECT 1',
+          complete: (err: any, stmt: any) => (err ? reject(err) : resolve(stmt)),
+        });
+      });
+      await new Promise((resolve) => statement.cancel(resolve));
+      assert.strictEqual(
+        getAxiosRequestsCount('/queries/01baf79b-0108-1a60-0000-01110354a6ce/abort-request'),
+        expectedRequestCount,
+      );
+    });
+
     it.skip(`query request retries on ${expectedActionText}`);
     it.skip(`fetch query result retries on ${expectedActionText}`);
     it.skip(`pending query getResultUrl retries on ${expectedActionText}`);

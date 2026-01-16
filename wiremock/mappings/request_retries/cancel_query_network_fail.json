@@ -6,7 +6,19 @@
         "method": "POST"
       },
       "response": {
-        "fixedDelayMilliseconds": 30000
+        "fixedDelayMilliseconds": 500,
+        "status": 200,
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "jsonBody": {
+          "code": "333333",
+          "data": {
+            "queryId": "01baf79b-0108-1a60-0000-01110354a6ce"
+          },
+          "message": null,
+          "success": true
+        }
       }
     },
     {

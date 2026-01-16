@@ -85,30 +85,49 @@ describe('Request Retries', () => {
     it(`cancel query without id ${expectedActionText}`, async () => {
       await registerRetryMappings(error, 'cancel_query');
       await testUtil.connectAsync(connection);
-      const statement = connection.execute({ sqlText: 'SELECT 1' });
+
+      // NOTE:
+      // .cancel() doesn't abort pending query-request. We need to wait for it to complete
+      // before cleaning up wiremock. Otherwise, query-request gets stuck in retry loop.
+      let markStatementCompleted: (value: unknown) => void;
+      const statementDonePromise = new Promise((resolve) => (markStatementCompleted = resolve));
+      const statement = connection.execute({
+        sqlText: 'SELECT 1',
+        complete: () => markStatementCompleted(true),
+      });
+
       await new Promise((resolve) => statement.cancel(resolve));
+      await statementDonePromise;
       assert.strictEqual(getAxiosRequestsCount('/queries/v1/abort-request'), expectedRequestCount);
     });
 
     it(`cancel query with id ${expectedActionText}`, async () => {
       await registerRetryMappings(error, 'cancel_query_byid');
       await testUtil.connectAsync(connection);
-      const statement = await new Promise<any>((resolve, reject) => {
-        connection.execute({
+      const { rowStatement } = await testUtil.executeCmdAsyncWithAdditionalParameters(
+        connection,
+        'SELECT 1',
+        {
           asyncExec: true,
-          sqlText: 'SELECT 1',
-          complete: (err: any, stmt: any) => (err ? reject(err) : resolve(stmt)),
-        });
-      });
-      await new Promise((resolve) => statement.cancel(resolve));
+        },
+      );
+      await new Promise((resolve) => rowStatement.cancel(resolve));
       assert.strictEqual(
         getAxiosRequestsCount('/queries/01baf79b-0108-1a60-0000-01110354a6ce/abort-request'),
         expectedRequestCount,
       );
     });
 
-    it.skip(`query request retries on ${expectedActionText}`);
-    it.skip(`fetch query result retries on ${expectedActionText}`);
-    it.skip(`pending query getResultUrl retries on ${expectedActionText}`);
+    it(`query request ${expectedActionText}`, async () => {
+      await registerRetryMappings(error, 'query_request');
+      await testUtil.connectAsync(connection);
+      await testUtil.executeCmdAsyncWithAdditionalParameters(connection, 'SELECT 1', {
+        asyncExec: true,
+      });
+      assert.strictEqual(getAxiosRequestsCount('/queries/v1/query-request'), expectedRequestCount);
+    });
+
+    it.skip(`fetch query result ${expectedActionText}`);
+    it.skip(`pending query getResultUrl ${expectedActionText}`);
   }
 });

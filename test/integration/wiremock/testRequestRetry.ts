@@ -6,15 +6,21 @@ import * as testUtil from '../testUtil';
 import * as Util from '../../../lib/util';
 import axiosInstance from '../../../lib/http/axios_instance';
 
-const RETRYABLE_REQUEST_FAULTS = [
-  'EMPTY_RESPONSE',
-  'MALFORMED_RESPONSE_CHUNK',
-  'RANDOM_DATA_THEN_CLOSE',
-  'CONNECTION_RESET_BY_PEER',
-  408, // Request Timeout
-  429, // Too Many Requests
-  500, // Internal Server Error
-  503, // Service Unavailable
+const REQUEST_ERRORS = [
+  // Retryable faults
+  { error: 'EMPTY_RESPONSE', shouldRetry: true },
+  { error: 'MALFORMED_RESPONSE_CHUNK', shouldRetry: true },
+  { error: 'RANDOM_DATA_THEN_CLOSE', shouldRetry: true },
+  { error: 'CONNECTION_RESET_BY_PEER', shouldRetry: true },
+  { error: 408, shouldRetry: true }, // Request Timeout
+  { error: 429, shouldRetry: true }, // Too Many Requests
+  { error: 500, shouldRetry: true }, // Internal Server Error
+  { error: 503, shouldRetry: true }, // Service Unavailable
+  // Non-retryable faults
+  { error: 400, shouldRetry: false }, // Bad Request
+  { error: 401, shouldRetry: false }, // Unauthorized
+  { error: 403, shouldRetry: false }, // Forbidden
+  { error: 404, shouldRetry: false }, // Not Found
 ];
 
 describe('Request Retries', () => {
@@ -58,29 +64,35 @@ describe('Request Retries', () => {
       .length;
   }
 
-  function registerRetryMappings(requestFault: string | number, mappingsName: string) {
-    const isHttpError = typeof requestFault === 'number';
+  function registerRetryMappings(requestError: string | number, mappingsName: string) {
+    const isHttpError = typeof requestError === 'number';
     const fileSuffix = isHttpError ? 'http_fail' : 'network_fail';
     return addWireMockMappingsFromFile(
       wiremock,
       `wiremock/mappings/request_retries/${mappingsName}_${fileSuffix}.json`,
       {
         replaceVariables: isHttpError
-          ? { httpStatusCode: requestFault }
-          : { responseFault: requestFault },
+          ? { httpStatusCode: requestError }
+          : { responseFault: requestError },
       },
     );
   }
 
-  for (const requestFault of RETRYABLE_REQUEST_FAULTS) {
-    it(`cancel query retries on ${requestFault}`, async () => {
-      await registerRetryMappings(requestFault, 'cancel_query');
+  for (const { error, shouldRetry } of REQUEST_ERRORS) {
+    const expectedActionText = `${shouldRetry ? 'retries' : 'does not retry'} on ${error}`;
+    const expectedRequestCount = shouldRetry ? 4 : 1;
+
+    it(`cancel query without id ${expectedActionText}`, async () => {
+      await registerRetryMappings(error, 'cancel_query');
       await testUtil.connectAsync(connection);
       const statement = connection.execute({ sqlText: 'SELECT 1' });
-      await new Promise((resolve, reject) => {
-        statement.cancel((err: any) => (err ? reject(err) : resolve(null)));
-      });
-      assert.strictEqual(getAxiosRequestsCount('/queries/v1/abort-request'), 4);
+      await new Promise((resolve) => statement.cancel(resolve));
+      assert.strictEqual(getAxiosRequestsCount('/queries/v1/abort-request'), expectedRequestCount);
     });
+
+    it.skip(`cancel query with id ${expectedActionText}`);
+    it.skip(`query request retries on ${expectedActionText}`);
+    it.skip(`fetch query result retries on ${expectedActionText}`);
+    it.skip(`pending query getResultUrl retries on ${expectedActionText}`);
   }
 });

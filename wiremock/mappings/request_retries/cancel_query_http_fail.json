@@ -10,73 +10,15 @@
       }
     },
     {
-      "scenarioName": "Cancel query fails 3 times due to http error before success",
-      "newScenarioState": "CancelFailed1",
+      "priority": 1,
       "request": {
         "urlPathPattern": "/queries/v1/abort-request*",
-        "method": "POST"
-      },
-      "response": {
-        "status": "{{httpStatusCode}}",
-        "headers": {
-          "Content-Type": "application/json"
-        },
-        "jsonBody": {
-          "code": null,
-          "data": null,
-          "message": null,
-          "success": false
+        "method": "POST",
+        "queryParameters": {
+          "retryCount": {
+            "equalTo": "3"
+          }
         }
-      }
-    },
-    {
-      "scenarioName": "Cancel query fails 3 times due to http error before success",
-      "requiredScenarioState": "CancelFailed1",
-      "newScenarioState": "CancelFailed2",
-      "request": {
-        "urlPathPattern": "/queries/v1/abort-request*",
-        "method": "POST"
-      },
-      "response": {
-        "status": "{{httpStatusCode}}",
-        "headers": {
-          "Content-Type": "application/json"
-        },
-        "jsonBody": {
-          "code": null,
-          "data": null,
-          "message": null,
-          "success": false
-        }
-      }
-    },
-    {
-      "scenarioName": "Cancel query fails 3 times due to http error before success",
-      "requiredScenarioState": "CancelFailed2",
-      "newScenarioState": "CancelFailed3",
-      "request": {
-        "urlPathPattern": "/queries/v1/abort-request*",
-        "method": "POST"
-      },
-      "response": {
-        "status": "{{httpStatusCode}}",
-        "headers": {
-          "Content-Type": "application/json"
-        },
-        "jsonBody": {
-          "code": null,
-          "data": null,
-          "message": null,
-          "success": false
-        }
-      }
-    },
-    {
-      "scenarioName": "Cancel query fails 3 times due to http error before success",
-      "requiredScenarioState": "CancelFailed3",
-      "request": {
-        "urlPathPattern": "/queries/v1/abort-request*",
-        "method": "POST"
       },
       "response": {
         "status": 200,
@@ -88,6 +30,24 @@
           "data": null,
           "message": null,
           "success": true
+        }
+      }
+    },
+    {
+      "request": {
+        "urlPathPattern": "/queries/v1/abort-request*",
+        "method": "POST"
+      },
+      "response": {
+        "status": "{{httpStatusCode}}",
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "jsonBody": {
+          "code": null,
+          "data": null,
+          "message": null,
+          "success": false
         }
       }
     }

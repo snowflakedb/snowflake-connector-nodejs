@@ -127,7 +127,54 @@ describe('Request Retries', () => {
       assert.strictEqual(getAxiosRequestsCount('/queries/v1/query-request'), expectedRequestCount);
     });
 
-    it.skip(`fetch query result ${expectedActionText}`);
-    it.skip(`pending query getResultUrl ${expectedActionText}`);
+    it(`fetch result ${expectedActionText}`, async () => {
+      await registerRetryMappings(error, 'query_result');
+      await testUtil.connectAsync(connection);
+      await new Promise((resolve) => {
+        connection.fetchResult({
+          queryId: '01baf79b-0108-1a60-0000-01110354a6ce',
+          complete: () => resolve(true),
+        });
+      });
+      // NOTE:
+      // When result fetching fails:
+      // ↓ the statement completes with an error
+      // ↓ transitions to completed state
+      // ↓ context.refresh() is called
+      // ↓ this invokes request 1 more time
+      //
+      // Seems like a bug. Keeping as is until universal driver migration.
+      assert.strictEqual(
+        getAxiosRequestsCount('/queries/01baf79b-0108-1a60-0000-01110354a6ce/result'),
+        shouldRetry ? 4 : 2,
+      );
+    });
+
+    it(`query returning getResultUrl ${expectedActionText}`, async () => {
+      await addWireMockMappingsFromFile(
+        wiremock,
+        'wiremock/mappings/query_returns_get_result_url.json',
+      );
+      await registerRetryMappings(error, 'query_result');
+      await testUtil.connectAsync(connection);
+      await new Promise((resolve) => {
+        connection.execute({
+          sqlText: 'SELECT 1',
+          complete: () => resolve(true),
+        });
+      });
+      // NOTE:
+      // When result fetching fails:
+      // ↓ the statement completes with an error
+      // ↓ transitions to completed state
+      // ↓ context.refresh() is called
+      // ↓ this invokes request 1 more time
+      //
+      // Seems like a bug. Keeping as is until universal driver migration.
+      assert.strictEqual(
+        getAxiosRequestsCount('/queries/01baf79b-0108-1a60-0000-01110354a6ce/result'),
+        shouldRetry ? 4 : 2,
+      );
+    });
   }
 });

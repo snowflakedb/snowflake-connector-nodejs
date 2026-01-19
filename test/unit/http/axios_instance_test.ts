@@ -9,7 +9,7 @@ describe('axios_instance retry middleware', () => {
   let originalAdapter: typeof axios.defaults.adapter;
 
   const TEST_REQUEST_CONFIG: AxiosRequestConfig = {
-    url: 'http://test.com',
+    url: 'http://snowflake.com',
     method: 'GET',
     useSnowflakeRetryMiddleware: true,
   };
@@ -137,19 +137,19 @@ describe('axios_instance retry middleware', () => {
     const capturedUrls = createMockAdapter(503, 2);
     await axios.request({
       ...TEST_REQUEST_CONFIG,
-      url: 'http://test.com/?queryParam=true',
+      url: 'http://snowflake.com/?queryParam=true',
     });
     const initialUrl = new URL(capturedUrls[0]);
     const retry1Url = new URL(capturedUrls[1]);
     const retry2Url = new URL(capturedUrls[2]);
-    assert.strictEqual(initialUrl.toString(), 'http://test.com/?queryParam=true');
+    assert.strictEqual(initialUrl.toString(), 'http://snowflake.com/?queryParam=true');
     assert.strictEqual(
       retry1Url.toString(),
-      `http://test.com/?queryParam=true&clientStartTime=${FIXED_TIMESTAMP}&retryCount=1`,
+      `http://snowflake.com/?queryParam=true&clientStartTime=${FIXED_TIMESTAMP}&retryCount=1`,
     );
     assert.strictEqual(
       retry2Url.toString(),
-      `http://test.com/?queryParam=true&clientStartTime=${FIXED_TIMESTAMP}&retryCount=2`,
+      `http://snowflake.com/?queryParam=true&clientStartTime=${FIXED_TIMESTAMP}&retryCount=2`,
     );
   });
 

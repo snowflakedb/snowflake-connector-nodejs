@@ -250,6 +250,8 @@ export const url = {
    * @param url
    * @param paramName the name of the query parameter.
    * @param paramValue the value of the query parameter.
+   *
+   * @deprecated Use native URL constructor instead
    */
   appendParam: function (url: string, paramName: string, paramValue: any) {
     // if the specified url is valid
@@ -263,6 +265,9 @@ export const url = {
     return url;
   },
 
+  /**
+   * @deprecated This method should only be used in axios middleware. Once that migration is complete, this function can be removed.
+   */
   appendRetryParam: function (option: {
     url: string;
     retryCount: number;

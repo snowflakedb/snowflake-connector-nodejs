@@ -9,6 +9,8 @@ try {
     cachedOsDetails = extractLinuxOsRelease();
   }
 } catch (error) {
+  // Logger is not initialized at this point, so we store the error and log it on the first
+  // getOsDetails() call
   logDebugError = error;
   cachedOsDetails = null;
 }

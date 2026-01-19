@@ -73,4 +73,17 @@ describe('CLIENT_ENVIRONMENT for /login-request', () => {
     );
     assert.strictEqual(clientEnvironment.CORE_LOAD_ERROR, 'Failed to load binary');
   });
+
+  it('contains OS_DETAILS on Linux or null on other platforms', async () => {
+    await initConnection();
+    const osDetails = getClientEnvironment().OS_DETAILS;
+    if (process.platform === 'linux') {
+      assert.ok(
+        osDetails !== null && Object.keys(osDetails).length >= 1,
+        'OS_DETAILS should contain at least 1 key on Linux',
+      );
+    } else {
+      assert.strictEqual(osDetails, null);
+    }
+  });
 });

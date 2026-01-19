@@ -1,18 +1,15 @@
 const Os = require('os');
 const async = require('async');
 const assert = require('assert');
+const { exec } = require('child_process');
 const snowflake = require('./../../lib/snowflake');
 const connOption = require('./connectionOptions');
 const SocketUtil = require('./../../lib/agent/socket_util');
 const OcspResponseCache = require('./../../lib/agent/ocsp_response_cache');
 const Check = require('./../../lib/agent/check');
 const Util = require('./../../lib/util');
-const { exec } = require('child_process');
-const testUtil = require('./testUtil');
-
-const sharedLogger = require('./sharedLogger');
 const Logger = require('./../../lib/logger');
-Logger.getInstance().setLogger(sharedLogger.logger);
+const testUtil = require('./testUtil');
 
 describe('OCSP validation', function () {
   it('OCSP validation with server reusing SSL sessions', function (done) {
@@ -40,7 +37,6 @@ describe('OCSP validation', function () {
                 if (err) {
                   callback(err);
                 }
-
                 numStmtsExecuted++;
                 if (numStmtsExecuted === numStmtsTotal) {
                   callback();

@@ -1,0 +1,40 @@
+{
+  "mappings": [
+    {
+      "scenarioName": "Login fails 3 times due to network fault before success",
+      "newScenarioState": "Login1Failed",
+      "requiredScenarioState": "Started",
+      "request": {
+        "urlPathPattern": "/session/v1/login-request*",
+        "method": "POST"
+      },
+      "response": {
+        "fault": "{{responseFault}}"
+      }
+    },
+    {
+      "scenarioName": "Login fails 3 times due to network fault before success",
+      "newScenarioState": "Login2Failed",
+      "requiredScenarioState": "Login1Failed",
+      "request": {
+        "urlPathPattern": "/session/v1/login-request*",
+        "method": "POST"
+      },
+      "response": {
+        "fault": "{{responseFault}}"
+      }
+    },
+    {
+      "scenarioName": "Login fails 3 times due to network fault before success",
+      "requiredScenarioState": "Login2Failed",
+      "newScenarioState": "PlaceholderToForceDefaultLoginSuccess",
+      "request": {
+        "urlPathPattern": "/session/v1/login-request*",
+        "method": "POST"
+      },
+      "response": {
+        "fault": "{{responseFault}}"
+      }
+    }
+  ]
+}

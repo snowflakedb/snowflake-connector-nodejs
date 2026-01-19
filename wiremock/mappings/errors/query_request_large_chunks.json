@@ -1,0 +1,161 @@
+{
+  "mappings": [
+    {
+      "request": {
+        "urlPathPattern": "/session/v1/login-request*",
+        "method": "POST"
+      },
+      "response": {
+        "status": 200,
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "jsonBody": {
+          "data": {
+            "masterToken": "master token",
+            "token": "session token",
+            "validityInSeconds": 3600,
+            "masterValidityInSeconds": 14400,
+            "displayUserName": "PAT_TEST_USER",
+            "serverVersion": "8.48.0",
+            "firstLogin": false,
+            "remMeToken": null,
+            "remMeValidityInSeconds": 0,
+            "healthCheckInterval": 45,
+            "newClientForUpgrade": "3.12.3",
+            "sessionId": 1172562260498,
+            "parameters": [
+              { "name": "CLIENT_PREFETCH_THREADS", "value": 4 },
+              { "name": "QUERY_CONTEXT_CACHE_SIZE", "value": 5 },
+              { "name": "CLIENT_RESULT_PREFETCH_THREADS", "value": 1 }
+            ],
+            "sessionInfo": {
+              "databaseName": "TEST_DATABASE",
+              "schemaName": "TEST_SCHEMA",
+              "warehouseName": "TEST_WAREHOUSE",
+              "roleName": "ANALYST"
+            },
+            "idToken": null,
+            "idTokenValidityInSeconds": 0,
+            "responseData": null,
+            "mfaToken": null,
+            "mfaTokenValidityInSeconds": 0
+          },
+          "code": null,
+          "message": null,
+          "success": true
+        }
+      }
+    },
+    {
+      "request": {
+        "urlPathPattern": "/session*",
+        "method": "POST"
+      },
+      "response": {
+        "status": 200,
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "jsonBody": {
+          "code": null,
+          "data": null,
+          "message": null,
+          "success": true
+        }
+      }
+    },
+    {
+      "request": {
+        "urlPathPattern": "/queries/v1/query-request*",
+        "method": "POST"
+      },
+      "response": {
+        "status": 200,
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "jsonBody": {
+          "data": {
+            "parameters": [],
+            "rowtype": [
+              {
+                "name": "1",
+                "type": "fixed",
+                "scale": 0,
+                "precision": 1,
+                "nullable": false
+              }
+            ],
+            "rowset": [],
+            "total": 2,
+            "returned": 2,
+            "queryId": "01baf79b-0108-1a60-0000-large-chunks",
+            "numberOfBinds": 0,
+            "arrayBindSupported": false,
+            "statementTypeId": 4096,
+            "version": 1,
+            "queryResultFormat": "json",
+            "queryContext": { "entries": [] },
+            "chunks": [
+              { "rowCount": 1, "url": "http://127.0.0.1:{{wiremockPort}}/chunk/1" },
+              { "rowCount": 1, "url": "http://127.0.0.1:{{wiremockPort}}/chunk/2" }
+            ]
+          },
+          "success": true
+        }
+      }
+    },
+    {
+      "request": {
+        "urlPathPattern": "/chunk/1",
+        "method": "GET"
+      },
+      "response": {
+        "status": 200,
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "body": "[\"1\"]"
+      }
+    },
+    {
+      "scenarioName": "Chunk2 fails twice then succeeds",
+      "newScenarioState": "Chunk2FailedOnce",
+      "request": {
+        "urlPathPattern": "/chunk/2",
+        "method": "GET"
+      },
+      "response": {
+        "fault": "{{chunkNetworkErrorFault}}"
+      }
+    },
+    {
+      "scenarioName": "Chunk2 fails twice then succeeds",
+      "requiredScenarioState": "Chunk2FailedOnce",
+      "newScenarioState": "Chunk2FailedTwice",
+      "request": {
+        "urlPathPattern": "/chunk/2",
+        "method": "GET"
+      },
+      "response": {
+        "fault": "{{chunkNetworkErrorFault}}"
+      }
+    },
+    {
+      "scenarioName": "Chunk2 fails twice then succeeds",
+      "requiredScenarioState": "Chunk2FailedTwice",
+      "request": {
+        "urlPathPattern": "/chunk/2",
+        "method": "GET"
+      },
+      "response": {
+        "status": 200,
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "body": "[\"2\"]"
+      }
+    }
+  ]
+}

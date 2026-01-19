@@ -150,6 +150,7 @@ function serializeRequest(request) {
   // { url: 'foo', method: 'GET' } even though they are semantically equivalent
   // requests, i.e. they should produce the same output
   const clonedRequest = createSortedClone(request);
+  delete clonedRequest.useExperimentalRetryMiddleware;
   // Ignore CLIENT_ENVIRONMENT for now,
   // in future we should migrate this entire thing to wiremock for better matchers
   if (clonedRequest.json && clonedRequest.json.data && clonedRequest.json.data.CLIENT_ENVIRONMENT) {

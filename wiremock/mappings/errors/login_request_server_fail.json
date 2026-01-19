@@ -1,0 +1,67 @@
+{
+  "mappings": [
+    {
+      "scenarioName": "Login fails 3 times due to server error before success",
+      "newScenarioState": "ServerFailed1",
+      "requiredScenarioState": "Started",
+      "request": {
+        "urlPathPattern": "/session/v1/login-request*",
+        "method": "POST"
+      },
+      "response": {
+        "status": "{{httpStatusCode}}",
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "jsonBody": {
+          "code": null,
+          "data": null,
+          "message": null,
+          "success": false
+        }
+      }
+    },
+    {
+      "scenarioName": "Login fails 3 times due to server error before success",
+      "newScenarioState": "ServerFailed2",
+      "requiredScenarioState": "ServerFailed1",
+      "request": {
+        "urlPathPattern": "/session/v1/login-request*",
+        "method": "POST"
+      },
+      "response": {
+        "status": "{{httpStatusCode}}",
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "jsonBody": {
+          "code": null,
+          "data": null,
+          "message": null,
+          "success": false
+        }
+      }
+    },
+    {
+      "scenarioName": "Login fails 3 times due to server error before success",
+      "requiredScenarioState": "ServerFailed2",
+      "newScenarioState": "PlaceholderToForceDefaultLoginSuccess",
+      "request": {
+        "urlPathPattern": "/session/v1/login-request*",
+        "method": "POST"
+      },
+      "response": {
+        "status": "{{httpStatusCode}}",
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "jsonBody": {
+          "code": null,
+          "data": null,
+          "message": null,
+          "success": false
+        }
+      }
+    }
+  ]
+}

@@ -3,6 +3,7 @@
 ## Upcoming Release
 
 - Fixed inconsistent retry behavior across HTTP requests and ensured all recoverable failures are properly retried (snowflakedb/snowflake-connector-nodejs#1230, snowflakedb/snowflake-connector-nodejs#1232, snowflakedb/snowflake-connector-nodejs#1233)
+- Extended login-request telemetry with Linux distribution details parsed from `/etc/os-release` (snowflakedb/snowflake-connector-nodejs#1234)
 
 ## 2.3.3
 

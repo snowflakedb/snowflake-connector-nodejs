@@ -1,0 +1,68 @@
+{
+  "mappings": [
+    {
+      "request": {
+        "urlPathPattern": "/queries/v1/query-request*",
+        "method": "POST"
+      },
+      "response": {
+        "fixedDelayMilliseconds": 30000
+      }
+    },
+    {
+      "scenarioName": "Cancel query fails 3 times due to network fault before success",
+      "newScenarioState": "CancelFailed1",
+      "request": {
+        "urlPathPattern": "/queries/v1/abort-request*",
+        "method": "POST"
+      },
+      "response": {
+        "fault": "{{responseFault}}"
+      }
+    },
+    {
+      "scenarioName": "Cancel query fails 3 times due to network fault before success",
+      "newScenarioState": "CancelFailed2",
+      "requiredScenarioState": "CancelFailed1",
+      "request": {
+        "urlPathPattern": "/queries/v1/abort-request*",
+        "method": "POST"
+      },
+      "response": {
+        "fault": "{{responseFault}}"
+      }
+    },
+    {
+      "scenarioName": "Cancel query fails 3 times due to network fault before success",
+      "requiredScenarioState": "CancelFailed2",
+      "newScenarioState": "CancelFailed3",
+      "request": {
+        "urlPathPattern": "/queries/v1/abort-request*",
+        "method": "POST"
+      },
+      "response": {
+        "fault": "{{responseFault}}"
+      }
+    },
+    {
+      "scenarioName": "Cancel query fails 3 times due to network fault before success",
+      "requiredScenarioState": "CancelFailed3",
+      "request": {
+        "urlPathPattern": "/queries/v1/abort-request*",
+        "method": "POST"
+      },
+      "response": {
+        "status": 200,
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "jsonBody": {
+          "code": null,
+          "data": null,
+          "message": null,
+          "success": true
+        }
+      }
+    }
+  ]
+}

@@ -1,12 +1,17 @@
 {
   "mappings": [
     {
+      "priority": 1,
       "request": {
         "urlPathPattern": "/queries/v1/query-request*",
-        "method": "POST"
+        "method": "POST",
+        "queryParameters": {
+          "retryCount": {
+            "equalTo": "3"
+          }
+        }
       },
       "response": {
-        "fixedDelayMilliseconds": 500,
         "status": 200,
         "headers": {
           "Content-Type": "application/json"
@@ -22,32 +27,8 @@
       }
     },
     {
-      "priority": 1,
       "request": {
-        "urlPathPattern": "/queries/v1/abort-request*",
-        "method": "POST",
-        "queryParameters": {
-          "retryCount": {
-            "equalTo": "3"
-          }
-        }
-      },
-      "response": {
-        "status": 200,
-        "headers": {
-          "Content-Type": "application/json"
-        },
-        "jsonBody": {
-          "code": null,
-          "data": null,
-          "message": null,
-          "success": true
-        }
-      }
-    },
-    {
-      "request": {
-        "urlPathPattern": "/queries/v1/abort-request*",
+        "urlPathPattern": "/queries/v1/query-request*",
         "method": "POST"
       },
       "response": {

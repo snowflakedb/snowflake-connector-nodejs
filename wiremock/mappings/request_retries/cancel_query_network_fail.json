@@ -6,50 +6,31 @@
         "method": "POST"
       },
       "response": {
-        "fixedDelayMilliseconds": 30000
+        "fixedDelayMilliseconds": 500,
+        "status": 200,
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "jsonBody": {
+          "code": "333333",
+          "data": {
+            "queryId": "01baf79b-0108-1a60-0000-01110354a6ce"
+          },
+          "message": null,
+          "success": true
+        }
       }
     },
     {
-      "scenarioName": "Cancel query fails 3 times due to network fault before success",
-      "newScenarioState": "CancelFailed1",
+      "priority": 1,
       "request": {
         "urlPathPattern": "/queries/v1/abort-request*",
-        "method": "POST"
-      },
-      "response": {
-        "fault": "{{responseFault}}"
-      }
-    },
-    {
-      "scenarioName": "Cancel query fails 3 times due to network fault before success",
-      "newScenarioState": "CancelFailed2",
-      "requiredScenarioState": "CancelFailed1",
-      "request": {
-        "urlPathPattern": "/queries/v1/abort-request*",
-        "method": "POST"
-      },
-      "response": {
-        "fault": "{{responseFault}}"
-      }
-    },
-    {
-      "scenarioName": "Cancel query fails 3 times due to network fault before success",
-      "requiredScenarioState": "CancelFailed2",
-      "newScenarioState": "CancelFailed3",
-      "request": {
-        "urlPathPattern": "/queries/v1/abort-request*",
-        "method": "POST"
-      },
-      "response": {
-        "fault": "{{responseFault}}"
-      }
-    },
-    {
-      "scenarioName": "Cancel query fails 3 times due to network fault before success",
-      "requiredScenarioState": "CancelFailed3",
-      "request": {
-        "urlPathPattern": "/queries/v1/abort-request*",
-        "method": "POST"
+        "method": "POST",
+        "queryParameters": {
+          "retryCount": {
+            "equalTo": "3"
+          }
+        }
       },
       "response": {
         "status": 200,
@@ -62,6 +43,15 @@
           "message": null,
           "success": true
         }
+      }
+    },
+    {
+      "request": {
+        "urlPathPattern": "/queries/v1/abort-request*",
+        "method": "POST"
+      },
+      "response": {
+        "fault": "{{responseFault}}"
       }
     }
   ]

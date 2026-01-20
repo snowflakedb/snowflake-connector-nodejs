@@ -3,6 +3,7 @@
 ## Upcoming Release
 
 - Fixed inconsistent retry behavior across HTTP requests and ensured all recoverable failures are properly retried (snowflakedb/snowflake-connector-nodejs#1230, snowflakedb/snowflake-connector-nodejs#1232, snowflakedb/snowflake-connector-nodejs#1233)
+- Reduced memory usage during PUT operations (snowflakedb/snowflake-connector-nodejs#1226)
 
 ## 2.3.3
 

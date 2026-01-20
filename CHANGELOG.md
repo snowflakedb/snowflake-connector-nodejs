@@ -2,7 +2,7 @@
 
 ## Upcoming Release
 
-- TBA
+- Fixed inconsistent retry behavior across HTTP requests and ensured all recoverable failures are properly retried (snowflakedb/snowflake-connector-nodejs#1230, snowflakedb/snowflake-connector-nodejs#1232, snowflakedb/snowflake-connector-nodejs#1233)
 
 ## 2.3.3
 

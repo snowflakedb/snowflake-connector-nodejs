@@ -199,4 +199,16 @@ describe('Request Retries', () => {
       );
     });
   }
+
+  it('retries original request when redirect target fails', async () => {
+    await addWireMockMappingsFromFile(
+      wiremock,
+      'wiremock/mappings/request_retries/query_request_redirect_fail.json',
+    );
+    await testUtil.connectAsync(connection);
+    await testUtil.executeCmdAsyncWithAdditionalParameters(connection, 'SELECT 1', {
+      asyncExec: true,
+    });
+    assert.strictEqual(getAxiosRequestsCount('/queries/v1/query-request'), 4);
+  });
 });

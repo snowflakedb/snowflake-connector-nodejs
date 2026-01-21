@@ -12,6 +12,7 @@ const REQUEST_ERRORS = [
   { error: 'MALFORMED_RESPONSE_CHUNK', shouldRetry: true },
   { error: 'RANDOM_DATA_THEN_CLOSE', shouldRetry: true },
   { error: 'CONNECTION_RESET_BY_PEER', shouldRetry: true },
+  { error: 'REQUEST_TIMEOUT', shouldRetry: true },
   { error: 408, shouldRetry: true }, // Request Timeout
   { error: 429, shouldRetry: true }, // Too Many Requests
   { error: 500, shouldRetry: true }, // Internal Server Error
@@ -22,6 +23,27 @@ const REQUEST_ERRORS = [
   { error: 403, shouldRetry: false }, // Forbidden
   { error: 404, shouldRetry: false }, // Not Found
 ];
+
+function buildWiremockFailureResponse(requestError: string | number) {
+  if (requestError === 'REQUEST_TIMEOUT') {
+    return { fixedDelayMilliseconds: 5000 };
+  } else if (typeof requestError === 'string') {
+    return { fault: requestError };
+  } else {
+    return {
+      status: requestError,
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      jsonBody: {
+        code: null,
+        data: null,
+        message: null,
+        success: false,
+      },
+    };
+  }
+}
 
 describe('Request Retries', () => {
   let wiremock: WireMockRestClient;
@@ -41,6 +63,8 @@ describe('Request Retries', () => {
     sinon.stub(Util, 'sleep').resolves();
 
     connection = testUtil.createConnection({
+      // Setting to 1sec for faster timeout tests
+      timeout: 1000,
       accessUrl: `http://127.0.0.1:${port}`,
     });
     await addWireMockMappingsFromFile(wiremock, 'wiremock/mappings/login_request_ok.json');
@@ -65,15 +89,13 @@ describe('Request Retries', () => {
   }
 
   function registerRetryMappings(requestError: string | number, mappingsName: string) {
-    const isHttpError = typeof requestError === 'number';
-    const fileSuffix = isHttpError ? 'http_fail' : 'network_fail';
     return addWireMockMappingsFromFile(
       wiremock,
-      `wiremock/mappings/request_retries/${mappingsName}_${fileSuffix}.json`,
+      `wiremock/mappings/request_retries/${mappingsName}_fail.json.template`,
       {
-        replaceVariables: isHttpError
-          ? { httpStatusCode: requestError }
-          : { responseFault: requestError },
+        replaceVariables: {
+          failureResponse: JSON.stringify(buildWiremockFailureResponse(requestError)),
+        },
       },
     );
   }

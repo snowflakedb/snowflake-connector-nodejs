@@ -1,5 +1,6 @@
 const assert = require('assert');
 const mock = require('mock-require');
+const { Readable } = require('stream');
 const SnowflakeS3Util = require('./../../../lib/file_transfer_agent/s3_util').S3Util;
 const extractBucketNameAndPath =
   require('./../../../lib/file_transfer_agent/s3_util').extractBucketNameAndPath;
@@ -71,6 +72,9 @@ describe('S3 client', function () {
       },
     });
     mock('filesystem', {
+      createReadStream: function () {
+        return Readable.from([Buffer.from('mock')]);
+      },
       readFileSync: async function (data) {
         return data;
       },
@@ -289,6 +293,9 @@ describe('S3 client', function () {
       },
     });
     mock('filesystem', {
+      createReadStream: function () {
+        return Readable.from([Buffer.from('mock')]);
+      },
       readFileSync: async function (data) {
         return data;
       },
@@ -321,6 +328,9 @@ describe('S3 client', function () {
       },
     });
     mock('filesystem', {
+      createReadStream: function () {
+        return Readable.from([Buffer.from('mock')]);
+      },
       readFileSync: async function (data) {
         return data;
       },
@@ -353,6 +363,9 @@ describe('S3 client', function () {
       },
     });
     mock('filesystem', {
+      createReadStream: function () {
+        return Readable.from([Buffer.from('mock')]);
+      },
       readFileSync: async function (data) {
         return data;
       },

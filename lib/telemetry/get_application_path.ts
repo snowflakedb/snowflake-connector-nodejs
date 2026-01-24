@@ -9,8 +9,5 @@ export const TESTABLE_REQUIRE_REFERENCE = typeof require !== 'undefined' ? requi
  * - Returns null in REPL or bundlers
  */
 export function getApplicationPath(): string | null {
-  if (TESTABLE_REQUIRE_REFERENCE?.main?.filename) {
-    return TESTABLE_REQUIRE_REFERENCE.main.filename;
-  }
-  return process.argv?.[1] || null;
+  return TESTABLE_REQUIRE_REFERENCE?.main?.filename || process.argv?.[1] || null;
 }

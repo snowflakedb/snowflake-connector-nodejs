@@ -1,4 +1,5 @@
 const async = require('async');
+const assert = require('assert');
 const GlobalConfig = require('./../../lib/global_config');
 const snowflake = require('./../../lib/snowflake');
 const testUtil = require('./testUtil');
@@ -456,5 +457,20 @@ describe('Test DataType', function () {
         done,
       );
     });
+  });
+
+  it('DECFLOAT is returned as string', async () => {
+    const testDecfloatValue = '-9.8765432099999998623226732747455716901e-250';
+    await testUtil.executeCmdAsync(connection, 'alter session set FEATURE_DECFLOAT = enabled;');
+    await testUtil.executeCmdAsync(
+      connection,
+      'alter session set DECFLOAT_RESULT_COLUMN_TYPE = 2;',
+    );
+    const { rowStatement, rows } = await testUtil.executeCmdAsyncWithAdditionalParameters(
+      connection,
+      `SELECT ${testDecfloatValue}::DECFLOAT`,
+    );
+    assert.strictEqual(rowStatement.getColumn(0).getType(), 'decfloat');
+    assert.strictEqual(Object.values(rows[0])[0], testDecfloatValue);
   });
 });

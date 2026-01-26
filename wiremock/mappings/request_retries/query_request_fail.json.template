@@ -31,18 +31,7 @@
         "urlPathPattern": "/queries/v1/query-request*",
         "method": "POST"
       },
-      "response": {
-        "status": "{{httpStatusCode}}",
-        "headers": {
-          "Content-Type": "application/json"
-        },
-        "jsonBody": {
-          "code": null,
-          "data": null,
-          "message": null,
-          "success": false
-        }
-      }
+      "response": {{ failureResponse }}
     }
   ]
 }

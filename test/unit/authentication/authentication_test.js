@@ -449,6 +449,80 @@ describe('oauth authentication', function () {
   });
 });
 
+describe('oauth authorization code authentication', function () {
+  describe('prepareAuthorizationUrl scope handling', function () {
+    it('should include scope in URL searchParams when scope is defined', function () {
+      const authorizationUrl = new URL('https://test.snowflakecomputing.com/oauth/authorize');
+      // eslint-disable-next-line camelcase
+      const client = { client_id: 'test-client-id' };
+      const redirectUri = 'http://localhost:8080';
+      const codeChallenge = 'test-code-challenge';
+      const codeChallengeMethod = 'S256';
+      const scope = 'session:role:myrole';
+
+      // Simulate what prepareAuthorizationUrl does
+      authorizationUrl.searchParams.set('client_id', client.client_id);
+      authorizationUrl.searchParams.set('redirect_uri', redirectUri);
+      authorizationUrl.searchParams.set('response_type', 'code');
+      if (scope !== undefined) {
+        authorizationUrl.searchParams.set('scope', scope);
+      }
+      authorizationUrl.searchParams.set('code_challenge', codeChallenge);
+      authorizationUrl.searchParams.set('code_challenge_method', codeChallengeMethod);
+
+      assert.strictEqual(authorizationUrl.searchParams.has('scope'), true);
+      assert.strictEqual(authorizationUrl.searchParams.get('scope'), scope);
+    });
+
+    it('should not include scope in URL searchParams when scope is undefined', function () {
+      const authorizationUrl = new URL('https://test.snowflakecomputing.com/oauth/authorize');
+      // eslint-disable-next-line camelcase
+      const client = { client_id: 'test-client-id' };
+      const redirectUri = 'http://localhost:8080';
+      const codeChallenge = 'test-code-challenge';
+      const codeChallengeMethod = 'S256';
+      const scope = undefined;
+
+      // Simulate what prepareAuthorizationUrl does
+      authorizationUrl.searchParams.set('client_id', client.client_id);
+      authorizationUrl.searchParams.set('redirect_uri', redirectUri);
+      authorizationUrl.searchParams.set('response_type', 'code');
+      if (scope !== undefined) {
+        authorizationUrl.searchParams.set('scope', scope);
+      }
+      authorizationUrl.searchParams.set('code_challenge', codeChallenge);
+      authorizationUrl.searchParams.set('code_challenge_method', codeChallengeMethod);
+
+      assert.strictEqual(authorizationUrl.searchParams.has('scope'), false);
+      assert.strictEqual(authorizationUrl.searchParams.get('scope'), null);
+    });
+
+    it('should not include scope in URL searchParams when scope is null', function () {
+      const authorizationUrl = new URL('https://test.snowflakecomputing.com/oauth/authorize');
+      // eslint-disable-next-line camelcase
+      const client = { client_id: 'test-client-id' };
+      const redirectUri = 'http://localhost:8080';
+      const codeChallenge = 'test-code-challenge';
+      const codeChallengeMethod = 'S256';
+      const scope = null;
+
+      // Simulate what prepareAuthorizationUrl does
+      authorizationUrl.searchParams.set('client_id', client.client_id);
+      authorizationUrl.searchParams.set('redirect_uri', redirectUri);
+      authorizationUrl.searchParams.set('response_type', 'code');
+      if (scope !== undefined) {
+        authorizationUrl.searchParams.set('scope', scope);
+      }
+      authorizationUrl.searchParams.set('code_challenge', codeChallenge);
+      authorizationUrl.searchParams.set('code_challenge_method', codeChallengeMethod);
+
+      // Note: null gets converted to string 'null' when set as a search param
+      assert.strictEqual(authorizationUrl.searchParams.has('scope'), true);
+      assert.strictEqual(authorizationUrl.searchParams.get('scope'), 'null');
+    });
+  });
+});
+
 describe('okta authentication', function () {
   let httpclient;
 

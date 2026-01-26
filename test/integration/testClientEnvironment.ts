@@ -43,6 +43,11 @@ describe('CLIENT_ENVIRONMENT for /login-request', () => {
     await wiremock.global.shutdown();
   });
 
+  it('contains APPLICATION_PATH', async () => {
+    await initConnection();
+    assert.ok(getClientEnvironment().APPLICATION_PATH, 'APPLICATION_PATH should not be empty');
+  });
+
   it('contains instruction set arhitecture (ISA)', async () => {
     await initConnection();
     assert.strictEqual(getClientEnvironment().ISA, process.arch);

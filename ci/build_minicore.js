@@ -35,6 +35,7 @@ const BUILD_TARGETS = [
   // Windows
   'aarch64-pc-windows-msvc',
   'x86_64-pc-windows-msvc',
+  'i686-pc-windows-msvc',
 ];
 
 for (const target of BUILD_TARGETS) {

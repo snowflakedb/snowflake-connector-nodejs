@@ -50,7 +50,7 @@
             "encryptionMaterial": {
               "queryStageMasterKey": "STAGE_MASTER_KEY",
               "queryId": "01c0e577-000b-aba8-0000-4c390147020a",
-              "smkId": {{smkId}}
+              "smkId": {{ rawSmkIdValue }}
             },
             "stageInfo": {
               "locationType": "S3",

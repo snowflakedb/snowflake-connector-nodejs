@@ -56,52 +56,37 @@ describe('smkId patching in PUT statements', () => {
       await wiremock.global.shutdown();
     });
 
-    it('patches the smkId and passes string value to FileTransferAgent', async () => {
-      const putFilePath = getTmpFilePath();
-      const smkIdValue = '900719925474099333';
-      await addWireMockMappingsFromFile(
-        wiremock,
-        'wiremock/mappings/query_put_with_smkid_ok.json.template',
-        {
-          sendRaw: true,
-          replaceVariables: {
-            putFilePath,
-            smkId: smkIdValue, // bare number in JSON
+    [Number, String].forEach((smkIdType) => {
+      it(`when server retruns smkId as ${smkIdType.name}, FileTransferAgent receives it as string`, async () => {
+        const putFilePath = getTmpFilePath();
+        const rawSmkIdValue = '900719925474099333';
+        await addWireMockMappingsFromFile(
+          wiremock,
+          'wiremock/mappings/query_put_with_smkid_ok.json.template',
+          {
+            sendRaw: true,
+            replaceVariables: {
+              putFilePath,
+              rawSmkIdValue: smkIdType === Number ? rawSmkIdValue : `"${rawSmkIdValue}"`,
+            },
           },
-        },
-      );
-      const connection = testUtil.createConnection({ accessUrl: wiremock.rootUrl });
-      await testUtil.connectAsync(connection);
-      await testUtil.executeCmdAsync(connection, `PUT file://${putFilePath} @~/test_smkId_in_put`);
-      assert.strictEqual(
-        fileTransferAgentUsedContext.fileMetadata.data.encryptionMaterial.smkId,
-        smkIdValue,
-        'smkId should be converted to string when received as int from server',
-      );
-    });
-
-    it('handles smkId when it comes as a string from the server', async () => {
-      const putFilePath = getTmpFilePath();
-      const smkIdValue = '900719925474099333';
-      await addWireMockMappingsFromFile(
-        wiremock,
-        'wiremock/mappings/query_put_with_smkid_ok.json.template',
-        {
-          sendRaw: true,
-          replaceVariables: {
-            putFilePath,
-            smkId: `"${smkIdValue}"`, // quoted string in JSON
-          },
-        },
-      );
-      const connection = testUtil.createConnection({ accessUrl: wiremock.rootUrl });
-      await testUtil.connectAsync(connection);
-      await testUtil.executeCmdAsync(connection, `PUT file://${putFilePath} @~/test_smkId_in_put`);
-      assert.strictEqual(
-        fileTransferAgentUsedContext.fileMetadata.data.encryptionMaterial.smkId,
-        smkIdValue,
-        'smkId should remain a string when received as string from server',
-      );
+        );
+        const connection = testUtil.createConnection({
+          accessUrl: wiremock.rootUrl,
+          proxyHost: '127.0.0.1',
+          proxyPort: 8080,
+        });
+        await testUtil.connectAsync(connection);
+        await testUtil.executeCmdAsync(
+          connection,
+          `PUT file://${putFilePath} @~/test_smkId_in_put`,
+        );
+        assert.strictEqual(
+          fileTransferAgentUsedContext.fileMetadata.data.encryptionMaterial.smkId,
+          rawSmkIdValue,
+          'smkId should be a string',
+        );
+      });
     });
   });
 });

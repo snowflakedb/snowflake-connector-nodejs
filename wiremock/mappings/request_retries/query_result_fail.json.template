@@ -44,9 +44,7 @@
         "urlPathPattern": "/queries/01baf79b-0108-1a60-0000-01110354a6ce/result*",
         "method": "GET"
       },
-      "response": {
-        "fault": "{{responseFault}}"
-      }
+      "response": {{ failureResponse }}
     }
   ]
 }

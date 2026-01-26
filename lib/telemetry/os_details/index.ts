@@ -1,5 +1,5 @@
 import { extractLinuxOsRelease } from './linux_os_release';
-import Logger from '../logger';
+import Logger from '../../logger';
 
 let cachedOsDetails: Record<string, string> | null = null;
 let logDebugError: unknown | null = null;

@@ -1,6 +1,6 @@
 import assert from 'assert';
 import sinon from 'sinon';
-import * as applicationPathModule from '../../../lib/telemetry/get_application_path';
+import * as applicationPathModule from '../../../lib/telemetry/application_path';
 
 describe('getApplicationPath()', () => {
   beforeEach(() => {

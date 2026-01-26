@@ -22,7 +22,9 @@ describe('getOsDetails()', () => {
   afterEach(() => sinon.restore());
 
   function getFreshModule() {
-    return rewiremock.proxy('../../lib/os_details') as typeof import('../../lib/os_details');
+    return rewiremock.proxy(
+      '../../../lib/telemetry/os_details',
+    ) as typeof import('../../../lib/telemetry/os_details');
   }
 
   it('returns null on non-Linux platforms', () => {

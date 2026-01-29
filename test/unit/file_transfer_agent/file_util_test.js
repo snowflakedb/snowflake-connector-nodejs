@@ -13,6 +13,24 @@ const {
 } = require('../../../lib/file_util');
 const path = require('path');
 
+describe('FileUtil.getDigestAndSizeForFile()', function () {
+  it('computes SHA-256 digest (base64) and size', async function () {
+    const fileUtil = new FileUtil();
+    const tmpFilePath = path.join(os.tmpdir(), `digest_${crypto.randomUUID()}`);
+    const content = Buffer.from('snowflake-nodejs-digest-test');
+
+    await fsPromises.writeFile(tmpFilePath, content);
+    try {
+      const result = await fileUtil.getDigestAndSizeForFile(tmpFilePath);
+      const expectedDigest = crypto.createHash('sha256').update(content).digest('base64');
+      assert.strictEqual(result.digest, expectedDigest);
+      assert.strictEqual(result.size, content.length);
+    } finally {
+      await fsPromises.rm(tmpFilePath, { force: true });
+    }
+  });
+});
+
 describe('globToRegex', function () {
   const files = ['matched.gzip', 'matched2.gzip', 'matched.txt', 'notmatched.txt'];
   const testCases = [

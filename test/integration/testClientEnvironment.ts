@@ -43,6 +43,11 @@ describe('CLIENT_ENVIRONMENT for /login-request', () => {
     await wiremock.global.shutdown();
   });
 
+  it('contains APPLICATION_PATH', async () => {
+    await initConnection();
+    assert.ok(getClientEnvironment().APPLICATION_PATH, 'APPLICATION_PATH should not be empty');
+  });
+
   it('contains instruction set arhitecture (ISA)', async () => {
     await initConnection();
     assert.strictEqual(getClientEnvironment().ISA, process.arch);
@@ -72,5 +77,18 @@ describe('CLIENT_ENVIRONMENT for /login-request', () => {
       `Unexpected CORE_BINARY_NAME: ${clientEnvironment.CORE_BINARY_NAME}`,
     );
     assert.strictEqual(clientEnvironment.CORE_LOAD_ERROR, 'Failed to load binary');
+  });
+
+  it('contains OS_DETAILS on Linux or null on other platforms', async () => {
+    await initConnection();
+    const osDetails = getClientEnvironment().OS_DETAILS;
+    if (process.platform === 'linux') {
+      assert.ok(
+        osDetails !== null && Object.keys(osDetails).length >= 1,
+        'OS_DETAILS should contain at least 1 key on Linux',
+      );
+    } else {
+      assert.strictEqual(osDetails, null);
+    }
   });
 });

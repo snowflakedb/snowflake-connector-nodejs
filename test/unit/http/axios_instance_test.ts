@@ -6,7 +6,6 @@ import * as Util from '../../../lib/util';
 
 describe('axios_instance retry middleware', () => {
   let adapterStub: sinon.SinonStub;
-  let originalAdapter: typeof axios.defaults.adapter;
 
   const TEST_REQUEST_CONFIG: AxiosRequestConfig = {
     url: 'http://snowflake.com',
@@ -17,9 +16,8 @@ describe('axios_instance retry middleware', () => {
   const FIXED_TIMESTAMP = Date.now();
 
   beforeEach(() => {
-    originalAdapter = axios.defaults.adapter;
     adapterStub = sinon.stub();
-    axios.defaults.adapter = adapterStub;
+    sinon.stub(axios.defaults, 'adapter').value(adapterStub);
 
     // Instantly resolve sleep for faster retries
     sinon.stub(Util, 'sleep').resolves();
@@ -28,7 +26,6 @@ describe('axios_instance retry middleware', () => {
   });
 
   afterEach(() => {
-    axios.defaults.adapter = originalAdapter;
     sinon.restore();
   });
 

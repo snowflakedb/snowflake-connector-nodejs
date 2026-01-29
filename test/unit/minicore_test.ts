@@ -48,6 +48,11 @@ describe('getBinaryName()', () => {
     },
     {
       platform: 'win32',
+      arch: 'ia32',
+      expectBinaryName: 'sf_mini_core_0.0.1.win32-ia32-msvc.node',
+    },
+    {
+      platform: 'win32',
       arch: 'x64',
       expectBinaryName: 'sf_mini_core_0.0.1.win32-x64-msvc.node',
     },

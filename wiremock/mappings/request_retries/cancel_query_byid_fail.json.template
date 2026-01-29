@@ -6,7 +6,6 @@
         "method": "POST"
       },
       "response": {
-        "fixedDelayMilliseconds": 500,
         "status": 200,
         "headers": {
           "Content-Type": "application/json"
@@ -24,7 +23,7 @@
     {
       "priority": 1,
       "request": {
-        "urlPathPattern": "/queries/v1/abort-request*",
+        "urlPathPattern": "/queries/01baf79b-0108-1a60-0000-01110354a6ce/abort-request*",
         "method": "POST",
         "queryParameters": {
           "retryCount": {
@@ -47,21 +46,10 @@
     },
     {
       "request": {
-        "urlPathPattern": "/queries/v1/abort-request*",
+        "urlPathPattern": "/queries/01baf79b-0108-1a60-0000-01110354a6ce/abort-request*",
         "method": "POST"
       },
-      "response": {
-        "status": "{{httpStatusCode}}",
-        "headers": {
-          "Content-Type": "application/json"
-        },
-        "jsonBody": {
-          "code": null,
-          "data": null,
-          "message": null,
-          "success": false
-        }
-      }
+      "response": {{ failureResponse }}
     }
   ]
 }

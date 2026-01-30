@@ -1,0 +1,32 @@
+{
+  "mappings": [
+    {
+      "request": {
+        "urlPathPattern": "/queries/v1/query-request*",
+        "method": "POST"
+      },
+      "response": {
+        "status": 200,
+        "headers": { "Content-Type": "application/json" },
+        "jsonBody": {
+          "success": true,
+          "data": {
+            "queryId": "01baf79b-0108-1a60-0000-01110354a6ce",
+            "parameters": [],
+            "rowtype": [{ "name": "COL1", "type": "text", "nullable": false }],
+            "rowset": [],
+            "total": 10,
+            "returned": 10,
+            "chunks": [
+              {
+                "url": "{{ chunkUrl }}",
+                "rowCount": 10
+              }
+            ],
+            "chunkHeaders": {}
+          }
+        }
+      }
+    }
+  ]
+}

@@ -234,7 +234,8 @@ describe('Request Retries', () => {
       return scenario.error === 403 ? { ...scenario, shouldRetry: true } : scenario;
     });
     testErrorScenarios(errorScenarios, async ({ error, shouldRetry, connection }) => {
-      // LargeResultSetService doesn't use useSnowflakeRetryMiddleware so mocking retry sleep specific to this request for faster test
+      // LargeResultSetService doesn't use useSnowflakeRetryMiddleware, so mocking retry sleep
+      // specific to this request for a faster test
       sinon.stub(Util, 'nextSleepTime').returns(0);
       await addWireMockMappingsFromFile(
         wiremock,

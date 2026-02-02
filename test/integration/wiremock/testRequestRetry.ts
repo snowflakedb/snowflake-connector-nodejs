@@ -112,6 +112,8 @@ describe('Request Retries', () => {
 
   describe('Login request', () => {
     testErrorScenarios(REQUEST_ERRORS, async ({ error, shouldRetry, connection }) => {
+      // Login request doesn't use useSnowflakeRetryMiddleware, so mocking retry sleep
+      // specific to this request for a faster test
       sinon.stub(Util, 'getJitteredSleepTime').returns({ sleep: 0, totalElapsedTime: 0 });
       await registerRetryMappings(error, 'login_request');
       await new Promise((resolve) => connection.connect(resolve));

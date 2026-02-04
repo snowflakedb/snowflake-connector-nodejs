@@ -47,35 +47,25 @@ function buildWiremockFailureResponse(requestError: string | number) {
 
 describe('Request Retries', () => {
   let wiremock: WireMockRestClient;
-  let port: number;
   let axiosRequestSpy: sinon.SinonSpy;
-  let connection: any;
+  let baseConnectionConfig: any = {};
 
   before(async () => {
-    port = await testUtil.getFreePort();
+    const port = await testUtil.getFreePort();
     wiremock = await runWireMockAsync(port);
+    baseConnectionConfig = {
+      accessUrl: `http://127.0.0.1:${port}`,
+    };
   });
 
   beforeEach(async () => {
     axiosRequestSpy = sinon.spy(axiosInstance, 'request');
-
     // Instantly resolve sleep for faster retries
     sinon.stub(Util, 'sleep').resolves();
-
-    connection = testUtil.createConnection({
-      // Setting to 1sec for faster timeout tests
-      timeout: 1000,
-      accessUrl: `http://127.0.0.1:${port}`,
-    });
-    await addWireMockMappingsFromFile(wiremock, 'wiremock/mappings/login_request_ok.json');
-    await addWireMockMappingsFromFile(wiremock, 'wiremock/mappings/session_delete_ok.json');
   });
 
   afterEach(async () => {
     sinon.restore();
-    if (connection.isUp()) {
-      await testUtil.destroyConnectionAsync(connection);
-    }
     await wiremock.mappings.resetAllMappings();
   });
 
@@ -100,15 +90,43 @@ describe('Request Retries', () => {
     );
   }
 
-  for (const { error, shouldRetry } of REQUEST_ERRORS) {
-    const expectedActionText = `${shouldRetry ? 'retries' : 'does not retry'} on ${error}`;
-    const expectedRequestCount = shouldRetry ? 4 : 1;
+  function testErrorScenarios(
+    errorScenarios: { error: string | number; shouldRetry: boolean }[],
+    testFn: (context: {
+      error: string | number;
+      shouldRetry: boolean;
+      connection: any;
+    }) => Promise<void>,
+  ) {
+    for (const { error, shouldRetry } of errorScenarios) {
+      const actionText = `${shouldRetry ? 'retries' : 'does not retry'} on ${error}`;
+      it(actionText, async () => {
+        const connection = testUtil.createConnection({
+          ...baseConnectionConfig,
+          timeout: error === 'REQUEST_TIMEOUT' ? 200 : undefined,
+        });
+        await testFn({ error, shouldRetry, connection });
+      });
+    }
+  }
 
-    it(`cancel query without id ${expectedActionText}`, async () => {
+  describe('Login request', () => {
+    testErrorScenarios(REQUEST_ERRORS, async ({ error, shouldRetry, connection }) => {
+      // Login request doesn't use useSnowflakeRetryMiddleware, so mocking retry sleep
+      // specific to this request for a faster test
+      sinon.stub(Util, 'getJitteredSleepTime').returns({ sleep: 0, totalElapsedTime: 0 });
+      await registerRetryMappings(error, 'login_request');
+      await new Promise((resolve) => connection.connect(resolve));
+      assert.strictEqual(getAxiosRequestsCount('/session/v1/login-request'), shouldRetry ? 4 : 1);
+    });
+  });
+
+  describe('Cancel query without id', () => {
+    testErrorScenarios(REQUEST_ERRORS, async ({ error, shouldRetry, connection }) => {
+      await addWireMockMappingsFromFile(wiremock, 'wiremock/mappings/login_request_ok.json');
       await registerRetryMappings(error, 'cancel_query');
       await testUtil.connectAsync(connection);
 
-      // NOTE:
       // .cancel() doesn't abort pending query-request. We need to wait for it to complete
       // before cleaning up wiremock. Otherwise, query-request gets stuck in retry loop.
       let markStatementCompleted: (value: unknown) => void;
@@ -120,10 +138,13 @@ describe('Request Retries', () => {
 
       await new Promise((resolve) => statement.cancel(resolve));
       await statementDonePromise;
-      assert.strictEqual(getAxiosRequestsCount('/queries/v1/abort-request'), expectedRequestCount);
+      assert.strictEqual(getAxiosRequestsCount('/queries/v1/abort-request'), shouldRetry ? 4 : 1);
     });
+  });
 
-    it(`cancel query with id ${expectedActionText}`, async () => {
+  describe('Cancel query with id', () => {
+    testErrorScenarios(REQUEST_ERRORS, async ({ error, shouldRetry, connection }) => {
+      await addWireMockMappingsFromFile(wiremock, 'wiremock/mappings/login_request_ok.json');
       await registerRetryMappings(error, 'cancel_query_byid');
       await testUtil.connectAsync(connection);
       const { rowStatement } = await testUtil.executeCmdAsyncWithAdditionalParameters(
@@ -136,20 +157,40 @@ describe('Request Retries', () => {
       await new Promise((resolve) => rowStatement.cancel(resolve));
       assert.strictEqual(
         getAxiosRequestsCount('/queries/01baf79b-0108-1a60-0000-01110354a6ce/abort-request'),
-        expectedRequestCount,
+        shouldRetry ? 4 : 1,
       );
     });
+  });
 
-    it(`query request ${expectedActionText}`, async () => {
+  describe('Query request', () => {
+    testErrorScenarios(REQUEST_ERRORS, async ({ error, shouldRetry, connection }) => {
+      await addWireMockMappingsFromFile(wiremock, 'wiremock/mappings/login_request_ok.json');
       await registerRetryMappings(error, 'query_request');
       await testUtil.connectAsync(connection);
       await testUtil.executeCmdAsyncWithAdditionalParameters(connection, 'SELECT 1', {
         asyncExec: true,
       });
-      assert.strictEqual(getAxiosRequestsCount('/queries/v1/query-request'), expectedRequestCount);
+      assert.strictEqual(getAxiosRequestsCount('/queries/v1/query-request'), shouldRetry ? 4 : 1);
     });
 
-    it(`fetch result ${expectedActionText}`, async () => {
+    it('retries when redirect target times out', async () => {
+      await addWireMockMappingsFromFile(wiremock, 'wiremock/mappings/login_request_ok.json');
+      await addWireMockMappingsFromFile(
+        wiremock,
+        'wiremock/mappings/request_retries/query_request_redirect_fail.json',
+      );
+      const connection = testUtil.createConnection({ ...baseConnectionConfig, timeout: 1000 });
+      await testUtil.connectAsync(connection);
+      await testUtil.executeCmdAsyncWithAdditionalParameters(connection, 'SELECT 1', {
+        asyncExec: true,
+      });
+      assert.strictEqual(getAxiosRequestsCount('/queries/v1/query-request'), 4);
+    });
+  });
+
+  describe('Fetch result', () => {
+    testErrorScenarios(REQUEST_ERRORS, async ({ error, shouldRetry, connection }) => {
+      await addWireMockMappingsFromFile(wiremock, 'wiremock/mappings/login_request_ok.json');
       await registerRetryMappings(error, 'query_result');
       await testUtil.connectAsync(connection);
       await new Promise((resolve) => {
@@ -171,8 +212,11 @@ describe('Request Retries', () => {
         shouldRetry ? 4 : 2,
       );
     });
+  });
 
-    it(`query returning getResultUrl ${expectedActionText}`, async () => {
+  describe('Query returning getResultUrl', () => {
+    testErrorScenarios(REQUEST_ERRORS, async ({ error, shouldRetry, connection }) => {
+      await addWireMockMappingsFromFile(wiremock, 'wiremock/mappings/login_request_ok.json');
       await addWireMockMappingsFromFile(
         wiremock,
         'wiremock/mappings/query_returns_get_result_url.json',
@@ -198,17 +242,35 @@ describe('Request Retries', () => {
         shouldRetry ? 4 : 2,
       );
     });
-  }
+  });
 
-  it('retries original request when redirect target fails', async () => {
-    await addWireMockMappingsFromFile(
-      wiremock,
-      'wiremock/mappings/request_retries/query_request_redirect_fail.json',
-    );
-    await testUtil.connectAsync(connection);
-    await testUtil.executeCmdAsyncWithAdditionalParameters(connection, 'SELECT 1', {
-      asyncExec: true,
+  describe('Large result set', () => {
+    const errorScenarios = [...REQUEST_ERRORS].map((scenario) => {
+      return scenario.error === 403 ? { ...scenario, shouldRetry: true } : scenario;
     });
-    assert.strictEqual(getAxiosRequestsCount('/queries/v1/query-request'), 4);
+    testErrorScenarios(errorScenarios, async ({ error, shouldRetry, connection }) => {
+      // LargeResultSetService doesn't use useSnowflakeRetryMiddleware, so mocking retry sleep
+      // specific to this request for a faster test
+      sinon.stub(Util, 'nextSleepTime').returns(0);
+      await addWireMockMappingsFromFile(wiremock, 'wiremock/mappings/login_request_ok.json');
+      await addWireMockMappingsFromFile(
+        wiremock,
+        'wiremock/mappings/query_returns_chunks.json.template',
+        {
+          replaceVariables: {
+            chunkUrl: `${baseConnectionConfig.accessUrl}/chunks/chunk-0`,
+          },
+        },
+      );
+      await registerRetryMappings(error, 'query_chunk_download');
+      await testUtil.connectAsync(connection);
+      await new Promise((resolve) => {
+        connection.execute({
+          sqlText: 'SELECT 1',
+          complete: () => resolve(true),
+        });
+      });
+      assert.strictEqual(getAxiosRequestsCount('/chunks/'), shouldRetry ? 4 : 1);
+    });
   });
 });

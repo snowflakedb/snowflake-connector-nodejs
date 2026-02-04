@@ -2,10 +2,12 @@
 
 ## Upcoming Release
 
-- Fixed inconsistent retry behavior across HTTP requests and ensured all recoverable failures are properly retried (snowflakedb/snowflake-connector-nodejs#1230, snowflakedb/snowflake-connector-nodejs#1232, snowflakedb/snowflake-connector-nodejs#1233)
+- Fixed inconsistent retry behavior across HTTP requests and ensured all recoverable failures are properly retried (snowflakedb/snowflake-connector-nodejs#1230, snowflakedb/snowflake-connector-nodejs#1232, snowflakedb/snowflake-connector-nodejs#1233, snowflakedb/snowflake-connector-nodejs#1249, snowflakedb/snowflake-connector-nodejs#1250)
 - Reduced memory usage during PUT operations (snowflakedb/snowflake-connector-nodejs#1226)
 - Extended login-request telemetry with Linux distribution details parsed from `/etc/os-release` (snowflakedb/snowflake-connector-nodejs#1234)
 - Added `APPLICATION_PATH` to login-request telemetry (snowflakedb/snowflake-connector-nodejs#1240)
+- Bumped axios to `1.13.4` to address a bug in axios interceptors (snowflakedb/snowflake-connector-nodejs#1245)
+- Bumped dependency `jsonwebtoken` to 9.0.3 (snowflakedb/snowflake-connector-nodejs#1247)
 
 ## 2.3.3
 

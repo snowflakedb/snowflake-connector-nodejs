@@ -1,3 +1,4 @@
+// oxlint-disable no-console
 import Mocha from 'mocha';
 const snowflake = require('../lib/snowflake');
 

@@ -62,8 +62,6 @@ describe('Request Retries', () => {
     axiosRequestSpy = sinon.spy(axiosInstance, 'request');
     // Instantly resolve sleep for faster retries
     sinon.stub(Util, 'sleep').resolves();
-    await addWireMockMappingsFromFile(wiremock, 'wiremock/mappings/login_request_ok.json');
-    await addWireMockMappingsFromFile(wiremock, 'wiremock/mappings/session_delete_ok.json');
   });
 
   afterEach(async () => {
@@ -112,8 +110,20 @@ describe('Request Retries', () => {
     }
   }
 
+  describe('Login request', () => {
+    testErrorScenarios(REQUEST_ERRORS, async ({ error, shouldRetry, connection }) => {
+      // Login request doesn't use useSnowflakeRetryMiddleware, so mocking retry sleep
+      // specific to this request for a faster test
+      sinon.stub(Util, 'getJitteredSleepTime').returns({ sleep: 0, totalElapsedTime: 0 });
+      await registerRetryMappings(error, 'login_request');
+      await new Promise((resolve) => connection.connect(resolve));
+      assert.strictEqual(getAxiosRequestsCount('/session/v1/login-request'), shouldRetry ? 4 : 1);
+    });
+  });
+
   describe('Cancel query without id', () => {
     testErrorScenarios(REQUEST_ERRORS, async ({ error, shouldRetry, connection }) => {
+      await addWireMockMappingsFromFile(wiremock, 'wiremock/mappings/login_request_ok.json');
       await registerRetryMappings(error, 'cancel_query');
       await testUtil.connectAsync(connection);
 
@@ -134,6 +144,7 @@ describe('Request Retries', () => {
 
   describe('Cancel query with id', () => {
     testErrorScenarios(REQUEST_ERRORS, async ({ error, shouldRetry, connection }) => {
+      await addWireMockMappingsFromFile(wiremock, 'wiremock/mappings/login_request_ok.json');
       await registerRetryMappings(error, 'cancel_query_byid');
       await testUtil.connectAsync(connection);
       const { rowStatement } = await testUtil.executeCmdAsyncWithAdditionalParameters(
@@ -153,6 +164,7 @@ describe('Request Retries', () => {
 
   describe('Query request', () => {
     testErrorScenarios(REQUEST_ERRORS, async ({ error, shouldRetry, connection }) => {
+      await addWireMockMappingsFromFile(wiremock, 'wiremock/mappings/login_request_ok.json');
       await registerRetryMappings(error, 'query_request');
       await testUtil.connectAsync(connection);
       await testUtil.executeCmdAsyncWithAdditionalParameters(connection, 'SELECT 1', {
@@ -162,6 +174,7 @@ describe('Request Retries', () => {
     });
 
     it('retries when redirect target times out', async () => {
+      await addWireMockMappingsFromFile(wiremock, 'wiremock/mappings/login_request_ok.json');
       await addWireMockMappingsFromFile(
         wiremock,
         'wiremock/mappings/request_retries/query_request_redirect_fail.json',
@@ -177,6 +190,7 @@ describe('Request Retries', () => {
 
   describe('Fetch result', () => {
     testErrorScenarios(REQUEST_ERRORS, async ({ error, shouldRetry, connection }) => {
+      await addWireMockMappingsFromFile(wiremock, 'wiremock/mappings/login_request_ok.json');
       await registerRetryMappings(error, 'query_result');
       await testUtil.connectAsync(connection);
       await new Promise((resolve) => {
@@ -202,6 +216,7 @@ describe('Request Retries', () => {
 
   describe('Query returning getResultUrl', () => {
     testErrorScenarios(REQUEST_ERRORS, async ({ error, shouldRetry, connection }) => {
+      await addWireMockMappingsFromFile(wiremock, 'wiremock/mappings/login_request_ok.json');
       await addWireMockMappingsFromFile(
         wiremock,
         'wiremock/mappings/query_returns_get_result_url.json',
@@ -237,6 +252,7 @@ describe('Request Retries', () => {
       // LargeResultSetService doesn't use useSnowflakeRetryMiddleware, so mocking retry sleep
       // specific to this request for a faster test
       sinon.stub(Util, 'nextSleepTime').returns(0);
+      await addWireMockMappingsFromFile(wiremock, 'wiremock/mappings/login_request_ok.json');
       await addWireMockMappingsFromFile(
         wiremock,
         'wiremock/mappings/query_returns_chunks.json.template',

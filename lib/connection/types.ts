@@ -185,6 +185,9 @@ export type WIP_ConnectionConfig =
     | 'oauthEnableSingleUseRefreshTokens'
   > & {
     crlValidatorConfig: CRLValidatorConfig;
+    getClientType(): string;
+    getClientVersion(): string;
+    getClientApplication(): string;
     getOauthHttpAllowed(): boolean;
     getOauthClientId(): string;
     getOauthClientSecret(): string;

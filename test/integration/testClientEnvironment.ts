@@ -4,16 +4,21 @@ import rewiremock from 'rewiremock/node';
 import { runWireMockAsync, addWireMockMappingsFromFile } from '../wiremockRunner';
 import * as testUtil from './testUtil';
 import axiosInstance from '../../lib/http/axios_instance';
+import { WIP_ConnectionOptions } from '../../lib/connection/types';
 
 describe('CLIENT_ENVIRONMENT for /login-request', () => {
   let wiremock: any;
   let connection: any;
   let axiosRequestSpy: sinon.SinonSpy;
 
-  async function initConnection(coreInstance?: any) {
+  async function initConnection(
+    connectionOptions?: Partial<WIP_ConnectionOptions>,
+    coreInstance?: any,
+  ) {
     connection = testUtil.createConnection(
       {
         accessUrl: wiremock.rootUrl,
+        ...connectionOptions,
       },
       coreInstance,
     );
@@ -43,6 +48,11 @@ describe('CLIENT_ENVIRONMENT for /login-request', () => {
     await wiremock.global.shutdown();
   });
 
+  it('contains APPLICATION if passed in connection config', async () => {
+    await initConnection({ application: 'test-application' });
+    assert.strictEqual(getClientEnvironment().APPLICATION, 'test-application');
+  });
+
   it('contains APPLICATION_PATH', async () => {
     await initConnection();
     assert.ok(getClientEnvironment().APPLICATION_PATH, 'APPLICATION_PATH should not be empty');
@@ -69,7 +79,7 @@ describe('CLIENT_ENVIRONMENT for /login-request', () => {
     const freshCoreInstance = rewiremock.proxy('../../lib/snowflake', {
       '../../lib/minicore': rewiremock.proxy('../../lib/minicore/minicore'),
     });
-    await initConnection(freshCoreInstance);
+    await initConnection({}, freshCoreInstance);
     const clientEnvironment = getClientEnvironment();
     assert.strictEqual(clientEnvironment.CORE_VERSION, null);
     assert.ok(

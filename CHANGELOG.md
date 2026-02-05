@@ -8,6 +8,7 @@
 - Added `APPLICATION_PATH` to login-request telemetry (snowflakedb/snowflake-connector-nodejs#1240)
 - Bumped axios to `1.13.4` to address a bug in axios interceptors (snowflakedb/snowflake-connector-nodejs#1245)
 - Bumped dependencies to their latest minor versions (snowflakedb/snowflake-connector-nodejs#1247, snowflakedb/snowflake-connector-nodejs#1252)
+- Fixed `APPLICATION` field not being passed from connection config to login-request telemetry (snowflakedb/snowflake-connector-nodejs#1257)
 
 ## 2.3.3
 

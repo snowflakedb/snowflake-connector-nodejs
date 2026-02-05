@@ -102,11 +102,6 @@ declare module 'snowflake-sdk' {
     //Detail information: https://docs.snowflake.com/en/developer-guide/node-js/nodejs-driver-options
 
     /**
-     * Specifies the name of the client application connecting to Snowflake.
-     */
-    application?: string;
-
-    /**
      * @deprecated
      * Append a region or any sub domains before snowflakecomputing.com to the
      * end of account parameter after a dot, e.g., account=<account>.<region>.

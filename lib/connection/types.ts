@@ -6,6 +6,11 @@ import { CRLValidatorConfig } from '../agent/crl_validator';
  */
 export interface WIP_ConnectionOptions {
   /**
+   * Specifies the name of the client application connecting to Snowflake.
+   */
+  application?: string;
+
+  /**
    * Your account identifier.
    */
   account: string;

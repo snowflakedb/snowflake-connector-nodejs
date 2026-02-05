@@ -19,9 +19,13 @@ if (process.env.SNOWFLAKE_DISABLE_MINICORE) {
 } else {
   try {
     minicoreStatus.binaryName = getBinaryName();
-    const minicoreModule = require(
+
+    // eval('require') prevents bundlers (esbuild, webpack, etc.) from statically analyzing
+    // and attempting to bundle .node native addon files
+    const minicoreModule = eval('require')(
       `./binaries/${minicoreStatus.binaryName}`,
     ) as typeof import('./binaries');
+
     minicoreStatus.version = minicoreModule.sfCoreFullVersion();
   } catch (error: unknown) {
     // NOTE:

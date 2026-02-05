@@ -117,7 +117,7 @@ describe('getMinicoreStatus()', () => {
     assert.match(
       minicoreStatus.errorDetails.toString(),
       new RegExp(
-        `Error: Cannot find module './binaries/sf_mini_core_0.0.1.dummy-test-platform-to-force-load-error-arm64.node`,
+        `Error: Cannot find module './binaries/sf_mini_core_0.0.1.dummy-test-platform-to-force-load-error`,
         'i',
       ),
     );

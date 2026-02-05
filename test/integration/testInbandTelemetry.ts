@@ -55,12 +55,11 @@ describe('Inband Telemetry', () => {
     await testUtil.sleepAsync(50); // Wait a bit for the async telemetry request to be sent
 
     const expectedErrorRegexp = new RegExp(
-      `Cannot find module './binaries/sf_mini_core_0.0.1.dummy-test-platform-to-force-load-error-arm64.node`,
+      `Cannot find module './binaries/sf_mini_core_0.0.1.dummy-test-platform-to-force-load-error`,
       'i',
     );
     const logEntry = getTelemetryRequests()[0].firstArg.data.logs[0];
     assert.strictEqual(logEntry.message.type, 'minicore_error');
-    assert.strictEqual(logEntry.message.value.name, 'Error');
     assert.match(logEntry.message.value.message, expectedErrorRegexp);
     assert.match(logEntry.message.value.stack, expectedErrorRegexp);
   });

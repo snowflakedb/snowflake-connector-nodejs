@@ -1,9 +1,9 @@
 import assert from 'assert';
-import { getProxyAgent, httpsAgentCache } from './../../lib/http/node';
+import { describe, it } from 'vitest';
 import { WIP_ConnectionConfig } from '../../lib/connection/types';
-import * as GlobalConfig from './../../lib/global_config';
+import { createRequire } from 'module';
 
-describe('getProxtAgent', function () {
+describe('getProxyAgent', function () {
   const mockProxy = new URL('https://user:pass@myproxy.server.com:1234');
   const fakeAccessUrl = new URL('http://fakeaccount.snowflakecomputing.com');
 
@@ -71,9 +71,30 @@ describe('getProxtAgent', function () {
     },
   ];
 
-  it('test http(s) agent cache', () => {
-    let numofAgent = httpsAgentCache.size;
-    testCases.forEach(({ destination, isNewAgent, keepAlive, crlCheckMode }) => {
+  it('test http(s) agent cache', async () => {
+    // Use createRequire to get access to CommonJS require
+    const require = createRequire(import.meta.url);
+
+    // Clear require cache for the modules we need to reload
+    const globalConfigPath = require.resolve('../../lib/global_config');
+    const nodeUntypedPath = require.resolve('../../lib/http/node_untyped');
+    const nodePath = require.resolve('../../lib/http/node');
+
+    // Delete from cache to force reload
+    delete require.cache[globalConfigPath];
+    delete require.cache[nodeUntypedPath];
+    delete require.cache[nodePath];
+
+    // Now require fresh modules
+    const GlobalConfig = require('../../lib/global_config');
+    const { getProxyAgent, httpsAgentCache } = require('../../lib/http/node');
+
+    httpsAgentCache.clear();
+    assert.strictEqual(httpsAgentCache.size, 0, 'Cache should be empty at start');
+
+    let numofAgent = 0;
+    for (let index = 0; index < testCases.length; index++) {
+      const { destination, isNewAgent, keepAlive, crlCheckMode } = testCases[index];
       GlobalConfig.setKeepAlive(keepAlive);
       getProxyAgent({
         proxyOptions: mockProxy,
@@ -88,7 +109,14 @@ describe('getProxtAgent', function () {
       if (isNewAgent) {
         numofAgent++;
       }
-      assert.strictEqual(httpsAgentCache.size, numofAgent);
-    });
+      assert.strictEqual(
+        httpsAgentCache.size,
+        numofAgent,
+        `Case ${index + 1}: destination=${destination}, keepAlive=${keepAlive}, isNewAgent=${isNewAgent}, expected=${numofAgent}`,
+      );
+    }
+
+    // Cleanup: restore keepAlive to default
+    GlobalConfig.setKeepAlive(true);
   });
 });

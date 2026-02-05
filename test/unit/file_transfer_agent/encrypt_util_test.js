@@ -29,7 +29,7 @@ describe('Encryption util', function () {
   let filestream;
   let temp;
 
-  this.beforeEach(function () {
+  beforeEach(function () {
     encryptionMaterial = {
       queryStageMasterKey: 'ztke8tIdVt1zmlQIZm0BMA==',
       queryId: '123873c7-3a66-40c4-ab89-e3722fbccce1',

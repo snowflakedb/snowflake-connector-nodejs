@@ -1,5 +1,4 @@
 const assert = require('assert');
-const sinon = require('sinon');
 const fs = require('fs');
 const { Readable, Writable } = require('stream');
 const SnowflakeGCSUtil = require('./../../../lib/file_transfer_agent/gcs_util');
@@ -28,7 +27,6 @@ describe('GCS client', function () {
   };
 
   let GCS;
-  let sinonSandbox;
   let httpClient;
   const dataFile = mockDataFile;
   let meta;
@@ -39,9 +37,8 @@ describe('GCS client', function () {
   };
 
   beforeEach(() => {
-    sinonSandbox = sinon.createSandbox();
-    sinonSandbox.stub(fs, 'statSync').returns({ size: 1 });
-    sinonSandbox.stub(fs, 'createReadStream').callsFake(() => Readable.from([Buffer.from('mock')]));
+    vi.spyOn(fs, 'statSync').mockReturnValue({ size: 1 });
+    vi.spyOn(fs, 'createReadStream').mockImplementation(() => Readable.from([Buffer.from('mock')]));
     meta = {
       stageInfo: {
         location: mockLocation + '/' + mockTable + '/' + mockPath + '/',
@@ -62,7 +59,7 @@ describe('GCS client', function () {
   });
 
   afterEach(() => {
-    sinonSandbox.restore();
+    vi.restoreAllMocks();
   });
 
   describe('GCS client endpoint testing', async function () {

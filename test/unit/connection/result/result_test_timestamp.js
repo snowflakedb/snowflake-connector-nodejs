@@ -7,7 +7,6 @@ function checkSingleTimestamp(
   timestampOutputFormat,
   scale,
   expectedJson,
-  done,
   additionalValidations = undefined,
 ) {
   const response = {
@@ -53,7 +52,7 @@ function checkSingleTimestamp(
     success: true,
   };
 
-  ResultTestCommon.testResult(
+  return ResultTestCommon.testResult(
     ResultTestCommon.createResultOptions(response),
     function (row) {
       const actualTimestamp = row.getColumnValue('C1');
@@ -63,9 +62,6 @@ function checkSingleTimestamp(
         additionalValidations(actualTimestamp);
       }
     },
-    function () {
-      done();
-    },
   );
 }
 
@@ -74,7 +70,7 @@ describe('Result: test timestamp', function () {
     "select to_timestamp_ltz('Thu, 21 Jan 2016 06:32:44 -0800') as C1, " +
       "to_timestamp_tz('Thu, 21 Jan 2016 06:32:44 -0800') as C2, " +
       "to_timestamp_ntz('Thu, 21 Jan 2016 06:32:44 -0800') as C3;",
-    function (done) {
+    async function () {
       const response = {
         data: {
           parameters: [
@@ -151,7 +147,7 @@ describe('Result: test timestamp', function () {
         success: true,
       };
 
-      ResultTestCommon.testResult(
+      await ResultTestCommon.testResult(
         ResultTestCommon.createResultOptions(response),
         function (row) {
           // timestamp_ltz
@@ -168,20 +164,16 @@ describe('Result: test timestamp', function () {
           assert.ok(Util.isDate(row.getColumnValue('C3')));
           assert.strictEqual(row.getColumnValueAsString('C3'), 'Thu, 21 Jan 2016 06:32:44 +0000');
         },
-        function () {
-          done();
-        },
       );
     },
   );
 
-  it("select dateadd(ns,-1, to_timestamp_ntz('10000-01-01T00:00:00', 'YYYY-MM-DD\"T\"HH24:MI:SS')) AS C1;", function (done) {
-    checkSingleTimestamp(
+  it("select dateadd(ns,-1, to_timestamp_ntz('10000-01-01T00:00:00', 'YYYY-MM-DD\"T\"HH24:MI:SS')) AS C1;", async function () {
+    await checkSingleTimestamp(
       '253402300799.999999999',
       'YYYY-MM-DD HH24:MI:SS.FF3',
       9,
       '9999-12-31 23:59:59.999',
-      done,
       (actualTimestamp) => {
         assert.strictEqual(actualTimestamp.getNanoSeconds(), 999999999);
         assert.strictEqual(actualTimestamp.getEpochSeconds(), 253402300799);
@@ -190,43 +182,39 @@ describe('Result: test timestamp', function () {
     );
   });
 
-  it("select to_timestamp_ntz('2024-04-16T14:57:58:999', 'YYYY-MM-DD\"T\"HH24:MI:SS:FF3') AS C1;", function (done) {
-    checkSingleTimestamp(
+  it("select to_timestamp_ntz('2024-04-16T14:57:58:999', 'YYYY-MM-DD\"T\"HH24:MI:SS:FF3') AS C1;", async function () {
+    await checkSingleTimestamp(
       '1713279478.999',
       'YYYY-MM-DD HH24:MI:SS.FF3',
       3,
       '2024-04-16 14:57:58.999',
-      done,
     );
   });
 
-  it("select to_timestamp_ntz('2024-04-16T14:57:58:001', 'YYYY-MM-DD\"T\"HH24:MI:SS:FF3') AS C1;", function (done) {
-    checkSingleTimestamp(
+  it("select to_timestamp_ntz('2024-04-16T14:57:58:001', 'YYYY-MM-DD\"T\"HH24:MI:SS:FF3') AS C1;", async function () {
+    await checkSingleTimestamp(
       '1713279478.001',
       'YYYY-MM-DD HH24:MI:SS.FF3',
       3,
       '2024-04-16 14:57:58.001',
-      done,
     );
   });
 
-  it("select to_timestamp_ntz('2024-04-16T14:57:58:999999999', 'YYYY-MM-DD\"T\"HH24:MI:SS:FF9') AS C1;", function (done) {
-    checkSingleTimestamp(
+  it("select to_timestamp_ntz('2024-04-16T14:57:58:999999999', 'YYYY-MM-DD\"T\"HH24:MI:SS:FF9') AS C1;", async function () {
+    await checkSingleTimestamp(
       '1713279478.999999999',
       'YYYY-MM-DD HH24:MI:SS.FF9',
       9,
       '2024-04-16 14:57:58.999999999',
-      done,
     );
   });
 
-  it("select to_timestamp_ntz('2024-04-16T14:57:58:000000001', 'YYYY-MM-DD\"T\"HH24:MI:SS:FF9')) AS C1;", function (done) {
-    checkSingleTimestamp(
+  it("select to_timestamp_ntz('2024-04-16T14:57:58:000000001', 'YYYY-MM-DD\"T\"HH24:MI:SS:FF9')) AS C1;", async function () {
+    await checkSingleTimestamp(
       '1713279478.000000001',
       'YYYY-MM-DD HH24:MI:SS.FF9',
       9,
       '2024-04-16 14:57:58.000000001',
-      done,
     );
   });
 });

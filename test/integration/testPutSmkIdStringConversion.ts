@@ -1,14 +1,27 @@
 import assert from 'assert';
-import rewiremock from 'rewiremock/node';
+import { vi } from 'vitest';
 import os from 'os';
 import path from 'path';
 import { runWireMockAsync, addWireMockMappingsFromFile } from '../wiremockRunner';
 
 const OriginalFileTransferAgent = require('../../lib/file_transfer_agent/file_transfer_agent');
 
+// Track the context passed to FileTransferAgent
+let fileTransferAgentUsedContext: any;
+
+// Mock the file_transfer_agent module
+vi.mock('../../lib/file_transfer_agent/file_transfer_agent', () => {
+  return {
+    default: function (context: any) {
+      // Context mutates, so we deep clone it
+      fileTransferAgentUsedContext = JSON.parse(JSON.stringify(context));
+      return new OriginalFileTransferAgent(context);
+    },
+  };
+});
+
 describe('smkId patching in PUT statements', () => {
   let testUtil: any;
-  let fileTransferAgentUsedContext: any;
 
   function getTmpFilePath() {
     const tmpFile = testUtil.createTempFile(os.tmpdir(), testUtil.createRandomFileName(), '');
@@ -18,17 +31,7 @@ describe('smkId patching in PUT statements', () => {
   }
 
   before(() => {
-    rewiremock('../../lib/file_transfer_agent/file_transfer_agent').with(function (context: any) {
-      // Context mutates, so we deep clone it
-      fileTransferAgentUsedContext = JSON.parse(JSON.stringify(context));
-      return new OriginalFileTransferAgent(context);
-    });
-    rewiremock.enable();
     testUtil = require('./testUtil');
-  });
-
-  after(() => {
-    rewiremock.disable();
   });
 
   it('patches the smkId and passes string value to FileTransferAgent', async () => {

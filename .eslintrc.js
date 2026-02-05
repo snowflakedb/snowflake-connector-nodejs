@@ -14,8 +14,17 @@ module.exports = {
         'no-console': ['off'],
       },
     },
+    {
+      // Vitest test files
+      files: ['test/**/*.js', 'test/**/*.ts'],
+      globals: {
+        vi: 'readonly',
+        beforeAll: 'readonly',
+        afterAll: 'readonly',
+      },
+    },
   ],
-  ignorePatterns: ['dist/**/*.js'],
+  ignorePatterns: ['dist/**/*.js', 'test/**/*.ts'],
   parserOptions: {
     ecmaVersion: 'latest',
   },

@@ -3,7 +3,7 @@ const GlobalConfig = require('../../../lib/global_config');
 const assert = require('assert');
 
 describe('OCSP mode', function () {
-  it('getOcspMode', function (done) {
+  it('getOcspMode', function () {
     // insecure mode
     GlobalConfig.setDisableOCSPChecks(true);
     assert.equal(GlobalConfig.getOcspMode(), GlobalConfig.ocspModes.INSECURE);
@@ -17,6 +17,5 @@ describe('OCSP mode', function () {
     GlobalConfig.setOcspFailOpen(false);
     assert.equal(GlobalConfig.getOcspMode(), GlobalConfig.ocspModes.FAIL_CLOSED);
     GlobalConfig.setOcspFailOpen(true);
-    done();
   });
 });

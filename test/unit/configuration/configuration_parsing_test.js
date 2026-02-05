@@ -51,18 +51,17 @@ describe('should parse toml connection configuration', function () {
     }
   });
 
-  it('should throw error toml when file does not exist', function (done) {
+  it('should throw error toml when file does not exist', function () {
     process.env.SNOWFLAKE_HOME = '/unknown/';
     try {
       loadConnectionConfiguration();
       assert.fail();
     } catch (error) {
       assert.match(error.message, /ENOENT: no such file or directory/);
-      done();
     }
   });
 
-  it('should throw exception if configuration does not exists', function (done) {
+  it('should throw exception if configuration does not exists', function () {
     process.env.SNOWFLAKE_DEFAULT_CONNECTION_NAME = 'unknown';
     try {
       loadConnectionConfiguration();
@@ -72,7 +71,6 @@ describe('should parse toml connection configuration', function () {
         error.message,
         'Connection configuration with name unknown does not exist',
       );
-      done();
     }
   });
 });

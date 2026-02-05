@@ -1,5 +1,5 @@
 import assert from 'assert';
-import sinon from 'sinon';
+import { vi } from 'vitest';
 import axios from 'axios';
 import os from 'os';
 import { WIP_ConnectionOptions } from '../../lib/connection/types';
@@ -24,15 +24,14 @@ describe('connection with CRL validation', () => {
 
   afterEach(() => {
     httpsAgentCache.clear();
-    sinon.restore();
   });
 
   it.skip('allows connection for valid certificate', async () => {
-    const axiosRequestSpy = sinon.spy(axios, 'request');
-    const validateCrlSpy = sinon.spy(CRL_VALIDATOR_INTERNAL, 'validateCrl');
+    const axiosRequestSpy = vi.spyOn(axios, 'request');
+    const validateCrlSpy = vi.spyOn(CRL_VALIDATOR_INTERNAL, 'validateCrl');
     await assert.doesNotReject(testCrlConnection());
-    assert.strictEqual(validateCrlSpy.callCount, 1);
-    const loginRequestData = axiosRequestSpy.getCall(0).args[0].data as any;
+    assert.strictEqual(validateCrlSpy.mock.calls.length, 1);
+    const loginRequestData = axiosRequestSpy.mock.calls[0][0].data as any;
     assert.strictEqual(
       loginRequestData.data.CLIENT_ENVIRONMENT.CERT_REVOCATION_CHECK_MODE,
       'ENABLED',
@@ -41,9 +40,9 @@ describe('connection with CRL validation', () => {
 
   if (os.platform() === 'linux' && !process.env.SHOULD_SKIP_PROXY_TESTS) {
     it.skip('allows proxy connection for valid certificate', async () => {
-      const validateCrlSpy = sinon.spy(CRL_VALIDATOR_INTERNAL, 'validateCrl');
+      const validateCrlSpy = vi.spyOn(CRL_VALIDATOR_INTERNAL, 'validateCrl');
       await assert.doesNotReject(testCrlConnection(connectionOptions.connectionWithProxy));
-      assert.strictEqual(validateCrlSpy.callCount, 1);
+      assert.strictEqual(validateCrlSpy.mock.calls.length, 1);
     });
   }
 
@@ -74,7 +73,9 @@ describe('connection with CRL validation', () => {
     },
   ].forEach(({ name, isAdvisory, throwError, expectsWrappedError }) => {
     it.skip(name, async () => {
-      sinon.stub(CRL_VALIDATOR_INTERNAL, 'validateCrl').throws(throwError);
+      vi.spyOn(CRL_VALIDATOR_INTERNAL, 'validateCrl').mockImplementation(() => {
+        throw throwError;
+      });
       const testConnectionPromise = testCrlConnection({
         certRevocationCheckMode: isAdvisory ? 'ADVISORY' : 'ENABLED',
       });

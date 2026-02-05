@@ -1,6 +1,6 @@
 import assert from 'assert';
 import axios from 'axios';
-import sinon from 'sinon';
+import { vi, type MockInstance } from 'vitest';
 import { validateCrl, CRLValidatorConfig } from '../../../lib/agent/crl_validator';
 import {
   createCertificateKeyPair,
@@ -21,18 +21,14 @@ describe('validateCrl', () => {
   const crlUrl = 'http://example.com/crl.crl';
   const rootKeyPair = createCertificateKeyPair();
   const rootCertificate = createTestCertificate({ keyPair: rootKeyPair });
-  let axiosGetStub: sinon.SinonStub;
+  let axiosGetStub: MockInstance;
 
   beforeEach(() => {
-    axiosGetStub = sinon.stub(axios, 'get');
-  });
-
-  afterEach(() => {
-    sinon.restore();
+    axiosGetStub = vi.spyOn(axios, 'get');
   });
 
   function setCrlResponse(crl: ASN1.CertificateListDecoded) {
-    axiosGetStub.resolves({ data: Buffer.from(ASN1.CertificateList.encode(crl, 'der')) });
+    axiosGetStub.mockResolvedValue({ data: Buffer.from(ASN1.CertificateList.encode(crl, 'der')) });
   }
 
   it('passes for short-lived certificate', async () => {

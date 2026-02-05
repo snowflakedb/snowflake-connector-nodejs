@@ -79,32 +79,34 @@ describe('Statement - stream result', function () {
 });
 
 function createItCallback(connectionOptions, streamResult, verifyFn) {
-  return function (done) {
-    let connection;
-    async.series(
-      [
-        function (callback) {
-          connection = snowflake.createConnection(connectionOptions);
-          connection.connect(function () {
-            callback();
-          });
-        },
-        function (callback) {
-          connection.execute({
-            sqlText: 'select 1 as "c1";',
-            requestId: 'foobar',
-            streamResult: streamResult,
-            complete: function (err, statement, rows) {
-              verifyFn(rows);
+  return async function () {
+    await new Promise((resolve) => {
+      let connection;
+      async.series(
+        [
+          function (callback) {
+            connection = snowflake.createConnection(connectionOptions);
+            connection.connect(function () {
               callback();
-            },
-          });
+            });
+          },
+          function (callback) {
+            connection.execute({
+              sqlText: 'select 1 as "c1";',
+              requestId: 'foobar',
+              streamResult: streamResult,
+              complete: function (err, statement, rows) {
+                verifyFn(rows);
+                callback();
+              },
+            });
+          },
+        ],
+        function () {
+          resolve();
         },
-      ],
-      function () {
-        done();
-      },
-    );
+      );
+    });
   };
 }
 

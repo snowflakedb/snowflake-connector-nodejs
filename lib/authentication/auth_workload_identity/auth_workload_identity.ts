@@ -6,7 +6,7 @@ import { WIP_ConnectionConfig } from '../../connection/types';
 import Logger from '../../logger';
 import { getAzureAttestationToken } from './attestation_azure';
 import { getGcpAttestationToken } from './attestation_gcp';
-import AuthenticationTypes from '../authentication_types';
+import AuthenticationTypes = require('../authentication_types');
 
 class AuthWorkloadIdentity implements AuthClass {
   tokenProvider!: WorkloadIdentityProviderKey;

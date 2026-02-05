@@ -1,6 +1,6 @@
 const assert = require('assert');
 const http = require('http');
-const sinon = require('sinon');
+// vi is available as global from vitest with globals: true
 const snowflake = require('./../../lib/snowflake');
 const Errors = require('./../../lib/errors');
 const SocketUtil = require('./../../lib/agent/socket_util');
@@ -74,16 +74,14 @@ describe('Connection with OCSP test', function () {
       wiremockClient = await runWireMockAsync(port, {
         wiremockJarArgs: ['--proxy-all', connectionOptions.accessUrl],
       });
-      sinon.stub(process, 'env').value({
-        ...process.env,
-        HTTP_PROXY: wiremockClient.rootUrl,
-      });
-      httpRequestSpy = sinon.spy(http, 'request');
+      vi.stubEnv('HTTP_PROXY', wiremockClient.rootUrl);
+      httpRequestSpy = vi.spyOn(http, 'request');
     });
 
     after(async () => {
       await wiremockClient.global.shutdown();
-      sinon.restore();
+      vi.unstubAllEnvs();
+      vi.restoreAllMocks();
     });
 
     it('OCSP check is performed using a proxy agent when HTTP_PROXY is set', async () => {

@@ -7,7 +7,7 @@ describe('Result: test number', function () {
       "to_double('123.456') as C2, " +
       "to_number('12345678901234567890123456789012345678') as C3, " + // pragma: allowlist secret
       "to_double('12345678901234567890123456789012345678') as C4;", // pragma: allowlist secret
-    function (done) {
+    async function () {
       const response = {
         data: {
           parameters: [
@@ -95,7 +95,7 @@ describe('Result: test number', function () {
         success: true,
       };
 
-      ResultTestCommon.testResult(
+      await ResultTestCommon.testResult(
         ResultTestCommon.createResultOptions(response),
         function (row) {
           // fixed small
@@ -117,9 +117,7 @@ describe('Result: test number', function () {
           assert.strictEqual(row.getColumnValue('C4'), 1.23456789012346e37);
           assert.strictEqual(row.getColumnValueAsString('C4'), '1.23456789012346e+37');
         },
-        function () {
-          done();
-        },
+        function () {},
       );
     },
   );

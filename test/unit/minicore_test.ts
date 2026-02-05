@@ -1,13 +1,33 @@
-import rewiremock from 'rewiremock/node';
 import assert from 'assert';
-import sinon from 'sinon';
+import { vi } from 'vitest';
 import fs from 'fs';
 import path from 'path';
 import { getBinaryName, getMinicoreStatus } from '../../lib/minicore/minicore';
 
-describe('getBinaryName()', () => {
-  afterEach(() => sinon.restore());
+// Helper function to test getBinaryName on Linux (needs isMusl mock for CI compatibility)
+async function testGetBinaryNameLinux(arch: string, isMusl: boolean, expectBinaryName: string) {
+  vi.resetModules();
+  vi.doMock('../../lib/minicore/is_musl', () => ({
+    isMusl: () => isMusl,
+  }));
+  const originalPlatform = process.platform;
+  const originalArch = process.arch;
+  Object.defineProperty(process, 'platform', { value: 'linux', configurable: true });
+  Object.defineProperty(process, 'arch', { value: arch, configurable: true });
+  try {
+    const { getBinaryName: getBinaryNameFresh } = await import('../../lib/minicore/minicore');
+    const binaryName = getBinaryNameFresh();
+    const expectBinaryPath = path.join(__dirname, '../../lib/minicore/binaries', expectBinaryName);
+    assert.strictEqual(binaryName, expectBinaryName);
+    assert.ok(fs.existsSync(expectBinaryPath), `Binary should exist at ${expectBinaryPath}`);
+  } finally {
+    Object.defineProperty(process, 'platform', { value: originalPlatform, configurable: true });
+    Object.defineProperty(process, 'arch', { value: originalArch, configurable: true });
+  }
+}
 
+describe('getBinaryName()', () => {
+  // Non-Linux platforms: isMusl() always returns false, no mock needed
   [
     {
       platform: 'darwin',
@@ -18,28 +38,6 @@ describe('getBinaryName()', () => {
       platform: 'darwin',
       arch: 'x64',
       expectBinaryName: 'sf_mini_core_0.0.1.darwin-x64.node',
-    },
-    {
-      platform: 'linux',
-      arch: 'arm64',
-      expectBinaryName: 'sf_mini_core_0.0.1.linux-arm64-gnu.node',
-    },
-    {
-      platform: 'linux',
-      arch: 'x64',
-      expectBinaryName: 'sf_mini_core_0.0.1.linux-x64-gnu.node',
-    },
-    {
-      platform: 'linux',
-      arch: 'arm64',
-      withMusl: true,
-      expectBinaryName: 'sf_mini_core_0.0.1.linux-arm64-musl.node',
-    },
-    {
-      platform: 'linux',
-      arch: 'x64',
-      withMusl: true,
-      expectBinaryName: 'sf_mini_core_0.0.1.linux-x64-musl.node',
     },
     {
       platform: 'win32',
@@ -56,13 +54,10 @@ describe('getBinaryName()', () => {
       arch: 'x64',
       expectBinaryName: 'sf_mini_core_0.0.1.win32-x64-msvc.node',
     },
-  ].forEach(({ platform, arch, withMusl, expectBinaryName }) => {
-    it(`returns ${expectBinaryName} for ${platform}-${arch}${withMusl ? ' with musl' : ''}`, () => {
-      sinon.stub(process, 'platform').value(platform);
-      sinon.stub(process, 'arch').value(arch);
-      if (withMusl) {
-        sinon.stub(fs, 'readFileSync').withArgs('/usr/bin/ldd', 'utf-8').returns('musl libc');
-      }
+  ].forEach(({ platform, arch, expectBinaryName }) => {
+    it(`returns ${expectBinaryName} for ${platform}-${arch}`, () => {
+      vi.spyOn(process, 'platform', 'get').mockReturnValue(platform as NodeJS.Platform);
+      vi.spyOn(process, 'arch', 'get').mockReturnValue(arch);
       const binaryName = getBinaryName();
       const expectBinaryPath = path.join(
         __dirname,
@@ -73,17 +68,29 @@ describe('getBinaryName()', () => {
       assert.ok(fs.existsSync(expectBinaryPath), `Binary should exist at ${expectBinaryPath}`);
     });
   });
+
+  // Linux with gnu (isMusl = false) - needs mock for CI on Alpine/musl systems
+  [
+    { arch: 'arm64', expectBinaryName: 'sf_mini_core_0.0.1.linux-arm64-gnu.node' },
+    { arch: 'x64', expectBinaryName: 'sf_mini_core_0.0.1.linux-x64-gnu.node' },
+  ].forEach(({ arch, expectBinaryName }) => {
+    it(`returns ${expectBinaryName} for linux-${arch} with gnu`, async () => {
+      await testGetBinaryNameLinux(arch, false, expectBinaryName);
+    });
+  });
+
+  // Linux with musl (isMusl = true) - needs mock for CI on glibc systems
+  [
+    { arch: 'arm64', expectBinaryName: 'sf_mini_core_0.0.1.linux-arm64-musl.node' },
+    { arch: 'x64', expectBinaryName: 'sf_mini_core_0.0.1.linux-x64-musl.node' },
+  ].forEach(({ arch, expectBinaryName }) => {
+    it(`returns ${expectBinaryName} for linux-${arch} with musl`, async () => {
+      await testGetBinaryNameLinux(arch, true, expectBinaryName);
+    });
+  });
 });
 
 describe('getMinicoreStatus()', () => {
-  afterEach(() => sinon.restore());
-
-  function getFreshMinicoreModule() {
-    return rewiremock.proxy(
-      '../../lib/minicore/minicore',
-    ) as typeof import('../../lib/minicore/minicore');
-  }
-
   it('returns correct status metadata', () => {
     const minicoreStatus = getMinicoreStatus();
     assert.deepStrictEqual(minicoreStatus, {
@@ -93,9 +100,11 @@ describe('getMinicoreStatus()', () => {
     });
   });
 
-  it('returns error when minicore loading is disabled via SNOWFLAKE_DISABLE_MINICORE env variable', () => {
-    sinon.stub(process, 'env').value({ SNOWFLAKE_DISABLE_MINICORE: 'true' });
-    const minicoreModule = getFreshMinicoreModule();
+  it('returns error when minicore loading is disabled via SNOWFLAKE_DISABLE_MINICORE env variable', async () => {
+    vi.stubEnv('SNOWFLAKE_DISABLE_MINICORE', 'true');
+    // Dynamically re-import the module to pick up the new env variable
+    vi.resetModules();
+    const minicoreModule = await import('../../lib/minicore/minicore');
     const minicoreStatus = minicoreModule.getMinicoreStatus();
     assert.deepStrictEqual(minicoreStatus, {
       version: null,
@@ -104,9 +113,12 @@ describe('getMinicoreStatus()', () => {
     });
   });
 
-  it('returns error when minicore fails to load', () => {
-    sinon.stub(process, 'platform').value('dummy-test-platform-to-force-load-error');
-    const minicoreModule = getFreshMinicoreModule();
+  it('returns error when minicore fails to load', async () => {
+    vi.spyOn(process, 'platform', 'get').mockReturnValue(
+      'dummy-test-platform-to-force-load-error' as NodeJS.Platform,
+    );
+    vi.resetModules();
+    const minicoreModule = await import('../../lib/minicore/minicore');
     const minicoreStatus = minicoreModule.getMinicoreStatus();
     assert.deepStrictEqual(minicoreStatus, {
       version: null,

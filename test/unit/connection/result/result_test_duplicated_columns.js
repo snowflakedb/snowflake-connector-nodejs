@@ -59,7 +59,7 @@ describe('Unique column names', function () {
     };
 
     testCases.forEach(({ title, rowMode, expectedColumnNames }) => {
-      it(title, function (done) {
+      it(title, async function () {
         const response = responseWithColumns(
           columnNames.map((columnName) => {
             return { name: columnName };
@@ -68,13 +68,12 @@ describe('Unique column names', function () {
         const resultOptions = ResultTestCommon.createResultOptions(response);
         resultOptions['rowMode'] = rowMode;
 
-        ResultTestCommon.testResult(
+        await ResultTestCommon.testResult(
           resultOptions,
           function each() {},
           function end(result) {
             const columnNames = result.getColumns().map((col) => col.getName());
             assert.deepStrictEqual(columnNames, expectedColumnNames);
-            done();
           },
         );
       });

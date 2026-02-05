@@ -106,38 +106,40 @@ describe('Statement - fetch as string', function () {
 });
 
 function createItCallback(connectionOptions, statementOptions, streamOptions, verifyFn) {
-  return function (done) {
-    let connection;
-    async.series(
-      [
-        function (callback) {
-          connection = snowflake.createConnection(connectionOptions);
-          connection.connect(function (err) {
-            assert.ok(!err);
-            callback();
-          });
-        },
-        function (callback) {
-          const rows = [];
-          connection
-            .execute(statementOptions)
-            .streamRows(streamOptions)
-            .on('data', function (row) {
-              rows.push(row);
-            })
-            .on('end', function () {
-              verifyFn(rows);
-              callback();
-            })
-            .on('error', function (err) {
+  return async function () {
+    await new Promise((resolve) => {
+      let connection;
+      async.series(
+        [
+          function (callback) {
+            connection = snowflake.createConnection(connectionOptions);
+            connection.connect(function (err) {
               assert.ok(!err);
+              callback();
             });
+          },
+          function (callback) {
+            const rows = [];
+            connection
+              .execute(statementOptions)
+              .streamRows(streamOptions)
+              .on('data', function (row) {
+                rows.push(row);
+              })
+              .on('end', function () {
+                verifyFn(rows);
+                callback();
+              })
+              .on('error', function (err) {
+                assert.ok(!err);
+              });
+          },
+        ],
+        function () {
+          resolve();
         },
-      ],
-      function () {
-        done();
-      },
-    );
+      );
+    });
   };
 }
 

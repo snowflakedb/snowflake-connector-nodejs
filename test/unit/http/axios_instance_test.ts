@@ -1,11 +1,11 @@
 import assert from 'assert';
-import sinon from 'sinon';
+import { vi, type MockInstance } from 'vitest';
 import { AxiosError, AxiosRequestConfig } from 'axios';
 import axios, { SnowflakeInternalAxiosRequestConfig } from '../../../lib/http/axios_instance';
 import * as Util from '../../../lib/util';
 
 describe('axios_instance retry middleware', () => {
-  let adapterStub: sinon.SinonStub;
+  let adapterStub: MockInstance;
 
   const TEST_REQUEST_CONFIG: AxiosRequestConfig = {
     url: 'http://snowflake.com',
@@ -16,17 +16,13 @@ describe('axios_instance retry middleware', () => {
   const FIXED_TIMESTAMP = Date.now();
 
   beforeEach(() => {
-    adapterStub = sinon.stub();
-    sinon.stub(axios.defaults, 'adapter').value(adapterStub);
+    adapterStub = vi.fn();
+    vi.spyOn(axios.defaults, 'adapter', 'get').mockReturnValue(adapterStub as any);
 
     // Instantly resolve sleep for faster retries
-    sinon.stub(Util, 'sleep').resolves();
+    vi.spyOn(Util, 'sleep').mockResolvedValue(undefined);
     // Fix Date.now() for predictable clientStartTime
-    sinon.stub(Date, 'now').returns(FIXED_TIMESTAMP);
-  });
-
-  afterEach(() => {
-    sinon.restore();
+    vi.spyOn(Date, 'now').mockReturnValue(FIXED_TIMESTAMP);
   });
 
   /**
@@ -40,7 +36,7 @@ describe('axios_instance retry middleware', () => {
     const failures: (number | string)[] =
       failure !== undefined ? Array(repeatTimes).fill(failure) : [];
 
-    adapterStub.callsFake((config: SnowflakeInternalAxiosRequestConfig) => {
+    adapterStub.mockImplementation((config: SnowflakeInternalAxiosRequestConfig) => {
       capturedUrls.push(config.url!);
       const currentFailure = failures.shift();
       if (currentFailure === undefined) {
@@ -60,7 +56,7 @@ describe('axios_instance retry middleware', () => {
     createMockAdapter();
     const response = await axios.request(TEST_REQUEST_CONFIG);
     assert.strictEqual(response.data, 'success');
-    assert.strictEqual(adapterStub.callCount, 1);
+    assert.strictEqual(adapterStub.mock.calls.length, 1);
   });
 
   it('skips retry when useSnowflakeRetryMiddleware is not set', async () => {
@@ -72,7 +68,7 @@ describe('axios_instance retry middleware', () => {
         return true;
       },
     );
-    assert.strictEqual(adapterStub.callCount, 1);
+    assert.strictEqual(adapterStub.mock.calls.length, 1);
   });
 
   [
@@ -86,7 +82,7 @@ describe('axios_instance retry middleware', () => {
       createMockAdapter(status ?? 'ECONNRESET');
       const response = await axios.request(TEST_REQUEST_CONFIG);
       assert.strictEqual(response.data, 'success');
-      assert.strictEqual(adapterStub.callCount, 2);
+      assert.strictEqual(adapterStub.mock.calls.length, 2);
     });
   });
 
@@ -102,7 +98,7 @@ describe('axios_instance retry middleware', () => {
         assert.strictEqual(err.response?.status, status);
         return true;
       });
-      assert.strictEqual(adapterStub.callCount, 1);
+      assert.strictEqual(adapterStub.mock.calls.length, 1);
     });
   });
 
@@ -112,7 +108,7 @@ describe('axios_instance retry middleware', () => {
       assert.strictEqual(err.code, 'ERR_CANCELED');
       return true;
     });
-    assert.strictEqual(adapterStub.callCount, 1);
+    assert.strictEqual(adapterStub.mock.calls.length, 1);
   });
 
   it('stops retrying after max retries exceeded', async () => {
@@ -127,7 +123,7 @@ describe('axios_instance retry middleware', () => {
         return true;
       },
     );
-    assert.strictEqual(adapterStub.callCount, 6);
+    assert.strictEqual(adapterStub.mock.calls.length, 6);
   });
 
   it('adds clientStartTime and retryCount to query parameters on retries', async () => {

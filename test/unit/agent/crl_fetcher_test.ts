@@ -1,5 +1,5 @@
 import assert from 'assert';
-import sinon from 'sinon';
+import { vi, type MockInstance } from 'vitest';
 import fs from 'fs/promises';
 import axios from 'axios';
 import ASN1 from 'asn1.js-rfc5280';
@@ -13,26 +13,25 @@ describe('getCrl', () => {
   const crlCacheDir = GlobalConfigTyped.getValue('crlCacheDir');
   const testCrl = createTestCRL();
   const testCrlRaw = Buffer.from(ASN1.CertificateList.encode(testCrl, 'der'));
-  let axiosGetStub: sinon.SinonStub;
+  let axiosGetStub: MockInstance;
 
   beforeEach(() => {
-    axiosGetStub = sinon.stub(axios, 'get');
+    axiosGetStub = vi.spyOn(axios, 'get');
   });
 
   afterEach(async () => {
     crlCacheModule.CRL_MEMORY_CACHE.clear();
     await fs.rm(crlCacheDir, { recursive: true, force: true });
-    sinon.restore();
   });
 
   it('starts periodic cache cleaners on first call when caches are enabled', async () => {
-    axiosGetStub.resolves({ data: testCrlRaw });
-    const setIntervalSpy = sinon.spy(global, 'setInterval');
-    const clearExpiredCrlFromMemoryCacheSpy = sinon.spy(
+    axiosGetStub.mockResolvedValue({ data: testCrlRaw });
+    const setIntervalSpy = vi.spyOn(global, 'setInterval');
+    const clearExpiredCrlFromMemoryCacheSpy = vi.spyOn(
       crlCacheModule,
       'clearExpiredCrlFromMemoryCache',
     );
-    const clearExpiredCrlFromDiskCacheSpy = sinon.spy(
+    const clearExpiredCrlFromDiskCacheSpy = vi.spyOn(
       crlCacheModule,
       'clearExpiredCrlFromDiskCache',
     );
@@ -44,29 +43,37 @@ describe('getCrl', () => {
       inMemoryCache: true,
       onDiskCache: true,
     });
-    assert.strictEqual(setIntervalSpy.callCount, 2);
-    assert(setIntervalSpy.calledWith(clearExpiredCrlFromMemoryCacheSpy, 1000 * 60 * 60));
-    assert(setIntervalSpy.calledWith(clearExpiredCrlFromDiskCacheSpy, 1000 * 60 * 60));
-    assert.strictEqual(clearExpiredCrlFromDiskCacheSpy.callCount, 1);
+    assert.strictEqual(setIntervalSpy.mock.calls.length, 2);
+    assert(
+      setIntervalSpy.mock.calls.some(
+        (call) => call[0] === clearExpiredCrlFromMemoryCacheSpy && call[1] === 1000 * 60 * 60,
+      ),
+    );
+    assert(
+      setIntervalSpy.mock.calls.some(
+        (call) => call[0] === clearExpiredCrlFromDiskCacheSpy && call[1] === 1000 * 60 * 60,
+      ),
+    );
+    assert.strictEqual(clearExpiredCrlFromDiskCacheSpy.mock.calls.length, 1);
   });
 
   it('returns CRL from fetched URL', async () => {
-    axiosGetStub.resolves({ data: testCrlRaw });
+    axiosGetStub.mockResolvedValue({ data: testCrlRaw });
     const fetchedCrl = await getCrl(crlUrl, {
       inMemoryCache: false,
       onDiskCache: false,
     });
-    assert(
-      axiosGetStub.calledOnceWith(crlUrl, {
-        timeout: GlobalConfigTyped.getValue('crlDownloadTimeout'),
-        responseType: 'arraybuffer',
-      }),
-    );
+    assert.strictEqual(axiosGetStub.mock.calls.length, 1);
+    assert.strictEqual(axiosGetStub.mock.calls[0][0], crlUrl);
+    assert.deepEqual(axiosGetStub.mock.calls[0][1], {
+      timeout: GlobalConfigTyped.getValue('crlDownloadTimeout'),
+      responseType: 'arraybuffer',
+    });
     assert.deepEqual(fetchedCrl, testCrl);
   });
 
   it('fetches only once if multiple requests are made at the same time', async () => {
-    axiosGetStub.resolves({ data: testCrlRaw });
+    axiosGetStub.mockResolvedValue({ data: testCrlRaw });
     const [crl1, crl2] = await Promise.all([
       getCrl(crlUrl, {
         inMemoryCache: false,
@@ -77,19 +84,19 @@ describe('getCrl', () => {
         onDiskCache: false,
       }),
     ]);
-    assert.strictEqual(axiosGetStub.callCount, 1);
+    assert.strictEqual(axiosGetStub.mock.calls.length, 1);
     assert.strictEqual(PENDING_FETCH_REQUESTS.size, 0);
     assert.deepEqual(crl1, testCrl);
     assert.deepEqual(crl2, testCrl);
   });
 
   it('writes fetched data to cache', async () => {
-    axiosGetStub.resolves({ data: testCrlRaw });
+    axiosGetStub.mockResolvedValue({ data: testCrlRaw });
     await getCrl(crlUrl, {
       inMemoryCache: true,
       onDiskCache: true,
     });
-    assert.strictEqual(axiosGetStub.callCount, 1);
+    assert.strictEqual(axiosGetStub.mock.calls.length, 1);
     assert.deepEqual(crlCacheModule.getCrlFromMemory(crlUrl), testCrl);
     assert.deepEqual(await crlCacheModule.getCrlFromDisk(crlUrl), testCrl);
   });
@@ -100,7 +107,7 @@ describe('getCrl', () => {
       inMemoryCache: true,
       onDiskCache: false,
     });
-    assert.strictEqual(axiosGetStub.callCount, 0);
+    assert.strictEqual(axiosGetStub.mock.calls.length, 0);
     assert.deepEqual(fetchedCrl, testCrl);
   });
 
@@ -110,7 +117,7 @@ describe('getCrl', () => {
       inMemoryCache: true,
       onDiskCache: true,
     });
-    assert.strictEqual(axiosGetStub.callCount, 0);
+    assert.strictEqual(axiosGetStub.mock.calls.length, 0);
     assert.deepEqual(fetchedCrl, testCrl);
     assert.deepEqual(crlCacheModule.getCrlFromMemory(crlUrl), testCrl);
   });

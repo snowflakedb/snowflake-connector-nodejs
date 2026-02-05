@@ -1,10 +1,11 @@
 const assert = require('assert');
-const AZURE = require('@azure/storage-blob');
 const fs = require('fs');
 const { Readable } = require('stream');
-const sinon = require('sinon');
 const SnowflakeAzureUtil = require('./../../../lib/file_transfer_agent/azure_util');
 const resultStatus = require('../../../lib/file_util').resultStatus;
+
+const getPropertiesStub = vi.fn();
+const uploadStub = vi.fn();
 
 describe('Azure client', function () {
   const mockDataFile = 'mockDataFile';
@@ -38,19 +39,17 @@ describe('Azure client', function () {
     matDesc: mockMatDesc,
   };
 
-  let sinonSandbox;
-  const getPropertiesStub = sinon.stub();
-  const uploadStub = sinon.stub();
-
   function verifyNameAndPath(bucketPath, containerName, path) {
     const result = Azure.extractContainerNameAndPath(bucketPath);
     assert.strictEqual(result.containerName, containerName);
     assert.strictEqual(result.path, path);
   }
 
-  before(function () {
-    sinonSandbox = sinon.createSandbox();
-    sinonSandbox.stub(AZURE, 'BlobServiceClient').returns({
+  beforeEach(function () {
+    vi.spyOn(fs, 'createReadStream').mockImplementation(() => Readable.from([Buffer.from('mock')]));
+    Azure = new SnowflakeAzureUtil(noProxyConnectionConfig);
+    // Mock the createClient method to return our mock client
+    vi.spyOn(Azure, 'createClient').mockReturnValue({
       getContainerClient: () => ({
         getBlobClient: () => ({
           getProperties: getPropertiesStub,
@@ -61,17 +60,11 @@ describe('Azure client', function () {
         }),
       }),
     });
-    sinonSandbox.stub(fs, 'createReadStream').callsFake(() => Readable.from([Buffer.from('mock')]));
-    Azure = new SnowflakeAzureUtil(noProxyConnectionConfig);
   });
 
   afterEach(() => {
-    getPropertiesStub.reset();
-    uploadStub.reset();
-  });
-
-  after(() => {
-    sinonSandbox.restore();
+    getPropertiesStub.mockReset();
+    uploadStub.mockReset();
   });
 
   it('extract bucket name and path', async function () {
@@ -87,13 +80,13 @@ describe('Azure client', function () {
   });
 
   it('get file header - success', async function () {
-    getPropertiesStub.resolves({ metadata: {} });
+    getPropertiesStub.mockResolvedValue({ metadata: {} });
     await Azure.getFileHeader(meta, dataFile);
     assert.strictEqual(meta['resultStatus'], resultStatus.UPLOADED);
   });
 
   it('get file header - fail expired token', async function () {
-    getPropertiesStub.throws(() => {
+    getPropertiesStub.mockImplementation(() => {
       const err = new Error();
       err.code = 'ExpiredToken';
       throw err;
@@ -103,30 +96,30 @@ describe('Azure client', function () {
   });
 
   it('get file header - fail HTTP 404', async function () {
-    getPropertiesStub.throws(() => {
+    getPropertiesStub.mockImplementation(() => {
       const err = new Error();
       err.statusCode = 404;
-      return err;
+      throw err;
     });
     await Azure.getFileHeader(meta, dataFile);
     assert.strictEqual(meta['resultStatus'], resultStatus.NOT_FOUND_FILE);
   });
 
   it('get file header - fail HTTP 400', async function () {
-    getPropertiesStub.throws(() => {
+    getPropertiesStub.mockImplementation(() => {
       const err = new Error();
       err.statusCode = 400;
-      return err;
+      throw err;
     });
     await Azure.getFileHeader(meta, dataFile);
     assert.strictEqual(meta['resultStatus'], resultStatus.RENEW_TOKEN);
   });
 
   it('get file header - fail unknown', async function () {
-    getPropertiesStub.throws(() => {
+    getPropertiesStub.mockImplementation(() => {
       const err = new Error();
       err.code = 'unknown';
-      return err;
+      throw err;
     });
     await Azure.getFileHeader(meta, dataFile);
     assert.strictEqual(meta['resultStatus'], resultStatus.ERROR);
@@ -138,7 +131,7 @@ describe('Azure client', function () {
   });
 
   it('upload - fail expired token', async function () {
-    uploadStub.throws(() => {
+    uploadStub.mockImplementation(() => {
       const err = new Error('Server failed to authenticate the request.');
       err.statusCode = 403;
       throw err;
@@ -148,7 +141,7 @@ describe('Azure client', function () {
   });
 
   it('upload - fail HTTP 400', async function () {
-    uploadStub.throws(() => {
+    uploadStub.mockImplementation(() => {
       const err = new Error();
       err.statusCode = 400;
       throw err;

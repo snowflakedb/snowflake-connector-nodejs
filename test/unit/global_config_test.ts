@@ -1,5 +1,5 @@
 import assert from 'assert';
-import sinon from 'sinon';
+import { vi } from 'vitest';
 import GlobalConfigTyped, {
   GLOBAL_CONFIG_DEFAULTS,
   globalConfigCustomValues,
@@ -10,10 +10,6 @@ describe('GlobalConfig', () => {
     for (const key in globalConfigCustomValues) {
       delete globalConfigCustomValues[key as keyof typeof globalConfigCustomValues];
     }
-  });
-
-  afterEach(() => {
-    sinon.restore();
   });
 
   it('getValue returns default value if not configured', () => {
@@ -29,12 +25,12 @@ describe('GlobalConfig', () => {
   });
 
   it(`getValue('crlCacheDir') reads from env variable when available`, () => {
-    sinon.stub(process, 'env').value({ SNOWFLAKE_CRL_ON_DISK_CACHE_DIR: 'dir_from_env' });
+    vi.stubEnv('SNOWFLAKE_CRL_ON_DISK_CACHE_DIR', 'dir_from_env');
     assert.strictEqual(GlobalConfigTyped.getValue('crlCacheDir'), 'dir_from_env');
   });
 
   it(`getValue('crlCacheDir') builds default cache path when no env variable set`, () => {
-    sinon.stub(process, 'env').value({ SNOWFLAKE_CRL_ON_DISK_CACHE_DIR: '' });
+    vi.stubEnv('SNOWFLAKE_CRL_ON_DISK_CACHE_DIR', '');
     assert(GlobalConfigTyped.getValue('crlCacheDir').includes('crls'));
   });
 

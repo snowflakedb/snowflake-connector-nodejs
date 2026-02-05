@@ -1,7 +1,5 @@
 import assert from 'assert';
-import sinon from 'sinon';
-import fs from 'fs';
-import rewiremock from 'rewiremock/node';
+import { vi } from 'vitest';
 
 const MOCK_OS_RELEASE = `
 NAME="Arch Linux"
@@ -19,52 +17,66 @@ LOGO=archlinux-logo
 `.trim();
 
 describe('getOsDetails()', () => {
-  afterEach(() => sinon.restore());
-
-  function getFreshModule() {
-    return rewiremock.proxy(
-      '../../../lib/telemetry/os_details',
-    ) as typeof import('../../../lib/telemetry/os_details');
-  }
-
-  it('returns null on non-Linux platforms', () => {
-    sinon.stub(process, 'platform').value('darwin');
-    const { getOsDetails } = getFreshModule();
-    assert.strictEqual(getOsDetails(), null);
+  it('returns null on non-Linux platforms', async () => {
+    vi.resetModules();
+    vi.doMock('fs', () => ({
+      readFileSync: vi.fn(),
+    }));
+    // Mock process.platform to darwin
+    const originalPlatform = process.platform;
+    Object.defineProperty(process, 'platform', { value: 'darwin' });
+    try {
+      const { getOsDetails } = await import('../../../lib/telemetry/os_details');
+      assert.strictEqual(getOsDetails(), null);
+    } finally {
+      Object.defineProperty(process, 'platform', { value: originalPlatform });
+    }
   });
 
   describe('Linux /etc/os-release parsing', () => {
-    function stubOsReleaseFile(content: string | Error) {
-      const originalReadFileSync = fs.readFileSync;
-      sinon.stub(fs, 'readFileSync').callsFake((path, ...args) => {
-        if (path === '/etc/os-release') {
-          if (content instanceof Error) {
-            throw content;
+    it('parses os-release and extracts allowed fields', async () => {
+      vi.resetModules();
+      vi.doMock('fs', () => ({
+        readFileSync: vi.fn().mockImplementation((path: string) => {
+          if (path === '/etc/os-release') {
+            return MOCK_OS_RELEASE;
           }
-          return content;
-        }
-        return originalReadFileSync(path, ...args);
-      });
-    }
-
-    it('parses os-release and extracts allowed fields', () => {
-      sinon.stub(process, 'platform').value('linux');
-      stubOsReleaseFile(MOCK_OS_RELEASE);
-      const { getOsDetails } = getFreshModule();
-      assert.deepStrictEqual(getOsDetails(), {
-        NAME: 'Arch Linux',
-        PRETTY_NAME: 'Arch Linux',
-        ID: 'arch',
-        BUILD_ID: 'rolling',
-        VERSION_ID: '20251019.0.436919',
-      });
+          throw new Error('ENOENT');
+        }),
+      }));
+      // Mock process.platform to linux
+      const originalPlatform = process.platform;
+      Object.defineProperty(process, 'platform', { value: 'linux' });
+      try {
+        const { getOsDetails } = await import('../../../lib/telemetry/os_details');
+        assert.deepStrictEqual(getOsDetails(), {
+          NAME: 'Arch Linux',
+          PRETTY_NAME: 'Arch Linux',
+          ID: 'arch',
+          BUILD_ID: 'rolling',
+          VERSION_ID: '20251019.0.436919',
+        });
+      } finally {
+        Object.defineProperty(process, 'platform', { value: originalPlatform });
+      }
     });
 
-    it('returns null when file read fails', () => {
-      sinon.stub(process, 'platform').value('linux');
-      stubOsReleaseFile(new Error('read error'));
-      const { getOsDetails } = getFreshModule();
-      assert.strictEqual(getOsDetails(), null);
+    it('returns null when file read fails', async () => {
+      vi.resetModules();
+      vi.doMock('fs', () => ({
+        readFileSync: vi.fn().mockImplementation(() => {
+          throw new Error('read error');
+        }),
+      }));
+      // Mock process.platform to linux
+      const originalPlatform = process.platform;
+      Object.defineProperty(process, 'platform', { value: 'linux' });
+      try {
+        const { getOsDetails } = await import('../../../lib/telemetry/os_details');
+        assert.strictEqual(getOsDetails(), null);
+      } finally {
+        Object.defineProperty(process, 'platform', { value: originalPlatform });
+      }
     });
   });
 });

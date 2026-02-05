@@ -1,7 +1,7 @@
 import Logger from '../logger';
 import * as authUtil from '../authentication/authentication_util';
 import { dynamicImportESMInTypescriptWithCommonJS, format } from '../util';
-import AuthenticationTypes from './authentication_types';
+import AuthenticationTypes = require('./authentication_types');
 import { AuthClass, AuthRequestBody } from './types';
 import { WIP_ConnectionConfig } from '../connection/types';
 import type * as OauthType from 'oauth4webapi';

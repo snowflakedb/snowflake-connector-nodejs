@@ -6,7 +6,7 @@ describe('Result: test variant', function () {
     "select to_variant((parse_json('{ a : 1 }'))) as C1, " +
       "to_object(parse_json('{ a : 1 }')) as C2, " +
       "to_array(parse_json('[1, 2]')) as C3;",
-    function (done) {
+    async function () {
       const response = {
         data: {
           parameters: [
@@ -83,7 +83,7 @@ describe('Result: test variant', function () {
         success: true,
       };
 
-      ResultTestCommon.testResult(
+      await ResultTestCommon.testResult(
         ResultTestCommon.createResultOptions(response),
         function (row) {
           // variant
@@ -98,9 +98,7 @@ describe('Result: test variant', function () {
           assert.deepEqual(row.getColumnValue('C3'), [1, 2]);
           assert.equal(row.getColumnValueAsString('C3'), JSON.stringify([1, 2]));
         },
-        function () {
-          done();
-        },
+        function () {},
       );
     },
   );

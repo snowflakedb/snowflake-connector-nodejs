@@ -7,7 +7,7 @@ const {
   globToRegex,
   getMatchingFilePaths,
   isFileNotWritableByGroupOrOthers,
-  validateOnlyUserReadWritePermissionAndOwner,
+  validateNoExtraPermissionsForOthers,
   isFileModeCorrect,
   FileUtil,
 } = require('../../../lib/file_util');
@@ -134,7 +134,9 @@ if (os.platform() !== 'win32') {
       },
       {
         permission: '640',
-        expectedResult: false,
+        // 640 gives owner read+write and group read - validateNoExtraPermissionsForOthers
+        // only warns about read permissions but doesn't throw
+        expectedResult: true,
       },
       {
         permission: '100777',
@@ -152,9 +154,9 @@ if (os.platform() !== 'win32') {
       it(`verify permission ${permission}`, async function () {
         await fsPromises.chmod(testFilePath, permission);
         if (!expectedResult) {
-          assert.rejects(() => validateOnlyUserReadWritePermissionAndOwner(testFilePath));
+          await assert.rejects(() => validateNoExtraPermissionsForOthers(testFilePath));
         } else {
-          assert.doesNotReject(() => validateOnlyUserReadWritePermissionAndOwner(testFilePath));
+          await assert.doesNotReject(() => validateNoExtraPermissionsForOthers(testFilePath));
         }
       });
     });

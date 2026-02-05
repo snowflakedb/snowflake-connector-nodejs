@@ -1,6 +1,6 @@
 const async = require('async');
 const assert = require('assert');
-const sinon = require('sinon');
+// vi is available as global from vitest with globals: true
 const connOption = require('../connectionOptions');
 const Errors = require('../../../lib/errors');
 const snowflake = require('./../../../lib/snowflake');
@@ -14,16 +14,16 @@ describe('Connection test with OCSP Mock', function () {
   before(() => {
     // NOTE:
     // Mock backoff to 100ms for fast retries
-    sinon
-      .stub(Util, 'getJitteredSleepTime')
-      .callsFake((_numRetries, _currentSleepTime, totalElapsedTime) => {
+    vi.spyOn(Util, 'getJitteredSleepTime').mockImplementation(
+      (_numRetries, _currentSleepTime, totalElapsedTime) => {
         const sleep = 0.1; // 100ms
         const newTotalElapsedTime = totalElapsedTime + sleep;
         return { sleep, totalElapsedTime: newTotalElapsedTime };
-      });
+      },
+    );
   });
 
-  after(() => sinon.restore());
+  after(() => vi.restoreAllMocks());
 
   const valid = {
     ...connOption.valid,

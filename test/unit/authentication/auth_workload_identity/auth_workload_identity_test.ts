@@ -1,5 +1,4 @@
-import sinon from 'sinon';
-import rewiremock from 'rewiremock/node';
+import { vi } from 'vitest';
 import assert from 'assert';
 import * as AzureIdentity from '@azure/identity';
 import * as AttestationAzureModule from '../../../../lib/authentication/auth_workload_identity/attestation_azure';
@@ -10,14 +9,26 @@ import OriginalAuthWorkloadIdentity from '../../../../lib/authentication/auth_wo
 import { assertAwsAttestationToken, AWS_CREDENTIALS, AWS_REGION } from './test_utils';
 import ConnectionConfig from '../../../../lib/connection/connection_config';
 
+// Create mock functions outside describe to use in vi.mock
+const awsSdkMock = {
+  getCredentials: vi.fn(),
+  getMetadataRegion: vi.fn(),
+};
+const getAzureTokenMock = vi.fn();
+const getGcpTokenMock = vi.fn();
+
+// Mock AWS SDK modules at module level
+vi.mock('@aws-sdk/credential-provider-node', () => ({
+  defaultProvider: () => awsSdkMock.getCredentials,
+}));
+
+vi.mock('@aws-sdk/ec2-metadata-service', () => ({
+  MetadataService: class {
+    request = () => awsSdkMock.getMetadataRegion();
+  },
+}));
+
 describe('Workload Identity Authentication', async () => {
-  const cloudSdkStubs = sinon.createSandbox();
-  const awsSdkMock = {
-    getCredentials: cloudSdkStubs.stub(),
-    getMetadataRegion: cloudSdkStubs.stub(),
-  };
-  const getAzureTokenMock = cloudSdkStubs.stub();
-  const getGcpTokenMock = cloudSdkStubs.stub();
   let AuthWorkloadIdentity: typeof OriginalAuthWorkloadIdentity;
 
   function getConnectionConfig(
@@ -31,39 +42,21 @@ describe('Workload Identity Authentication', async () => {
   }
 
   before(async () => {
-    // NOTE:
-    // Sinon can't stub frozen AWS SDK properties, so we need to mock entire require
-    rewiremock('@aws-sdk/credential-provider-node').with({
-      defaultProvider: () => awsSdkMock.getCredentials,
-    });
-    rewiremock('@aws-sdk/ec2-metadata-service').with({
-      MetadataService: class {
-        request = () => awsSdkMock.getMetadataRegion();
-      },
-    });
-    rewiremock.enable();
+    // Import after mocks are set up
     AuthWorkloadIdentity = (await import('../../../../lib/authentication/auth_workload_identity'))
       .default;
   });
 
   beforeEach(() => {
-    sinon
-      .stub(AzureIdentity.DefaultAzureCredential.prototype, 'getToken')
-      .get(() => getAzureTokenMock);
-    sinon.stub(GoogleAuth.prototype, 'getIdTokenClient').resolves({
+    vi.clearAllMocks();
+    vi.spyOn(AzureIdentity.DefaultAzureCredential.prototype, 'getToken', 'get').mockReturnValue(
+      getAzureTokenMock as any,
+    );
+    vi.spyOn(GoogleAuth.prototype, 'getIdTokenClient').mockResolvedValue({
       idTokenProvider: {
         fetchIdToken: getGcpTokenMock,
       },
     } as any);
-  });
-
-  afterEach(() => {
-    cloudSdkStubs.reset();
-    sinon.restore();
-  });
-
-  after(() => {
-    rewiremock.disable();
   });
 
   [
@@ -131,14 +124,16 @@ describe('Workload Identity Authentication', async () => {
 
     it('throws error when credentials are not found', async () => {
       const err = new Error('No credentials found');
-      awsSdkMock.getCredentials.throws(err);
+      awsSdkMock.getCredentials.mockImplementation(() => {
+        throw err;
+      });
       const auth = new AuthWorkloadIdentity(connectionConfig);
       await assert.rejects(auth.authenticate(), err);
     });
 
     it('sets valid fields for updateBody() to use', async () => {
-      awsSdkMock.getCredentials.returns(AWS_CREDENTIALS);
-      awsSdkMock.getMetadataRegion.returns(AWS_REGION);
+      awsSdkMock.getCredentials.mockReturnValue(AWS_CREDENTIALS);
+      awsSdkMock.getMetadataRegion.mockReturnValue(AWS_REGION);
       const auth = new AuthWorkloadIdentity(connectionConfig);
       const body: AuthRequestBody = { data: {} };
       await auth.authenticate();
@@ -156,7 +151,9 @@ describe('Workload Identity Authentication', async () => {
 
     it('throws error when credentials are not found', async () => {
       const err = new Error('no credentials');
-      getAzureTokenMock.throws(err);
+      getAzureTokenMock.mockImplementation(() => {
+        throw err;
+      });
       const auth = new AuthWorkloadIdentity(connectionConfig);
       await assert.rejects(auth.authenticate(), err);
     });
@@ -173,8 +170,8 @@ describe('Workload Identity Authentication', async () => {
     });
 
     it('passes azure-specific config options to getAzureAttestationToken', async () => {
-      getAzureTokenMock.returns({ token: 'test-token' });
-      const getAzureAttestionTokenSpy = sinon.spy(
+      getAzureTokenMock.mockReturnValue({ token: 'test-token' });
+      const getAzureAttestionTokenSpy = vi.spyOn(
         AttestationAzureModule,
         'getAzureAttestationToken',
       );
@@ -184,14 +181,14 @@ describe('Workload Identity Authentication', async () => {
         workloadIdentityAzureEntraIdResource: 'custom-entra-id-resource',
       });
       await auth.authenticate();
-      assert.deepEqual(getAzureAttestionTokenSpy.firstCall.args[0], {
+      assert.deepEqual(getAzureAttestionTokenSpy.mock.calls[0][0], {
         managedIdentityClientId: 'custom-managed-identity-client-id',
         entraIdResource: 'custom-entra-id-resource',
       });
     });
 
     it('sets valid fields for updateBody() to use', async () => {
-      getAzureTokenMock.returns({ token: 'test-token' });
+      getAzureTokenMock.mockReturnValue({ token: 'test-token' });
       const auth = new AuthWorkloadIdentity(connectionConfig);
       const body: AuthRequestBody = { data: {} };
       await auth.authenticate();
@@ -209,13 +206,15 @@ describe('Workload Identity Authentication', async () => {
 
     it('throws error when credentials are not found', async () => {
       const err = new Error('no credentials');
-      getGcpTokenMock.throws(err);
+      getGcpTokenMock.mockImplementation(() => {
+        throw err;
+      });
       const auth = new AuthWorkloadIdentity(connectionConfig);
       await assert.rejects(auth.authenticate(), err);
     });
 
     it('sets valid fields for updateBody() to use', async () => {
-      getGcpTokenMock.returns('test-token');
+      getGcpTokenMock.mockReturnValue('test-token');
       const auth = new AuthWorkloadIdentity(connectionConfig);
       const body: AuthRequestBody = { data: {} };
       await auth.authenticate();

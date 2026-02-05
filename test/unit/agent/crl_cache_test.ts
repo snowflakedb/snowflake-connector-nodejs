@@ -1,5 +1,5 @@
 import assert from 'assert';
-import sinon from 'sinon';
+import { vi } from 'vitest';
 import fs from 'fs/promises';
 import path from 'path';
 import ASN1 from 'asn1.js-rfc5280';
@@ -25,7 +25,8 @@ describe('CRL cache', () => {
   let testCrlRaw: Buffer;
 
   beforeEach(async () => {
-    sinon.useFakeTimers(fakeNow);
+    vi.useFakeTimers();
+    vi.setSystemTime(fakeNow);
     testCrl = createTestCRL();
     testCrl.tbsCertList.nextUpdate.value = fakeNow + 1000;
     testCrlRaw = ASN1.CertificateList.encode(testCrl, 'der');
@@ -34,7 +35,6 @@ describe('CRL cache', () => {
   afterEach(async () => {
     await fs.rm(crlCacheDir, { recursive: true, force: true });
     CRL_MEMORY_CACHE.clear();
-    sinon.restore();
   });
 
   describe('setCrlInMemory', () => {
@@ -171,7 +171,7 @@ describe('CRL cache', () => {
     });
 
     it('handles errors when accessing disk cache gracefully', async () => {
-      sinon.stub(fs, 'readdir').rejects(new Error('ENOENT: no such file or directory'));
+      vi.spyOn(fs, 'readdir').mockRejectedValue(new Error('ENOENT: no such file or directory'));
       await assert.doesNotReject(clearExpiredCrlFromDiskCache());
     });
   });

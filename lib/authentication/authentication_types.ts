@@ -11,5 +11,4 @@ enum AuthenticationTypes {
   WORKLOAD_IDENTITY = 'WORKLOAD_IDENTITY',
 }
 
-module.exports = AuthenticationTypes;
-export default AuthenticationTypes;
+export = AuthenticationTypes;

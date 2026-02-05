@@ -185,43 +185,48 @@ exports.createResultOptions = function (response, connectionConfigOption = {}) {
 };
 
 exports.testResult = function (resultOptions, each, end, startIndex, endIndex) {
-  // create a new result
-  const result = new Result(resultOptions);
+  return new Promise((resolve) => {
+    // create a new result
+    const result = new Result(resultOptions);
 
-  let numIterationsActual = 0;
+    let numIterationsActual = 0;
 
-  // initiate a fetch-rows operation
-  const operation = result.fetchRows({
-    startIndex: startIndex,
-    endIndex: endIndex,
+    // initiate a fetch-rows operation
+    const operation = result.fetchRows({
+      startIndex: startIndex,
+      endIndex: endIndex,
 
-    each: function (row) {
-      each(row);
+      each: function (row) {
+        each(row);
 
-      numIterationsActual++;
-    },
-  });
+        numIterationsActual++;
+      },
+    });
 
-  // when the fetch-rows operation completes
-  operation.on('complete', function (err, continueCallback) {
-    // there should be no error
-    assert.ok(!err);
+    // when the fetch-rows operation completes
+    operation.on('complete', function (err, continueCallback) {
+      // there should be no error
+      assert.ok(!err);
 
-    // the continue callback should be undefined (because there's no error)
-    assert.ok(!Util.exists(continueCallback));
+      // the continue callback should be undefined (because there's no error)
+      assert.ok(!Util.exists(continueCallback));
 
-    let numIterationsExpected;
+      let numIterationsExpected;
 
-    if (Util.isNumber(startIndex) && Util.isNumber(endIndex)) {
-      numIterationsExpected = endIndex - startIndex + 1;
-    } else {
-      numIterationsExpected = result.getTotalRows();
-    }
+      if (Util.isNumber(startIndex) && Util.isNumber(endIndex)) {
+        numIterationsExpected = endIndex - startIndex + 1;
+      } else {
+        numIterationsExpected = result.getTotalRows();
+      }
 
-    // check that we iterated through all the rows
-    assert.strictEqual(numIterationsActual, numIterationsExpected);
+      // check that we iterated through all the rows
+      assert.strictEqual(numIterationsActual, numIterationsExpected);
 
-    // invoke the end function
-    end(result);
+      // invoke the end function if provided
+      if (end) {
+        end(result);
+      }
+      resolve();
+    });
   });
 };

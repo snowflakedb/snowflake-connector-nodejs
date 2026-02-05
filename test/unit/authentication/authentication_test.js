@@ -3,7 +3,6 @@ const net = require('net');
 const crypto = require('crypto');
 const jsonwebtoken = require('jsonwebtoken');
 const fs = require('fs');
-const sinon = require('sinon');
 
 const authenticator = require('./../../../lib/authentication/authentication');
 const AuthDefault = require('./../../../lib/authentication/auth_default');
@@ -27,10 +26,10 @@ const connectionOptionsOkta = mockConnectionOptions.authOkta;
 const connectionOptionsIdToken = mockConnectionOptions.authIdToken;
 
 describe('default authentication', function () {
-  it('default - authenticate method is thenable', (done) => {
+  it('default - authenticate method is thenable', async () => {
     const auth = new AuthDefault(connectionOptions);
 
-    auth.authenticate().then(done).catch(done);
+    await auth.authenticate();
   });
 
   it('default - check password', function () {
@@ -147,7 +146,7 @@ describe('external browser authentication', function () {
       client.write(`GET /?token=${mockToken} HTTP/1.1\r\n`);
     });
   };
-  const httpResponseStub = sinon.stub();
+  const httpResponseStub = vi.fn();
 
   before(function () {
     httpclient = {
@@ -164,23 +163,25 @@ describe('external browser authentication', function () {
   });
 
   beforeEach(() => {
-    httpResponseStub.returns({
+    httpResponseStub.mockReturnValue({
       ssoUrl: mockSsoURL,
       proofKey: mockProofKey,
     });
   });
 
   afterEach(() => {
-    httpResponseStub.reset();
+    httpResponseStub.mockReset();
   });
 
-  it('external browser - authenticate method is thenable', (done) => {
+  it('external browser - authenticate method is thenable', async () => {
     const auth = new AuthWeb(connectionConfig, httpclient, browserOpenCallback);
 
-    auth
-      .authenticate(credentials.authenticator, '', credentials.account, credentials.username)
-      .then(done)
-      .catch(done);
+    await auth.authenticate(
+      credentials.authenticator,
+      '',
+      credentials.account,
+      credentials.username,
+    );
   });
 
   it('external browser - get success', async function () {
@@ -200,7 +201,7 @@ describe('external browser authentication', function () {
   });
 
   it('external browser - get fail', async function () {
-    httpResponseStub.returns({ ssoUrl: mockSsoURL });
+    httpResponseStub.mockReturnValue({ ssoUrl: mockSsoURL });
     const fastFailConnectionConfig = {
       getBrowserActionTimeout: () => 10,
       getProxy: () => {},
@@ -279,15 +280,12 @@ describe('external browser authentication', function () {
 });
 
 describe('key-pair authentication', function () {
-  let sinonSandbox;
-
   const mockToken = 'mockToken';
   const mockPrivateKeyFile = 'mockPrivateKeyFile';
   const mockPublicKeyObj = 'mockPublicKeyObj';
 
-  before(function () {
-    sinonSandbox = sinon.createSandbox();
-    sinonSandbox.stub(crypto, 'createPrivateKey').callsFake((options) => {
+  beforeEach(function () {
+    vi.spyOn(crypto, 'createPrivateKey').mockImplementation((options) => {
       assert.strictEqual(options.key, mockPrivateKeyFile);
       if (options.passphrase) {
         assert.strictEqual(options.passphrase, connectionOptionsKeyPairPath.getPrivateKeyPass());
@@ -296,37 +294,30 @@ describe('key-pair authentication', function () {
         export: () => connectionOptionsKeyPair.getPrivateKey(),
       };
     });
-    sinonSandbox.stub(crypto, 'createPublicKey').callsFake((options) => {
+    vi.spyOn(crypto, 'createPublicKey').mockImplementation((options) => {
       assert.strictEqual(options.key, connectionOptionsKeyPair.getPrivateKey());
       return {
         export: () => mockPublicKeyObj,
       };
     });
-    sinonSandbox.stub(crypto, 'createHash').returns({
+    vi.spyOn(crypto, 'createHash').mockReturnValue({
       update: (publicKeyObj) => {
         assert.strictEqual(publicKeyObj, mockPublicKeyObj);
         return { digest: () => {} };
       },
     });
-    sinonSandbox.stub(jsonwebtoken, 'sign').returns(mockToken);
-    sinonSandbox.stub(fs, 'readFileSync').returns(mockPrivateKeyFile);
+    vi.spyOn(jsonwebtoken, 'sign').mockReturnValue(mockToken);
+    vi.spyOn(fs, 'readFileSync').mockReturnValue(mockPrivateKeyFile);
   });
 
-  after(() => {
-    sinonSandbox.restore();
-  });
-
-  it('key-pair - authenticate method is thenable', (done) => {
+  it('key-pair - authenticate method is thenable', async () => {
     const auth = new AuthKeypair(connectionOptionsKeyPair);
-    auth
-      .authenticate(
-        connectionOptionsKeyPair.authenticator,
-        '',
-        connectionOptionsKeyPair.account,
-        connectionOptionsKeyPair.username,
-      )
-      .then(done)
-      .catch(done);
+    await auth.authenticate(
+      connectionOptionsKeyPair.authenticator,
+      '',
+      connectionOptionsKeyPair.account,
+      connectionOptionsKeyPair.username,
+    );
   });
 
   it('key-pair - get token with private key', function () {
@@ -404,18 +395,15 @@ describe('key-pair authentication', function () {
 });
 
 describe('oauth authentication', function () {
-  it('oauth - authenticate method is thenable', (done) => {
+  it('oauth - authenticate method is thenable', async () => {
     const auth = new AuthOauth(connectionOptionsOauth.token);
 
-    auth
-      .authenticate(
-        connectionOptionsKeyPair.authenticator,
-        '',
-        connectionOptionsKeyPair.account,
-        connectionOptionsKeyPair.username,
-      )
-      .then(done)
-      .catch(done);
+    await auth.authenticate(
+      connectionOptionsKeyPair.authenticator,
+      '',
+      connectionOptionsKeyPair.account,
+      connectionOptionsKeyPair.username,
+    );
   });
 
   it('oauth - check token', function () {
@@ -493,18 +481,15 @@ describe('okta authentication', function () {
     };
   });
 
-  it('okta - authenticate method is thenable', (done) => {
+  it('okta - authenticate method is thenable', async () => {
     const auth = new AuthOkta(connectionOptionsOkta, httpclient);
 
-    auth
-      .authenticate(
-        connectionOptionsOkta.authenticator,
-        '',
-        connectionOptionsOkta.account,
-        connectionOptionsOkta.username,
-      )
-      .then(done)
-      .catch(done);
+    await auth.authenticate(
+      connectionOptionsOkta.authenticator,
+      '',
+      connectionOptionsOkta.account,
+      connectionOptionsOkta.username,
+    );
   });
 
   it('okta - SAML response success', async function () {

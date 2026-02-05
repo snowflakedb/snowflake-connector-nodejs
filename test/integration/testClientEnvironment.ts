@@ -1,6 +1,5 @@
-import sinon from 'sinon';
+import { vi, type MockInstance } from 'vitest';
 import assert from 'assert';
-import rewiremock from 'rewiremock/node';
 import { runWireMockAsync, addWireMockMappingsFromFile } from '../wiremockRunner';
 import * as testUtil from './testUtil';
 import axiosInstance from '../../lib/http/axios_instance';
@@ -8,7 +7,7 @@ import axiosInstance from '../../lib/http/axios_instance';
 describe('CLIENT_ENVIRONMENT for /login-request', () => {
   let wiremock: any;
   let connection: any;
-  let axiosRequestSpy: sinon.SinonSpy;
+  let axiosRequestSpy: MockInstance;
 
   async function initConnection(coreInstance?: any) {
     connection = testUtil.createConnection(
@@ -21,7 +20,7 @@ describe('CLIENT_ENVIRONMENT for /login-request', () => {
   }
 
   function getClientEnvironment() {
-    const request = axiosRequestSpy.firstCall.firstArg;
+    const request = axiosRequestSpy.mock.calls[0][0] as any;
     return request.data.data.CLIENT_ENVIRONMENT;
   }
 
@@ -32,11 +31,7 @@ describe('CLIENT_ENVIRONMENT for /login-request', () => {
   });
 
   beforeEach(async () => {
-    axiosRequestSpy = sinon.spy(axiosInstance, 'request');
-  });
-
-  afterEach(async () => {
-    sinon.restore();
+    axiosRequestSpy = vi.spyOn(axiosInstance, 'request');
   });
 
   after(async () => {
@@ -65,10 +60,11 @@ describe('CLIENT_ENVIRONMENT for /login-request', () => {
   });
 
   it('contains CORE_LOAD_ERROR when minicore fails to load', async () => {
-    sinon.stub(process, 'platform').value('dummy-test-platform-to-force-load-error');
-    const freshCoreInstance = rewiremock.proxy('../../lib/snowflake', {
-      '../../lib/minicore': rewiremock.proxy('../../lib/minicore/minicore'),
-    });
+    vi.spyOn(process, 'platform', 'get').mockReturnValue(
+      'dummy-test-platform-to-force-load-error' as NodeJS.Platform,
+    );
+    vi.resetModules();
+    const { default: freshCoreInstance } = await import('../../lib/snowflake');
     await initConnection(freshCoreInstance);
     const clientEnvironment = getClientEnvironment();
     assert.strictEqual(clientEnvironment.CORE_VERSION, null);

@@ -2,7 +2,7 @@ const assert = require('assert');
 const ResultTestCommon = require('./result_test_common');
 
 describe('Result: test boolean', function () {
-  it('select true as C1, false as C2, to_boolean(null) as C3;', function (done) {
+  it('select true as C1, false as C2, to_boolean(null) as C3;', async function () {
     const response = {
       data: {
         parameters: [
@@ -79,7 +79,7 @@ describe('Result: test boolean', function () {
       success: true,
     };
 
-    ResultTestCommon.testResult(
+    await ResultTestCommon.testResult(
       ResultTestCommon.createResultOptions(response),
       function (row) {
         // true
@@ -94,15 +94,13 @@ describe('Result: test boolean', function () {
         assert.strictEqual(row.getColumnValue('C3'), null);
         assert.strictEqual(row.getColumnValueAsString('C3'), 'NULL');
       },
-      function () {
-        done();
-      },
+      function () {},
     );
   });
 
   it(
     "select to_boolean('1') as C1, to_boolean('0') as C2, ' + " + "'to_boolean(null) as C3;",
-    function (done) {
+    async function () {
       const response = {
         data: {
           parameters: [
@@ -179,7 +177,7 @@ describe('Result: test boolean', function () {
         success: true,
       };
 
-      ResultTestCommon.testResult(
+      await ResultTestCommon.testResult(
         ResultTestCommon.createResultOptions(response),
         function (row) {
           // true
@@ -194,9 +192,7 @@ describe('Result: test boolean', function () {
           assert.strictEqual(row.getColumnValue('C3'), null);
           assert.strictEqual(row.getColumnValueAsString('C3'), 'NULL');
         },
-        function () {
-          done();
-        },
+        function () {},
       );
     },
   );

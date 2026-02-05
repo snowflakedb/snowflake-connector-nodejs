@@ -11,7 +11,7 @@ describe('Secret Detector', function () {
     },
   };
 
-  this.beforeEach(function () {
+  beforeEach(function () {
     SecretDetector = new SnowflakeSecretDetector();
   });
 

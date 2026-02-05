@@ -101,9 +101,9 @@ describe('Result', function () {
     success: true,
   };
 
-  it('verify whether null values are returned as nulls ', function (done) {
+  it('verify whether null values are returned as nulls ', async function () {
     const rows = [];
-    ResultTestCommon.testResult(
+    await ResultTestCommon.testResult(
       ResultTestCommon.createResultOptions(response, { representNullAsStringNull: false }),
       function (row) {
         rows.push(row);
@@ -111,7 +111,6 @@ describe('Result', function () {
       function () {
         testNotNullData(rows[0]);
         testNullData(rows[1]);
-        done();
       },
     );
   });

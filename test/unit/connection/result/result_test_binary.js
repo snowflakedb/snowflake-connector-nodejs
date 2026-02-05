@@ -2,7 +2,7 @@ const assert = require('assert');
 const ResultTestCommon = require('./result_test_common');
 
 describe('Result: test binary', function () {
-  it("select X'0123456789ABCDEF' as C1;", function (done) {
+  it("select X'0123456789ABCDEF' as C1;", async function () {
     const response = {
       data: {
         parameters: [
@@ -92,22 +92,20 @@ describe('Result: test binary', function () {
       success: true,
     };
 
-    ResultTestCommon.testResult(
+    await ResultTestCommon.testResult(
       ResultTestCommon.createResultOptions(response),
       function (row) {
         const buffer = Buffer.from('0123456789ABCDEF', 'hex');
         assert.ok(row.getColumnValue('C1').equals(buffer));
         assert.strictEqual(row.getColumnValueAsString('C1'), '0123456789ABCDEF');
       },
-      function () {
-        done();
-      },
+      function () {},
     );
   });
 
   it(
     "alter session set BINARY_OUTPUT_FORMAT='BASE64';" + "select X'0123456789ABCDEF' as C1;",
-    function (done) {
+    async function () {
       const response = {
         data: {
           parameters: [
@@ -197,16 +195,14 @@ describe('Result: test binary', function () {
         success: true,
       };
 
-      ResultTestCommon.testResult(
+      await ResultTestCommon.testResult(
         ResultTestCommon.createResultOptions(response),
         function (row) {
           const buffer = Buffer.from('0123456789ABCDEF', 'hex');
           assert.ok(row.getColumnValue('C1').equals(buffer));
           assert.strictEqual(row.getColumnValueAsString('C1'), 'ASNFZ4mrze8=');
         },
-        function () {
-          done();
-        },
+        function () {},
       );
     },
   );

@@ -79,10 +79,10 @@ describe('Result', function () {
     success: true,
   };
 
-  it('small result', function (done) {
+  it('small result', async function () {
     const rows = [];
 
-    ResultTestCommon.testResult(
+    await ResultTestCommon.testResult(
       ResultTestCommon.createResultOptions(response),
       function (row) {
         rows.push(row);
@@ -142,8 +142,6 @@ describe('Result', function () {
             // as well
           }
         }
-
-        done();
       },
       0,
       5,

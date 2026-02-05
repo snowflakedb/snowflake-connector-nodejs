@@ -1,6 +1,6 @@
 import { WireMockRestClient } from 'wiremock-rest-client';
 import assert from 'assert';
-import sinon from 'sinon';
+import { vi, type MockInstance } from 'vitest';
 import { runWireMockAsync, addWireMockMappingsFromFile } from '../../wiremockRunner';
 import * as testUtil from '../testUtil';
 import * as Util from '../../../lib/util';
@@ -48,7 +48,7 @@ function buildWiremockFailureResponse(requestError: string | number) {
 describe('Request Retries', () => {
   let wiremock: WireMockRestClient;
   let port: number;
-  let axiosRequestSpy: sinon.SinonSpy;
+  let axiosRequestSpy: MockInstance;
   let connection: any;
 
   before(async () => {
@@ -57,10 +57,10 @@ describe('Request Retries', () => {
   });
 
   beforeEach(async () => {
-    axiosRequestSpy = sinon.spy(axiosInstance, 'request');
+    axiosRequestSpy = vi.spyOn(axiosInstance, 'request');
 
     // Instantly resolve sleep for faster retries
-    sinon.stub(Util, 'sleep').resolves();
+    vi.spyOn(Util, 'sleep').mockResolvedValue(undefined);
 
     connection = testUtil.createConnection({
       // Setting to 1sec for faster timeout tests
@@ -72,7 +72,6 @@ describe('Request Retries', () => {
   });
 
   afterEach(async () => {
-    sinon.restore();
     if (connection.isUp()) {
       await testUtil.destroyConnectionAsync(connection);
     }
@@ -84,8 +83,7 @@ describe('Request Retries', () => {
   });
 
   function getAxiosRequestsCount(matchingPath: string) {
-    return axiosRequestSpy.getCalls().filter((c: any) => c.args?.[0]?.url?.includes(matchingPath))
-      .length;
+    return axiosRequestSpy.mock.calls.filter((c: any) => c[0]?.url?.includes(matchingPath)).length;
   }
 
   function registerRetryMappings(requestError: string | number, mappingsName: string) {

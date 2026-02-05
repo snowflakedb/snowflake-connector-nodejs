@@ -1,4 +1,4 @@
-import sinon from 'sinon';
+import { vi } from 'vitest';
 import assert from 'assert';
 import { GoogleAuth, Impersonated } from 'google-auth-library';
 import {
@@ -7,49 +7,47 @@ import {
 } from '../../../../lib/authentication/auth_workload_identity/attestation_gcp';
 
 describe('Attestation GCP', () => {
-  const sinonSandbox = sinon.createSandbox();
   const gcpSdkMock = {
-    getIdTokenClient: sinonSandbox.stub(),
-    getClient: sinonSandbox.stub(),
-    fetchIdToken: sinonSandbox.stub(),
-    impersonatedFetchIdToken: sinonSandbox.stub(),
+    getIdTokenClient: vi.fn(),
+    getClient: vi.fn(),
+    fetchIdToken: vi.fn(),
+    impersonatedFetchIdToken: vi.fn(),
   };
 
   beforeEach(async () => {
-    gcpSdkMock.getIdTokenClient.returns({
+    vi.clearAllMocks();
+    gcpSdkMock.getIdTokenClient.mockReturnValue({
       idTokenProvider: {
         fetchIdToken: gcpSdkMock.fetchIdToken,
       },
     });
-    gcpSdkMock.getClient.resolves({});
-    sinonSandbox
-      .stub(GoogleAuth.prototype, 'getIdTokenClient')
-      .callsFake(gcpSdkMock.getIdTokenClient);
-    sinonSandbox.stub(GoogleAuth.prototype, 'getClient').callsFake(gcpSdkMock.getClient);
-    sinonSandbox
-      .stub(Impersonated.prototype, 'fetchIdToken')
-      .callsFake(gcpSdkMock.impersonatedFetchIdToken);
-  });
-
-  afterEach(() => {
-    sinonSandbox.restore();
+    gcpSdkMock.getClient.mockResolvedValue({});
+    vi.spyOn(GoogleAuth.prototype, 'getIdTokenClient').mockImplementation(
+      gcpSdkMock.getIdTokenClient,
+    );
+    vi.spyOn(GoogleAuth.prototype, 'getClient').mockImplementation(gcpSdkMock.getClient as any);
+    vi.spyOn(Impersonated.prototype, 'fetchIdToken').mockImplementation(
+      gcpSdkMock.impersonatedFetchIdToken,
+    );
   });
 
   describe('using default credentials', () => {
     it('calls fetchIdToken with the correct audience', async () => {
       await getGcpAttestationToken();
-      assert.strictEqual(gcpSdkMock.getIdTokenClient.firstCall.args[0], SNOWFLAKE_AUDIENCE);
-      assert.strictEqual(gcpSdkMock.fetchIdToken.firstCall.args[0], SNOWFLAKE_AUDIENCE);
+      assert.strictEqual(gcpSdkMock.getIdTokenClient.mock.calls[0][0], SNOWFLAKE_AUDIENCE);
+      assert.strictEqual(gcpSdkMock.fetchIdToken.mock.calls[0][0], SNOWFLAKE_AUDIENCE);
     });
 
     it('throws error when the token is not found', async () => {
       const err = new Error('Token not found');
-      gcpSdkMock.fetchIdToken.throws(err);
+      gcpSdkMock.fetchIdToken.mockImplementation(() => {
+        throw err;
+      });
       assert.rejects(getGcpAttestationToken(), err);
     });
 
     it('returns the token when it is found', async () => {
-      gcpSdkMock.fetchIdToken.resolves('test-token');
+      gcpSdkMock.fetchIdToken.mockResolvedValue('test-token');
       const token = await getGcpAttestationToken();
       assert.strictEqual(token, 'test-token');
     });
@@ -58,14 +56,16 @@ describe('Attestation GCP', () => {
   describe('using impersonation', () => {
     it('throws error when impersonation fails', async () => {
       const err = new Error('Impersonation failed');
-      gcpSdkMock.impersonatedFetchIdToken.throws(err);
+      gcpSdkMock.impersonatedFetchIdToken.mockImplementation(() => {
+        throw err;
+      });
       await assert.rejects(getGcpAttestationToken(['service-account']), err);
     });
 
     it('returns token', async () => {
-      gcpSdkMock.impersonatedFetchIdToken.resolves('impersonated-token');
+      gcpSdkMock.impersonatedFetchIdToken.mockResolvedValue('impersonated-token');
       const token = await getGcpAttestationToken(['service-account']);
-      assert.strictEqual(gcpSdkMock.impersonatedFetchIdToken.firstCall.args[0], SNOWFLAKE_AUDIENCE);
+      assert.strictEqual(gcpSdkMock.impersonatedFetchIdToken.mock.calls[0][0], SNOWFLAKE_AUDIENCE);
       assert.strictEqual(token, 'impersonated-token');
     });
   });

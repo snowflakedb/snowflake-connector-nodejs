@@ -3,7 +3,7 @@ const assert = require('assert');
 const ResultTestCommon = require('./result_test_common');
 
 describe('Result: test date', function () {
-  it("select to_date('2016-01-21') as C1;", function (done) {
+  it("select to_date('2016-01-21') as C1;", async function () {
     const response = {
       data: {
         parameters: [
@@ -62,15 +62,13 @@ describe('Result: test date', function () {
       success: true,
     };
 
-    ResultTestCommon.testResult(
+    await ResultTestCommon.testResult(
       ResultTestCommon.createResultOptions(response),
       function (row) {
         assert.ok(Util.isDate(row.getColumnValue('C1')));
         assert.strictEqual(row.getColumnValueAsString('C1'), '2016-01-21');
       },
-      function () {
-        done();
-      },
+      function () {},
     );
   });
 });

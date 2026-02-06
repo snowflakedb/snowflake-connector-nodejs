@@ -3,6 +3,7 @@
 ## Upcoming Release
 
 - Fixed inconsistent retry behavior across HTTP requests and ensured all recoverable failures are properly retried (snowflakedb/snowflake-connector-nodejs#1230, snowflakedb/snowflake-connector-nodejs#1232, snowflakedb/snowflake-connector-nodejs#1233, snowflakedb/snowflake-connector-nodejs#1249, snowflakedb/snowflake-connector-nodejs#1250)
+- Fixed invalid oauth scope when `role` and `oauthScope` are missing from the connection config (snowflakedb/snowflake-connector-nodejs#1262)
 - Reduced memory usage during PUT operations (snowflakedb/snowflake-connector-nodejs#1226)
 - Added Linux distribution details parsed from `/etc/os-release` to login-request telemetry (snowflakedb/snowflake-connector-nodejs#1234)
 - Added `APPLICATION_PATH` to login-request telemetry (snowflakedb/snowflake-connector-nodejs#1240)

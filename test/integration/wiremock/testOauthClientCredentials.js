@@ -31,12 +31,27 @@ describe('Oauth Client Credentials authentication', function () {
     await wireMock.global.shutdown();
   });
 
+  // TODO:
+  // The tests could be greatly simplified during UD migration:
+  // - reuse wiremock for query_ok and heartbeat_ok
+  // - use remplate variables in wiremocks
   it('Successful flow scenario Client Credentials flow', async function () {
     await addWireMockMappingsFromFile(
       wireMock,
       'wiremock/mappings/oauth/client_credentials/successful_flow.json',
     );
     authTest.createConnection(connectionOption);
+    await authTest.connectAsync();
+    authTest.verifyNoErrorWasThrown();
+    await authTest.verifyConnectionIsUp();
+  });
+
+  it('successfully connects with empty scope', async function () {
+    await addWireMockMappingsFromFile(
+      wireMock,
+      'wiremock/mappings/oauth/client_credentials/successful_flow_without_scope.json',
+    );
+    authTest.createConnection({ ...connectionOption, role: undefined });
     await authTest.connectAsync();
     authTest.verifyNoErrorWasThrown();
     await authTest.verifyConnectionIsUp();

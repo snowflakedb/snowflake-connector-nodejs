@@ -35,7 +35,7 @@ describe('Oauth Client Credentials authentication', function () {
   // The tests could be greatly simplified during UD migration:
   // - short test names because we repeat context from describe
   // - reuse wiremock for query_ok and heartbeat_ok
-  // - use remplate variables in wiremocks
+  // - use template variables in wiremocks
   it('Successful flow scenario Client Credentials flow', async function () {
     await addWireMockMappingsFromFile(
       wireMock,

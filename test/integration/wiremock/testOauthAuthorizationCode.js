@@ -47,7 +47,7 @@ describe('Oauth Authorization Code authentication', function () {
   // - short test names because we repeat context from describe
   // - move common logic to a helper functions
   // - reuse wiremock for query_ok and heartbeat_ok
-  // - use remplate variables in wiremocks
+  // - use template variables in wiremocks
   // - the wiremock mapping /oauth/authorize is not hit, because we have custom redirect client set
   it('Successful flow scenario Authorization Code flow', async function () {
     GlobalConfig.setCustomRedirectingClient((redirectUri) => {
@@ -65,9 +65,9 @@ describe('Oauth Authorization Code authentication', function () {
   });
 
   it('successfully connects with empty scope', async function () {
-    let autothorizationUrlUsed;
+    let authorizationUrlUsed;
     GlobalConfig.setCustomRedirectingClient((authorizationUrl) => {
-      autothorizationUrlUsed = authorizationUrl;
+      authorizationUrlUsed = authorizationUrl;
       const url = `${authorizationUrl.searchParams.get('redirect_uri')}?code=9s6wFkGDOjmgNEdwJMlDzv1AwxDjDVBxiT6wVqXjG5s&state=${authorizationUrl.searchParams.get('state')}`;
       return authUtil.withBrowserActionTimeout(3000, get(url));
     });
@@ -79,7 +79,7 @@ describe('Oauth Authorization Code authentication', function () {
     await authTest.connectAsync();
     authTest.verifyNoErrorWasThrown();
     assert.strictEqual(
-      autothorizationUrlUsed.searchParams.has('scope'),
+      authorizationUrlUsed.searchParams.has('scope'),
       false,
       'scope query parameter should not be present',
     );

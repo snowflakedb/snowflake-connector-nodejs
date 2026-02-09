@@ -36,7 +36,9 @@ class AuthOauthClientCredentials implements AuthClass {
     const scope = await authUtil.prepareScope(this.connectionConfig);
 
     const parameters = new URLSearchParams();
-    parameters.set('scope', scope);
+    if (scope) {
+      parameters.set('scope', scope);
+    }
 
     this.token = await this.requestToken(clientId, clientSecret, parameters);
   }

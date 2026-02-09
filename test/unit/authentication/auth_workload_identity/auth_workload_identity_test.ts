@@ -30,7 +30,7 @@ describe('Workload Identity Authentication', async () => {
     });
   }
 
-  before(async () => {
+  before(() => {
     // NOTE:
     // Sinon can't stub frozen AWS SDK properties, so we need to mock entire require
     rewiremock('@aws-sdk/credential-provider-node').with({
@@ -42,8 +42,7 @@ describe('Workload Identity Authentication', async () => {
       },
     });
     rewiremock.enable();
-    AuthWorkloadIdentity = (await import('../../../../lib/authentication/auth_workload_identity'))
-      .default;
+    AuthWorkloadIdentity = require('../../../../lib/authentication/auth_workload_identity').default;
   });
 
   beforeEach(() => {

@@ -2,6 +2,10 @@
 
 ## Upcoming Release
 
+- Fixed OAuth crashing when using bundlers (snowflakedb/snowflake-connector-nodejs#1266)
+
+## 2.3.4
+
 - Fixed inconsistent retry behavior across HTTP requests and ensured all recoverable failures are properly retried (snowflakedb/snowflake-connector-nodejs#1230, snowflakedb/snowflake-connector-nodejs#1232, snowflakedb/snowflake-connector-nodejs#1233, snowflakedb/snowflake-connector-nodejs#1249, snowflakedb/snowflake-connector-nodejs#1250)
 - Fixed invalid oauth scope when `role` and `oauthScope` are missing from the connection config (snowflakedb/snowflake-connector-nodejs#1262)
 - Reduced memory usage during PUT operations (snowflakedb/snowflake-connector-nodejs#1226)

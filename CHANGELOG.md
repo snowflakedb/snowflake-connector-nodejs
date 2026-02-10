@@ -3,6 +3,7 @@
 ## Upcoming Release
 
 - Fixed OAuth crashing when using bundlers (snowflakedb/snowflake-connector-nodejs#1266)
+- Added Node 18+ to `engines`, which is our minimum officially supported version since the 2.x release
 
 ## 2.3.4
 

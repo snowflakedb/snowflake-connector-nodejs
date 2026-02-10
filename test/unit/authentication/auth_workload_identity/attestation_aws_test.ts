@@ -15,7 +15,7 @@ describe('Attestation AWS', () => {
   const noCredentialsError = new Error('No credentials found');
   const noRegionError = new Error('No region found');
 
-  before(async () => {
+  before(() => {
     // NOTE:
     // Sinon can't stub frozen AWS SDK properties, so we need to mock entire require
     rewiremock('@aws-sdk/credential-provider-node').with({
@@ -33,8 +33,7 @@ describe('Attestation AWS', () => {
       },
     });
     rewiremock.enable();
-    AttestationAws =
-      await import('../../../../lib/authentication/auth_workload_identity/attestation_aws');
+    AttestationAws = require('../../../../lib/authentication/auth_workload_identity/attestation_aws');
   });
 
   beforeEach(() => {

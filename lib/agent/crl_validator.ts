@@ -60,7 +60,9 @@ export function corkSocketAndValidateCrl(socket: TLSSocket, config: CRLValidator
 function* iterateCertChain(cert: DetailedPeerCertificate) {
   let current = cert;
   while (current) {
-    if (current === current.issuerCertificate) break; // Root is self-signed, ignoring
+    if (current === current.issuerCertificate) {
+      break; // Root is self-signed, ignoring
+    }
     yield current;
     current = current.issuerCertificate;
   }

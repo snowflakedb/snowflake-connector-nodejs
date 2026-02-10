@@ -49,11 +49,11 @@ class AuthOauthClientCredentials implements AuthClass {
     const as = {
       // An issuer is an obligatory parameter in validation processed by oauth4webapi library, even when it isn't used
       issuer: 'UNKNOWN',
-      // eslint-disable-next-line camelcase
+      // oxlint-disable-next-line camelcase
       token_endpoint: tokenUrl.href,
     };
     const client = {
-      // eslint-disable-next-line camelcase
+      // oxlint-disable-next-line camelcase
       client_id: clientId,
     };
 

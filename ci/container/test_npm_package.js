@@ -8,5 +8,5 @@
 
 const snowflake = require('snowflake-sdk');
 
-// eslint-disable-next-line no-console
+// oxlint-disable-next-line no-console
 console.log('snowflae-sdk imported', snowflake);

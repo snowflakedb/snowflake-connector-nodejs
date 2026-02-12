@@ -1,4 +1,4 @@
-// Similar to platform detection implementation on other drivers, but for now targeting only
+// Similar to platform detection implementation in other drivers, but for now targeting only
 // serverless platforms where we need to test minicore.
 const PLATFORM_DETECTORS = [
   {

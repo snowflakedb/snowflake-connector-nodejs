@@ -103,12 +103,12 @@ describe('CLIENT_ENVIRONMENT for /login-request', () => {
   });
 
   it('contains PLATFORM field with mocked lambda env', async () => {
-    sinon.stub(process.env, 'LAMBDA_TASK_ROOT').value('/var/task');
-    const freshPlatformDetection = rewiremock.proxy('../../lib/telemetry/platform_detection');
+    sinon.stub(process, 'env').value({ ...process.env, LAMBDA_TASK_ROOT: '/var/task' });
+    delete require.cache[require.resolve('../../lib/telemetry/platform_detection')];
     const freshCoreInstance = rewiremock.proxy('../../lib/snowflake', {
-      '../../lib/services/sf': rewiremock.proxy('../../lib/services/sf', {
-        '../../lib/telemetry/platform_detection': freshPlatformDetection,
-      }),
+      '../../lib/telemetry/platform_detection': rewiremock.proxy(
+        '../../lib/telemetry/platform_detection',
+      ),
     });
     await initConnection({}, freshCoreInstance);
     const platform = getClientEnvironment().PLATFORM;

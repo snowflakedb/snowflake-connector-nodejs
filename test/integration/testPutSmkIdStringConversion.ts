@@ -71,11 +71,7 @@ describe('smkId patching in PUT statements', () => {
             },
           },
         );
-        const connection = testUtil.createConnection({
-          accessUrl: wiremock.rootUrl,
-          proxyHost: '127.0.0.1',
-          proxyPort: 8080,
-        });
+        const connection = testUtil.createConnection({ accessUrl: wiremock.rootUrl });
         await testUtil.connectAsync(connection);
         await testUtil.executeCmdAsync(
           connection,

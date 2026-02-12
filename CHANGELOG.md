@@ -3,6 +3,7 @@
 ## Upcoming Release
 
 - Fixed OAuth crashing when using bundlers (snowflakedb/snowflake-connector-nodejs#1266)
+- Added `PLATFORM` field to login-request telemetry (snowflakedb/snowflake-connector-nodejs#1269)
 
 ## 2.3.4
 

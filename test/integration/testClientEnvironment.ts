@@ -58,7 +58,7 @@ describe('CLIENT_ENVIRONMENT for /login-request', () => {
     assert.ok(getClientEnvironment().APPLICATION_PATH, 'APPLICATION_PATH should not be empty');
   });
 
-  it('contains instruction set arhitecture (ISA)', async () => {
+  it('contains instruction set architecture (ISA)', async () => {
     await initConnection();
     assert.strictEqual(getClientEnvironment().ISA, process.arch);
   });
@@ -100,5 +100,22 @@ describe('CLIENT_ENVIRONMENT for /login-request', () => {
     } else {
       assert.strictEqual(osDetails, null);
     }
+  });
+
+  it('contains PLATFORM field with mocked lambda env', async () => {
+    sinon.stub(process.env, 'LAMBDA_TASK_ROOT').value('/var/task');
+    const freshPlatformDetection = rewiremock.proxy('../../lib/telemetry/platform_detection');
+    const freshCoreInstance = rewiremock.proxy('../../lib/snowflake', {
+      '../../lib/services/sf': rewiremock.proxy('../../lib/services/sf', {
+        '../../lib/telemetry/platform_detection': freshPlatformDetection,
+      }),
+    });
+    await initConnection({}, freshCoreInstance);
+    const platform = getClientEnvironment().PLATFORM;
+    assert.ok(Array.isArray(platform), 'PLATFORM should be an array');
+    assert.ok(
+      platform.includes('is_aws_lambda'),
+      `Expected PLATFORM to include is_aws_lambda, got: ${JSON.stringify(platform)}`,
+    );
   });
 });

@@ -461,11 +461,6 @@ describe('Test DataType', function () {
 
   it('DECFLOAT is returned as string', async () => {
     const testDecfloatValue = '-9.8765432099999998623226732747455716901e-250';
-    await testUtil.executeCmdAsync(connection, 'alter session set FEATURE_DECFLOAT = enabled;');
-    await testUtil.executeCmdAsync(
-      connection,
-      'alter session set DECFLOAT_RESULT_COLUMN_TYPE = 2;',
-    );
     const { rowStatement, rows } = await testUtil.executeCmdAsyncWithAdditionalParameters(
       connection,
       `SELECT ${testDecfloatValue}::DECFLOAT`,

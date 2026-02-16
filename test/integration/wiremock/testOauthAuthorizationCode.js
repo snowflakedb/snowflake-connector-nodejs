@@ -20,11 +20,9 @@ describe('Oauth Authorization Code authentication', function () {
     GlobalConfig.setCustomCredentialManager(defaultCredentialManager);
     connectionOption = {
       ...connParameters.oauthAuthorizationCodeOnWiremock,
-      ...{
-        port: port,
-        oauthAuthorizationUrl: `https://127.0.0.1:${port}/oauth/authorize`,
-        oauthTokenRequestUrl: `http://127.0.0.1:${port}/oauth/token-request`,
-      },
+      port: port,
+      oauthAuthorizationUrl: `https://127.0.0.1:${port}/oauth/authorize`,
+      oauthTokenRequestUrl: `http://127.0.0.1:${port}/oauth/token-request`,
     };
   });
 

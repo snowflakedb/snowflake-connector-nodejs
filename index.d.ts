@@ -9,8 +9,8 @@ import ErrorCodeEnum from './lib/error_code';
 declare module 'snowflake-sdk' {
   export type CustomParser = (rawColumnValue: string) => any;
   export type Bind = string | number | boolean | null;
-  export type InsertBinds = Bind[][];
-  export type Binds = Bind[] | InsertBinds;
+  export type InsertBinds = readonly Bind[][];
+  export type Binds = readonly Bind[] | InsertBinds;
   export type StatementCallback = (
     err: SnowflakeError | undefined,
     stmt: RowStatement | FileAndStageBindStatement,

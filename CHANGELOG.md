@@ -2,11 +2,24 @@
 
 ## Upcoming Release
 
-- Fixed inconsistent retry behavior across HTTP requests and ensured all recoverable failures are properly retried (snowflakedb/snowflake-connector-nodejs#1230, snowflakedb/snowflake-connector-nodejs#1232, snowflakedb/snowflake-connector-nodejs#1233)
-- Reduced memory usage during PUT operations (snowflakedb/snowflake-connector-nodejs#1226)
-- Extended login-request telemetry with Linux distribution details parsed from `/etc/os-release` (snowflakedb/snowflake-connector-nodejs#1234)
-- Added `APPLICATION_PATH` to login-request telemetry (snowflakedb/snowflake-connector-nodejs#1240)
+- Fixed OAuth crashing when using bundlers (snowflakedb/snowflake-connector-nodejs#1266)
+- Added Node 18+ to `engines`, which is our minimum officially supported version since the 2.x release (snowflakedb/snowflake-connector-nodejs#1268)
+- Added `PLATFORM` field to login-request telemetry (snowflakedb/snowflake-connector-nodejs#1269)
+- Fixed `Binds` typing to allow readonly arrays (snowflakedb/snowflake-connector-nodejs#1270)
 - Replaced ESLint with oxlint for better performance and out-of-the-box TypeScript support (snowflakedb/snowflake-connector-nodejs#1254)
+
+## 2.3.4
+
+- Fixed inconsistent retry behavior across HTTP requests and ensured all recoverable failures are properly retried (snowflakedb/snowflake-connector-nodejs#1230, snowflakedb/snowflake-connector-nodejs#1232, snowflakedb/snowflake-connector-nodejs#1233, snowflakedb/snowflake-connector-nodejs#1249, snowflakedb/snowflake-connector-nodejs#1250)
+- Fixed invalid oauth scope when `role` and `oauthScope` are missing from the connection config (snowflakedb/snowflake-connector-nodejs#1262)
+- Reduced memory usage during PUT operations (snowflakedb/snowflake-connector-nodejs#1226)
+- Added Linux distribution details parsed from `/etc/os-release` to login-request telemetry (snowflakedb/snowflake-connector-nodejs#1234)
+- Added `APPLICATION_PATH` to login-request telemetry (snowflakedb/snowflake-connector-nodejs#1240)
+- Added additional error details to minicore telemetry (snowflakedb/snowflake-connector-nodejs#1259)
+- Bumped axios to `1.13.4` to address a bug in axios interceptors (snowflakedb/snowflake-connector-nodejs#1245)
+- Bumped dependencies to their latest minor versions (snowflakedb/snowflake-connector-nodejs#1247, snowflakedb/snowflake-connector-nodejs#1252, snowflakedb/snowflake-connector-nodejs#1261)
+- Fixed `APPLICATION` field not being passed from connection config to login-request telemetry (snowflakedb/snowflake-connector-nodejs#1257)
+- Fixed build errors in bundlers caused by the minicore module (snowflakedb/snowflake-connector-nodejs#1258)
 
 ## 2.3.3
 

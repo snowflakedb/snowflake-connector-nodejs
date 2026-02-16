@@ -1,3 +1,4 @@
+const assert = require('assert');
 const connParameters = require('../../authentication/connectionParameters');
 const AuthTest = require('../../authentication/authTestsBaseClass');
 const { runWireMockAsync, addWireMockMappingsFromFile } = require('../../wiremockRunner');
@@ -39,6 +40,13 @@ describe('Oauth Authorization Code authentication', function () {
     await wireMock.global.shutdown();
   });
 
+  // TODO:
+  // The tests could be greatly simplified during UD migration:
+  // - short test names because we repeat context from describe
+  // - move common logic to a helper functions
+  // - reuse wiremock for query_ok and heartbeat_ok
+  // - use template variables in wiremocks
+  // - the wiremock mapping /oauth/authorize is not hit, because we have custom redirect client set
   it('Successful flow scenario Authorization Code flow', async function () {
     GlobalConfig.setCustomRedirectingClient((redirectUri) => {
       const url = `${redirectUri.searchParams.get('redirect_uri')}?code=9s6wFkGDOjmgNEdwJMlDzv1AwxDjDVBxiT6wVqXjG5s&state=${redirectUri.searchParams.get('state')}`;
@@ -51,6 +59,28 @@ describe('Oauth Authorization Code authentication', function () {
     authTest.createConnection(connectionOption);
     await authTest.connectAsync();
     authTest.verifyNoErrorWasThrown();
+    await authTest.verifyConnectionIsUp();
+  });
+
+  it('successfully connects with empty scope', async function () {
+    let authorizationUrlUsed;
+    GlobalConfig.setCustomRedirectingClient((authorizationUrl) => {
+      authorizationUrlUsed = authorizationUrl;
+      const url = `${authorizationUrl.searchParams.get('redirect_uri')}?code=9s6wFkGDOjmgNEdwJMlDzv1AwxDjDVBxiT6wVqXjG5s&state=${authorizationUrl.searchParams.get('state')}`;
+      return authUtil.withBrowserActionTimeout(3000, get(url));
+    });
+    await addWireMockMappingsFromFile(
+      wireMock,
+      'wiremock/mappings/oauth/authorization_code/successful_flow.json',
+    );
+    authTest.createConnection({ ...connectionOption, role: undefined, oauthScope: undefined });
+    await authTest.connectAsync();
+    authTest.verifyNoErrorWasThrown();
+    assert.strictEqual(
+      authorizationUrlUsed.searchParams.has('scope'),
+      false,
+      'scope query parameter should not be present',
+    );
     await authTest.verifyConnectionIsUp();
   });
 

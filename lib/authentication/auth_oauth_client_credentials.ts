@@ -1,10 +1,10 @@
 import Logger from '../logger';
 import * as authUtil from '../authentication/authentication_util';
-import { dynamicImportESMInTypescriptWithCommonJS, format } from '../util';
+import { format } from '../util';
 import AuthenticationTypes from './authentication_types';
 import { AuthClass, AuthRequestBody } from './types';
 import { WIP_ConnectionConfig } from '../connection/types';
-import type * as OauthType from 'oauth4webapi';
+import type * as OauthType from 'oauth4webapi' with { 'resolution-mode': 'import' };
 
 class AuthOauthClientCredentials implements AuthClass {
   _oauthImport!: typeof OauthType;
@@ -17,7 +17,7 @@ class AuthOauthClientCredentials implements AuthClass {
 
   async getOauth4webapi() {
     if (!this._oauthImport) {
-      this._oauthImport = await dynamicImportESMInTypescriptWithCommonJS('oauth4webapi');
+      this._oauthImport = await import('oauth4webapi');
     }
     return this._oauthImport;
   }
@@ -36,7 +36,9 @@ class AuthOauthClientCredentials implements AuthClass {
     const scope = await authUtil.prepareScope(this.connectionConfig);
 
     const parameters = new URLSearchParams();
-    parameters.set('scope', scope);
+    if (scope) {
+      parameters.set('scope', scope);
+    }
 
     this.token = await this.requestToken(clientId, clientSecret, parameters);
   }

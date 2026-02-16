@@ -6,6 +6,11 @@ import { CRLValidatorConfig } from '../agent/crl_validator';
  */
 export interface WIP_ConnectionOptions {
   /**
+   * Specifies the name of the client application connecting to Snowflake.
+   */
+  application?: string;
+
+  /**
    * Your account identifier.
    */
   account: string;
@@ -180,6 +185,9 @@ export type WIP_ConnectionConfig =
     | 'oauthEnableSingleUseRefreshTokens'
   > & {
     crlValidatorConfig: CRLValidatorConfig;
+    getClientType(): string;
+    getClientVersion(): string;
+    getClientApplication(): string;
     getOauthHttpAllowed(): boolean;
     getOauthClientId(): string;
     getOauthClientSecret(): string;

@@ -178,56 +178,6 @@ export const string = {
   isNotNullOrEmpty: function (value: any) {
     return isString(value) && value;
   },
-
-  /**
-   * Compares two version numbers of the form 'a.b.c' where a, b and c are
-   * numbers (e.g. '1.0.12'). If one or both inputs are invalid versions, the
-   * function will return NaN, otherwise, it will return -1 if the first
-   * version is smaller, 1 if the first version is bigger, and 0 if the two
-   * versions are equal.
-   */
-  compareVersions: function (version1: string, version2: string) {
-    // if one or both inputs are valid, return NaN
-    if (!isString(version1) || !isString(version2)) {
-      return NaN;
-    }
-
-    // split on dot
-    const version1Parts = version1.split('.');
-    const version2Parts = version2.split('.');
-
-    // add trailing zeros to make the parts arrays the same length
-    while (version1Parts.length < version2Parts.length) {
-      version1Parts.push('0');
-    }
-    while (version2Parts.length < version1Parts.length) {
-      version2Parts.push('0');
-    }
-
-    // compare elements in the two arrays one by one
-    let result = 0;
-    let version1Part, version2Part;
-    for (let index = 0, length = version1Parts.length; index < length; index++) {
-      // convert to number before doing any arithmetic
-      version1Part = Number(version1Parts[index]);
-      version2Part = Number(version2Parts[index]);
-
-      // if one or both values are not numerical, consider the input invalid
-      if (!isNumber(version1Part) || !isNumber(version2Part)) {
-        result = NaN;
-        break;
-      }
-
-      // if the two values are different, pick the
-      // correct result based on which value is smaller
-      if (version1Part !== version2Part) {
-        result = version1Part < version2Part ? -1 : 1;
-        break;
-      }
-    }
-
-    return result;
-  },
 };
 
 /**
@@ -710,18 +660,4 @@ export function escapeHTML(value: string) {
 
 export function sleep(sleepTimeMs: number) {
   return new Promise((resolve) => setTimeout(resolve, sleepTimeMs));
-}
-
-/**
- * Typescript with "module": "commonjs" will transform every import() to a require() statement.
- *
- * This will break ESM dynamic imports resulting in a runtime error:
- * -require() of ES Module... from ... not supported.
- *
- * A hacky solution - https://github.com/microsoft/TypeScript/issues/43329
- *
- * This could be removed once we drop node 18 support as Node 20+ support esm in require()
- */
-export async function dynamicImportESMInTypescriptWithCommonJS(moduleName: string) {
-  return Function(`return import("${moduleName}")`)();
 }

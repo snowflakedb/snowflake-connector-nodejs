@@ -4,31 +4,36 @@ import { isMusl } from './is_musl';
 type MinicoreStatus = {
   version: string | null;
   binaryName: string | null;
-  error: unknown | null;
+  errorType: string | null;
+  errorDetails: Error | null;
 };
 
 export const minicoreStatus: MinicoreStatus = {
   version: null,
   binaryName: null,
-  error: null,
+  errorType: null,
+  errorDetails: null,
 };
-let logDebugMinicoreError: unknown | null = null;
 
 if (process.env.SNOWFLAKE_DISABLE_MINICORE) {
-  minicoreStatus.error = 'Minicore is disabled with SNOWFLAKE_DISABLE_MINICORE env variable';
+  minicoreStatus.errorType = 'Minicore is disabled with SNOWFLAKE_DISABLE_MINICORE env variable';
 } else {
   try {
     minicoreStatus.binaryName = getBinaryName();
-    const minicoreModule = require(
+
+    // eval('require') prevents bundlers (esbuild, webpack, etc.) from statically analyzing
+    // and attempting to bundle .node native addon files
+    // oxlint-disable-next-line no-eval
+    const minicoreModule = eval('require')(
       `./binaries/${minicoreStatus.binaryName}`,
     ) as typeof import('./binaries');
+
     minicoreStatus.version = minicoreModule.sfCoreFullVersion();
   } catch (error: unknown) {
-    // NOTE:
-    // minicoreStatus is pushed to telemetry, so we don't want the original error there as it might
-    // contain sensitive information
-    logDebugMinicoreError = error;
-    minicoreStatus.error = 'Failed to load binary';
+    minicoreStatus.errorType = 'Failed to load binary';
+    if (error instanceof Error) {
+      minicoreStatus.errorDetails = error;
+    }
   }
 }
 
@@ -49,13 +54,18 @@ export function getBinaryName() {
   return `sf_mini_core_0.0.1.${suffix.join('-')}.node`;
 }
 
+let isMinicoreStatusLogged = false;
 export function getMinicoreStatus() {
   // NOTE:
   // At the time of minicore loading, the logger isn't initialized, so we hold the error until
   // the first getMinicoreStatus() call
-  if (logDebugMinicoreError) {
-    Logger().debug('Error loading minicore: %s', logDebugMinicoreError);
-    logDebugMinicoreError = null;
+  if (!isMinicoreStatusLogged) {
+    Logger().debug(
+      'Minicore status: binaryName - %s, error - %s',
+      minicoreStatus.binaryName,
+      minicoreStatus.errorDetails ?? minicoreStatus.errorType,
+    );
+    isMinicoreStatusLogged = true;
   }
   return minicoreStatus;
 }

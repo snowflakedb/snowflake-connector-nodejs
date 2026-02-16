@@ -6,7 +6,7 @@
         "method": "POST"
       },
       "response": {
-        "fixedDelayMilliseconds": 500,
+        "fixedDelayMilliseconds": 50,
         "status": 200,
         "headers": {
           "Content-Type": "application/json"

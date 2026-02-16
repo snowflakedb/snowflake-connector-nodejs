@@ -2,13 +2,8 @@
   "mappings": [
     {
       "request": {
-        "urlPath": "/session",
-        "method": "POST",
-        "queryParameters": {
-          "delete": {
-            "equalTo": "true"
-          }
-        }
+        "urlPathPattern": "/telemetry/send.*",
+        "method": "POST"
       },
       "response": {
         "status": 200,
@@ -16,8 +11,8 @@
           "Content-Type": "application/json"
         },
         "jsonBody": {
-          "code": null,
           "data": null,
+          "code": null,
           "message": null,
           "success": true
         }

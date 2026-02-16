@@ -6,6 +6,7 @@
 - Reduced memory usage during PUT operations (snowflakedb/snowflake-connector-nodejs#1226)
 - Extended login-request telemetry with Linux distribution details parsed from `/etc/os-release` (snowflakedb/snowflake-connector-nodejs#1234)
 - Added `APPLICATION_PATH` to login-request telemetry (snowflakedb/snowflake-connector-nodejs#1240)
+- Replaced ESLint with oxlint for better performance and out-of-the-box TypeScript support (snowflakedb/snowflake-connector-nodejs#1254)
 
 ## 2.3.3
 

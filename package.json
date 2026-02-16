@@ -75,7 +75,7 @@
   "typings": "./dist/index.d.ts",
   "lint-staged": {
     "*": "npm run prettier:format",
-    "*.{js,ts}": "oxlint"
+    "*.{js,ts}": "oxlint --max-warnings=0"
   },
   "scripts": {
     "prepack": "node ci/build_typescript.js",

@@ -67,6 +67,11 @@ if [[ ! -f "$PARAMETER_FILE" ]]; then
 fi
 eval $(jq -r '.testconnection | to_entries | map("export \(.key)=\(.value|tostring)")|.[]' $PARAMETER_FILE)
 
+# Resolve private key path to absolute (needed for Python scripts that run from a different cwd)
+if [[ -n "$SNOWFLAKE_TEST_PRIVATE_KEY_FILE" && "$SNOWFLAKE_TEST_PRIVATE_KEY_FILE" != /* ]]; then
+    export SNOWFLAKE_TEST_PRIVATE_KEY_FILE="${CONNECTOR_DIR}/$SNOWFLAKE_TEST_PRIVATE_KEY_FILE"
+fi
+
 # Sanitize RUNNER_TRACKING_ID to handle spaces (e.g., "GitHub Actions" -> "GitHub_Actions")
 # This ensures schema names are SQL-safe when used by both shell and Python scripts
 if [[ -n "$RUNNER_TRACKING_ID" ]]; then
@@ -95,7 +100,7 @@ pushd ${CONNECTOR_DIR}/ci/container >& /dev/null
     fi
 popd >& /dev/null
 
-env | grep SNOWFLAKE_ | grep -v PASS
+env | grep SNOWFLAKE_ | grep -v -E "(PASS|KEY|SECRET|TOKEN)" | sort
 
 [[ -n "$PROXY_IP" ]] && echo "[INFO] SNOWFLAKE_TEST_PROXY_HOST=$PROXY_IP" && export SNOWFLAKE_TEST_PROXY_HOST=$PROXY_IP
 [[ -n "$PROXY_PORT" ]] && echo "[INFO] SNOWFLAKE_TEST_PROXY_PORT=$PROXY_PORT" && export SNOWFLAKE_TEST_PROXY_PORT=$PROXY_PORT

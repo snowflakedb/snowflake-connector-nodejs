@@ -11,18 +11,25 @@ cd %GITHUB_WORKSPACE%
 
 if "%CLOUD_PROVIDER%"=="AZURE" (
   set ENCODED_PARAMETERS_FILE=.github/workflows/parameters_azure.json.gpg
+  set ENCODED_RSA_KEY_FILE=.github/workflows/rsa_keys/rsa_key_nodejs_azure.p8.gpg
 ) else if "%CLOUD_PROVIDER%"=="GCP" (
   set ENCODED_PARAMETERS_FILE=.github/workflows/parameters_gcp.json.gpg
+  set ENCODED_RSA_KEY_FILE=.github/workflows/rsa_keys/rsa_key_nodejs_gcp.p8.gpg
 ) else if "%CLOUD_PROVIDER%"=="AWS" (
   set ENCODED_PARAMETERS_FILE=.github/workflows/parameters_aws.json.gpg
+  set ENCODED_RSA_KEY_FILE=.github/workflows/rsa_keys/rsa_key_nodejs_aws.p8.gpg
 ) else (
   echo === unknown cloud provider
   exit /b 1
 )
 
 gpg --quiet --batch --yes --decrypt --passphrase=%PARAMETERS_SECRET% --output parameters.json %ENCODED_PARAMETERS_FILE%
+if defined NODEJS_PRIVATE_KEY_SECRET (
+  gpg --quiet --batch --yes --decrypt --passphrase=%NODEJS_PRIVATE_KEY_SECRET% --output rsa_key_nodejs.p8 %ENCODED_RSA_KEY_FILE%
+  echo [INFO] Decrypted RSA private key for keypair authentication
+)
 
-REM DON'T FORGET TO include @echo off here or the password may be leaked!
+REM DON'T FORGET TO include @echo off here or the password/key may be leaked!
 echo @echo off>parameters.bat
 jq -r ".testconnection | to_entries | map(\"set \(.key)=\(.value)\") | .[]" parameters.json >> parameters.bat
 call parameters.bat
@@ -30,6 +37,14 @@ if %ERRORLEVEL% NEQ 0 (
     echo === failed to set the test parameters
     exit /b 1
 )
+
+REM Set keypair auth if private key was decrypted
+if exist rsa_key_nodejs.p8 (
+  set "SNOWFLAKE_TEST_PRIVATE_KEY_FILE=%GITHUB_WORKSPACE%\rsa_key_nodejs.p8"
+  set "SNOWFLAKE_TEST_AUTHENTICATOR=SNOWFLAKE_JWT"
+  echo [INFO] Using keypair authentication
+)
+
 set SNOWFLAKE_TEST_SCHEMA=%RUNNER_TRACKING_ID:-=_%_%GITHUB_SHA%
 
 echo [INFO] Account:   %SNOWFLAKE_TEST_ACCOUNT%

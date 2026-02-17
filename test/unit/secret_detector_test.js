@@ -1,16 +1,14 @@
 const assert = require('assert');
 const SnowflakeSecretDetector = require('./../../lib/secret_detector');
 
-
 describe('Secret Detector', function () {
   let SecretDetector;
 
   const errstr = new Error('Test exception');
-  const mock =
-  {
+  const mock = {
     execute: function () {
       throw errstr;
-    }
+    },
   };
 
   this.beforeEach(function () {
@@ -50,7 +48,8 @@ describe('Secret Detector', function () {
   });
 
   it('test - mask token', async function () {
-    const longToken = '_Y1ZNETTn5/qfUWj3Jedby7gipDzQs=U' +
+    const longToken =
+      '_Y1ZNETTn5/qfUWj3Jedby7gipDzQs=U' +
       'KyJH9DS=nFzzWnfZKGV+C7GopWCGD4Lj' +
       'OLLFZKOE26LXHDt3pTi4iI1qwKuSpf/F' +
       'mClCMBSissVsU3Ei590FP0lPQQhcSGcD' +
@@ -91,9 +90,9 @@ describe('Secret Detector', function () {
     assert.strictEqual(result.errstr, null);
   });
 
-
   it('test - false positive', async function () {
-    const falsePositiveToken = '2020-04-30 23:06:04,069 - MainThread auth.py:397' +
+    const falsePositiveToken =
+      '2020-04-30 23:06:04,069 - MainThread auth.py:397' +
       ' - write_temporary_credential() - DEBUG - no ID ' +
       'token is given when try to store temporary credential';
 
@@ -137,9 +136,9 @@ describe('Secret Detector', function () {
     assert.strictEqual(result.errstr, null);
   });
 
-
   it('test - token password', async function () {
-    const longToken = '_Y1ZNETTn5/qfUWj3Jedby7gipDzQs=U' +
+    const longToken =
+      '_Y1ZNETTn5/qfUWj3Jedby7gipDzQs=U' +
       'KyJH9DS=nFzzWnfZKGV+C7GopWCGD4Lj' +
       'OLLFZKOE26LXHDt3pTi4iI1qwKuSpf/F' +
       'mClCMBSissVsU3Ei590FP0lPQQhcSGcD' +
@@ -149,7 +148,8 @@ describe('Secret Detector', function () {
       'FoloNIkBPXCwFTv+1RVUHgVA2g8A9Lw5' +
       'XdJYuI8vhg=f0bKSq7AhQ2Bh';
 
-    const longToken2 = 'ktL57KJemuq4-M+Q0pdRjCIMcf1mzcr' +
+    const longToken2 =
+      'ktL57KJemuq4-M+Q0pdRjCIMcf1mzcr' +
       'MwKteDS5DRE/Pb+5MzvWjDH7LFPV5b_' +
       '/tX/yoLG3b4TuC6Q5qNzsARPPn_zs/j' +
       'BbDOEg1-IfPpdsbwX6ETeEnhxkHIL4H' +
@@ -158,59 +158,58 @@ describe('Secret Detector', function () {
     const randomPwd = 'Fh[+2J~AcqeqW%?';
     const randomPwd2 = randomPwd + 'vdkav13';
 
-    const testStringWithPrefix = 'token=' + longToken +
-      ' random giberish ' +
-      'password:' + randomPwd;
+    const testStringWithPrefix =
+      'token=' + longToken + ' random giberish ' + 'password:' + randomPwd;
     let result = SecretDetector.maskSecrets(testStringWithPrefix);
     assert.strictEqual(result.masked, true);
-    assert.strictEqual(result.maskedtxt,
-      'token=****' +
-      ' random giberish ' +
-      'password:****'
-    );
+    assert.strictEqual(result.maskedtxt, 'token=****' + ' random giberish ' + 'password:****');
     assert.strictEqual(result.errstr, null);
 
-    const testStringWithPrefixReversed = 'password:' + randomPwd +
-      ' random giberish ' +
-      'token=' + longToken;
+    const testStringWithPrefixReversed =
+      'password:' + randomPwd + ' random giberish ' + 'token=' + longToken;
     result = SecretDetector.maskSecrets(testStringWithPrefixReversed);
     assert.strictEqual(result.masked, true);
-    assert.strictEqual(result.maskedtxt,
-      'password:****' +
-      ' random giberish ' +
-      'token=****'
-    );
+    assert.strictEqual(result.maskedtxt, 'password:****' + ' random giberish ' + 'token=****');
     assert.strictEqual(result.errstr, null);
 
-    const testStringWithPrefixMultiToken = 'token=' + longToken +
+    const testStringWithPrefixMultiToken =
+      'token=' +
+      longToken +
       ' random giberish ' +
-      'password:' + randomPwd +
+      'password:' +
+      randomPwd +
       ' random giberish ' +
-      'idToken:' + longToken2;
+      'idToken:' +
+      longToken2;
     result = SecretDetector.maskSecrets(testStringWithPrefixMultiToken);
     assert.strictEqual(result.masked, true);
-    assert.strictEqual(result.maskedtxt,
-      'token=****' +
-      ' random giberish ' +
-      'password:****' +
-      ' random giberish ' +
-      'idToken:****'
+    assert.strictEqual(
+      result.maskedtxt,
+      'token=****' + ' random giberish ' + 'password:****' + ' random giberish ' + 'idToken:****',
     );
     assert.strictEqual(result.errstr, null);
 
-    const testStringWithPrefixMultiPass = 'password=' + randomPwd +
+    const testStringWithPrefixMultiPass =
+      'password=' +
+      randomPwd +
       ' random giberish ' +
-      'password=' + randomPwd2 +
+      'password=' +
+      randomPwd2 +
       ' random giberish ' +
-      'password=' + randomPwd;
+      'password=' +
+      randomPwd;
     result = SecretDetector.maskSecrets(testStringWithPrefixMultiPass);
     assert.strictEqual(result.masked, true);
-    assert.strictEqual(result.maskedtxt,
-      'password=' + '****' +
-      ' random giberish ' +
-      'password=' + '****' +
-      ' random giberish ' +
-      'password=' + '****'
+    assert.strictEqual(
+      result.maskedtxt,
+      'password=' +
+        '****' +
+        ' random giberish ' +
+        'password=' +
+        '****' +
+        ' random giberish ' +
+        'password=' +
+        '****',
     );
     assert.strictEqual(result.errstr, null);
   });
@@ -219,12 +218,9 @@ describe('Secret Detector', function () {
     const customPatterns = {
       regex: [
         String.raw`(testCustomPattern\s*:\s*"([a-z]{8,})")`,
-        String.raw`(testCustomPattern\s*:\s*"([0-9]{8,})")`
+        String.raw`(testCustomPattern\s*:\s*"([0-9]{8,})")`,
       ],
-      mask: [
-        'maskCustomPattern1',
-        'maskCustomPattern2'
-      ]
+      mask: ['maskCustomPattern1', 'maskCustomPattern2'],
     };
 
     SecretDetector = new SnowflakeSecretDetector(customPatterns);
@@ -241,56 +237,59 @@ describe('Secret Detector', function () {
     assert.strictEqual(result.maskedtxt, customPatterns.mask[1]);
     assert.strictEqual(result.errstr, null);
 
-    txt = 'password=asdfasdfasdfasdfasdf ' +
-      'testCustomPattern: "abcdefghijklmnop"';
+    txt = 'password=asdfasdfasdfasdfasdf ' + 'testCustomPattern: "abcdefghijklmnop"';
     result = SecretDetector.maskSecrets(txt);
     assert.strictEqual(result.masked, true);
-    assert.strictEqual(result.maskedtxt,
-      'password=**** ' +
-      customPatterns.mask[0]);
+    assert.strictEqual(result.maskedtxt, 'password=**** ' + customPatterns.mask[0]);
     assert.strictEqual(result.errstr, null);
 
-    txt = 'password=asdfasdfasdfasdfasdf ' +
-      'testCustomPattern: "01123456978"';
+    txt = 'password=asdfasdfasdfasdfasdf ' + 'testCustomPattern: "01123456978"';
     result = SecretDetector.maskSecrets(txt);
     assert.strictEqual(result.masked, true);
-    assert.strictEqual(result.maskedtxt,
-      'password=**** ' +
-      customPatterns.mask[1]);
+    assert.strictEqual(result.maskedtxt, 'password=**** ' + customPatterns.mask[1]);
     assert.strictEqual(result.errstr, null);
   });
 
   it('custom pattern - regex error', async function () {
     const customPatterns = {
-      mask: ['maskCustomPattern1', 'maskCustomPattern2']
+      mask: ['maskCustomPattern1', 'maskCustomPattern2'],
     };
     try {
       SecretDetector = new SnowflakeSecretDetector(customPatterns);
     } catch (err) {
-      assert.strictEqual(err.toString(), 'Error: The customPatterns object must contain the \'regex\' key');
+      assert.strictEqual(
+        err.toString(),
+        "Error: The customPatterns object must contain the 'regex' key",
+      );
     }
   });
 
   it('custom pattern - mask error', async function () {
     const customPatterns = {
-      regex: ['regexCustomPattern1', 'regexCustomPattern2']
+      regex: ['regexCustomPattern1', 'regexCustomPattern2'],
     };
     try {
       SecretDetector = new SnowflakeSecretDetector(customPatterns);
     } catch (err) {
-      assert.strictEqual(err.toString(), 'Error: The customPatterns object must contain the \'mask\' key');
+      assert.strictEqual(
+        err.toString(),
+        "Error: The customPatterns object must contain the 'mask' key",
+      );
     }
   });
 
   it('custom pattern - unequal length error', async function () {
     const customPatterns = {
       regex: ['regexCustomPattern1', 'regexCustomPattern2'],
-      mask: ['maskCustomPattern1']
+      mask: ['maskCustomPattern1'],
     };
     try {
       SecretDetector = new SnowflakeSecretDetector(customPatterns);
     } catch (err) {
-      assert.strictEqual(err.toString(), 'Error: The customPatterns object must have equal length for both \'regex\' and \'mask\'');
+      assert.strictEqual(
+        err.toString(),
+        "Error: The customPatterns object must have equal length for both 'regex' and 'mask'",
+      );
     }
   });
 
@@ -327,7 +326,8 @@ describe('Secret Detector', function () {
   });
 
   it('test - url token masking', async function () {
-    const TEST_TOKEN_VALUE = 'ETMsDgAAAZNi6aPlABRBRVMvQ0JDL1BLQ1M1UGFkZGluZwEAABAAEExQLlI3h9PIi9TcCRVdwlEAAABQLsgIQdJ0%2B8eQhDMjViFuY5v03Daxt235tNHYVLNoIqM70yLw4zyVdPlkEi208dS88lSqRvPdgQ/RACU7u%2Bn9gWLiTZ79dkZwl4zQactAKJgAFCUrvbxA2tnUP%2BsX6nPBNBzVWnK5';
+    const TEST_TOKEN_VALUE =
+      'ETMsDgAAAZNi6aPlABRBRVMvQ0JDL1BLQ1M1UGFkZGluZwEAABAAEExQLlI3h9PIi9TcCRVdwlEAAABQLsgIQdJ0%2B8eQhDMjViFuY5v03Daxt235tNHYVLNoIqM70yLw4zyVdPlkEi208dS88lSqRvPdgQ/RACU7u%2Bn9gWLiTZ79dkZwl4zQactAKJgAFCUrvbxA2tnUP%2BsX6nPBNBzVWnK5';
     const TEST_TOKEN_VERSION_PREFIX = 'ver:1';
     const TEST_TOKEN_HINT_PREFIX = 'hint:1036';
     const TEST_TOKEN_PREFIX = TEST_TOKEN_VERSION_PREFIX + '-' + TEST_TOKEN_HINT_PREFIX + '-';
@@ -338,7 +338,8 @@ describe('Secret Detector', function () {
     assert.strictEqual(result.maskedtxt, 'token=' + '****');
     assert.strictEqual(result.errstr, null);
 
-    const tokenWithVersionAndHintAndManyEqualsSigns = 'token=====' + TEST_TOKEN_PREFIX + TEST_TOKEN_VALUE;
+    const tokenWithVersionAndHintAndManyEqualsSigns =
+      'token=====' + TEST_TOKEN_PREFIX + TEST_TOKEN_VALUE;
     result = SecretDetector.maskSecrets(tokenWithVersionAndHintAndManyEqualsSigns);
     assert.strictEqual(result.masked, true);
     assert.strictEqual(result.maskedtxt, 'token=====' + '****');
@@ -350,21 +351,23 @@ describe('Secret Detector', function () {
     assert.strictEqual(result.maskedtxt, 'token:' + '****');
     assert.strictEqual(result.errstr, null);
 
-
     const TEST_NEXT_PARAMETER_NOT_TO_BE_MASKED = 'jobID=123fdas4-2133212-12';
-    const tokenWithVersionAndHintAndAnotherParameterToIgnore = 'token=' + TEST_TOKEN_PREFIX + TEST_TOKEN_VALUE + '&' + TEST_NEXT_PARAMETER_NOT_TO_BE_MASKED;
+    const tokenWithVersionAndHintAndAnotherParameterToIgnore =
+      'token=' + TEST_TOKEN_PREFIX + TEST_TOKEN_VALUE + '&' + TEST_NEXT_PARAMETER_NOT_TO_BE_MASKED;
     result = SecretDetector.maskSecrets(tokenWithVersionAndHintAndAnotherParameterToIgnore);
     assert.strictEqual(result.masked, true);
-    assert.strictEqual(result.maskedtxt, 'token=' + '****' + '&' + TEST_NEXT_PARAMETER_NOT_TO_BE_MASKED);
+    assert.strictEqual(
+      result.maskedtxt,
+      'token=' + '****' + '&' + TEST_NEXT_PARAMETER_NOT_TO_BE_MASKED,
+    );
     assert.strictEqual(result.errstr, null);
 
-
-    const tokenWithVersionAndHintAndManySpaces = 'token    =    ' + TEST_TOKEN_PREFIX + TEST_TOKEN_VALUE;
+    const tokenWithVersionAndHintAndManySpaces =
+      'token    =    ' + TEST_TOKEN_PREFIX + TEST_TOKEN_VALUE;
     result = SecretDetector.maskSecrets(tokenWithVersionAndHintAndManySpaces);
     assert.strictEqual(result.masked, true);
     assert.strictEqual(result.maskedtxt, 'token    =    ' + '****');
     assert.strictEqual(result.errstr, null);
-
 
     const tokenWithVersion = 'token=' + TEST_TOKEN_VERSION_PREFIX + '-' + TEST_TOKEN_VALUE;
     result = SecretDetector.maskSecrets(tokenWithVersion);
@@ -384,37 +387,38 @@ describe('Secret Detector', function () {
     assert.strictEqual(result.maskedtxt, 'token=****');
     assert.strictEqual(result.errstr, null);
   });
-  describe ('test - oauthClientId masking', async function () {
+  describe('test - oauthClientId masking', async function () {
     const randomOauthClientIdValue = 'Fh[+2J~AcqeqW%?';
-    
-    const testCases = [{
-      name: 'oauthClientId',
-      outhClientIdString: 'oauthClientId:' + randomOauthClientIdValue,
-      maskedtxt: 'oauthClientId:****',
-      maskedFlag: true,
-      errstr: null
-    },
-    {
-      name: 'OAUTHCLIENTID',
-      outhClientIdString: 'OAUTHCLIENTID:' + randomOauthClientIdValue,
-      maskedtxt: 'OAUTHCLIENTID:****',
-      maskedFlag: true,
-      errstr: null
-    },
-    {
-      name: 'OauthClientID',
-      outhClientIdString: 'OauthClientID:' + randomOauthClientIdValue,
-      maskedtxt: 'OauthClientID:****',
-      maskedFlag: true,
-      errstr: null
-    },
-    {
-      name: 'oauthClientId',
-      outhClientIdString: 'oauthClientId:' + randomOauthClientIdValue,
-      maskedtxt: 'oauthClientId:****',
-      maskedFlag: true,
-      errstr: null
-    }
+
+    const testCases = [
+      {
+        name: 'oauthClientId',
+        outhClientIdString: 'oauthClientId:' + randomOauthClientIdValue,
+        maskedtxt: 'oauthClientId:****',
+        maskedFlag: true,
+        errstr: null,
+      },
+      {
+        name: 'OAUTHCLIENTID',
+        outhClientIdString: 'OAUTHCLIENTID:' + randomOauthClientIdValue,
+        maskedtxt: 'OAUTHCLIENTID:****',
+        maskedFlag: true,
+        errstr: null,
+      },
+      {
+        name: 'OauthClientID',
+        outhClientIdString: 'OauthClientID:' + randomOauthClientIdValue,
+        maskedtxt: 'OauthClientID:****',
+        maskedFlag: true,
+        errstr: null,
+      },
+      {
+        name: 'oauthClientId',
+        outhClientIdString: 'oauthClientId:' + randomOauthClientIdValue,
+        maskedtxt: 'oauthClientId:****',
+        maskedFlag: true,
+        errstr: null,
+      },
     ];
 
     testCases.forEach(({ name, outhClientIdString, maskedtxt, maskedFlag, errstr }) => {
@@ -427,37 +431,39 @@ describe('Secret Detector', function () {
     });
   });
 
-  describe ('test - oauthClientSecret masking', async function () {
+  describe('test - oauthClientSecret masking', async function () {
     const randomOauthClientIdValue = 'Fh[+2J~AcqeqW%?';
 
-    const testCases = [{
-      name: 'oauthClientSecret',
-      outhClientSecretString: 'oauthClientSecret:' + randomOauthClientIdValue,
-      maskedtxt: 'oauthClientSecret:****',
-      maskedFlag: true,
-      errstr: null
-    },
-    {
-      name: 'OAUTHCLIENTSECRET',
-      outhClientSecretString: 'OAUTHCLIENTSECRET:' + randomOauthClientIdValue,
-      maskedtxt: 'OAUTHCLIENTSECRET:****',
-      maskedFlag: true,
-      errstr: null
-    },
-    {
-      name: 'OauthClientSecrET',
-      outhClientSecretString: 'OauthClientSecrET:' + randomOauthClientIdValue,
-      maskedtxt: 'OauthClientSecrET:****',
-      maskedFlag: true,
-      errstr: null
-    },
-    {
-      name: 'oauthClientSecret',
-      outhClientSecretString: 'oauthClientSecret:' + randomOauthClientIdValue,
-      maskedtxt: 'oauthClientSecret:****',
-      maskedFlag: true,
-      errstr: null
-    }];
+    const testCases = [
+      {
+        name: 'oauthClientSecret',
+        outhClientSecretString: 'oauthClientSecret:' + randomOauthClientIdValue,
+        maskedtxt: 'oauthClientSecret:****',
+        maskedFlag: true,
+        errstr: null,
+      },
+      {
+        name: 'OAUTHCLIENTSECRET',
+        outhClientSecretString: 'OAUTHCLIENTSECRET:' + randomOauthClientIdValue,
+        maskedtxt: 'OAUTHCLIENTSECRET:****',
+        maskedFlag: true,
+        errstr: null,
+      },
+      {
+        name: 'OauthClientSecrET',
+        outhClientSecretString: 'OauthClientSecrET:' + randomOauthClientIdValue,
+        maskedtxt: 'OauthClientSecrET:****',
+        maskedFlag: true,
+        errstr: null,
+      },
+      {
+        name: 'oauthClientSecret',
+        outhClientSecretString: 'oauthClientSecret:' + randomOauthClientIdValue,
+        maskedtxt: 'oauthClientSecret:****',
+        maskedFlag: true,
+        errstr: null,
+      },
+    ];
 
     testCases.forEach(({ name, outhClientSecretString, maskedtxt, maskedFlag, errstr }) => {
       it(`test - ${name}`, async function () {
@@ -469,37 +475,39 @@ describe('Secret Detector', function () {
     });
   });
 
-  describe ('test - clientSecret masking', async function () {
+  describe('test - clientSecret masking', async function () {
     const randomOauthClientIdValue = 'Fh[+2J~AcqeqW%?';
 
-    const testCases = [{
-      name: 'clientSecret',
-      clientSecretString: 'clientSecret:' + randomOauthClientIdValue,
-      maskedtxt: 'clientSecret:****',
-      maskedFlag: true,
-      errstr: null
-    },
-    {
-      name: 'CLIENTSECRET',
-      clientSecretString: 'CLIENTSECRET:' + randomOauthClientIdValue,
-      maskedtxt: 'CLIENTSECRET:****',
-      maskedFlag: true,
-      errstr: null
-    },
-    {
-      name: 'clientSecrET',
-      clientSecretString: 'clientSecrET:' + randomOauthClientIdValue,
-      maskedtxt: 'clientSecrET:****',
-      maskedFlag: true,
-      errstr: null
-    },
-    {
-      name: 'clientSecret',
-      clientSecretString: 'clientSecret:' + randomOauthClientIdValue,
-      maskedtxt: 'clientSecret:****',
-      maskedFlag: true,
-      errstr: null
-    }];
+    const testCases = [
+      {
+        name: 'clientSecret',
+        clientSecretString: 'clientSecret:' + randomOauthClientIdValue,
+        maskedtxt: 'clientSecret:****',
+        maskedFlag: true,
+        errstr: null,
+      },
+      {
+        name: 'CLIENTSECRET',
+        clientSecretString: 'CLIENTSECRET:' + randomOauthClientIdValue,
+        maskedtxt: 'CLIENTSECRET:****',
+        maskedFlag: true,
+        errstr: null,
+      },
+      {
+        name: 'clientSecrET',
+        clientSecretString: 'clientSecrET:' + randomOauthClientIdValue,
+        maskedtxt: 'clientSecrET:****',
+        maskedFlag: true,
+        errstr: null,
+      },
+      {
+        name: 'clientSecret',
+        clientSecretString: 'clientSecret:' + randomOauthClientIdValue,
+        maskedtxt: 'clientSecret:****',
+        maskedFlag: true,
+        errstr: null,
+      },
+    ];
 
     testCases.forEach(({ name, clientSecretString, maskedtxt, maskedFlag, errstr }) => {
       it(`test - ${name}`, async function () {

@@ -1,1 +1,2 @@
 * @snowflakedb/Client
+/lib/agent/** @snowflakedb/pki-oversight @snowflakedb/Client

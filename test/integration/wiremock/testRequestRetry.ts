@@ -1,0 +1,276 @@
+import { WireMockRestClient } from 'wiremock-rest-client';
+import assert from 'assert';
+import sinon from 'sinon';
+import { runWireMockAsync, addWireMockMappingsFromFile } from '../../wiremockRunner';
+import * as testUtil from '../testUtil';
+import * as Util from '../../../lib/util';
+import axiosInstance from '../../../lib/http/axios_instance';
+
+const REQUEST_ERRORS = [
+  // Retryable faults
+  { error: 'EMPTY_RESPONSE', shouldRetry: true },
+  { error: 'MALFORMED_RESPONSE_CHUNK', shouldRetry: true },
+  { error: 'RANDOM_DATA_THEN_CLOSE', shouldRetry: true },
+  { error: 'CONNECTION_RESET_BY_PEER', shouldRetry: true },
+  { error: 'REQUEST_TIMEOUT', shouldRetry: true },
+  { error: 408, shouldRetry: true }, // Request Timeout
+  { error: 429, shouldRetry: true }, // Too Many Requests
+  { error: 500, shouldRetry: true }, // Internal Server Error
+  { error: 503, shouldRetry: true }, // Service Unavailable
+  // Non-retryable faults
+  { error: 400, shouldRetry: false }, // Bad Request
+  { error: 401, shouldRetry: false }, // Unauthorized
+  { error: 403, shouldRetry: false }, // Forbidden
+  { error: 404, shouldRetry: false }, // Not Found
+];
+
+function buildWiremockFailureResponse(requestError: string | number) {
+  if (requestError === 'REQUEST_TIMEOUT') {
+    return { fixedDelayMilliseconds: 5000 };
+  } else if (typeof requestError === 'string') {
+    return { fault: requestError };
+  } else {
+    return {
+      status: requestError,
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      jsonBody: {
+        code: null,
+        data: null,
+        message: null,
+        success: false,
+      },
+    };
+  }
+}
+
+describe('Request Retries', () => {
+  let wiremock: WireMockRestClient;
+  let axiosRequestSpy: sinon.SinonSpy;
+  let baseConnectionConfig: any = {};
+
+  before(async () => {
+    const port = await testUtil.getFreePort();
+    wiremock = await runWireMockAsync(port);
+    baseConnectionConfig = {
+      accessUrl: `http://127.0.0.1:${port}`,
+    };
+  });
+
+  beforeEach(async () => {
+    axiosRequestSpy = sinon.spy(axiosInstance, 'request');
+    // Instantly resolve sleep for faster retries
+    sinon.stub(Util, 'sleep').resolves();
+  });
+
+  afterEach(async () => {
+    sinon.restore();
+    await wiremock.mappings.resetAllMappings();
+  });
+
+  after(async () => {
+    await wiremock.global.shutdown();
+  });
+
+  function getAxiosRequestsCount(matchingPath: string) {
+    return axiosRequestSpy.getCalls().filter((c: any) => c.args?.[0]?.url?.includes(matchingPath))
+      .length;
+  }
+
+  function registerRetryMappings(requestError: string | number, mappingsName: string) {
+    return addWireMockMappingsFromFile(
+      wiremock,
+      `wiremock/mappings/request_retries/${mappingsName}_fail.json.template`,
+      {
+        replaceVariables: {
+          failureResponse: JSON.stringify(buildWiremockFailureResponse(requestError)),
+        },
+      },
+    );
+  }
+
+  function testErrorScenarios(
+    errorScenarios: { error: string | number; shouldRetry: boolean }[],
+    testFn: (context: {
+      error: string | number;
+      shouldRetry: boolean;
+      connection: any;
+    }) => Promise<void>,
+  ) {
+    for (const { error, shouldRetry } of errorScenarios) {
+      const actionText = `${shouldRetry ? 'retries' : 'does not retry'} on ${error}`;
+      it(actionText, async () => {
+        const connection = testUtil.createConnection({
+          ...baseConnectionConfig,
+          timeout: error === 'REQUEST_TIMEOUT' ? 200 : undefined,
+        });
+        await testFn({ error, shouldRetry, connection });
+      });
+    }
+  }
+
+  describe('Login request', () => {
+    testErrorScenarios(REQUEST_ERRORS, async ({ error, shouldRetry, connection }) => {
+      // Login request doesn't use useSnowflakeRetryMiddleware, so mocking retry sleep
+      // specific to this request for a faster test
+      sinon.stub(Util, 'getJitteredSleepTime').returns({ sleep: 0, totalElapsedTime: 0 });
+      await registerRetryMappings(error, 'login_request');
+      await new Promise((resolve) => connection.connect(resolve));
+      assert.strictEqual(getAxiosRequestsCount('/session/v1/login-request'), shouldRetry ? 4 : 1);
+    });
+  });
+
+  describe('Cancel query without id', () => {
+    testErrorScenarios(REQUEST_ERRORS, async ({ error, shouldRetry, connection }) => {
+      await addWireMockMappingsFromFile(wiremock, 'wiremock/mappings/login_request_ok.json');
+      await registerRetryMappings(error, 'cancel_query');
+      await testUtil.connectAsync(connection);
+
+      // .cancel() doesn't abort pending query-request. We need to wait for it to complete
+      // before cleaning up wiremock. Otherwise, query-request gets stuck in retry loop.
+      let markStatementCompleted: (value: unknown) => void;
+      const statementDonePromise = new Promise((resolve) => (markStatementCompleted = resolve));
+      const statement = connection.execute({
+        sqlText: 'SELECT 1',
+        complete: () => markStatementCompleted(true),
+      });
+
+      await new Promise((resolve) => statement.cancel(resolve));
+      await statementDonePromise;
+      assert.strictEqual(getAxiosRequestsCount('/queries/v1/abort-request'), shouldRetry ? 4 : 1);
+    });
+  });
+
+  describe('Cancel query with id', () => {
+    testErrorScenarios(REQUEST_ERRORS, async ({ error, shouldRetry, connection }) => {
+      await addWireMockMappingsFromFile(wiremock, 'wiremock/mappings/login_request_ok.json');
+      await registerRetryMappings(error, 'cancel_query_byid');
+      await testUtil.connectAsync(connection);
+      const { rowStatement } = await testUtil.executeCmdAsyncWithAdditionalParameters(
+        connection,
+        'SELECT 1',
+        {
+          asyncExec: true,
+        },
+      );
+      await new Promise((resolve) => rowStatement.cancel(resolve));
+      assert.strictEqual(
+        getAxiosRequestsCount('/queries/01baf79b-0108-1a60-0000-01110354a6ce/abort-request'),
+        shouldRetry ? 4 : 1,
+      );
+    });
+  });
+
+  describe('Query request', () => {
+    testErrorScenarios(REQUEST_ERRORS, async ({ error, shouldRetry, connection }) => {
+      await addWireMockMappingsFromFile(wiremock, 'wiremock/mappings/login_request_ok.json');
+      await registerRetryMappings(error, 'query_request');
+      await testUtil.connectAsync(connection);
+      await testUtil.executeCmdAsyncWithAdditionalParameters(connection, 'SELECT 1', {
+        asyncExec: true,
+      });
+      assert.strictEqual(getAxiosRequestsCount('/queries/v1/query-request'), shouldRetry ? 4 : 1);
+    });
+
+    it('retries when redirect target times out', async () => {
+      await addWireMockMappingsFromFile(wiremock, 'wiremock/mappings/login_request_ok.json');
+      await addWireMockMappingsFromFile(
+        wiremock,
+        'wiremock/mappings/request_retries/query_request_redirect_fail.json',
+      );
+      const connection = testUtil.createConnection({ ...baseConnectionConfig, timeout: 1000 });
+      await testUtil.connectAsync(connection);
+      await testUtil.executeCmdAsyncWithAdditionalParameters(connection, 'SELECT 1', {
+        asyncExec: true,
+      });
+      assert.strictEqual(getAxiosRequestsCount('/queries/v1/query-request'), 4);
+    });
+  });
+
+  describe('Fetch result', () => {
+    testErrorScenarios(REQUEST_ERRORS, async ({ error, shouldRetry, connection }) => {
+      await addWireMockMappingsFromFile(wiremock, 'wiremock/mappings/login_request_ok.json');
+      await registerRetryMappings(error, 'query_result');
+      await testUtil.connectAsync(connection);
+      await new Promise((resolve) => {
+        connection.fetchResult({
+          queryId: '01baf79b-0108-1a60-0000-01110354a6ce',
+          complete: () => resolve(true),
+        });
+      });
+      // NOTE:
+      // When result fetching fails:
+      // ↓ the statement completes with an error
+      // ↓ transitions to completed state
+      // ↓ context.refresh() is called
+      // ↓ this invokes request 1 more time
+      //
+      // Seems like a bug. Keeping as is until universal driver migration.
+      assert.strictEqual(
+        getAxiosRequestsCount('/queries/01baf79b-0108-1a60-0000-01110354a6ce/result'),
+        shouldRetry ? 4 : 2,
+      );
+    });
+  });
+
+  describe('Query returning getResultUrl', () => {
+    testErrorScenarios(REQUEST_ERRORS, async ({ error, shouldRetry, connection }) => {
+      await addWireMockMappingsFromFile(wiremock, 'wiremock/mappings/login_request_ok.json');
+      await addWireMockMappingsFromFile(
+        wiremock,
+        'wiremock/mappings/query_returns_get_result_url.json',
+      );
+      await registerRetryMappings(error, 'query_result');
+      await testUtil.connectAsync(connection);
+      await new Promise((resolve) => {
+        connection.execute({
+          sqlText: 'SELECT 1',
+          complete: () => resolve(true),
+        });
+      });
+      // NOTE:
+      // When result fetching fails:
+      // ↓ the statement completes with an error
+      // ↓ transitions to completed state
+      // ↓ context.refresh() is called
+      // ↓ this invokes request 1 more time
+      //
+      // Seems like a bug. Keeping as is until universal driver migration.
+      assert.strictEqual(
+        getAxiosRequestsCount('/queries/01baf79b-0108-1a60-0000-01110354a6ce/result'),
+        shouldRetry ? 4 : 2,
+      );
+    });
+  });
+
+  describe('Large result set', () => {
+    const errorScenarios = [...REQUEST_ERRORS].map((scenario) => {
+      return scenario.error === 403 ? { ...scenario, shouldRetry: true } : scenario;
+    });
+    testErrorScenarios(errorScenarios, async ({ error, shouldRetry, connection }) => {
+      // LargeResultSetService doesn't use useSnowflakeRetryMiddleware, so mocking retry sleep
+      // specific to this request for a faster test
+      sinon.stub(Util, 'nextSleepTime').returns(0);
+      await addWireMockMappingsFromFile(wiremock, 'wiremock/mappings/login_request_ok.json');
+      await addWireMockMappingsFromFile(
+        wiremock,
+        'wiremock/mappings/query_returns_chunks.json.template',
+        {
+          replaceVariables: {
+            chunkUrl: `${baseConnectionConfig.accessUrl}/chunks/chunk-0`,
+          },
+        },
+      );
+      await registerRetryMappings(error, 'query_chunk_download');
+      await testUtil.connectAsync(connection);
+      await new Promise((resolve) => {
+        connection.execute({
+          sqlText: 'SELECT 1',
+          complete: () => resolve(true),
+        });
+      });
+      assert.strictEqual(getAxiosRequestsCount('/chunks/'), shouldRetry ? 4 : 1);
+    });
+  });
+});

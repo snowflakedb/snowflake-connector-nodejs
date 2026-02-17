@@ -1,13 +1,17 @@
 const assert = require('assert');
-
+const http = require('http');
+const sinon = require('sinon');
 const snowflake = require('./../../lib/snowflake');
 const Errors = require('./../../lib/errors');
 const SocketUtil = require('./../../lib/agent/socket_util');
 const OcspResponseCache = require('./../../lib/agent/ocsp_response_cache');
-
 const sharedLogger = require('./sharedLogger');
 const Logger = require('./../../lib/logger');
 const { hangWebServerUrl } = require('../hangWebserver');
+const testUtil = require('./testUtil');
+const ProxyAgent = require('./../../lib/agent/https_proxy_agent');
+const { runWireMockAsync } = require('../wiremockRunner');
+
 Logger.getInstance().setLogger(sharedLogger.logger);
 
 let testCounter = 0;
@@ -16,21 +20,21 @@ const testConnectionOptions = {
   username: 'fakeuser',
   password: 'fakepasword',
   account: 'fakeaccount',
-  sfRetryMaxLoginRetries: 2
+  sfRetryMaxLoginRetries: 1,
 };
 
 const testRevokedConnectionOptions = {
   accessUrl: 'https://revoked.badssl.com',
   username: 'fakeuser',
   password: 'fakepasword',
-  account: 'fakeaccount'
+  account: 'fakeaccount',
 };
 
 function getConnectionOptions() {
   // use unique hostname to avoid connection cache in tests.
   // If connection is cached, the test result is not consistent.
   const objCopy = Object.assign({}, testConnectionOptions);
-  objCopy['accessUrl'] = 'https://fakeaccount' + (testCounter) + '.snowflakecomputing.com';
+  objCopy['accessUrl'] = 'https://fakeaccount' + testCounter + '.snowflakecomputing.com';
   testCounter++;
   return objCopy;
 }
@@ -57,7 +61,50 @@ describe('Connection with OCSP test', function () {
       'SF_OCSP_TEST_INJECT_VALIDITY_ERROR',
       'SF_OCSP_TEST_OCSP_RESPONDER_TIMEOUT',
       'SF_OCSP_TEST_OCSP_RESPONSE_CACHE_SERVER_TIMEOUT',
-    ].forEach(envVariable => delete process.env[envVariable]);
+    ].forEach((envVariable) => delete process.env[envVariable]);
+  });
+
+  describe('Proxy environment', () => {
+    const connectionOptions = getConnectionOptions();
+    let wiremockClient;
+    let httpRequestSpy;
+
+    before(async () => {
+      const port = await testUtil.getFreePort();
+      wiremockClient = await runWireMockAsync(port, {
+        wiremockJarArgs: ['--proxy-all', connectionOptions.accessUrl],
+      });
+      sinon.stub(process, 'env').value({
+        ...process.env,
+        HTTP_PROXY: wiremockClient.rootUrl,
+      });
+      httpRequestSpy = sinon.spy(http, 'request');
+    });
+
+    after(async () => {
+      await wiremockClient.global.shutdown();
+      sinon.restore();
+    });
+
+    it('OCSP check is performed using a proxy agent when HTTP_PROXY is set', async () => {
+      const connection = snowflake.createConnection(getConnectionOptions());
+      await new Promise((resolve, reject) => {
+        connection.connect((err) => {
+          try {
+            assert.strictEqual(
+              err.code,
+              Errors.codes.ERR_SF_RESPONSE_FAILURE,
+              `Expected error code to be ERR_SF_RESPONSE_FAILURE, but got error ${err}`,
+            );
+            resolve();
+          } catch (assertionError) {
+            reject(assertionError);
+          }
+        });
+      });
+      assert.strictEqual(httpRequestSpy.firstCall.args[0].path, '/ocsp_response_cache.json');
+      assert.ok(httpRequestSpy.firstCall.args[0].agent instanceof ProxyAgent);
+    });
   });
 
   it('OCSP NOP - Fail Open', function (done) {
@@ -372,8 +419,8 @@ describe('Connection with OCSP test', function () {
         password: 'fakepasword',
         account: 'fakeaccount',
       },
-      errorCode: 'CERT_HAS_EXPIRED'
-    }
+      errorCode: 'CERT_HAS_EXPIRED',
+    },
     /*
     ,{
       // This test case got invalid as the certificate expired.
@@ -407,9 +454,12 @@ describe('Connection with OCSP test', function () {
 
   it('OCSP Invalid Certificate', function (done) {
     const testOptions = function (i) {
-      Logger.getInstance().error('==> ' + testInvalidCertConnectionOptions[i].connectString.accessUrl);
+      Logger.getInstance().error(
+        '==> ' + testInvalidCertConnectionOptions[i].connectString.accessUrl,
+      );
       const connection = snowflake.createConnection(
-        testInvalidCertConnectionOptions[i].connectString);
+        testInvalidCertConnectionOptions[i].connectString,
+      );
       connectToHttpsEndpoint(testOptions, i, connection, done);
     };
     testOptions(0);

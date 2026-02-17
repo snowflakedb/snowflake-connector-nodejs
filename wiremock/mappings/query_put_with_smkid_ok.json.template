@@ -1,0 +1,91 @@
+{
+  "mappings": [
+    {
+      "request": {
+        "urlPathPattern": "/queries/v1/query-request*",
+        "method": "POST"
+      },
+      "response": {
+        "status": 200,
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "jsonBody": {
+          "data": {
+            "uploadInfo": {
+              "locationType": "S3",
+              "location": "sfc-preprod6-ds-02-customer-stage/c2rw0000-s/stages/bc70113f-8807-4e52-9873-3fddf16f582e/",
+              "path": "stages/bc70113f-8807-4e52-9873-3fddf16f582e/",
+              "region": "us-west-2",
+              "storageAccount": null,
+              "isClientSideEncrypted": true,
+              "ciphers": "AES_CBC",
+              "creds": {
+                "AWS_KEY_ID": "TEST_AWS_KEY_ID",
+                "AWS_SECRET_KEY": "TEST_AWS_SECRET_KEY",
+                "AWS_TOKEN": "TEST_AWS_TOKEN",
+                "AWS_ID": "TEST_AWS_ID",
+                "AWS_KEY": "TEST_AWS_KEY"
+              },
+              "presignedUrl": null,
+              "useS3RegionalUrl": false,
+              "credExpiryTime": 1765139519000,
+              "useVirtualUrl": false,
+              "volumeEncryptionMode": null,
+              "encryptionKmsKeyId": null,
+              "bucketName": null,
+              "pathPrefix": null,
+              "endPoint": null
+            },
+            "src_locations": [
+              "{{putFilePath}}"
+            ],
+            "parallel": 4,
+            "threshold": 209715200,
+            "autoCompress": false,
+            "overwrite": false,
+            "sourceCompression": "auto_detect",
+            "clientShowEncryptionParameter": true,
+            "queryId": "01c0e577-000b-aba8-0000-4c390147020a",
+            "encryptionMaterial": {
+              "queryStageMasterKey": "STAGE_MASTER_KEY",
+              "queryId": "01c0e577-000b-aba8-0000-4c390147020a",
+              "smkId": {{ rawSmkIdValue }}
+            },
+            "stageInfo": {
+              "locationType": "S3",
+              "location": "sfc-preprod6-ds-02-customer-stage/c2rw0000-s/stages/bc70113f-8807-4e52-9873-3fddf16f582e/",
+              "path": "stages/bc70113f-8807-4e52-9873-3fddf16f582e/",
+              "region": "us-west-2",
+              "storageAccount": null,
+              "isClientSideEncrypted": true,
+              "ciphers": "AES_CBC",
+              "creds": {
+                "AWS_KEY_ID": "TEST_AWS_KEY_ID",
+                "AWS_SECRET_KEY": "TEST_AWS_SECRET_KEY",
+                "AWS_TOKEN": "TEST_AWS_TOKEN",
+                "AWS_ID": "TEST_AWS_ID",
+                "AWS_KEY": "TEST_AWS_KEY"
+              },
+              "presignedUrl": null,
+              "useS3RegionalUrl": false,
+              "credExpiryTime": 3530279038000,
+              "useVirtualUrl": false,
+              "volumeEncryptionMode": null,
+              "encryptionKmsKeyId": null,
+              "bucketName": null,
+              "pathPrefix": null,
+              "endPoint": null
+            },
+            "kind": null,
+            "command": "UPLOAD",
+            "operation": "Node"
+          },
+          "code": null,
+          "message": null,
+          "success": true
+        }
+      }
+    }
+  ]
+}

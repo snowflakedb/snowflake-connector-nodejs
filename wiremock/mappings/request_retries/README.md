@@ -1,0 +1,2 @@
+- Each request fails 3 times before succeeding. This ensures that backoff and maxRetries work as expected.
+- Programmatic construction of mapping array instead of .json files will result in much cleaner code, but most likely we'll be using the same JSON mappings file for every driver test in UD

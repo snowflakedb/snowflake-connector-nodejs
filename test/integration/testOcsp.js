@@ -14,7 +14,6 @@ const sharedLogger = require('./sharedLogger');
 const Logger = require('./../../lib/logger');
 Logger.getInstance().setLogger(sharedLogger.logger);
 
-
 describe('OCSP validation', function () {
   it('OCSP validation with server reusing SSL sessions', function (done) {
     const connection = snowflake.createConnection(connOption.valid);
@@ -26,37 +25,33 @@ describe('OCSP validation', function () {
     async.series(
       [
         function (callback) {
-          connection.connect(function (err) {
-            assert.ok(!err, JSON.stringify(err));
-            callback();
-          });
+          connection.connect(callback);
         },
         function (callback) {
-          let numErrors = 0;
           let numStmtsExecuted = 0;
           const numStmtsTotal = 20;
 
           // execute a simple statement several times
           // and make sure there are no errors
           for (let index = 0; index < numStmtsTotal; index++) {
-            connection.execute(
-              {
-                sqlText: 'select 1;',
-                complete: function (err) {
-                  if (err) {
-                    numErrors++;
-                  }
-
-                  numStmtsExecuted++;
-                  if (numStmtsExecuted === (numStmtsTotal - 1)) {
-                    assert.strictEqual(numErrors, 0);
-                    callback();
-                  }
+            connection.execute({
+              sqlText: 'select 1;',
+              complete: function (err) {
+                if (err) {
+                  callback(err);
                 }
-              });
+
+                numStmtsExecuted++;
+                if (numStmtsExecuted === numStmtsTotal) {
+                  callback();
+                }
+              },
+            });
           }
-        }
-      ], done);
+        },
+      ],
+      done,
+    );
   });
 
   function deleteCache() {
@@ -71,13 +66,9 @@ describe('OCSP validation', function () {
     async.series(
       [
         function (callback) {
-          connection.connect(function (err) {
-            assert.ok(!err, JSON.stringify(err));
-            callback();
-          });
+          connection.connect(callback);
         },
         function (callback) {
-          let numErrors = 0;
           let numStmtsExecuted = 0;
           const numStmtsTotal = 5;
 
@@ -85,28 +76,28 @@ describe('OCSP validation', function () {
           // and make sure there are no errors
           for (let index = 0; index < numStmtsTotal; index++) {
             setTimeout(function () {
-              connection.execute(
-                {
-                  sqlText: 'select 1;',
-                  complete: function (err) {
-                    if (err) {
-                      numErrors++;
-                    }
-
-                    numStmtsExecuted++;
-                    if (numStmtsExecuted === (numStmtsTotal - 1)) {
-                      delete process.env['SF_OCSP_TEST_CACHE_MAXAGE'];
-                      assert.strictEqual(numErrors, 0);
-                      callback();
-                    }
+              connection.execute({
+                sqlText: 'select 1;',
+                complete: function (err) {
+                  if (err) {
+                    callback(err);
                   }
-                });
+
+                  numStmtsExecuted++;
+                  if (numStmtsExecuted === numStmtsTotal) {
+                    delete process.env['SF_OCSP_TEST_CACHE_MAXAGE'];
+                    callback();
+                  }
+                },
+              });
               // cache expire in 5 seconds while 3 seconds per query, so it
               // would cover both case of expired and not expired
             }, 3000);
           }
-        }
-      ], done);
+        },
+      ],
+      done,
+    );
   });
 
   const httpsEndpoints = [
@@ -114,29 +105,29 @@ describe('OCSP validation', function () {
       accessUrl: 'https://sfcsupport.snowflakecomputing.com',
       account: 'sfcsupport',
       username: 'fake_user',
-      password: 'fake_password'
+      password: 'fake_password',
     },
 
     {
       accessUrl: 'https://sfcsupporteu.eu-centraol-1.snowflakecomputing.com',
       account: 'sfcsupporteu',
       username: 'fake_user',
-      password: 'fake_password'
+      password: 'fake_password',
     },
 
     {
       accessUrl: 'https://sfcsupportva.us-east-1.snowflakecomputing.com',
       account: 'sfcsupportva',
       username: 'fake_user',
-      password: 'fake_password'
+      password: 'fake_password',
     },
 
     {
       accessUrl: 'https://aztestaccount.east-us-2.azure.snowflakecomputing.com',
       account: 'aztestaccount',
       username: 'fake_user',
-      password: 'fake_password'
-    }
+      password: 'fake_password',
+    },
   ];
 
   function connectToHttpsEndpoint(testOptions, i, connection, done) {
@@ -264,11 +255,11 @@ describe('OCSP validation', function () {
     deleteCache();
     const globalOptions = [
       {
-        ocspFailOpen: true
+        ocspFailOpen: true,
       },
       {
-        ocspFailOpen: false
-      }
+        ocspFailOpen: false,
+      },
     ];
 
     for (let i = 0; i < globalOptions.length; i++) {
@@ -289,22 +280,22 @@ describe('OCSP privatelink', function () {
   const mockParsedUrl = require('url').parse(mockUrl);
   const mockDataBuf = Buffer.from('mockData');
   const mockFunc = function () {
-    return; 
+    return;
   };
-  const mockReq =
-  {
+  const mockReq = {
     uri: mockUrl,
     req: {
       data: mockDataBuf,
-    }
+    },
   };
-
-
 
   it('Account with privatelink', function (done) {
     //connOption.privatelink contains inconsistent accessUrl and host so the connect works using accessUrl
     // and setting ocsp according to host
-    const host = Util.constructHostname(connOption.privatelink.region, connOption.privatelink.account);
+    const host = Util.constructHostname(
+      connOption.privatelink.region,
+      connOption.privatelink.account,
+    );
     const ocspResponseCacheServerUrl = `http://ocsp.${host}/ocsp_response_cache.json`;
     const ocspResponderUrl = `http://ocsp.${host}/retry/${mockParsedUrl.hostname}/${mockDataBuf.toString('base64')}`;
 
@@ -328,7 +319,10 @@ describe('OCSP privatelink', function () {
   it('Account with privatelink cn', function (done) {
     //connOption.privatelink contains inconsistent accessUrl and host so the connect works using accessUrl
     // and setting ocsp according to host
-    const host = Util.constructHostname('cn-northwest-1.privatelink', connOption.privatelink.account);
+    const host = Util.constructHostname(
+      'cn-northwest-1.privatelink',
+      connOption.privatelink.account,
+    );
     const ocspResponseCacheServerUrl = `http://ocsp.${host}/ocsp_response_cache.json`;
     const ocspResponderUrl = `http://ocsp.${host}/retry/${mockParsedUrl.hostname}/${mockDataBuf.toString('base64')}`;
 
@@ -369,16 +363,20 @@ describe('Test setup ocsp server url', () => {
     {
       name: 'test',
       host: 'acc.privatelink.snowflakecomputin.com',
-      expected: 'http://ocsp.acc.privatelink.snowflakecomputin.com/ocsp_response_cache.json'
+      expected: 'http://ocsp.acc.privatelink.snowflakecomputin.com/ocsp_response_cache.json',
     },
     {
       name: 'test',
       host: 'acc.privatelink.snowflakecomputin.cn',
-      expected: 'http://ocsp.acc.privatelink.snowflakecomputin.cn/ocsp_response_cache.json'
-    }
+      expected: 'http://ocsp.acc.privatelink.snowflakecomputin.cn/ocsp_response_cache.json',
+    },
   ].forEach(({ name, host, expected }) => {
     it(`${name} is valid`, () => {
-      const connection = snowflake.createConnection({ host: host, username: 'user', password: 'pass' });
+      const connection = snowflake.createConnection({
+        host: host,
+        username: 'user',
+        password: 'pass',
+      });
       connection.setupOcspPrivateLink(host);
       assert.strictEqual(process.env.SF_OCSP_RESPONSE_CACHE_SERVER_URL, expected);
 
@@ -410,15 +408,16 @@ describe.skip('Test Ocsp with network delay', function () {
       snowflake.configure({ ocspFailOpen: false });
       connection = snowflake.createConnection(connOption.valid);
 
-      async.series([
-        function (callback) {
-          connection.connect(function (err) {
-            assert.ok(!err, JSON.stringify(err));
-            callback();
-          });
-        }
-      ],
-      done
+      async.series(
+        [
+          function (callback) {
+            connection.connect(function (err) {
+              assert.ok(!err, JSON.stringify(err));
+              callback();
+            });
+          },
+        ],
+        done,
       );
     } else {
       done();

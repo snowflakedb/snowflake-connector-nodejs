@@ -9,8 +9,8 @@ describe('HttpClient Tests', () => {
   let httpClientInstance;
 
   const connectionOptions = {
-    ...(connOptions.valid),
-    timeout: 2000
+    ...connOptions.valid,
+    timeout: 2000,
   };
 
   const httpConnectionOptions = new ConnectionConfig(connectionOptions, false, false, {
@@ -38,7 +38,7 @@ describe('HttpClient Tests', () => {
           } else {
             errorFromCallback = Error('Expected an error from aborted request, but got success.');
           }
-        }
+        },
       });
 
       // Abort the request immediately
@@ -48,14 +48,20 @@ describe('HttpClient Tests', () => {
       await testUtil.waitForCondition(() => requestObject.requestPromise);
       await requestObject.requestPromise;
 
-      assert.ok(!errorFromCallback, `Did not receive a normalized response. Error: ${errorFromCallback}`);
+      assert.ok(
+        !errorFromCallback,
+        `Did not receive a normalized response. Error: ${errorFromCallback}`,
+      );
     });
 
     it('should allow aborting long-running request after some time', async () => {
       let errorFromCallback;
       const TIME_IN_MS_TO_WAIT_BEFORE_ABORT = 1500;
-      assert.ok(TIME_IN_MS_TO_WAIT_BEFORE_ABORT < connectionOptions.timeout, 'Test was not set up correctly. ' +
-          'To test correctly the aborting functionality it should be triggered before timeout of the request itself');
+      assert.ok(
+        TIME_IN_MS_TO_WAIT_BEFORE_ABORT < connectionOptions.timeout,
+        'Test was not set up correctly. ' +
+          'To test correctly the aborting functionality it should be triggered before timeout of the request itself',
+      );
 
       const requestObject = httpClientInstance.request({
         url: urlReturningResponseAfterHanging,
@@ -67,7 +73,7 @@ describe('HttpClient Tests', () => {
           } else {
             errorFromCallback = Error('Expected an error from aborted request, but got success.');
           }
-        }
+        },
       });
 
       // Abort the request after some time
@@ -78,7 +84,10 @@ describe('HttpClient Tests', () => {
       await testUtil.waitForCondition(() => requestObject.requestPromise);
       await requestObject.requestPromise;
 
-      assert.ok(!errorFromCallback, `Did not receive a normalized response. Error: ${errorFromCallback}`);
+      assert.ok(
+        !errorFromCallback,
+        `Did not receive a normalized response. Error: ${errorFromCallback}`,
+      );
     });
   });
 
@@ -88,7 +97,7 @@ describe('HttpClient Tests', () => {
     it('should return a normalized response with statusCode and body for requestAsync', async () => {
       const response = await httpClientInstance.requestAsync({
         url: urlReturningJsonBody,
-        method: 'GET'
+        method: 'GET',
       });
 
       assert.ok(response, 'Response should be defined');
@@ -110,13 +119,16 @@ describe('HttpClient Tests', () => {
           } catch (assertionError) {
             errorRaisedInCallback = assertionError;
           }
-        }
+        },
       });
       //Due to usage of 'nextTick' in the httpClient requestPromise may be undefined for some time, only to be set when scheduled sending took place.
       await testUtil.waitForCondition(() => requestObject.requestPromise);
       await requestObject.requestPromise;
 
-      assert.ok(!errorRaisedInCallback, `Did not receive a normalized response. Error: ${errorRaisedInCallback}`);
+      assert.ok(
+        !errorRaisedInCallback,
+        `Did not receive a normalized response. Error: ${errorRaisedInCallback}`,
+      );
     });
   });
 });

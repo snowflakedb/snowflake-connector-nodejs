@@ -49,10 +49,7 @@ describe('Connection test', function () {
     const connection = snowflake.createConnection(connOption.wrongUserName);
     connection.connect(function (err) {
       assert.ok(err, 'Username is an empty string');
-      assert.equal(
-        'Incorrect username or password was specified.',
-        err['message']
-      );
+      assert.equal('Incorrect username or password was specified.', err['message']);
       done();
     });
   });
@@ -61,10 +58,7 @@ describe('Connection test', function () {
     const connection = snowflake.createConnection(connOption.wrongPwd);
     connection.connect(function (err) {
       assert.ok(err, 'Password is an empty string');
-      assert.equal(
-        'Incorrect username or password was specified.',
-        err['message']
-      );
+      assert.equal('Incorrect username or password was specified.', err['message']);
       done();
     });
   });
@@ -102,7 +96,7 @@ describe('Connection test', function () {
           timeout();
         } else {
           done(
-            `Max after ${maxSleep} it's expected to complete ${totalConnections} but completed ${completedConnection}`
+            `Max after ${maxSleep} it's expected to complete ${totalConnections} but completed ${completedConnection}`,
           );
         }
       }, sleepMs);
@@ -120,19 +114,18 @@ describe('Connection test', function () {
       sfRetryMaxLoginRetries: 1,
     });
 
-    connection.connect(
-      function (err) {
-        try {
-          assert.ok(err);
-          assert.equal(err.name, 'RequestFailedError');
-          err = JSON.stringify(err, Util.getCircularReplacer());
-          assert.strictEqual(err.includes(randomId), false);
-          assert.strictEqual(err.includes(randomId2), false);
-          done();
-        } catch (err) {
-          done(err);
-        }
-      });
+    connection.connect(function (err) {
+      try {
+        assert.ok(err);
+        assert.equal(err.name, 'RequestFailedError');
+        err = JSON.stringify(err, Util.getCircularReplacer());
+        assert.strictEqual(err.includes(randomId), false);
+        assert.strictEqual(err.includes(randomId2), false);
+        done();
+      } catch (err) {
+        done(err);
+      }
+    });
   });
 
   it('When connect async with original callback then successfully established', async function () {
@@ -177,8 +170,30 @@ describe('Connection test', function () {
 
     await testUtil.assertActiveConnectionDestroyedCorrectlyAsync(connection);
   });
-});
 
+  it('test query tag', function (done) {
+    const expectedQueryTag = 'Test QUERY_TAG 12345';
+    const connection = snowflake.createConnection({
+      ...connOption.valid,
+      queryTag: expectedQueryTag,
+    });
+    connection.connect(function (err, conn) {
+      testUtil.checkError(err);
+      conn.execute({
+        sqlText: 'SELECT QUERY_TAG FROM table(information_schema.query_history_by_session())',
+        complete: function (err, stmt, rows) {
+          testUtil.checkError(err);
+          assert.strictEqual(
+            rows[0]['QUERY_TAG'],
+            expectedQueryTag,
+            `Expected query tag "${expectedQueryTag}" but got "${rows[0]['QUERY_TAG']}"`,
+          );
+          done();
+        },
+      });
+    });
+  });
+});
 
 describe('Connection test - validate default parameters', function () {
   before(() => {
@@ -199,12 +214,15 @@ describe('Connection test - validate default parameters', function () {
       'Creating new connection object',
       'Creating Connection[id:',
       'Connection[id:',
-      'connection object created successfully'
+      'connection object created successfully',
     ];
 
     // Check if all output messages match the expected patterns
     output.forEach((item, index) => {
-      assert(item.includes(expectedMessagesParts[index]), `Output message at index ${index} does not match expected pattern. \nReceived message: ${item} \nExpected substring: ${expectedMessagesParts[index]}`);
+      assert(
+        item.includes(expectedMessagesParts[index]),
+        `Output message at index ${index} does not match expected pattern. \nReceived message: ${item} \nExpected substring: ${expectedMessagesParts[index]}`,
+      );
     });
   });
 
@@ -218,7 +236,11 @@ describe('Connection test - validate default parameters', function () {
         validateDefaultParameters: true,
       });
     });
-    assertLogMessage('ERROR', '\'waerhouse\' is an unknown connection parameter. Did you mean \'warehouse\'?', output[1]);
+    assertLogMessage(
+      'ERROR',
+      "'waerhouse' is an unknown connection parameter. Did you mean 'warehouse'?",
+      output[1],
+    );
   });
 
   it('Valid "database" parameter', function () {
@@ -235,12 +257,15 @@ describe('Connection test - validate default parameters', function () {
       'Creating new connection object',
       'Creating Connection[id:',
       'Connection[id:',
-      'connection object created successfully'
+      'connection object created successfully',
     ];
 
     // Check if all output messages match the expected patterns
     output.forEach((item, index) => {
-      assert(item.includes(expectedMessagesParts[index]), `Output message at index ${index} does not match expected pattern. \nReceived message: ${item} \nExpected substring: ${expectedMessagesParts[index]}`);
+      assert(
+        item.includes(expectedMessagesParts[index]),
+        `Output message at index ${index} does not match expected pattern. \nReceived message: ${item} \nExpected substring: ${expectedMessagesParts[index]}`,
+      );
     });
   });
 
@@ -254,7 +279,11 @@ describe('Connection test - validate default parameters', function () {
         validateDefaultParameters: true,
       });
     });
-    assertLogMessage('ERROR', '\'db\' is an unknown connection parameter. Did you mean \'host\'?', output[1]);
+    assertLogMessage(
+      'ERROR',
+      "'db' is an unknown connection parameter. Did you mean 'host'?",
+      output[1],
+    );
   });
 
   it('Invalid "database" parameter', function () {
@@ -267,7 +296,11 @@ describe('Connection test - validate default parameters', function () {
         validateDefaultParameters: true,
       });
     });
-    assertLogMessage('ERROR', '\'datbse\' is an unknown connection parameter. Did you mean \'database\'?', output[1]);
+    assertLogMessage(
+      'ERROR',
+      "'datbse' is an unknown connection parameter. Did you mean 'database'?",
+      output[1],
+    );
   });
 
   it('Valid "schema" parameter', function () {
@@ -284,12 +317,15 @@ describe('Connection test - validate default parameters', function () {
       'Creating new connection object',
       'Creating Connection[id:',
       'Connection[id:',
-      'connection object created successfully'
+      'connection object created successfully',
     ];
 
     // Check if all output messages match the expected patterns
     output.forEach((item, index) => {
-      assert(item.includes(expectedMessagesParts[index]), `Output message at index ${index} does not match expected pattern. \nReceived message: ${item} \nExpected substring: ${expectedMessagesParts[index]}`);
+      assert(
+        item.includes(expectedMessagesParts[index]),
+        `Output message at index ${index} does not match expected pattern. \nReceived message: ${item} \nExpected substring: ${expectedMessagesParts[index]}`,
+      );
     });
   });
 
@@ -303,7 +339,11 @@ describe('Connection test - validate default parameters', function () {
         validateDefaultParameters: true,
       });
     });
-    assertLogMessage('ERROR', '\'shcema\' is an unknown connection parameter. Did you mean \'schema\'?', output[1]);
+    assertLogMessage(
+      'ERROR',
+      "'shcema' is an unknown connection parameter. Did you mean 'schema'?",
+      output[1],
+    );
   });
 });
 
@@ -545,7 +585,7 @@ describe('Connection test - connection pool', function () {
           });
         },
       ],
-      done
+      done,
     );
   });
 
@@ -630,7 +670,7 @@ describe('Connection test - connection pool', function () {
           });
         },
       ],
-      done
+      done,
     );
   });
 
@@ -740,7 +780,7 @@ describe('Connection test - connection pool', function () {
           });
         },
       ],
-      done
+      done,
     );
   });
 
@@ -799,10 +839,7 @@ describe('Connection test - connection pool', function () {
         assert.equal(connectionPool.size, 1);
       });
     } catch (err) {
-      assert.strictEqual(
-        err.message,
-        'Incorrect username or password was specified.'
-      );
+      assert.strictEqual(err.message, 'Incorrect username or password was specified.');
     }
   });
 
@@ -819,10 +856,7 @@ describe('Connection test - connection pool', function () {
     try {
       await connectionPool.acquire();
     } catch (err) {
-      assert.strictEqual(
-        err.message,
-        'Incorrect username or password was specified.'
-      );
+      assert.strictEqual(err.message, 'Incorrect username or password was specified.');
     }
   });
 });

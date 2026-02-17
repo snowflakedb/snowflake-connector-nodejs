@@ -50,7 +50,9 @@
                 "TOKEN": "access-token-123",
                 "LOGIN_NAME": "MOCK_USERNAME",
                 "AUTHENTICATOR": "OAUTH",
-                "OAUTH_TYPE": "OAUTH_CLIENT_CREDENTIALS"
+                "CLIENT_ENVIRONMENT": {
+                  "OAUTH_TYPE": "OAUTH_CLIENT_CREDENTIALS"
+                }
               }
             },
             "ignoreExtraElements": true
@@ -735,11 +737,7 @@
                 "type": "fixed"
               }
             ],
-            "rowset": [
-              [
-                "1"
-              ]
-            ],
+            "rowset": [["1"]],
             "total": 1,
             "returned": 1,
             "queryId": "01baf79b-0108-1a60-0000-01110354a6ce",

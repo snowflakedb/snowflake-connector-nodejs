@@ -8,6 +8,7 @@ describe('Test multi statement', function () {
   let connection;
   const alterSessionMultiStatement0 = 'alter session set MULTI_STATEMENT_COUNT=0';
   const selectTable = 'select ?; select ?,3; select ?,5,6';
+  const multiSelectTable = 'select 1; select 2,3; select 4,5,6';
 
   before(function (done) {
     connection = testUtil.createConnection();
@@ -17,7 +18,7 @@ describe('Test multi statement', function () {
         complete: function (err) {
           testUtil.checkError(err);
           done();
-        }
+        },
       });
     });
   });
@@ -37,7 +38,7 @@ describe('Test multi statement', function () {
               Logger.getInstance().info('=== server version =');
               Logger.getInstance().info(rows);
               callback();
-            }
+            },
           });
         },
         function () {
@@ -64,11 +65,29 @@ describe('Test multi statement', function () {
                   done();
                 }
               });
-            }
+            },
           });
-        }
+        },
       ],
-      done
+      done,
     );
+  });
+
+  it('test each statement in multi statement', function (done) {
+    let count = 0;
+    const queryLists = multiSelectTable.split(';');
+    connection.execute({
+      sqlText: multiSelectTable,
+      complete: function (err, stmt) {
+        testUtil.checkError(err);
+        assert.strictEqual(queryLists[count], stmt.getSqlText());
+        if ('hasNext' in stmt && stmt.hasNext()) {
+          count++;
+          stmt.NextResult();
+        } else {
+          done();
+        }
+      },
+    });
   });
 });

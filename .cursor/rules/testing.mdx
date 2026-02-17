@@ -1,0 +1,14 @@
+---
+glob: 'test/**/*'
+---
+
+### Code Rules
+
+When writing test names, don't use "should"
+❌ `it('should pass the check')`
+✅ `it('passes the check')`
+
+When sending API requests to mock servers, always use snowflake.com domains instead of random sites like test.com to prevent accidental data leakage.
+❌ `https://test.com/api/endpoint`
+❌ `https://example.com/api/endpoint`
+✅ `https://snowflake.com/api/endpoint`

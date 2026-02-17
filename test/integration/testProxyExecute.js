@@ -2,35 +2,41 @@ const async = require('async');
 const testUtil = require('./testUtil');
 const os = require('os');
 
+// TODO:
+// a btter way to test proxy on every OS would be to spawn wiremock with a --proxy-all
 describe('Execute proxy test', function () {
   const platform = os.platform();
   if (platform === 'linux' && !process.env.SHOULD_SKIP_PROXY_TESTS) {
     let connection;
     const createNodeTSQL = 'create or replace table NodeT(colA number, colB varchar)';
     const selectAllSQL = 'select * from NodeT';
-    const insertNodeTSQL = 'insert into NodeT values(1, \'a\')';
-    const updateNodeTSQL = 'update NodeT set COLA = 2, COLB = \'b\' where COLA = 1';
+    const insertNodeTSQL = "insert into NodeT values(1, 'a')";
+    const updateNodeTSQL = "update NodeT set COLA = 2, COLB = 'b' where COLA = 1";
     const dropNodeTSQL = 'drop table if exists NodeT';
 
     before(function (done) {
       connection = testUtil.createProxyConnection();
-      async.series([
-        function (callback) {
-          testUtil.connect(connection, callback);
-        }],
-      done
+      async.series(
+        [
+          function (callback) {
+            testUtil.connect(connection, callback);
+          },
+        ],
+        done,
       );
     });
 
     after(function (done) {
-      async.series([
-        function (callback) {
-          testUtil.executeCmd(connection, dropNodeTSQL, callback);
-        },
-        function (callback) {
-          testUtil.destroyConnection(connection, callback);
-        }],
-      done
+      async.series(
+        [
+          function (callback) {
+            testUtil.executeCmd(connection, dropNodeTSQL, callback);
+          },
+          function (callback) {
+            testUtil.destroyConnection(connection, callback);
+          },
+        ],
+        done,
       );
     });
 
@@ -44,11 +50,9 @@ describe('Execute proxy test', function () {
             const insertCount = 5;
             const insertValues = function (i) {
               if (i < insertCount) {
-                testUtil.executeCmd(connection,
-                  insertNodeTSQL,
-                  function () {
-                    insertValues(i + 1);
-                  });
+                testUtil.executeCmd(connection, insertNodeTSQL, function () {
+                  insertValues(i + 1);
+                });
               } else {
                 callback();
               }
@@ -59,38 +63,43 @@ describe('Execute proxy test', function () {
             testUtil.executeQueryAndVerify(
               connection,
               selectAllSQL,
-              [{ 'COLA': 1, 'COLB': 'a' },
-                { 'COLA': 1, 'COLB': 'a' },
-                { 'COLA': 1, 'COLB': 'a' },
-                { 'COLA': 1, 'COLB': 'a' },
-                { 'COLA': 1, 'COLB': 'a' }],
-              callback
+              [
+                { COLA: 1, COLB: 'a' },
+                { COLA: 1, COLB: 'a' },
+                { COLA: 1, COLB: 'a' },
+                { COLA: 1, COLB: 'a' },
+                { COLA: 1, COLB: 'a' },
+              ],
+              callback,
             );
-          }],
-        done
+          },
+        ],
+        done,
       );
     });
 
     it('testSimpleUpdate', function (done) {
-      async.series([
-        function (callback) {
-          testUtil.executeCmd(connection, createNodeTSQL, callback);
-        },
-        function (callback) {
-          testUtil.executeCmd(connection, insertNodeTSQL, callback);
-        },
-        function (callback) {
-          testUtil.executeCmd(connection, updateNodeTSQL, callback);
-        },
-        function (callback) {
-          testUtil.executeQueryAndVerify(
-            connection,
-            selectAllSQL,
-            [{ 'COLA': 2, 'COLB': 'b' }],
-            callback
-          );
-        }],
-      done
+      async.series(
+        [
+          function (callback) {
+            testUtil.executeCmd(connection, createNodeTSQL, callback);
+          },
+          function (callback) {
+            testUtil.executeCmd(connection, insertNodeTSQL, callback);
+          },
+          function (callback) {
+            testUtil.executeCmd(connection, updateNodeTSQL, callback);
+          },
+          function (callback) {
+            testUtil.executeQueryAndVerify(
+              connection,
+              selectAllSQL,
+              [{ COLA: 2, COLB: 'b' }],
+              callback,
+            );
+          },
+        ],
+        done,
       );
     });
 
@@ -101,8 +110,8 @@ describe('Execute proxy test', function () {
             testUtil.executeQueryAndVerify(
               connection,
               createNodeTSQL,
-              [{ 'status': 'Table NODET successfully created.' }],
-              callback
+              [{ status: 'Table NODET successfully created.' }],
+              callback,
             );
           },
           function (callback) {
@@ -110,12 +119,12 @@ describe('Execute proxy test', function () {
               connection,
               insertNodeTSQL,
               [{ 'number of rows inserted': 1 }],
-              callback
+              callback,
             );
-          }],
-        done
+          },
+        ],
+        done,
       );
     });
   }
 });
-

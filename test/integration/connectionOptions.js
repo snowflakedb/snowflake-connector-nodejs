@@ -48,7 +48,10 @@ const accessUrl = snowflakeTestProtocol + '://' + snowflakeTestHost + ':' + snow
 // - SNOWFLAKE_JWT: uses private key (password is present but ignored)
 // - DEFAULT (no authenticator set): uses password
 const keypairOptions = snowflakeTestPrivateKeyFile
-  ? { privateKeyPath: snowflakeTestPrivateKeyFile, authenticator: snowflakeTestAuthenticator || 'SNOWFLAKE_JWT' }
+  ? {
+      privateKeyPath: snowflakeTestPrivateKeyFile,
+      authenticator: snowflakeTestAuthenticator || 'SNOWFLAKE_JWT',
+    }
   : {};
 
 const valid = {

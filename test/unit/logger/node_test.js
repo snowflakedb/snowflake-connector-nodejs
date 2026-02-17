@@ -1,10 +1,8 @@
-const NodeLogger = require('./../../../lib/logger/node');
 const assert = require('assert');
 const { logTagToLevel, LOG_LEVEL_TAGS } = require('../../../lib/logger/core');
 const fsPromises = require('fs/promises');
 const path = require('path');
 const os = require('os');
-const Utils = require('../../../lib/util');
 let tempDir = null;
 
 describe('Logger node tests', function () {
@@ -73,7 +71,7 @@ describe('Logger node tests', function () {
     logMessages(logger);
 
     // then
-    await closeTransportsWithTimeout(logger);
+    await logger.closeTransports();
     const logs = await readLogs(filePath);
     assert.strictEqual(logs.length, 1);
     assert.deepStrictEqual(logs[0], OBJ_LOG_MSG_ERROR);
@@ -88,7 +86,7 @@ describe('Logger node tests', function () {
     logMessages(logger);
 
     // then
-    await closeTransportsWithTimeout(logger);
+    await logger.closeTransports();
     const logs = await readLogs(filePath);
     assert.strictEqual(logs.length, 2);
     assert.deepStrictEqual(logs[0], OBJ_LOG_MSG_ERROR);
@@ -104,7 +102,7 @@ describe('Logger node tests', function () {
     logMessages(logger);
 
     // then
-    await closeTransportsWithTimeout(logger);
+    await logger.closeTransports();
     const logs = await readLogs(filePath);
     assert.strictEqual(logs.length, 3);
     assert.deepStrictEqual(logs[0], OBJ_LOG_MSG_ERROR);
@@ -121,7 +119,7 @@ describe('Logger node tests', function () {
     logMessages(logger);
 
     // then
-    await closeTransportsWithTimeout(logger);
+    await logger.closeTransports();
     const logs = await readLogs(filePath);
     assert.strictEqual(logs.length, 4);
     assert.deepStrictEqual(logs[0], OBJ_LOG_MSG_ERROR);
@@ -139,7 +137,7 @@ describe('Logger node tests', function () {
     logMessages(logger);
 
     // then
-    await closeTransportsWithTimeout(logger);
+    await logger.closeTransports();
     const logs = await readLogs(filePath);
     assert.strictEqual(logs.length, 5);
     assert.deepStrictEqual(logs[0], OBJ_LOG_MSG_ERROR);
@@ -158,7 +156,7 @@ describe('Logger node tests', function () {
     logMessages(logger);
 
     // then
-    await closeTransportsWithTimeout(logger);
+    await logger.closeTransports();
     await assert.rejects(
       async () => await readLogs(filePath),
       (err) => {
@@ -184,7 +182,7 @@ describe('Logger node tests', function () {
     logMessages(logger);
 
     // then
-    await closeTransportsWithTimeout(logger);
+    await logger.closeTransports();
     const errorLogs = await readLogs(filePath);
     assert.strictEqual(errorLogs.length, 1);
     assert.deepStrictEqual(errorLogs[0], OBJ_LOG_MSG_ERROR);
@@ -204,7 +202,7 @@ describe('Logger node tests', function () {
   }
 
   function createLogger(level, filePath) {
-    return new NodeLogger({
+    return new NodeLoIgger({
       includeTimestamp: false,
       level: level,
       filePath: filePath,
@@ -217,12 +215,5 @@ describe('Logger node tests', function () {
     logger.info(LOG_MSG_INFO);
     logger.debug(LOG_MSG_DEBUG);
     logger.trace(LOG_MSG_TRACE);
-  }
-
-  async function closeTransportsWithTimeout(logger) {
-    logger.closeTransports();
-    // TODO:
-    // Sleeping is unreliable. When refactoring logger for 3.x, use proper await closeTransport()
-    await Utils.sleep(100);
   }
 });

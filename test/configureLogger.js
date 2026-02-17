@@ -5,8 +5,8 @@ const snowflake = require('../lib/snowflake');
 /**
  * @param logLevel one of OFF | ERROR | WARN | INFO | DEBUG | TRACE
  */
-exports.configureLogger = (logLevel = 'INFO') => {
-  Logger.getInstance().closeTransports();
+exports.configureLogger = async (logLevel = 'INFO') => {
+  await Logger.getInstance().closeTransports();
   Logger.setInstance(new NodeLogger({ filePath: 'STDOUT' }));
   snowflake.configure({ logLevel });
 };

@@ -1,5 +1,5 @@
+// oxlint-disable no-console
 import Mocha from 'mocha';
-const snowflake = require('../lib/snowflake');
 
 export const mochaHooks = {
   beforeEach(this: Mocha.Context) {

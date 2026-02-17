@@ -115,11 +115,9 @@ const executeCmdAsyncWithAdditionalParameters = function (
 ) {
   return new Promise((resolve, reject) => {
     const executeParams = {
-      ...{
-        sqlText: sqlText,
-        complete: (err, rowStatement, rows) =>
-          err ? reject(err) : resolve({ rowStatement: rowStatement, rows: rows }),
-      },
+      sqlText: sqlText,
+      complete: (err, rowStatement, rows) =>
+        err ? reject(err) : resolve({ rowStatement: rowStatement, rows: rows }),
       ...additionalParameters,
     };
     connection.execute(executeParams);

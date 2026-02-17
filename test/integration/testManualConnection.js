@@ -195,7 +195,7 @@ if (process.env.RUN_MANUAL_TESTS_ONLY === 'true') {
       it('test - connect CLIENT CREDENTIALS - inconsistent username', function (done) {
         const connectionOption = {
           ...connOption.clientCredentialSnowflake,
-          ...{ username: 'inconsistentUser' },
+          username: 'inconsistentUser',
         };
         const connection = snowflake.createConnection(connectionOption);
         connection.connectAsync(function (err) {

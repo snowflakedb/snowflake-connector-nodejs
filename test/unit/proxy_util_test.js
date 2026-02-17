@@ -54,12 +54,14 @@ describe('ProxyUtil Test - detecting PROXY envvars and compare with the agent pr
   });
 
   after(() => {
+    /* oxlint-disable no-unused-expressions */
     originalHttpProxy
       ? (process.env.HTTP_PROXY = originalHttpProxy)
       : delete process.env.HTTP_PROXY;
     originalHttpsProxy
       ? (process.env.HTTPS_PROXY = originalHttpsProxy)
       : delete process.env.HTTPS_PROXY;
+    /* oxlint-enable no-unused-expressions */
   });
 
   [
@@ -215,6 +217,7 @@ describe('getProxyEnv function test ', function () {
   });
 
   after(() => {
+    /* oxlint-disable no-unused-expressions */
     originalHttpProxy
       ? (process.env.HTTP_PROXY = originalHttpProxy)
       : delete process.env.HTTP_PROXY;
@@ -222,6 +225,7 @@ describe('getProxyEnv function test ', function () {
       ? (process.env.HTTPS_PROXY = originalHttpsProxy)
       : delete process.env.HTTPS_PROXY;
     originalNoProxy ? (process.env.NO_PROXY = originalNoProxy) : delete process.env.NO_PROXY;
+    /* oxlint-enable no-unused-expressions */
   });
 
   const testCases = [
@@ -384,6 +388,7 @@ describe('Proxy Util for Azure', function () {
 
   after(() => {
     GlobalConfig.setEnvProxy(true);
+    /* oxlint-disable no-unused-expressions */
     originalHttpProxy
       ? (process.env.HTTP_PROXY = originalHttpProxy)
       : delete process.env.HTTP_PROXY;
@@ -400,6 +405,7 @@ describe('Proxy Util for Azure', function () {
         : delete process.env.https_proxy;
       originalnoProxy ? (process.env['no_proxy'] = originalnoProxy) : delete process.env.no_proxy;
     }
+    /* oxlint-enable no-unused-expressions */
   });
 
   it('test hide and restore environment proxy', function () {

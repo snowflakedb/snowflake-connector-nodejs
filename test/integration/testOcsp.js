@@ -299,7 +299,7 @@ describe('OCSP privatelink', function () {
     const ocspResponseCacheServerUrl = `http://ocsp.${host}/ocsp_response_cache.json`;
     const ocspResponderUrl = `http://ocsp.${host}/retry/${mockParsedUrl.hostname}/${mockDataBuf.toString('base64')}`;
 
-    const connection = snowflake.createConnection({ ...connOption.privatelink, ...{ host: host } });
+    const connection = snowflake.createConnection({ ...connOption.privatelink, host });
 
     connection.connect(function (err) {
       assert.ok(!err, JSON.stringify(err));
@@ -326,7 +326,7 @@ describe('OCSP privatelink', function () {
     const ocspResponseCacheServerUrl = `http://ocsp.${host}/ocsp_response_cache.json`;
     const ocspResponderUrl = `http://ocsp.${host}/retry/${mockParsedUrl.hostname}/${mockDataBuf.toString('base64')}`;
 
-    const connection = snowflake.createConnection({ ...connOption.privatelink, ...{ host: host } });
+    const connection = snowflake.createConnection({ ...connOption.privatelink, host });
 
     connection.connect(function (err) {
       assert.ok(!err, JSON.stringify(err));

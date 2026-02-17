@@ -1,3 +1,4 @@
+// oxlint-disable no-undef
 const assert = require('assert');
 const { Levels, ConfigurationUtil } = require('./../../../lib/configuration/client_configuration');
 const {

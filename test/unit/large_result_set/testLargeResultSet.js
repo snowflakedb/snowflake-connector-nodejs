@@ -83,9 +83,11 @@ describe('LargeResultSetService', () => {
     largeResultSetService.getObject({
       url: baseUrl + '/xml',
       callback: (err, body) => {
-        err && err.name === 'LargeResultSetError'
-          ? done()
-          : done(`Error expected but received body ${body}`);
+        if (err && err.name === 'LargeResultSetError') {
+          done();
+        } else {
+          done(`Error expected but received body ${body}`);
+        }
       },
     });
   });

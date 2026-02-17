@@ -431,7 +431,7 @@ describe('connection.connect() asynchronous errors', function () {
     );
   });
 
-  it('connect() with external browser authenticator', function (done) {
+  it('connect() with external browser authenticator throws by default', function (done) {
     // create a connection and connect with external browser
     const connection = snowflake.createConnection(connectionOptionsExternalBrowser);
 
@@ -442,6 +442,28 @@ describe('connection.connect() asynchronous errors', function () {
       assert.ok(err);
       assert.strictEqual(err.code, ErrorCodes.ERR_CONN_CREATE_INVALID_AUTH_CONNECT);
       done();
+    }
+  });
+
+  it('connect() with external browser authenticator does not throw when allowExternalBrowserSyncConnect is true', function (done) {
+    // create a connection with the feature flag enabled
+    const connection = snowflake.createConnection({
+      ...connectionOptionsExternalBrowser,
+      allowExternalBrowserSyncConnect: true,
+    });
+
+    // connect() should not throw for external browser authenticator when flag is on
+    try {
+      connection.connect(function () {
+        // callback may be invoked with an error from the mock environment,
+        // but the key assertion is that connect() itself does not throw
+        done();
+      });
+    } catch (err) {
+      assert.fail(
+        'connect() should not throw for external browser authenticator when allowExternalBrowserSyncConnect is true: ' +
+          err.message,
+      );
     }
   });
 

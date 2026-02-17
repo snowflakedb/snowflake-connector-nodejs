@@ -1,3 +1,4 @@
+const NodeLogger = require('./../../../lib/logger/node');
 const assert = require('assert');
 const { logTagToLevel, LOG_LEVEL_TAGS } = require('../../../lib/logger/core');
 const fsPromises = require('fs/promises');
@@ -202,7 +203,7 @@ describe('Logger node tests', function () {
   }
 
   function createLogger(level, filePath) {
-    return new NodeLoIgger({
+    return new NodeLogger({
       includeTimestamp: false,
       level: level,
       filePath: filePath,

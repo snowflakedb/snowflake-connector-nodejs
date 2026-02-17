@@ -68,6 +68,7 @@ jobs:
         shell: bash
         env:
           PARAMETERS_SECRET: ${{ secrets.PARAMETERS_SECRET }}
+          NODEJS_PRIVATE_KEY_SECRET: ${{ secrets.NODEJS_PRIVATE_KEY_SECRET }}
           CLOUD_PROVIDER: ${{ matrix.cloud }}
         run: /opt/homebrew/bin/bash ./ci/test_mac.sh
       - name: Upload coverage reports to Codecov
@@ -109,6 +110,7 @@ jobs:
         shell: cmd
         env:
           PARAMETERS_SECRET: ${{ secrets.PARAMETERS_SECRET }}
+          NODEJS_PRIVATE_KEY_SECRET: ${{ secrets.NODEJS_PRIVATE_KEY_SECRET }}
           CLOUD_PROVIDER: ${{ matrix.cloud }}
         run: ci\\test_windows.bat
 
@@ -132,6 +134,7 @@ jobs:
         shell: bash
         env:
           PARAMETERS_SECRET: ${{ secrets.PARAMETERS_SECRET }}
+          NODEJS_PRIVATE_KEY_SECRET: ${{ secrets.NODEJS_PRIVATE_KEY_SECRET }}
           CLOUD_PROVIDER: ${{ matrix.cloud }}
           TARGET_DOCKER_TEST_IMAGE: ${{ matrix.image }}
         run: ./ci/test.sh
@@ -160,6 +163,7 @@ jobs:
         shell: bash
         env:
           PARAMETERS_SECRET: ${{ secrets.PARAMETERS_SECRET }}
+          NODEJS_PRIVATE_KEY_SECRET: ${{ secrets.NODEJS_PRIVATE_KEY_SECRET }}
           CLOUD_PROVIDER: ${{ matrix.cloud }}
         run: ./ci/test_ubuntu.sh
       - name: Upload coverage reports to Codecov
@@ -186,6 +190,7 @@ jobs:
         shell: bash
         env:
           PARAMETERS_SECRET: ${{ secrets.PARAMETERS_SECRET }}
+          NODEJS_PRIVATE_KEY_SECRET: ${{ secrets.NODEJS_PRIVATE_KEY_SECRET }}
           CLOUD_PROVIDER: ${{ matrix.cloud }}
           GITHUB_ACTIONS: true
           GITHUB_SHA: ${{ github.sha }}

@@ -10,6 +10,8 @@ const snowflakeTestWarehouse = process.env.SNOWFLAKE_TEST_WAREHOUSE;
 const snowflakeTestSchema = process.env.SNOWFLAKE_TEST_SCHEMA;
 const snowflakeTestRole = process.env.SNOWFLAKE_TEST_ROLE;
 const snowflakeTestPassword = process.env.SNOWFLAKE_TEST_PASSWORD;
+const snowflakeTestPrivateKeyFile = process.env.SNOWFLAKE_TEST_PRIVATE_KEY_FILE;
+const snowflakeTestAuthenticator = process.env.SNOWFLAKE_TEST_AUTHENTICATOR;
 const snowflakeTestAdminUser = process.env.SNOWFLAKE_TEST_ADMIN_USER;
 const snowflakeTestAdminPassword = process.env.SNOWFLAKE_TEST_ADMIN_PASSWORD;
 const snowflakeTestPasscode = process.env.SNOWFLAKE_TEST_PASSCODE;
@@ -41,10 +43,22 @@ if (snowflakeTestProxyPort === undefined) {
 
 const accessUrl = snowflakeTestProtocol + '://' + snowflakeTestHost + ':' + snowflakeTestPort;
 
+// When keypair is available, set privateKeyPath + authenticator on top of password.
+// The authenticator type determines which auth method is actually used by the driver:
+// - SNOWFLAKE_JWT: uses private key (password is present but ignored)
+// - DEFAULT (no authenticator set): uses password
+const keypairOptions = snowflakeTestPrivateKeyFile
+  ? {
+      privateKeyPath: snowflakeTestPrivateKeyFile,
+      authenticator: snowflakeTestAuthenticator || 'SNOWFLAKE_JWT',
+    }
+  : {};
+
 const valid = {
   accessUrl: accessUrl,
   username: snowflakeTestUser,
   password: snowflakeTestPassword,
+  ...keypairOptions,
   account: snowflakeTestAccount,
   warehouse: snowflakeTestWarehouse,
   database: snowflakeTestDatabase,
@@ -123,6 +137,7 @@ const privatelink = {
   accessUrl: accessUrl,
   username: snowflakeTestUser,
   password: snowflakeTestPassword,
+  ...keypairOptions,
   account: snowflakeTestAccount + '.privatelink',
 };
 
@@ -130,6 +145,7 @@ const connectionWithProxy = {
   accessUrl: accessUrl,
   username: snowflakeTestUser,
   password: snowflakeTestPassword,
+  ...keypairOptions,
   account: snowflakeTestAccount,
   warehouse: snowflakeTestWarehouse,
   database: snowflakeTestDatabase,

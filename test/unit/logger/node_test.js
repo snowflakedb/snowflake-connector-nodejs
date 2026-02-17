@@ -4,6 +4,7 @@ const { logTagToLevel, LOG_LEVEL_TAGS } = require('../../../lib/logger/core');
 const fsPromises = require('fs/promises');
 const path = require('path');
 const os = require('os');
+const Utils = require('../../../lib/util');
 let tempDir = null;
 
 describe('Logger node tests', function () {
@@ -51,8 +52,6 @@ describe('Logger node tests', function () {
     level: TRACE,
     message: LOG_MSG_TRACE,
   };
-
-  const millisTimeoutToFlushLogFile = 30;
 
   it('should use info level as default', function () {
     // given
@@ -222,10 +221,8 @@ describe('Logger node tests', function () {
 
   async function closeTransportsWithTimeout(logger) {
     logger.closeTransports();
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        resolve();
-      }, millisTimeoutToFlushLogFile);
-    });
+    // TODO:
+    // Sleeping is unreliable. When refactoring logger for 3.x, use proper await closeTransport()
+    await Utils.sleep(100);
   }
 });

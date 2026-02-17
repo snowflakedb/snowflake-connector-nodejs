@@ -21,12 +21,10 @@ describe('Oauth Refresh token for Autorization Code', function () {
     GlobalConfig.setCustomCredentialManager(defaultCredentialManager);
     connectionOptionAuthorizationCode = {
       ...connParameters.oauthAuthorizationCodeOnWiremock,
-      ...{
-        port: port,
-        oauthAuthorizationUrl: `https://127.0.0.1:${port}/oauth/authorize`,
-        oauthTokenRequestUrl: `http://127.0.0.1:${port}/oauth/token-request`,
-        clientStoreTemporaryCredential: true,
-      },
+      port: port,
+      oauthAuthorizationUrl: `https://127.0.0.1:${port}/oauth/authorize`,
+      oauthTokenRequestUrl: `http://127.0.0.1:${port}/oauth/token-request`,
+      clientStoreTemporaryCredential: true,
     };
     accessTokenKey = authUtil.buildOauthAccessTokenCacheKey(
       new URL(connectionOptionAuthorizationCode.oauthAuthorizationUrl).host,

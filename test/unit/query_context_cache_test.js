@@ -17,9 +17,9 @@ function QueryContextElement(id, timestamp, priority, context) {
 function TestingQCC() {
   this.qcc = null;
 
-  this.expectedIDs;
-  this.expectedReadTimestamp;
-  this.expectedPriority;
+  this.expectedIDs = null;
+  this.expectedReadTimestamp = null;
+  this.expectedPriority = null;
 
   this.initCache = function () {
     this.qcc = new QueryContextCache(MAX_CAPACITY, 0);

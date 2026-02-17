@@ -24,6 +24,8 @@ jobs:
           node-version: '18.x'
       - name: Install dependencies
         run: npm i
+      - name: Install oxlint native binding
+        run: npm i @oxlint/binding-linux-x64-gnu
       - name: Check prettier
         run: npm run prettier:check
       - name: Check formatting

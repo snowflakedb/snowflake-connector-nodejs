@@ -49,8 +49,8 @@
     "@types/node": "^22.15.18",
     "@types/sinon": "^17.0.4",
     "async": "^3.2.3",
-    "eslint": "^8.41.0",
     "husky": "^9.1.7",
+    "oxlint": "^1.43.0",
     "lint-staged": "^16.0.0",
     "mocha": "^11.1.0",
     "mock-require": "^3.0.3",
@@ -78,14 +78,14 @@
   "typings": "./dist/index.d.ts",
   "lint-staged": {
     "*": "npm run prettier:format",
-    "*.js": "npm run lint:check"
+    "*.{js,ts}": "oxlint --max-warnings=0"
   },
   "scripts": {
     "prepack": "node ci/build_typescript.js",
     "prepare": "husky",
     "check-ts": "npm run prepack && tsc --noEmit ci/typescript-test.ts",
-    "lint:check": "eslint .",
-    "lint:fix": "eslint --fix",
+    "lint:check": "oxlint .",
+    "lint:fix": "oxlint --fix .",
     "prettier:check": "prettier --check .",
     "prettier:format": "prettier -w .",
     "test": "mocha 'test/unit/**/*.{js,ts}'",

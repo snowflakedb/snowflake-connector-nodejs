@@ -45,29 +45,15 @@ describe('S3 client', function () {
       S3: function (config) {
         function S3() {
           this.getObject = function () {
-            function getObject() {
-              this.then = function (callback) {
-                callback({
-                  Metadata: '',
-                });
-              };
-            }
-
-            return new getObject();
+            return Promise.resolve({
+              Metadata: '',
+            });
           };
-
           this.config = config;
           this.putObject = function () {
-            function putObject() {
-              this.then = function (callback) {
-                callback();
-              };
-            }
-
-            return new putObject();
+            return Promise.resolve();
           };
         }
-
         return new S3();
       },
     });
@@ -167,18 +153,11 @@ describe('S3 client', function () {
       S3: function () {
         function S3() {
           this.getObject = function () {
-            function getObject() {
-              this.then = function () {
-                const err = new Error();
-                err.Code = 'ExpiredToken';
-                throw err;
-              };
-            }
-
-            return new getObject();
+            const err = new Error();
+            err.Code = 'ExpiredToken';
+            throw err;
           };
         }
-
         return new S3();
       },
     });
@@ -193,15 +172,9 @@ describe('S3 client', function () {
       S3: function () {
         function S3() {
           this.getObject = function () {
-            function getObject() {
-              this.then = function () {
-                const err = new Error();
-                err.Code = 'NoSuchKey';
-                throw err;
-              };
-            }
-
-            return new getObject();
+            const err = new Error();
+            err.Code = 'NoSuchKey';
+            throw err;
           };
         }
 
@@ -220,18 +193,11 @@ describe('S3 client', function () {
       S3: function () {
         function S3() {
           this.getObject = function () {
-            function getObject() {
-              this.then = function () {
-                const err = new Error();
-                err.Code = '400';
-                throw err;
-              };
-            }
-
-            return new getObject();
+            const err = new Error();
+            err.Code = '400';
+            throw err;
           };
         }
-
         return new S3();
       },
     });
@@ -246,18 +212,11 @@ describe('S3 client', function () {
       S3: function () {
         function S3() {
           this.getObject = function () {
-            function getObject() {
-              this.then = function () {
-                const err = new Error();
-                err.Code = 'unknown';
-                throw err;
-              };
-            }
-
-            return new getObject();
+            const err = new Error();
+            err.Code = 'unknown';
+            throw err;
           };
         }
-
         return new S3();
       },
     });
@@ -277,18 +236,11 @@ describe('S3 client', function () {
       S3: function () {
         function S3() {
           this.putObject = function () {
-            function putObject() {
-              this.then = function () {
-                const err = new Error();
-                err.Code = 'ExpiredToken';
-                throw err;
-              };
-            }
-
-            return new putObject();
+            const err = new Error();
+            err.Code = 'ExpiredToken';
+            throw err;
           };
         }
-
         return new S3();
       },
     });
@@ -312,18 +264,11 @@ describe('S3 client', function () {
       S3: function () {
         function S3() {
           this.putObject = function () {
-            function putObject() {
-              this.then = function () {
-                const err = new Error();
-                err.Code = '10053';
-                throw err;
-              };
-            }
-
-            return new putObject();
+            const err = new Error();
+            err.Code = '10053';
+            throw err;
           };
         }
-
         return new S3();
       },
     });
@@ -347,18 +292,11 @@ describe('S3 client', function () {
       S3: function () {
         function S3() {
           this.putObject = function () {
-            function putObject() {
-              this.then = () => {
-                const err = new Error();
-                err.Code = '400';
-                throw err;
-              };
-            }
-
-            return new putObject();
+            const err = new Error();
+            err.Code = '400';
+            throw err;
           };
         }
-
         return new S3();
       },
     });

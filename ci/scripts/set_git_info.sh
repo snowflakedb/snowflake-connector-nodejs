@@ -24,9 +24,14 @@ else
     fi
     gpg --quiet --batch --yes --decrypt --passphrase="$PARAMETERS_SECRET" --output $THIS_DIR/../parameters.json $THIS_DIR/../.github/workflows/$SOURCE_PARAMETER_FILE
     if [[ -n "$NODEJS_PRIVATE_KEY_SECRET" ]]; then
-        gpg --quiet --batch --yes --decrypt --passphrase="$NODEJS_PRIVATE_KEY_SECRET" --output $WORKSPACE/rsa_key_nodejs.p8 $THIS_DIR/../.github/workflows/rsa_keys/$RSA_KEY_FILE
-        chmod 600 $WORKSPACE/rsa_key_nodejs.p8
-        echo "[INFO] Decrypted RSA private key for keypair authentication"
+        RSA_KEY_PATH="$THIS_DIR/../.github/workflows/rsa_keys/$RSA_KEY_FILE"
+        if [[ -f "$RSA_KEY_PATH" ]]; then
+            gpg --quiet --batch --yes --decrypt --passphrase="$NODEJS_PRIVATE_KEY_SECRET" --output $WORKSPACE/rsa_key_nodejs.p8 "$RSA_KEY_PATH"
+            chmod 600 $WORKSPACE/rsa_key_nodejs.p8
+            echo "[INFO] Decrypted RSA private key for keypair authentication"
+        else
+            echo "[INFO] RSA key file not found for $CLOUD_PROVIDER ($RSA_KEY_FILE), using password authentication"
+        fi
     fi
     export client_git_url=https://github.com/${GITHUB_REPOSITORY}.git
     export client_git_branch=origin/$(basename ${GITHUB_REF})

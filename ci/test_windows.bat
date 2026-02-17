@@ -25,8 +25,12 @@ if "%CLOUD_PROVIDER%"=="AZURE" (
 
 gpg --quiet --batch --yes --decrypt --passphrase=%PARAMETERS_SECRET% --output parameters.json %ENCODED_PARAMETERS_FILE%
 if defined NODEJS_PRIVATE_KEY_SECRET (
-  gpg --quiet --batch --yes --decrypt --passphrase=%NODEJS_PRIVATE_KEY_SECRET% --output rsa_key_nodejs.p8 %ENCODED_RSA_KEY_FILE%
-  echo [INFO] Decrypted RSA private key for keypair authentication
+  if exist %ENCODED_RSA_KEY_FILE% (
+    gpg --quiet --batch --yes --decrypt --passphrase=%NODEJS_PRIVATE_KEY_SECRET% --output rsa_key_nodejs.p8 %ENCODED_RSA_KEY_FILE%
+    echo [INFO] Decrypted RSA private key for keypair authentication
+  ) else (
+    echo [INFO] RSA key file not found for %CLOUD_PROVIDER%, using password authentication
+  )
 )
 
 REM DON'T FORGET TO include @echo off here or the password/key may be leaked!

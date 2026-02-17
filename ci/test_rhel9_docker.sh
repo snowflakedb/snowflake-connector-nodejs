@@ -76,12 +76,16 @@ if [[ -n "$PARAMETERS_SECRET" && -n "$CLOUD_PROVIDER" ]]; then
         else
             ENCODED_RSA_KEY_FILE="${CONNECTOR_DIR}/.github/workflows/rsa_keys/rsa_key_nodejs_aws.p8.gpg"
         fi
-        gpg --quiet --batch --yes --decrypt \
-            --passphrase="$NODEJS_PRIVATE_KEY_SECRET" \
-            --output "${CONNECTOR_DIR}/rsa_key_nodejs.p8" \
-            "$ENCODED_RSA_KEY_FILE"
-        chmod 600 "${CONNECTOR_DIR}/rsa_key_nodejs.p8"
-        echo "[INFO] Decrypted RSA private key for keypair authentication"
+        if [[ -f "$ENCODED_RSA_KEY_FILE" ]]; then
+            gpg --quiet --batch --yes --decrypt \
+                --passphrase="$NODEJS_PRIVATE_KEY_SECRET" \
+                --output "${CONNECTOR_DIR}/rsa_key_nodejs.p8" \
+                "$ENCODED_RSA_KEY_FILE"
+            chmod 600 "${CONNECTOR_DIR}/rsa_key_nodejs.p8"
+            echo "[INFO] Decrypted RSA private key for keypair authentication"
+        else
+            echo "[INFO] RSA key file not found for $CLOUD_PROVIDER, using password authentication"
+        fi
     fi
 elif [[ ! -f "${CONNECTOR_DIR}/parameters.json" ]]; then
     echo "[ERROR] parameters.json not found and PARAMETERS_SECRET/CLOUD_PROVIDER not provided"

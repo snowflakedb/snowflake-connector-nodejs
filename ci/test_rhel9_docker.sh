@@ -66,6 +66,27 @@ if [[ -n "$PARAMETERS_SECRET" && -n "$CLOUD_PROVIDER" ]]; then
         exit 1
     fi
     echo "[INFO] Successfully decrypted parameters.json"
+
+    # Decrypt RSA private key for keypair authentication if secret is available
+    if [[ -n "$NODEJS_PRIVATE_KEY_SECRET" ]]; then
+        if [[ "$CLOUD_PROVIDER" == "AZURE" ]]; then
+            ENCODED_RSA_KEY_FILE="${CONNECTOR_DIR}/.github/workflows/rsa_keys/rsa_key_nodejs_azure.p8.gpg"
+        elif [[ "$CLOUD_PROVIDER" == "GCP" ]]; then
+            ENCODED_RSA_KEY_FILE="${CONNECTOR_DIR}/.github/workflows/rsa_keys/rsa_key_nodejs_gcp.p8.gpg"
+        else
+            ENCODED_RSA_KEY_FILE="${CONNECTOR_DIR}/.github/workflows/rsa_keys/rsa_key_nodejs_aws.p8.gpg"
+        fi
+        if [[ -f "$ENCODED_RSA_KEY_FILE" ]]; then
+            gpg --quiet --batch --yes --decrypt \
+                --passphrase="$NODEJS_PRIVATE_KEY_SECRET" \
+                --output "${CONNECTOR_DIR}/rsa_key_nodejs.p8" \
+                "$ENCODED_RSA_KEY_FILE"
+            chmod 600 "${CONNECTOR_DIR}/rsa_key_nodejs.p8"
+            echo "[INFO] Decrypted RSA private key for keypair authentication"
+        else
+            echo "[INFO] RSA key file not found for $CLOUD_PROVIDER, using password authentication"
+        fi
+    fi
 elif [[ ! -f "${CONNECTOR_DIR}/parameters.json" ]]; then
     echo "[ERROR] parameters.json not found and PARAMETERS_SECRET/CLOUD_PROVIDER not provided"
     echo "[ERROR] Either provide PARAMETERS_SECRET and CLOUD_PROVIDER to decrypt, or manually decrypt parameters.json"
@@ -86,7 +107,6 @@ docker run --network=host \
     -e GITHUB_EVENT_NAME \
     -e RUNNER_TRACKING_ID \
     -e CLOUD_PROVIDER \
-    -e PARAMETERS_SECRET \
     --mount type=bind,source="${CONNECTOR_DIR}",target=/home/user/snowflake-connector-nodejs,readonly=false \
     ${CONTAINER_NAME}:1.0 \
     bash -c "cd /home/user/snowflake-connector-nodejs && ci/container/test_rhel9_component.sh ${NODE_VERSION}"

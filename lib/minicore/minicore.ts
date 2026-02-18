@@ -23,6 +23,7 @@ if (process.env.SNOWFLAKE_DISABLE_MINICORE) {
 
     // eval('require') prevents bundlers (esbuild, webpack, etc.) from statically analyzing
     // and attempting to bundle .node native addon files
+    // oxlint-disable-next-line no-eval
     const minicoreModule = eval('require')(
       `./binaries/${minicoreStatus.binaryName}`,
     ) as typeof import('./binaries');

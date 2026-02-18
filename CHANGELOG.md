@@ -3,6 +3,12 @@
 ## Upcoming Release
 
 - Fixed OAuth crashing when using bundlers (snowflakedb/snowflake-connector-nodejs#1266)
+- Added Node 18+ to `engines`, which is our minimum officially supported version since the 2.x release (snowflakedb/snowflake-connector-nodejs#1268)
+- Added `PLATFORM` field to login-request telemetry (snowflakedb/snowflake-connector-nodejs#1269)
+- Fixed `Binds` typing to allow readonly arrays (snowflakedb/snowflake-connector-nodejs#1270)
+- Replaced ESLint with oxlint for better performance and out-of-the-box TypeScript support (snowflakedb/snowflake-connector-nodejs#1254)
+- Fixed `connectAsync()` method resolving before connection is completed (snowflakedb/snowflake-connector-nodejs#1276)
+- Fixed incorrect handling of callback argument that should be optional in `connect()` and `connectAsync()` (snowflakedb/snowflake-connector-nodejs#1276)
 
 ## 2.3.4
 

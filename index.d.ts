@@ -9,8 +9,8 @@ import ErrorCodeEnum from './lib/error_code';
 declare module 'snowflake-sdk' {
   export type CustomParser = (rawColumnValue: string) => any;
   export type Bind = string | number | boolean | null;
-  export type InsertBinds = Bind[][];
-  export type Binds = Bind[] | InsertBinds;
+  export type InsertBinds = readonly Bind[][];
+  export type Binds = readonly Bind[] | InsertBinds;
   export type StatementCallback = (
     err: SnowflakeError | undefined,
     stmt: RowStatement | FileAndStageBindStatement,
@@ -374,7 +374,7 @@ declare module 'snowflake-sdk' {
     /**
      * Establishes a connection if not in a fatal state.
      */
-    connect(callback: ConnectionCallback): void;
+    connect(callback?: ConnectionCallback): Connection;
 
     /**
      * Establishes a connection if not in a fatal state.
@@ -383,7 +383,7 @@ declare module 'snowflake-sdk' {
      * `https://<okta_account_name>.okta.com` (in order to use native SSO through Okta), call the {@link connect}
      * method.
      */
-    connectAsync(callback: ConnectionCallback): Promise<void>;
+    connectAsync(callback?: ConnectionCallback): Promise<Connection>;
 
     /**
      * Executes a statement.

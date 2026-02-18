@@ -10,16 +10,29 @@ if [[ -z "$GITHUB_ACTIONS" ]]; then
     export client_git_branch=${client_git_branch:-origin/$(git rev-parse --abbrev-ref HEAD)}
     export client_git_commit=${client_git_commit:-$(git log --pretty=oneline | head -1 | awk '{print $1}')}
 else
+    #
+    # GITHUB Actions
     if [[ "$CLOUD_PROVIDER" == "AZURE" ]]; then
-        ENCODED_PARAMETERS_FILE="$THIS_DIR/../.github/workflows/parameters_azure.json.gpg"
+        SOURCE_PARAMETER_FILE=parameters_azure.json.gpg
+        RSA_KEY_FILE=rsa_key_nodejs_azure.p8.gpg
     elif [[ "$CLOUD_PROVIDER" == "GCP" ]]; then
-        ENCODED_PARAMETERS_FILE="$THIS_DIR/../.github/workflows/parameters_gcp.json.gpg"
-    elif [[ "$CLOUD_PROVIDER" == "AWS" ]]; then
-        ENCODED_PARAMETERS_FILE="$THIS_DIR/../.github/workflows/parameters_aws.json.gpg"
+        SOURCE_PARAMETER_FILE=parameters_gcp.json.gpg
+        RSA_KEY_FILE=rsa_key_nodejs_gcp.p8.gpg
     else
-        echo "[ERROR] unknown cloud provider"
+        SOURCE_PARAMETER_FILE=parameters_aws.json.gpg
+        RSA_KEY_FILE=rsa_key_nodejs_aws.p8.gpg
     fi
-    gpg --quiet --batch --yes --decrypt --passphrase="$PARAMETERS_SECRET" --output $THIS_DIR/../parameters.json $ENCODED_PARAMETERS_FILE
+    gpg --quiet --batch --yes --decrypt --passphrase="$PARAMETERS_SECRET" --output $THIS_DIR/../parameters.json $THIS_DIR/../.github/workflows/$SOURCE_PARAMETER_FILE
+    if [[ -n "$NODEJS_PRIVATE_KEY_SECRET" ]]; then
+        RSA_KEY_PATH="$THIS_DIR/../.github/workflows/rsa_keys/$RSA_KEY_FILE"
+        if [[ -f "$RSA_KEY_PATH" ]]; then
+            gpg --quiet --batch --yes --decrypt --passphrase="$NODEJS_PRIVATE_KEY_SECRET" --output $WORKSPACE/rsa_key_nodejs.p8 "$RSA_KEY_PATH"
+            chmod 600 $WORKSPACE/rsa_key_nodejs.p8
+            echo "[INFO] Decrypted RSA private key for keypair authentication"
+        else
+            echo "[INFO] RSA key file not found for $CLOUD_PROVIDER ($RSA_KEY_FILE), using password authentication"
+        fi
+    fi
     export client_git_url=https://github.com/${GITHUB_REPOSITORY}.git
     export client_git_branch=origin/$(basename ${GITHUB_REF})
     export client_git_commit=${GITHUB_SHA}

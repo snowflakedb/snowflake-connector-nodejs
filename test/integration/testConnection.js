@@ -196,8 +196,8 @@ describe('Connection test', function () {
 });
 
 describe('Connection test - validate default parameters', function () {
-  before(() => {
-    configureLogger();
+  before(async () => {
+    await configureLogger();
   });
 
   it('Valid "warehouse" parameter', function () {

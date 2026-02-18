@@ -17,7 +17,7 @@ describe('Easy logging tests', function () {
   });
 
   after(async function () {
-    configureLogger();
+    await configureLogger();
     await fsPromises.rm(tempDir, { recursive: true, force: true, maxRetries: 3 });
   });
 
@@ -118,7 +118,7 @@ describe('Easy logging tests', function () {
               "common": {
                   "log_level": "${logLevel}",
                   "log_path": "${tempDir.replace(/\\/g, '\\\\')}"
-              } 
+              }
           }`;
     await writeFile(configFilePath, configContent);
     return configFilePath;

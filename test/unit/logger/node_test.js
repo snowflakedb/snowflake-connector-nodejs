@@ -52,8 +52,6 @@ describe('Logger node tests', function () {
     message: LOG_MSG_TRACE,
   };
 
-  const millisTimeoutToFlushLogFile = 30;
-
   it('should use info level as default', function () {
     // given
     const logger = createLogger(null, 'snowflake_default.log');
@@ -74,7 +72,7 @@ describe('Logger node tests', function () {
     logMessages(logger);
 
     // then
-    await closeTransportsWithTimeout(logger);
+    await logger.closeTransports();
     const logs = await readLogs(filePath);
     assert.strictEqual(logs.length, 1);
     assert.deepStrictEqual(logs[0], OBJ_LOG_MSG_ERROR);
@@ -89,7 +87,7 @@ describe('Logger node tests', function () {
     logMessages(logger);
 
     // then
-    await closeTransportsWithTimeout(logger);
+    await logger.closeTransports();
     const logs = await readLogs(filePath);
     assert.strictEqual(logs.length, 2);
     assert.deepStrictEqual(logs[0], OBJ_LOG_MSG_ERROR);
@@ -105,7 +103,7 @@ describe('Logger node tests', function () {
     logMessages(logger);
 
     // then
-    await closeTransportsWithTimeout(logger);
+    await logger.closeTransports();
     const logs = await readLogs(filePath);
     assert.strictEqual(logs.length, 3);
     assert.deepStrictEqual(logs[0], OBJ_LOG_MSG_ERROR);
@@ -122,7 +120,7 @@ describe('Logger node tests', function () {
     logMessages(logger);
 
     // then
-    await closeTransportsWithTimeout(logger);
+    await logger.closeTransports();
     const logs = await readLogs(filePath);
     assert.strictEqual(logs.length, 4);
     assert.deepStrictEqual(logs[0], OBJ_LOG_MSG_ERROR);
@@ -140,7 +138,7 @@ describe('Logger node tests', function () {
     logMessages(logger);
 
     // then
-    await closeTransportsWithTimeout(logger);
+    await logger.closeTransports();
     const logs = await readLogs(filePath);
     assert.strictEqual(logs.length, 5);
     assert.deepStrictEqual(logs[0], OBJ_LOG_MSG_ERROR);
@@ -159,7 +157,7 @@ describe('Logger node tests', function () {
     logMessages(logger);
 
     // then
-    await closeTransportsWithTimeout(logger);
+    await logger.closeTransports();
     await assert.rejects(
       async () => await readLogs(filePath),
       (err) => {
@@ -185,7 +183,7 @@ describe('Logger node tests', function () {
     logMessages(logger);
 
     // then
-    await closeTransportsWithTimeout(logger);
+    await logger.closeTransports();
     const errorLogs = await readLogs(filePath);
     assert.strictEqual(errorLogs.length, 1);
     assert.deepStrictEqual(errorLogs[0], OBJ_LOG_MSG_ERROR);
@@ -218,14 +216,5 @@ describe('Logger node tests', function () {
     logger.info(LOG_MSG_INFO);
     logger.debug(LOG_MSG_DEBUG);
     logger.trace(LOG_MSG_TRACE);
-  }
-
-  async function closeTransportsWithTimeout(logger) {
-    logger.closeTransports();
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        resolve();
-      }, millisTimeoutToFlushLogFile);
-    });
   }
 });

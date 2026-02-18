@@ -366,7 +366,7 @@ declare module 'snowflake-sdk' {
     /**
      * Establishes a connection if not in a fatal state.
      */
-    connect(callback: ConnectionCallback): void;
+    connect(callback?: ConnectionCallback): Connection;
 
     /**
      * Establishes a connection if not in a fatal state.
@@ -375,7 +375,7 @@ declare module 'snowflake-sdk' {
      * `https://<okta_account_name>.okta.com` (in order to use native SSO through Okta), call the {@link connect}
      * method.
      */
-    connectAsync(callback: ConnectionCallback): Promise<void>;
+    connectAsync(callback?: ConnectionCallback): Promise<Connection>;
 
     /**
      * Executes a statement.

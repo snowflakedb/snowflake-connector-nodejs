@@ -1591,6 +1591,36 @@ describe('ConnectionConfig: basic', function () {
           'http://host.snowflakecomputing.cn:8082/oauth/token-request',
       },
     },
+    {
+      name: 'account locator with region and host - account should be stripped of region',
+      input: {
+        account: 'xy12345.us-east-2.aws',
+        host: 'xy12345.us-east-2.aws.snowflakecomputing.com',
+        username: 'user',
+        password: 'password',
+      },
+      options: {
+        accessUrl: 'https://xy12345.us-east-2.aws.snowflakecomputing.com',
+        username: 'user',
+        password: 'password',
+        account: 'xy12345',
+      },
+    },
+    {
+      name: 'regionless account with host - account should remain unchanged',
+      input: {
+        account: 'myorg-myaccount',
+        host: 'myorg-myaccount.snowflakecomputing.com',
+        username: 'user',
+        password: 'password',
+      },
+      options: {
+        accessUrl: 'https://myorg-myaccount.snowflakecomputing.com',
+        username: 'user',
+        password: 'password',
+        account: 'myorg-myaccount',
+      },
+    },
   ];
 
   const createItCallback = function (testCase) {

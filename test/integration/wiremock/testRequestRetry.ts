@@ -1,6 +1,8 @@
 import { WireMockRestClient } from 'wiremock-rest-client';
+import { AxiosRequestConfig } from 'axios';
 import assert from 'assert';
 import sinon from 'sinon';
+import os from 'os';
 import { runWireMockAsync, addWireMockMappingsFromFile } from '../../wiremockRunner';
 import * as testUtil from '../testUtil';
 import * as Util from '../../../lib/util';
@@ -73,9 +75,17 @@ describe('Request Retries', () => {
     await wiremock.global.shutdown();
   });
 
-  function getAxiosRequestsCount(matchingPath: string) {
-    return axiosRequestSpy.getCalls().filter((c: any) => c.args?.[0]?.url?.includes(matchingPath))
-      .length;
+  function getAxiosRequestsCount(
+    matchingPath: string,
+    filterMatchedPath?: (reqOptions: AxiosRequestConfig) => boolean,
+  ) {
+    return axiosRequestSpy.getCalls().filter((c: any) => {
+      const reqOptions = c.args![0] as AxiosRequestConfig;
+      if (!reqOptions.url?.includes(matchingPath)) {
+        return false;
+      }
+      return filterMatchedPath ? filterMatchedPath(reqOptions) : true;
+    }).length;
   }
 
   function registerRetryMappings(requestError: string | number, mappingsName: string) {
@@ -97,12 +107,16 @@ describe('Request Retries', () => {
       shouldRetry: boolean;
       connection: any;
     }) => Promise<void>,
+    options: {
+      connectionConfig?: object;
+    } = {},
   ) {
     for (const { error, shouldRetry } of errorScenarios) {
       const actionText = `${shouldRetry ? 'retries' : 'does not retry'} on ${error}`;
       it(actionText, async () => {
         const connection = testUtil.createConnection({
           ...baseConnectionConfig,
+          ...options.connectionConfig,
           timeout: error === 'REQUEST_TIMEOUT' ? 200 : undefined,
         });
         await testFn({ error, shouldRetry, connection });
@@ -241,6 +255,89 @@ describe('Request Retries', () => {
         getAxiosRequestsCount('/queries/01baf79b-0108-1a60-0000-01110354a6ce/result'),
         shouldRetry ? 4 : 2,
       );
+    });
+  });
+
+  // TODO:
+  // We probably don't want this test in UD as unlike our spaghetti codebase, all query-requests
+  // would go through single entrypoint
+  describe('Query uploading binds to a stage', () => {
+    testErrorScenarios(
+      REQUEST_ERRORS,
+      async ({ error, shouldRetry, connection }) => {
+        await addWireMockMappingsFromFile(wiremock, 'wiremock/mappings/login_request_ok.json');
+        await registerRetryMappings(error, 'query_request_bind_upload');
+        await testUtil.connectAsync(connection);
+        await new Promise((resolve) => {
+          connection.execute({
+            sqlText: 'INSERT INTO t VALUES (?)',
+            binds: [[1], [2]],
+            asyncExec: true,
+            complete: () => resolve(true),
+          });
+        });
+        const createStageRequestsCount = getAxiosRequestsCount('/queries/v1/query-request', (req) =>
+          JSON.stringify(req.data).includes('CREATE OR REPLACE TEMPORARY STAGE'),
+        );
+        const insertRequestsCount = getAxiosRequestsCount('/queries/v1/query-request', (req) =>
+          JSON.stringify(req.data).includes('INSERT INTO t VALUES'),
+        );
+        assert.strictEqual(createStageRequestsCount, shouldRetry ? 4 : 1);
+        assert.strictEqual(insertRequestsCount, 1);
+      },
+      {
+        connectionConfig: {
+          arrayBindingThreshold: 1,
+        },
+      },
+    );
+  });
+
+  // TODO:
+  // We probably don't want this test in UD as unlike our spaghetti codebase, all query-requests
+  // would go through single entrypoint
+  describe('Query PUT with GCS presigned URL refresh', () => {
+    const tmpFileName = testUtil.createRandomFileName();
+    let tmpFilePath: string;
+
+    before(() => {
+      tmpFilePath = testUtil.createTempFile(os.tmpdir(), tmpFileName);
+    });
+
+    after(() => {
+      testUtil.deleteFileSyncIgnoringErrors(tmpFilePath);
+    });
+
+    testErrorScenarios(REQUEST_ERRORS, async ({ error, shouldRetry, connection }) => {
+      await addWireMockMappingsFromFile(wiremock, 'wiremock/mappings/login_request_ok.json');
+      await addWireMockMappingsFromFile(
+        wiremock,
+        'wiremock/mappings/request_retries/query_request_put_presigned_url_refresh_fail.json.template',
+        {
+          replaceVariables: {
+            failureResponse: JSON.stringify(buildWiremockFailureResponse(error)),
+            putFileName: tmpFileName,
+            putFilePath: tmpFilePath,
+            wiremockUrl: baseConnectionConfig.accessUrl,
+          },
+        },
+      );
+      await testUtil.connectAsync(connection);
+      await new Promise((resolve) => {
+        connection.execute({
+          sqlText: `PUT file://${tmpFilePath} @~`,
+          complete: resolve,
+        });
+      });
+      const initialPutRequestsCount = getAxiosRequestsCount('/queries/v1/query-request', (req) =>
+        JSON.stringify(req.data).includes(`PUT file://${tmpFilePath.replace(/\\/g, '\\\\')}`),
+      );
+      const presignedUrlRefreshRequestsCount = getAxiosRequestsCount(
+        '/queries/v1/query-request',
+        (req) => JSON.stringify(req.data).includes(`PUT file://${tmpFileName}`),
+      );
+      assert.strictEqual(initialPutRequestsCount, 1);
+      assert.strictEqual(presignedUrlRefreshRequestsCount, shouldRetry ? 4 : 1);
     });
   });
 

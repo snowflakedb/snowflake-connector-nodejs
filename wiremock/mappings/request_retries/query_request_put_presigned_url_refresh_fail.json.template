@@ -1,0 +1,107 @@
+{
+  "mappings": [
+    {
+      "request": {
+        "urlPathPattern": "/queries/v1/query-request.*",
+        "method": "POST",
+        "bodyPatterns": [
+          { "doesNotContain": "PUT file://{{ putFileName }}" }
+        ]
+      },
+      "response": {
+        "status": 200,
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "jsonBody": {
+          "data": {
+            "command": "UPLOAD",
+            "src_locations": ["{{ putFilePath }}"],
+            "parallel": 4,
+            "autoCompress": false,
+            "overwrite": true,
+            "sourceCompression": "auto_detect",
+            "stageInfo": {
+              "locationType": "GCS",
+              "location": "gcs-bucket/path/",
+              "presignedUrl": null,
+              "creds": {
+                "GCS_ACCESS_TOKEN": "test_gcs_token"
+              },
+              "region": "us-central1"
+            },
+            "encryptionMaterial": null
+          },
+          "code": null,
+          "message": null,
+          "success": true
+        }
+      }
+    },
+    {
+      "priority": 1,
+      "request": {
+        "urlPathPattern": "/queries/v1/query-request.*",
+        "method": "POST",
+        "bodyPatterns": [
+          { "contains": "PUT file://{{ putFileName }}" }
+        ],
+        "queryParameters": {
+          "retryCount": {
+            "equalTo": "3"
+          }
+        }
+      },
+      "response": {
+        "status": 200,
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "jsonBody": {
+          "data": {
+            "command": "UPLOAD",
+            "src_locations": ["{{ putFileName }}"],
+            "parallel": 4,
+            "autoCompress": false,
+            "overwrite": true,
+            "sourceCompression": "auto_detect",
+            "stageInfo": {
+              "locationType": "GCS",
+              "location": "gcs-bucket/path/",
+              "presignedUrl": "{{ wiremockUrl }}/fake-gcs-upload",
+              "creds": {},
+              "region": "us-central1"
+            },
+            "encryptionMaterial": null
+          },
+          "code": null,
+          "message": null,
+          "success": true
+        }
+      }
+    },
+    {
+      "request": {
+        "urlPathPattern": "/queries/v1/query-request.*",
+        "method": "POST",
+        "bodyPatterns": [
+          { "contains": "PUT file://{{ putFileName }}" }
+        ]
+      },
+      "response": {{ failureResponse }}
+    },
+    {
+      "request": {
+        "urlPathPattern": "/fake-gcs-upload",
+        "method": "PUT"
+      },
+      "response": {
+        "status": 200,
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "jsonBody": {}
+      }
+    }
+  ]
+}

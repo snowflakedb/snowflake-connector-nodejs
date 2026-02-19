@@ -10,7 +10,7 @@
 - Fixed `connectAsync()` method resolving before connection is completed (snowflakedb/snowflake-connector-nodejs#1276)
 - Fixed incorrect handling of callback argument that should be optional in `connect()` and `connectAsync()` (snowflakedb/snowflake-connector-nodejs#1276)
 - Bumped `fast-xml-parser` requirement to 5.3.6 to address CVE-2026-26278 (snowflakedb/snowflake-connector-nodejs#1281)
-- Fixed a bug where invalid JWT was generated if user accidentally set both the `account` and the `host` in the config (snowflakedb/snowflake-connector-nodejs#XXXX)
+- Fixed a bug where invalid JWT was generated if user accidentally set both the (locator version of) `account` and the `host` in the config (snowflakedb/snowflake-connector-nodejs#1283)
 
 ## 2.3.4
 

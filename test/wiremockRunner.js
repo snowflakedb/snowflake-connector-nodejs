@@ -19,6 +19,8 @@ async function runWireMockAsync(port, options = {}) {
         [
           'wiremock',
           '--enable-browser-proxying',
+          '--async-response-enabled',
+          'true',
           '--proxy-pass-through',
           'false',
           '--port',
@@ -28,10 +30,10 @@ async function runWireMockAsync(port, options = {}) {
         {
           stdio: 'inherit',
           shell: true, // For Windows
+          detached: true,
         },
       );
-
-      child.on('exit', () => {});
+      child.unref();
       // Use 127.0.0.1 instead of localhost to avoid IPv6/IPv4 resolution issues on Node.js 18 + RHEL9
       const baseUri = `http://127.0.0.1:${port}`;
       const wireMock = new WireMockRestClient(baseUri, {
@@ -50,15 +52,13 @@ async function runWireMockAsync(port, options = {}) {
   });
 
   const timeout = new Promise((_, reject) => {
-    timeoutHandle = setTimeout(
-      () => reject(`Wiremock unavailable after ${startupTimeoutMs / 1000}s.`),
-      startupTimeoutMs,
-    );
+    timeoutHandle = setTimeout(() => {
+      reject(`Wiremock unavailable after ${startupTimeoutMs / 1000}s.`);
+    }, startupTimeoutMs);
   });
 
   return Promise.race([waitingWireMockPromise, timeout]).finally(() => {
     clearTimeout(timeoutHandle);
-    child.kill();
   });
 }
 

@@ -163,6 +163,16 @@ export interface WIP_ConnectionOptions {
    * @default true
    */
   crlOnDiskCache?: CRLValidatorConfig['onDiskCache'];
+
+  /**
+   * Controls how many rows are buffered in memory when streaming query results
+   * via `statement.streamRows()`. A higher value may improve throughput at the
+   * cost of increased memory usage; a lower value reduces memory usage but may
+   * increase latency between rows.
+   *
+   * @default 10
+   */
+  rowStreamHighWaterMark?: number;
 }
 
 /**
@@ -183,6 +193,7 @@ export type WIP_ConnectionConfig =
     | 'workloadIdentityAzureEntraIdResource'
     | 'workloadIdentityAzureClientId'
     | 'oauthEnableSingleUseRefreshTokens'
+    | 'rowStreamHighWaterMark'
   > & {
     crlValidatorConfig: CRLValidatorConfig;
     getClientType(): string;

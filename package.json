@@ -74,8 +74,8 @@
     "type": "git",
     "url": "https://github.com/snowflakedb/snowflake-connector-nodejs"
   },
-  "main": "./dist/index.js",
-  "typings": "./dist/index.d.ts",
+  "main": "./dist/lib/snowflake.js",
+  "typings": "./dist/snowflake-sdk.d.ts",
   "lint-staged": {
     "*": "npm run prettier:format",
     "*.{js,ts}": "oxlint --max-warnings=0"
@@ -83,7 +83,7 @@
   "scripts": {
     "prepack": "node ci/build_typescript.js",
     "prepare": "husky",
-    "check-ts": "npm run prepack && tsc --noEmit ci/typescript-test.ts",
+    "check-ts": "npm run prepack && tsc --noEmit dist/snowflake-sdk.d.ts",
     "lint:check": "oxlint .",
     "lint:fix": "oxlint --fix .",
     "prettier:check": "prettier --check .",

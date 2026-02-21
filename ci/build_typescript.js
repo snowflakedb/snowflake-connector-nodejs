@@ -23,25 +23,14 @@ try {
   process.exit(1);
 }
 
-// Extend compiled project with declarations but only from .ts files
-// as .js declarations contain errors
+// Copy snowflake-sdk.d.ts to dist folder
 try {
-  console.log('Compiling TypeScript declarations...');
-  execSync('tsc --project tsconfig.declaration.json', { stdio: 'inherit' });
-  console.log('Successfully compiled TypeScript declarations');
-} catch (err) {
-  console.error('Error running TypeScript compiler:', err);
-  process.exit(1);
-}
-
-// Copy index.d.ts to dist folder
-try {
-  const srcPath = path.join(process.cwd(), 'index.d.ts');
-  const destPath = path.join(process.cwd(), 'dist', 'index.d.ts');
+  const srcPath = path.join(process.cwd(), 'snowflake-sdk.d.ts');
+  const destPath = path.join(process.cwd(), 'dist', 'snowflake-sdk.d.ts');
   fs.copyFileSync(srcPath, destPath);
-  console.log('Successfully copied index.d.ts to /dist folder');
+  console.log('Successfully copied snowflake-sdk.d.ts to /dist folder');
 } catch (err) {
-  console.error('Error copying index.d.ts to /dist folder:', err);
+  console.error('Error copying snowflake-sdk.d.ts to /dist folder:', err);
   process.exit(1);
 }
 

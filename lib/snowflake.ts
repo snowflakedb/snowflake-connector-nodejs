@@ -1,7 +1,7 @@
-const core = require('./core');
+import core from './core';
 import * as Util from './util';
 
-module.exports = core({
+export default core({
   httpClientClass: require('./http/node').NodeHttpClient,
   loggerClass: require('./logger/node'),
   client: {

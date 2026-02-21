@@ -16,5 +16,5 @@
       "asn1.js-rfc5280": ["./lib/types/asn1.js-rfc5280.d.ts"]
     }
   },
-  "include": ["index.ts", "lib/**/*", "test/**/*"]
+  "include": ["index.js", "lib/**/*", "test/**/*"]
 }

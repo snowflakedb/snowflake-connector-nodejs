@@ -68,7 +68,8 @@
     "asn1.js": "^5.4.1"
   },
   "overrides": {
-    "semver": "^7.5.2"
+    "semver": "^7.5.2",
+    "bn.js": "^5.2.1"
   },
   "repository": {
     "type": "git",

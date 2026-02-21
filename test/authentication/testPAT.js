@@ -1,6 +1,6 @@
 const connParameters = require('./connectionParameters');
 const AuthTest = require('./authTestsBaseClass');
-const snowflake = require('../../lib/snowflake');
+const snowflake = require('../../lib/snowflake').default;
 const testUtil = require('../integration/testUtil');
 const {
   snowflakeAuthTestSnowflakeUser,

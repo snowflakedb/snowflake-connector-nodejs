@@ -1,9 +1,11 @@
-const core = require('./core');
+import core from './core';
 import * as Util from './util';
+import { NodeHttpClient } from './http/node';
+import NodeLogger from './logger/node';
 
-module.exports = core({
-  httpClientClass: require('./http/node').NodeHttpClient,
-  loggerClass: require('./logger/node'),
+export default core({
+  httpClientClass: NodeHttpClient,
+  loggerClass: NodeLogger,
   client: {
     version: Util.driverVersion,
     name: Util.driverName,

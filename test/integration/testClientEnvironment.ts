@@ -20,7 +20,7 @@ describe('CLIENT_ENVIRONMENT for /login-request', () => {
         accessUrl: wiremock.rootUrl,
         ...connectionOptions,
       },
-      coreInstance,
+      coreInstance?.default,
     );
     await testUtil.connectAsync(connection);
   }

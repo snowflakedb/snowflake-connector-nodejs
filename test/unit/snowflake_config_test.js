@@ -1,5 +1,5 @@
 const assert = require('assert');
-const snowflake = require('./../../lib/snowflake');
+const snowflake = require('./../../lib/snowflake').default;
 const ErrorCodes = require('./../../lib/errors').codes;
 const Logger = require('./../../lib/logger');
 const GlobalConfig = require('./../../lib/global_config');

@@ -1,6 +1,6 @@
 const assert = require('assert');
 const testUtil = require('../integration/testUtil');
-const snowflake = require('../../lib/snowflake');
+const snowflake = require('../../lib/snowflake').default;
 const { spawn } = require('child_process');
 
 class AuthTest {

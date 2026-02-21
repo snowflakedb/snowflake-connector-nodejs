@@ -165,10 +165,9 @@ export interface WIP_ConnectionOptions {
   crlOnDiskCache?: CRLValidatorConfig['onDiskCache'];
 
   /**
-   * Controls how many rows are buffered in memory when streaming query results
-   * via `statement.streamRows()`. A higher value may improve throughput at the
-   * cost of increased memory usage; a lower value reduces memory usage but may
-   * increase latency between rows.
+   * Controls how many rows are buffered by the stream returned from
+   * `statement.streamRows()`. Passed as the `highWaterMark` to the
+   * underlying Node.js Readable class.
    *
    * @default 10
    */

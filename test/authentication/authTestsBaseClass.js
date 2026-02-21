@@ -51,6 +51,32 @@ class AuthTest {
     }
   }
 
+  connect() {
+    return new Promise((resolve) => {
+      if (!this.error) {
+        try {
+          this.connection.connect((err) => {
+            this.error = err;
+            resolve();
+          });
+        } catch (error) {
+          this.error = error;
+          resolve();
+        }
+      } else {
+        resolve();
+      }
+    });
+  }
+
+  async connectAndProvideCredentialsWithConnect(provideCredentialsPromise) {
+    if (this.runAuthTestsManually) {
+      await this.connect();
+    } else {
+      await Promise.allSettled([this.connect(), provideCredentialsPromise]);
+    }
+  }
+
   async verifyConnectionIsUp() {
     assert.ok(await this.connection.isValidAsync(), 'Connection is not valid');
     await testUtil.executeCmdAsync(this.connection, 'Select 1');

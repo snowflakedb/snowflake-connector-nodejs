@@ -3,8 +3,6 @@ import Url from 'url';
 import os from 'os';
 import * as Logger from './logger';
 import fs from 'fs';
-// NOTE: keeping require as it's a circular dependency so * as Errors doesn't work
-const Errors = require('./errors');
 import net from 'net';
 import { name as driverName, version as driverVersion } from '../package.json';
 
@@ -397,7 +395,6 @@ export function constructHostname(region: string, account: string) {
  * Returns true if host indicates private link
  */
 export function isPrivateLink(host: string) {
-  Errors.checkArgumentExists(exists(host), Errors.codes.ERR_CONN_CREATE_MISSING_HOST);
   return host.toLowerCase().includes('privatelink.snowflakecomputing.');
 }
 

@@ -1,6 +1,6 @@
 import assert from 'assert';
 import { ErrorCode } from '../../lib/errors';
-const snowflake = require('./../../lib/snowflake');
+const snowflake = require('./../../lib/snowflake').default;
 
 describe('snowflake.createConnection() synchronous errors', function () {
   const testCases = [

@@ -1,7 +1,7 @@
 const winston = require('winston');
 const os = require('os');
 
-const snowflake = require('./../../lib/snowflake');
+const snowflake = require('./../../lib/snowflake').default;
 const Logger = require('./../../lib/logger');
 
 snowflake.configure({ logLevel: 'trace' });

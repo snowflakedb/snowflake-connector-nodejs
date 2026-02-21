@@ -1,5 +1,5 @@
 const async = require('async');
-const snowflake = require('./../../lib/snowflake');
+const snowflake = require('./../../lib/snowflake').default;
 const testUtil = require('./testUtil');
 const sharedStatement = require('./sharedStatements');
 const assert = require('assert');

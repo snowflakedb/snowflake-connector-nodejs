@@ -12,7 +12,7 @@
 - Added request retries to previously uncovered query execution paths (snowflakedb/snowflake-connector-nodejs#1280)
 - Bumped `fast-xml-parser` dependency to 5.3.6 to address CVE-2026-26278 (snowflakedb/snowflake-connector-nodejs#1281)
 - Fixed a bug where invalid JWT was generated if user accidentally set both the (locator version of) `account` and the `host` in the config (snowflakedb/snowflake-connector-nodejs#1283)
-- Bumped `bn.js` to 5.2.3. to address CVE-2026-2739 and also `axios` to new patch version 1.13.5 (snowflakedb/snowflake-connector-nodejs#XXXX)
+- Bumped `bn.js` to 5.2.3. to address CVE-2026-2739 and also `axios` to new patch version 1.13.5 (snowflakedb/snowflake-connector-nodejs#1293)
 
 ## 2.3.4
 

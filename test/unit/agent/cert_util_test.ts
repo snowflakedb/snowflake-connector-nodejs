@@ -3,7 +3,7 @@ import { decimalToIntBuffer } from '../../../lib/agent/cert_util';
 // @ts-ignore no types available for asn1.js-rfc2560
 import rfc2560 from 'asn1.js-rfc2560';
 
-describe('decimalToIntBuffer compatible with asn1.js', function () {
+describe('decimalToIntBuffer produces a buffer compatible with asn1.js', function () {
   const testCases = [
     { decimal: '0', description: 'zero' },
     { decimal: '127', description: 'max value without sign padding (0x7F)' },
@@ -20,7 +20,7 @@ describe('decimalToIntBuffer compatible with asn1.js', function () {
   ];
 
   testCases.forEach(({ decimal, description }) => {
-    it(`produces a buffer that asn1.js CertID round-trips correctly: ${description}`, function () {
+    it(description, function () {
       const buf = decimalToIntBuffer(decimal);
 
       const certID = {

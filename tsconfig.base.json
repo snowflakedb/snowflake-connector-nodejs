@@ -11,7 +11,7 @@
     "strict": true,
     "skipLibCheck": true,
     "paths": {
-      "asn1.js-rfc5280": ["./lib/types/asn1.js-rfc5280.d.ts"]
+      "asn1.js": ["./lib/types/asn1.js.d.ts"]
     }
   }
 }

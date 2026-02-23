@@ -23,7 +23,6 @@
     "axios": "^1.13.4",
     "big-integer": "^1.6.43",
     "bignumber.js": "^9.1.2",
-    "bn.js": "^5.2.1",
     "browser-request": "^0.3.3",
     "expand-tilde": "^2.0.2",
     "fast-xml-parser": "^5.3.6",

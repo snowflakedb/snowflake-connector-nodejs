@@ -11,7 +11,6 @@
     "strict": true,
     "skipLibCheck": true,
     "paths": {
-      "bn.js": ["./lib/types/bn.js.d.ts"],
       "asn1.js-rfc5280": ["./lib/types/asn1.js-rfc5280.d.ts"]
     }
   }

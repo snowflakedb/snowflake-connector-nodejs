@@ -1,7 +1,7 @@
 import { DetailedPeerCertificate } from 'tls';
 import crypto from 'crypto';
 import ASN1 from 'asn1.js-rfc5280';
-import BN from 'bn.js';
+import { decimalToIntBuffer } from '../../../lib/agent/cert_util';
 import { CRL_SIGNATURE_OID_TO_CRYPTO_DIGEST_ALGORITHM } from '../../../lib/agent/crl_utils';
 
 const DEFAULT_SIGNATURE_ALGORITHM_OID = '1.2.840.113549.1.1.11';
@@ -143,7 +143,7 @@ export function createTestCertificate(
   return {
     tbsCertificate: {
       version: 'v3',
-      serialNumber: new BN(serialNumber),
+      serialNumber: decimalToIntBuffer(serialNumber),
       signature: signatureAlgorithm,
       issuer: createCertificateNameField({
         commonName: 'Issuer',
@@ -181,13 +181,13 @@ export function createTestCRL(
   const nextUpdate = options.nextUpdate ?? new Date('2026-06-08T00:00:00Z').getTime();
 
   const tbsCertList: ASN1.TBSCertList = {
-    version: new BN(1),
+    version: decimalToIntBuffer(1),
     signature: issuerCertificate.signatureAlgorithm,
     issuer: issuerCertificate.tbsCertificate.subject,
     thisUpdate: { type: 'utcTime', value: new Date('2026-06-01T00:00:00Z').getTime() },
     nextUpdate: { type: 'utcTime', value: nextUpdate },
     revokedCertificates: revokedCertificates.map((serialNumber) => ({
-      userCertificate: new BN(serialNumber),
+      userCertificate: decimalToIntBuffer(serialNumber),
       revocationDate: {
         type: 'utcTime' as const,
         value: new Date('2026-06-01T00:00:00Z').getTime(),

@@ -18,6 +18,7 @@
     "@smithy/protocol-http": "^5.3.8",
     "@smithy/signature-v4": "^5.3.8",
     "@techteamer/ocsp": "1.0.1",
+    "asn1.js": "^5.0.0",
     "asn1.js-rfc2560": "^5.0.0",
     "asn1.js-rfc5280": "^3.0.0",
     "axios": "^1.13.4",

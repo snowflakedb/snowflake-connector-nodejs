@@ -656,6 +656,16 @@ describe('ConnectionConfig: basic', function () {
       errorCode: ErrorCodes.ERR_CONN_CREATE_INVALID_DISABLE_CONSOLE_LOGIN,
     },
     {
+      name: 'invalid allowExternalBrowserSyncConnect',
+      options: {
+        account: 'account',
+        username: 'username',
+        password: 'password',
+        allowExternalBrowserSyncConnect: 'invalid',
+      },
+      errorCode: ErrorCodes.ERR_CONN_CREATE_INVALID_ALLOW_EXTERNAL_BROWSER_SYNC_CONNECT,
+    },
+    {
       name: 'invalid disableGCPTokenUpload',
       options: {
         account: 'account',

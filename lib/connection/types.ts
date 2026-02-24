@@ -45,6 +45,15 @@ export interface WIP_ConnectionOptions {
   clientStoreTemporaryCredential?: boolean;
 
   /**
+   * Allow EXTERNALBROWSER authenticator to be used with the synchronous connect() method.
+   * When false (default), EXTERNALBROWSER requires connectAsync().
+   * When true, connect() will also support EXTERNALBROWSER authentication.
+   *
+   * @default false
+   */
+  allowExternalBrowserSyncConnect?: boolean;
+
+  /**
    * Specifies the token to use for authentication. Set this option if you set the authenticator option to
    * * OAUTH
    * * PROGRAMMATIC_ACCESS_TOKEN

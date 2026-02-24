@@ -134,6 +134,14 @@ declare module 'snowflake-sdk' {
     openExternalBrowserCallback?: (url: string) => void;
 
     /**
+     * Allow EXTERNALBROWSER authenticator to be used with the synchronous connect() method.
+     * When false (default), EXTERNALBROWSER requires connectAsync().
+     * When true, connect() will also support EXTERNALBROWSER authentication.
+     * @default false
+     */
+    allowExternalBrowserSyncConnect?: boolean;
+
+    /**
      * Specifies the lists of hosts that the driver should connect to directly, bypassing the proxy server (e.g. *.amazonaws.com to bypass Amazon S3 access). For multiple hosts, separate the hostnames with a pipe symbol (|).
      * You can also use an asterisk as a wild card. For example: noProxy: "*.amazonaws.com|*.my_company.com"
      */

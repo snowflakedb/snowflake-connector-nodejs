@@ -3,7 +3,7 @@ import { execSync } from 'child_process';
 import { WIP_ConnectionOptions } from '../lib/connection/types';
 // NOTE:
 // Using require() as we can't pull types from index.d.ts
-const snowflake = require('../lib/snowflake');
+const snowflake = require('../lib/snowflake').default;
 
 snowflake.configure({
   logLevel: 'TRACE',

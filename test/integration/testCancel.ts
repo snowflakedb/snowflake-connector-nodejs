@@ -1,7 +1,7 @@
 import Logger from '../../lib/logger';
 import * as testUtil from './testUtil';
 
-const snowflake = require('../../lib/snowflake');
+const snowflake = require('../../lib/snowflake').default;
 
 describe('Test Cancel Query', function () {
   let connection: any;

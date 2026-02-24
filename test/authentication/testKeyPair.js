@@ -1,6 +1,6 @@
 const AuthTest = require('./authTestsBaseClass');
 const connParameters = require('./connectionParameters');
-const snowflake = require('../../lib/snowflake');
+const snowflake = require('../../lib/snowflake').default;
 const path = require('path');
 const assert = require('node:assert');
 const fs = require('fs').promises;

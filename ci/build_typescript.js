@@ -23,17 +23,6 @@ try {
   process.exit(1);
 }
 
-// Extend compiled project with declarations but only from .ts files
-// as .js declarations contain errors
-try {
-  console.log('Compiling TypeScript declarations...');
-  execSync('tsc --project tsconfig.declaration.json', { stdio: 'inherit' });
-  console.log('Successfully compiled TypeScript declarations');
-} catch (err) {
-  console.error('Error running TypeScript compiler:', err);
-  process.exit(1);
-}
-
 // Copy index.d.ts to dist folder
 try {
   const srcPath = path.join(process.cwd(), 'index.d.ts');

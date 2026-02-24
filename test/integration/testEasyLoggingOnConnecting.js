@@ -1,4 +1,4 @@
-const snowflake = require('./../../lib/snowflake');
+const snowflake = require('./../../lib/snowflake').default;
 const connOption = require('./connectionOptions');
 const Logger = require('./../../lib/logger');
 const { reset: resetEasyLoggingModule } = require('../../lib/logger/easy_logging_starter');

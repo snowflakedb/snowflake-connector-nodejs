@@ -1,4 +1,4 @@
-const snowflake = require('./../../lib/snowflake');
+const snowflake = require('./../../lib/snowflake').default;
 const assert = require('assert');
 const connOption = require('./connectionOptions');
 const testUtil = require('./testUtil');

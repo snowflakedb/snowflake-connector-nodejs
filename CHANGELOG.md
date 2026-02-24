@@ -14,6 +14,7 @@
 - Fixed a bug where invalid JWT was generated if user accidentally set both the (locator version of) `account` and the `host` in the config (snowflakedb/snowflake-connector-nodejs#1283)
 - Added `rowStreamHighWaterMark` connection option to control how many rows are buffered when streaming query results via `statement.streamRows()` (snowflakedb/snowflake-connector-nodejs#1289)
 - Removed `bn.js` dependency (snowflakedb/snowflake-connector-nodejs#1294)
+- Added `returnVariantAs` connection option to control how variant-like columns (VARIANT, OBJECT, ARRAY, MAP) are returned in query results (snowflakedb/snowflake-connector-nodejs#1297)
 
 ## 2.3.4
 

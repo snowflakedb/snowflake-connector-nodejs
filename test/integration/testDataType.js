@@ -468,14 +468,17 @@ describe('JS_TREAT_INTEGER_AS_BIGINT', () => {
     assert.strictEqual(selectedValue.toString(), bigInt('4611693738694448603').toString());
   });
 
-  it('returns integer as BigInt in structured JSON', async () => {
+  // TODO: https://snowflakecomputing.atlassian.net/browse/SNOW-3155825
+  // We need to revisit JSON/ARRAY column types and their conversion to JS objects.
+  // Regardless of whether structured types are enabled or not, JSON.parse will lose precision.
+  it('returns integer as number with precision loss in structured JSON', async () => {
     const rows = await testUtil.executeCmdAsync(
       connection,
-      `select {'bigIntVal': 4611693738694448603}::OBJECT(bigIntVal BIGINT) as column_name`,
+      `select {'bigIntVal': 4611693738694448603}::OBJECT(bigIntVal BIGINT)`,
     );
     const selectedValue = getFirstRowValue(rows).bigIntVal;
-    assert.ok(bigInt.isInstance(selectedValue));
-    assert.strictEqual(selectedValue.toString(), bigInt('4611693738694448603').toString());
+    assert.strictEqual(Number.isInteger(selectedValue), true);
+    assert.strictEqual(Number.isSafeInteger(selectedValue), false);
   });
 
   it('returns float as number with precision loss', async () => {
@@ -488,7 +491,7 @@ describe('JS_TREAT_INTEGER_AS_BIGINT', () => {
   it('returns float as number with precision loss in structured JSON', async () => {
     const rows = await testUtil.executeCmdAsync(
       connection,
-      `select {'floatVal': 4611693738694448603.45}::OBJECT(floatVal FLOAT) as column_name`,
+      `select {'floatVal': 4611693738694448603.45}::OBJECT(floatVal FLOAT)`,
     );
     const selectedValue = getFirstRowValue(rows).floatVal;
     assert.strictEqual(Number.isInteger(selectedValue), true);

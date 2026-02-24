@@ -148,9 +148,10 @@ describe('Result: test number', function () {
               ),
           );
 
-          // Verify telemetry was sent exactly once despite multiple precision loss events
+          // Verify telemetry was sent exactly once despite multiple precision loss cells
           assert.strictEqual(requestAsyncSpy.callCount, 1);
           const telemetryPayload = requestAsyncSpy.getCall(0).args[0];
+          assert.strictEqual(telemetryPayload.url, '/telemetry/send');
           assert.strictEqual(
             telemetryPayload.json.logs[0].message.type,
             'selecting_with_precision_loss',

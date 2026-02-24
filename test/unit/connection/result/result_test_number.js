@@ -6,11 +6,11 @@ const ResultTestCommon = require('./result_test_common');
 describe('Result: test number', function () {
   let logWarnSpy;
 
-  before(() => {
+  beforeEach(() => {
     logWarnSpy = sinon.spy(Logger(), 'warn');
   });
 
-  after(() => sinon.restore());
+  afterEach(() => sinon.restore());
 
   it(
     "select to_number('123.456') as C1, " +

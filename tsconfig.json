@@ -12,8 +12,7 @@
     "skipLibCheck": true,
     "declaration": true,
     "paths": {
-      "bn.js": ["./lib/types/bn.js.d.ts"],
-      "asn1.js-rfc5280": ["./lib/types/asn1.js-rfc5280.d.ts"]
+      "asn1.js": ["./lib/types/asn1.js.d.ts"]
     }
   },
   "include": ["index.js", "lib/**/*", "test/**/*"]

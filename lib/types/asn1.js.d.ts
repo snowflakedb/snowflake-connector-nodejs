@@ -1,4 +1,18 @@
-import BN from 'bn.js';
+class BN {
+  constructor(value: string | number | bigint | Buffer, base?: number);
+  toString(base?: number): string;
+  toNumber(): number;
+  toBuffer(endian?: 'be' | 'le', length?: number): Buffer;
+  clone(): BnJsClass;
+  cmp(other: BnJsClass | string): number;
+  eq(other: BnJsClass | string): boolean;
+  gt(other: BnJsClass | string): boolean;
+  lt(other: BnJsClass | string): boolean;
+}
+
+declare module 'asn1.js' {
+  export const bignum: typeof BN;
+}
 
 // NOTE:
 // These definitions only cover the methods currently used in TypeScript codebase

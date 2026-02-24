@@ -469,3 +469,29 @@ describe('Test DataType', function () {
     assert.strictEqual(Object.values(rows[0])[0], testDecfloatValue);
   });
 });
+
+describe('returnVariantAs=string', function () {
+  let connection;
+
+  before(async () => {
+    connection = testUtil.createConnection({ returnVariantAs: 'string' });
+    await testUtil.connectAsync(connection);
+  });
+
+  after(async () => {
+    await testUtil.destroyConnectionAsync(connection);
+  });
+
+  const testCases = [
+    { name: 'variant JSON', query: 'select parse_json(\'{"a": 1, "b": [1, 2, 3]}\') as COL1' },
+    { name: 'variant XML', query: "select parse_xml('<root><a>1</a></root>') as COL1" },
+    { name: 'array', query: 'select parse_json(\'["a", 1]\')::array as COL1' },
+  ];
+
+  for (const { name, query } of testCases) {
+    it(`returns ${name} as string`, async () => {
+      const rows = await testUtil.executeCmdAsync(connection, query);
+      assert.strictEqual(typeof rows[0].COL1, 'string');
+    });
+  }
+});

@@ -172,6 +172,18 @@ export interface WIP_ConnectionOptions {
    * @default 10
    */
   rowStreamHighWaterMark?: number;
+
+  /**
+   * Controls how variant-like columns (VARIANT, semi-structured OBJECT, ARRAY, MAP)
+   * are returned from query results.
+   * - `'object'` (default) — parses the value into a native JavaScript object.
+   * - `'string'` — returns the raw string without parsing. Useful when variant data
+   *   contains large integers exceeding Number.MAX_SAFE_INTEGER, which would otherwise
+   *   lose precision during JSON parsing.
+   *
+   * @default 'object'
+   */
+  returnVariantAs?: 'object' | 'string';
 }
 
 /**
@@ -193,6 +205,7 @@ export type WIP_ConnectionConfig =
     | 'workloadIdentityAzureClientId'
     | 'oauthEnableSingleUseRefreshTokens'
     | 'rowStreamHighWaterMark'
+    | 'returnVariantAs'
   > & {
     crlValidatorConfig: CRLValidatorConfig;
     getClientType(): string;

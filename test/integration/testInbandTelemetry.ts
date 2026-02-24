@@ -15,7 +15,7 @@ describe('Inband Telemetry', () => {
       {
         accessUrl: wiremock.rootUrl,
       },
-      coreInstance,
+      coreInstance?.default,
     );
     await testUtil.connectAsync(connection);
   }

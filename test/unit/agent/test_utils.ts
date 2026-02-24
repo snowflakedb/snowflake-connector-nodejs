@@ -1,7 +1,7 @@
 import { DetailedPeerCertificate } from 'tls';
 import crypto from 'crypto';
-import ASN1 from 'asn1.js-rfc5280';
-import BN from 'bn.js';
+import asn1 from 'asn1.js';
+import rfc5280 from 'asn1.js-rfc5280';
 import { CRL_SIGNATURE_OID_TO_CRYPTO_DIGEST_ALGORITHM } from '../../../lib/agent/crl_utils';
 
 const DEFAULT_SIGNATURE_ALGORITHM_OID = '1.2.840.113549.1.1.11';
@@ -57,7 +57,7 @@ export function createCertificateNameField(
     localityName?: string;
     organizationalUnitName?: string;
   } = {},
-): ASN1.NameRDNSequence {
+): rfc5280.NameRDNSequence {
   const {
     organizationName = 'Test Organization',
     commonName = 'Common Name',
@@ -94,7 +94,7 @@ export function createTestCertificate(
     serialNumber?: number;
     notBefore?: string;
     notAfter?: string;
-    subject?: ASN1.NameRDNSequence;
+    subject?: rfc5280.NameRDNSequence;
     keyPair?: crypto.KeyPairKeyObjectResult;
     signatureAlgorithmOid?: string;
     crlDistributionPoints?: (
@@ -102,7 +102,7 @@ export function createTestCertificate(
       | TestCertificateCrlDistributionPointValue[]
     )[];
   } = {},
-): ASN1.CertificateDecoded {
+): rfc5280.CertificateDecoded {
   const serialNumber = options.serialNumber ?? serialNumberCounter++;
   const notBefore = options.notBefore ?? '2026-01-01T00:00:00Z';
   const notAfter = options.notAfter ?? '2026-12-31T00:00:00Z';
@@ -115,7 +115,7 @@ export function createTestCertificate(
     parameters: Buffer.from([0x05, 0x00]),
   };
 
-  const extensions: ASN1.TBSCertificate['extensions'] = [];
+  const extensions: rfc5280.TBSCertificate['extensions'] = [];
   if (options.crlDistributionPoints) {
     extensions.push({
       extnID: 'cRLDistributionPoints',
@@ -143,7 +143,7 @@ export function createTestCertificate(
   return {
     tbsCertificate: {
       version: 'v3',
-      serialNumber: new BN(serialNumber),
+      serialNumber: new asn1.bignum(serialNumber),
       signature: signatureAlgorithm,
       issuer: createCertificateNameField({
         commonName: 'Issuer',
@@ -153,7 +153,7 @@ export function createTestCertificate(
         notAfter: { type: 'utcTime', value: new Date(notAfter).getTime() },
       },
       subject,
-      subjectPublicKeyInfo: ASN1.SubjectPublicKeyInfo.decode(
+      subjectPublicKeyInfo: rfc5280.SubjectPublicKeyInfo.decode(
         keyPair.publicKey.export({ type: 'spki', format: 'der' }),
         'der',
       ),
@@ -166,13 +166,13 @@ export function createTestCertificate(
 
 export function createTestCRL(
   options: {
-    issuerCertificate?: ASN1.CertificateDecoded;
+    issuerCertificate?: rfc5280.CertificateDecoded;
     issuerKeyPair?: crypto.KeyPairKeyObjectResult;
     issuingDistributionPointUrls?: string[];
     nextUpdate?: number;
     revokedCertificates?: number[];
   } = {},
-): ASN1.CertificateListDecoded {
+): rfc5280.CertificateListDecoded {
   const issuerKeyPair = options.issuerKeyPair ?? createCertificateKeyPair();
   const issuerCertificate =
     options.issuerCertificate ?? createTestCertificate({ keyPair: issuerKeyPair });
@@ -180,14 +180,14 @@ export function createTestCRL(
   const revokedCertificates = options.revokedCertificates ?? ['0'];
   const nextUpdate = options.nextUpdate ?? new Date('2026-06-08T00:00:00Z').getTime();
 
-  const tbsCertList: ASN1.TBSCertList = {
-    version: new BN(1),
+  const tbsCertList: rfc5280.TBSCertList = {
+    version: new asn1.bignum(1),
     signature: issuerCertificate.signatureAlgorithm,
     issuer: issuerCertificate.tbsCertificate.subject,
     thisUpdate: { type: 'utcTime', value: new Date('2026-06-01T00:00:00Z').getTime() },
     nextUpdate: { type: 'utcTime', value: nextUpdate },
     revokedCertificates: revokedCertificates.map((serialNumber) => ({
-      userCertificate: new BN(serialNumber),
+      userCertificate: new asn1.bignum(serialNumber),
       revocationDate: {
         type: 'utcTime' as const,
         value: new Date('2026-06-01T00:00:00Z').getTime(),
@@ -215,7 +215,7 @@ export function createTestCRL(
   const digestAlgorithm = CRL_SIGNATURE_OID_TO_CRYPTO_DIGEST_ALGORITHM[signatureOid];
 
   const sign = crypto.createSign(digestAlgorithm);
-  sign.update(ASN1.TBSCertList.encode(tbsCertList, 'der'));
+  sign.update(rfc5280.TBSCertList.encode(tbsCertList, 'der'));
   const signature = sign.sign(issuerKeyPair.privateKey);
 
   const crl = {
@@ -224,10 +224,10 @@ export function createTestCRL(
     signature: { unused: 0, data: signature },
   };
   // Encoding + Decoding to ensure all fields are set correctly
-  return ASN1.CertificateList.decode(ASN1.CertificateList.encode(crl, 'der'), 'der');
+  return rfc5280.CertificateList.decode(rfc5280.CertificateList.encode(crl, 'der'), 'der');
 }
 
-export function createCertificateChain(...chain: ASN1.CertificateDecoded[]) {
+export function createCertificateChain(...chain: rfc5280.CertificateDecoded[]) {
   const certificates = chain.map((cert, i) => {
     const id = `CERT#${i + 1}`;
     return {
@@ -236,8 +236,8 @@ export function createCertificateChain(...chain: ASN1.CertificateDecoded[]) {
         CN: id,
       },
       serialNumber: id,
-      pubkey: ASN1.SubjectPublicKeyInfo.encode(cert.tbsCertificate.subjectPublicKeyInfo, 'der'),
-      raw: Buffer.from(ASN1.Certificate.encode(cert, 'der')),
+      pubkey: rfc5280.SubjectPublicKeyInfo.encode(cert.tbsCertificate.subjectPublicKeyInfo, 'der'),
+      raw: Buffer.from(rfc5280.Certificate.encode(cert, 'der')),
     };
   }) as DetailedPeerCertificate[];
 

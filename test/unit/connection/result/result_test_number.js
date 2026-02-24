@@ -1,7 +1,17 @@
+const sinon = require('sinon');
+const Logger = require('./../../../../lib/logger').default;
 const assert = require('assert');
 const ResultTestCommon = require('./result_test_common');
 
 describe('Result: test number', function () {
+  let logWarnSpy;
+
+  before(() => {
+    logWarnSpy = sinon.spy(Logger(), 'warn');
+  });
+
+  after(() => sinon.restore());
+
   it(
     "select to_number('123.456') as C1, " +
       "to_double('123.456') as C2, " +
@@ -116,6 +126,23 @@ describe('Result: test number', function () {
           // real big
           assert.strictEqual(row.getColumnValue('C4'), 1.23456789012346e37);
           assert.strictEqual(row.getColumnValueAsString('C4'), '1.23456789012346e+37');
+
+          // Verify precision loss warnings were logged for large numbers
+          assert.strictEqual(logWarnSpy.callCount, 2);
+          assert.ok(
+            logWarnSpy
+              .getCall(0)
+              .args[0].includes(
+                'Query result precision loss detected when converting 12345678901234567890123456789012345678',
+              ),
+          );
+          assert.ok(
+            logWarnSpy
+              .getCall(1)
+              .args[0].includes(
+                'Query result precision loss detected when converting 1.23456789012346e+37',
+              ),
+          );
         },
         function () {
           done();

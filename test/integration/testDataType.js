@@ -149,37 +149,6 @@ describe('Test DataType', function () {
       );
     });
 
-    it('testLargeNumberBigInt', function (done) {
-      async.series(
-        [
-          function (callback) {
-            testUtil.executeCmd(connection, createTableWithNumber, callback);
-          },
-          function (callback) {
-            testUtil.executeCmd(connection, insertLargeNumber, callback);
-          },
-          function (callback) {
-            testUtil.executeCmd(
-              connection,
-              'alter session set JS_TREAT_INTEGER_AS_BIGINT=true',
-              callback,
-            );
-          },
-          function (callback) {
-            testUtil.executeQueryAndVerify(
-              connection,
-              selectNumber,
-              [{ COLA: bigInt('12345678901234567890123456789012345678') }], // pragma: allowlist secret
-              callback,
-              null,
-              false,
-            );
-          },
-        ],
-        done,
-      );
-    });
-
     it('testRegularSizedInteger', function (done) {
       async.series(
         [
@@ -467,5 +436,62 @@ describe('Test DataType', function () {
     );
     assert.strictEqual(rowStatement.getColumn(0).getType(), 'decfloat');
     assert.strictEqual(Object.values(rows[0])[0], testDecfloatValue);
+  });
+});
+
+describe('JS_TREAT_INTEGER_AS_BIGINT', () => {
+  let connection;
+
+  before(async () => {
+    connection = testUtil.createConnection({
+      jsTreatIntegerAsBigInt: true,
+    });
+    await testUtil.connectAsync(connection);
+    await testUtil.executeCmdAsync(
+      connection,
+      'alter session set ENABLE_STRUCTURED_TYPES_IN_CLIENT_RESPONSE = true;',
+    );
+    await testUtil.executeCmdAsync(
+      connection,
+      'alter session set IGNORE_CLIENT_VESRION_IN_STRUCTURED_TYPES_RESPONSE = true;',
+    );
+  });
+
+  function getFirstRowValue(rows) {
+    return Object.values(rows[0])[0];
+  }
+
+  it('returns integer as BigInt', async () => {
+    const rows = await testUtil.executeCmdAsync(connection, `select 4611693738694448603`);
+    const selectedValue = getFirstRowValue(rows);
+    assert.ok(bigInt.isInstance(selectedValue));
+    assert.strictEqual(selectedValue.toString(), bigInt('4611693738694448603').toString());
+  });
+
+  it('returns integer as BigInt in structured JSON', async () => {
+    const rows = await testUtil.executeCmdAsync(
+      connection,
+      `select {'bigIntVal': 4611693738694448603}::OBJECT(bigIntVal BIGINT) as column_name`,
+    );
+    const selectedValue = getFirstRowValue(rows).bigIntVal;
+    assert.ok(bigInt.isInstance(selectedValue));
+    assert.strictEqual(selectedValue.toString(), bigInt('4611693738694448603').toString());
+  });
+
+  it('returns float as number with precision loss', async () => {
+    const rows = await testUtil.executeCmdAsync(connection, 'select 4611693738694448603.45::FLOAT');
+    const selectedValue = getFirstRowValue(rows);
+    assert.strictEqual(Number.isInteger(selectedValue), true);
+    assert.strictEqual(Number.isSafeInteger(selectedValue), false);
+  });
+
+  it('returns float as number with precision loss in structured JSON', async () => {
+    const rows = await testUtil.executeCmdAsync(
+      connection,
+      `select {'floatVal': 4611693738694448603.45}::OBJECT(floatVal FLOAT) as column_name`,
+    );
+    const selectedValue = getFirstRowValue(rows).floatVal;
+    assert.strictEqual(Number.isInteger(selectedValue), true);
+    assert.strictEqual(Number.isSafeInteger(selectedValue), false);
   });
 });

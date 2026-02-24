@@ -13,7 +13,7 @@
 - Bumped `fast-xml-parser` requirement to 5.3.6 to address CVE-2026-26278 (snowflakedb/snowflake-connector-nodejs#1281)
 - Fixed a bug where invalid JWT was generated if user accidentally set both the (locator version of) `account` and the `host` in the config (snowflakedb/snowflake-connector-nodejs#1283)
 - Removed `bn.js` dependency (snowflakedb/snowflake-connector-nodejs#1294)
-- Added a warning when converting data to JavaScript numbers with precision loss (snowflakedb/snowflake-connector-nodejs#1295)
+- Added a warning when converting query result to JavaScript numbers with precision loss (snowflakedb/snowflake-connector-nodejs#1295)
 
 ## 2.3.4
 

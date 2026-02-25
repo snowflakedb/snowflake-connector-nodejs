@@ -18,7 +18,6 @@
 - Changed default `jsonColumnVariantParser` to `JSON.parse` (snowflakedb/snowflake-connector-nodejs#1300)
 - Fixed a bug where parsing the JSON media type failed when it included an optional parameter from Microsoft Identity Platform v2.0 tokens, failing OAuth Client Credentials flow (snowflakedb/snowflake-connector-nodejs#1301)
 
-
 ## 2.3.4
 
 - Fixed inconsistent retry behavior across HTTP requests and ensured all recoverable failures are properly retried (snowflakedb/snowflake-connector-nodejs#1230, snowflakedb/snowflake-connector-nodejs#1232, snowflakedb/snowflake-connector-nodejs#1233, snowflakedb/snowflake-connector-nodejs#1249, snowflakedb/snowflake-connector-nodejs#1250)

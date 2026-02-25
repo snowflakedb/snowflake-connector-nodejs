@@ -752,6 +752,16 @@ declare module 'snowflake-sdk' {
   export function createConnection(options: ConnectionOptions): Connection;
 
   /**
+   * Converts snake_case connection option keys (e.g. from a parsed TOML file) to
+   * the camelCase format expected by {@link ConnectionOptions}. Also resolves key
+   * aliases such as `user` → `username` and `private_key_file` → `privateKeyPath`.
+   *
+   * Useful when you parse `connections.toml` yourself and need to pass the result
+   * to {@link createConnection}.
+   */
+  export function normalizeConnectionOptions(options: Record<string, unknown>): ConnectionOptions;
+
+  /**
    * Deserializes a serialized connection.
    */
   export function deserializeConnection(

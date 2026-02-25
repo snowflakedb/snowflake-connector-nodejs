@@ -17,6 +17,8 @@
 - Added a warning when converting query result to JavaScript numbers with precision loss (snowflakedb/snowflake-connector-nodejs#1295, snowflakedb/snowflake-connector-nodejs#1296)
 - Changed default `jsonColumnVariantParser` to `JSON.parse` (snowflakedb/snowflake-connector-nodejs#1300)
 - Fixed a bug where parsing the JSON media type failed when it included an optional parameter from Microsoft Identity Platform v2.0 tokens, failing OAuth Client Credentials flow (snowflakedb/snowflake-connector-nodejs#1301)
+- Added snake_case key support when loading `connections.toml` via `loadConnectionConfiguration()` (snowflakedb/snowflake-connector-nodejs#1304)
+- Exported `normalizeConnectionOptions()` utility to convert snake_case connection keys to camelCase, with key aliases and acronym overrides (snowflakedb/snowflake-connector-nodejs#1304)
 
 ## 2.3.4
 

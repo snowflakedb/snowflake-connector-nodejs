@@ -12,8 +12,10 @@
 - Added request retries to previously uncovered query execution paths (snowflakedb/snowflake-connector-nodejs#1280)
 - Bumped `fast-xml-parser` requirement to 5.3.6 to address CVE-2026-26278 (snowflakedb/snowflake-connector-nodejs#1281)
 - Fixed a bug where invalid JWT was generated if user accidentally set both the (locator version of) `account` and the `host` in the config (snowflakedb/snowflake-connector-nodejs#1283)
+- Added `rowStreamHighWaterMark` connection option to control how many rows are buffered when streaming query results via `statement.streamRows()` (snowflakedb/snowflake-connector-nodejs#1289)
 - Removed `bn.js` dependency (snowflakedb/snowflake-connector-nodejs#1294)
 - Added a warning when converting query result to JavaScript numbers with precision loss (snowflakedb/snowflake-connector-nodejs#1295)
+- Changed default `jsonColumnVariantParser` to `JSON.parse` (snowflakedb/snowflake-connector-nodejs#1300)
 
 ## 2.3.4
 

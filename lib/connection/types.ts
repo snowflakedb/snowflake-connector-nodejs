@@ -163,6 +163,15 @@ export interface WIP_ConnectionOptions {
    * @default true
    */
   crlOnDiskCache?: CRLValidatorConfig['onDiskCache'];
+
+  /**
+   * Controls how many rows are buffered by the stream returned from
+   * `statement.streamRows()`. Passed as the `highWaterMark` to the
+   * underlying Node.js Readable class.
+   *
+   * @default 10
+   */
+  rowStreamHighWaterMark?: number;
 }
 
 /**
@@ -183,6 +192,7 @@ export type WIP_ConnectionConfig =
     | 'workloadIdentityAzureEntraIdResource'
     | 'workloadIdentityAzureClientId'
     | 'oauthEnableSingleUseRefreshTokens'
+    | 'rowStreamHighWaterMark'
   > & {
     crlValidatorConfig: CRLValidatorConfig;
     getClientType(): string;

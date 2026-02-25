@@ -83,7 +83,7 @@
   "scripts": {
     "prepack": "node ci/build_typescript.js",
     "prepare": "husky",
-    "check-ts": "npm run prepack && tsc --noEmit ci/typescript-test.ts",
+    "check-ts": "npm run prepack && tsc --noEmit dist/index.d.ts",
     "lint:check": "oxlint .",
     "lint:fix": "oxlint --fix .",
     "prettier:check": "prettier --check .",

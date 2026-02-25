@@ -1,7 +1,17 @@
+const sinon = require('sinon');
+const Logger = require('./../../../../lib/logger').default;
 const assert = require('assert');
 const ResultTestCommon = require('./result_test_common');
 
 describe('Result: test number', function () {
+  let logWarnSpy;
+
+  beforeEach(() => {
+    logWarnSpy = sinon.spy(Logger(), 'warn');
+  });
+
+  afterEach(() => sinon.restore());
+
   it(
     "select to_number('123.456') as C1, " +
       "to_double('123.456') as C2, " +
@@ -95,8 +105,12 @@ describe('Result: test number', function () {
         success: true,
       };
 
+      const requestAsyncSpy = sinon.stub().resolves();
+      const resultOptions = ResultTestCommon.createResultOptions(response);
+      resultOptions.services = { sf: { requestAsync: requestAsyncSpy } };
+
       ResultTestCommon.testResult(
-        ResultTestCommon.createResultOptions(response),
+        resultOptions,
         function (row) {
           // fixed small
           assert.strictEqual(row.getColumnValue('C1'), 123);
@@ -116,6 +130,36 @@ describe('Result: test number', function () {
           // real big
           assert.strictEqual(row.getColumnValue('C4'), 1.23456789012346e37);
           assert.strictEqual(row.getColumnValueAsString('C4'), '1.23456789012346e+37');
+
+          // Verify precision loss warnings were logged for large numbers
+          assert.strictEqual(logWarnSpy.callCount, 2);
+          assert.ok(
+            logWarnSpy
+              .getCall(0)
+              .args[0].includes(
+                'Query result precision loss detected when converting 12345678901234567890123456789012345678',
+              ),
+          );
+          assert.ok(
+            logWarnSpy
+              .getCall(1)
+              .args[0].includes(
+                'Query result precision loss detected when converting 1.23456789012346e+37',
+              ),
+          );
+
+          // Verify telemetry was sent exactly once despite multiple precision loss cells
+          assert.strictEqual(requestAsyncSpy.callCount, 1);
+          const telemetryPayload = requestAsyncSpy.getCall(0).args[0];
+          assert.strictEqual(telemetryPayload.url, '/telemetry/send');
+          assert.strictEqual(
+            telemetryPayload.json.logs[0].message.type,
+            'selecting_with_precision_loss',
+          );
+          assert.strictEqual(
+            telemetryPayload.json.logs[0].message.value.queryId,
+            'd1d201b7-66e5-4692-b062-eaec596771fe',
+          );
         },
         function () {
           done();

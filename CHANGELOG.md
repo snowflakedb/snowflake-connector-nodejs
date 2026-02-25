@@ -15,6 +15,8 @@
 - Added `rowStreamHighWaterMark` connection option to control how many rows are buffered when streaming query results via `statement.streamRows()` (snowflakedb/snowflake-connector-nodejs#1289)
 - Removed `bn.js` dependency (snowflakedb/snowflake-connector-nodejs#1294)
 - Improved error details when OAuth fails (snowflakedb/snowflake-connector-nodejs#1302)
+- Added a warning when converting query result to JavaScript numbers with precision loss (snowflakedb/snowflake-connector-nodejs#1295)
+- Changed default `jsonColumnVariantParser` to `JSON.parse` (snowflakedb/snowflake-connector-nodejs#1300)
 
 ## 2.3.4
 

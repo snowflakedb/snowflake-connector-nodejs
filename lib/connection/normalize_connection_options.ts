@@ -18,7 +18,7 @@ function snakeToCamel(key: string): string {
 
 export function normalizeConnectionOptions(
   options: Record<string, unknown>,
-): Partial<WIP_ConnectionOptions> {
+): WIP_ConnectionOptions {
   const normalized: Record<string, unknown> = {};
 
   for (const [key, value] of Object.entries(options)) {
@@ -51,5 +51,5 @@ export function normalizeConnectionOptions(
     }
   }
 
-  return normalized as Partial<WIP_ConnectionOptions>;
+  return normalized as unknown as WIP_ConnectionOptions;
 }

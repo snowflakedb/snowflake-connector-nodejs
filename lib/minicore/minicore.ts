@@ -30,7 +30,10 @@ if (process.env.SNOWFLAKE_DISABLE_MINICORE) {
 
     minicoreStatus.version = minicoreModule.sfCoreFullVersion();
   } catch (error: unknown) {
-    minicoreStatus.errorType = 'Failed to load binary';
+    minicoreStatus.errorType = isBinaryIgnoredByBundlers(error)
+      ? 'Binary is missing from the bundle'
+      : 'Failed to load binary';
+
     if (error instanceof Error) {
       minicoreStatus.errorDetails = error;
     }
@@ -68,4 +71,22 @@ export function getMinicoreStatus() {
     isMinicoreStatusLogged = true;
   }
   return minicoreStatus;
+}
+
+function isBinaryIgnoredByBundlers(error: unknown) {
+  if (error instanceof Error) {
+    const message = error.message;
+    return (
+      // eval('require') was ignored by bundlers
+      message.startsWith('Cannot find module') ||
+      // bundled code running in ESM environment
+      message === 'require is not defined' ||
+      // Windows: DLL mapped to a network path that the bundled app can't reach
+      message === 'LoadLibrary failed: The network name cannot be found.' ||
+      // Windows: DLL not found
+      message === 'LoadLibrary failed: The specified module could not be found.'
+    );
+  } else {
+    return false;
+  }
 }

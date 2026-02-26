@@ -1,8 +1,13 @@
 import assert from 'assert';
 import { normalizeConnectionOptions } from '../../../lib/connection/normalize_connection_options';
+import { WIP_ConnectionOptions } from '../../../lib/connection/types';
 
 describe('normalizeConnectionOptions', function () {
-  [
+  const testCases: {
+    name: string;
+    input: Record<string, unknown>;
+    expected: WIP_ConnectionOptions;
+  }[] = [
     {
       name: 'converts snake_case keys to camelCase',
       input: { account: 'testaccount', private_key_path: '/path/to/key.p8' },
@@ -133,7 +138,8 @@ describe('normalizeConnectionOptions', function () {
         clientSessionKeepAlive: true,
       },
     },
-  ].forEach(({ name, input, expected }) => {
+  ];
+  testCases.forEach(({ name, input, expected }) => {
     it(name, function () {
       assert.deepStrictEqual(normalizeConnectionOptions(input), expected);
     });

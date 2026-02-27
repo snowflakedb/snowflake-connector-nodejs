@@ -454,155 +454,105 @@ describe('isByPassProxy', function () {
     return { host: 'my.pro.xy', port: 8080, noProxy };
   }
 
-  describe('wildcard patterns', function () {
-    [
-      {
-        name: 'wildcard matches single subdomain',
-        noProxy: '*.snowflakecomputing.com',
-        destination: 'myaccount.snowflakecomputing.com',
-        shouldMatch: true,
-      },
-      {
-        name: 'wildcard matches multi-level subdomain',
-        noProxy: '*.snowflakecomputing.com',
-        destination: 'myaccount.us-east-1.snowflakecomputing.com',
-        shouldMatch: true,
-      },
-      {
-        name: 'wildcard matches amazonaws.com',
-        noProxy: '*.amazonaws.com',
-        destination: 's3.us-west-2.amazonaws.com',
-        shouldMatch: true,
-      },
-      {
-        name: 'wildcard does not match unrelated domain',
-        noProxy: '*.snowflakecomputing.com',
-        destination: 'example.com',
-        shouldMatch: false,
-      },
-      {
-        name: 'wildcard in multi-entry list matches correct entry',
-        noProxy: '*.amazonaws.com|*.snowflakecomputing.com|localhost',
-        destination: 'myaccount.snowflakecomputing.com',
-        shouldMatch: true,
-      },
-    ].forEach(({ name, noProxy, destination, shouldMatch }) => {
-      it(name, function () {
-        const result = ProxyUtil.isByPassProxy(makeProxy(noProxy), destination);
-        if (shouldMatch) {
-          assert.ok(result, `Expected "${destination}" to match noProxy "${noProxy}"`);
-        } else {
-          assert.ok(!result, `Expected "${destination}" NOT to match noProxy "${noProxy}"`);
-        }
-      });
-    });
-  });
-
-  describe('exact host entries', function () {
-    [
-      {
-        name: 'exact match on localhost',
-        noProxy: 'localhost',
-        destination: 'localhost',
-        shouldMatch: true,
-      },
-      {
-        name: 'exact match on full domain',
-        noProxy: 'myhost.mycompany.com',
-        destination: 'myhost.mycompany.com',
-        shouldMatch: true,
-      },
-      {
-        name: 'exact entry does not match different domain',
-        noProxy: 'localhost',
-        destination: 'example.com',
-        shouldMatch: false,
-      },
-      {
-        name: 'exact entry does not match subdomain of that entry',
-        noProxy: 'example.com',
-        destination: 'sub.example.com',
-        shouldMatch: false,
-      },
-    ].forEach(({ name, noProxy, destination, shouldMatch }) => {
-      it(name, function () {
-        const result = ProxyUtil.isByPassProxy(makeProxy(noProxy), destination);
-        if (shouldMatch) {
-          assert.ok(result, `Expected "${destination}" to match noProxy "${noProxy}"`);
-        } else {
-          assert.ok(!result, `Expected "${destination}" NOT to match noProxy "${noProxy}"`);
-        }
-      });
-    });
-  });
-
-  describe('dot-prefix matches', function () {
-    [
-      {
-        name: 'NO_PROXY matches single subdomain',
-        noProxy: '.snowflakecomputing.com',
-        destination: 'myaccount.snowflakecomputing.com',
-        shouldMatch: true,
-      },
-      {
-        name: 'NO_PROXY matches multi-level subdomain',
-        noProxy: '.snowflakecomputing.com',
-        destination: 'myaccount.us-east-1.snowflakecomputing.com',
-        shouldMatch: true,
-      },
-      {
-        name: 'NO_PROXY in a multi-entry list',
-        noProxy: '*.amazonaws.com|.snowflakecomputing.com|localhost',
-        destination: 'myaccount.us-east-1.snowflakecomputing.com',
-        shouldMatch: true,
-      },
-      {
-        name: 'NO_PROXY does not match unrelated domain',
-        noProxy: '.snowflakecomputing.com',
-        destination: 'example.com',
-        shouldMatch: false,
-      },
-      {
-        name: 'NO_PROXY with whitespace in entry',
-        noProxy: ' .snowflakecomputing.com ',
-        destination: 'myaccount.snowflakecomputing.com',
-        shouldMatch: true,
-      },
-    ].forEach(({ name, noProxy, destination, shouldMatch }) => {
-      it(name, function () {
-        const result = ProxyUtil.isByPassProxy(makeProxy(noProxy), destination);
-        if (shouldMatch) {
-          assert.ok(result, `Expected "${destination}" to match noProxy "${noProxy}"`);
-        } else {
-          assert.ok(!result, `Expected "${destination}" NOT to match noProxy "${noProxy}"`);
-        }
-      });
-    });
-  });
-
-  describe('RegExp destination validation like REGEX_SNOWFLAKE_ENDPOINT', function () {
-    [
-      {
-        name: 'RegExp destination matches NO_PROXY entry',
-        noProxy: '.snowflakecomputing.com',
-        destination: /.snowflakecomputing./,
-        shouldMatch: true,
-      },
-      {
-        name: 'RegExp destination does not match unrelated NO_PROXY entry',
-        noProxy: 'unrelated.host.com',
-        destination: /.snowflakecomputing./,
-        shouldMatch: false,
-      },
-    ].forEach(({ name, noProxy, destination, shouldMatch }) => {
-      it(name, function () {
-        const result = ProxyUtil.isByPassProxy(makeProxy(noProxy), destination);
-        if (shouldMatch) {
-          assert.ok(result, `Expected regex to match noProxy "${noProxy}"`);
-        } else {
-          assert.ok(!result, `Expected regex NOT to match noProxy "${noProxy}"`);
-        }
-      });
+  [
+    {
+      name: 'wildcard pattern - matches single subdomain',
+      noProxy: '*.snowflakecomputing.com',
+      destination: 'myaccount.snowflakecomputing.com',
+      shouldMatch: true,
+    },
+    {
+      name: 'wildcard pattern - matches multi-level subdomain',
+      noProxy: '*.snowflakecomputing.com',
+      destination: 'myaccount.us-east-1.snowflakecomputing.com',
+      shouldMatch: true,
+    },
+    {
+      name: 'wildcard pattern - does not match unrelated domain',
+      noProxy: '*.snowflakecomputing.com',
+      destination: 'example.com',
+      shouldMatch: false,
+    },
+    {
+      name: 'wildcard pattern - in multi-entry list matches correct entry',
+      noProxy: '*.amazonaws.com|*.snowflakecomputing.com|localhost',
+      destination: 'myaccount.snowflakecomputing.com',
+      shouldMatch: true,
+    },
+    {
+      name: 'exact host entry - match on localhost',
+      noProxy: 'localhost',
+      destination: 'localhost',
+      shouldMatch: true,
+    },
+    {
+      name: 'exact host entry - match on full domain',
+      noProxy: 'myhost.mycompany.com',
+      destination: 'myhost.mycompany.com',
+      shouldMatch: true,
+    },
+    {
+      name: 'exact host entry - does not match different domain',
+      noProxy: 'localhost',
+      destination: 'example.com',
+      shouldMatch: false,
+    },
+    {
+      name: 'exact host entry - does not match subdomain of that entry',
+      noProxy: 'example.com',
+      destination: 'sub.example.com',
+      shouldMatch: false,
+    },
+    {
+      name: 'dot-prefix match - NO_PROXY matches single subdomain',
+      noProxy: '.snowflakecomputing.com',
+      destination: 'myaccount.snowflakecomputing.com',
+      shouldMatch: true,
+    },
+    {
+      name: 'dot-prefix match - NO_PROXY matches multi-level subdomain',
+      noProxy: '.snowflakecomputing.com',
+      destination: 'myaccount.us-east-1.snowflakecomputing.com',
+      shouldMatch: true,
+    },
+    {
+      name: 'dot-prefix match - NO_PROXY in a multi-entry list',
+      noProxy: '*.amazonaws.com|.snowflakecomputing.com|localhost',
+      destination: 'myaccount.us-east-1.snowflakecomputing.com',
+      shouldMatch: true,
+    },
+    {
+      name: 'dot-prefix match - NO_PROXY does not match unrelated domain',
+      noProxy: '.snowflakecomputing.com',
+      destination: 'example.com',
+      shouldMatch: false,
+    },
+    {
+      name: 'dot-prefix match - NO_PROXY with whitespace in entry',
+      noProxy: ' .snowflakecomputing.com ',
+      destination: 'myaccount.snowflakecomputing.com',
+      shouldMatch: true,
+    },
+    {
+      name: 'RegExp destination validation like REGEX_SNOWFLAKE_ENDPOINT - matches NO_PROXY entry',
+      noProxy: '.snowflakecomputing.com',
+      destination: /.snowflakecomputing./,
+      shouldMatch: true,
+    },
+    {
+      name: 'RegExp destination validation like REGEX_SNOWFLAKE_ENDPOINT - does not match unrelated NO_PROXY entry',
+      noProxy: 'unrelated.host.com',
+      destination: /.snowflakecomputing./,
+      shouldMatch: false,
+    },
+  ].forEach(({ name, noProxy, destination, shouldMatch }) => {
+    it(name, function () {
+      const result = ProxyUtil.isByPassProxy(makeProxy(noProxy), destination);
+      if (shouldMatch) {
+        assert.ok(result, `Expected "${destination}" to match noProxy "${noProxy}"`);
+      } else {
+        assert.ok(!result, `Expected "${destination}" NOT to match noProxy "${noProxy}"`);
+      }
     });
   });
 });

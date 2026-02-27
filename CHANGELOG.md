@@ -20,6 +20,7 @@
 - Fixed `disableSamlUrlCheck` typing to use correct casing: `disableSamlURLCheck` (snowflakedb/snowflake-connector-nodejs#1304)
 - Added snake_case key support when loading `connections.toml` via `createConnection()` with no arguments (snowflakedb/snowflake-connector-nodejs#1304)
 - Exported `normalizeConnectionOptions()` utility to convert snake_case connection keys to camelCase, with key aliases and acronym overrides (snowflakedb/snowflake-connector-nodejs#1304)
+- Added `LIBC_FAMILY` and `LIBC_VERSION` fields to login-request telemetry (snowflakedb/snowflake-connector-nodejs#1310)
 
 ## 2.3.4
 

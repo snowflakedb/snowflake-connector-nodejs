@@ -6,19 +6,49 @@ import { CRLValidatorConfig } from '../agent/crl_validator';
  */
 export interface WIP_ConnectionOptions {
   /**
-   * Specifies the name of the client application connecting to Snowflake.
-   */
-  application?: string;
-
-  /**
    * Your account identifier.
    */
   account: string;
 
   /**
+   * Specifies a fully-qualified endpoint for connecting to Snowflake.
+   */
+  accessUrl?: string;
+
+  /**
+   * The login name for your Snowflake user or your Identity Provider (e.g. your login name for Okta).
+   */
+  username?: string;
+
+  /**
+   * Password for the user.
+   */
+  password?: string;
+
+  /**
    * Host address to which the driver should connect.
    */
   host?: string;
+
+  /**
+   * The default virtual warehouse to use for the session after connecting. Used for performing queries, loading data, etc.
+   */
+  warehouse?: string;
+
+  /**
+   * The default database to use for the session after connecting.
+   */
+  database?: string;
+
+  /**
+   * The default schema to use for the session after connecting.
+   */
+  schema?: string;
+
+  /**
+   * The default security role to use for the session after connecting.
+   */
+  role?: string;
 
   /**
    * Specifies the authenticator to use for verifying user login credentials.
@@ -43,6 +73,16 @@ export interface WIP_ConnectionOptions {
    * https://docs.snowflake.com/en/developer-guide/node-js/nodejs-driver-authenticate#authentication-token-caching
    */
   clientStoreTemporaryCredential?: boolean;
+
+  /**
+   * By default, client connections typically time out approximately 3-4 hours after the most recent query was executed.
+   */
+  clientSessionKeepAlive?: boolean;
+
+  /**
+   * Sets the frequency (interval in seconds) between heartbeat messages.
+   */
+  clientSessionKeepAliveHeartbeatFrequency?: number;
 
   /**
    * Specifies the token to use for authentication. Set this option if you set the authenticator option to
@@ -102,6 +142,35 @@ export interface WIP_ConnectionOptions {
    * When authenticator=OAUTH_AUTHORIZATION_CODE, customize the code challenge method
    */
   oauthChallengeMethod?: string;
+
+  /**
+   * The option to enable the MFA token.
+   *
+   * @default false
+   */
+  clientRequestMFAToken?: boolean;
+
+  /**
+   * The option to skip the SAML URL check in the Okta authentication
+   *
+   * @default false
+   */
+  disableSamlURLCheck?: boolean;
+
+  /**
+   * Specifies the private key (in PEM format) for key pair authentication.
+   */
+  privateKey?: string;
+
+  /**
+   * Specifies the local path to the private key file (e.g. rsa_key.p8)
+   */
+  privateKeyPath?: string;
+
+  /**
+   * Specifies the passcode to decrypt the private key file, if the file is encrypted.
+   */
+  privateKeyPass?: string;
 
   /**
    * When authenticator=WORKLOAD_IDENTITY, specifies the identity provider. Available options:
@@ -172,6 +241,25 @@ export interface WIP_ConnectionOptions {
    * @default 10
    */
   rowStreamHighWaterMark?: number;
+
+  /**
+   * Specifies the name of the client application connecting to Snowflake.
+   */
+  application?: string;
+
+  /**
+   * The option to use https request only for the snowflake server if other GCP metadata or configuration is already set on the machine.
+   *
+   * @default false
+   */
+  forceGCPUseDownscopedCredential?: boolean;
+
+  /**
+   * Turn on the validation function which checks whether all the connection configuration from users are valid or not.
+   *
+   * @default false
+   */
+  validateDefaultParameters?: boolean;
 }
 
 /**

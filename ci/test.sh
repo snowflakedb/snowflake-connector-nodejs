@@ -59,13 +59,9 @@ for name in "${!TARGET_TEST_IMAGES[@]}"; do
     echo "[INFO] Testing $DRIVER_NAME on $name"
     docker pull  "${TARGET_TEST_IMAGES[$name]}"
     docker run \
-        --net $NETWORK_NAME \
+        --network=host \
         -v $(cd $THIS_DIR/.. && pwd):/mnt/host \
         -v $WORKSPACE:/mnt/workspace \
-        --add-host snowflake.reg.local:$GATEWAY_HOST \
-        --add-host testaccount.reg.snowflakecomputing.com:$GATEWAY_HOST \
-        --add-host snowflake.reg.snowflakecomputing.com:$GATEWAY_HOST \
-        --add-host externalaccount.reg.local.snowflakecomputing.com:$GATEWAY_HOST \
         -e LOCAL_USER_ID=$(id -u $USER) \
         -e LOCAL_USER_NAME=$USER \
         -e USERID \

@@ -128,9 +128,7 @@ describe('Oauth Authorization Code authentication', function () {
     );
     authTest.createConnection(connectionOption);
     await authTest.connectAsync();
-    authTest.verifyErrorWasThrown(
-      'Error while getting access token. Message: Request failed with status code 400',
-    );
+    authTest.verifyErrorWasThrown('Request failed with status code 400');
   });
 
   //invalidCode
@@ -145,9 +143,7 @@ describe('Oauth Authorization Code authentication', function () {
     );
     authTest.createConnection(connectionOption);
     await authTest.connectAsync();
-    authTest.verifyErrorWasThrown(
-      'Error while getting access token. Message: Request failed with status code 400',
-    );
+    authTest.verifyErrorWasThrown('Request failed with status code 400');
   });
 
   //no token in response

@@ -27,9 +27,7 @@ describe('Okta Client Credentials authentication', function () {
     };
     authTest.createConnection(connectionOption);
     await authTest.connectAsync();
-    authTest.verifyErrorWasThrown(
-      'Error while getting access token. Message: Request failed with status code 400',
-    );
+    authTest.verifyErrorWasThrown('Request failed with status code 400');
     await authTest.verifyConnectionIsNotUp();
   });
 

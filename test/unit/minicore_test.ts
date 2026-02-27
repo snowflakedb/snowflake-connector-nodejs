@@ -4,6 +4,7 @@ import sinon from 'sinon';
 import fs from 'fs';
 import path from 'path';
 import { getBinaryName, getMinicoreStatus } from '../../lib/minicore/minicore';
+import * as libcDetailsModule from '../../lib/telemetry/libc_details';
 
 describe('getBinaryName()', () => {
   afterEach(() => sinon.restore());
@@ -61,7 +62,7 @@ describe('getBinaryName()', () => {
       sinon.stub(process, 'platform').value(platform);
       sinon.stub(process, 'arch').value(arch);
       if (withMusl) {
-        sinon.stub(fs, 'readFileSync').withArgs('/usr/bin/ldd', 'utf-8').returns('musl libc');
+        sinon.stub(libcDetailsModule, 'getLibcDetails').returns({ family: 'musl', version: null });
       }
       const binaryName = getBinaryName();
       const expectBinaryPath = path.join(

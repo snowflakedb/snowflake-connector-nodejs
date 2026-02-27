@@ -1,5 +1,5 @@
 import Logger from '../logger';
-import { isMusl } from './is_musl';
+import { getLibcDetails } from '../telemetry/libc_details';
 
 type MinicoreStatus = {
   version: string | null;
@@ -46,7 +46,7 @@ export function getBinaryName() {
   const suffix: string[] = [platform, arch];
 
   if (platform === 'linux') {
-    suffix.push(isMusl() ? 'musl' : 'gnu');
+    suffix.push(getLibcDetails().family === 'musl' ? 'musl' : 'gnu');
   } else if (platform === 'win32') {
     suffix.push('msvc');
   }

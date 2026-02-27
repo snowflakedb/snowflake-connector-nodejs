@@ -48,6 +48,8 @@ describe('getLibcDetails()', () => {
 
   it('detects musl from filesystem without version', () => {
     sinon.stub(process, 'platform').value('linux');
+    sinon.stub(process, 'report').value(undefined);
+    sinon.stub(childProcess, 'execSync').throws(new Error('command not found'));
     stubLddRead('musl libc (x86_64)');
     const { getLibcDetails } = getFreshModule();
     assert.deepStrictEqual(getLibcDetails(), { family: 'musl', version: null });

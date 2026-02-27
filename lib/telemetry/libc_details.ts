@@ -30,9 +30,21 @@ export function getLibcDetails(): LibcDetails {
     return cachedResult;
   }
 
-  cachedResult = detectFromFilesystem() ??
-    detectFromReport() ??
-    detectFromCommand() ?? { family: null, version: null };
+  const result: LibcDetails = { family: null, version: null };
+  for (const detectFn of [detectFromFilesystem, detectFromReport, detectFromCommand]) {
+    if (result.family && result.version) {
+      break;
+    }
+    const detected = detectFn();
+    if (detected?.family && !result.family) {
+      result.family = detected.family;
+    }
+    if (detected?.version && !result.version) {
+      result.version = detected.version;
+    }
+  }
+
+  cachedResult = result;
   return cachedResult;
 }
 

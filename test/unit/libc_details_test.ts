@@ -68,7 +68,7 @@ describe('getLibcDetails()', () => {
     assert.deepStrictEqual(getLibcDetails(), { family: 'glibc', version: '2.28' });
   });
 
-  it('detects musl from process report when filesystem fails', () => {
+  it('detects musl from process report when filesystem and command fail', () => {
     sinon.stub(process, 'platform').value('linux');
     const fakeReport = {
       getReport: () => ({
@@ -78,9 +78,28 @@ describe('getLibcDetails()', () => {
       excludeNetwork: false,
     };
     sinon.stub(process, 'report').value(fakeReport);
+    sinon.stub(childProcess, 'execSync').throws(new Error('command not found'));
     stubLddRead(new Error('ENOENT'));
     const { getLibcDetails } = getFreshModule();
     assert.deepStrictEqual(getLibcDetails(), { family: 'musl', version: null });
+  });
+
+  it('detects musl family from report and version from command', () => {
+    sinon.stub(process, 'platform').value('linux');
+    const fakeReport = {
+      getReport: () => ({
+        header: {},
+        sharedObjects: ['/lib/ld-musl-x86_64.so.1', '/lib/libc.musl-x86_64.so.1'],
+      }),
+      excludeNetwork: false,
+    };
+    sinon.stub(process, 'report').value(fakeReport);
+    sinon
+      .stub(childProcess, 'execSync')
+      .returns('getconf: UNKNOWN variable GNU_LIBC_VERSION\nmusl libc (x86_64)\nVersion 1.2.5');
+    stubLddRead(new Error('ENOENT'));
+    const { getLibcDetails } = getFreshModule();
+    assert.deepStrictEqual(getLibcDetails(), { family: 'musl', version: '1.2.5' });
   });
 
   it('detects glibc from command when filesystem and report fail', () => {

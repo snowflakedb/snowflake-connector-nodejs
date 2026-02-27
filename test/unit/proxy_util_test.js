@@ -580,7 +580,7 @@ describe('isByPassProxy', function () {
     });
   });
 
-  describe('RegExp destination', function () {
+  describe('RegExp destination validation like REGEX_SNOWFLAKE_ENDPOINT', function () {
     [
       {
         name: 'RegExp destination matches NO_PROXY entry',

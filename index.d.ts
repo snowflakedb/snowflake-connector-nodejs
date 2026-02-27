@@ -109,21 +109,6 @@ declare module 'snowflake-sdk' {
     region?: string;
 
     /**
-     * Specifies a fully-qualified endpoint for connecting to Snowflake.
-     */
-    accessUrl?: string;
-
-    /**
-     * The login name for your Snowflake user or your Identity Provider (e.g. your login name for Okta).
-     */
-    username?: string;
-
-    /**
-     * Password for the user.
-     */
-    password?: string;
-
-    /**
      * Specifies the timeout, in milliseconds, for browser activities related to SSO authentication. The default value is 120000 (milliseconds).
      */
     browserActionTimeout?: number;
@@ -175,44 +160,9 @@ declare module 'snowflake-sdk' {
     serviceName?: string;
 
     /**
-     * Specifies the private key (in PEM format) for key pair authentication.
-     */
-    privateKey?: string;
-
-    /**
-     * Specifies the local path to the private key file (e.g. rsa_key.p8)
-     */
-    privateKeyPath?: string;
-
-    /**
-     * Specifies the passcode to decrypt the private key file, if the file is encrypted.
-     */
-    privateKeyPass?: string;
-
-    /**
-     * The default virtual warehouse to use for the session after connecting. Used for performing queries, loading data, etc.
-     */
-    warehouse?: string;
-
-    /**
-     * The default database to use for the session after connecting.
-     */
-    database?: string;
-
-    /**
-     * The default schema to use for the session after connecting.
-     */
-    schema?: string;
-
-    /**
      * Number of milliseconds to keep the connection alive with no response. Default: 90000 (1 minute 30 seconds).
      */
     timeout?: number;
-
-    /**
-     * The default security role to use for the session after connecting.
-     */
-    role?: string;
 
     /**
      * Returns the rowMode string value ('array', 'object' or 'object_with_renamed_duplicated_columns'). Could be null or undefined.
@@ -235,16 +185,6 @@ declare module 'snowflake-sdk' {
     clientConfigFile?: string;
 
     /**
-     * By default, client connections typically time out approximately 3-4 hours after the most recent query was executed.
-     */
-    clientSessionKeepAlive?: boolean;
-
-    /**
-     * Sets the frequency (interval in seconds) between heartbeat messages.
-     */
-    clientSessionKeepAliveHeartbeatFrequency?: number;
-
-    /**
      * To convert Snowflake INTEGER columns to JavaScript Bigint, which can store larger values than JavaScript Number
      */
     jsTreatIntegerAsBigInt?: boolean;
@@ -258,11 +198,6 @@ declare module 'snowflake-sdk' {
      * The max login timeout value. This value is either 0 or over 300.
      */
     retryTimeout?: number;
-
-    /**
-     * The option to skip the SAML URL check in the Okta authentication
-     */
-    disableSamlUrlCheck?: boolean;
 
     /**
      * The option to fetch all the null values in the columns as the string null.
@@ -300,31 +235,15 @@ declare module 'snowflake-sdk' {
     gcsUseDownscopedCredential?: boolean;
 
     /**
-     * The option to use https request only for the snowflake server if other GCP metadata or configuration is already set on the machine.
-     * The default value is false.
-     */
-    forceGCPUseDownscopedCredential?: boolean;
-
-    /**
      * The option to disable the web authentication console login.
      */
     disableConsoleLogin?: boolean;
-
-    /**
-     *  Turn on the validation function which checks whether all the connection configuration from users are valid or not.
-     */
-    validateDefaultParameters?: boolean;
 
     /**
      *  The option to set the location where the token will be saved for the token authentication (MFA and SSO).
      *  The path must include the folder path only.
      */
     credentialCacheDir?: string;
-
-    /**
-     * The option to enable the MFA token. The default value is false.
-     */
-    clientRequestMFAToken?: boolean;
 
     /**
      *  The option to include the passcode from DUO into the password.
@@ -750,6 +669,16 @@ declare module 'snowflake-sdk' {
    * Creates a connection object that can be used to communicate with Snowflake.
    */
   export function createConnection(options: ConnectionOptions): Connection;
+
+  /**
+   * Converts snake_case connection option keys (e.g. from a parsed TOML file) to
+   * the camelCase format expected by {@link ConnectionOptions}. Also resolves key
+   * aliases such as `user` → `username` and `private_key_file` → `privateKeyPath`.
+   *
+   * Useful when you parse `connections.toml` yourself and need to pass the result
+   * to {@link createConnection}.
+   */
+  export function normalizeConnectionOptions(options: Record<string, unknown>): ConnectionOptions;
 
   /**
    * Deserializes a serialized connection.

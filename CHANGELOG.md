@@ -10,7 +10,7 @@
 - Fixed `connectAsync()` method resolving before connection is completed (snowflakedb/snowflake-connector-nodejs#1276)
 - Fixed incorrect handling of callback argument that should be optional in `connect()` and `connectAsync()` (snowflakedb/snowflake-connector-nodejs#1276)
 - Added request retries to previously uncovered query execution paths (snowflakedb/snowflake-connector-nodejs#1280)
-- Bumped `fast-xml-parser` requirement to 5.3.6 to address CVE-2026-26278 (snowflakedb/snowflake-connector-nodejs#1281)
+- Bumped `fast-xml-parser` requirement to latest 5.4.1 to address CVE-2026-26278 and CVE-2026-27942 (snowflakedb/snowflake-connector-nodejs#1281 and snowflakedb/snowflake-connector-nodejs#1311)
 - Fixed a bug where invalid JWT was generated if user accidentally set both the (locator version of) `account` and the `host` in the config (snowflakedb/snowflake-connector-nodejs#1283)
 - Added `rowStreamHighWaterMark` connection option to control how many rows are buffered when streaming query results via `statement.streamRows()` (snowflakedb/snowflake-connector-nodejs#1289)
 - Removed `bn.js` dependency (snowflakedb/snowflake-connector-nodejs#1294)

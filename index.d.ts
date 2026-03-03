@@ -119,8 +119,14 @@ declare module 'snowflake-sdk' {
     openExternalBrowserCallback?: (url: string) => void;
 
     /**
-     * Specifies the lists of hosts that the driver should connect to directly, bypassing the proxy server (e.g. *.amazonaws.com to bypass Amazon S3 access). For multiple hosts, separate the hostnames with a pipe symbol (|).
-     * You can also use an asterisk as a wild card. For example: noProxy: "*.amazonaws.com|*.my_company.com"
+     * Specifies a list of hosts that the driver should connect to directly, bypassing the proxy server.
+     *
+     * - Use a pipe symbol (`|`) to separate multiple hosts.
+     * - Use `*` or `?` as glob patterns (e.g., `*sub.amazonaws.com`).
+     * - A leading dot (e.g., `.amazonaws.com`) matches any subdomain.
+     *
+     * @example
+     * noProxy: "*.amazonaws.com|*.my_company.com"
      */
     noProxy?: string;
 

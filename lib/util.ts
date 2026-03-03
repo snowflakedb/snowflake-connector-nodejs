@@ -658,3 +658,23 @@ export function escapeHTML(value: string) {
 export function sleep(sleepTimeMs: number) {
   return new Promise((resolve) => setTimeout(resolve, sleepTimeMs));
 }
+
+// NOTE:
+// This won't be needed when we'll support Node 22+ which has fs.globSync method
+export function globToRegex(pattern: string) {
+  let regexPattern = '';
+
+  for (let i = 0; i < pattern.length; i++) {
+    const char = pattern[i];
+    if (char === '*') {
+      regexPattern += '.*';
+    } else if (char === '?') {
+      regexPattern += '.';
+    } else {
+      // Escape special regex characters
+      regexPattern += char.replace(/[.+^${}()|[\]\\]/g, '\\$&');
+    }
+  }
+
+  return new RegExp(`^${regexPattern}$`);
+}

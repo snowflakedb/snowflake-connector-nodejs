@@ -4,7 +4,6 @@ const os = require('os');
 const fsPromises = require('fs').promises;
 const crypto = require('crypto');
 const {
-  globToRegex,
   getMatchingFilePaths,
   isFileNotWritableByGroupOrOthers,
   validateOnlyUserReadWritePermissionAndOwner,
@@ -29,39 +28,6 @@ describe('FileUtil.getDigestAndSizeForFile()', function () {
       await fsPromises.rm(tmpFilePath, { force: true });
     }
   });
-});
-
-describe('globToRegex', function () {
-  const files = ['matched.gzip', 'matched2.gzip', 'matched.txt', 'notmatched.txt'];
-  const testCases = [
-    {
-      pattern: 'ma*',
-      expectedMatches: ['matched.gzip', 'matched2.gzip', 'matched.txt'],
-    },
-    {
-      pattern: 'matche*.gzip',
-      expectedMatches: ['matched.gzip', 'matched2.gzip'],
-    },
-    {
-      pattern: 'matched.gzip*',
-      expectedMatches: ['matched.gzip'],
-    },
-    {
-      pattern: 'matche?.gzip',
-      expectedMatches: ['matched.gzip'],
-    },
-    {
-      pattern: 'm?t?he*',
-      expectedMatches: ['matched.gzip', 'matched2.gzip', 'matched.txt'],
-    },
-  ];
-  for (const { pattern, expectedMatches } of testCases) {
-    it(`${pattern} should match ${expectedMatches.join(', ')}`, () => {
-      const regex = globToRegex(pattern);
-      const matchedFiles = files.filter((file) => regex.test(file));
-      assert.deepStrictEqual(matchedFiles, expectedMatches);
-    });
-  }
 });
 
 describe('matching files by wildcard', function () {

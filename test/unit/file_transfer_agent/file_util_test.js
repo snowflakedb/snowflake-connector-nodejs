@@ -407,8 +407,8 @@ describe('File permissions validation', () => {
     });
   });
 
-  describe('getSecureHandle', function () {
-    it('throws on non-600 permissions', async function () {
+  describe('getSecureHandle', () => {
+    it('throws on non-600 permissions', async () => {
       await fsPromises.chmod(testFilePath, 0o644);
       await assert.rejects(
         async () => await getSecureHandle(testFilePath, 'r'),
@@ -416,7 +416,7 @@ describe('File permissions validation', () => {
       );
     });
 
-    it('returns a valid handle for a file with 0o644 permissions when skip env var is set', async function () {
+    it('returns a valid handle for a file with 0o644 permissions when skip env var is set', async () => {
       await fsPromises.chmod(testFilePath, 0o644);
       sinon
         .stub(process, 'env')

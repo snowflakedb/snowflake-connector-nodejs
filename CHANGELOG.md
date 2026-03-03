@@ -2,7 +2,7 @@
 
 ## Upcoming Release
 
-- Added `SKIP_TOKEN_FILE_PERMISSIONS_VERIFICATION` env var to skip token file permission checks on SPCS (snowflakedb/snowflake-connector-nodejs#1314)
+- Added ability to skip token file permission checks using `SF_SKIP_TOKEN_FILE_PERMISSIONS_VERIFICATION` env variable (snowflakedb/snowflake-connector-nodejs#1314)
 - Fixed OAuth crashing when using bundlers (snowflakedb/snowflake-connector-nodejs#1266)
 - Added Node 18+ to `engines`, which is our minimum officially supported version since the 2.x release (snowflakedb/snowflake-connector-nodejs#1268)
 - Added `PLATFORM` field to login-request telemetry (snowflakedb/snowflake-connector-nodejs#1269)

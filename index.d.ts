@@ -122,7 +122,7 @@ declare module 'snowflake-sdk' {
      * Specifies a list of hosts that the driver should connect to directly, bypassing the proxy server.
      *
      * - Use a pipe symbol (`|`) to separate multiple hosts.
-     * - Use `*` or `?` as glob patterns (e.g., `*sub.amazonaws.com`).
+     * - Use `*` as a wildcard (e.g., `*sub.amazonaws.com`).
      * - A leading dot (e.g., `.amazonaws.com`) matches any subdomain.
      *
      * @example

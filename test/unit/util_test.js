@@ -1090,36 +1090,3 @@ describe('Util', function () {
     });
   });
 });
-
-describe('globToRegex', function () {
-  const files = ['matched.gzip', 'matched2.gzip', 'matched.txt', 'notmatched.txt'];
-  const testCases = [
-    {
-      pattern: 'ma*',
-      expectedMatches: ['matched.gzip', 'matched2.gzip', 'matched.txt'],
-    },
-    {
-      pattern: 'matche*.gzip',
-      expectedMatches: ['matched.gzip', 'matched2.gzip'],
-    },
-    {
-      pattern: 'matched.gzip*',
-      expectedMatches: ['matched.gzip'],
-    },
-    {
-      pattern: 'matche?.gzip',
-      expectedMatches: ['matched.gzip'],
-    },
-    {
-      pattern: 'm?t?he*',
-      expectedMatches: ['matched.gzip', 'matched2.gzip', 'matched.txt'],
-    },
-  ];
-  for (const { pattern, expectedMatches } of testCases) {
-    it(`${pattern} should match ${expectedMatches.join(', ')}`, () => {
-      const regex = Util.globToRegex(pattern);
-      const matchedFiles = files.filter((file) => regex.test(file));
-      assert.deepStrictEqual(matchedFiles, expectedMatches);
-    });
-  }
-});

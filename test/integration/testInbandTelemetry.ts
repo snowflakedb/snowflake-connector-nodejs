@@ -60,6 +60,7 @@ describe('Inband Telemetry', () => {
     );
     const logEntry = getTelemetryRequests()[0].firstArg.data.logs[0];
     assert.strictEqual(logEntry.message.type, 'minicore_error');
+    assert.match(logEntry.message.value.binaryName, /dummy-test-platform-to-force-load-error/);
     assert.match(logEntry.message.value.message, expectedErrorRegexp);
     assert.match(logEntry.message.value.stack, expectedErrorRegexp);
   });

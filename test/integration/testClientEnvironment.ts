@@ -86,7 +86,7 @@ describe('CLIENT_ENVIRONMENT for /login-request', () => {
       clientEnvironment.CORE_FILE_NAME.includes('sf_mini_core_0.0.1'),
       `Unexpected CORE_BINARY_NAME: ${clientEnvironment.CORE_BINARY_NAME}`,
     );
-    assert.strictEqual(clientEnvironment.CORE_LOAD_ERROR, 'Failed to load binary');
+    assert.strictEqual(clientEnvironment.CORE_LOAD_ERROR, 'Binary is missing from the bundle');
   });
 
   it('contains OS_DETAILS on Linux or null on other platforms', async () => {

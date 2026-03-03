@@ -1,6 +1,5 @@
 import Logger from '../logger';
 import * as authUtil from '../authentication/authentication_util';
-import { format } from '../util';
 import AuthenticationTypes from './authentication_types';
 import { AuthClass, AuthRequestBody } from './types';
 import { WIP_ConnectionConfig } from '../connection/types';
@@ -57,37 +56,27 @@ class AuthOauthClientCredentials implements AuthClass {
       client_id: clientId,
     };
 
-    try {
-      Logger().debug(`Executing token request: ${tokenUrl.href}`);
-      const clientAuth = oauth.ClientSecretPost(clientSecret);
-      const response = await oauth.clientCredentialsGrantRequest(
-        as,
-        client,
-        clientAuth,
-        parameters,
-        {
-          [oauth.allowInsecureRequests]: this.connectionConfig.getOauthHttpAllowed(),
-          [oauth.customFetch]: async (url, options) => {
-            const response = await this.httpClient.requestAsync({ url, ...options });
-            return new Response(response.json, {
-              status: response.statusCode,
-              statusText: response.statusText,
-              headers: response.headers,
-            });
-          },
-        },
-      );
-      const result = await oauth.processClientCredentialsResponse(as, client, response);
+    Logger().debug(`Executing token request: ${tokenUrl.href}`);
+    const clientAuth = oauth.ClientSecretPost(clientSecret);
+    const response = await oauth.clientCredentialsGrantRequest(as, client, clientAuth, parameters, {
+      [oauth.allowInsecureRequests]: this.connectionConfig.getOauthHttpAllowed(),
+      [oauth.customFetch]: async (url, options) => {
+        const response = await this.httpClient.requestAsync({ url, ...options });
+        return new Response(response.json, {
+          status: response.statusCode,
+          statusText: response.statusText,
+          headers: response.headers,
+        });
+      },
+    });
+    const result = await oauth.processClientCredentialsResponse(as, client, response);
 
-      if (result.access_token) {
-        Logger().debug(`Received new OAuth access token from: ${tokenUrl.href}`);
-      } else {
-        throw Error(`Response doesn't contain OAuth access token. Requested URI: ${tokenUrl.href}`);
-      }
-      return result.access_token;
-    } catch (error: any) {
-      throw new Error(format('Error while getting access token. Message: %s', error.message));
+    if (result.access_token) {
+      Logger().debug(`Received new OAuth access token from: ${tokenUrl.href}`);
+    } else {
+      throw Error(`Response doesn't contain OAuth access token. Requested URI: ${tokenUrl.href}`);
     }
+    return result.access_token;
   }
 }
 

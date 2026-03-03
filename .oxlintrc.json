@@ -14,5 +14,5 @@
     "prefer-const": "error",
     "unicorn/no-new-array": "off"
   },
-  "ignorePatterns": ["dist/**/*.js", "samples/**/*.js", "**/*.d.ts"]
+  "ignorePatterns": ["dist/**/*.js", "**/*.d.ts"]
 }

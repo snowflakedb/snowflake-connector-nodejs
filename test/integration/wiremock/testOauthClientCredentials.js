@@ -66,9 +66,7 @@ describe('Oauth Client Credentials authentication', function () {
     );
     authTest.createConnection(connectionOption);
     await authTest.connectAsync();
-    authTest.verifyErrorWasThrown(
-      'Error while getting access token. Message: Request failed with status code 400',
-    );
+    authTest.verifyErrorWasThrown('Request failed with status code 400');
   });
 
   //no token in response
@@ -79,8 +77,6 @@ describe('Oauth Client Credentials authentication', function () {
     );
     authTest.createConnection(connectionOption);
     await authTest.connectAsync();
-    authTest.verifyErrorWasThrown(
-      'Error while getting access token. Message: "response" body "access_token" property must be a string',
-    );
+    authTest.verifyErrorWasThrown('"response" body "access_token" property must be a string');
   });
 });

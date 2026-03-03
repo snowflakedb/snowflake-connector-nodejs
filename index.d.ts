@@ -126,7 +126,7 @@ declare module 'snowflake-sdk' {
      * - A leading dot (e.g., `.amazonaws.com`) matches any subdomain.
      *
      * @example
-     * noProxy: "*.amazonaws.com|*.my_company.com"
+     * noProxy: ".amazonaws.com|*sub.my_company.com"
      */
     noProxy?: string;
 

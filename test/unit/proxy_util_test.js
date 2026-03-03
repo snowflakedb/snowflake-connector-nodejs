@@ -475,7 +475,7 @@ describe('isByPassProxy', function () {
     },
     {
       name: 'wildcard pattern - in multi-entry list matches correct entry',
-      noProxy: '*.amazonaws.com,*.snowflakecomputing.com,localhost',
+      noProxy: '*.amazonaws.com|*.snowflakecomputing.com|localhost',
       destination: 'myaccount.snowflakecomputing.com',
       shouldMatch: true,
     },
@@ -517,7 +517,7 @@ describe('isByPassProxy', function () {
     },
     {
       name: 'dot-prefix match - NO_PROXY in a multi-entry list',
-      noProxy: '*.amazonaws.com,.snowflakecomputing.com,localhost',
+      noProxy: '*.amazonaws.com|.snowflakecomputing.com|localhost',
       destination: 'myaccount.us-east-1.snowflakecomputing.com',
       shouldMatch: true,
     },

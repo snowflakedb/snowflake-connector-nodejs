@@ -84,6 +84,18 @@ describe('getMinicoreStatus()', () => {
     ) as typeof import('../../lib/minicore/minicore');
   }
 
+  function getFreshMinicoreModuleWithBinaryThrowing(error: unknown) {
+    const originalEval = global.eval;
+    global.eval = (() => () => {
+      throw error;
+    }) as typeof global.eval;
+    try {
+      return getFreshMinicoreModule();
+    } finally {
+      global.eval = originalEval;
+    }
+  }
+
   it('returns correct status metadata', () => {
     const minicoreStatus = getMinicoreStatus();
     assert.deepStrictEqual(minicoreStatus, {
@@ -106,20 +118,27 @@ describe('getMinicoreStatus()', () => {
     });
   });
 
-  it('returns error when minicore fails to load', () => {
-    sinon.stub(process, 'platform').value('dummy-test-platform-to-force-load-error');
-    const minicoreModule = getFreshMinicoreModule();
-    const minicoreStatus = minicoreModule.getMinicoreStatus();
-    assert.strictEqual(minicoreStatus.version, null);
-    assert.strictEqual(minicoreStatus.binaryName, minicoreModule.getBinaryName());
-    assert.strictEqual(minicoreStatus.errorType, 'Failed to load binary');
-    assert.ok(minicoreStatus.errorDetails instanceof Error, 'errorDetails should be an Error');
-    assert.match(
-      minicoreStatus.errorDetails.toString(),
-      new RegExp(
-        `Error: Cannot find module './binaries/sf_mini_core_0.0.1.dummy-test-platform-to-force-load-error`,
-        'i',
-      ),
+  it('returns "Failed to load binary" on unexpected error', () => {
+    const minicoreModule = getFreshMinicoreModuleWithBinaryThrowing(
+      'some unexpected native loading error',
     );
+    const minicoreStatus = minicoreModule.getMinicoreStatus();
+    assert.strictEqual(minicoreStatus.errorType, 'Failed to load binary');
+    assert.strictEqual(minicoreStatus.errorDetails, null);
+  });
+
+  [
+    "Cannot find module './binaries/sf_mini_core_0.0.1.linux-x64-musl.node'",
+    'require is not defined',
+    'LoadLibrary failed: The network name cannot be found.',
+    'LoadLibrary failed: The specified module could not be found.',
+  ].forEach((message) => {
+    it(`returns "Binary is missing from the bundle" when error is "${message}"`, () => {
+      const minicoreModule = getFreshMinicoreModuleWithBinaryThrowing(new Error(message));
+      const minicoreStatus = minicoreModule.getMinicoreStatus();
+      assert.strictEqual(minicoreStatus.errorType, 'Binary is missing from the bundle');
+      assert.ok(minicoreStatus.errorDetails instanceof Error);
+      assert.strictEqual(minicoreStatus.errorDetails.message, message);
+    });
   });
 });

@@ -448,3 +448,123 @@ describe('Proxy Util for Azure', function () {
     }
   });
 });
+
+describe('isByPassProxy', function () {
+  function makeProxy(noProxy) {
+    return { host: 'my.pro.xy', port: 8080, noProxy };
+  }
+
+  [
+    {
+      name: 'does not treat special regex characters as regex',
+      noProxy: 'snowflakecomputing.com',
+      destination: 'snowflakecomputingccom',
+      shouldMatch: false,
+    },
+    {
+      name: 'does not match partial noProxy as destination',
+      noProxy: 'snowflake',
+      destination: 'snowflakecomputing.com',
+      shouldMatch: false,
+    },
+    {
+      name: 'wildcard pattern - matches single subdomain',
+      noProxy: '*.snowflakecomputing.com',
+      destination: 'myaccount.snowflakecomputing.com',
+      shouldMatch: true,
+    },
+    {
+      name: 'wildcard pattern - matches multi-level subdomain',
+      noProxy: '*.snowflakecomputing.com',
+      destination: 'myaccount.us-east-1.snowflakecomputing.com',
+      shouldMatch: true,
+    },
+    {
+      name: 'wildcard pattern - does not match unrelated domain',
+      noProxy: '*.snowflakecomputing.com',
+      destination: 'example.com',
+      shouldMatch: false,
+    },
+    {
+      name: 'wildcard pattern - in multi-entry list matches correct entry',
+      noProxy: '*.amazonaws.com|*.snowflakecomputing.com|localhost',
+      destination: 'myaccount.snowflakecomputing.com',
+      shouldMatch: true,
+    },
+    {
+      name: 'exact host entry - match on localhost',
+      noProxy: 'localhost',
+      destination: 'localhost',
+      shouldMatch: true,
+    },
+    {
+      name: 'exact host entry - match on full domain',
+      noProxy: 'myhost.mycompany.com',
+      destination: 'myhost.mycompany.com',
+      shouldMatch: true,
+    },
+    {
+      name: 'exact host entry - does not match different domain',
+      noProxy: 'localhost',
+      destination: 'example.com',
+      shouldMatch: false,
+    },
+    {
+      name: 'exact host entry - does not match subdomain of that entry',
+      noProxy: 'example.com',
+      destination: 'sub.example.com',
+      shouldMatch: false,
+    },
+    {
+      name: 'dot-prefix match - NO_PROXY matches single subdomain',
+      noProxy: '.snowflakecomputing.com',
+      destination: 'myaccount.snowflakecomputing.com',
+      shouldMatch: true,
+    },
+    {
+      name: 'dot-prefix match - NO_PROXY matches multi-level subdomain',
+      noProxy: '.snowflakecomputing.com',
+      destination: 'myaccount.us-east-1.snowflakecomputing.com',
+      shouldMatch: true,
+    },
+    {
+      name: 'dot-prefix match - NO_PROXY in a multi-entry list',
+      noProxy: '*.amazonaws.com|.snowflakecomputing.com|localhost',
+      destination: 'myaccount.us-east-1.snowflakecomputing.com',
+      shouldMatch: true,
+    },
+    {
+      name: 'dot-prefix match - NO_PROXY does not match unrelated domain',
+      noProxy: '.snowflakecomputing.com',
+      destination: 'example.com',
+      shouldMatch: false,
+    },
+    {
+      name: 'dot-prefix match - NO_PROXY with whitespace in entry',
+      noProxy: ' .snowflakecomputing.com ',
+      destination: 'myaccount.snowflakecomputing.com',
+      shouldMatch: true,
+    },
+    {
+      name: 'RegExp destination validation like REGEX_SNOWFLAKE_ENDPOINT - matches NO_PROXY entry',
+      noProxy: '.snowflakecomputing.com',
+      destination: /.snowflakecomputing./,
+      shouldMatch: true,
+    },
+    {
+      name: 'RegExp destination validation like REGEX_SNOWFLAKE_ENDPOINT - does not match unrelated NO_PROXY entry',
+      noProxy: 'unrelated.host.com',
+      destination: /.snowflakecomputing./,
+      shouldMatch: false,
+    },
+  ].forEach(({ name, noProxy, destination, shouldMatch }) => {
+    it(name, function () {
+      const result = ProxyUtil.isByPassProxy(makeProxy(noProxy), destination);
+      if (shouldMatch) {
+        assert.ok(result, `Expected "${destination}" to match noProxy "${noProxy}"`);
+      } else {
+        assert.ok(!result, `Expected "${destination}" NOT to match noProxy "${noProxy}"`);
+      }
+    });
+  });
+});

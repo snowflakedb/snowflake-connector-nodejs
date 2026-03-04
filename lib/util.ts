@@ -658,3 +658,7 @@ export function escapeHTML(value: string) {
 export function sleep(sleepTimeMs: number) {
   return new Promise((resolve) => setTimeout(resolve, sleepTimeMs));
 }
+
+export function escapeRegex(str: string) {
+  return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}

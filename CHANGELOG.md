@@ -22,7 +22,10 @@
 - Added snake_case key support when loading `connections.toml` via `createConnection()` with no arguments (snowflakedb/snowflake-connector-nodejs#1304)
 - Exported `normalizeConnectionOptions()` utility to convert snake_case connection keys to camelCase, with key aliases and acronym overrides (snowflakedb/snowflake-connector-nodejs#1304)
 - Fixed `getDefaultCacheDir()` crashing in environments where no user home directory is configured by falling back to `os.tmpdir()` (snowflakedb/snowflake-connector-nodejs#1312)
-- Fixed a bug where host specified in `NO_PROXY` in the `.domain.com` wildcard format were not correctly matching the destination host (snowflakedb/snowflake-connector-nodejs#1309)
+- Fixed bugs in `noProxy` and `NO_PROXY` handling:
+  - `.domain.com` wildcard format was not correctly matching the destination host (snowflakedb/snowflake-connector-nodejs#1309)
+  - `.` was incorrectly matching as any character instead of a literal dot (snowflakedb/snowflake-connector-nodejs#1315)
+  - Partial strings were incorrectly matching instead of requiring full destination match (snowflakedb/snowflake-connector-nodejs#1315)
 
 ## 2.3.4
 

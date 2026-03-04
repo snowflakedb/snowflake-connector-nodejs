@@ -1,4 +1,5 @@
 const assert = require('assert');
+const sinon = require('sinon');
 const testUtil = require('../../integration/testUtil');
 const os = require('os');
 const fsPromises = require('fs').promises;
@@ -8,9 +9,12 @@ const {
   getMatchingFilePaths,
   isFileNotWritableByGroupOrOthers,
   validateOnlyUserReadWritePermissionAndOwner,
+  validateNoExtraPermissionsForOthers,
+  getSecureHandle,
   isFileModeCorrect,
   FileUtil,
 } = require('../../../lib/file_util');
+const Logger = require('../../../lib/logger').default;
 const path = require('path');
 
 describe('FileUtil.getDigestAndSizeForFile()', function () {
@@ -333,5 +337,93 @@ describe('FileUtil.normalizeGzipHeader()', function () {
     assert.strictEqual(afterBuffer[3], 0x00);
     assert.strictEqual(afterBuffer[8], 0x00);
     assert.strictEqual(afterBuffer[9], 0x03);
+  });
+});
+
+describe('File permissions validation', () => {
+  let testFilePath;
+
+  before(async function () {
+    if (os.platform() === 'win32') {
+      return this.skip();
+    }
+    testFilePath = path.join(os.tmpdir(), `validate_perm_${crypto.randomUUID()}`);
+    await fsPromises.writeFile(testFilePath, 'test', { mode: 0o600 });
+  });
+
+  afterEach(() => {
+    sinon.restore();
+  });
+
+  after(async () => {
+    if (testFilePath) {
+      await fsPromises.rm(testFilePath, { force: true });
+    }
+  });
+
+  describe('validateNoExtraPermissionsForOthers', () => {
+    it('throws on executable file', async () => {
+      await fsPromises.chmod(testFilePath, 0o700);
+      await assert.rejects(
+        async () => await validateNoExtraPermissionsForOthers(testFilePath),
+        /is executable/,
+      );
+    });
+
+    it('throws on file writable by others', async () => {
+      await fsPromises.chmod(testFilePath, 0o622);
+      await assert.rejects(
+        async () => await validateNoExtraPermissionsForOthers(testFilePath),
+        /is writable by group or others/,
+      );
+    });
+
+    it('throws when owner lacks read/write permission', async () => {
+      await fsPromises.chmod(testFilePath, 0o044);
+      await assert.rejects(
+        async () => await validateNoExtraPermissionsForOthers(testFilePath),
+        /Invalid file permissions/,
+      );
+    });
+
+    it('doesnt reject a file with 0o777 permissions when SKIP_TOKEN_FILE_PERMISSIONS_VERIFICATION=true', async () => {
+      await fsPromises.chmod(testFilePath, 0o777);
+      sinon
+        .stub(process, 'env')
+        .value({ ...process.env, SKIP_TOKEN_FILE_PERMISSIONS_VERIFICATION: 'true' });
+      await assert.doesNotReject(
+        async () => await validateNoExtraPermissionsForOthers(testFilePath),
+      );
+    });
+
+    it('doesnt warn about read permissions on a 0o644 file when SKIP_TOKEN_FILE_PERMISSIONS_VERIFICATION=true', async () => {
+      await fsPromises.chmod(testFilePath, 0o644);
+      const warnSpy = sinon.spy(Logger(), 'warn');
+      sinon
+        .stub(process, 'env')
+        .value({ ...process.env, SKIP_TOKEN_FILE_PERMISSIONS_VERIFICATION: 'true' });
+      await validateNoExtraPermissionsForOthers(testFilePath);
+      assert.strictEqual(warnSpy.callCount, 0);
+    });
+  });
+
+  describe('getSecureHandle', () => {
+    it('throws on non-600 permissions', async () => {
+      await fsPromises.chmod(testFilePath, 0o644);
+      await assert.rejects(
+        async () => await getSecureHandle(testFilePath, 'r'),
+        /Invalid file permissions/,
+      );
+    });
+
+    it('returns a valid handle for a file with 0o644 permissions when skip env var is set', async () => {
+      await fsPromises.chmod(testFilePath, 0o644);
+      sinon
+        .stub(process, 'env')
+        .value({ ...process.env, SKIP_TOKEN_FILE_PERMISSIONS_VERIFICATION: 'true' });
+      const handle = await getSecureHandle(testFilePath, 'r');
+      assert.notStrictEqual(handle, null);
+      await handle.close();
+    });
   });
 });

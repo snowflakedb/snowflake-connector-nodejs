@@ -28,6 +28,7 @@
   - `.` was incorrectly matching as any character instead of a literal dot (snowflakedb/snowflake-connector-nodejs#1315)
   - Partial strings were incorrectly matching instead of requiring full destination match (snowflakedb/snowflake-connector-nodejs#1315)
 - Fixed OAuth Authorization Code reauthentication not using the refreshed access token when the cached access token is expired (snowflakedb/snowflake-connector-nodejs#1318)
+- Fixed OAuth Authorization Code refresh token being removed from cache when the IDP does not return a new one (snowflakedb/snowflake-connector-nodejs#1319)
 
 ## 2.3.4
 

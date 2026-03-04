@@ -101,6 +101,21 @@ describe('Oauth Refresh token for Autorization Code', function () {
     assert.strictEqual(refreshTokenInCache, 'new-refresh-token-123');
   });
 
+  it('Keeps refresh token in cache when IDP does not return a new one', async function () {
+    await authUtil.writeToCache(refreshTokenKey, 'cached_refresh_token');
+    await addWireMockMappingsFromFile(
+      wireMock,
+      'wiremock/mappings/oauth/token_cache_and_refresh/refresh_token_kept_when_not_returned.json',
+    );
+    await authTest.createConnection(connectionOptionAuthorizationCode);
+    await authTest.connectAsync();
+    authTest.verifyNoErrorWasThrown();
+    const accessTokenInCache = await authUtil.readCache(accessTokenKey);
+    const refreshTokenInCache = await authUtil.readCache(refreshTokenKey);
+    assert.strictEqual(accessTokenInCache, 'new_access_token');
+    assert.strictEqual(refreshTokenInCache, 'cached_refresh_token');
+  });
+
   it('Reauthenticates with refreshed token when cached access token is expired', async function () {
     await authUtil.writeToCache(accessTokenKey, 'expired_token');
     await authUtil.writeToCache(refreshTokenKey, 'cached_refresh_token');

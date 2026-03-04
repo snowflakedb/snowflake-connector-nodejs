@@ -23,6 +23,7 @@
 - Exported `normalizeConnectionOptions()` utility to convert snake_case connection keys to camelCase, with key aliases and acronym overrides (snowflakedb/snowflake-connector-nodejs#1304)
 - Fixed `getDefaultCacheDir()` crashing in environments where no user home directory is configured by falling back to `os.tmpdir()` (snowflakedb/snowflake-connector-nodejs#1312)
 - Fixed a bug where host specified in `NO_PROXY` in the `.domain.com` wildcard format were not correctly matching the destination host (snowflakedb/snowflake-connector-nodejs#1309)
+- Fixed OAuth Authorization Code login retries not refreshing the access token, causing unnecessary browser re-authentication when the token expired during active use
 
 ## 2.3.4
 

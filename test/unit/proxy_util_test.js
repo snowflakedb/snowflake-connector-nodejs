@@ -456,6 +456,18 @@ describe('isByPassProxy', function () {
 
   [
     {
+      name: 'does not treat special regex characters as regex',
+      noProxy: 'snowflakecomputing.com',
+      destination: 'snowflakecomputingccom',
+      shouldMatch: false,
+    },
+    {
+      name: 'does not match partial noProxy as destination',
+      noProxy: 'snowflake',
+      destination: 'snowflakecomputing.com',
+      shouldMatch: false,
+    },
+    {
       name: 'wildcard pattern - matches single subdomain',
       noProxy: '*.snowflakecomputing.com',
       destination: 'myaccount.snowflakecomputing.com',

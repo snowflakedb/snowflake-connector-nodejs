@@ -31,9 +31,9 @@ export interface GlobalConfigOptionsTyped {
   crlCacheValidityTime: number;
 
   /**
-   * Maximum allowed size for a CRL download response, in megabytes.
+   * Maximum allowed size for a CRL download response
    *
-   * @default 200
+   * @default 200 (Megabytes)
    */
   crlDownloadMaxSize: number;
 

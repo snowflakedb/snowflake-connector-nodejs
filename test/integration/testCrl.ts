@@ -56,7 +56,7 @@ describe('connection with CRL validation', () => {
     });
 
     it('goes through crl validation', async () => {
-      const validateCrlSpy = sinon.stub(CRL_VALIDATOR_INTERNAL, 'validateCrl').resolves(true);
+      const validateCrlSpy = sinon.spy(CRL_VALIDATOR_INTERNAL, 'validateCrl');
       await assert.doesNotReject(
         testCrlConnection({
           proxyHost: '127.0.0.1',

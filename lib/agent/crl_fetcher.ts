@@ -63,28 +63,31 @@ export async function getCrl(
   }
 
   const fetchPromise = (async () => {
-    logDebug(`Downloading CRL`);
-    const { data } = await axios.get(url, {
-      timeout: GlobalConfigTyped.getValue('crlDownloadTimeout'),
-      responseType: 'arraybuffer',
-      maxContentLength: GlobalConfigTyped.getValue('crlDownloadMaxSize') * 1024 * 1024,
-    });
+    try {
+      logDebug(`Downloading CRL`);
+      const { data } = await axios.get(url, {
+        timeout: GlobalConfigTyped.getValue('crlDownloadTimeout'),
+        responseType: 'arraybuffer',
+        maxContentLength: GlobalConfigTyped.getValue('crlDownloadMaxSize') * 1024 * 1024,
+      });
 
-    logDebug(`Parsing CRL`);
-    const parsedCrl = ASN1.CertificateList.decode(data, 'der');
+      logDebug(`Parsing CRL`);
+      const parsedCrl = ASN1.CertificateList.decode(data, 'der');
 
-    if (options.inMemoryCache) {
-      logDebug('Saving to memory cache');
-      setCrlInMemory(url, parsedCrl);
+      if (options.inMemoryCache) {
+        logDebug('Saving to memory cache');
+        setCrlInMemory(url, parsedCrl);
+      }
+
+      if (options.onDiskCache) {
+        logDebug('Saving to disk cache');
+        await writeCrlToDisk(url, data);
+      }
+
+      return parsedCrl;
+    } finally {
+      PENDING_FETCH_REQUESTS.delete(url);
     }
-
-    if (options.onDiskCache) {
-      logDebug('Saving to disk cache');
-      await writeCrlToDisk(url, data);
-    }
-
-    PENDING_FETCH_REQUESTS.delete(url);
-    return parsedCrl;
   })();
 
   PENDING_FETCH_REQUESTS.set(url, fetchPromise);

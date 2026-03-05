@@ -29,7 +29,7 @@
   - `.domain.com` wildcard format was not correctly matching the destination host (snowflakedb/snowflake-connector-nodejs#1309)
   - `.` was incorrectly matching as any character instead of a literal dot (snowflakedb/snowflake-connector-nodejs#1315)
   - Partial strings were incorrectly matching instead of requiring full destination match (snowflakedb/snowflake-connector-nodejs#1315)
-- Added `crlDownloadMaxSize` config option to enforce a maximum response size limit when downloading CRL files (default 20 MB) (snowflakedb/snowflake-connector-nodejs#1321)
+- Added `crlDownloadMaxSize` config option to enforce a maximum response size limit when downloading CRL files (default 200MB) (snowflakedb/snowflake-connector-nodejs#1321)
 - Fixed CRL ADVISORY mode failure logging to use warn level instead of debug (snowflakedb/snowflake-connector-nodejs#1321)
 
 ## 2.3.4

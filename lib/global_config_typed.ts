@@ -33,7 +33,7 @@ export interface GlobalConfigOptionsTyped {
   /**
    * Maximum allowed size for a CRL download response, in megabytes.
    *
-   * @default 20
+   * @default 200
    */
   crlDownloadMaxSize: number;
 
@@ -52,7 +52,7 @@ export interface GlobalConfigOptionsTyped {
 
 export const GLOBAL_CONFIG_DEFAULTS: GlobalConfigOptionsTyped = {
   crlDownloadTimeout: 10000,
-  crlDownloadMaxSize: 20,
+  crlDownloadMaxSize: 200,
   crlCacheValidityTime: 86400000,
   get crlCacheDir() {
     return process.env.SNOWFLAKE_CRL_ON_DISK_CACHE_DIR || path.join(getDefaultCacheDir(), 'crls');

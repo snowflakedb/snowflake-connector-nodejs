@@ -1,14 +1,14 @@
 import assert from 'assert';
 import axios from 'axios';
 import sinon from 'sinon';
-import { validateCrl, CRLValidatorConfig } from '../../../lib/agent/crl_validator';
+import { validateCrl, CRLValidatorConfig } from '../../../../lib/agent/crl_validator';
 import {
   createCertificateKeyPair,
   createCertificateNameField,
   createTestCertificate,
   createTestCRL,
 } from './test_utils';
-import ASN1 from 'asn1.js-rfc5280';
+import rfc5280 from 'asn1.js-rfc5280';
 import { createCertificateChain } from './test_utils';
 
 describe('validateCrl', () => {
@@ -31,8 +31,8 @@ describe('validateCrl', () => {
     sinon.restore();
   });
 
-  function setCrlResponse(crl: ASN1.CertificateListDecoded) {
-    axiosGetStub.resolves({ data: Buffer.from(ASN1.CertificateList.encode(crl, 'der')) });
+  function setCrlResponse(crl: rfc5280.CertificateListDecoded) {
+    axiosGetStub.resolves({ data: Buffer.from(rfc5280.CertificateList.encode(crl, 'der')) });
   }
 
   it('passes for short-lived certificate', async () => {

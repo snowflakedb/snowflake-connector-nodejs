@@ -1,13 +1,13 @@
 import path from 'path';
 import fs from 'fs/promises';
-import ASN1 from 'asn1.js-rfc5280';
-import { writeCacheFile, isFileNotFoundError } from '../disk_cache';
-import GlobalConfigTyped from '../global_config_typed';
-import Logger from '../logger';
+import rfc5280 from 'asn1.js-rfc5280';
+import { writeCacheFile, isFileNotFoundError } from '../../disk_cache';
+import GlobalConfigTyped from '../../global_config_typed';
+import Logger from '../../logger';
 
 export const CRL_MEMORY_CACHE = new Map<
   string,
-  { expireAt: number; crl: ASN1.CertificateListDecoded }
+  { expireAt: number; crl: rfc5280.CertificateListDecoded }
 >();
 
 export function getCrlFromMemory(url: string) {
@@ -24,7 +24,7 @@ export function getCrlFromMemory(url: string) {
   }
 }
 
-export function setCrlInMemory(url: string, crl: ASN1.CertificateListDecoded) {
+export function setCrlInMemory(url: string, crl: rfc5280.CertificateListDecoded) {
   CRL_MEMORY_CACHE.set(url, {
     expireAt: Math.min(
       Date.now() + GlobalConfigTyped.getValue('crlCacheValidityTime'),
@@ -76,7 +76,7 @@ export async function getCrlFromDisk(url: string) {
     }
 
     const rawCrl = await fs.readFile(filePath);
-    const decodedCrl = ASN1.CertificateList.decode(rawCrl, 'der');
+    const decodedCrl = rfc5280.CertificateList.decode(rawCrl, 'der');
     if (decodedCrl.tbsCertList.nextUpdate.value > Date.now()) {
       return decodedCrl;
     } else {

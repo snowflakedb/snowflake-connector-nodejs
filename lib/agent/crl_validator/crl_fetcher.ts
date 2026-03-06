@@ -1,7 +1,7 @@
-import ASN1 from 'asn1.js-rfc5280';
+import rfc5280 from 'asn1.js-rfc5280';
 import axios from 'axios';
-import Logger from '../logger';
-import GlobalConfigTyped from '../global_config_typed';
+import Logger from '../../logger';
+import GlobalConfigTyped from '../../global_config_typed';
 import {
   clearExpiredCrlFromDiskCache,
   clearExpiredCrlFromMemoryCache,
@@ -11,7 +11,7 @@ import {
   writeCrlToDisk,
 } from './crl_cache';
 
-export const PENDING_FETCH_REQUESTS = new Map<string, Promise<ASN1.CertificateListDecoded>>();
+export const PENDING_FETCH_REQUESTS = new Map<string, Promise<rfc5280.CertificateListDecoded>>();
 let crlCacheCleanerCreated = false;
 
 export async function getCrl(
@@ -70,7 +70,7 @@ export async function getCrl(
     });
 
     logDebug(`Parsing CRL`);
-    const parsedCrl = ASN1.CertificateList.decode(data, 'der');
+    const parsedCrl = rfc5280.CertificateList.decode(data, 'der');
 
     if (options.inMemoryCache) {
       logDebug('Saving to memory cache');

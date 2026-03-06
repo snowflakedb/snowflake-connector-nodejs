@@ -13,7 +13,7 @@ describe('isCrlSignatureValid with real OpenSSL-generated CRL', () => {
     let crl: rfc5280.CertificateListDecoded;
     let caPem: string;
 
-    beforeEach(() => {
+    before(() => {
       const crlDer = fs.readFileSync(path.join(FIXTURES_DIR, 'pss_sha256.crl'));
       caPem = fs.readFileSync(path.join(FIXTURES_DIR, 'pss_sha256_ca.pem'), 'utf8');
       crl = rfc5280.CertificateList.decode(crlDer, 'der');

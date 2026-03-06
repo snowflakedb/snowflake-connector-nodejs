@@ -60,6 +60,7 @@ describe('getCrl', () => {
       axiosGetStub.calledOnceWith(crlUrl, {
         timeout: GlobalConfigTyped.getValue('crlDownloadTimeout'),
         responseType: 'arraybuffer',
+        maxContentLength: 20971520,
       }),
     );
     assert.deepEqual(fetchedCrl, testCrl);

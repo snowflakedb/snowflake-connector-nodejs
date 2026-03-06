@@ -31,6 +31,14 @@ export interface GlobalConfigOptionsTyped {
   crlCacheValidityTime: number;
 
   /**
+   * Maximum allowed size for a CRL download response.
+   * If exceeded, the download will fail and certificate validation will not proceed.
+   *
+   * @default 20971520 (20 MB in bytes)
+   */
+  crlDownloadMaxSize: number;
+
+  /**
    * Directory path to store CRL cache when crlOnDiskCache is true.
    *
    * @default
@@ -45,6 +53,7 @@ export interface GlobalConfigOptionsTyped {
 
 export const GLOBAL_CONFIG_DEFAULTS: GlobalConfigOptionsTyped = {
   crlDownloadTimeout: 10000,
+  crlDownloadMaxSize: 20 * 1024 * 1024,
   crlCacheValidityTime: 86400000,
   get crlCacheDir() {
     return process.env.SNOWFLAKE_CRL_ON_DISK_CACHE_DIR || path.join(getDefaultCacheDir(), 'crls');

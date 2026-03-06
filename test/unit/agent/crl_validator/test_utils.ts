@@ -2,7 +2,7 @@ import { DetailedPeerCertificate } from 'tls';
 import crypto from 'crypto';
 import asn1 from 'asn1.js';
 import rfc5280 from 'asn1.js-rfc5280';
-import { CRL_SIGNATURE_OID_TO_CRYPTO_DIGEST_ALGORITHM } from '../../../lib/agent/crl_utils';
+import { CRL_SIGNATURE_OID_TO_CRYPTO_DIGEST_ALGORITHM } from '../../../../lib/agent/crl_validator/crl_utils';
 
 const DEFAULT_SIGNATURE_ALGORITHM_OID = '1.2.840.113549.1.1.11';
 let serialNumberCounter = 10000;

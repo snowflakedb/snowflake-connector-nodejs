@@ -1,7 +1,7 @@
 import { DetailedPeerCertificate } from 'tls';
 import crypto from 'crypto';
-import ASN1 from 'asn1.js-rfc5280';
-import Logger from '../logger';
+import rfc5280 from 'asn1.js-rfc5280';
+import Logger from '../../logger';
 
 // TODO:
 // Implement RSASSA-PSS signature verification
@@ -25,14 +25,14 @@ export function getCertificateDebugName(certificate: DetailedPeerCertificate) {
 
 export const getCertificateCrlUrls = (
   certificateName: string,
-  decodedCertificate: ASN1.CertificateDecoded,
+  decodedCertificate: rfc5280.CertificateDecoded,
 ) => {
   const logDebug = (msg: string, ...msgArgs: any[]) =>
     Logger().debug(`getCertificateCrlUrls[${certificateName}]: ${msg}`, ...msgArgs);
 
   const crlExtension = decodedCertificate.tbsCertificate.extensions?.find(
     (ext) => ext.extnID === 'cRLDistributionPoints',
-  ) as ASN1.CrlDistributionPointsExtension | undefined;
+  ) as rfc5280.CrlDistributionPointsExtension | undefined;
   if (!crlExtension) {
     logDebug('certificate doesnt have cRLDistributionPoints extension');
     return null;
@@ -67,7 +67,7 @@ export const getCertificateCrlUrls = (
  * See Short-lived Subscriber Certificate section\
  * https://cabforum.org/working-groups/server/baseline-requirements/requirements/
  */
-export function isShortLivedCertificate(decodedCertificate: ASN1.CertificateDecoded) {
+export function isShortLivedCertificate(decodedCertificate: rfc5280.CertificateDecoded) {
   const notBefore = new Date(decodedCertificate.tbsCertificate.validity.notBefore.value);
   const notAfter = new Date(decodedCertificate.tbsCertificate.validity.notAfter.value);
 
@@ -81,7 +81,7 @@ export function isShortLivedCertificate(decodedCertificate: ASN1.CertificateDeco
   return maximumValidityPeriod > certValidityPeriod;
 }
 
-export function isCrlSignatureValid(crl: ASN1.CertificateListDecoded, issuerPublicKey: string) {
+export function isCrlSignatureValid(crl: rfc5280.CertificateListDecoded, issuerPublicKey: string) {
   const signatureAlgOid = crl.signatureAlgorithm.algorithm.join('.');
   const digestAlg = CRL_SIGNATURE_OID_TO_CRYPTO_DIGEST_ALGORITHM[signatureAlgOid];
   if (!digestAlg) {
@@ -89,14 +89,14 @@ export function isCrlSignatureValid(crl: ASN1.CertificateListDecoded, issuerPubl
   }
 
   const verify = crypto.createVerify(digestAlg);
-  const tbsEncoded = ASN1.TBSCertList.encode(crl.tbsCertList, 'der');
+  const tbsEncoded = rfc5280.TBSCertList.encode(crl.tbsCertList, 'der');
   verify.update(tbsEncoded);
   return verify.verify(issuerPublicKey, crl.signature.data);
 }
 
 export function isCertificateRevoked(
-  decodedCertificate: ASN1.CertificateDecoded,
-  crl: ASN1.CertificateListDecoded,
+  decodedCertificate: rfc5280.CertificateDecoded,
+  crl: rfc5280.CertificateListDecoded,
 ) {
   for (const revokedCert of crl.tbsCertList.revokedCertificates) {
     if (revokedCert.userCertificate.eq(decodedCertificate.tbsCertificate.serialNumber)) {
@@ -107,12 +107,12 @@ export function isCertificateRevoked(
 }
 
 export function isIssuingDistributionPointExtensionValid(
-  crl: ASN1.CertificateListDecoded,
+  crl: rfc5280.CertificateListDecoded,
   expectedCrlUrl: string,
 ) {
   const issuingDistributionPointExtension = crl.tbsCertList.crlExtensions?.find(
     (ext) => ext.extnID === 'issuingDistributionPoint',
-  ) as ASN1.IssuingDistributionPointExtension | undefined;
+  ) as rfc5280.IssuingDistributionPointExtension | undefined;
 
   if (!issuingDistributionPointExtension) {
     Logger().debug(

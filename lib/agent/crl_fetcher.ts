@@ -68,7 +68,7 @@ export async function getCrl(
       const { data } = await axios.get(url, {
         timeout: GlobalConfigTyped.getValue('crlDownloadTimeout'),
         responseType: 'arraybuffer',
-        maxContentLength: GlobalConfigTyped.getValue('crlDownloadMaxSize') * 1024 * 1024,
+        maxContentLength: GlobalConfigTyped.getValue('crlDownloadMaxSize'),
       });
 
       logDebug(`Parsing CRL`);

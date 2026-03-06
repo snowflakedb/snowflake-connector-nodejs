@@ -52,7 +52,6 @@ EOF
   openssl crl -in crl.pem -outform DER -out crl.der 2>/dev/null
 )
 
-cp "$TMPDIR/ca.key" "$FIXTURES_DIR/pss_sha256_ca.key"
 cp "$TMPDIR/ca.pem" "$FIXTURES_DIR/pss_sha256_ca.pem"
 cp "$TMPDIR/crl.der" "$FIXTURES_DIR/pss_sha256.crl"
 

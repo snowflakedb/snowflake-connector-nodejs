@@ -2,17 +2,20 @@ import { DetailedPeerCertificate } from 'tls';
 import crypto from 'crypto';
 import asn1 from 'asn1.js';
 import rfc5280 from 'asn1.js-rfc5280';
-import { CRL_SIGNATURE_OID_TO_CRYPTO_DIGEST_ALGORITHM } from '../../../../lib/agent/crl_validator/crl_utils';
+import { ALGORITHM_OID } from '../../../../lib/agent/crl_validator/oids';
 
-const DEFAULT_SIGNATURE_ALGORITHM_OID = '1.2.840.113549.1.1.11';
 let serialNumberCounter = 10000;
 
-export function createCertificateKeyPair(algorithmOid = DEFAULT_SIGNATURE_ALGORITHM_OID) {
-  const algorithm = CRL_SIGNATURE_OID_TO_CRYPTO_DIGEST_ALGORITHM[algorithmOid];
-  if (!algorithm) {
-    throw new Error(`Unsupported algorithm OID: ${algorithmOid}`);
-  }
+const CRL_SIGNATURE_OID_TO_DIGEST: Record<string, string> = {
+  [ALGORITHM_OID.SHA256_WITH_RSA]: 'sha256',
+  [ALGORITHM_OID.SHA384_WITH_RSA]: 'sha384',
+  [ALGORITHM_OID.SHA512_WITH_RSA]: 'sha512',
+  [ALGORITHM_OID.ECDSA_WITH_SHA256]: 'sha256',
+  [ALGORITHM_OID.ECDSA_WITH_SHA384]: 'sha384',
+  [ALGORITHM_OID.ECDSA_WITH_SHA512]: 'sha512',
+};
 
+export function createCertificateKeyPair(algorithmOid = ALGORITHM_OID.SHA256_WITH_RSA) {
   // RSA
   if (algorithmOid.startsWith('1.2.840.113549.1.1.')) {
     const pair = crypto.generateKeyPairSync('rsa', {
@@ -28,11 +31,11 @@ export function createCertificateKeyPair(algorithmOid = DEFAULT_SIGNATURE_ALGORI
   // ECDSA
   if (algorithmOid.startsWith('1.2.840.10045.4.3.')) {
     let namedCurve: string;
-    if (algorithm === 'SHA256') {
+    if (algorithmOid === ALGORITHM_OID.ECDSA_WITH_SHA256) {
       namedCurve = 'prime256v1'; // P-256
-    } else if (algorithm === 'SHA384') {
+    } else if (algorithmOid === ALGORITHM_OID.ECDSA_WITH_SHA384) {
       namedCurve = 'secp384r1'; // P-384
-    } else if (algorithm === 'SHA512') {
+    } else if (algorithmOid === ALGORITHM_OID.ECDSA_WITH_SHA512) {
       namedCurve = 'secp521r1'; // P-521
     } else {
       namedCurve = 'prime256v1'; // Default to P-256
@@ -45,7 +48,7 @@ export function createCertificateKeyPair(algorithmOid = DEFAULT_SIGNATURE_ALGORI
     };
   }
 
-  throw new Error(`Unsupported algorithm: ${algorithm}`);
+  throw new Error(`Unsupported algorithm: ${algorithmOid}`);
 }
 
 export function createCertificateNameField(
@@ -107,7 +110,7 @@ export function createTestCertificate(
   const notBefore = options.notBefore ?? '2026-01-01T00:00:00Z';
   const notAfter = options.notAfter ?? '2026-12-31T00:00:00Z';
   const subject = options.subject ?? createCertificateNameField();
-  const signatureAlgorithmOid = options.signatureAlgorithmOid ?? DEFAULT_SIGNATURE_ALGORITHM_OID;
+  const signatureAlgorithmOid = options.signatureAlgorithmOid ?? ALGORITHM_OID.SHA256_WITH_RSA;
   const keyPair = options.keyPair ?? createCertificateKeyPair(signatureAlgorithmOid);
 
   const signatureAlgorithm = {
@@ -212,7 +215,7 @@ export function createTestCRL(
   };
 
   const signatureOid = issuerCertificate.signatureAlgorithm.algorithm.join('.');
-  const digestAlgorithm = CRL_SIGNATURE_OID_TO_CRYPTO_DIGEST_ALGORITHM[signatureOid];
+  const digestAlgorithm = CRL_SIGNATURE_OID_TO_DIGEST[signatureOid];
 
   const sign = crypto.createSign(digestAlgorithm);
   sign.update(rfc5280.TBSCertList.encode(tbsCertList, 'der'));

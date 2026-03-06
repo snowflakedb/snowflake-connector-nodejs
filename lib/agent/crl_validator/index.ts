@@ -7,10 +7,10 @@ import {
   getCertificateDebugName,
   isCertificateRevoked,
   isIssuingDistributionPointExtensionValid,
-  isCrlSignatureValid,
   isShortLivedCertificate,
-} from './crl_utils';
+} from './certificate_utils';
 import { getCrl } from './crl_fetcher';
+import { isCrlSignatureValid } from './crl_signature_verifier';
 import { createCrlError } from '../../errors';
 
 // Allows to mock/spy internal calls in tests

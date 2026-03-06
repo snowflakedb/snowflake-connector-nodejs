@@ -1,19 +1,6 @@
 import { DetailedPeerCertificate } from 'tls';
-import crypto from 'crypto';
 import rfc5280 from 'asn1.js-rfc5280';
 import Logger from '../../logger';
-
-// TODO:
-// Implement RSASSA-PSS signature verification
-// https://snowflakecomputing.atlassian.net/browse/SNOW-2333028
-export const CRL_SIGNATURE_OID_TO_CRYPTO_DIGEST_ALGORITHM: Record<string, string> = {
-  '1.2.840.113549.1.1.11': 'sha256',
-  '1.2.840.113549.1.1.12': 'sha384',
-  '1.2.840.113549.1.1.13': 'sha512',
-  '1.2.840.10045.4.3.2': 'sha256',
-  '1.2.840.10045.4.3.3': 'sha384',
-  '1.2.840.10045.4.3.4': 'sha512',
-};
 
 export function getCertificateDebugName(certificate: DetailedPeerCertificate) {
   return [
@@ -79,19 +66,6 @@ export function isShortLivedCertificate(decodedCertificate: rfc5280.CertificateD
 
   const certValidityPeriod = notAfter.getTime() - notBefore.getTime();
   return maximumValidityPeriod > certValidityPeriod;
-}
-
-export function isCrlSignatureValid(crl: rfc5280.CertificateListDecoded, issuerPublicKey: string) {
-  const signatureAlgOid = crl.signatureAlgorithm.algorithm.join('.');
-  const digestAlg = CRL_SIGNATURE_OID_TO_CRYPTO_DIGEST_ALGORITHM[signatureAlgOid];
-  if (!digestAlg) {
-    throw new Error(`Unsupported signature algorithm: ${signatureAlgOid}`);
-  }
-
-  const verify = crypto.createVerify(digestAlg);
-  const tbsEncoded = rfc5280.TBSCertList.encode(crl.tbsCertList, 'der');
-  verify.update(tbsEncoded);
-  return verify.verify(issuerPublicKey, crl.signature.data);
 }
 
 export function isCertificateRevoked(

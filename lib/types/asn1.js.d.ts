@@ -1,17 +1,40 @@
-class BN {
-  constructor(value: string | number | bigint | Buffer, base?: number);
-  toString(base?: number): string;
-  toNumber(): number;
-  toBuffer(endian?: 'be' | 'le', length?: number): Buffer;
-  clone(): BnJsClass;
-  cmp(other: BnJsClass | string): number;
-  eq(other: BnJsClass | string): boolean;
-  gt(other: BnJsClass | string): boolean;
-  lt(other: BnJsClass | string): boolean;
-}
-
 declare module 'asn1.js' {
+  class BN {
+    constructor(value: string | number | bigint | Buffer, base?: number);
+    toString(base?: number): string;
+    toNumber(): number;
+    toBuffer(endian?: 'be' | 'le', length?: number): Buffer;
+    clone(): BnJsClass;
+    cmp(other: BnJsClass | string): number;
+    eq(other: BnJsClass | string): boolean;
+    gt(other: BnJsClass | string): boolean;
+    lt(other: BnJsClass | string): boolean;
+  }
+
   export const bignum: typeof BN;
+
+  // Partial definition to cover only methods we use
+  interface ASN1Builder {
+    seq(): this;
+    obj(...args: ASN1Builder[]): this;
+    key(name: string): this;
+    objid(): this;
+    optional(): this;
+    any(): this;
+    explicit(tag: number): this;
+    use(entity: ASN1Entity<unknown>): this;
+    int(): this;
+  }
+
+  interface ASN1Entity<T> {
+    decode(data: Buffer, encoding: 'der' | 'pem'): T;
+    encode(data: T, encoding: 'der' | 'pem'): Buffer;
+  }
+
+  export function define<T = unknown>(
+    name: string,
+    body: (this: ASN1Builder) => void,
+  ): ASN1Entity<T>;
 }
 
 // NOTE:

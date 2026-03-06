@@ -5,7 +5,10 @@ import os from 'os';
 import { WIP_ConnectionOptions } from '../../lib/connection/types';
 import * as connectionOptions from './connectionOptions';
 import ErrorCode from '../../lib/error_code';
-import { CertificateRevokedError, CRL_VALIDATOR_INTERNAL } from '../../lib/agent/crl_validator';
+import {
+  CertificateRevokedError,
+  CRL_VALIDATOR_INTERNAL,
+} from '../../lib/agent/crl_validator/validator';
 import { createConnection, connectAsync, destroyConnectionAsync } from './testUtil';
 import { httpsAgentCache } from '../../lib/http/node';
 

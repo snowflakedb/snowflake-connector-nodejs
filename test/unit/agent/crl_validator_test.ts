@@ -1,7 +1,7 @@
 import assert from 'assert';
 import axios from 'axios';
 import sinon from 'sinon';
-import { validateCrl, CRLValidatorConfig } from '../../../lib/agent/crl_validator';
+import { validateCrl, CRLValidatorConfig } from '../../../lib/agent/crl_validator/validator';
 import {
   createCertificateKeyPair,
   createCertificateNameField,

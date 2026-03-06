@@ -5,8 +5,9 @@ import {
   isIssuingDistributionPointExtensionValid,
   isCrlSignatureValid,
   isShortLivedCertificate,
-  CRL_SIGNATURE_OID_TO_CRYPTO_DIGEST_ALGORITHM,
-} from '../../../lib/agent/crl_utils';
+  CRL_SIGNATURE_VERIFIERS,
+} from '../../../lib/agent/crl_validator/certificate_utils';
+import { ALGORITHM_OIDS } from '../../../lib/agent/rsassa_pss';
 import { createCertificateKeyPair, createTestCertificate, createTestCRL } from './test_utils';
 
 describe('isShortLivedCertificate', () => {
@@ -152,14 +153,14 @@ describe('getCertificateCrlUrls', () => {
 });
 
 describe('isCrlSignatureValid', () => {
-  Object.keys(CRL_SIGNATURE_OID_TO_CRYPTO_DIGEST_ALGORITHM).forEach((oid) => {
+  for (const oid of Object.keys(CRL_SIGNATURE_VERIFIERS)) {
     it(`passes validation for algorithm oid=${oid}`, () => {
       const issuerKeyPair = createCertificateKeyPair(oid);
-      const crl = createTestCRL({ issuerKeyPair });
+      const crl = createTestCRL({ issuerKeyPair, signatureAlgorithmOid: oid });
       const isValid = isCrlSignatureValid(crl, issuerKeyPair.publicKeyPem);
       assert.strictEqual(isValid, true);
     });
-  });
+  }
 
   it('throws error for certificate with unknown signature algorithm oid', () => {
     const crl = createTestCRL();
@@ -170,11 +171,20 @@ describe('isCrlSignatureValid', () => {
     );
   });
 
-  it('throws error for crl with invalid signature', () => {
+  it('returns false for crl with invalid signature', () => {
     const unrelatedKeyPair = createCertificateKeyPair();
     const crl = createTestCRL();
     const isValid = isCrlSignatureValid(crl, unrelatedKeyPair.publicKeyPem);
     assert.strictEqual(isValid, false);
+  });
+
+  it('throws when PSS parameters are missing', () => {
+    const crl = createTestCRL({ signatureAlgorithmOid: ALGORITHM_OIDS.RSASSA_PSS });
+    crl.signatureAlgorithm.parameters = undefined;
+    assert.throws(
+      () => isCrlSignatureValid(crl, 'key'),
+      /RSASSA-PSS signature algorithm is missing required parameters/,
+    );
   });
 });
 

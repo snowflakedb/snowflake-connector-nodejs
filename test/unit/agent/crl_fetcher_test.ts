@@ -4,7 +4,7 @@ import fs from 'fs/promises';
 import axios from 'axios';
 import ASN1 from 'asn1.js-rfc5280';
 import * as crlCacheModule from '../../../lib/agent/crl_cache';
-import { getCrl, PENDING_FETCH_REQUESTS } from '../../../lib/agent/crl_fetcher';
+import { getCrl, PENDING_FETCH_REQUESTS } from '../../../lib/agent/crl_validator/crl_fetcher';
 import GlobalConfigTyped from '../../../lib/global_config_typed';
 import { createTestCRL } from './test_utils';
 

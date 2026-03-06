@@ -2,21 +2,36 @@ import { DetailedPeerCertificate } from 'tls';
 import crypto from 'crypto';
 import asn1 from 'asn1.js';
 import rfc5280 from 'asn1.js-rfc5280';
-import { CRL_SIGNATURE_OID_TO_CRYPTO_DIGEST_ALGORITHM } from '../../../lib/agent/crl_utils';
+import {
+  ALGORITHM_OIDS,
+  parseRSASSAPSSParams,
+  AlgorithmIdentifierEntity,
+  RSASSAPSSParamsEntity,
+} from '../../../lib/agent/rsassa_pss';
 
 const DEFAULT_SIGNATURE_ALGORITHM_OID = '1.2.840.113549.1.1.11';
+
+const SIGNATURE_OID_TO_DIGEST: Record<string, string> = {
+  '1.2.840.113549.1.1.11': 'sha256',
+  '1.2.840.113549.1.1.12': 'sha384',
+  '1.2.840.113549.1.1.13': 'sha512',
+  '1.2.840.10045.4.3.2': 'sha256',
+  '1.2.840.10045.4.3.3': 'sha384',
+  '1.2.840.10045.4.3.4': 'sha512',
+};
 let serialNumberCounter = 10000;
 
 export function createCertificateKeyPair(algorithmOid = DEFAULT_SIGNATURE_ALGORITHM_OID) {
-  const algorithm = CRL_SIGNATURE_OID_TO_CRYPTO_DIGEST_ALGORITHM[algorithmOid];
-  if (!algorithm) {
-    throw new Error(`Unsupported algorithm OID: ${algorithmOid}`);
-  }
-
-  // RSA
+  // RSA (PKCS#1 v1.5 and RSASSA-PSS both use standard RSA key pairs)
   if (algorithmOid.startsWith('1.2.840.113549.1.1.')) {
+    // PSS needs large keys due to padding overhead (hashLen + saltLen + 2 bytes), use 2048.
+    // SHA-384/512 PKCS#1 v1.5 also need keys larger than 512-bit to fit the digest + padding.
+    const digest = SIGNATURE_OID_TO_DIGEST[algorithmOid];
+    const isPSS = algorithmOid === ALGORITHM_OIDS.RSASSA_PSS;
+    const needsLargerKey = isPSS || digest === 'sha384' || digest === 'sha512';
+    const minModulusLength = isPSS ? 2048 : needsLargerKey ? 1024 : 512;
     const pair = crypto.generateKeyPairSync('rsa', {
-      modulusLength: crypto.getFips() ? 2048 : 512, // faster test runs
+      modulusLength: crypto.getFips() ? 2048 : minModulusLength, // faster test runs
       publicExponent: 0x10001,
     });
     return {
@@ -27,12 +42,16 @@ export function createCertificateKeyPair(algorithmOid = DEFAULT_SIGNATURE_ALGORI
 
   // ECDSA
   if (algorithmOid.startsWith('1.2.840.10045.4.3.')) {
+    const algorithm = SIGNATURE_OID_TO_DIGEST[algorithmOid];
+    if (!algorithm) {
+      throw new Error(`Unsupported ECDSA algorithm OID: ${algorithmOid}`);
+    }
     let namedCurve: string;
-    if (algorithm === 'SHA256') {
+    if (algorithm === 'sha256') {
       namedCurve = 'prime256v1'; // P-256
-    } else if (algorithm === 'SHA384') {
+    } else if (algorithm === 'sha384') {
       namedCurve = 'secp384r1'; // P-384
-    } else if (algorithm === 'SHA512') {
+    } else if (algorithm === 'sha512') {
       namedCurve = 'secp521r1'; // P-521
     } else {
       namedCurve = 'prime256v1'; // Default to P-256
@@ -45,7 +64,7 @@ export function createCertificateKeyPair(algorithmOid = DEFAULT_SIGNATURE_ALGORI
     };
   }
 
-  throw new Error(`Unsupported algorithm: ${algorithm}`);
+  throw new Error(`Unsupported algorithm OID: ${algorithmOid}`);
 }
 
 export function createCertificateNameField(
@@ -89,6 +108,30 @@ export function createCertificateNameField(
 
 type TestCertificateCrlDistributionPointValue = string | { type: string; value: string } | null;
 
+export function buildPSSAlgorithmIdentifier(hashOidStr: string | null = null, saltLength = 32) {
+  const hashOid = hashOidStr ? hashOidStr.split('.').map(Number) : null;
+
+  const pssParams: Record<string, unknown> = {};
+  if (hashOid) {
+    pssParams.hashAlgorithm = { algorithm: hashOid, parameters: Buffer.from([0x05, 0x00]) };
+    const hashAlgId = AlgorithmIdentifierEntity.encode(
+      { algorithm: hashOid, parameters: Buffer.from([0x05, 0x00]) },
+      'der',
+    );
+    pssParams.maskGenAlgorithm = {
+      algorithm: ALGORITHM_OIDS.MGF1.split('.').map(Number),
+      parameters: hashAlgId,
+    };
+  }
+  pssParams.saltLength = new asn1.bignum(saltLength);
+  pssParams.trailerField = new asn1.bignum(1);
+
+  return {
+    algorithm: ALGORITHM_OIDS.RSASSA_PSS.split('.').map(Number),
+    parameters: RSASSAPSSParamsEntity.encode(pssParams, 'der'),
+  };
+}
+
 export function createTestCertificate(
   options: {
     serialNumber?: number;
@@ -110,10 +153,13 @@ export function createTestCertificate(
   const signatureAlgorithmOid = options.signatureAlgorithmOid ?? DEFAULT_SIGNATURE_ALGORITHM_OID;
   const keyPair = options.keyPair ?? createCertificateKeyPair(signatureAlgorithmOid);
 
-  const signatureAlgorithm = {
-    algorithm: signatureAlgorithmOid.split('.').map(Number),
-    parameters: Buffer.from([0x05, 0x00]),
-  };
+  const signatureAlgorithm =
+    signatureAlgorithmOid === ALGORITHM_OIDS.RSASSA_PSS
+      ? buildPSSAlgorithmIdentifier(ALGORITHM_OIDS.SHA256)
+      : {
+          algorithm: signatureAlgorithmOid.split('.').map(Number),
+          parameters: Buffer.from([0x05, 0x00]),
+        };
 
   const extensions: rfc5280.TBSCertificate['extensions'] = [];
   if (options.crlDistributionPoints) {
@@ -168,14 +214,20 @@ export function createTestCRL(
   options: {
     issuerCertificate?: rfc5280.CertificateDecoded;
     issuerKeyPair?: crypto.KeyPairKeyObjectResult;
+    signatureAlgorithmOid?: string;
     issuingDistributionPointUrls?: string[];
     nextUpdate?: number;
     revokedCertificates?: number[];
   } = {},
 ): rfc5280.CertificateListDecoded {
-  const issuerKeyPair = options.issuerKeyPair ?? createCertificateKeyPair();
+  const signatureAlgorithmOid = options.signatureAlgorithmOid ?? DEFAULT_SIGNATURE_ALGORITHM_OID;
+  const issuerKeyPair = options.issuerKeyPair ?? createCertificateKeyPair(signatureAlgorithmOid);
   const issuerCertificate =
-    options.issuerCertificate ?? createTestCertificate({ keyPair: issuerKeyPair });
+    options.issuerCertificate ??
+    createTestCertificate({
+      keyPair: issuerKeyPair,
+      signatureAlgorithmOid,
+    });
   const issuingDistributionPointUrls = options.issuingDistributionPointUrls ?? null;
   const revokedCertificates = options.revokedCertificates ?? ['0'];
   const nextUpdate = options.nextUpdate ?? new Date('2026-06-08T00:00:00Z').getTime();
@@ -212,11 +264,22 @@ export function createTestCRL(
   };
 
   const signatureOid = issuerCertificate.signatureAlgorithm.algorithm.join('.');
-  const digestAlgorithm = CRL_SIGNATURE_OID_TO_CRYPTO_DIGEST_ALGORITHM[signatureOid];
+  const tbsEncoded = rfc5280.TBSCertList.encode(tbsCertList, 'der');
 
-  const sign = crypto.createSign(digestAlgorithm);
-  sign.update(rfc5280.TBSCertList.encode(tbsCertList, 'der'));
-  const signature = sign.sign(issuerKeyPair.privateKey);
+  let signature: Buffer;
+  if (signatureOid === ALGORITHM_OIDS.RSASSA_PSS) {
+    const pssParams = parseRSASSAPSSParams(issuerCertificate.signatureAlgorithm.parameters);
+    signature = crypto.sign(pssParams.hashAlgorithm, tbsEncoded, {
+      key: issuerKeyPair.privateKey,
+      padding: crypto.constants.RSA_PKCS1_PSS_PADDING,
+      saltLength: pssParams.saltLength,
+    });
+  } else {
+    const digestAlgorithm = SIGNATURE_OID_TO_DIGEST[signatureOid];
+    const sign = crypto.createSign(digestAlgorithm);
+    sign.update(tbsEncoded);
+    signature = sign.sign(issuerKeyPair.privateKey);
+  }
 
   const crl = {
     tbsCertList,

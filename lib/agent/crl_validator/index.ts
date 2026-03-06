@@ -1,17 +1,17 @@
 import { DetailedPeerCertificate, TLSSocket } from 'tls';
-import ASN1 from 'asn1.js-rfc5280';
+import rfc5280 from 'asn1.js-rfc5280';
 import crypto from 'crypto';
-import Logger from '../logger';
+import Logger from '../../logger';
 import {
   getCertificateCrlUrls,
   getCertificateDebugName,
   isCertificateRevoked,
   isIssuingDistributionPointExtensionValid,
-  isCrlSignatureValid,
   isShortLivedCertificate,
-} from './crl_utils';
+} from './certificate_utils';
+import { isCrlSignatureValid } from './crl_signature_verifier';
 import { getCrl } from './crl_fetcher';
-import { createCrlError } from '../errors';
+import { createCrlError } from '../../errors';
 
 // Allows to mock/spy internal calls in tests
 export const CRL_VALIDATOR_INTERNAL = {
@@ -75,7 +75,7 @@ function* iterateCertChain(cert: DetailedPeerCertificate) {
 // - @peculiar/x509: takes 2.5 seconds to parse 9Mb CRL
 export async function validateCrl(certChain: DetailedPeerCertificate, config: CRLValidatorConfig) {
   for (const certificate of iterateCertChain(certChain)) {
-    const decodedCertificate = ASN1.Certificate.decode(certificate.raw, 'der');
+    const decodedCertificate = rfc5280.Certificate.decode(certificate.raw, 'der');
     const name = getCertificateDebugName(certificate);
     const logDebug = (msg: string) => Logger().debug(`validateCrl[${name}]: ${msg}`);
 
@@ -97,7 +97,7 @@ export async function validateCrl(certChain: DetailedPeerCertificate, config: CR
       );
     }
 
-    const decodedIssuerCertificate = ASN1.Certificate.decode(
+    const decodedIssuerCertificate = rfc5280.Certificate.decode(
       certificate.issuerCertificate.raw,
       'der',
     );

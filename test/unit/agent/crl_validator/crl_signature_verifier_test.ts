@@ -9,7 +9,7 @@ describe('isCrlSignatureValid', () => {
   Object.keys(CRL_SIGNATURE_VERIFIERS).forEach((oid) => {
     it(`passes validation for algorithm oid=${oid}`, () => {
       const issuerKeyPair = createCertificateKeyPair(oid);
-      const crl = createTestCRL({ issuerKeyPair });
+      const crl = createTestCRL({ issuerKeyPair, signatureAlgorithmOid: oid });
       const isValid = isCrlSignatureValid(crl, issuerKeyPair.publicKeyPem);
       assert.strictEqual(isValid, true);
     });

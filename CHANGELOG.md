@@ -22,6 +22,7 @@
 - Fixed `disableSamlUrlCheck` typing to use correct casing: `disableSamlURLCheck` (snowflakedb/snowflake-connector-nodejs#1304)
 - Added snake_case key support when loading `connections.toml` via `createConnection()` with no arguments (snowflakedb/snowflake-connector-nodejs#1304)
 - Exported `normalizeConnectionOptions()` utility to convert snake_case connection keys to camelCase, with key aliases and acronym overrides (snowflakedb/snowflake-connector-nodejs#1304)
+- Added `LIBC_FAMILY` and `LIBC_VERSION` fields to login-request telemetry (snowflakedb/snowflake-connector-nodejs#1310)
 - Fixed `getDefaultCacheDir()` crashing in environments where no user home directory is configured by falling back to `os.tmpdir()` (snowflakedb/snowflake-connector-nodejs#1312)
 - Fixed `SF_OCSP_RESPONSE_CACHE_DIR` not being used directly as the OCSP cache directory (snowflakedb/snowflake-connector-nodejs#1313)
 - Fixed a bug where host specified in `NO_PROXY` in the `.domain.com` wildcard format were not correctly matching the destination host (snowflakedb/snowflake-connector-nodejs#1309)

@@ -102,6 +102,24 @@ describe('CLIENT_ENVIRONMENT for /login-request', () => {
     }
   });
 
+  it('contains LIBC_FAMILY and LIBC_VERSION on Linux or null on other platforms', async () => {
+    await initConnection();
+    const clientEnvironment = getClientEnvironment();
+    if (process.platform === 'linux') {
+      assert.ok(
+        clientEnvironment.LIBC_FAMILY,
+        `LIBC_FAMILY should not be empty on Linux, got: ${clientEnvironment.LIBC_FAMILY}`,
+      );
+      assert.ok(
+        clientEnvironment.LIBC_VERSION,
+        `LIBC_VERSION should not be empty on Linux, got: ${clientEnvironment.LIBC_VERSION}`,
+      );
+    } else {
+      assert.strictEqual(clientEnvironment.LIBC_FAMILY, null);
+      assert.strictEqual(clientEnvironment.LIBC_VERSION, null);
+    }
+  });
+
   it('contains PLATFORM field with mocked lambda env', async () => {
     sinon.stub(process, 'env').value({ ...process.env, LAMBDA_TASK_ROOT: '/var/task' });
     delete require.cache[require.resolve('../../lib/telemetry/platform_detection')];

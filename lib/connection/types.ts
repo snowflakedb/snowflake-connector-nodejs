@@ -260,6 +260,43 @@ export interface WIP_ConnectionOptions {
    * @default false
    */
   validateDefaultParameters?: boolean;
+
+  /**
+   * Specifies a list of hosts that the driver should connect to directly, bypassing the proxy server.
+   *
+   * - Use a pipe symbol (`|`) to separate multiple hosts.
+   * - Use `*` as a wildcard (e.g., `*sub.amazonaws.com`).
+   * - A leading dot (e.g., `.amazonaws.com`) matches any subdomain.
+   *
+   * @example
+   * noProxy: ".amazonaws.com|*sub.my_company.com"
+   */
+  noProxy?: string;
+
+  /**
+   * Specifies the hostname of an authenticated proxy server.
+   */
+  proxyHost?: string;
+
+  /**
+   * Specifies the username used to connect to an authenticated proxy server.
+   */
+  proxyUser?: string;
+
+  /**
+   * Specifies the password for the user specified by proxyUser.
+   */
+  proxyPassword?: string;
+
+  /**
+   * Specifies the port of an authenticated proxy server.
+   */
+  proxyPort?: number;
+
+  /**
+   * Specifies the protocol used to connect to the authenticated proxy server. Use this property to specify the HTTP protocol: http or https.
+   */
+  proxyProtocol?: string;
 }
 
 /**

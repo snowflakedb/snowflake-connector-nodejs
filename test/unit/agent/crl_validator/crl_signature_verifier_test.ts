@@ -24,7 +24,7 @@ describe('isCrlSignatureValid', () => {
     );
   });
 
-  it('throws error for crl with invalid signature', () => {
+  it('returns false for crl with invalid signature', () => {
     const unrelatedKeyPair = createCertificateKeyPair();
     const crl = createTestCRL();
     const isValid = isCrlSignatureValid(crl, unrelatedKeyPair.publicKeyPem);

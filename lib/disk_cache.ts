@@ -4,18 +4,24 @@ import os from 'os';
 
 // NOTE:
 // Besides this file, there are other entrypoints implementing reading/writing cache files:
-// - global_config.js
 // - authentication/secure_storage/json_credential_manager.js
 //
 // We should refactor the code so every place is using utils from this file
 export function getDefaultCacheDir() {
+  let rootDir: string;
+  try {
+    rootDir = os.homedir();
+  } catch {
+    rootDir = os.tmpdir(); // fallback to TMP if user home doesn't exist
+  }
+
   switch (process.platform) {
     case 'win32':
-      return path.join(os.homedir(), 'AppData', 'Local', 'Snowflake', 'Caches');
+      return path.join(rootDir, 'AppData', 'Local', 'Snowflake', 'Caches');
     case 'linux':
-      return path.join(os.homedir(), '.cache', 'snowflake');
+      return path.join(rootDir, '.cache', 'snowflake');
     case 'darwin':
-      return path.join(os.homedir(), 'Library');
+      return path.join(rootDir, 'Library');
     default:
       throw new Error(`Unsupported platform: ${process.platform}`);
   }

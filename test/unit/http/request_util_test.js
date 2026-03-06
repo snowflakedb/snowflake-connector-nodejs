@@ -1,6 +1,6 @@
 const assert = require('assert');
-const RequestUtil = require('../lib/http/request_util');
-const sfParams = require('../lib/constants/sf_params');
+const RequestUtil = require('../../../lib/http/request_util');
+const sfParams = require('../../../lib/constants/sf_params');
 
 describe('RequestUtil', function () {
   describe('describeRequestFromOptions', function () {

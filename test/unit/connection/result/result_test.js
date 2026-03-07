@@ -1,5 +1,6 @@
 const Util = require('./../../../../lib/util');
 const assert = require('assert');
+const Result = require('./../../../../lib/connection/result/result');
 
 const ResultTestCommon = require('./result_test_common');
 
@@ -148,5 +149,17 @@ describe('Result', function () {
       0,
       5,
     );
+  });
+
+  it('does not throw when rowset is missing', function () {
+    const responseWithoutRowset = JSON.parse(JSON.stringify(response));
+    delete responseWithoutRowset.data.rowset;
+    responseWithoutRowset.data.returned = 0;
+    responseWithoutRowset.data.total = 0;
+    responseWithoutRowset.data.chunks = [];
+
+    assert.doesNotThrow(function () {
+      new Result(ResultTestCommon.createResultOptions(responseWithoutRowset));
+    });
   });
 });

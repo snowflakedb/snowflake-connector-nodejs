@@ -151,6 +151,7 @@ declare module 'asn1.js-rfc5280' {
   }
 
   const RFC5280: {
+    AlgorithmIdentifier: Asn1Type<AlgorithmIdentifier>;
     CertificateList: Asn1Type<CertificateListDecoded>;
     TBSCertList: Asn1Type<TBSCertList>;
     Certificate: Asn1Type<CertificateDecoded>;

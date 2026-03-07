@@ -1,5 +1,5 @@
 import asn1 from 'asn1.js';
-import rfc5280 from 'asn1.js-rfc5280';
+import rfc5280, { type AlgorithmIdentifier } from 'asn1.js-rfc5280';
 import { ALGORITHM_OID } from './oids';
 
 const HASH_OID_TO_NAME: Record<string, string> = {
@@ -14,13 +14,8 @@ const HASH_DIGEST_LENGTH: Record<string, number> = {
   sha512: 64,
 };
 
-interface DecodedAlgorithmIdentifier {
-  algorithm: number[];
-  parameters?: Buffer;
-}
-
 interface DecodedRSASSAPSSParams {
-  hashAlgorithm?: DecodedAlgorithmIdentifier;
+  hashAlgorithm?: AlgorithmIdentifier;
   saltLength?: InstanceType<typeof asn1.bignum>;
 }
 

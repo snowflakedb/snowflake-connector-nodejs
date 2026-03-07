@@ -1,4 +1,5 @@
 import asn1 from 'asn1.js';
+import rfc5280 from 'asn1.js-rfc5280';
 import { ALGORITHM_OID } from './oids';
 
 const HASH_OID_TO_NAME: Record<string, string> = {
@@ -23,18 +24,11 @@ interface DecodedRSASSAPSSParams {
   saltLength?: InstanceType<typeof asn1.bignum>;
 }
 
-const AlgorithmIdentifierEntity = asn1.define<DecodedAlgorithmIdentifier>(
-  'AlgorithmIdentifier',
-  function () {
-    this.seq().obj(this.key('algorithm').objid(), this.key('parameters').optional().any());
-  },
-);
-
 export const RSASSAPSSParamsEntity = asn1.define<DecodedRSASSAPSSParams>(
   'RSASSAPSSParams',
   function () {
     this.seq().obj(
-      this.key('hashAlgorithm').explicit(0).optional().use(AlgorithmIdentifierEntity),
+      this.key('hashAlgorithm').explicit(0).optional().use(rfc5280.AlgorithmIdentifier),
       this.key('saltLength').explicit(2).optional().int(),
     );
   },

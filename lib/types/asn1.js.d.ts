@@ -43,15 +43,15 @@ declare module 'asn1.js' {
 declare module 'asn1.js-rfc5280' {
   type DEREncoding = 'der' | 'pem';
 
-  interface AlgorithmIdentifier {
-    algorithm: number[];
-    parameters?: any;
-  }
-
   type BaseExtension<TId extends string, TValue> = {
     extnID: TId;
     extnValue: TValue;
   };
+
+  export interface AlgorithmIdentifier {
+    algorithm: number[];
+    parameters?: Buffer;
+  }
 
   export type UnknownExtension = BaseExtension<string, unknown>;
 

@@ -29,6 +29,7 @@
   - `.domain.com` wildcard format was not correctly matching the destination host (snowflakedb/snowflake-connector-nodejs#1309)
   - `.` was incorrectly matching as any character instead of a literal dot (snowflakedb/snowflake-connector-nodejs#1315)
   - Partial strings were incorrectly matching instead of requiring full destination match (snowflakedb/snowflake-connector-nodejs#1315)
+- Added RSASSA-PSS signature verification support to CRL validation (snowflakedb/snowflake-connector-nodejs#1325)
 
 ## 2.3.4
 

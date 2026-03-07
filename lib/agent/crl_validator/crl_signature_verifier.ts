@@ -8,9 +8,7 @@ type SignatureVerifier = (crl: rfc5280.CertificateListDecoded, issuerPublicKey: 
 function pkcs1Verifier(digestAlg: string): SignatureVerifier {
   return (crl, issuerPublicKey) => {
     const tbsEncoded = rfc5280.TBSCertList.encode(crl.tbsCertList, 'der');
-    const verify = crypto.createVerify(digestAlg);
-    verify.update(tbsEncoded);
-    return verify.verify(issuerPublicKey, crl.signature.data);
+    return crypto.verify(digestAlg, tbsEncoded, issuerPublicKey, crl.signature.data);
   };
 }
 

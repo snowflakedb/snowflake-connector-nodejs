@@ -263,9 +263,7 @@ export function createTestCRL(
     });
   } else {
     const digestAlgorithm = CRL_SIGNATURE_OID_TO_DIGEST[signatureOid];
-    const sign = crypto.createSign(digestAlgorithm);
-    sign.update(tbsEncoded);
-    signature = sign.sign(issuerKeyPair.privateKey);
+    signature = crypto.sign(digestAlgorithm, tbsEncoded, issuerKeyPair.privateKey);
   }
 
   const crl = {

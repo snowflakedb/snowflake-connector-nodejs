@@ -4,7 +4,6 @@ import os from 'os';
 
 // NOTE:
 // Besides this file, there are other entrypoints implementing reading/writing cache files:
-// - global_config.js
 // - authentication/secure_storage/json_credential_manager.js
 //
 // We should refactor the code so every place is using utils from this file

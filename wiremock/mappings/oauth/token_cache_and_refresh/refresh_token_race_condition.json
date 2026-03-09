@@ -1,0 +1,169 @@
+{
+  "mappings": [
+    {
+      "scenarioName": "Refresh token race condition",
+      "requiredScenarioState": "Started",
+      "newScenarioState": "Access token expired",
+      "request": {
+        "urlPathPattern": "/session/v1/login-request.*",
+        "method": "POST",
+        "headers": {
+          "CLIENT_APP_ID": {
+            "equalTo": "JavaScript"
+          },
+          "accept": {
+            "equalTo": "application/json"
+          }
+        },
+        "bodyPatterns": [
+          {
+            "equalToJson": {
+              "data": {
+                "ACCOUNT_NAME": "MOCK_ACCOUNT_NAME",
+                "CLIENT_APP_ID": "JavaScript",
+                "TOKEN": "expired_at",
+                "LOGIN_NAME": "MOCK_USERNAME",
+                "AUTHENTICATOR": "OAUTH",
+                "CLIENT_ENVIRONMENT": {
+                  "OAUTH_TYPE": "OAUTH_AUTHORIZATION_CODE"
+                }
+              }
+            },
+            "ignoreExtraElements": true
+          }
+        ]
+      },
+      "response": {
+        "status": 200,
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "jsonBody": {
+          "data": {
+            "nextAction": "RETRY_LOGIN",
+            "authnMethod": "OAUTH",
+            "signInOptions": {}
+          },
+          "code": "390318",
+          "message": "OAuth access token expired.",
+          "success": false,
+          "headers": null
+        }
+      }
+    },
+    {
+      "scenarioName": "Refresh token race condition",
+      "requiredScenarioState": "Access token expired",
+      "newScenarioState": "Refresh token revoked",
+      "request": {
+        "urlPathPattern": "/oauth/token-request.*",
+        "method": "POST",
+        "headers": {
+          "Content-Type": {
+            "contains": "application/x-www-form-urlencoded;charset=UTF-8"
+          }
+        },
+        "formParameters": {
+          "grant_type": {
+            "equalTo": "refresh_token"
+          },
+          "refresh_token": {
+            "equalTo": "stale_rt"
+          },
+          "client_id": {
+            "equalTo": "123"
+          },
+          "client_secret": {
+            "equalTo": "clientSecret"
+          }
+        }
+      },
+      "response": {
+        "status": 400,
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "jsonBody": {
+          "error": "invalid_grant",
+          "error_description": "The refresh token is invalid or has been revoked."
+        }
+      }
+    },
+    {
+      "scenarioName": "Refresh token race condition",
+      "requiredScenarioState": "Refresh token revoked",
+      "newScenarioState": "Connected with winner access token",
+      "request": {
+        "urlPathPattern": "/session/v1/login-request.*",
+        "method": "POST",
+        "headers": {
+          "CLIENT_APP_ID": {
+            "equalTo": "JavaScript"
+          },
+          "accept": {
+            "equalTo": "application/json"
+          }
+        },
+        "bodyPatterns": [
+          {
+            "equalToJson": {
+              "data": {
+                "ACCOUNT_NAME": "MOCK_ACCOUNT_NAME",
+                "CLIENT_APP_ID": "JavaScript",
+                "TOKEN": "fresh_at_from_winner",
+                "LOGIN_NAME": "MOCK_USERNAME",
+                "AUTHENTICATOR": "OAUTH",
+                "CLIENT_ENVIRONMENT": {
+                  "OAUTH_TYPE": "OAUTH_AUTHORIZATION_CODE"
+                }
+              }
+            },
+            "ignoreExtraElements": true
+          }
+        ]
+      },
+      "response": {
+        "status": 200,
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "jsonBody": {
+          "data": {
+            "masterToken": "master token",
+            "token": "session token",
+            "validityInSeconds": 3600,
+            "masterValidityInSeconds": 14400,
+            "displayUserName": "OAUTH_TEST_AUTH_CODE",
+            "serverVersion": "8.48.0 b2024121104444034239f05",
+            "firstLogin": false,
+            "remMeToken": null,
+            "remMeValidityInSeconds": 0,
+            "healthCheckInterval": 45,
+            "newClientForUpgrade": "3.12.3",
+            "sessionId": 1172562260498,
+            "parameters": [
+              {
+                "name": "CLIENT_PREFETCH_THREADS",
+                "value": 4
+              }
+            ],
+            "sessionInfo": {
+              "databaseName": "TEST_DATABASE",
+              "schemaName": "TEST_JDBC",
+              "warehouseName": "TEST_XSMALL",
+              "roleName": "ANALYST"
+            },
+            "idToken": null,
+            "idTokenValidityInSeconds": 0,
+            "responseData": null,
+            "mfaToken": null,
+            "mfaTokenValidityInSeconds": 0
+          },
+          "code": null,
+          "message": null,
+          "success": true
+        }
+      }
+    }
+  ]
+}

@@ -44,7 +44,7 @@ describe('connection with CRL validation', () => {
     let wiremockPort: number;
 
     before(async () => {
-      sinon.define(process.env, 'NODE_TLS_REJECT_UNAUTHORIZED', '0');
+      process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
       wiremockPort = await getFreePort();
       wiremockClient = await runWireMockAsync(wiremockPort, {
         wiremockJarArgs: ['--proxy-all', connectionOptions.valid.accessUrl],
@@ -52,6 +52,7 @@ describe('connection with CRL validation', () => {
     });
 
     after(async () => {
+      delete process.env.NODE_TLS_REJECT_UNAUTHORIZED;
       await wiremockClient.global.shutdown();
     });
 

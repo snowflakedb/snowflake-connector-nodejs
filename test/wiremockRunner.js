@@ -22,7 +22,7 @@ async function runWireMockAsync(port, options = {}) {
           '--async-response-enabled',
           'true',
           '--proxy-pass-through',
-          'false',
+          String(options.proxyPassThrough || false),
           '--port',
           String(port),
           ...(options.wiremockJarArgs || []),

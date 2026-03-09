@@ -2,7 +2,6 @@ import assert from 'assert';
 import sinon from 'sinon';
 import { WireMockRestClient } from 'wiremock-rest-client';
 import { WIP_ConnectionOptions } from '../../lib/connection/types';
-import * as connectionOptions from './connectionOptions';
 import ErrorCode from '../../lib/error_code';
 import { CertificateRevokedError, CRL_VALIDATOR_INTERNAL } from '../../lib/agent/crl_validator';
 import { createConnection, connectAsync, getFreePort } from './testUtil';
@@ -47,7 +46,7 @@ describe('connection with CRL validation', () => {
       process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
       wiremockPort = await getFreePort();
       wiremockClient = await runWireMockAsync(wiremockPort, {
-        wiremockJarArgs: ['--proxy-all', connectionOptions.valid.accessUrl],
+        proxyPassThrough: true,
       });
     });
 

@@ -10,7 +10,6 @@ import { startProxyServer, ProxyServer } from '../proxy_server';
 
 async function testCrlConnection(connectionOptions?: Partial<WIP_ConnectionOptions>) {
   const connection = createConnection({
-    account: 'sfctest0',
     certRevocationCheckMode: 'ENABLED',
     ...connectionOptions,
   });

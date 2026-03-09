@@ -3,6 +3,21 @@ const { spawn } = require('child_process');
 const Logger = require('../lib/logger');
 const fs = require('fs');
 
+// WireMock's shutdown API waits for all pending requests to complete before stopping.
+// Since we have tests with request timeouts, this causes the shutdown to hang and
+// leaves stale WireMock processes. Instead of using the API, we force-kill the process.
+function patchShutdownWithForceKill(restClient, child) {
+  const globalService = restClient.global;
+  globalService.shutdown = async function () {
+    try {
+      process.kill(-child.pid, 'SIGKILL');
+    } catch (e) {
+      // Process may already be gone
+    }
+  };
+  Object.defineProperty(restClient, 'global', { get: () => globalService });
+}
+
 async function runWireMockAsync(port, options = {}) {
   let timeoutHandle;
   const counter = 0;
@@ -33,7 +48,6 @@ async function runWireMockAsync(port, options = {}) {
           detached: true,
         },
       );
-      child.unref();
       // Use 127.0.0.1 instead of localhost to avoid IPv6/IPv4 resolution issues on Node.js 18 + RHEL9
       const baseUri = `http://127.0.0.1:${port}`;
       const wireMock = new WireMockRestClient(baseUri, {
@@ -43,6 +57,7 @@ async function runWireMockAsync(port, options = {}) {
       waitForWiremockStarted(wireMock, counter, maxRetries)
         .then((restClient) => {
           restClient.rootUrl = baseUri;
+          patchShutdownWithForceKill(restClient, child);
           resolve(restClient);
         })
         .catch(reject);

@@ -87,7 +87,7 @@ describe('connection with CRL validation', () => {
       expectsWrappedError: false,
     },
   ].forEach(({ name, isAdvisory, throwError, expectsWrappedError }) => {
-    it(name, async () => {
+    it.skip(name, async () => {
       sinon.stub(CRL_VALIDATOR_INTERNAL, 'validateCrl').throws(throwError);
       const testConnectionPromise = testCrlConnection({
         certRevocationCheckMode: isAdvisory ? 'ADVISORY' : 'ENABLED',

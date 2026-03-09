@@ -26,7 +26,7 @@ describe('connection with CRL validation', () => {
     sinon.restore();
   });
 
-  it.skip('allows connection for valid certificate and includes CRL value in the login request', async () => {
+  it('allows connection for valid certificate and includes CRL value in the login request', async () => {
     const axiosRequestSpy = sinon.spy(axiosInstance, 'request');
     const validateCrlSpy = sinon.spy(CRL_VALIDATOR_INTERNAL, 'validateCrl');
     await assert.doesNotReject(testCrlConnection());
@@ -49,7 +49,7 @@ describe('connection with CRL validation', () => {
       await proxyServer.shutdown();
     });
 
-    it.skip('goes through crl validation', async () => {
+    it('goes through crl validation', async () => {
       const validateCrlSpy = sinon.spy(CRL_VALIDATOR_INTERNAL, 'validateCrl');
       await assert.doesNotReject(
         testCrlConnection({
@@ -87,7 +87,7 @@ describe('connection with CRL validation', () => {
       expectsWrappedError: false,
     },
   ].forEach(({ name, isAdvisory, throwError, expectsWrappedError }) => {
-    it.skip(name, async () => {
+    it(name, async () => {
       sinon.stub(CRL_VALIDATOR_INTERNAL, 'validateCrl').throws(throwError);
       const testConnectionPromise = testCrlConnection({
         certRevocationCheckMode: isAdvisory ? 'ADVISORY' : 'ENABLED',

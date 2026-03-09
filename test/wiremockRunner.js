@@ -9,11 +9,7 @@ const fs = require('fs');
 function patchShutdownWithForceKill(restClient, child) {
   const globalService = restClient.global;
   globalService.shutdown = async function () {
-    try {
-      process.kill(-child.pid, 'SIGKILL');
-    } catch (e) {
-      // Process may already be gone
-    }
+    process.kill(-child.pid, 'SIGKILL');
   };
   Object.defineProperty(restClient, 'global', { get: () => globalService });
 }

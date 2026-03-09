@@ -19,12 +19,16 @@ export interface GlobalConfigOptionsTyped {
   /**
    * HTTP request timeout for CRL download.
    *
+   * This option applies only when certRevocationCheckMode is `ADVISORY` or `ENABLED`
+   *
    * @default 10000 (ms)
    */
   crlDownloadTimeout: number;
 
   /**
    * Time after which cached CRL entries are invalidated.
+   *
+   * This option applies only when certRevocationCheckMode is `ADVISORY` or `ENABLED`
    *
    * @default 86400000 (24 hours in ms)
    */
@@ -33,6 +37,8 @@ export interface GlobalConfigOptionsTyped {
   /**
    * Maximum allowed size for a CRL download response.
    * If exceeded, the download will fail and certificate validation will not proceed.
+   *
+   * This option applies only when certRevocationCheckMode is `ADVISORY` or `ENABLED`
    *
    * @default 20971520 (20 MB in bytes)
    */

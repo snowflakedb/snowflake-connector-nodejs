@@ -211,23 +211,27 @@ export interface WIP_ConnectionOptions {
   certRevocationCheckMode?: CRLValidatorConfig['checkMode'];
 
   /**
-   * When certRevocationCheckMode is enabled, allows to connect when certificate doesn't have CRL URL.
+   * Allows to connect when certificate doesn't have CRL URLs (cRLDistributionPoints)
+   *
+   * This option applies only when certRevocationCheckMode is `ADVISORY` or `ENABLED`
    *
    * @default false
    */
   crlAllowCertificatesWithoutCrlURL?: CRLValidatorConfig['allowCertificatesWithoutCrlURL'];
 
   /**
-   * When certRevocationCheckMode is enabled, allows to cache CRLs in memory.
+   * Enable CRL caching in memory.
+   *
+   * This option applies only when certRevocationCheckMode is `ADVISORY` or `ENABLED`
    *
    * @default true
    */
   crlInMemoryCache?: CRLValidatorConfig['inMemoryCache'];
 
   /**
-   * When certRevocationCheckMode is enabled, allows to cache CRLs on disk.
+   * Enable CRL caching on disk. Disk read/write failures are ignored.
    *
-   * Disk read/write failures are ignored.
+   * This option applies only when certRevocationCheckMode is `ADVISORY` or `ENABLED`
    *
    * @default true
    */

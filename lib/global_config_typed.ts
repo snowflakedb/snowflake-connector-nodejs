@@ -39,14 +39,14 @@ export interface GlobalConfigOptionsTyped {
    * Time after which cached CRL entries are invalidated.
    *
    * This option applies only when certRevocationCheckMode is `ADVISORY` or `ENABLED` and
-   * `crlInMemoryCache` or `crlOnDiskCache` is true
+   * crlInMemoryCache or crlOnDiskCache is true
    *
    * @default 86400000 (24 hours in ms)
    */
   crlCacheValidityTime: number;
 
   /**
-   * Directory path to store CRL cache when `crlOnDiskCache` is true.
+   * Directory path to store CRL cache when crlOnDiskCache is true.
    *
    * @default
    * Reads from process.env.SNOWFLAKE_CRL_ON_DISK_CACHE_DIR if available.

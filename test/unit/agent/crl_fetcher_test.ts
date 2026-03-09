@@ -16,11 +16,11 @@ describe('getCrl', () => {
   let axiosGetStub: sinon.SinonStub;
 
   beforeEach(() => {
+    crlCacheModule.CRL_MEMORY_CACHE.clear();
     axiosGetStub = sinon.stub(axios, 'get');
   });
 
   afterEach(async () => {
-    crlCacheModule.CRL_MEMORY_CACHE.clear();
     await fs.rm(crlCacheDir, { recursive: true, force: true });
     sinon.restore();
   });

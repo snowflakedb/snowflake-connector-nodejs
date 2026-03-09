@@ -1,0 +1,60 @@
+{
+  "mappings": [
+    {
+      "scenarioName": "Refresh token kept when not returned",
+      "requiredScenarioState": "Started",
+      "newScenarioState": "Token refreshed",
+      "request": {
+        "urlPathPattern": "/oauth/token-request.*",
+        "method": "POST"
+      },
+      "response": {
+        "status": 200,
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "jsonBody": {
+          "access_token": "new_access_token",
+          "token_type": "Bearer",
+          "expires_in": 599,
+          "idpInitiated": false
+        }
+      }
+    },
+    {
+      "scenarioName": "Refresh token kept when not returned",
+      "requiredScenarioState": "Token refreshed",
+      "newScenarioState": "Authenticated successfully",
+      "request": {
+        "urlPathPattern": "/session/v1/login-request.*",
+        "method": "POST",
+        "bodyPatterns": [
+          {
+            "equalToJson": {
+              "data": {
+                "TOKEN": "new_access_token"
+              }
+            },
+            "ignoreExtraElements": true
+          }
+        ]
+      },
+      "response": {
+        "status": 200,
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "jsonBody": {
+          "data": {
+            "token": "session token",
+            "masterToken": "master token",
+            "sessionId": 1172562260498
+          },
+          "code": null,
+          "message": null,
+          "success": true
+        }
+      }
+    }
+  ]
+}

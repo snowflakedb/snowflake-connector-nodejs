@@ -26,15 +26,6 @@ export interface GlobalConfigOptionsTyped {
   crlDownloadTimeout: number;
 
   /**
-   * Time after which cached CRL entries are invalidated.
-   *
-   * This option applies only when certRevocationCheckMode is `ADVISORY` or `ENABLED`
-   *
-   * @default 86400000 (24 hours in ms)
-   */
-  crlCacheValidityTime: number;
-
-  /**
    * Maximum allowed size for a CRL download response.
    * If exceeded, the download will fail and certificate validation will not proceed.
    *
@@ -45,7 +36,17 @@ export interface GlobalConfigOptionsTyped {
   crlDownloadMaxSize: number;
 
   /**
-   * Directory path to store CRL cache when crlOnDiskCache is true.
+   * Time after which cached CRL entries are invalidated.
+   *
+   * This option applies only when certRevocationCheckMode is `ADVISORY` or `ENABLED` and
+   * `crlInMemoryCache` or `crlOnDiskCache` is true
+   *
+   * @default 86400000 (24 hours in ms)
+   */
+  crlCacheValidityTime: number;
+
+  /**
+   * Directory path to store CRL cache when `crlOnDiskCache` is true.
    *
    * @default
    * Reads from process.env.SNOWFLAKE_CRL_ON_DISK_CACHE_DIR if available.

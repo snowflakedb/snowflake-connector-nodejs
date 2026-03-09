@@ -12,7 +12,7 @@
 - Fixed incorrect handling of callback argument that should be optional in `connect()` and `connectAsync()` (snowflakedb/snowflake-connector-nodejs#1276)
 - Added request retries to previously uncovered query execution paths (snowflakedb/snowflake-connector-nodejs#1280)
 - Bumped `fast-xml-parser` requirement to latest 5.4.1 to address CVE-2026-26278 and CVE-2026-27942 (snowflakedb/snowflake-connector-nodejs#1281 and snowflakedb/snowflake-connector-nodejs#1311)
-- Fixed a bug where invalid JWT was generated if user accidentally set both the (locator version of) `account` and the `host` in the config (snowflakedb/snowflake-connector-nodejs#1283)
+- Fixed a bug where invalid JWT was generated if user accidentally set both the `account` and the `host` in the config (snowflakedb/snowflake-connector-nodejs#1283)
 - Added `rowStreamHighWaterMark` connection option to control how many rows are buffered when streaming query results via `statement.streamRows()` (snowflakedb/snowflake-connector-nodejs#1289)
 - Removed `bn.js` dependency (snowflakedb/snowflake-connector-nodejs#1294)
 - Improved error details when OAuth fails (snowflakedb/snowflake-connector-nodejs#1302)
@@ -22,6 +22,7 @@
 - Fixed `disableSamlUrlCheck` typing to use correct casing: `disableSamlURLCheck` (snowflakedb/snowflake-connector-nodejs#1304)
 - Added snake_case key support when loading `connections.toml` via `createConnection()` with no arguments (snowflakedb/snowflake-connector-nodejs#1304)
 - Exported `normalizeConnectionOptions()` utility to convert snake_case connection keys to camelCase, with key aliases and acronym overrides (snowflakedb/snowflake-connector-nodejs#1304)
+- Added `LIBC_FAMILY` and `LIBC_VERSION` fields to login-request telemetry (snowflakedb/snowflake-connector-nodejs#1310)
 - Fixed `getDefaultCacheDir()` crashing in environments where no user home directory is configured by falling back to `os.tmpdir()` (snowflakedb/snowflake-connector-nodejs#1312)
 - Fixed `SF_OCSP_RESPONSE_CACHE_DIR` not being used directly as the OCSP cache directory (snowflakedb/snowflake-connector-nodejs#1313)
 - Fixed a bug where host specified in `NO_PROXY` in the `.domain.com` wildcard format were not correctly matching the destination host (snowflakedb/snowflake-connector-nodejs#1309)
@@ -29,6 +30,10 @@
   - `.domain.com` wildcard format was not correctly matching the destination host (snowflakedb/snowflake-connector-nodejs#1309)
   - `.` was incorrectly matching as any character instead of a literal dot (snowflakedb/snowflake-connector-nodejs#1315)
   - Partial strings were incorrectly matching instead of requiring full destination match (snowflakedb/snowflake-connector-nodejs#1315)
+- Added `crlDownloadMaxSize` config option to enforce a maximum response size limit when downloading CRL files (snowflakedb/snowflake-connector-nodejs#1321)
+- Fixed CRL ADVISORY mode failure logging to use warn level instead of debug (snowflakedb/snowflake-connector-nodejs#1321)
+- Fixed OAuth Authorization Code reauthentication not using the refreshed access token when the cached access token is expired (snowflakedb/snowflake-connector-nodejs#1318)
+- Fixed OAuth Authorization Code refresh token being removed from cache when the IDP does not return a new one (snowflakedb/snowflake-connector-nodejs#1319)
 
 ## 2.3.4
 

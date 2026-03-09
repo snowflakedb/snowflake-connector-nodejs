@@ -43,7 +43,7 @@ export function corkSocketAndValidateCrl(socket: TLSSocket, config: CRLValidator
       await CRL_VALIDATOR_INTERNAL.validateCrl(certChain, config);
     } catch (error: unknown) {
       if (!(error instanceof CertificateRevokedError) && config.checkMode === 'ADVISORY') {
-        Logger().debug(
+        Logger().warn(
           'Failed to check CRL revocation, but checkMode=ADVISORY. Allowing connection. Error: %j',
           error,
         );

@@ -9,7 +9,11 @@ const fs = require('fs');
 function patchShutdownWithForceKill(restClient, child) {
   const globalService = restClient.global;
   globalService.shutdown = async function () {
-    process.kill(-child.pid, 'SIGKILL');
+    if (process.platform === 'win32') {
+      spawn('taskkill', ['/pid', String(child.pid), '/f', '/t']);
+    } else {
+      process.kill(-child.pid, 'SIGKILL');
+    }
   };
   Object.defineProperty(restClient, 'global', { get: () => globalService });
 }
@@ -44,7 +48,6 @@ async function runWireMockAsync(port, options = {}) {
           detached: true,
         },
       );
-      child.unref();
       // Use 127.0.0.1 instead of localhost to avoid IPv6/IPv4 resolution issues on Node.js 18 + RHEL9
       const baseUri = `http://127.0.0.1:${port}`;
       const wireMock = new WireMockRestClient(baseUri, {

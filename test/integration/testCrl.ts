@@ -1,13 +1,12 @@
 import assert from 'assert';
 import sinon from 'sinon';
-import http from 'http';
-import net from 'net';
 import { WIP_ConnectionOptions } from '../../lib/connection/types';
 import ErrorCode from '../../lib/error_code';
 import { CertificateRevokedError, CRL_VALIDATOR_INTERNAL } from '../../lib/agent/crl_validator';
-import { createConnection, connectAsync, getFreePort } from './testUtil';
+import { createConnection, connectAsync, destroyConnectionAsync } from './testUtil';
 import { httpsAgentCache } from '../../lib/http/node';
 import axiosInstance from '../../lib/http/axios_instance';
+import { startProxyServer, ProxyServer } from '../proxy_server';
 
 async function testCrlConnection(connectionOptions?: Partial<WIP_ConnectionOptions>) {
   const connection = createConnection({
@@ -16,6 +15,7 @@ async function testCrlConnection(connectionOptions?: Partial<WIP_ConnectionOptio
     ...connectionOptions,
   });
   await connectAsync(connection);
+  await destroyConnectionAsync(connection);
 }
 
 describe('connection with CRL validation', () => {
@@ -40,47 +40,14 @@ describe('connection with CRL validation', () => {
   });
 
   describe('Proxy connection', () => {
-    let proxyServer: http.Server;
-    let proxyPort: number;
-    const openSockets = new Set<net.Socket>();
+    let proxyServer: ProxyServer;
 
     before(async () => {
-      proxyPort = await getFreePort();
-      proxyServer = http.createServer((_req, res) => {
-        res.writeHead(405);
-        res.end();
-      });
-      proxyServer.on(
-        'connect',
-        (req: http.IncomingMessage, clientSocket: net.Socket, head: Buffer) => {
-          const [host, port] = req.url!.split(':');
-          const serverSocket = net.connect(parseInt(port), host, () => {
-            clientSocket.write('HTTP/1.1 200 Connection Established\r\n\r\n');
-            serverSocket.write(head);
-            serverSocket.pipe(clientSocket);
-            clientSocket.pipe(serverSocket);
-          });
-          openSockets.add(clientSocket);
-          openSockets.add(serverSocket);
-          const cleanup = (socket: net.Socket) => {
-            openSockets.delete(socket);
-          };
-          serverSocket.on('close', () => cleanup(serverSocket));
-          clientSocket.on('close', () => cleanup(clientSocket));
-          serverSocket.on('error', () => clientSocket.destroy());
-          clientSocket.on('error', () => serverSocket.destroy());
-        },
-      );
-      await new Promise<void>((resolve) => proxyServer.listen(proxyPort, '127.0.0.1', resolve));
+      proxyServer = await startProxyServer();
     });
 
     after(async () => {
-      for (const socket of openSockets) {
-        socket.destroy();
-      }
-      await new Promise<void>((resolve, reject) =>
-        proxyServer.close((err) => (err ? reject(err) : resolve())),
-      );
+      await proxyServer.shutdown();
     });
 
     it('goes through crl validation', async () => {
@@ -88,7 +55,7 @@ describe('connection with CRL validation', () => {
       await assert.doesNotReject(
         testCrlConnection({
           proxyHost: '127.0.0.1',
-          proxyPort: proxyPort,
+          proxyPort: proxyServer.port,
         }),
       );
       assert.strictEqual(validateCrlSpy.callCount, 1);

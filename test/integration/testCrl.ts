@@ -1,16 +1,17 @@
 import assert from 'assert';
 import sinon from 'sinon';
-import { WireMockRestClient } from 'wiremock-rest-client';
+import http from 'http';
+import net from 'net';
 import { WIP_ConnectionOptions } from '../../lib/connection/types';
 import ErrorCode from '../../lib/error_code';
 import { CertificateRevokedError, CRL_VALIDATOR_INTERNAL } from '../../lib/agent/crl_validator';
 import { createConnection, connectAsync, getFreePort } from './testUtil';
 import { httpsAgentCache } from '../../lib/http/node';
 import axiosInstance from '../../lib/http/axios_instance';
-import { runWireMockAsync } from '../wiremockRunner';
 
 async function testCrlConnection(connectionOptions?: Partial<WIP_ConnectionOptions>) {
   const connection = createConnection({
+    account: 'sfctest0',
     certRevocationCheckMode: 'ENABLED',
     ...connectionOptions,
   });
@@ -39,20 +40,47 @@ describe('connection with CRL validation', () => {
   });
 
   describe('Proxy connection', () => {
-    let wiremockClient: WireMockRestClient;
-    let wiremockPort: number;
+    let proxyServer: http.Server;
+    let proxyPort: number;
+    const openSockets = new Set<net.Socket>();
 
     before(async () => {
-      process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
-      wiremockPort = await getFreePort();
-      wiremockClient = await runWireMockAsync(wiremockPort, {
-        proxyPassThrough: true,
+      proxyPort = await getFreePort();
+      proxyServer = http.createServer((_req, res) => {
+        res.writeHead(405);
+        res.end();
       });
+      proxyServer.on(
+        'connect',
+        (req: http.IncomingMessage, clientSocket: net.Socket, head: Buffer) => {
+          const [host, port] = req.url!.split(':');
+          const serverSocket = net.connect(parseInt(port), host, () => {
+            clientSocket.write('HTTP/1.1 200 Connection Established\r\n\r\n');
+            serverSocket.write(head);
+            serverSocket.pipe(clientSocket);
+            clientSocket.pipe(serverSocket);
+          });
+          openSockets.add(clientSocket);
+          openSockets.add(serverSocket);
+          const cleanup = (socket: net.Socket) => {
+            openSockets.delete(socket);
+          };
+          serverSocket.on('close', () => cleanup(serverSocket));
+          clientSocket.on('close', () => cleanup(clientSocket));
+          serverSocket.on('error', () => clientSocket.destroy());
+          clientSocket.on('error', () => serverSocket.destroy());
+        },
+      );
+      await new Promise<void>((resolve) => proxyServer.listen(proxyPort, '127.0.0.1', resolve));
     });
 
     after(async () => {
-      delete process.env.NODE_TLS_REJECT_UNAUTHORIZED;
-      await wiremockClient.global.shutdown();
+      for (const socket of openSockets) {
+        socket.destroy();
+      }
+      await new Promise<void>((resolve, reject) =>
+        proxyServer.close((err) => (err ? reject(err) : resolve())),
+      );
     });
 
     it('goes through crl validation', async () => {
@@ -60,7 +88,7 @@ describe('connection with CRL validation', () => {
       await assert.doesNotReject(
         testCrlConnection({
           proxyHost: '127.0.0.1',
-          proxyPort: wiremockPort,
+          proxyPort: proxyPort,
         }),
       );
       assert.strictEqual(validateCrlSpy.callCount, 1);

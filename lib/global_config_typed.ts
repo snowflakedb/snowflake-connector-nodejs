@@ -19,12 +19,32 @@ export interface GlobalConfigOptionsTyped {
   /**
    * HTTP request timeout for CRL download.
    *
+   * If the timeout is exceeded and certRevocationCheckMode is:
+   * - `ENABLED`: the download will fail and the connection will be rejected.
+   * - `ADVISORY`: the download will fail but the connection will be allowed.
+   *
+   * This option applies only when certRevocationCheckMode is `ADVISORY` or `ENABLED`
+   *
    * @default 10000 (ms)
    */
   crlDownloadTimeout: number;
 
   /**
+   * Maximum allowed size for a CRL download response.
+   *
+   * If the limit is exceeded and certRevocationCheckMode is:
+   * - `ENABLED`: the download will fail and the connection will be rejected.
+   * - `ADVISORY`: the download will fail but the connection will be allowed.
+   *
+   * @default 20971520 (20 MB in bytes)
+   */
+  crlDownloadMaxSize: number;
+
+  /**
    * Time after which cached CRL entries are invalidated.
+   *
+   * This option applies only when certRevocationCheckMode is `ADVISORY` or `ENABLED` and
+   * crlInMemoryCache or crlOnDiskCache is true
    *
    * @default 86400000 (24 hours in ms)
    */
@@ -45,6 +65,7 @@ export interface GlobalConfigOptionsTyped {
 
 export const GLOBAL_CONFIG_DEFAULTS: GlobalConfigOptionsTyped = {
   crlDownloadTimeout: 10000,
+  crlDownloadMaxSize: 20 * 1024 * 1024,
   crlCacheValidityTime: 86400000,
   get crlCacheDir() {
     return process.env.SNOWFLAKE_CRL_ON_DISK_CACHE_DIR || path.join(getDefaultCacheDir(), 'crls');

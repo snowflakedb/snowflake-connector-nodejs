@@ -28,14 +28,15 @@ async function runWireMockAsync(port, options = {}) {
           ...(options.wiremockJarArgs || []),
         ],
         {
+          stdio: 'inherit',
           shell: true, // For Windows
           detached: true,
         },
       );
       // Custom stdout/stderr handling instead of stdio: 'inherit' because
       // inheriting wiremock process would switch terminal to raw mode
-      child.stdout.on('data', (data) => process.stdout.write(data));
-      child.stderr.on('data', (data) => process.stderr.write(data));
+      // child.stdout.on('data', (data) => process.stdout.write(data));
+      // child.stderr.on('data', (data) => process.stderr.write(data));
       child.unref();
       // Use 127.0.0.1 instead of localhost to avoid IPv6/IPv4 resolution issues on Node.js 18 + RHEL9
       const baseUri = `http://127.0.0.1:${port}`;

@@ -6,7 +6,7 @@ import {
   isCrlSignatureValid,
   isShortLivedCertificate,
   CRL_SIGNATURE_OID_TO_CRYPTO_DIGEST_ALGORITHM,
-} from '../../../lib/agent/crl_utils';
+} from '../../../../lib/agent/crl_validator/crl_utils';
 import { createCertificateKeyPair, createTestCertificate, createTestCRL } from './test_utils';
 
 describe('isShortLivedCertificate', () => {

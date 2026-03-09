@@ -4,12 +4,16 @@ import fs from 'fs/promises';
 import axios from 'axios';
 import ASN1 from 'asn1.js-rfc5280';
 import * as crlCacheModule from '../../../lib/agent/crl_cache';
-import { getCrl, PENDING_FETCH_REQUESTS } from '../../../lib/agent/crl_fetcher';
+import {
+  getCrl,
+  PENDING_FETCH_REQUESTS,
+  resetCrlCacheCleaner,
+} from '../../../lib/agent/crl_fetcher';
 import GlobalConfigTyped from '../../../lib/global_config_typed';
 import { createTestCRL } from './test_utils';
 
 describe('getCrl', () => {
-  const crlUrl = 'http://example.com/crl.crl';
+  const crlUrl = 'http://test.snowflake.com/crl.crl';
   const crlCacheDir = GlobalConfigTyped.getValue('crlCacheDir');
   const testCrl = createTestCRL();
   const testCrlRaw = Buffer.from(ASN1.CertificateList.encode(testCrl, 'der'));
@@ -26,6 +30,7 @@ describe('getCrl', () => {
   });
 
   it('starts periodic cache cleaners on first call when caches are enabled', async () => {
+    resetCrlCacheCleaner();
     axiosGetStub.resolves({ data: testCrlRaw });
     const setIntervalSpy = sinon.spy(global, 'setInterval');
     const clearExpiredCrlFromMemoryCacheSpy = sinon.spy(

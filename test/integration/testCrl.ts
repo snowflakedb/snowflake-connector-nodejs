@@ -1,13 +1,12 @@
 import assert from 'assert';
 import sinon from 'sinon';
-import axios from 'axios';
-import os from 'os';
 import { WIP_ConnectionOptions } from '../../lib/connection/types';
-import * as connectionOptions from './connectionOptions';
 import ErrorCode from '../../lib/error_code';
 import { CertificateRevokedError, CRL_VALIDATOR_INTERNAL } from '../../lib/agent/crl_validator';
 import { createConnection, connectAsync, destroyConnectionAsync } from './testUtil';
 import { httpsAgentCache } from '../../lib/http/node';
+import axiosInstance from '../../lib/http/axios_instance';
+import { startProxyServer, ProxyServer } from '../proxy_server';
 
 async function testCrlConnection(connectionOptions?: Partial<WIP_ConnectionOptions>) {
   const connection = createConnection({
@@ -27,8 +26,8 @@ describe('connection with CRL validation', () => {
     sinon.restore();
   });
 
-  it.skip('allows connection for valid certificate', async () => {
-    const axiosRequestSpy = sinon.spy(axios, 'request');
+  it('allows connection for valid certificate and includes CRL value in the login request', async () => {
+    const axiosRequestSpy = sinon.spy(axiosInstance, 'request');
     const validateCrlSpy = sinon.spy(CRL_VALIDATOR_INTERNAL, 'validateCrl');
     await assert.doesNotReject(testCrlConnection());
     assert.strictEqual(validateCrlSpy.callCount, 1);
@@ -39,13 +38,28 @@ describe('connection with CRL validation', () => {
     );
   });
 
-  if (os.platform() === 'linux' && !process.env.SHOULD_SKIP_PROXY_TESTS) {
-    it.skip('allows proxy connection for valid certificate', async () => {
+  describe('Proxy connection', () => {
+    let proxyServer: ProxyServer;
+
+    before(async () => {
+      proxyServer = await startProxyServer();
+    });
+
+    after(async () => {
+      await proxyServer.shutdown();
+    });
+
+    it('goes through crl validation', async () => {
       const validateCrlSpy = sinon.spy(CRL_VALIDATOR_INTERNAL, 'validateCrl');
-      await assert.doesNotReject(testCrlConnection(connectionOptions.connectionWithProxy));
+      await assert.doesNotReject(
+        testCrlConnection({
+          proxyHost: '127.0.0.1',
+          proxyPort: proxyServer.port,
+        }),
+      );
       assert.strictEqual(validateCrlSpy.callCount, 1);
     });
-  }
+  });
 
   [
     {
@@ -73,7 +87,7 @@ describe('connection with CRL validation', () => {
       expectsWrappedError: false,
     },
   ].forEach(({ name, isAdvisory, throwError, expectsWrappedError }) => {
-    it.skip(name, async () => {
+    it(name, async () => {
       sinon.stub(CRL_VALIDATOR_INTERNAL, 'validateCrl').throws(throwError);
       const testConnectionPromise = testCrlConnection({
         certRevocationCheckMode: isAdvisory ? 'ADVISORY' : 'ENABLED',

@@ -2,7 +2,7 @@ import assert from 'assert';
 import sinon from 'sinon';
 import fs from 'fs/promises';
 import path from 'path';
-import ASN1 from 'asn1.js-rfc5280';
+import rfc5280 from 'asn1.js-rfc5280';
 import {
   CRL_MEMORY_CACHE,
   getCrlFromMemory,
@@ -11,24 +11,24 @@ import {
   writeCrlToDisk,
   clearExpiredCrlFromMemoryCache,
   clearExpiredCrlFromDiskCache,
-} from '../../../lib/agent/crl_cache';
-import GlobalConfigTyped from '../../../lib/global_config_typed';
+} from '../../../../lib/agent/crl_validator/crl_cache';
+import GlobalConfigTyped from '../../../../lib/global_config_typed';
 import { createTestCRL } from './test_utils';
-import { writeCacheFile } from '../../../lib/disk_cache';
+import { writeCacheFile } from '../../../../lib/disk_cache';
 
 describe('CRL cache', () => {
   const fakeNow = new Date('2025-01-01T00:00:00Z').getTime();
   const crlCacheDir = GlobalConfigTyped.getValue('crlCacheDir');
   const crlCacheValidityTime = GlobalConfigTyped.getValue('crlCacheValidityTime');
   const crlUrl = 'http://example.com/file.crl';
-  let testCrl: ASN1.CertificateListDecoded;
+  let testCrl: rfc5280.CertificateListDecoded;
   let testCrlRaw: Buffer;
 
   beforeEach(async () => {
     sinon.useFakeTimers(fakeNow);
     testCrl = createTestCRL();
     testCrl.tbsCertList.nextUpdate.value = fakeNow + 1000;
-    testCrlRaw = ASN1.CertificateList.encode(testCrl, 'der');
+    testCrlRaw = rfc5280.CertificateList.encode(testCrl, 'der');
   });
 
   afterEach(async () => {
@@ -117,7 +117,7 @@ describe('CRL cache', () => {
 
     it('returns null when CRL is expired', async () => {
       testCrl.tbsCertList.nextUpdate.value = fakeNow - 1000;
-      testCrlRaw = ASN1.CertificateList.encode(testCrl, 'der');
+      testCrlRaw = rfc5280.CertificateList.encode(testCrl, 'der');
       await writeCrlToDisk(crlUrl, testCrlRaw);
       const result = await getCrlFromDisk(crlUrl);
       assert.strictEqual(result, null);
@@ -125,7 +125,7 @@ describe('CRL cache', () => {
 
     it('returns null CRL is on disk, but now > nextUpdate', async () => {
       testCrl.tbsCertList.nextUpdate.value = fakeNow - 1000;
-      testCrlRaw = ASN1.CertificateList.encode(testCrl, 'der');
+      testCrlRaw = rfc5280.CertificateList.encode(testCrl, 'der');
       await writeCrlToDisk(crlUrl, testCrlRaw);
       const result = await getCrlFromDisk(crlUrl);
       assert.strictEqual(result, null);
@@ -135,7 +135,7 @@ describe('CRL cache', () => {
       const crlWrittenAt = new Date(fakeNow - crlCacheValidityTime - 1000);
       const crlFilePath = path.join(crlCacheDir, encodeURIComponent(crlUrl));
       testCrl.tbsCertList.nextUpdate.value = fakeNow + 1000;
-      testCrlRaw = ASN1.CertificateList.encode(testCrl, 'der');
+      testCrlRaw = rfc5280.CertificateList.encode(testCrl, 'der');
       await writeCrlToDisk(crlUrl, testCrlRaw);
       await fs.utimes(crlFilePath, crlWrittenAt, crlWrittenAt);
       const result = await getCrlFromDisk(crlUrl);
@@ -144,7 +144,7 @@ describe('CRL cache', () => {
 
     it('returns parsed CRL when found on disk with nextUpdate > now', async () => {
       testCrl.tbsCertList.nextUpdate.value = fakeNow + 1000;
-      testCrlRaw = ASN1.CertificateList.encode(testCrl, 'der');
+      testCrlRaw = rfc5280.CertificateList.encode(testCrl, 'der');
       await writeCrlToDisk(crlUrl, testCrlRaw);
       const result = await getCrlFromDisk(crlUrl);
       assert.deepEqual(result, testCrl);

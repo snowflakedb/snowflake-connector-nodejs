@@ -2,21 +2,21 @@ import assert from 'assert';
 import sinon from 'sinon';
 import fs from 'fs/promises';
 import axios from 'axios';
-import ASN1 from 'asn1.js-rfc5280';
-import * as crlCacheModule from '../../../lib/agent/crl_cache';
+import rfc5280 from 'asn1.js-rfc5280';
+import * as crlCacheModule from '../../../../lib/agent/crl_validator/crl_cache';
 import {
   getCrl,
   PENDING_FETCH_REQUESTS,
   resetCrlCacheCleaner,
-} from '../../../lib/agent/crl_fetcher';
-import GlobalConfigTyped from '../../../lib/global_config_typed';
+} from '../../../../lib/agent/crl_validator/crl_fetcher';
+import GlobalConfigTyped from '../../../../lib/global_config_typed';
 import { createTestCRL } from './test_utils';
 
 describe('getCrl', () => {
   const crlUrl = 'http://test.snowflake.com/crl.crl';
   const crlCacheDir = GlobalConfigTyped.getValue('crlCacheDir');
   const testCrl = createTestCRL();
-  const testCrlRaw = Buffer.from(ASN1.CertificateList.encode(testCrl, 'der'));
+  const testCrlRaw = Buffer.from(rfc5280.CertificateList.encode(testCrl, 'der'));
   let axiosGetStub: sinon.SinonStub;
 
   beforeEach(() => {
@@ -65,6 +65,7 @@ describe('getCrl', () => {
       axiosGetStub.calledOnceWith(crlUrl, {
         timeout: GlobalConfigTyped.getValue('crlDownloadTimeout'),
         responseType: 'arraybuffer',
+        maxContentLength: 20971520,
       }),
     );
     assert.deepEqual(fetchedCrl, testCrl);

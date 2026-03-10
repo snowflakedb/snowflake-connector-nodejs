@@ -3,11 +3,9 @@ import {
   getCertificateCrlUrls,
   isCertificateRevoked,
   isIssuingDistributionPointExtensionValid,
-  isCrlSignatureValid,
   isShortLivedCertificate,
-  CRL_SIGNATURE_OID_TO_CRYPTO_DIGEST_ALGORITHM,
-} from '../../../lib/agent/crl_utils';
-import { createCertificateKeyPair, createTestCertificate, createTestCRL } from './test_utils';
+} from '../../../../lib/agent/crl_validator/certificate_utils';
+import { createTestCertificate, createTestCRL } from './test_utils';
 
 describe('isShortLivedCertificate', () => {
   const testCases: {
@@ -149,33 +147,6 @@ describe('getCertificateCrlUrls', () => {
       assert.deepStrictEqual(urls, testCase.expectedResult);
     });
   }
-});
-
-describe('isCrlSignatureValid', () => {
-  Object.keys(CRL_SIGNATURE_OID_TO_CRYPTO_DIGEST_ALGORITHM).forEach((oid) => {
-    it(`passes validation for algorithm oid=${oid}`, () => {
-      const issuerKeyPair = createCertificateKeyPair(oid);
-      const crl = createTestCRL({ issuerKeyPair });
-      const isValid = isCrlSignatureValid(crl, issuerKeyPair.publicKeyPem);
-      assert.strictEqual(isValid, true);
-    });
-  });
-
-  it('throws error for certificate with unknown signature algorithm oid', () => {
-    const crl = createTestCRL();
-    crl.signatureAlgorithm.algorithm = [1, 2, 3, 4, 5];
-    assert.throws(
-      () => isCrlSignatureValid(crl, 'public key'),
-      /Unsupported signature algorithm: 1\.2\.3\.4\.5/,
-    );
-  });
-
-  it('throws error for crl with invalid signature', () => {
-    const unrelatedKeyPair = createCertificateKeyPair();
-    const crl = createTestCRL();
-    const isValid = isCrlSignatureValid(crl, unrelatedKeyPair.publicKeyPem);
-    assert.strictEqual(isValid, false);
-  });
 });
 
 describe('isCertificateRevoked', () => {

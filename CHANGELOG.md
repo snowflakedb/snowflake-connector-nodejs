@@ -35,6 +35,7 @@
 - Fixed OAuth Authorization Code reauthentication not using the refreshed access token when the cached access token is expired (snowflakedb/snowflake-connector-nodejs#1318)
 - Fixed OAuth Authorization Code refresh token being removed from cache when the IDP does not return a new one (snowflakedb/snowflake-connector-nodejs#1319)
 - Fixed unhandled promise rejection when server returns malformed query responses (snowflakedb/snowflake-connector-nodejs#1329)
+- Added RSASSA-PSS signature verification support to CRL validation (snowflakedb/snowflake-connector-nodejs#1325)
 
 ## 2.3.4
 

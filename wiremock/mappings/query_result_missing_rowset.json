@@ -1,0 +1,124 @@
+{
+  "mappings": [
+    {
+      "request": {
+        "urlPathPattern": "/queries/v1/query-request*",
+        "method": "POST"
+      },
+      "response": {
+        "status": 200,
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "jsonBody": {
+          "data": {
+            "parameters": [],
+            "rowtype": [
+              {
+                "name": "1",
+                "database": "",
+                "schema": "",
+                "table": "",
+                "nullable": false,
+                "precision": 1,
+                "collation": null,
+                "byteLength": null,
+                "scale": 0,
+                "length": null,
+                "type": "fixed"
+              }
+            ],
+            "rowset": null,
+            "total": 1,
+            "returned": 1,
+            "queryId": "01c2f5c5-0814-a22c-0001-dd6a7fc3c4c3",
+            "databaseProvider": null,
+            "finalDatabaseName": null,
+            "finalSchemaName": null,
+            "finalWarehouseName": null,
+            "finalRoleName": "PUBLIC",
+            "numberOfBinds": 0,
+            "arrayBindSupported": false,
+            "statementTypeId": 4096,
+            "version": 1,
+            "sendResultTime": 1773247036796,
+            "queryResultFormat": "json",
+            "queryContext": {
+              "entries": [
+                {
+                  "id": 0,
+                  "timestamp": 1773247036778965,
+                  "priority": 0,
+                  "context": "CLKRygI="
+                }
+              ]
+            }
+          },
+          "code": null,
+          "message": null,
+          "success": true
+        }
+      }
+    },
+    {
+      "request": {
+        "urlPathPattern": "/queries/01c2f5c5-0814-a22c-0001-dd6a7fc3c4c3/result*",
+        "method": "GET"
+      },
+      "response": {
+        "status": 200,
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "jsonBody": {
+          "data": {
+            "parameters": [],
+            "rowtype": [
+              {
+                "name": "1",
+                "database": "",
+                "schema": "",
+                "table": "",
+                "nullable": false,
+                "precision": 1,
+                "collation": null,
+                "byteLength": null,
+                "scale": 0,
+                "length": null,
+                "type": "fixed"
+              }
+            ],
+            "rowset": null,
+            "total": 1,
+            "returned": 1,
+            "queryId": "01c2f5c5-0814-a22c-0001-dd6a7fc3c4c3",
+            "databaseProvider": null,
+            "finalDatabaseName": null,
+            "finalSchemaName": null,
+            "finalWarehouseName": null,
+            "finalRoleName": "PUBLIC",
+            "numberOfBinds": 0,
+            "arrayBindSupported": false,
+            "statementTypeId": 4096,
+            "version": 1,
+            "sendResultTime": 1773247036796,
+            "queryResultFormat": "json",
+            "queryContext": {
+              "entries": [
+                {
+                  "id": 0,
+                  "timestamp": 1773247036778965,
+                  "priority": 0,
+                  "context": "CLKRygI="
+                }
+              ]
+            }
+          },
+          "code": null,
+          "message": null,
+          "success": true
+        }
+      }
+    }
+  ]
+}

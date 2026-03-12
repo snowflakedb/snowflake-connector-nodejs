@@ -8,7 +8,6 @@ const {
   globToRegex,
   getMatchingFilePaths,
   isFileNotWritableByGroupOrOthers,
-  validateOnlyUserReadWritePermissionAndOwner,
   validateNoExtraPermissionsForOthers,
   getSecureHandle,
   isFileModeCorrect,
@@ -138,7 +137,7 @@ if (os.platform() !== 'win32') {
       },
       {
         permission: '640',
-        expectedResult: false,
+        expectedResult: true, // shows warning instead of rejecting
       },
       {
         permission: '100777',
@@ -156,9 +155,9 @@ if (os.platform() !== 'win32') {
       it(`verify permission ${permission}`, async function () {
         await fsPromises.chmod(testFilePath, permission);
         if (!expectedResult) {
-          assert.rejects(() => validateOnlyUserReadWritePermissionAndOwner(testFilePath));
+          await assert.rejects(() => validateNoExtraPermissionsForOthers(testFilePath));
         } else {
-          assert.doesNotReject(() => validateOnlyUserReadWritePermissionAndOwner(testFilePath));
+          await assert.doesNotReject(() => validateNoExtraPermissionsForOthers(testFilePath));
         }
       });
     });

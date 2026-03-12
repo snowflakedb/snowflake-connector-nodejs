@@ -34,6 +34,7 @@
 - Fixed CRL ADVISORY mode failure logging to use warn level instead of debug (snowflakedb/snowflake-connector-nodejs#1321)
 - Fixed OAuth Authorization Code reauthentication not using the refreshed access token when the cached access token is expired (snowflakedb/snowflake-connector-nodejs#1318)
 - Fixed OAuth Authorization Code refresh token being removed from cache when the IDP does not return a new one (snowflakedb/snowflake-connector-nodejs#1319)
+- Bumped (overridden) `gaxios` dependency from pinned `7.1.3` to `^7.1.4` to address transitive dep `minimatch` vulnerability CVE-2026-26996 (snowflakedb/snowflake-connector-nodejs#XXXX)
 
 ## 2.3.4
 

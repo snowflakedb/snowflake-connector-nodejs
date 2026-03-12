@@ -4,28 +4,33 @@ import fs from 'fs/promises';
 import axios from 'axios';
 import rfc5280 from 'asn1.js-rfc5280';
 import * as crlCacheModule from '../../../../lib/agent/crl_validator/crl_cache';
-import { getCrl, PENDING_FETCH_REQUESTS } from '../../../../lib/agent/crl_validator/crl_fetcher';
+import {
+  getCrl,
+  PENDING_FETCH_REQUESTS,
+  resetCrlCacheCleaner,
+} from '../../../../lib/agent/crl_validator/crl_fetcher';
 import GlobalConfigTyped from '../../../../lib/global_config_typed';
 import { createTestCRL } from './test_utils';
 
 describe('getCrl', () => {
-  const crlUrl = 'http://example.com/crl.crl';
+  const crlUrl = 'http://test.snowflake.com/crl.crl';
   const crlCacheDir = GlobalConfigTyped.getValue('crlCacheDir');
   const testCrl = createTestCRL();
   const testCrlRaw = Buffer.from(rfc5280.CertificateList.encode(testCrl, 'der'));
   let axiosGetStub: sinon.SinonStub;
 
   beforeEach(() => {
+    crlCacheModule.CRL_MEMORY_CACHE.clear();
     axiosGetStub = sinon.stub(axios, 'get');
   });
 
   afterEach(async () => {
-    crlCacheModule.CRL_MEMORY_CACHE.clear();
     await fs.rm(crlCacheDir, { recursive: true, force: true });
     sinon.restore();
   });
 
   it('starts periodic cache cleaners on first call when caches are enabled', async () => {
+    resetCrlCacheCleaner();
     axiosGetStub.resolves({ data: testCrlRaw });
     const setIntervalSpy = sinon.spy(global, 'setInterval');
     const clearExpiredCrlFromMemoryCacheSpy = sinon.spy(

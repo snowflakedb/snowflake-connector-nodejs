@@ -4,12 +4,29 @@ import {
   isCrlSignatureValid,
   CRL_SIGNATURE_VERIFIERS,
 } from '../../../../lib/agent/crl_validator/crl_signature_verifier';
+import { ALGORITHM_OID } from '../../../../lib/agent/crl_validator/oids';
+import { HASH_OID_TO_NAME } from '../../../../lib/agent/crl_validator/rsassa_pss_parser';
 
 describe('isCrlSignatureValid', () => {
-  Object.keys(CRL_SIGNATURE_VERIFIERS).forEach((oid) => {
-    it(`passes validation for algorithm oid=${oid}`, () => {
-      const issuerKeyPair = createCertificateKeyPair(oid);
-      const crl = createTestCRL({ issuerKeyPair });
+  Object.keys(CRL_SIGNATURE_VERIFIERS)
+    .filter((oid) => oid !== ALGORITHM_OID.RSASSA_PSS)
+    .forEach((oid) => {
+      it(`passes validation for algorithm oid=${oid}`, () => {
+        const issuerKeyPair = createCertificateKeyPair(oid);
+        const crl = createTestCRL({ issuerKeyPair, signatureAlgorithmOid: oid });
+        const isValid = isCrlSignatureValid(crl, issuerKeyPair.publicKeyPem);
+        assert.strictEqual(isValid, true);
+      });
+    });
+
+  Object.entries(HASH_OID_TO_NAME).forEach(([oid, name]) => {
+    it(`passes validation for RSASSA-PSS with ${name} hash algorithm`, () => {
+      const issuerKeyPair = createCertificateKeyPair(ALGORITHM_OID.RSASSA_PSS);
+      const crl = createTestCRL({
+        issuerKeyPair,
+        signatureAlgorithmOid: ALGORITHM_OID.RSASSA_PSS,
+        rsassaPssHashOid: oid,
+      });
       const isValid = isCrlSignatureValid(crl, issuerKeyPair.publicKeyPem);
       assert.strictEqual(isValid, true);
     });
@@ -24,7 +41,7 @@ describe('isCrlSignatureValid', () => {
     );
   });
 
-  it('throws error for crl with invalid signature', () => {
+  it('returns false for crl with invalid signature', () => {
     const unrelatedKeyPair = createCertificateKeyPair();
     const crl = createTestCRL();
     const isValid = isCrlSignatureValid(crl, unrelatedKeyPair.publicKeyPem);

@@ -2,7 +2,7 @@ import asn1 from 'asn1.js';
 import rfc5280, { type AlgorithmIdentifier } from 'asn1.js-rfc5280';
 import { ALGORITHM_OID } from './oids';
 
-const HASH_OID_TO_NAME: Record<string, string> = {
+export const HASH_OID_TO_NAME: Record<string, string> = {
   [ALGORITHM_OID.SHA256]: 'sha256',
   [ALGORITHM_OID.SHA384]: 'sha384',
   [ALGORITHM_OID.SHA512]: 'sha512',
@@ -24,6 +24,8 @@ export const RSASSAPSSParamsEntity = asn1.define<DecodedRSASSAPSSParams>(
   function () {
     this.seq().obj(
       this.key('hashAlgorithm').explicit(0).optional().use(rfc5280.AlgorithmIdentifier),
+      // Intentionally ignoring maskGenAlgorithm;
+      // Node crypto.verify only works when MGF1 hash matches the signature hash algorithm
       this.key('saltLength').explicit(2).optional().int(),
     );
   },

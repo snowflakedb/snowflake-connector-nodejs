@@ -127,6 +127,7 @@ export function createTestCertificate(
     subject?: rfc5280.NameRDNSequence;
     keyPair?: crypto.KeyPairKeyObjectResult;
     signatureAlgorithmOid?: string;
+    rsassaPssHashOid?: string;
     crlDistributionPoints?: (
       | TestCertificateCrlDistributionPointValue
       | TestCertificateCrlDistributionPointValue[]
@@ -142,7 +143,7 @@ export function createTestCertificate(
 
   const signatureAlgorithm =
     signatureAlgorithmOid === ALGORITHM_OID.RSASSA_PSS
-      ? createPSSAlgorithmIdentifier({ hashOid: ALGORITHM_OID.SHA256 })
+      ? createPSSAlgorithmIdentifier({ hashOid: options.rsassaPssHashOid ?? ALGORITHM_OID.SHA256 })
       : {
           algorithm: signatureAlgorithmOid.split('.').map(Number),
           parameters: Buffer.from([0x05, 0x00]),
@@ -202,6 +203,7 @@ export function createTestCRL(
     issuerCertificate?: rfc5280.CertificateDecoded;
     issuerKeyPair?: crypto.KeyPairKeyObjectResult;
     signatureAlgorithmOid?: string;
+    rsassaPssHashOid?: string;
     issuingDistributionPointUrls?: string[];
     nextUpdate?: number;
     revokedCertificates?: number[];
@@ -214,6 +216,7 @@ export function createTestCRL(
     createTestCertificate({
       keyPair: issuerKeyPair,
       signatureAlgorithmOid,
+      rsassaPssHashOid: options.rsassaPssHashOid,
     });
   const issuingDistributionPointUrls = options.issuingDistributionPointUrls ?? null;
   const revokedCertificates = options.revokedCertificates ?? ['0'];

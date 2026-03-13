@@ -36,6 +36,7 @@
 - Fixed OAuth Authorization Code refresh token being removed from cache when the IDP does not return a new one (snowflakedb/snowflake-connector-nodejs#1319)
 - Fixed unhandled promise rejection when server returns malformed query responses (snowflakedb/snowflake-connector-nodejs#1329)
 - Added RSASSA-PSS signature verification support to CRL validation (snowflakedb/snowflake-connector-nodejs#1325)
+- Updated Linux GNU minicore binaries to target glibc 2.18 for broader compatibility with older Linux distributions (snowflakedb/snowflake-connector-nodejs#1332)
 
 ## 2.3.4
 

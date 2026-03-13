@@ -3,6 +3,10 @@ import { CRLValidatorConfig } from '../agent/crl_validator';
 
 /**
  * Work In Progress typing for ConnectionOptions
+ *
+ * TODO:
+ * - revisit doc of every option
+ * - if an options works only when another option is set - document it
  */
 export interface WIP_ConnectionOptions {
   /**
@@ -68,13 +72,6 @@ export interface WIP_ConnectionOptions {
   authenticator?: string;
 
   /**
-   * Enable SSO token caching. The default value is false.
-   *
-   * https://docs.snowflake.com/en/developer-guide/node-js/nodejs-driver-authenticate#authentication-token-caching
-   */
-  clientStoreTemporaryCredential?: boolean;
-
-  /**
    * By default, client connections typically time out approximately 3-4 hours after the most recent query was executed.
    */
   clientSessionKeepAlive?: boolean;
@@ -83,6 +80,28 @@ export interface WIP_ConnectionOptions {
    * Sets the frequency (interval in seconds) between heartbeat messages.
    */
   clientSessionKeepAliveHeartbeatFrequency?: number;
+
+  /**
+   * Enable MFA/SSO token caching.
+   *
+   * https://docs.snowflake.com/en/developer-guide/node-js/nodejs-driver-authenticate#authentication-token-caching
+   *
+   * @default false
+   */
+  clientStoreTemporaryCredential?: boolean;
+
+  /**
+   * When clientStoreTemporaryCredential=true, sets the directory where cached authentication
+   * tokens are stored.
+   *
+   * If not set, the driver resolves the cache directory by checking, in order:
+   * 1. The `SF_TEMPORARY_CREDENTIAL_CACHE_DIR` environment variable
+   * 2. Platform-specific defaults:
+   *    - **Windows**: `<home>/AppData/Local/Snowflake/Caches`
+   *    - **Linux**: `$XDG_CACHE_HOME/snowflake`, or `~/.cache/snowflake`
+   *    - **macOS**: `~/Library/Caches/Snowflake`
+   */
+  credentialCacheDir?: string;
 
   /**
    * Specifies the token to use for authentication. Set this option if you set the authenticator option to
@@ -145,7 +164,6 @@ export interface WIP_ConnectionOptions {
 
   /**
    * The option to enable the MFA token.
-   *
    * @default false
    */
   clientRequestMFAToken?: boolean;
@@ -171,6 +189,20 @@ export interface WIP_ConnectionOptions {
    * Specifies the passcode to decrypt the private key file, if the file is encrypted.
    */
   privateKeyPass?: string;
+
+  /**
+   * Specifies the timeout, in milliseconds, for browser activities related to MFA/SSO authentication.
+   *
+   * @default 120000 (milliseconds)
+   */
+  browserActionTimeout?: number;
+
+  /**
+   * Customize implementation for opening the browser window used for MFA/SSO authentication.
+   *
+   * By default, the npm `open` package is used.
+   */
+  openExternalBrowserCallback?: (url: string) => void;
 
   /**
    * When authenticator=WORKLOAD_IDENTITY, specifies the identity provider. Available options:
@@ -298,9 +330,15 @@ export interface WIP_ConnectionOptions {
   proxyPort?: number;
 
   /**
-   * Specifies the protocol used to connect to the authenticated proxy server. Use this property to specify the HTTP protocol: http or https.
+   * Specifies the protocol (`http` or `https`) used to connect to the proxy server.
    */
   proxyProtocol?: string;
+
+  /**
+   * Optional string that can be used to tag queries and other SQL statements executed within a connection.
+   * The tags are displayed in the output of the QUERY_HISTORY , QUERY_HISTORY_BY_* functions.
+   */
+  queryTag?: string;
 }
 
 /**

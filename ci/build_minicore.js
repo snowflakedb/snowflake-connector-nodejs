@@ -39,27 +39,68 @@ const BUILD_TARGETS = [
 ];
 
 for (const target of BUILD_TARGETS) {
+  console.log(`Building Minicore binary for target: ${target}`);
+
   try {
-    console.log(`Building Minicore binary for target: ${target}`);
-    execSync(
-      [
-        'napi',
-        'build',
-        '--verbose',
-        '--release',
-        '--platform',
-        '--no-js',
-        '--strip',
-        '--manifest-path',
-        'lib/minicore/rust_minicore/Cargo.toml',
-        '--output-dir',
-        BINARIES_DIR,
-        '--cross-compile',
-        '--target',
+    /*
+     * cargo-zigbuild supports glibc version suffixes like "aarch64-unknown-linux-gnu.2.18",
+     * but the napi CLI's artifact copy step fails because it expects the output directory
+     * to match the full target string, while Cargo outputs to the clean triple directory
+     * without the glibc suffix.
+     *
+     * So we use this hackish solution to build with cargo zigbuild directly and manually
+     * copy/rename the .so to .node.
+     */
+    if (target.includes('gnu')) {
+      execSync(
+        [
+          'cargo',
+          'zigbuild',
+          '--release',
+          '--manifest-path',
+          'lib/minicore/rust_minicore/Cargo.toml',
+          '--target',
+          `${target}.2.18`, // Target GLIBC 2.18
+        ].join(' '),
+        { stdio: 'inherit' },
+      );
+      // Copy and rename artifact: libsf_mini_core.so → sf_mini_core_0.0.1.linux-arm64-gnu.node
+      const [arch, , , abi] = target.split('-'); // aarch64, unknown, linux, gnu
+      const platformArchABI = `linux-${arch === 'aarch64' ? 'arm64' : 'x64'}-${abi}`;
+      const src = path.join(
+        'lib',
+        'minicore',
+        'rust_minicore',
+        'target',
         target,
-      ].join(' '),
-      { stdio: 'inherit', env: process.env },
-    );
+        'release',
+        `libsf_mini_core.so`,
+      );
+      const dest = path.join(BINARIES_DIR, `sf_mini_core_0.0.1.${platformArchABI}.node`);
+      fs.copyFileSync(src, dest);
+      console.log(`Copied ${src} → ${dest}`);
+    } else {
+      execSync(
+        [
+          'napi',
+          'build',
+          '--verbose',
+          '--release',
+          '--platform',
+          '--no-js',
+          '--strip',
+          '--manifest-path',
+          'lib/minicore/rust_minicore/Cargo.toml',
+          '--output-dir',
+          BINARIES_DIR,
+          '--cross-compile',
+          '--target',
+          target,
+        ].join(' '),
+        { stdio: 'inherit', env: process.env },
+      );
+    }
+
     console.log(`Successfully built target: ${target}`);
   } catch (err) {
     console.error(`Build failed for target ${target}:`, err);

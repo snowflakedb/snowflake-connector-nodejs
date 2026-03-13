@@ -35,6 +35,7 @@
 - Fixed OAuth Authorization Code reauthentication not using the refreshed access token when the cached access token is expired (snowflakedb/snowflake-connector-nodejs#1318)
 - Fixed OAuth Authorization Code refresh token being removed from cache when the IDP does not return a new one (snowflakedb/snowflake-connector-nodejs#1319)
 - Added RSASSA-PSS signature verification support to CRL validation (snowflakedb/snowflake-connector-nodejs#1325)
+- Built Linux GNU minicore binaries targeting glibc 2.18 for broader compatibility with older Linux distributions (snowflakedb/snowflake-connector-nodejs#TODO)
 
 ## 2.3.4
 

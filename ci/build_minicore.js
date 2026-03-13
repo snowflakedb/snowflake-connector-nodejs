@@ -51,7 +51,7 @@ for (const target of BUILD_TARGETS) {
      * So we use this hackish solution to build with cargo zigbuild directly and manually
      * copy/rename the .so to .node.
      */
-    if (target.includes('gnu')) {
+    if (target.includes('linux-gnu')) {
       execSync(
         [
           'cargo',

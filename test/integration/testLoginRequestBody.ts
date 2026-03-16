@@ -152,6 +152,7 @@ describe('/login-request body', () => {
     it('includes SPCS_TOKEN in SPCS environment', async () => {
       sinon
         .stub(fs, 'readFileSync')
+        .callThrough()
         .withArgs('/snowflake/session/spcs_token', 'utf-8')
         .returns('test-spcs-token');
       await initConnection();

@@ -9,6 +9,7 @@
 - Added ability to skip token file permission checks using `SF_SKIP_TOKEN_FILE_PERMISSIONS_VERIFICATION` env variable (snowflakedb/snowflake-connector-nodejs#1314)
 - Added Node 18+ to `engines`, which is our minimum officially supported version since the 2.x release (snowflakedb/snowflake-connector-nodejs#1268)
 - Added `PLATFORM` field to login-request telemetry (snowflakedb/snowflake-connector-nodejs#1269)
+- Added `SPCS_TOKEN` to the login-request (snowflakedb/snowflake-connector-nodejs#TODO)
 - Added request retries to previously uncovered query execution paths (snowflakedb/snowflake-connector-nodejs#1280)
 - Added `rowStreamHighWaterMark` connection option to control how many rows are buffered when streaming query results via `statement.streamRows()` (snowflakedb/snowflake-connector-nodejs#1289)
 - Added a warning when converting query result to JavaScript numbers with precision loss (snowflakedb/snowflake-connector-nodejs#1295, snowflakedb/snowflake-connector-nodejs#1296)

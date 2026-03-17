@@ -347,11 +347,12 @@ describe('S3 client', function () {
     meta['client'] = AWS.createClient(meta['stageInfo']);
 
     const clientConfig = await meta['client'].config.requestHandler.configProvider;
-    assert.equal(clientConfig.httpAgent.options.host, proxyOptions.host);
-    assert.equal(clientConfig.httpAgent.options.hostname, 'snowflake.com');
-    assert.equal(clientConfig.httpAgent.options.user, proxyOptions.user);
-    assert.equal(clientConfig.httpAgent.options.password, proxyOptions.password);
-    assert.equal(clientConfig.httpAgent.options.port, proxyOptions.port);
+    const clientHttpAgent = await clientConfig.httpAgentProvider();
+    assert.equal(clientHttpAgent.options.host, proxyOptions.host);
+    assert.equal(clientHttpAgent.options.hostname, 'snowflake.com');
+    assert.equal(clientHttpAgent.options.user, proxyOptions.user);
+    assert.equal(clientHttpAgent.options.password, proxyOptions.password);
+    assert.equal(clientHttpAgent.options.port, proxyOptions.port);
 
     assert.equal(clientConfig.httpsAgent.options.host, proxyOptions.host);
     assert.equal(clientConfig.httpsAgent.options.hostname, 'snowflake.com');

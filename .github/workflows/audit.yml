@@ -15,7 +15,7 @@ on:
 
 jobs:
   audit:
-    name: Published package dependencies
+    name: Audit published package dependencies
     runs-on: ubuntu-latest
     steps:
       - name: Check out code

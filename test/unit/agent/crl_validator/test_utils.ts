@@ -3,6 +3,10 @@ import crypto from 'crypto';
 import asn1 from 'asn1.js';
 import rfc5280 from 'asn1.js-rfc5280';
 import { ALGORITHM_OID } from '../../../../lib/agent/crl_validator/oids';
+import {
+  parseRSASSAPSSParams,
+  RSASSAPSSParamsEntity,
+} from '../../../../lib/agent/crl_validator/rsassa_pss_parser';
 
 let serialNumberCounter = 10000;
 
@@ -19,7 +23,7 @@ export function createCertificateKeyPair(algorithmOid = ALGORITHM_OID.SHA256_WIT
   // RSA
   if (algorithmOid.startsWith('1.2.840.113549.1.1.')) {
     const pair = crypto.generateKeyPairSync('rsa', {
-      modulusLength: crypto.getFips() ? 2048 : 512, // faster test runs
+      modulusLength: 2048,
       publicExponent: 0x10001,
     });
     return {
@@ -90,6 +94,29 @@ export function createCertificateNameField(
   };
 }
 
+export function createPSSAlgorithmIdentifier(
+  options: {
+    hashOid?: string | null;
+    saltLength?: number;
+  } = {},
+) {
+  const pssParams: Record<string, unknown> = {};
+
+  if (options.hashOid) {
+    const hashOid = options.hashOid.split('.').map(Number);
+    pssParams.hashAlgorithm = { algorithm: hashOid, parameters: Buffer.from([0x05, 0x00]) };
+  }
+
+  if (options.saltLength !== undefined) {
+    pssParams.saltLength = new asn1.bignum(options.saltLength);
+  }
+
+  return {
+    algorithm: ALGORITHM_OID.RSASSA_PSS.split('.').map(Number),
+    parameters: RSASSAPSSParamsEntity.encode(pssParams, 'der'),
+  };
+}
+
 type TestCertificateCrlDistributionPointValue = string | { type: string; value: string } | null;
 
 export function createTestCertificate(
@@ -100,6 +127,7 @@ export function createTestCertificate(
     subject?: rfc5280.NameRDNSequence;
     keyPair?: crypto.KeyPairKeyObjectResult;
     signatureAlgorithmOid?: string;
+    rsassaPssHashOid?: string;
     crlDistributionPoints?: (
       | TestCertificateCrlDistributionPointValue
       | TestCertificateCrlDistributionPointValue[]
@@ -110,13 +138,16 @@ export function createTestCertificate(
   const notBefore = options.notBefore ?? '2026-01-01T00:00:00Z';
   const notAfter = options.notAfter ?? '2026-12-31T00:00:00Z';
   const subject = options.subject ?? createCertificateNameField();
-  const signatureAlgorithmOid = options.signatureAlgorithmOid ?? ALGORITHM_OID.SHA256_WITH_RSA;
+  const signatureAlgorithmOid = options.signatureAlgorithmOid ?? ALGORITHM_OID.ECDSA_WITH_SHA256;
   const keyPair = options.keyPair ?? createCertificateKeyPair(signatureAlgorithmOid);
 
-  const signatureAlgorithm = {
-    algorithm: signatureAlgorithmOid.split('.').map(Number),
-    parameters: Buffer.from([0x05, 0x00]),
-  };
+  const signatureAlgorithm =
+    signatureAlgorithmOid === ALGORITHM_OID.RSASSA_PSS
+      ? createPSSAlgorithmIdentifier({ hashOid: options.rsassaPssHashOid ?? ALGORITHM_OID.SHA256 })
+      : {
+          algorithm: signatureAlgorithmOid.split('.').map(Number),
+          parameters: Buffer.from([0x05, 0x00]),
+        };
 
   const extensions: rfc5280.TBSCertificate['extensions'] = [];
   if (options.crlDistributionPoints) {
@@ -171,14 +202,22 @@ export function createTestCRL(
   options: {
     issuerCertificate?: rfc5280.CertificateDecoded;
     issuerKeyPair?: crypto.KeyPairKeyObjectResult;
+    signatureAlgorithmOid?: string;
+    rsassaPssHashOid?: string;
     issuingDistributionPointUrls?: string[];
     nextUpdate?: number;
     revokedCertificates?: number[];
   } = {},
 ): rfc5280.CertificateListDecoded {
-  const issuerKeyPair = options.issuerKeyPair ?? createCertificateKeyPair();
+  const signatureAlgorithmOid = options.signatureAlgorithmOid ?? ALGORITHM_OID.ECDSA_WITH_SHA256;
+  const issuerKeyPair = options.issuerKeyPair ?? createCertificateKeyPair(signatureAlgorithmOid);
   const issuerCertificate =
-    options.issuerCertificate ?? createTestCertificate({ keyPair: issuerKeyPair });
+    options.issuerCertificate ??
+    createTestCertificate({
+      keyPair: issuerKeyPair,
+      signatureAlgorithmOid,
+      rsassaPssHashOid: options.rsassaPssHashOid,
+    });
   const issuingDistributionPointUrls = options.issuingDistributionPointUrls ?? null;
   const revokedCertificates = options.revokedCertificates ?? ['0'];
   const nextUpdate = options.nextUpdate ?? new Date('2026-06-08T00:00:00Z').getTime();
@@ -215,11 +254,20 @@ export function createTestCRL(
   };
 
   const signatureOid = issuerCertificate.signatureAlgorithm.algorithm.join('.');
-  const digestAlgorithm = CRL_SIGNATURE_OID_TO_DIGEST[signatureOid];
+  const tbsEncoded = rfc5280.TBSCertList.encode(tbsCertList, 'der');
 
-  const sign = crypto.createSign(digestAlgorithm);
-  sign.update(rfc5280.TBSCertList.encode(tbsCertList, 'der'));
-  const signature = sign.sign(issuerKeyPair.privateKey);
+  let signature: Buffer;
+  if (signatureOid === ALGORITHM_OID.RSASSA_PSS) {
+    const pssParams = parseRSASSAPSSParams(issuerCertificate.signatureAlgorithm.parameters);
+    signature = crypto.sign(pssParams.hashAlgorithm, tbsEncoded, {
+      key: issuerKeyPair.privateKey,
+      padding: crypto.constants.RSA_PKCS1_PSS_PADDING,
+      saltLength: pssParams.saltLength,
+    });
+  } else {
+    const digestAlgorithm = CRL_SIGNATURE_OID_TO_DIGEST[signatureOid];
+    signature = crypto.sign(digestAlgorithm, tbsEncoded, issuerKeyPair.privateKey);
+  }
 
   const crl = {
     tbsCertList,

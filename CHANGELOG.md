@@ -2,38 +2,45 @@
 
 ## Upcoming Release
 
+- TBA
+
+## 2.3.5
+
 - Added ability to skip token file permission checks using `SF_SKIP_TOKEN_FILE_PERMISSIONS_VERIFICATION` env variable (snowflakedb/snowflake-connector-nodejs#1314)
-- Fixed OAuth crashing when using bundlers (snowflakedb/snowflake-connector-nodejs#1266)
 - Added Node 18+ to `engines`, which is our minimum officially supported version since the 2.x release (snowflakedb/snowflake-connector-nodejs#1268)
 - Added `PLATFORM` field to login-request telemetry (snowflakedb/snowflake-connector-nodejs#1269)
-- Fixed `Binds` typing to allow readonly arrays (snowflakedb/snowflake-connector-nodejs#1270)
-- Replaced ESLint with oxlint for better performance and out-of-the-box TypeScript support (snowflakedb/snowflake-connector-nodejs#1254)
-- Fixed `connectAsync()` method resolving before connection is completed (snowflakedb/snowflake-connector-nodejs#1276)
-- Fixed incorrect handling of callback argument that should be optional in `connect()` and `connectAsync()` (snowflakedb/snowflake-connector-nodejs#1276)
+- Added `SPCS_TOKEN` to the login-request (snowflakedb/snowflake-connector-nodejs#1335)
 - Added request retries to previously uncovered query execution paths (snowflakedb/snowflake-connector-nodejs#1280)
-- Bumped `fast-xml-parser` requirement to latest 5.4.1 to address CVE-2026-26278 and CVE-2026-27942 (snowflakedb/snowflake-connector-nodejs#1281 and snowflakedb/snowflake-connector-nodejs#1311)
-- Fixed a bug where invalid JWT was generated if user accidentally set both the `account` and the `host` in the config (snowflakedb/snowflake-connector-nodejs#1283)
 - Added `rowStreamHighWaterMark` connection option to control how many rows are buffered when streaming query results via `statement.streamRows()` (snowflakedb/snowflake-connector-nodejs#1289)
-- Removed `bn.js` dependency (snowflakedb/snowflake-connector-nodejs#1294)
-- Improved error details when OAuth fails (snowflakedb/snowflake-connector-nodejs#1302)
 - Added a warning when converting query result to JavaScript numbers with precision loss (snowflakedb/snowflake-connector-nodejs#1295, snowflakedb/snowflake-connector-nodejs#1296)
-- Changed default `jsonColumnVariantParser` to `JSON.parse` (snowflakedb/snowflake-connector-nodejs#1300)
-- Fixed a bug where parsing the JSON media type failed when it included an optional parameter from Microsoft Identity Platform v2.0 tokens, failing OAuth Client Credentials flow (snowflakedb/snowflake-connector-nodejs#1301)
-- Fixed `disableSamlUrlCheck` typing to use correct casing: `disableSamlURLCheck` (snowflakedb/snowflake-connector-nodejs#1304)
 - Added snake_case key support when loading `connections.toml` via `createConnection()` with no arguments (snowflakedb/snowflake-connector-nodejs#1304)
 - Exported `normalizeConnectionOptions()` utility to convert snake_case connection keys to camelCase, with key aliases and acronym overrides (snowflakedb/snowflake-connector-nodejs#1304)
 - Added `LIBC_FAMILY` and `LIBC_VERSION` fields to login-request telemetry (snowflakedb/snowflake-connector-nodejs#1310)
+- Added `crlDownloadMaxSize` config option to enforce a maximum response size limit when downloading CRL files (snowflakedb/snowflake-connector-nodejs#1321)
+- Added RSASSA-PSS signature verification support to CRL validation (snowflakedb/snowflake-connector-nodejs#1325)
+- Improved error details when OAuth fails (snowflakedb/snowflake-connector-nodejs#1302)
+- Changed default `jsonColumnVariantParser` to `JSON.parse` (snowflakedb/snowflake-connector-nodejs#1300)
+- Updated Linux GNU minicore binaries to target glibc 2.18 for broader compatibility with older Linux distributions (snowflakedb/snowflake-connector-nodejs#1332)
+- Fixed OAuth crashing when using bundlers (snowflakedb/snowflake-connector-nodejs#1266)
+- Fixed `Binds` typing to allow readonly arrays (snowflakedb/snowflake-connector-nodejs#1270)
+- Fixed `connectAsync()` method resolving before connection is completed (snowflakedb/snowflake-connector-nodejs#1276)
+- Fixed incorrect handling of callback argument that should be optional in `connect()` and `connectAsync()` (snowflakedb/snowflake-connector-nodejs#1276)
+- Fixed a bug where invalid JWT was generated if user accidentally set both the `account` and the `host` in the config (snowflakedb/snowflake-connector-nodejs#1283)
+- Fixed a bug where parsing the JSON media type failed when it included an optional parameter from Microsoft Identity Platform v2.0 tokens, failing OAuth Client Credentials flow (snowflakedb/snowflake-connector-nodejs#1301)
+- Fixed `disableSamlUrlCheck` typing to use correct casing: `disableSamlURLCheck` (snowflakedb/snowflake-connector-nodejs#1304)
 - Fixed `getDefaultCacheDir()` crashing in environments where no user home directory is configured by falling back to `os.tmpdir()` (snowflakedb/snowflake-connector-nodejs#1312)
 - Fixed `SF_OCSP_RESPONSE_CACHE_DIR` not being used directly as the OCSP cache directory (snowflakedb/snowflake-connector-nodejs#1313)
-- Fixed a bug where host specified in `NO_PROXY` in the `.domain.com` wildcard format were not correctly matching the destination host (snowflakedb/snowflake-connector-nodejs#1309)
 - Fixed bugs in `noProxy` and `NO_PROXY` handling:
   - `.domain.com` wildcard format was not correctly matching the destination host (snowflakedb/snowflake-connector-nodejs#1309)
   - `.` was incorrectly matching as any character instead of a literal dot (snowflakedb/snowflake-connector-nodejs#1315)
   - Partial strings were incorrectly matching instead of requiring full destination match (snowflakedb/snowflake-connector-nodejs#1315)
-- Added `crlDownloadMaxSize` config option to enforce a maximum response size limit when downloading CRL files (snowflakedb/snowflake-connector-nodejs#1321)
-- Fixed CRL ADVISORY mode failure logging to use warn level instead of debug (snowflakedb/snowflake-connector-nodejs#1321)
+- Fixed CRL ADVISORY mode to log failures at warn level instead of debug (snowflakedb/snowflake-connector-nodejs#1321)
 - Fixed OAuth Authorization Code reauthentication not using the refreshed access token when the cached access token is expired (snowflakedb/snowflake-connector-nodejs#1318)
 - Fixed OAuth Authorization Code refresh token being removed from cache when the IDP does not return a new one (snowflakedb/snowflake-connector-nodejs#1319)
+- Fixed unhandled promise rejection when server returns malformed query responses (snowflakedb/snowflake-connector-nodejs#1329)
+- Replaced ESLint with oxlint for better performance and out-of-the-box TypeScript support (snowflakedb/snowflake-connector-nodejs#1254)
+- Bumped `fast-xml-parser` requirement to latest 5.4.1 to address CVE-2026-26278 and CVE-2026-27942 (snowflakedb/snowflake-connector-nodejs#1281 and snowflakedb/snowflake-connector-nodejs#1311)
+- Removed `bn.js` dependency (snowflakedb/snowflake-connector-nodejs#1294)
 
 ## 2.3.4
 

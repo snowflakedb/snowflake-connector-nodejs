@@ -109,16 +109,6 @@ declare module 'snowflake-sdk' {
     region?: string;
 
     /**
-     * Specifies the timeout, in milliseconds, for browser activities related to SSO authentication. The default value is 120000 (milliseconds).
-     */
-    browserActionTimeout?: number;
-
-    /**
-     * Customize implementation for opening the browser window used for SSO authentication. By default, the npm `open` package is used.
-     */
-    openExternalBrowserCallback?: (url: string) => void;
-
-    /**
      * Specifies whether the OCSP request is also sent to the proxy specified.
      */
     useConnectionConfigProxyForOCSP?: boolean;
@@ -209,12 +199,6 @@ declare module 'snowflake-sdk' {
     disableConsoleLogin?: boolean;
 
     /**
-     *  The option to set the location where the token will be saved for the token authentication (MFA and SSO).
-     *  The path must include the folder path only.
-     */
-    credentialCacheDir?: string;
-
-    /**
      *  The option to include the passcode from DUO into the password.
      */
     passcodeInPassword?: boolean;
@@ -223,11 +207,6 @@ declare module 'snowflake-sdk' {
      *  The option to pass passcode from DUO.
      */
     passcode?: string;
-
-    /**
-     * Optional string that can be used to tag queries and other SQL statements executed within a connection. The tags are displayed in the output of the QUERY_HISTORY , QUERY_HISTORY_BY_* functions.
-     */
-    queryTag?: string;
   };
 
   export interface Connection {

@@ -12,7 +12,7 @@ on:
 
 jobs:
   audit-prod:
-    name: Audit published package dependencies
+    name: Published package dependencies
     runs-on: ubuntu-latest
     steps:
       - name: Check out code
@@ -25,7 +25,7 @@ jobs:
       - run: npm audit --omit=dev
 
   audit-dev:
-    name: Audit dev dependencies
+    name: Dev dependencies
     runs-on: ubuntu-latest
     steps:
       - name: Check out code

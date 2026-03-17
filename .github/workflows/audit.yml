@@ -1,5 +1,8 @@
 name: Audit
 
+permissions:
+  contents: read
+
 on:
   push:
     branches:

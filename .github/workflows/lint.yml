@@ -8,8 +8,7 @@ on:
       - v*
   pull_request:
     branches:
-      - master
-      - prep-**
+      - '**'
 
 jobs:
   lint:

@@ -8,12 +8,11 @@ on:
       - v*
   pull_request:
     branches:
-      - master
-      - prep-**
+      - '**'
 
 jobs:
-  lint:
-    name: Run audit
+  audit-prod:
+    name: Audit published package dependencies
     runs-on: ubuntu-latest
     steps:
       - name: Check out code
@@ -22,7 +21,18 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '18.x'
-      - name: Install dependencies
-        run: npm i
-      - name: Run audit
-        run: npm audit
+      - run: npm i
+      - run: npm audit --omit=dev
+
+  audit-dev:
+    name: Audit dev dependencies
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v4
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18.x'
+      - run: npm i
+      - run: npm audit --only=dev

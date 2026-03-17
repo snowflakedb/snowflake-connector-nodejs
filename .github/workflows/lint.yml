@@ -1,5 +1,8 @@
 name: Lint
 
+permissions:
+  contents: read
+
 on:
   push:
     branches:
@@ -8,8 +11,7 @@ on:
       - v*
   pull_request:
     branches:
-      - master
-      - prep-**
+      - '**'
 
 jobs:
   lint:

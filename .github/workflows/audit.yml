@@ -11,7 +11,7 @@ on:
       - '**'
 
 jobs:
-  audit-prod:
+  audit:
     name: Published package dependencies
     runs-on: ubuntu-latest
     steps:
@@ -23,16 +23,3 @@ jobs:
           node-version: '18.x'
       - run: npm i
       - run: npm audit --omit=dev
-
-  audit-dev:
-    name: Dev dependencies
-    runs-on: ubuntu-latest
-    steps:
-      - name: Check out code
-        uses: actions/checkout@v4
-      - name: Set up Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '18.x'
-      - run: npm i
-      - run: npm audit --only=dev

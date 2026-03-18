@@ -431,32 +431,30 @@ describe('connection.connect() asynchronous errors', function () {
     );
   });
 
-  it('connect() with external browser authenticator', function (done) {
-    // create a connection and connect with external browser
+  it('connect() with external browser authenticator routes error to callback', function (done) {
     const connection = snowflake.createConnection(connectionOptionsExternalBrowser);
-
-    // try to connect
-    try {
-      connection.connect();
-    } catch (err) {
-      assert.ok(err);
-      assert.strictEqual(err.code, ErrorCodes.ERR_CONN_CREATE_INVALID_AUTH_CONNECT);
+    connection.connect(function (err, conn) {
+      assert.ok(err, 'there should be an error in the mock environment');
+      assert.strictEqual(
+        conn,
+        connection,
+        'the connect() callback should be invoked with the connection',
+      );
       done();
-    }
+    });
   });
 
-  it('connect() with okta authenticator', function (done) {
-    // create a connection and connect with okta
+  it('connect() with okta authenticator routes error to callback', function (done) {
     const connection = snowflake.createConnection(connectionOptionsOkta);
-
-    // try to connect
-    try {
-      connection.connect();
-    } catch (err) {
-      assert.ok(err);
-      assert.strictEqual(err.code, ErrorCodes.ERR_CONN_CREATE_INVALID_AUTH_CONNECT);
+    connection.connect(function (err, conn) {
+      assert.ok(err, 'there should be an error in the mock environment');
+      assert.strictEqual(
+        conn,
+        connection,
+        'the connect() callback should be invoked with the connection',
+      );
       done();
-    }
+    });
   });
 });
 

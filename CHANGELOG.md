@@ -6,6 +6,10 @@ New features:
 
 - `connect()` now supports every authenticator type (including external browser and Okta), matching `connectAsync()` (snowflakedb/snowflake-connector-nodejs#1342)
 
+Internal changes:
+
+- Removed `smkId` string conversion; the driver now requests the server to return it as a string (snowflakedb/snowflake-connector-nodejs#1344)
+
 ## 2.3.5
 
 - Added ability to skip token file permission checks using `SF_SKIP_TOKEN_FILE_PERMISSIONS_VERIFICATION` env variable (snowflakedb/snowflake-connector-nodejs#1314)

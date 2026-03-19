@@ -8,7 +8,7 @@ New features:
 
 Internal changes:
 
-- Removed `smkId` string conversion, the driver asks server to return it as string (snowflakedb/snowflake-connector-nodejs#1344)
+- Removed `smkId` string conversion; the driver now requests the server to return it as a string (snowflakedb/snowflake-connector-nodejs#1344)
 
 ## 2.3.5
 

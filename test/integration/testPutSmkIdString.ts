@@ -6,8 +6,8 @@ import path from 'path';
 const OriginalFileTransferAgent = require('../../lib/file_transfer_agent/file_transfer_agent');
 
 // NOTE:
-// Keeping this test just in case we'll get isssues with CLIENT_CAPABILITIES
-// DO NOT migrate this test to the Universal Driver
+// Keeping this test just in case we get issues with CLIENT_CAPABILITIES.
+// DO NOT migrate this test to the Universal Driver.
 describe('smkId patching in PUT statements', () => {
   let testUtil: any;
   let fileTransferAgentUsedContext: any;

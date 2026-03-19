@@ -151,6 +151,7 @@ function serializeRequest(request) {
   // requests, i.e. they should produce the same output
   const clonedRequest = createSortedClone(request);
   delete clonedRequest.useSnowflakeRetryMiddleware;
+  delete clonedRequest.json.data.CLIENT_CAPABILITIES;
   // Ignore CLIENT_ENVIRONMENT for now,
   // in future we should migrate this entire thing to wiremock for better matchers
   if (clonedRequest.json && clonedRequest.json.data && clonedRequest.json.data.CLIENT_ENVIRONMENT) {

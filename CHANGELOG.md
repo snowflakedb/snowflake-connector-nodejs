@@ -9,6 +9,7 @@ New features:
 Internal changes:
 
 - Removed `smkId` string conversion; the driver now requests the server to return it as a string (snowflakedb/snowflake-connector-nodejs#1344)
+- The `login-request` now requests `sessionId` as a string to avoid precision loss (snowflakedb/snowflake-connector-nodejs#1344)
 
 ## 2.3.5
 

@@ -146,6 +146,7 @@ describe('/login-request body', () => {
     await initConnection();
     assert.deepStrictEqual(getLoginRequestData().CLIENT_CAPABILITIES, {
       SMK_ID_AS_STRING: true,
+      SESSION_ID_AS_STRING: true,
     });
   });
 });

@@ -654,9 +654,12 @@ declare module 'snowflake-sdk' {
 
   /**
    * Creates a connection pool for Snowflake connections.
+   *
+   * When called without options, each pooled connection loads its
+   * configuration from `connections.toml` — see {@link createConnection}.
    */
   export function createPool(
-    options: ConnectionOptions,
+    options?: ConnectionOptions,
     poolOptions?: PoolOptions,
   ): Pool<Connection>;
 }

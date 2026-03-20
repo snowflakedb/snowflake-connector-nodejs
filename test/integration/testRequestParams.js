@@ -11,7 +11,8 @@ describe('SF service tests', function () {
 
   before(async function () {
     interceptors = new httpInterceptorUtils.Interceptors();
-    const HttpClientClassWithInterceptors = httpInterceptorUtils.getHttpClientWithInterceptorsClass(interceptors);
+    const HttpClientClassWithInterceptors =
+      httpInterceptorUtils.getHttpClientWithInterceptorsClass(interceptors);
     coreInstance = Core({
       httpClientClass: HttpClientClassWithInterceptors,
       loggerClass: require('./../../lib/logger/node'),
@@ -30,7 +31,7 @@ describe('SF service tests', function () {
     const pathsExpectedToIncludeGuid = [
       'session?delete=true&requestId',
       'queries/v1/query-request',
-      'session/v1/login-request'
+      'session/v1/login-request',
     ];
 
     function countCallsWithGuid(requestOptions) {
@@ -44,7 +45,7 @@ describe('SF service tests', function () {
           expectedCallsWithGUIDCount++;
         }
       });
-      
+
       if (testUtil.isGuidInRequestOptions(requestOptions)) {
         totalCallsWithGUIDCount++;
       }
@@ -57,9 +58,16 @@ describe('SF service tests', function () {
 
     const guidCallsOccurred = totalCallsWithGUIDCount > 0;
     assert.strictEqual(guidCallsOccurred, true, 'No GUID calls occurred');
-    assert.strictEqual(guidAddedWhenExpected, true, `GUID not found in all requests with paths: ${pathsExpectedToIncludeGuid}`);
-    assert.strictEqual(expectedCallsWithGUIDCount === totalCallsWithGUIDCount, true, `GUID was added to requests not included in the expected paths: ${pathsExpectedToIncludeGuid}.` +
-      `Total calls with guid: ${totalCallsWithGUIDCount}. Expected calls with guid: ${expectedCallsWithGUIDCount}.`
+    assert.strictEqual(
+      guidAddedWhenExpected,
+      true,
+      `GUID not found in all requests with paths: ${pathsExpectedToIncludeGuid}`,
+    );
+    assert.strictEqual(
+      expectedCallsWithGUIDCount === totalCallsWithGUIDCount,
+      true,
+      `GUID was added to requests not included in the expected paths: ${pathsExpectedToIncludeGuid}.` +
+        `Total calls with guid: ${totalCallsWithGUIDCount}. Expected calls with guid: ${expectedCallsWithGUIDCount}.`,
     );
 
     await testUtil.destroyConnectionAsync(connection);

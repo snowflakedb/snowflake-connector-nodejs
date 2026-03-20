@@ -1,5 +1,7 @@
 const assert = require('assert');
-const mock = require('mock-require');
+const sinon = require('sinon');
+const fs = require('fs');
+const { Readable, Writable } = require('stream');
 const SnowflakeGCSUtil = require('./../../../lib/file_transfer_agent/gcs_util');
 const resultStatus = require('../../../lib/file_util').resultStatus;
 
@@ -20,54 +22,47 @@ describe('GCS client', function () {
       return this.proxy;
     },
     accessUrl: 'http://fakeaccount.snowflakecomputing.com',
+    crlValidatorConfig: {
+      checkMode: 'DISABLED',
+    },
   };
 
   let GCS;
+  let sinonSandbox;
   let httpClient;
-  let fileStream;
   const dataFile = mockDataFile;
   let meta;
   const encryptionMetadata = {
     key: mockKey,
     iv: mockIv,
-    matDesc: mockMatDesc
+    matDesc: mockMatDesc,
   };
 
-  this.beforeEach(function () {
+  beforeEach(() => {
+    sinonSandbox = sinon.createSandbox();
+    sinonSandbox.stub(fs, 'statSync').returns({ size: 1 });
+    sinonSandbox.stub(fs, 'createReadStream').callsFake(() => Readable.from([Buffer.from('mock')]));
     meta = {
       stageInfo: {
-        location: mockLocation,
-        path: mockTable + '/' + mockPath + '/',
+        location: mockLocation + '/' + mockTable + '/' + mockPath + '/',
         endPoint: null,
         useRegionalUrl: false,
         region: 'mockLocation',
       },
       presignedUrl: mockPresignedUrl,
       dstFileName: mockPresignedUrl,
-      client: mockClient
+      client: mockClient,
     };
+    httpClient = {
+      put: async () => {},
+      get: async () => {},
+      head: async () => ({ headers: '' }),
+    };
+    GCS = new SnowflakeGCSUtil(connectionConfig, httpClient);
+  });
 
-    mock('httpClient', {
-      put: async function () {
-        return;
-      },
-      get: async function () {
-        return;
-      },
-      head: async function () {
-        return {
-          headers: ''
-        };
-      }
-    });
-    mock('fileStream', {
-      readFileSync: async function (data) {
-        return data;
-      }
-    });
-    httpClient = require('httpClient');
-    fileStream = require('fileStream');
-    GCS = new SnowflakeGCSUtil(connectionConfig, httpClient, fileStream);
+  afterEach(() => {
+    sinonSandbox.restore();
   });
 
   describe('GCS client endpoint testing', async function () {
@@ -78,71 +73,143 @@ describe('GCS client', function () {
           endPoint: null,
           useRegionalUrl: true,
           region: 'mockLocation',
+          useVirtualUrl: false,
         },
-        result: 'https://storage.mocklocation.rep.googleapis.com'
+        endPointResult: 'https://storage.mocklocation.rep.googleapis.com',
+        fileUrlResult:
+          'https://storage.mocklocation.rep.googleapis.com/mockLocation/mockTable/mockPath/mockFile',
       },
       {
         name: 'when the region is me-central2',
         stageInfo: {
           endPoint: null,
           useRegionalUrl: false,
-          region: 'me-central2'
+          region: 'me-central2',
+          useVirtualUrl: false,
         },
-        result: 'https://storage.me-central2.rep.googleapis.com'
+        endPointResult: 'https://storage.me-central2.rep.googleapis.com',
+        fileUrlResult:
+          'https://storage.me-central2.rep.googleapis.com/mockLocation/mockTable/mockPath/mockFile',
       },
       {
         name: 'when the region is me-central2 (mixed case)',
         stageInfo: {
           endPoint: null,
           useRegionalUrl: false,
-          region: 'ME-cEntRal2'
+          region: 'ME-cEntRal2',
+          useVirtualUrl: false,
         },
-        result: 'https://storage.me-central2.rep.googleapis.com'
+        endPointResult: 'https://storage.me-central2.rep.googleapis.com',
+        fileUrlResult:
+          'https://storage.me-central2.rep.googleapis.com/mockLocation/mockTable/mockPath/mockFile',
       },
       {
         name: 'when the region is me-central2 (uppercase)',
         stageInfo: {
           endPoint: null,
           useRegionalUrl: false,
-          region: 'ME-CENTRAL2'
+          region: 'ME-CENTRAL2',
+          useVirtualUrl: false,
         },
-        result: 'https://storage.me-central2.rep.googleapis.com'
+        endPointResult: 'https://storage.me-central2.rep.googleapis.com',
+        fileUrlResult:
+          'https://storage.me-central2.rep.googleapis.com/mockLocation/mockTable/mockPath/mockFile',
       },
       {
         name: 'when the endPoint is specified',
         stageInfo: {
           endPoint: 'https://storage.specialEndPoint.rep.googleapis.com',
           useRegionalUrl: false,
-          region: 'ME-cEntRal1'
+          region: 'ME-cEntRal1',
+          useVirtualUrl: false,
         },
-        result: 'https://storage.specialEndPoint.rep.googleapis.com'
+        endPointResult: 'https://storage.specialEndPoint.rep.googleapis.com',
+        fileUrlResult:
+          'https://storage.specialEndPoint.rep.googleapis.com/mockLocation/mockTable/mockPath/mockFile',
       },
       {
         name: 'when both the endPoint and the useRegionalUrl are specified',
         stageInfo: {
           endPoint: 'https://storage.specialEndPoint.rep.googleapis.com',
           useRegionalUrl: true,
-          region: 'ME-cEntRal1'
+          region: 'ME-cEntRal1',
+          useVirtualUrl: false,
         },
-        result: 'https://storage.specialEndPoint.rep.googleapis.com'
+        endPointResult: 'https://storage.specialEndPoint.rep.googleapis.com',
+        fileUrlResult:
+          'https://storage.specialEndPoint.rep.googleapis.com/mockLocation/mockTable/mockPath/mockFile',
       },
       {
         name: 'when both the endPoint is specified and the region is me-central2',
         stageInfo: {
           endPoint: 'https://storage.specialEndPoint.rep.googleapis.com',
           useRegionalUrl: true,
-          region: 'ME-CENTRAL2'
+          region: 'ME-CENTRAL2',
+          useVirtualUrl: false,
         },
-        result: 'https://storage.specialEndPoint.rep.googleapis.com'
+        endPointResult: 'https://storage.specialEndPoint.rep.googleapis.com',
+        fileUrlResult:
+          'https://storage.specialEndPoint.rep.googleapis.com/mockLocation/mockTable/mockPath/mockFile',
+      },
+      {
+        name: 'when only the useVirtualUrl is enabled',
+        stageInfo: {
+          location: 'sfc-eng-regression/stakeda/test_stg/test_sub_dir/',
+          endPoint: null,
+          useRegionalUrl: false,
+          region: 'ME-WEST',
+          UseRegionalURL: false,
+          useVirtualUrl: true,
+        },
+        endPointResult: 'https://sfc-eng-regression.storage.googleapis.com',
+        fileUrlResult:
+          'https://sfc-eng-regression.storage.googleapis.com/stakeda/test_stg/test_sub_dir/mockFile',
+      },
+      {
+        name: 'when both the useRegionalURL and useVirtualUrl are enabled',
+        stageInfo: {
+          location: 'sfc-eng-regression/stakeda/test_stg/test_sub_dir/',
+          endPoint: null,
+          useRegionalUrl: true,
+          region: 'ME-WEST',
+          UseRegionalURL: false,
+          useVirtualUrl: true,
+        },
+        endPointResult: 'https://sfc-eng-regression.storage.googleapis.com',
+        fileUrlResult:
+          'https://sfc-eng-regression.storage.googleapis.com/stakeda/test_stg/test_sub_dir/mockFile',
+      },
+      {
+        name: 'when all the options are enabled',
+        stageInfo: {
+          location: 'sfc-eng-regression/stakeda/test_stg/test_sub_dir/',
+          endPoint: 'storage.specialEndPoint.rep.googleapis.com',
+          useRegionalUrl: true,
+          region: 'ME-CENTRAL2',
+          useVirtualUrl: true,
+        },
+        endPointResult: 'https://storage.specialEndPoint.rep.googleapis.com',
+        fileUrlResult:
+          'https://storage.specialEndPoint.rep.googleapis.com/stakeda/test_stg/test_sub_dir/mockFile',
       },
     ];
 
-    testCases.forEach(({ name, stageInfo, result }) => {
+    testCases.forEach(({ name, stageInfo, endPointResult, fileUrlResult }) => {
       it(name, () => {
-        const client = GCS.createClient({ ...meta.stageInfo, ...stageInfo,  creds: { GCS_ACCESS_TOKEN: 'mockToken' } });
-        assert.strictEqual(client.gcsClient.apiEndpoint, result);
-      } );
-
+        const client = GCS.createClient({
+          ...meta.stageInfo,
+          ...stageInfo,
+          creds: { GCS_ACCESS_TOKEN: 'mockToken' },
+        });
+        assert.strictEqual(client.gcsClient.apiEndpoint, endPointResult);
+        assert.strictEqual(
+          GCS.generateFileURL(
+            { ...meta.stageInfo, ...stageInfo, creds: { GCS_ACCESS_TOKEN: 'mockToken' } },
+            'mockFile',
+          ),
+          fileUrlResult,
+        );
+      });
     });
   });
 
@@ -178,17 +245,11 @@ describe('GCS client', function () {
   });
 
   it('get file header - fail not found file with presigned url', async function () {
-    mock('httpClient', {
-      put: async function () {
-        return;
-      },
-      get: async function () {
-        const err = new Error();
-        err.response = { status: 401 };
-        throw err;
-      }
-    });
-    const httpClient = require('httpClient');
+    httpClient.get = async () => {
+      const err = new Error();
+      err.response = { status: 401 };
+      throw err;
+    };
     const GCS = new SnowflakeGCSUtil(connectionConfig, httpClient);
 
     await GCS.getFileHeader(meta, dataFile);
@@ -196,14 +257,11 @@ describe('GCS client', function () {
   });
 
   it('get file header - fail need retry', async function () {
-    mock('httpClient', {
-      head: async function () {
-        const err = new Error();
-        err.response = { status: 403 };
-        throw err;
-      }
-    });
-    const httpClient = require('httpClient');
+    httpClient.head = async () => {
+      const err = new Error();
+      err.response = { status: 403 };
+      throw err;
+    };
     const GCS = new SnowflakeGCSUtil(connectionConfig, httpClient);
 
     meta.presignedUrl = '';
@@ -213,14 +271,11 @@ describe('GCS client', function () {
   });
 
   it('get file header - fail not found file without presigned url', async function () {
-    mock('httpClient', {
-      head: async function () {
-        const err = new Error();
-        err.response = { status: 404 };
-        throw err;
-      }
-    });
-    const httpClient = require('httpClient');
+    httpClient.head = async () => {
+      const err = new Error();
+      err.response = { status: 404 };
+      throw err;
+    };
     const GCS = new SnowflakeGCSUtil(connectionConfig, httpClient);
 
     meta.presignedUrl = '';
@@ -230,14 +285,11 @@ describe('GCS client', function () {
   });
 
   it('get file header - fail expired token', async function () {
-    mock('httpClient', {
-      head: async function () {
-        const err = new Error();
-        err.response = { status: 401 };
-        throw err;
-      }
-    });
-    const httpClient = require('httpClient');
+    httpClient.head = async () => {
+      const err = new Error();
+      err.response = { status: 401 };
+      throw err;
+    };
     const GCS = new SnowflakeGCSUtil(connectionConfig, httpClient);
 
     meta.presignedUrl = '';
@@ -247,15 +299,11 @@ describe('GCS client', function () {
   });
 
   it('get file header - fail unknown status', async function () {
-    let err;
-    mock('httpClient', {
-      head: async function () {
-        err = new Error();
-        err.response = { status: 0 };
-        throw err;
-      }
-    });
-    const httpClient = require('httpClient');
+    const err = new Error();
+    err.response = { status: 0 };
+    httpClient.head = async () => {
+      throw err;
+    };
     const GCS = new SnowflakeGCSUtil(connectionConfig, httpClient);
 
     meta.presignedUrl = '';
@@ -273,42 +321,24 @@ describe('GCS client', function () {
   });
 
   it('upload - fail need retry', async function () {
-    mock('httpClient', {
-      put: async function () {
-        const err = new Error();
-        err.code = 403;
-        throw err;
-      }
-    });
-    mock('fileStream', {
-      readFileSync: async function (data) {
-        return data;
-      }
-    });
-    httpClient = require('httpClient');
-    fileStream = require('fileStream');
-    const GCS = new SnowflakeGCSUtil(connectionConfig, httpClient, fileStream);
+    httpClient.put = async () => {
+      const err = new Error();
+      err.code = 403;
+      throw err;
+    };
+    const GCS = new SnowflakeGCSUtil(connectionConfig, httpClient);
 
     await GCS.uploadFile(dataFile, meta, encryptionMetadata);
     assert.strictEqual(meta['resultStatus'], resultStatus.NEED_RETRY);
   });
 
   it('upload - fail renew presigned url', async function () {
-    mock('httpClient', {
-      put: async function () {
-        const err = new Error();
-        err.code = 400;
-        throw err;
-      }
-    });
-    mock('fileStream', {
-      readFileSync: async function (data) {
-        return data;
-      }
-    });
-    httpClient = require('httpClient');
-    fileStream = require('fileStream');
-    const GCS = new SnowflakeGCSUtil(connectionConfig, httpClient, fileStream);
+    httpClient.put = async () => {
+      const err = new Error();
+      err.code = 400;
+      throw err;
+    };
+    const GCS = new SnowflakeGCSUtil(connectionConfig, httpClient);
 
     meta.client = '';
     meta.lastError = { code: 0 };
@@ -318,44 +348,114 @@ describe('GCS client', function () {
   });
 
   it('upload - fail expired token', async function () {
-    mock('httpClient', {
-      put: async function () {
-        const err = new Error();
-        err.code = 401;
-        throw err;
-      }
-    });
-    mock('fileStream', {
-      readFileSync: async function (data) {
-        return data;
-      }
-    });
-    mock('gcsClient', {
-      bucket: function () {
-        function bucket() {
-          this.file = function () {
-            function file() {
-              this.save = function () {
+    httpClient.put = async () => {
+      const err = new Error();
+      err.code = 401;
+      throw err;
+    };
+    const gcsClient = {
+      bucket: () => ({
+        file: () => ({
+          createWriteStream: () =>
+            new Writable({
+              write(_chunk, _encoding, callback) {
                 const err = new Error();
                 err.code = 401;
-                throw err;
-              };
-            }
-            return new file;
-          };
-        }
-        return new bucket;
-      }
-    });
-    httpClient = require('httpClient');
-    fileStream = require('fileStream');
-    const gcsClient = require('gcsClient');
-    const GCS = new SnowflakeGCSUtil(connectionConfig, httpClient, fileStream);
+                callback(err);
+              },
+            }),
+        }),
+      }),
+    };
+    const GCS = new SnowflakeGCSUtil(connectionConfig, httpClient);
 
     meta.presignedUrl = '';
     meta.client = { gcsToken: mockAccessToken, gcsClient: gcsClient };
 
     await GCS.uploadFile(dataFile, meta, encryptionMetadata);
     assert.strictEqual(meta['resultStatus'], resultStatus.RENEW_TOKEN);
+  });
+
+  describe('shouldUseJsonApi', () => {
+    const testCases = [
+      {
+        name: 'be true by default',
+        httpClient: () => httpClient,
+        updateMeta: (meta) => {
+          meta.client = { gcsToken: mockAccessToken };
+        },
+        forceGCPUseDownscopedCredential: false,
+        expectedResult: true,
+      },
+      {
+        name: 'be false when token is present and the forceGCPUseDownscopedCredential is enabled',
+        httpClient: () => httpClient,
+        updateMeta: () => {
+          meta.client = { gcsToken: mockAccessToken };
+        },
+        forceGCPUseDownscopedCredential: true,
+        expectedResult: false,
+      },
+      {
+        name: 'by false when token is empty but the forceGCPUseDownscopedCredential is enabled',
+        httpClient: () => httpClient,
+        updateMeta: () => {},
+        forceGCPUseDownscopedCredential: true,
+        expectedResult: false,
+      },
+      {
+        name: 'be false when token is empty and the forceGCPUseDownscopedCredential is disabled',
+        httpClient: () => httpClient,
+        updateMeta: () => {},
+        forceGCPUseDownscopedCredential: false,
+        expectedResult: false,
+      },
+      {
+        name: 'be false when token is empty and the forceGCPUseDownscopedCredential is disabled',
+        httpClient: () => httpClient,
+        updateMeta: () => {},
+        forceGCPUseDownscopedCredential: false,
+        expectedResult: false,
+      },
+      {
+        name: 'be false when proxy',
+        httpClient: () => undefined,
+        updateMeta: (meta) => {
+          meta.client = { gcsToken: mockAccessToken };
+          meta.stageInfo.creds['GCS_ACCESS_TOKEN'] = mockAccessToken;
+        },
+        forceGCPUseDownscopedCredential: false,
+        expectedResult: false,
+      },
+      {
+        name: 'be false when virtual url',
+        httpClient: () => httpClient,
+        updateMeta: (meta) => {
+          meta.stageInfo.useVirtualUrl = true;
+          meta.client = { gcsToken: mockAccessToken };
+          meta.stageInfo.creds['GCS_ACCESS_TOKEN'] = mockAccessToken;
+        },
+        forceGCPUseDownscopedCredential: false,
+        expectedResult: false,
+      },
+    ];
+
+    testCases.forEach(
+      ({ name, httpClient, updateMeta, forceGCPUseDownscopedCredential, expectedResult }) => {
+        it(name, () => {
+          process.env.SNOWFLAKE_FORCE_GCP_USE_DOWNSCOPED_CREDENTIAL =
+            forceGCPUseDownscopedCredential;
+          meta.stageInfo.creds = {};
+          updateMeta(meta);
+          const util = new SnowflakeGCSUtil(connectionConfig, httpClient());
+          util.createClient(meta.stageInfo);
+
+          const result = util.shouldUseJsonApi(meta);
+          assert.strictEqual(result, expectedResult);
+
+          delete process.env.SNOWFLAKE_FORCE_GCP_USE_DOWNSCOPED_CREDENTIAL;
+        });
+      },
+    );
   });
 });

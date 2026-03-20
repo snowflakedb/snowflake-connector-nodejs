@@ -1,0 +1,20 @@
+export const ALGORITHM_OID = {
+  // Hash algorithms
+  SHA1: '1.3.14.3.2.26',
+  SHA256: '2.16.840.1.101.3.4.2.1',
+  SHA384: '2.16.840.1.101.3.4.2.2',
+  SHA512: '2.16.840.1.101.3.4.2.3',
+
+  // PKCS#1 v1.5 with SHA
+  SHA256_WITH_RSA: '1.2.840.113549.1.1.11',
+  SHA384_WITH_RSA: '1.2.840.113549.1.1.12',
+  SHA512_WITH_RSA: '1.2.840.113549.1.1.13',
+
+  // ECDSA with SHA
+  ECDSA_WITH_SHA256: '1.2.840.10045.4.3.2',
+  ECDSA_WITH_SHA384: '1.2.840.10045.4.3.3',
+  ECDSA_WITH_SHA512: '1.2.840.10045.4.3.4',
+
+  // RSASSA-PSS (RSA with Probabilistic Signature Scheme)
+  RSASSA_PSS: '1.2.840.113549.1.1.10',
+};

@@ -1,0 +1,57 @@
+{
+  "mappings": [
+    {
+      "scenarioName": "login_request_retry",
+      "requiredScenarioState": "Started",
+      "newScenarioState": "Failure 1",
+      "request": {
+        "urlPathPattern": "/session/v1/login-request.*",
+        "method": "POST"
+      },
+      "response": {{ failureResponse }}
+    },
+    {
+      "scenarioName": "login_request_retry",
+      "requiredScenarioState": "Failure 1",
+      "newScenarioState": "Failure 2",
+      "request": {
+        "urlPathPattern": "/session/v1/login-request.*",
+        "method": "POST"
+      },
+      "response": {{ failureResponse }}
+    },
+    {
+      "scenarioName": "login_request_retry",
+      "requiredScenarioState": "Failure 2",
+      "newScenarioState": "Failure 3",
+      "request": {
+        "urlPathPattern": "/session/v1/login-request.*",
+        "method": "POST"
+      },
+      "response": {{ failureResponse }}
+    },
+    {
+      "scenarioName": "login_request_retry",
+      "requiredScenarioState": "Failure 3",
+      "newScenarioState": "Success",
+      "request": {
+        "urlPathPattern": "/session/v1/login-request.*",
+        "method": "POST"
+      },
+      "response": {
+        "status": 200,
+        "headers": { "Content-Type": "application/json" },
+        "jsonBody": {
+          "data": {
+            "masterToken": "master token",
+            "token": "session token",
+            "validityInSeconds": 3600,
+            "masterValidityInSeconds": 14400,
+            "sessionId": 1172562260498
+          },
+          "success": true
+        }
+      }
+    }
+  ]
+}

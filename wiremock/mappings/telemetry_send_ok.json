@@ -1,0 +1,22 @@
+{
+  "mappings": [
+    {
+      "request": {
+        "urlPathPattern": "/telemetry/send.*",
+        "method": "POST"
+      },
+      "response": {
+        "status": 200,
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "jsonBody": {
+          "data": null,
+          "code": null,
+          "message": null,
+          "success": true
+        }
+      }
+    }
+  ]
+}

@@ -17,7 +17,7 @@ jobs:
       - name: Extract issue from title
         id: extract
         env:
-          TITLE: "${{ github.event.issue.title }}"
+          TITLE: '${{ github.event.issue.title }}'
         run: |
           jira=$(echo -n $TITLE | awk '{print $1}' | sed -e 's/://')
           echo ::set-output name=jira::$jira
@@ -25,5 +25,5 @@ jobs:
         uses: atlassian/gajira-comment@master
         if: startsWith(steps.extract.outputs.jira, 'SNOW-') && github.event.comment.user.login != 'codecov[bot]'
         with:
-          issue: "${{ steps.extract.outputs.jira }}"
+          issue: '${{ steps.extract.outputs.jira }}'
           comment: "${{ github.event.comment.user.login }} commented:\n\n${{ github.event.comment.body }}\n\n${{ github.event.comment.html_url }}"

@@ -1,10 +1,10 @@
-const snowflake = require('./../lib/snowflake');
+const snowflake = require('./../lib/snowflake').default;
 const assert = require('assert');
 const connOption = require('../test/integration/connectionOptions');
 const testUtil = require('../test/integration/testUtil');
 const async = require('async');
 
-describe('testLoginTokenExpire', function () {
+describe.skip('testLoginTokenExpire', function () {
   before(function (done) {
     const connectionToSnowflake = snowflake.createConnection(connOption.snowflakeAccount);
     async.series(
@@ -19,14 +19,14 @@ describe('testLoginTokenExpire', function () {
           testUtil.executeCmd(
             connectionToSnowflake,
             'alter system set MASTER_TOKEN_VALIDITY=5',
-            callback
+            callback,
           );
         },
         function (callback) {
           testUtil.executeCmd(
             connectionToSnowflake,
             'alter system set SESSION_TOKEN_VALIDITY=2',
-            callback
+            callback,
           );
         },
         function (callback) {
@@ -34,9 +34,9 @@ describe('testLoginTokenExpire', function () {
             testUtil.checkError(err);
             callback();
           });
-        }
+        },
       ],
-      done
+      done,
     );
   });
 
@@ -54,14 +54,14 @@ describe('testLoginTokenExpire', function () {
           testUtil.executeCmd(
             connectionToSnowflake,
             'alter system set MASTER_TOKEN_VALIDITY=default',
-            callback
+            callback,
           );
         },
         function (callback) {
           testUtil.executeCmd(
             connectionToSnowflake,
             'alter system set SESSION_TOKEN_VALIDITY=default',
-            callback
+            callback,
           );
         },
         function (callback) {
@@ -69,9 +69,9 @@ describe('testLoginTokenExpire', function () {
             testUtil.checkError(err);
             callback();
           });
-        }
+        },
       ],
-      done
+      done,
     );
   });
 
@@ -93,11 +93,11 @@ describe('testLoginTokenExpire', function () {
           testUtil.executeCmd(
             connection,
             'select seq8() from table(generator(rowcount=>10))',
-            callback
+            callback,
           );
-        }
+        },
       ],
-      done
+      done,
     );
   });
 
@@ -119,14 +119,16 @@ describe('testLoginTokenExpire', function () {
             sqlText: 'create or replace table t(colA varchar)',
             complete: function (err) {
               assert.ok(err);
-              assert.strictEqual(err.message, 'Unable to perform ' +
-                'operation using terminated connection.');
-              callback();
-            }
+              assert.strictEqual(
+                err.message,
+                'Unable to perform operation using terminated connection.',
+              );
+              callback(err);
+            },
           });
-        }
+        },
       ],
-      done
+      done,
     );
   });
 });

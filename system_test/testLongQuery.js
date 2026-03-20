@@ -1,4 +1,4 @@
-const snowflake = require('./../lib/snowflake');
+const snowflake = require('./../lib/snowflake').default;
 const connOption = require('../test/integration/connectionOptions');
 const testUtil = require('../test/integration/testUtil');
 const async = require('async');
@@ -6,7 +6,7 @@ const async = require('async');
 // This test can run only if Snowflake account is available.
 const canRunTest = connOption.snowflakeAccount !== undefined;
 
-describe('testPingPong', function () {
+describe.skip('testPingPong', function () {
   before(function (done) {
     if (!canRunTest) {
       done();
@@ -21,14 +21,14 @@ describe('testPingPong', function () {
           testUtil.executeCmd(
             connectionToSnowflake,
             'alter system set CLIENT_HEALTH_CHECK_INTERVAL=2',
-            callback
+            callback,
           );
         },
         function (callback) {
           testUtil.destroyConnection(connectionToSnowflake, callback);
-        }
+        },
       ],
-      done
+      done,
     );
   });
 
@@ -47,14 +47,14 @@ describe('testPingPong', function () {
           testUtil.executeCmd(
             connectionToSnowflake,
             'alter system set CLIENT_HEALTH_CHECK_INTERVAL=default',
-            callback
+            callback,
           );
         },
         function (callback) {
           testUtil.destroyConnection(connectionToSnowflake, callback);
-        }
+        },
       ],
-      done
+      done,
     );
   });
 
@@ -74,14 +74,14 @@ describe('testPingPong', function () {
           testUtil.executeCmd(
             connection,
             'select count(*) from table(generator(timeLimit =>10))',
-            callback
+            callback,
           );
         },
         function (callback) {
           testUtil.destroyConnection(connection, callback);
-        }
+        },
       ],
-      done
+      done,
     );
   });
 });

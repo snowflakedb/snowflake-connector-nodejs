@@ -1,17 +1,18 @@
 const assert = require('assert');
 const mock = require('mock-require');
-const SnowflakeEncryptionUtil = require('./../../../lib/file_transfer_agent/encrypt_util').EncryptUtil;
+const SnowflakeEncryptionUtil =
+  require('./../../../lib/file_transfer_agent/encrypt_util').EncryptUtil;
 
 function readKeyLength(algorithmName) {
   switch (algorithmName) {
-  case 'aes-128-cbc':
-  case 'aes-128-ecb':
-    return 128;
-  case 'aes-256-cbc':
-  case 'aes-256-ecb':
-    return 256;
-  default:
-    throw new Error('Algorithm was not recognized!');
+    case 'aes-128-cbc':
+    case 'aes-128-ecb':
+      return 128;
+    case 'aes-256-cbc':
+    case 'aes-256-ecb':
+      return 256;
+    default:
+      throw new Error('Algorithm was not recognized!');
   }
 }
 
@@ -32,7 +33,7 @@ describe('Encryption util', function () {
     encryptionMaterial = {
       queryStageMasterKey: 'ztke8tIdVt1zmlQIZm0BMA==',
       queryId: '123873c7-3a66-40c4-ab89-e3722fbccce1',
-      smkId: 3112
+      smkId: 3112,
     };
 
     mock('encrypt', {
@@ -61,11 +62,11 @@ describe('Encryption util', function () {
             function final() {
               return Buffer.from(mockData.substring(4));
             }
-            return new final;
+            return new final();
           };
         }
-        return new createCipheriv;
-      }
+        return new createCipheriv();
+      },
     });
     mock('filestream', {
       createReadStream: function () {
@@ -75,7 +76,7 @@ describe('Encryption util', function () {
             return;
           };
         }
-        return new createReadStream;
+        return new createReadStream();
       },
       createWriteStream: function () {
         function createWriteStream() {
@@ -87,11 +88,11 @@ describe('Encryption util', function () {
             return;
           };
         }
-        return new createWriteStream;
+        return new createWriteStream();
       },
       close: function (fd, callback) {
         callback(null);
-      }
+      },
     });
     mock('temp', {
       file: function (object, callback) {
@@ -99,7 +100,7 @@ describe('Encryption util', function () {
       },
       openSync: function () {
         return;
-      }
+      },
     });
 
     encrypt = require('encrypt');
@@ -116,9 +117,9 @@ describe('Encryption util', function () {
     const keySize = decodedKey.length;
 
     let matDesc = {
-      'smkId': encryptionMaterial.smkId,
-      'queryId': encryptionMaterial.queryId,
-      'keySize': keySize * 8
+      smkId: encryptionMaterial.smkId,
+      queryId: encryptionMaterial.queryId,
+      keySize: keySize * 8,
     };
     matDesc['smkId'] = matDesc['smkId'].toString();
     matDesc['keySize'] = matDesc['keySize'].toString();

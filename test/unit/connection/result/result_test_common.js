@@ -9,158 +9,143 @@ describe('Result: synchronous errors', function () {
   //// Test synchronous errors                                           ////
   ///////////////////////////////////////////////////////////////////////////
 
-  const testCases =
-    [
-      {
-        name: 'missing options',
-        errorCode: ErrorCodes.ERR_INTERNAL_ASSERT_FAILED
+  const testCases = [
+    {
+      name: 'missing options',
+      errorCode: ErrorCodes.ERR_INTERNAL_ASSERT_FAILED,
+    },
+    {
+      name: 'undefined options',
+      options: undefined,
+      errorCode: ErrorCodes.ERR_INTERNAL_ASSERT_FAILED,
+    },
+    {
+      name: 'null options',
+      options: null,
+      errorCode: ErrorCodes.ERR_INTERNAL_ASSERT_FAILED,
+    },
+    {
+      name: 'empty options',
+      options: {},
+      errorCode: ErrorCodes.ERR_INTERNAL_ASSERT_FAILED,
+    },
+    {
+      name: 'undefined response',
+      options: {
+        response: undefined,
       },
-      {
-        name: 'undefined options',
-        options: undefined,
-        errorCode: ErrorCodes.ERR_INTERNAL_ASSERT_FAILED
+      errorCode: ErrorCodes.ERR_INTERNAL_ASSERT_FAILED,
+    },
+    {
+      name: 'null response',
+      options: {
+        response: null,
       },
-      {
-        name: 'null options',
-        options: null,
-        errorCode: ErrorCodes.ERR_INTERNAL_ASSERT_FAILED
+      errorCode: ErrorCodes.ERR_INTERNAL_ASSERT_FAILED,
+    },
+    {
+      name: 'invalid response',
+      options: {
+        response: 'invalid',
       },
-      {
-        name: 'empty options',
-        options: {},
-        errorCode: ErrorCodes.ERR_INTERNAL_ASSERT_FAILED
+      errorCode: ErrorCodes.ERR_INTERNAL_ASSERT_FAILED,
+    },
+    {
+      name: 'missing statement',
+      options: {
+        response: {},
       },
-      {
-        name: 'undefined response',
-        options:
-          {
-            response: undefined
-          },
-        errorCode: ErrorCodes.ERR_INTERNAL_ASSERT_FAILED
+      errorCode: ErrorCodes.ERR_INTERNAL_ASSERT_FAILED,
+    },
+    {
+      name: 'undefined statement',
+      options: {
+        response: {},
+        statement: undefined,
       },
-      {
-        name: 'null response',
-        options:
-          {
-            response: null
-          },
-        errorCode: ErrorCodes.ERR_INTERNAL_ASSERT_FAILED
+      errorCode: ErrorCodes.ERR_INTERNAL_ASSERT_FAILED,
+    },
+    {
+      name: 'null statement',
+      options: {
+        response: {},
+        statement: null,
       },
-      {
-        name: 'invalid response',
-        options:
-          {
-            response: 'invalid'
-          },
-        errorCode: ErrorCodes.ERR_INTERNAL_ASSERT_FAILED
+      errorCode: ErrorCodes.ERR_INTERNAL_ASSERT_FAILED,
+    },
+    {
+      name: 'invalid statement',
+      options: {
+        response: {},
+        statement: 'invalid',
       },
-      {
-        name: 'missing statement',
-        options:
-          {
-            response: {}
-          },
-        errorCode: ErrorCodes.ERR_INTERNAL_ASSERT_FAILED
+      errorCode: ErrorCodes.ERR_INTERNAL_ASSERT_FAILED,
+    },
+    {
+      name: 'missing http client',
+      options: {
+        response: {},
+        statement: {},
       },
-      {
-        name: 'undefined statement',
-        options:
-          {
-            response: {},
-            statement: undefined
-          },
-        errorCode: ErrorCodes.ERR_INTERNAL_ASSERT_FAILED
+      errorCode: ErrorCodes.ERR_INTERNAL_ASSERT_FAILED,
+    },
+    {
+      name: 'undefined http client',
+      options: {
+        response: {},
+        statement: {},
+        services: undefined,
       },
-      {
-        name: 'null statement',
-        options:
-          {
-            response: {},
-            statement: null
-          },
-        errorCode: ErrorCodes.ERR_INTERNAL_ASSERT_FAILED
+      errorCode: ErrorCodes.ERR_INTERNAL_ASSERT_FAILED,
+    },
+    {
+      name: 'null http client',
+      options: {
+        response: {},
+        statement: {},
+        services: null,
       },
-      {
-        name: 'invalid statement',
-        options:
-          {
-            response: {},
-            statement: 'invalid'
-          },
-        errorCode: ErrorCodes.ERR_INTERNAL_ASSERT_FAILED
+      errorCode: ErrorCodes.ERR_INTERNAL_ASSERT_FAILED,
+    },
+    {
+      name: 'invalid http client',
+      options: {
+        response: {},
+        statement: {},
+        services: 'invalid',
       },
-      {
-        name: 'missing http client',
-        options:
-          {
-            response: {},
-            statement: {}
-          },
-        errorCode: ErrorCodes.ERR_INTERNAL_ASSERT_FAILED
+      errorCode: ErrorCodes.ERR_INTERNAL_ASSERT_FAILED,
+    },
+    {
+      name: 'missing connection config',
+      options: {
+        response: {},
+        statement: {},
+        services: {},
       },
-      {
-        name: 'undefined http client',
-        options:
-          {
-            response: {},
-            statement: {},
-            services: undefined
-          },
-        errorCode: ErrorCodes.ERR_INTERNAL_ASSERT_FAILED
+      errorCode: ErrorCodes.ERR_INTERNAL_ASSERT_FAILED,
+    },
+    {
+      name: 'undefined connection config',
+      options: {
+        response: {},
+        statement: {},
+        services: {},
+        connectionConfig: undefined,
       },
-      {
-        name: 'null http client',
-        options:
-          {
-            response: {},
-            statement: {},
-            services: null
-          },
-        errorCode: ErrorCodes.ERR_INTERNAL_ASSERT_FAILED
+      errorCode: ErrorCodes.ERR_INTERNAL_ASSERT_FAILED,
+    },
+    {
+      name: 'null connection config',
+      options: {
+        response: {},
+        statement: {},
+        services: {},
+        connectionConfig: null,
       },
-      {
-        name: 'invalid http client',
-        options:
-          {
-            response: {},
-            statement: {},
-            services: 'invalid'
-          },
-        errorCode: ErrorCodes.ERR_INTERNAL_ASSERT_FAILED
-      },
-      {
-        name: 'missing connection config',
-        options:
-          {
-            response: {},
-            statement: {},
-            services: {}
-          },
-        errorCode: ErrorCodes.ERR_INTERNAL_ASSERT_FAILED
-      },
-      {
-        name: 'undefined connection config',
-        options:
-          {
-            response: {},
-            statement: {},
-            services: {},
-            connectionConfig: undefined
-          },
-        errorCode: ErrorCodes.ERR_INTERNAL_ASSERT_FAILED
-      },
-      {
-        name: 'null connection config',
-        options:
-          {
-            response: {},
-            statement: {},
-            services: {},
-            connectionConfig: null
-          },
-        errorCode: ErrorCodes.ERR_INTERNAL_ASSERT_FAILED
-      }
-    ];
+      errorCode: ErrorCodes.ERR_INTERNAL_ASSERT_FAILED,
+    },
+  ];
 
   const createItCallback = function (testCase) {
     return function () {
@@ -189,14 +174,13 @@ exports.createResultOptions = function (response, connectionConfigOption = {}) {
     response: response,
     statement: {},
     services: {},
-    connectionConfig: new ConnectionConfig(
-      {
-        username: 'username',
-        password: 'password',
-        account: 'account',
-        accessUrl: 'http://account.snowflake.com',
-        ...connectionConfigOption
-      })
+    connectionConfig: new ConnectionConfig({
+      username: 'username',
+      password: 'password',
+      account: 'account',
+      accessUrl: 'http://account.snowflake.com',
+      ...connectionConfigOption,
+    }),
   };
 };
 
@@ -207,17 +191,16 @@ exports.testResult = function (resultOptions, each, end, startIndex, endIndex) {
   let numIterationsActual = 0;
 
   // initiate a fetch-rows operation
-  const operation = result.fetchRows(
-    {
-      startIndex: startIndex,
-      endIndex: endIndex,
+  const operation = result.fetchRows({
+    startIndex: startIndex,
+    endIndex: endIndex,
 
-      each: function (row) {
-        each(row);
+    each: function (row) {
+      each(row);
 
-        numIterationsActual++;
-      }
-    });
+      numIterationsActual++;
+    },
+  });
 
   // when the fetch-rows operation completes
   operation.on('complete', function (err, continueCallback) {

@@ -1,0 +1,48 @@
+{
+  "mappings": [
+    {
+      "scenarioName": "chunk_download_retry",
+      "requiredScenarioState": "Started",
+      "newScenarioState": "Failure 1",
+      "request": {
+        "urlPathPattern": "/chunks/.*",
+        "method": "GET"
+      },
+      "response": {{ failureResponse }}
+    },
+    {
+      "scenarioName": "chunk_download_retry",
+      "requiredScenarioState": "Failure 1",
+      "newScenarioState": "Failure 2",
+      "request": {
+        "urlPathPattern": "/chunks/.*",
+        "method": "GET"
+      },
+      "response": {{ failureResponse }}
+    },
+    {
+      "scenarioName": "chunk_download_retry",
+      "requiredScenarioState": "Failure 2",
+      "newScenarioState": "Failure 3",
+      "request": {
+        "urlPathPattern": "/chunks/.*",
+        "method": "GET"
+      },
+      "response": {{ failureResponse }}
+    },
+    {
+      "scenarioName": "chunk_download_retry",
+      "requiredScenarioState": "Failure 3",
+      "newScenarioState": "Success",
+      "request": {
+        "urlPathPattern": "/chunks/.*",
+        "method": "GET"
+      },
+      "response": {
+        "status": 200,
+        "headers": { "Content-Type": "text/plain" },
+        "body": "[\"row1\"],[\"row2\"],[\"row3\"],[\"row4\"],[\"row5\"],[\"row6\"],[\"row7\"],[\"row8\"],[\"row9\"],[\"row10\"]"
+      }
+    }
+  ]
+}

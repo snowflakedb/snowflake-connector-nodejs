@@ -1,7 +1,7 @@
 #!/bin/bash -e
 
 export PLATFORM=$(echo $(uname) | tr '[:upper:]' '[:lower:]')
-export INTERNAL_REPO=nexus.int.snowflakecomputing.com:8086
+export INTERNAL_REPO=artifactory.ci1.us-west-2.aws-dev.app.snowflake.com/internal-production-docker-snowflake-virtual
 if [[ -z "$GITHUB_ACTIONS" ]]; then
     # Use the internal Docker Registry
     export DOCKER_REGISTRY_NAME=$INTERNAL_REPO/docker
@@ -15,10 +15,10 @@ fi
 export DRIVER_NAME=nodejs
 
 # Build images
-BUILD_IMAGE_VERSION=1
+BUILD_IMAGE_VERSION=2
 
 # Test Images
-TEST_IMAGE_VERSION=1
+TEST_IMAGE_VERSION=2
 
 declare -A BUILD_IMAGE_NAMES=(
     [$DRIVER_NAME-chainguard-node18]=$DOCKER_REGISTRY_NAME/client-$DRIVER_NAME-chainguard-node18-build:$BUILD_IMAGE_VERSION

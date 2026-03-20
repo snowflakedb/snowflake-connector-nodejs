@@ -1,21 +1,25 @@
+// oxlint-disable no-undef
 const assert = require('assert');
 const { Levels, ConfigurationUtil } = require('./../../../lib/configuration/client_configuration');
-const { loadConnectionConfiguration } = require('./../../../lib/configuration/connection_configuration');
+const {
+  loadConnectionConfiguration,
+} = require('./../../../lib/configuration/connection_configuration');
 const getClientConfig = new ConfigurationUtil().getClientConfig;
 const fsPromises = require('fs/promises');
+const fs = require('fs');
 const os = require('os');
 const path = require('path');
+const { isWindows } = require('../../../lib/util');
 let tempDir = null;
 
 describe('should parse toml connection configuration', function () {
-
-  beforeEach( async function () {
+  beforeEach(async function () {
     process.env.SNOWFLAKE_HOME = process.cwd() + '/test';
     const configurationPath = path.join(process.env.SNOWFLAKE_HOME, 'connections.toml');
     await fsPromises.chmod(configurationPath, '600');
   });
 
-  afterEach( function () {
+  afterEach(function () {
     delete process.env.SNOWFLAKE_HOME;
     delete process.env.SNOWFLAKE_DEFAULT_CONNECTION_NAME;
   });
@@ -48,7 +52,7 @@ describe('should parse toml connection configuration', function () {
     }
   });
 
-  it('should throw error toml when file does not exist',  function (done) {
+  it('should throw error toml when file does not exist', function (done) {
     process.env.SNOWFLAKE_HOME = '/unknown/';
     try {
       loadConnectionConfiguration();
@@ -65,14 +69,93 @@ describe('should parse toml connection configuration', function () {
       loadConnectionConfiguration();
       assert.fail();
     } catch (error) {
-      assert.strictEqual(error.message, 'Connection configuration with name unknown does not exist');
+      assert.strictEqual(
+        error.message,
+        'Connection configuration with name unknown does not exist',
+      );
       done();
     }
   });
 });
 
-describe('Configuration parsing tests', function () {
+describe('toml file Permission Verification', function () {
+  if (isWindows()) {
+    return;
+  }
 
+  let configurationPath;
+  beforeEach(async function () {
+    process.env.SNOWFLAKE_HOME = process.cwd() + '/test';
+    configurationPath = path.join(process.env.SNOWFLAKE_HOME, 'connections.toml');
+    await fsPromises.chmod(configurationPath, '600');
+  });
+
+  afterEach(function () {
+    delete process.env.SNOWFLAKE_HOME;
+  });
+
+  it('should accept the minimum permission 0644 (Others can read)', async function () {
+    await fsPromises.chmod(configurationPath, '644');
+    const configuration = await loadConnectionConfiguration();
+    assert.strictEqual(configuration['account'], 'snowdriverswarsaw.us-west-2.aws');
+    assert.strictEqual(configuration['username'], 'test_user');
+    assert.strictEqual(configuration['password'], 'test_pass');
+    assert.strictEqual(configuration['warehouse'], 'testw');
+    assert.strictEqual(configuration['database'], 'test_db');
+    assert.strictEqual(configuration['schema'], 'test_nodejs');
+    assert.strictEqual(configuration['protocol'], 'https');
+    assert.strictEqual(configuration['port'], '443');
+  });
+
+  describe('should throw exception for executable permissions', function () {
+    const testCasesWithExecutablePermissions = [
+      { name: 'Owner has execute (700)', permission: '700' },
+      { name: 'Group has execute (650)', permission: '650' },
+      { name: 'All have execute (777)', permission: '777' },
+      { name: 'Group has execute (670)', permission: '670' },
+      { name: 'Owner and others have execute (701)', permission: '701' },
+      { name: 'Owner and group have execute (710)', permission: '710' },
+    ];
+    testCasesWithExecutablePermissions.forEach(({ name, permission }) => {
+      it(name, function () {
+        fs.chmodSync(configurationPath, permission);
+        try {
+          loadConnectionConfiguration();
+          assert.fail();
+        } catch (error) {
+          assert.strictEqual(
+            error.message,
+            `file ${configurationPath} is executable — this poses a security risk because the file could be misused as a script or executed unintentionally. File Permission: ${permission}`,
+          );
+        }
+      });
+    });
+  });
+  describe('should throw exception for non-owner has writable permissions', function () {
+    const testCasesWithWritePermissions = [
+      { name: 'Group has write (660)', permission: '660' },
+      { name: 'Others have write (662)', permission: '662' },
+      { name: 'Group and others have write (666)', permission: '666' },
+    ];
+
+    testCasesWithWritePermissions.forEach(({ name, permission }) => {
+      it(name, function () {
+        fs.chmodSync(configurationPath, permission);
+        try {
+          loadConnectionConfiguration();
+          assert.fail();
+        } catch (error) {
+          assert.deepEqual(
+            error.message,
+            `file ${configurationPath} is writable by group or others — this poses a security risk because it allows unauthorized users to modify sensitive settings. File Permission: ${permission}`,
+          );
+        }
+      });
+    });
+  });
+});
+
+describe('Configuration parsing tests', function () {
   before(async function () {
     tempDir = await fsPromises.mkdtemp(path.join(os.tmpdir(), 'conf_parse_tests_'));
   });
@@ -84,11 +167,11 @@ describe('Configuration parsing tests', function () {
   [
     {
       testCaseName: 'INFO',
-      logLevel: Levels.Info.toUpperCase()
+      logLevel: Levels.Info.toUpperCase(),
     },
     {
       testCaseName: 'info',
-      logLevel: Levels.Info.toLowerCase()
+      logLevel: Levels.Info.toLowerCase(),
     },
   ].forEach(({ testCaseName, logLevel }) => {
     it('should parse json with log level: ' + testCaseName, async function () {
@@ -121,13 +204,13 @@ describe('Configuration parsing tests', function () {
             "log_level": null,
             "log_path": null
         }
-      }`
+      }`,
     },
     {
       testCaseName: 'config with empty common',
       fileContent: `{
         "common": {} 
-     }`
+     }`,
     },
     {
       testCaseName: 'config with known values and unknown key',
@@ -137,7 +220,7 @@ describe('Configuration parsing tests', function () {
                 "log_path": null,
                 "unknown_key": "unknown_value"
             } 
-        }`
+        }`,
     },
     {
       testCaseName: 'config with unknown key',
@@ -145,8 +228,8 @@ describe('Configuration parsing tests', function () {
             "common": {
                 "unknown_key": "unknown_value"
             } 
-        }`
-    }
+        }`,
+    },
   ].forEach(({ testCaseName, fileContent }) => {
     it('should parse config without values: ' + testCaseName, async function () {
       // given
@@ -166,16 +249,16 @@ describe('Configuration parsing tests', function () {
   [
     {
       testCaseName: 'null',
-      filePath: null
+      filePath: null,
     },
     {
       testCaseName: 'empty string',
-      filePath: ''
+      filePath: '',
     },
     {
       testCaseName: 'undefined',
-      filePath: undefined
-    }
+      filePath: undefined,
+    },
   ].forEach(({ testCaseName, filePath }) => {
     it('should return null when config file not given: ' + testCaseName, async function () {
       // when
@@ -193,10 +276,34 @@ describe('Configuration parsing tests', function () {
       async () => await getClientConfig(filePath),
       (err) => {
         assert.strictEqual(err.name, 'ConfigurationError');
-        assert.strictEqual(err.message, 'Finding client configuration failed');
+        assert.strictEqual(err.message, 'Fail to open the configuration file');
         assert.match(err.cause.message, /ENOENT: no such file or directory./);
         return true;
-      });
+      },
+    );
+  });
+
+  it('should fail when the path is a symlink', async function () {
+    const fileName = 'config.json';
+    const filePath = path.join(tempDir, fileName);
+    const symlinkPath = path.join(tempDir, 'test_symlink');
+    await fsPromises.symlink(filePath, symlinkPath, isWindows() ? 'junction' : 'file');
+
+    // expect
+    await assert.rejects(
+      async () => await getClientConfig(symlinkPath),
+      (err) => {
+        assert.strictEqual(err.name, 'ConfigurationError');
+        assert.strictEqual(err.message, 'Fail to open the configuration file');
+        assert.match(
+          err.cause.message,
+          isWindows()
+            ? /ENOENT: no such file or directory, open/
+            : /ELOOP: too many symbolic links encountered, open/,
+        );
+        return true;
+      },
+    );
   });
 
   [
@@ -207,11 +314,11 @@ describe('Configuration parsing tests', function () {
                 "log_level": "unknown",
                 "log_path": "/some-path/some-directory"
             } 
-        }`
+        }`,
     },
     {
       testCaseName: 'no common in config',
-      fileContent: '{}'
+      fileContent: '{}',
     },
     {
       testCaseName: 'log level is not a string',
@@ -220,7 +327,7 @@ describe('Configuration parsing tests', function () {
                 "log_level": 5,
                 "log_path": "/some-path/some-directory"
             } 
-        }`
+        }`,
     },
     {
       testCaseName: 'log path is not a string',
@@ -229,14 +336,14 @@ describe('Configuration parsing tests', function () {
                 "log_level": "${Levels.Info}",
                 "log_path": true
             } 
-        }`
+        }`,
     },
   ].forEach(({ testCaseName, fileContent }) => {
     it('should fail for wrong config content ' + testCaseName, async function () {
       // given
       const fileName = 'config_wrong_' + replaceSpaces(testCaseName) + '.json';
       const filePath = path.join(tempDir, fileName);
-      await fsPromises.writeFile(filePath, fileContent, { encoding: 'utf8' });
+      await writeFile(filePath, fileContent);
 
       // expect
       await assert.rejects(
@@ -246,8 +353,92 @@ describe('Configuration parsing tests', function () {
           assert.strictEqual(err.message, 'Parsing client configuration failed');
           assert.ok(err.cause);
           return true;
-        });
+        },
+      );
     });
+  });
+
+  it('test - when the file has been changed by others', async function () {
+    if (isWindows()) {
+      return;
+    }
+    const fileName = 'file_change_test.json';
+    const filePath = path.join(tempDir, fileName);
+    const fileContent = `{
+      "common": {
+          "log_level": "${Levels.Info}",
+          "log_path": "/some-path/some-directory"
+      } 
+  }`;
+    await writeFile(filePath, fileContent);
+    setTimeout(() => {
+      fs.open(filePath, 'w', (err, fd) => {
+        fs.writeFileSync(fd, 'Hacked by someone');
+        fs.closeSync(fd);
+      });
+    }, 2000);
+
+    try {
+      await getClientConfig(filePath, true, 3000);
+      assert.ok(false, 'should be failed');
+    } catch (err) {
+      assert.strictEqual(err.name, 'ConfigurationError');
+      assert.strictEqual(err.message, 'The config file has been modified');
+      assert.strictEqual(err.cause, 'InvalidConfigFile');
+    }
+  });
+
+  it('test - when the file permission has been changed by others', async function () {
+    if (isWindows()) {
+      return;
+    }
+    const fileName = 'file_permission_change_test.json';
+    const filePath = path.join(tempDir, fileName);
+    const fileContent = `{
+      "common": {
+          "log_level": "${Levels.Info}",
+          "log_path": "/some-path/some-directory"
+      } 
+  }`;
+    await writeFile(filePath, fileContent);
+    setTimeout(() => fs.chmodSync(filePath, 0o777), 2000);
+
+    try {
+      await getClientConfig(filePath, true, 3000);
+      assert.ok(false, 'should be failed');
+    } catch (err) {
+      assert.strictEqual(err.name, 'ConfigurationError');
+      assert.strictEqual(err.message, 'The config file has been modified');
+      assert.strictEqual(err.cause, 'InvalidConfigFile');
+    }
+  });
+
+  it('test - when the file has been replaced', async function () {
+    if (isWindows()) {
+      return;
+    }
+    const fileName = 'file_replaced_test.json';
+    const filePath = path.join(tempDir, fileName);
+    const fileContent = `{
+      "common": {
+          "log_level": "${Levels.Info}",
+          "log_path": "/some-path/some-directory"
+      } 
+  }`;
+    await writeFile(filePath, fileContent);
+    setTimeout(async () => {
+      fs.rmSync(filePath);
+      await writeFile(filePath, 'Hacked by someone');
+    }, 2000);
+
+    try {
+      await getClientConfig(filePath, true, 5000);
+      assert.ok(false, 'should be failed');
+    } catch (err) {
+      assert.strictEqual(err.name, 'ConfigurationError');
+      assert.strictEqual(err.message, 'The config file has been modified');
+      assert.strictEqual(err.cause, 'InvalidConfigFile');
+    }
   });
 
   function replaceSpaces(stringValue) {
@@ -255,6 +446,6 @@ describe('Configuration parsing tests', function () {
   }
 
   async function writeFile(filePath, fileContent) {
-    await fsPromises.writeFile(filePath, fileContent, { encoding: 'utf8' });
+    await fsPromises.writeFile(filePath, fileContent, { encoding: 'utf8', mode: 0o755 });
   }
 });

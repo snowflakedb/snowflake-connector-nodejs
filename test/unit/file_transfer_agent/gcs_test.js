@@ -1,7 +1,7 @@
 const assert = require('assert');
 const sinon = require('sinon');
 const fs = require('fs');
-const { Readable, Writable } = require('stream');
+const { Readable } = require('stream');
 const SnowflakeGCSUtil = require('./../../../lib/file_transfer_agent/gcs_util');
 const resultStatus = require('../../../lib/file_util').resultStatus;
 
@@ -194,21 +194,17 @@ describe('GCS client', function () {
       },
     ];
 
-    testCases.forEach(({ name, stageInfo, endPointResult, fileUrlResult }) => {
+    testCases.forEach(({ name, stageInfo, fileUrlResult }) => {
       it(name, () => {
-        const client = GCS.createClient({
+        const stageInfoFull = {
           ...meta.stageInfo,
           ...stageInfo,
           creds: { GCS_ACCESS_TOKEN: 'mockToken' },
-        });
-        assert.strictEqual(client.gcsClient.apiEndpoint, endPointResult);
-        assert.strictEqual(
-          GCS.generateFileURL(
-            { ...meta.stageInfo, ...stageInfo, creds: { GCS_ACCESS_TOKEN: 'mockToken' } },
-            'mockFile',
-          ),
-          fileUrlResult,
-        );
+        };
+        const client = GCS.createClient(stageInfoFull);
+        assert.ok(client);
+        assert.strictEqual(client.gcsToken, 'mockToken');
+        assert.strictEqual(GCS.generateFileURL(stageInfoFull, 'mockFile'), fileUrlResult);
       });
     });
   });
@@ -347,115 +343,95 @@ describe('GCS client', function () {
     assert.strictEqual(meta['resultStatus'], resultStatus.RENEW_PRESIGNED_URL);
   });
 
+  it('upload with token uses REST path via httpClient.put', async function () {
+    const putSpy = sinon.spy(async () => {});
+    httpClient.put = putSpy;
+    const GCS = new SnowflakeGCSUtil(connectionConfig, httpClient);
+
+    meta.presignedUrl = '';
+    meta.client = { gcsToken: mockAccessToken };
+    meta.dstFileName = 'testfile.csv';
+    meta.SHA256_DIGEST = 'mockDigest';
+
+    await GCS.uploadFile(dataFile, meta, encryptionMetadata);
+    assert.strictEqual(meta['resultStatus'], resultStatus.UPLOADED);
+    assert.ok(putSpy.calledOnce, 'httpClient.put should be called');
+    const callArgs = putSpy.firstCall.args;
+    assert.ok(callArgs[2].headers['Authorization'].startsWith('Bearer '));
+  });
+
+  it('download with token uses REST path via httpClient.get', async function () {
+    const mockStream = new Readable({
+      read() {
+        this.push(null);
+      },
+    });
+    const getSpy = sinon.spy(async () => ({
+      status: 200,
+      headers: {
+        'x-goog-meta-sfc-digest': 'mockDigest',
+        'content-length': '0',
+      },
+      data: mockStream,
+    }));
+    httpClient.get = getSpy;
+    sinonSandbox.stub(fs, 'createWriteStream').returns(
+      new (require('stream').Writable)({
+        write(_chunk, _encoding, cb) {
+          cb();
+        },
+        final(cb) {
+          cb();
+        },
+      }),
+    );
+    const GCS = new SnowflakeGCSUtil(connectionConfig, httpClient);
+
+    meta.presignedUrl = '';
+    meta.client = { gcsToken: mockAccessToken };
+    meta.srcFileName = 'testfile.csv';
+
+    await GCS.nativeDownloadFile(meta, '/tmp/testfile.csv');
+    assert.strictEqual(meta['resultStatus'], resultStatus.DOWNLOADED);
+    assert.ok(getSpy.calledOnce, 'httpClient.get should be called');
+    const callArgs = getSpy.firstCall.args;
+    assert.ok(callArgs[1].headers['Authorization'].startsWith('Bearer '));
+  });
+
+  it('getFileHeader with token uses REST path via httpClient.head', async function () {
+    const headSpy = sinon.spy(async () => ({
+      headers: {
+        'x-goog-meta-sfc-digest': 'mockDigest',
+        'content-length': '100',
+      },
+    }));
+    httpClient.head = headSpy;
+    const GCS = new SnowflakeGCSUtil(connectionConfig, httpClient);
+
+    meta.presignedUrl = '';
+    meta.client = { gcsToken: mockAccessToken };
+
+    const header = await GCS.getFileHeader(meta, dataFile);
+    assert.strictEqual(meta['resultStatus'], resultStatus.UPLOADED);
+    assert.ok(headSpy.calledOnce, 'httpClient.head should be called');
+    const callArgs = headSpy.firstCall.args;
+    assert.ok(callArgs[1].headers['Authorization'].startsWith('Bearer '));
+    assert.strictEqual(header.digest, 'mockDigest');
+    assert.strictEqual(header.contentLength, '100');
+  });
+
   it('upload - fail expired token', async function () {
     httpClient.put = async () => {
       const err = new Error();
       err.code = 401;
       throw err;
     };
-    const gcsClient = {
-      bucket: () => ({
-        file: () => ({
-          createWriteStream: () =>
-            new Writable({
-              write(_chunk, _encoding, callback) {
-                const err = new Error();
-                err.code = 401;
-                callback(err);
-              },
-            }),
-        }),
-      }),
-    };
     const GCS = new SnowflakeGCSUtil(connectionConfig, httpClient);
 
     meta.presignedUrl = '';
-    meta.client = { gcsToken: mockAccessToken, gcsClient: gcsClient };
+    meta.client = { gcsToken: mockAccessToken };
 
     await GCS.uploadFile(dataFile, meta, encryptionMetadata);
     assert.strictEqual(meta['resultStatus'], resultStatus.RENEW_TOKEN);
-  });
-
-  describe('shouldUseJsonApi', () => {
-    const testCases = [
-      {
-        name: 'be true by default',
-        httpClient: () => httpClient,
-        updateMeta: (meta) => {
-          meta.client = { gcsToken: mockAccessToken };
-        },
-        forceGCPUseDownscopedCredential: false,
-        expectedResult: true,
-      },
-      {
-        name: 'be false when token is present and the forceGCPUseDownscopedCredential is enabled',
-        httpClient: () => httpClient,
-        updateMeta: () => {
-          meta.client = { gcsToken: mockAccessToken };
-        },
-        forceGCPUseDownscopedCredential: true,
-        expectedResult: false,
-      },
-      {
-        name: 'by false when token is empty but the forceGCPUseDownscopedCredential is enabled',
-        httpClient: () => httpClient,
-        updateMeta: () => {},
-        forceGCPUseDownscopedCredential: true,
-        expectedResult: false,
-      },
-      {
-        name: 'be false when token is empty and the forceGCPUseDownscopedCredential is disabled',
-        httpClient: () => httpClient,
-        updateMeta: () => {},
-        forceGCPUseDownscopedCredential: false,
-        expectedResult: false,
-      },
-      {
-        name: 'be false when token is empty and the forceGCPUseDownscopedCredential is disabled',
-        httpClient: () => httpClient,
-        updateMeta: () => {},
-        forceGCPUseDownscopedCredential: false,
-        expectedResult: false,
-      },
-      {
-        name: 'be false when proxy',
-        httpClient: () => undefined,
-        updateMeta: (meta) => {
-          meta.client = { gcsToken: mockAccessToken };
-          meta.stageInfo.creds['GCS_ACCESS_TOKEN'] = mockAccessToken;
-        },
-        forceGCPUseDownscopedCredential: false,
-        expectedResult: false,
-      },
-      {
-        name: 'be false when virtual url',
-        httpClient: () => httpClient,
-        updateMeta: (meta) => {
-          meta.stageInfo.useVirtualUrl = true;
-          meta.client = { gcsToken: mockAccessToken };
-          meta.stageInfo.creds['GCS_ACCESS_TOKEN'] = mockAccessToken;
-        },
-        forceGCPUseDownscopedCredential: false,
-        expectedResult: false,
-      },
-    ];
-
-    testCases.forEach(
-      ({ name, httpClient, updateMeta, forceGCPUseDownscopedCredential, expectedResult }) => {
-        it(name, () => {
-          process.env.SNOWFLAKE_FORCE_GCP_USE_DOWNSCOPED_CREDENTIAL =
-            forceGCPUseDownscopedCredential;
-          meta.stageInfo.creds = {};
-          updateMeta(meta);
-          const util = new SnowflakeGCSUtil(connectionConfig, httpClient());
-          util.createClient(meta.stageInfo);
-
-          const result = util.shouldUseJsonApi(meta);
-          assert.strictEqual(result, expectedResult);
-
-          delete process.env.SNOWFLAKE_FORCE_GCP_USE_DOWNSCOPED_CREDENTIAL;
-        });
-      },
-    );
   });
 });

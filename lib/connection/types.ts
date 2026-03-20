@@ -284,13 +284,6 @@ export interface WIP_ConnectionOptions {
   application?: string;
 
   /**
-   * The option to use https request only for the snowflake server if other GCP metadata or configuration is already set on the machine.
-   *
-   * @default false
-   */
-  forceGCPUseDownscopedCredential?: boolean;
-
-  /**
    * Turn on the validation function which checks whether all the connection configuration from users are valid or not.
    *
    * @default false

@@ -7,7 +7,6 @@ const KEY_ALIASES: Record<string, string> = {
 
 const SNAKE_TO_CAMEL_OVERRIDES: Record<string, string> = {
   client_request_mfa_token: 'clientRequestMFAToken',
-  force_gcp_use_downscoped_credential: 'forceGCPUseDownscopedCredential',
   disable_saml_url_check: 'disableSamlURLCheck',
   crl_allow_certificates_without_crl_url: 'crlAllowCertificatesWithoutCrlURL',
 };

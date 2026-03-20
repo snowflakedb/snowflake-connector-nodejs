@@ -193,7 +193,7 @@ describe('external browser authentication', function () {
       getSamlRedirectUri: () => `localhost:${availablePort}`,
     };
 
-    const auth = new AuthWeb(localConnectionConfig, httpclient, webbrowser.open);
+    const auth = new AuthWeb(localConnectionConfig, httpclient, browserOpenCallback);
     await auth.authenticate(
       credentials.authenticator,
       '',
@@ -209,31 +209,6 @@ describe('external browser authentication', function () {
   });
 
   it('external browser - get fail', async function () {
-    mock('webbrowser', {
-      open: function () {
-        const client = net.createConnection({ port: browserRedirectPort }, () => {
-          client.write('\r\n');
-        });
-        return;
-      },
-    });
-
-    mock('httpclient', {
-      requestAsync: async function (options) {
-        const data = {
-          data: {
-            data: {
-              ssoUrl: mockSsoURL,
-            },
-          },
-        };
-        browserRedirectPort = options.data['data']['BROWSER_MODE_REDIRECT_PORT'];
-        return data;
-      },
-    });
-
-    webbrowser = require('webbrowser');
-    httpclient = require('httpclient');
     const availablePort = await getPortFree();
 
     const fastFailConnectionConfig = {

@@ -6,6 +6,10 @@ New features:
 
 - `connect()` now supports every authenticator type (including external browser and Okta), matching `connectAsync()` (snowflakedb/snowflake-connector-nodejs#1342)
 
+Changes:
+
+- Removed `@google-cloud/storage` dependency, GCS transfers now use the JSON API directly; the `forceGCPUseDownscopedCredential` connection option has been removed as it is no longer needed (snowflakedb/snowflake-connector-nodejs#1341)
+
 ## 2.3.5
 
 - Added ability to skip token file permission checks using `SF_SKIP_TOKEN_FILE_PERMISSIONS_VERIFICATION` env variable (snowflakedb/snowflake-connector-nodejs#1314)

@@ -13,7 +13,6 @@
     "@aws-sdk/ec2-metadata-service": "^3.983.0",
     "@azure/identity": "^4.10.1",
     "@azure/storage-blob": "12.26.x",
-    "@google-cloud/storage": "^7.19.0",
     "@smithy/node-http-handler": "^4.4.9",
     "@smithy/protocol-http": "^5.3.8",
     "@smithy/signature-v4": "^5.3.8",

@@ -18,8 +18,6 @@ const connectionOptionsServiceName = mockConnectionOptions.serviceName;
 const connectionOptionsClientSessionKeepAlive = mockConnectionOptions.clientSessionKeepAlive;
 const connectionOptionsForSessionGone = mockConnectionOptions.sessionGone;
 const connectionOptionsForSessionExpired = mockConnectionOptions.sessionExpired;
-const connectionOptionsExternalBrowser = mockConnectionOptions.authExternalBrowser;
-const connectionOptionsOkta = mockConnectionOptions.authOkta;
 const connectionOptionsFor504 = mockConnectionOptions.http504;
 const connectionOptionsTreatIntegerAsBigInt = mockConnectionOptions.treatIntAsBigInt;
 
@@ -429,34 +427,6 @@ describe('connection.connect() asynchronous errors', function () {
         done();
       },
     );
-  });
-
-  it('connect() with external browser authenticator', function (done) {
-    // create a connection and connect with external browser
-    const connection = snowflake.createConnection(connectionOptionsExternalBrowser);
-
-    // try to connect
-    try {
-      connection.connect();
-    } catch (err) {
-      assert.ok(err);
-      assert.strictEqual(err.code, ErrorCodes.ERR_CONN_CREATE_INVALID_AUTH_CONNECT);
-      done();
-    }
-  });
-
-  it('connect() with okta authenticator', function (done) {
-    // create a connection and connect with okta
-    const connection = snowflake.createConnection(connectionOptionsOkta);
-
-    // try to connect
-    try {
-      connection.connect();
-    } catch (err) {
-      assert.ok(err);
-      assert.strictEqual(err.code, ErrorCodes.ERR_CONN_CREATE_INVALID_AUTH_CONNECT);
-      done();
-    }
   });
 });
 

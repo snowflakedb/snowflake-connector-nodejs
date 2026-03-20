@@ -2,7 +2,9 @@
 
 ## Upcoming Release
 
-- TBA
+New features:
+
+- `connect()` now supports every authenticator type (including external browser and Okta), matching `connectAsync()` (snowflakedb/snowflake-connector-nodejs#1342)
 
 ## 2.3.5
 

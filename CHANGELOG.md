@@ -10,6 +10,11 @@ Changes:
 
 - Removed `@google-cloud/storage` dependency, GCS transfers now use the JSON API directly; the `forceGCPUseDownscopedCredential` connection option has been removed as it is no longer needed (snowflakedb/snowflake-connector-nodejs#1341)
 
+Bugfixes:
+
+- Fixed `createConnection()` and `createPool()` types to accept no arguments, matching runtime behavior of loading configuration from `connections.toml` (snowflakedb/snowflake-connector-nodejs#1347)
+- Fixed `account` field in `ConnectionOptions` type to be optional, since it can be derived from `accessUrl` or `host` (snowflakedb/snowflake-connector-nodejs#1347)
+
 ## 2.3.5
 
 - Added ability to skip token file permission checks using `SF_SKIP_TOKEN_FILE_PERMISSIONS_VERIFICATION` env variable (snowflakedb/snowflake-connector-nodejs#1314)

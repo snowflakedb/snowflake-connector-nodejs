@@ -615,8 +615,14 @@ declare module 'snowflake-sdk' {
 
   /**
    * Creates a connection object that can be used to communicate with Snowflake.
+   *
+   * When called without options, the driver loads configuration from a `connections.toml` file.
+   *
+   * The following environment variables are used:
+   * - `SNOWFLAKE_HOME` – directory containing `connections.toml` (defaults to `~/.snowflake`)
+   * - `SNOWFLAKE_DEFAULT_CONNECTION_NAME` – connection name to use (defaults to `"default"`)
    */
-  export function createConnection(options: ConnectionOptions): Connection;
+  export function createConnection(options?: ConnectionOptions): Connection;
 
   /**
    * Converts snake_case connection option keys (e.g. from a parsed TOML file) to
@@ -648,9 +654,12 @@ declare module 'snowflake-sdk' {
 
   /**
    * Creates a connection pool for Snowflake connections.
+   *
+   * When called without options, each pooled connection loads its
+   * configuration from `connections.toml` — see {@link createConnection}.
    */
   export function createPool(
-    options: ConnectionOptions,
+    options?: ConnectionOptions,
     poolOptions?: PoolOptions,
   ): Pool<Connection>;
 }

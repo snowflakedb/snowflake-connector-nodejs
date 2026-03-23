@@ -12,7 +12,7 @@ export interface WIP_ConnectionOptions {
   /**
    * Your account identifier.
    */
-  account: string;
+  account?: string;
 
   /**
    * Specifies a fully-qualified endpoint for connecting to Snowflake.

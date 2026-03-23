@@ -12,6 +12,7 @@ Changes:
 
 Bugfixes:
 
+- Fixed default `jsonColumnVariantParser` to fall back to eval-based parsing for non-JSON-compliant variant values (e.g. `undefined`, `NaN`, `Infinity`), restoring pre-2.3.5 behavior while keeping `JSON.parse` as the primary parser (snowflakedb/snowflake-connector-nodejs#1348)
 - Fixed `createConnection()` and `createPool()` types to accept no arguments, matching runtime behavior of loading configuration from `connections.toml` (snowflakedb/snowflake-connector-nodejs#1347)
 - Fixed `account` field in `ConnectionOptions` type to be optional, since it can be derived from `accessUrl` or `host` (snowflakedb/snowflake-connector-nodejs#1347)
 

@@ -14,6 +14,7 @@ Bugfixes:
 
 - Fixed `createConnection()` and `createPool()` types to accept no arguments, matching runtime behavior of loading configuration from `connections.toml` (snowflakedb/snowflake-connector-nodejs#1347)
 - Fixed `account` field in `ConnectionOptions` type to be optional, since it can be derived from `accessUrl` or `host` (snowflakedb/snowflake-connector-nodejs#1347)
+- Fixed external browser SSO authentication crashing when the SSO URL request returns a server-side error (snowflakedb/snowflake-connector-nodejs#1350)
 
 ## 2.3.5
 

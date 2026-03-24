@@ -1,0 +1,23 @@
+{
+  "mappings": [
+    {
+      "request": {
+        "urlPathPattern": "/session/authenticator-request",
+        "method": "POST"
+      },
+      "response": {
+        "status": 200,
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "jsonBody": {
+          "data": null,
+          "code": "390511",
+          "message": "SSO URL generation failed in External browser's SAML Request flow.",
+          "success": false,
+          "headers": null
+        }
+      }
+    }
+  ]
+}

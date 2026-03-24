@@ -134,6 +134,11 @@ describe('external browser authentication', function () {
 
   const credentials = connectionOptionsExternalBrowser;
   const BROWSER_ACTION_TIMEOUT = 10000;
+  const browserOpenCallback = () => {
+    const client = net.createConnection({ port: browserRedirectPort }, () => {
+      client.write(`GET /?token=${mockToken} HTTP/1.1\r\n`);
+    });
+  };
   const connectionConfig = {
     getBrowserActionTimeout: () => BROWSER_ACTION_TIMEOUT,
     getProxy: () => {},
@@ -141,11 +146,7 @@ describe('external browser authentication', function () {
     getServiceName: () => '',
     getDisableConsoleLogin: () => true,
     host: 'fakehost',
-  };
-  const browserOpenCallback = () => {
-    const client = net.createConnection({ port: browserRedirectPort }, () => {
-      client.write(`GET /?token=${mockToken} HTTP/1.1\r\n`);
-    });
+    openExternalBrowserCallback: browserOpenCallback,
   };
   const httpResponseStub = sinon.stub();
 
@@ -154,6 +155,9 @@ describe('external browser authentication', function () {
       requestAsync: async function (options) {
         const response = {
           data: {
+            success: true,
+            code: null,
+            message: null,
             data: httpResponseStub(),
           },
         };
@@ -175,7 +179,7 @@ describe('external browser authentication', function () {
   });
 
   it('external browser - authenticate method is thenable', (done) => {
-    const auth = new AuthWeb(connectionConfig, httpclient, browserOpenCallback);
+    const auth = new AuthWeb(connectionConfig, httpclient);
 
     auth
       .authenticate(credentials.authenticator, '', credentials.account, credentials.username)
@@ -184,7 +188,7 @@ describe('external browser authentication', function () {
   });
 
   it('external browser - get success', async function () {
-    const auth = new AuthWeb(connectionConfig, httpclient, browserOpenCallback);
+    const auth = new AuthWeb(connectionConfig, httpclient);
     await auth.authenticate(
       credentials.authenticator,
       '',
@@ -208,9 +212,10 @@ describe('external browser authentication', function () {
       getServiceName: () => '',
       getDisableConsoleLogin: () => true,
       host: 'fakehost',
+      openExternalBrowserCallback: () => null,
     };
 
-    const auth = new AuthWeb(fastFailConnectionConfig, httpclient, () => null);
+    const auth = new AuthWeb(fastFailConnectionConfig, httpclient);
     await assert.rejects(
       async () => {
         await auth.authenticate(
@@ -260,8 +265,11 @@ describe('external browser authentication', function () {
     assert.strictEqual(body['data']['AUTHENTICATOR'], AuthenticationTypes.ID_TOKEN_AUTHENTICATOR);
   });
 
-  it('external browser - id token, webbrowser cb provided', async function () {
-    const auth = new AuthIDToken(connectionOptionsIdToken, httpclient, browserOpenCallback);
+  it('external browser - id token, openExternalBrowserCallback provided', async function () {
+    const auth = new AuthIDToken(
+      { ...connectionOptionsIdToken, openExternalBrowserCallback: browserOpenCallback },
+      httpclient,
+    );
     await auth.authenticate(
       credentials.authenticator,
       '',

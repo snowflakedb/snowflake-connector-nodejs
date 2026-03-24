@@ -11,6 +11,12 @@ const {
 } = require('../../../lib/authentication/secure_storage/json_credential_manager');
 const assert = require('node:assert');
 
+function simulateBrowserRedirect(urlString) {
+  const redirectUri = new URL(urlString);
+  const url = `${redirectUri.searchParams.get('redirect_uri')}?code=9s6wFkGDOjmgNEdwJMlDzv1AwxDjDVBxiT6wVqXjG5s&state=${redirectUri.searchParams.get('state')}`;
+  return authUtil.withBrowserActionTimeout(3000, get(url));
+}
+
 describe('Oauth Refresh token for Autorization Code', function () {
   let accessTokenKey, refreshTokenKey, connectionOptionAuthorizationCode, authTest, port, wireMock;
 
@@ -52,18 +58,16 @@ describe('Oauth Refresh token for Autorization Code', function () {
   });
 
   it('Successful flow scenario with authentication when token expired - AuthorizationCode', async function () {
-    GlobalConfig.setCustomRedirectingClient((redirectUri) => {
-      const url = `${redirectUri.searchParams.get('redirect_uri')}?code=9s6wFkGDOjmgNEdwJMlDzv1AwxDjDVBxiT6wVqXjG5s&state=${redirectUri.searchParams.get('state')}`;
-      return authUtil.withBrowserActionTimeout(3000, get(url));
-    });
-
     await addWireMockMappingsFromFile(
       wireMock,
       'wiremock/mappings/oauth/token_cache_and_refresh/caching_refreshed_access_token_and_new_refresh_token.json',
     );
     await authUtil.writeToCache(accessTokenKey, 'expired_token');
 
-    await authTest.createConnection(connectionOptionAuthorizationCode);
+    await authTest.createConnection({
+      ...connectionOptionAuthorizationCode,
+      openExternalBrowserCallback: simulateBrowserRedirect,
+    });
     await authTest.connectAsync();
     authTest.verifyNoErrorWasThrown();
   });
@@ -73,11 +77,10 @@ describe('Oauth Refresh token for Autorization Code', function () {
       wireMock,
       'wiremock/mappings/oauth/token_cache_and_refresh/caching_tokens_after_connecting.json',
     );
-    GlobalConfig.setCustomRedirectingClient((redirectUri) => {
-      const url = `${redirectUri.searchParams.get('redirect_uri')}?code=9s6wFkGDOjmgNEdwJMlDzv1AwxDjDVBxiT6wVqXjG5s&state=${redirectUri.searchParams.get('state')}`;
-      return authUtil.withBrowserActionTimeout(3000, get(url));
+    await authTest.createConnection({
+      ...connectionOptionAuthorizationCode,
+      openExternalBrowserCallback: simulateBrowserRedirect,
     });
-    await authTest.createConnection(connectionOptionAuthorizationCode);
     await authTest.connectAsync();
     authTest.verifyNoErrorWasThrown();
     const accessTokenInCache = await authUtil.readCache(accessTokenKey);
@@ -133,17 +136,16 @@ describe('Oauth Refresh token for Autorization Code', function () {
   });
 
   it('Restart authentication when error during refreshing token', async function () {
-    GlobalConfig.setCustomRedirectingClient((redirectUri) => {
-      const url = `${redirectUri.searchParams.get('redirect_uri')}?code=9s6wFkGDOjmgNEdwJMlDzv1AwxDjDVBxiT6wVqXjG5s&state=${redirectUri.searchParams.get('state')}`;
-      return authUtil.withBrowserActionTimeout(3000, get(url));
-    });
     await authUtil.writeToCache(accessTokenKey, 'expired_token');
     await authUtil.writeToCache(refreshTokenKey, 'first_refresh_token');
     await addWireMockMappingsFromFile(
       wireMock,
       'wiremock/mappings/oauth/token_cache_and_refresh/restarting_full_flow_on_refresh_token_error.json',
     );
-    await authTest.createConnection(connectionOptionAuthorizationCode);
+    await authTest.createConnection({
+      ...connectionOptionAuthorizationCode,
+      openExternalBrowserCallback: simulateBrowserRedirect,
+    });
     await authTest.connectAsync();
     authTest.verifyNoErrorWasThrown();
     const accessTokenInCache = await authUtil.readCache(accessTokenKey);

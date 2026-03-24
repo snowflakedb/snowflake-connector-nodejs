@@ -198,7 +198,10 @@ export interface WIP_ConnectionOptions {
   browserActionTimeout?: number;
 
   /**
-   * Customize implementation for opening the browser window used for MFA/SSO authentication.
+   * Specifies a custom callback for opening the browser window during authentication.
+   * Supported when the authenticator is set to:
+   * * EXTERNALBROWSER
+   * * OAUTH_AUTHORIZATION_CODE
    *
    * By default, the npm `open` package is used.
    */

@@ -12,7 +12,7 @@ Changes:
 
 Bugfixes:
 
-- Fixed `OAUTH_AUTHORIZATION_CODE` authenticator not honoring `openExternalBrowserCallback` connection option (snowflakedb/snowflake-connector-nodejs#TODO)
+- Fixed `OAUTH_AUTHORIZATION_CODE` authenticator not honoring `openExternalBrowserCallback` connection option (snowflakedb/snowflake-connector-nodejs#1353)
 - Fixed `createConnection()` and `createPool()` types to accept no arguments, matching runtime behavior of loading configuration from `connections.toml` (snowflakedb/snowflake-connector-nodejs#1347)
 - Fixed `account` field in `ConnectionOptions` type to be optional, since it can be derived from `accessUrl` or `host` (snowflakedb/snowflake-connector-nodejs#1347)
 

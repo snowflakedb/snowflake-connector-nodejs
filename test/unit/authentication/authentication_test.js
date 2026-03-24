@@ -155,6 +155,9 @@ describe('external browser authentication', function () {
       requestAsync: async function (options) {
         const response = {
           data: {
+            success: true,
+            code: null,
+            message: null,
             data: httpResponseStub(),
           },
         };

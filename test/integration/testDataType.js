@@ -35,6 +35,8 @@ describe('Test DataType', function () {
     'insert into testNumber values (12345678901234567890123456789012345678)';
   const insertRegularSizedNumber = 'insert into testNumber values (100000001)';
   const insertVariantJSON =
+    "insert into testVariant select parse_json('{a : 1 , b :[1 , 2 , 3, -Infinity, undefined], c : {a : 1}}')";
+  const insertVariantJSONForCustomParser =
     "insert into testVariant select parse_json('{a : 1 , b :[1 , 2 , 3], c : {a : 1}}')";
   const insertVariantXML =
     "insert into testVariant select parse_xml('<root><a>1</a><b>1</b><c><a>1</a></c></root>')";
@@ -194,7 +196,7 @@ describe('Test DataType', function () {
               testUtil.executeQueryAndVerify(
                 connection,
                 selectVariant,
-                [{ COLA: { a: 1, b: [1, 2, 3], c: { a: 1 } } }],
+                [{ COLA: { a: 1, b: [1, 2, 3, -Infinity, undefined], c: { a: 1 } } }],
                 callback,
                 null,
                 true,
@@ -249,7 +251,7 @@ describe('Test DataType', function () {
                 snowflake.configure({
                   jsonColumnVariantParser: (rawColumnValue) => JSON.parse(rawColumnValue),
                 });
-                testUtil.executeCmd(connection, insertVariantJSON, callback);
+                testUtil.executeCmd(connection, insertVariantJSONForCustomParser, callback);
               },
               function (callback) {
                 testUtil.executeQueryAndVerify(

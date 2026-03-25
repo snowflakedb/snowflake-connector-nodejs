@@ -6,7 +6,7 @@ Changes:
 
 - Bumped `@aws-sdk/*` dependencies to address `fast-xml-parser` vulnerability (snowflakedb/snowflake-connector-nodejs#1355)
 
-## 2.3.5
+## 2.3.6
 
 New features:
 

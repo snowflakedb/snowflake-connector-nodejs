@@ -9,6 +9,7 @@ New features:
 Changes:
 
 - Removed `@google-cloud/storage` dependency, GCS transfers now use the JSON API directly; the `forceGCPUseDownscopedCredential` connection option has been removed as it is no longer needed (snowflakedb/snowflake-connector-nodejs#1341)
+- Updated default `jsonColumnVariantParser` to fall back to eval-based parsing for non-JSON-compliant variant values (e.g. `undefined`, `NaN`, `Infinity`), restoring pre-2.3.5 behavior while keeping `JSON.parse` as the primary parser (snowflakedb/snowflake-connector-nodejs#1351)
 
 Bugfixes:
 

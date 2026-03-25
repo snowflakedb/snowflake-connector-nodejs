@@ -1,7 +1,7 @@
 ---
-glob: 'test/**/*'
+description: "Standards for writing and modifying test files: TypeScript usage, test naming conventions, and mock server URL rules"
+alwaysApply: false
 ---
-
 ### Code Rules
 
 When creating new test files, write them in TypeScript.

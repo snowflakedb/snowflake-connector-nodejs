@@ -11,6 +11,12 @@ const {
 } = require('../../../lib/authentication/secure_storage/json_credential_manager');
 const net = require('net');
 
+function simulateBrowserRedirect(urlString) {
+  const redirectUri = new URL(urlString);
+  const url = `${redirectUri.searchParams.get('redirect_uri')}?code=9s6wFkGDOjmgNEdwJMlDzv1AwxDjDVBxiT6wVqXjG5s&state=${redirectUri.searchParams.get('state')}`;
+  return authUtil.withBrowserActionTimeout(3000, get(url));
+}
+
 describe('Oauth Authorization Code authentication', function () {
   let port, authTest, wireMock, connectionOption;
 
@@ -46,17 +52,16 @@ describe('Oauth Authorization Code authentication', function () {
   // - move common logic to a helper functions
   // - reuse wiremock for query_ok and heartbeat_ok
   // - use template variables in wiremocks
-  // - the wiremock mapping /oauth/authorize is not hit, because we have custom redirect client set
+  // - hit wiremock mapping /oauth/authorize instead of current simulateBrowserRedirect
   it('Successful flow scenario Authorization Code flow', async function () {
-    GlobalConfig.setCustomRedirectingClient((redirectUri) => {
-      const url = `${redirectUri.searchParams.get('redirect_uri')}?code=9s6wFkGDOjmgNEdwJMlDzv1AwxDjDVBxiT6wVqXjG5s&state=${redirectUri.searchParams.get('state')}`;
-      return authUtil.withBrowserActionTimeout(3000, get(url));
-    });
     await addWireMockMappingsFromFile(
       wireMock,
       'wiremock/mappings/oauth/authorization_code/successful_flow.json',
     );
-    authTest.createConnection(connectionOption);
+    authTest.createConnection({
+      ...connectionOption,
+      openExternalBrowserCallback: simulateBrowserRedirect,
+    });
     await authTest.connectAsync();
     authTest.verifyNoErrorWasThrown();
     await authTest.verifyConnectionIsUp();
@@ -64,16 +69,19 @@ describe('Oauth Authorization Code authentication', function () {
 
   it('successfully connects with empty scope', async function () {
     let authorizationUrlUsed;
-    GlobalConfig.setCustomRedirectingClient((authorizationUrl) => {
-      authorizationUrlUsed = authorizationUrl;
-      const url = `${authorizationUrl.searchParams.get('redirect_uri')}?code=9s6wFkGDOjmgNEdwJMlDzv1AwxDjDVBxiT6wVqXjG5s&state=${authorizationUrl.searchParams.get('state')}`;
-      return authUtil.withBrowserActionTimeout(3000, get(url));
-    });
     await addWireMockMappingsFromFile(
       wireMock,
       'wiremock/mappings/oauth/authorization_code/successful_flow.json',
     );
-    authTest.createConnection({ ...connectionOption, role: undefined, oauthScope: undefined });
+    authTest.createConnection({
+      ...connectionOption,
+      role: undefined,
+      oauthScope: undefined,
+      openExternalBrowserCallback: (urlString) => {
+        authorizationUrlUsed = new URL(urlString);
+        return simulateBrowserRedirect(urlString);
+      },
+    });
     await authTest.connectAsync();
     authTest.verifyNoErrorWasThrown();
     assert.strictEqual(
@@ -85,15 +93,18 @@ describe('Oauth Authorization Code authentication', function () {
   });
 
   it('Successful flow scenario Authorization Code flow - error', async function () {
-    GlobalConfig.setCustomRedirectingClient((redirectUri) => {
-      const url = `${redirectUri.searchParams.get('redirect_uri')}?error=invalid_scope&error_description=One+or+more+scopes+are+not+configured+for+the+authorization+server+resource.`;
-      return authUtil.withBrowserActionTimeout(3000, get(url));
-    });
     await addWireMockMappingsFromFile(
       wireMock,
       'wiremock/mappings/oauth/authorization_code/successful_flow.json',
     );
-    authTest.createConnection(connectionOption);
+    authTest.createConnection({
+      ...connectionOption,
+      openExternalBrowserCallback: (urlString) => {
+        const redirectUri = new URL(urlString);
+        const url = `${redirectUri.searchParams.get('redirect_uri')}?error=invalid_scope&error_description=One+or+more+scopes+are+not+configured+for+the+authorization+server+resource.`;
+        return authUtil.withBrowserActionTimeout(3000, get(url));
+      },
+    });
     await authTest.connectAsync();
     authTest.verifyErrorWasThrown(
       'Error while getting oauth authorization code. ErrorCode invalid_scope. Message: One or more scopes are not configured for the authorization server resource.',
@@ -101,57 +112,58 @@ describe('Oauth Authorization Code authentication', function () {
     await authTest.verifyConnectionIsNotUp();
   });
 
-  //invalid state
   it('Authorization Code flow - invalid state', async function () {
-    GlobalConfig.setCustomRedirectingClient((redirectUri) => {
-      const url = `${redirectUri.searchParams.get('redirect_uri')}?code=9s6wFkGDOjmgNEdwJMlDzv1AwxDjDVBxiT6wVqXjG5s&state=invalidState}`;
-      return authUtil.withBrowserActionTimeout(3000, get(url));
-    });
     await addWireMockMappingsFromFile(
       wireMock,
       'wiremock/mappings/oauth/authorization_code/successful_flow.json',
     );
-    authTest.createConnection(connectionOption);
+    authTest.createConnection({
+      ...connectionOption,
+      openExternalBrowserCallback: (urlString) => {
+        const redirectUri = new URL(urlString);
+        const url = `${redirectUri.searchParams.get('redirect_uri')}?code=9s6wFkGDOjmgNEdwJMlDzv1AwxDjDVBxiT6wVqXjG5s&state=invalidState}`;
+        return authUtil.withBrowserActionTimeout(3000, get(url));
+      },
+    });
     await authTest.connectAsync();
     authTest.verifyErrorWasThrown('unexpected "state" response parameter value');
   });
 
-  //invalidCode
   it('Successful flow scenario Authorization Code flow - invalid code', async function () {
-    GlobalConfig.setCustomRedirectingClient((redirectUri) => {
-      const url = `${redirectUri.searchParams.get('redirect_uri')}?code=invalidCode&state=${redirectUri.searchParams.get('state')}`;
-      return authUtil.withBrowserActionTimeout(3000, get(url));
-    });
     await addWireMockMappingsFromFile(
       wireMock,
       'wiremock/mappings/oauth/authorization_code/token_request_error.json',
     );
-    authTest.createConnection(connectionOption);
+    authTest.createConnection({
+      ...connectionOption,
+      openExternalBrowserCallback: (urlString) => {
+        const redirectUri = new URL(urlString);
+        const url = `${redirectUri.searchParams.get('redirect_uri')}?code=invalidCode&state=${redirectUri.searchParams.get('state')}`;
+        return authUtil.withBrowserActionTimeout(3000, get(url));
+      },
+    });
     await authTest.connectAsync();
     authTest.verifyErrorWasThrown('Request failed with status code 400');
   });
 
-  //invalidCode
   it('Successful flow scenario Authorization Code flow - no token', async function () {
-    GlobalConfig.setCustomRedirectingClient((redirectUri) => {
-      const url = `${redirectUri.searchParams.get('redirect_uri')}?code=invalidCode&state=${redirectUri.searchParams.get('state')}`;
-      return authUtil.withBrowserActionTimeout(3000, get(url));
-    });
     await addWireMockMappingsFromFile(
       wireMock,
       'wiremock/mappings/oauth/authorization_code/token_request_error.json',
     );
-    authTest.createConnection(connectionOption);
+    authTest.createConnection({
+      ...connectionOption,
+      openExternalBrowserCallback: (urlString) => {
+        const redirectUri = new URL(urlString);
+        const url = `${redirectUri.searchParams.get('redirect_uri')}?code=invalidCode&state=${redirectUri.searchParams.get('state')}`;
+        return authUtil.withBrowserActionTimeout(3000, get(url));
+      },
+    });
     await authTest.connectAsync();
     authTest.verifyErrorWasThrown('Request failed with status code 400');
   });
 
-  //no token in response
   it('Successful flow scenario with single use refresh token - no token', async function () {
-    GlobalConfig.setCustomRedirectingClient((redirectUri) => {
-      const url = `${redirectUri.searchParams.get('redirect_uri')}?code=123&state=${redirectUri.searchParams.get('state')}`;
-      return authUtil.withBrowserActionTimeout(3000, get(url));
-    });
     await addWireMockMappingsFromFile(
       wireMock,
       'wiremock/mappings/oauth/authorization_code/successful_flow_with_single_use_refresh_tokens.json',
@@ -159,6 +171,11 @@ describe('Oauth Authorization Code authentication', function () {
     authTest.createConnection({
       ...connectionOption,
       oauthEnableSingleUseRefreshTokens: true,
+      openExternalBrowserCallback: (urlString) => {
+        const redirectUri = new URL(urlString);
+        const url = `${redirectUri.searchParams.get('redirect_uri')}?code=123&state=${redirectUri.searchParams.get('state')}`;
+        return authUtil.withBrowserActionTimeout(3000, get(url));
+      },
     });
     await authTest.connectAsync();
     authTest.verifyNoErrorWasThrown();
@@ -167,17 +184,19 @@ describe('Oauth Authorization Code authentication', function () {
   it('Should not open browser when the port is unavailable', async function () {
     const PORT = 8011;
 
-    GlobalConfig.setCustomRedirectingClient(() => {
-      throw Error('Browser should not be open');
-    });
     const server = net.createServer((socket) => {
       socket.destroy();
     });
 
     server.listen(PORT, () => {});
     try {
-      const connOption = { ...connParameters.oauthAuthorizationCodeOnWiremock };
-      connOption.oauthRedirectUri = `http://localhost:${PORT}/snowflake/oauth-redirect`;
+      const connOption = {
+        ...connParameters.oauthAuthorizationCodeOnWiremock,
+        oauthRedirectUri: `http://localhost:${PORT}/snowflake/oauth-redirect`,
+        openExternalBrowserCallback: () => {
+          throw Error('Browser should not be open');
+        },
+      };
       await authTest.createConnection(connOption);
       await authTest.connectAsync();
       authTest.verifyErrorWasThrown(

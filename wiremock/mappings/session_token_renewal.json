@@ -1,0 +1,129 @@
+{
+  "mappings": [
+    {
+      "scenarioName": "Session token renewal",
+      "requiredScenarioState": "Started",
+      "newScenarioState": "Session token expired",
+      "request": {
+        "urlPathPattern": "/queries/v1/query-request.*",
+        "method": "POST"
+      },
+      "response": {
+        "status": 200,
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "jsonBody": {
+          "data": null,
+          "code": "390112",
+          "message": "Your session has expired. Please login again.",
+          "success": false,
+          "headers": null
+        }
+      }
+    },
+    {
+      "scenarioName": "Session token renewal",
+      "requiredScenarioState": "Session token expired",
+      "newScenarioState": "Session token renewed",
+      "request": {
+        "urlPathPattern": "/session/token-request.*",
+        "method": "POST",
+        "bodyPatterns": [
+          {
+            "equalToJson": {
+              "requestType": "RENEW",
+              "oldSessionToken": "session token"
+            }
+          }
+        ]
+      },
+      "response": {
+        "status": 200,
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "jsonBody": {
+          "data": {
+            "sessionToken": "new-session-token",
+            "validityInSecondsST": 3600,
+            "masterToken": "new-master-token",
+            "validityInSecondsMT": 14400,
+            "sessionId": 1172562260498
+          },
+          "success": true,
+          "message": null,
+          "code": null,
+          "headers": null
+        }
+      }
+    },
+    {
+      "scenarioName": "Session token renewal",
+      "requiredScenarioState": "Session token renewed",
+      "request": {
+        "urlPathPattern": "/queries/v1/query-request.*",
+        "method": "POST",
+        "headers": {
+          "Authorization": {
+            "equalTo": "Snowflake Token=\"new-session-token\""
+          }
+        }
+      },
+      "response": {
+        "status": 200,
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "jsonBody": {
+          "data": {
+            "parameters": [],
+            "rowtype": [
+              {
+                "name": "1",
+                "database": "",
+                "schema": "",
+                "table": "",
+                "nullable": false,
+                "precision": 1,
+                "collation": null,
+                "byteLength": null,
+                "scale": 0,
+                "length": null,
+                "type": "fixed"
+              }
+            ],
+            "rowset": [["1"]],
+            "total": 1,
+            "returned": 1,
+            "queryId": "01c2f5c5-0814-a22c-0001-dd6a7fc3c4c3",
+            "databaseProvider": null,
+            "finalDatabaseName": null,
+            "finalSchemaName": null,
+            "finalWarehouseName": null,
+            "finalRoleName": "PUBLIC",
+            "numberOfBinds": 0,
+            "arrayBindSupported": false,
+            "statementTypeId": 4096,
+            "version": 1,
+            "sendResultTime": 1773247036796,
+            "queryResultFormat": "json",
+            "queryContext": {
+              "entries": [
+                {
+                  "id": 0,
+                  "timestamp": 1773247036778965,
+                  "priority": 0,
+                  "context": "CLKRygI="
+                }
+              ]
+            }
+          },
+          "code": null,
+          "message": null,
+          "success": true
+        }
+      }
+    }
+  ]
+}

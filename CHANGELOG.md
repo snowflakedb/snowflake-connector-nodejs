@@ -6,6 +6,10 @@ Changes:
 
 - Bumped `@aws-sdk/*` dependencies to address `fast-xml-parser` vulnerability (snowflakedb/snowflake-connector-nodejs#1355)
 
+Bugfixes:
+
+- Fixed session token renewal failing due to a malformed request, which caused long-running connections to disconnect instead of refreshing their expired session token (snowflakedb/snowflake-connector-nodejs#TODO)
+
 ## 2.3.6
 
 New features:

@@ -8,7 +8,7 @@ Changes:
 
 Bugfixes:
 
-- Fixed session token renewal failing due to a malformed request, which caused long-running connections to disconnect instead of refreshing their expired session token (snowflakedb/snowflake-connector-nodejs#TODO)
+- Fixed session token renewal failing due to a malformed request, which caused long-running connections to disconnect instead of refreshing their expired session token (snowflakedb/snowflake-connector-nodejs#1357)
 
 ## 2.3.6
 

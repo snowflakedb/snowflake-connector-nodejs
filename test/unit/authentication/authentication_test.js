@@ -14,7 +14,6 @@ const AuthOkta = require('./../../../lib/authentication/auth_okta');
 const AuthIDToken = require('./../../../lib/authentication/auth_idtoken');
 const AuthenticationTypes = require('./../../../lib/authentication/authentication_types');
 const MockTestUtil = require('./../mock/mock_test_util');
-const { getFreePort } = require('../../../lib/util');
 
 // get connection options to connect to this mock snowflake instance
 const mockConnectionOptions = MockTestUtil.connectionOptions;
@@ -190,14 +189,7 @@ describe('external browser authentication', function () {
   });
 
   it('external browser - get success', async function () {
-    const availablePort = await getFreePort();
-    const auth = new AuthWeb(
-      {
-        ...connectionConfig,
-        browserRedirectPort: availablePort,
-      },
-      httpclient,
-    );
+    const auth = new AuthWeb(connectionConfig, httpclient);
     await auth.authenticate(
       credentials.authenticator,
       '',
@@ -213,20 +205,14 @@ describe('external browser authentication', function () {
   });
 
   it('external browser - get fail', async function () {
-    const availablePort = await getFreePort();
-
-    const fastFailConnectionConfig = {
-      getBrowserActionTimeout: () => 10,
-      getProxy: () => {},
-      getAuthenticator: () => credentials.authenticator,
-      getServiceName: () => '',
-      getDisableConsoleLogin: () => true,
-      browserRedirectPort: availablePort,
-      host: 'fakehost',
-      openExternalBrowserCallback: () => null,
-    };
-
-    const auth = new AuthWeb(fastFailConnectionConfig, httpclient);
+    const auth = new AuthWeb(
+      {
+        ...connectionConfig,
+        getBrowserActionTimeout: () => 10,
+        openExternalBrowserCallback: () => null,
+      },
+      httpclient,
+    );
     await assert.rejects(
       async () => {
         await auth.authenticate(

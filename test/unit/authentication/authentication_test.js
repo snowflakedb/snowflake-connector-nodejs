@@ -864,7 +864,7 @@ describe('test getAuthenticator()', () => {
         getClientStoreTemporaryCredential: () => true,
         getPasscode: () => '',
         getPasscodeInPassword: () => false,
-        browserRedirectPort: 8080,
+        browserRedirectPort: 0,
         idToken: idToken || null,
         host: 'host',
         workloadIdentityProvider: 'AWS',

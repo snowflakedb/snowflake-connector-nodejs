@@ -12,7 +12,7 @@ export interface WIP_ConnectionOptions {
   /**
    * Your account identifier.
    */
-  account: string;
+  account?: string;
 
   /**
    * Specifies a fully-qualified endpoint for connecting to Snowflake.
@@ -198,7 +198,10 @@ export interface WIP_ConnectionOptions {
   browserActionTimeout?: number;
 
   /**
-   * Customize implementation for opening the browser window used for MFA/SSO authentication.
+   * Specifies a custom callback for opening the browser window during authentication.
+   * Supported when the authenticator is set to:
+   * * EXTERNALBROWSER
+   * * OAUTH_AUTHORIZATION_CODE
    *
    * By default, the npm `open` package is used.
    */
@@ -282,13 +285,6 @@ export interface WIP_ConnectionOptions {
    * Specifies the name of the client application connecting to Snowflake.
    */
   application?: string;
-
-  /**
-   * The option to use https request only for the snowflake server if other GCP metadata or configuration is already set on the machine.
-   *
-   * @default false
-   */
-  forceGCPUseDownscopedCredential?: boolean;
 
   /**
    * Turn on the validation function which checks whether all the connection configuration from users are valid or not.

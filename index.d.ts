@@ -72,10 +72,33 @@ declare module 'snowflake-sdk' {
     ocspFailOpen?: boolean;
 
     /**
-     * The Snowflake Node.js driver provides the following default parsers for processing JSON and XML data in result sets.
-     * Detailed information: https://docs.snowflake.com/en/developer-guide/node-js/nodejs-driver-consume.
+     * Custom parser for JSON data in VARIANT, OBJECT, and ARRAY columns.
+     *
+     * By default the driver parses values with `JSON.parse()`. If that fails (e.g. the
+     * value contains non-standard tokens like `undefined`, `NaN`, or `Infinity` that
+     * Snowflake's VARIANT type allows), it falls back to eval-based parsing, which is
+     * slower and logs a warning.
+     *
+     * To avoid the fallback, set the `STRICT_JSON_OUTPUT` session parameter to `TRUE` so
+     * Snowflake normalizes non-standard values into valid JSON before sending them.
+     *
+     * @see https://docs.snowflake.com/en/developer-guide/node-js/nodejs-driver-consume
+     * @see https://docs.snowflake.com/en/sql-reference/parameters#strict-json-output
      */
     jsonColumnVariantParser?: CustomParser;
+
+    /**
+     * Custom parser for XML data in VARIANT columns.
+     *
+     * The driver always attempts JSON parsing first for every VARIANT value. Only when
+     * JSON parsing fails does it try this XML parser, so XML values always incur the
+     * overhead of a failed JSON parse attempt before being handled.
+     *
+     * The built-in parser uses `fast-xml-parser` and ignores XML attributes by default.
+     * Use `xmlParserConfig` to customize attribute handling.
+     *
+     * @see https://docs.snowflake.com/en/developer-guide/node-js/nodejs-driver-consume
+     */
     xmlColumnVariantParser?: CustomParser;
 
     xmlParserConfig?: XMlParserConfigOption;
@@ -620,8 +643,14 @@ declare module 'snowflake-sdk' {
 
   /**
    * Creates a connection object that can be used to communicate with Snowflake.
+   *
+   * When called without options, the driver loads configuration from a `connections.toml` file.
+   *
+   * The following environment variables are used:
+   * - `SNOWFLAKE_HOME` – directory containing `connections.toml` (defaults to `~/.snowflake`)
+   * - `SNOWFLAKE_DEFAULT_CONNECTION_NAME` – connection name to use (defaults to `"default"`)
    */
-  export function createConnection(options: ConnectionOptions): Connection;
+  export function createConnection(options?: ConnectionOptions): Connection;
 
   /**
    * Converts snake_case connection option keys (e.g. from a parsed TOML file) to
@@ -653,9 +682,12 @@ declare module 'snowflake-sdk' {
 
   /**
    * Creates a connection pool for Snowflake connections.
+   *
+   * When called without options, each pooled connection loads its
+   * configuration from `connections.toml` — see {@link createConnection}.
    */
   export function createPool(
-    options: ConnectionOptions,
+    options?: ConnectionOptions,
     poolOptions?: PoolOptions,
   ): Pool<Connection>;
 }

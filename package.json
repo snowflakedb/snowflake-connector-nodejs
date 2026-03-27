@@ -1,19 +1,18 @@
 {
   "name": "snowflake-sdk",
-  "version": "2.3.5",
+  "version": "2.3.6",
   "description": "Node.js driver for Snowflake",
   "engines": {
     "node": ">=18"
   },
   "dependencies": {
     "@aws-crypto/sha256-js": "^5.2.0",
-    "@aws-sdk/client-s3": "^3.983.0",
-    "@aws-sdk/client-sts": "^3.983.0",
-    "@aws-sdk/credential-provider-node": "^3.972.5",
-    "@aws-sdk/ec2-metadata-service": "^3.983.0",
+    "@aws-sdk/client-s3": "^3.1016.0",
+    "@aws-sdk/client-sts": "^3.1016.0",
+    "@aws-sdk/credential-provider-node": "^3.972.25",
+    "@aws-sdk/ec2-metadata-service": "^3.1016.0",
     "@azure/identity": "^4.10.1",
     "@azure/storage-blob": "12.26.x",
-    "@google-cloud/storage": "^7.19.0",
     "@smithy/node-http-handler": "^4.4.9",
     "@smithy/protocol-http": "^5.3.8",
     "@smithy/signature-v4": "^5.3.8",

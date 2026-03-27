@@ -191,12 +191,13 @@ describe('external browser authentication', function () {
 
   it('external browser - get success', async function () {
     const availablePort = await getFreePort();
-    const localConnectionConfig = {
-      ...connectionConfig,
-      browserRedirectPort: availablePort,
-    };
-
-    const auth = new AuthWeb(localConnectionConfig, httpclient);
+    const auth = new AuthWeb(
+      {
+        ...connectionConfig,
+        browserRedirectPort: availablePort,
+      },
+      httpclient,
+    );
     await auth.authenticate(
       credentials.authenticator,
       '',

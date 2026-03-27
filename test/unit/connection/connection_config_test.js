@@ -700,7 +700,6 @@ describe('ConnectionConfig: basic', function () {
     },
     {
       name: 'invalid config - lack of clientId for oauth authenticator',
-
       options: {
         account: 'account',
         username: 'username',

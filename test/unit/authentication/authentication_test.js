@@ -145,6 +145,7 @@ describe('external browser authentication', function () {
     getAuthenticator: () => credentials.authenticator,
     getServiceName: () => '',
     getDisableConsoleLogin: () => true,
+    browserRedirectPort: 0,
     host: 'fakehost',
     openExternalBrowserCallback: browserOpenCallback,
   };
@@ -204,18 +205,14 @@ describe('external browser authentication', function () {
   });
 
   it('external browser - get fail', async function () {
-    httpResponseStub.returns({ ssoUrl: mockSsoURL });
-    const fastFailConnectionConfig = {
-      getBrowserActionTimeout: () => 10,
-      getProxy: () => {},
-      getAuthenticator: () => credentials.authenticator,
-      getServiceName: () => '',
-      getDisableConsoleLogin: () => true,
-      host: 'fakehost',
-      openExternalBrowserCallback: () => null,
-    };
-
-    const auth = new AuthWeb(fastFailConnectionConfig, httpclient);
+    const auth = new AuthWeb(
+      {
+        ...connectionConfig,
+        getBrowserActionTimeout: () => 10,
+        openExternalBrowserCallback: () => null,
+      },
+      httpclient,
+    );
     await assert.rejects(
       async () => {
         await auth.authenticate(
@@ -867,6 +864,7 @@ describe('test getAuthenticator()', () => {
         getClientStoreTemporaryCredential: () => true,
         getPasscode: () => '',
         getPasscodeInPassword: () => false,
+        browserRedirectPort: 0,
         idToken: idToken || null,
         host: 'host',
         workloadIdentityProvider: 'AWS',

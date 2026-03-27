@@ -146,8 +146,9 @@ export interface WIP_ConnectionOptions {
   oauthScope?: string;
 
   /**
-   * URI to use for authorization code redirection (Snowflake security integration metadata).
-   * Default: `http://127.0.0.1:{randomAvailablePort}`.
+   * When authenticator=OAUTH_AUTHORIZATION_CODE, customize the URI for authorization code redirection.
+   *
+   * @default "http://127.0.0.1:{randomAvailablePort}"
    */
   oauthRedirectUri?: string;
 
@@ -196,6 +197,19 @@ export interface WIP_ConnectionOptions {
    * @default 120000 (milliseconds)
    */
   browserActionTimeout?: number;
+
+  /**
+   * When authenticator=EXTERNALBROWSER, customize the port of
+   * the local server that receives the authentication callback.
+   *
+   * The server always redirects to `http://localhost:${browserRedirectPort}`.
+   *
+   * For OAUTH_AUTHORIZATION_CODE, use {@link oauthRedirectUri}
+   * instead, which supports customizing both host and port.
+   *
+   * @default 0 (random available port)
+   */
+  browserRedirectPort?: number;
 
   /**
    * Specifies a custom callback for opening the browser window during authentication.
@@ -357,6 +371,7 @@ export type WIP_ConnectionConfig =
     | 'oauthEnableSingleUseRefreshTokens'
     | 'rowStreamHighWaterMark'
   > & {
+    browserRedirectPort: number;
     crlValidatorConfig: CRLValidatorConfig;
     getClientType(): string;
     getClientVersion(): string;

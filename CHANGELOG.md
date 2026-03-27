@@ -2,6 +2,10 @@
 
 ## Upcoming Release
 
+New features:
+
+- Added `browserRedirectPort` connection option to customize the port of the local server that receives the `EXTERNALBROWSER` authentication callback (snowflakedb/snowflake-connector-nodejs#1004)
+
 Changes:
 
 - Bumped `@aws-sdk/*` dependencies to address `fast-xml-parser` vulnerability (snowflakedb/snowflake-connector-nodejs#1355)

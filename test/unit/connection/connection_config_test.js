@@ -699,17 +699,6 @@ describe('ConnectionConfig: basic', function () {
       errorCode: ErrorCodes.ERR_CONN_CREATE_INVALID_PASSCODE,
     },
     {
-      name: 'invalid samlRedirectUri',
-
-      options: {
-        account: 'account',
-        username: 'username',
-        authenticator: 'EXTERNALBROWSER',
-        samlRedirectUri: 666666,
-      },
-      errorCode: ErrorCodes.ERR_CONN_CREATE_INVALID_SAML_REDIRECT_URI,
-    },
-    {
       name: 'invalid config - lack of clientId for oauth authenticator',
       options: {
         account: 'account',
@@ -1709,15 +1698,6 @@ describe('ConnectionConfig: basic', function () {
         },
         result: '123456',
         getter: 'getPasscode',
-      },
-      {
-        name: 'samlRedirectUri',
-        input: {
-          ...mandatoryOption,
-          samlRedirectUri: 'localhost:3000',
-        },
-        result: 'localhost:3000',
-        getter: 'getSamlRedirectUri',
       },
     ];
 

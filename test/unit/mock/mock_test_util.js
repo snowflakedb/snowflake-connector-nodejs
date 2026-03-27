@@ -145,7 +145,6 @@ const connectionOptionsOkta = {
   getRetryTimeout: () => 300,
   getRetrySfMaxLoginRetries: () => 7,
   getDisableSamlURLCheck: () => false,
-  getSamlRedirectUri: () => '',
 };
 
 exports.connectionOptions = {

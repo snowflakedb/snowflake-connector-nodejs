@@ -14,7 +14,7 @@ const AuthOkta = require('./../../../lib/authentication/auth_okta');
 const AuthIDToken = require('./../../../lib/authentication/auth_idtoken');
 const AuthenticationTypes = require('./../../../lib/authentication/authentication_types');
 const MockTestUtil = require('./../mock/mock_test_util');
-const { getPortFree } = require('../test_util');
+const { getFreePort } = require('../../../lib/util');
 
 // get connection options to connect to this mock snowflake instance
 const mockConnectionOptions = MockTestUtil.connectionOptions;
@@ -146,7 +146,7 @@ describe('external browser authentication', function () {
     getAuthenticator: () => credentials.authenticator,
     getServiceName: () => '',
     getDisableConsoleLogin: () => true,
-    getSamlRedirectUri: () => '',
+    browserRedirectPort: 0,
     host: 'fakehost',
     openExternalBrowserCallback: browserOpenCallback,
   };
@@ -190,10 +190,10 @@ describe('external browser authentication', function () {
   });
 
   it('external browser - get success', async function () {
-    const availablePort = await getPortFree();
+    const availablePort = await getFreePort();
     const localConnectionConfig = {
       ...connectionConfig,
-      getSamlRedirectUri: () => `localhost:${availablePort}`,
+      browserRedirectPort: availablePort,
     };
 
     const auth = new AuthWeb(localConnectionConfig, httpclient);
@@ -212,7 +212,7 @@ describe('external browser authentication', function () {
   });
 
   it('external browser - get fail', async function () {
-    const availablePort = await getPortFree();
+    const availablePort = await getFreePort();
 
     const fastFailConnectionConfig = {
       getBrowserActionTimeout: () => 10,
@@ -220,7 +220,7 @@ describe('external browser authentication', function () {
       getAuthenticator: () => credentials.authenticator,
       getServiceName: () => '',
       getDisableConsoleLogin: () => true,
-      getSamlRedirectUri: () => `localhost:${availablePort}`,
+      browserRedirectPort: availablePort,
       host: 'fakehost',
       openExternalBrowserCallback: () => null,
     };
@@ -877,7 +877,7 @@ describe('test getAuthenticator()', () => {
         getClientStoreTemporaryCredential: () => true,
         getPasscode: () => '',
         getPasscodeInPassword: () => false,
-        getSamlRedirectUri: () => '127.0.0.1:8080',
+        browserRedirectPort: 8080,
         idToken: idToken || null,
         host: 'host',
         workloadIdentityProvider: 'AWS',

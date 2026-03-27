@@ -386,11 +386,6 @@ declare module 'snowflake-sdk' {
      * `true` to enable a describe only query.
      */
     describeOnly?: boolean;
-
-    /**
-     * Custom socket address and port to use for the local SAML server. Useful for SSO in containerized environments.
-     */
-    samlRedirectUri?: string;
   }
 
   export interface RowStatement {

@@ -4,16 +4,33 @@
 
 New features:
 
+- Added `browserRedirectPort` connection option to customize the port of the local server that receives the `EXTERNALBROWSER` authentication callback (snowflakedb/snowflake-connector-nodejs#1004)
+
+Changes:
+
+- Bumped `@aws-sdk/*` dependencies to address `fast-xml-parser` vulnerability (snowflakedb/snowflake-connector-nodejs#1355)
+
+Bugfixes:
+
+- Fixed session token renewal failing due to a malformed request, which caused long-running connections to disconnect instead of refreshing their expired session token (snowflakedb/snowflake-connector-nodejs#1357)
+
+## 2.3.6
+
+New features:
+
 - `connect()` now supports every authenticator type (including external browser and Okta), matching `connectAsync()` (snowflakedb/snowflake-connector-nodejs#1342)
 
 Changes:
 
 - Removed `@google-cloud/storage` dependency, GCS transfers now use the JSON API directly; the `forceGCPUseDownscopedCredential` connection option has been removed as it is no longer needed (snowflakedb/snowflake-connector-nodejs#1341)
+- Updated default `jsonColumnVariantParser` to fall back to eval-based parsing for non-JSON-compliant variant values (e.g. `undefined`, `NaN`, `Infinity`), restoring pre-2.3.5 behavior while keeping `JSON.parse` as the primary parser (snowflakedb/snowflake-connector-nodejs#1351)
 
 Bugfixes:
 
+- Fixed `OAUTH_AUTHORIZATION_CODE` authenticator not honoring `openExternalBrowserCallback` connection option (snowflakedb/snowflake-connector-nodejs#1353)
 - Fixed `createConnection()` and `createPool()` types to accept no arguments, matching runtime behavior of loading configuration from `connections.toml` (snowflakedb/snowflake-connector-nodejs#1347)
 - Fixed `account` field in `ConnectionOptions` type to be optional, since it can be derived from `accessUrl` or `host` (snowflakedb/snowflake-connector-nodejs#1347)
+- Fixed external browser SSO authentication crashing when the SSO URL request returns a server-side error (snowflakedb/snowflake-connector-nodejs#1350)
 
 ## 2.3.5
 

@@ -72,10 +72,33 @@ declare module 'snowflake-sdk' {
     ocspFailOpen?: boolean;
 
     /**
-     * The Snowflake Node.js driver provides the following default parsers for processing JSON and XML data in result sets.
-     * Detailed information: https://docs.snowflake.com/en/developer-guide/node-js/nodejs-driver-consume.
+     * Custom parser for JSON data in VARIANT, OBJECT, and ARRAY columns.
+     *
+     * By default the driver parses values with `JSON.parse()`. If that fails (e.g. the
+     * value contains non-standard tokens like `undefined`, `NaN`, or `Infinity` that
+     * Snowflake's VARIANT type allows), it falls back to eval-based parsing, which is
+     * slower and logs a warning.
+     *
+     * To avoid the fallback, set the `STRICT_JSON_OUTPUT` session parameter to `TRUE` so
+     * Snowflake normalizes non-standard values into valid JSON before sending them.
+     *
+     * @see https://docs.snowflake.com/en/developer-guide/node-js/nodejs-driver-consume
+     * @see https://docs.snowflake.com/en/sql-reference/parameters#strict-json-output
      */
     jsonColumnVariantParser?: CustomParser;
+
+    /**
+     * Custom parser for XML data in VARIANT columns.
+     *
+     * The driver always attempts JSON parsing first for every VARIANT value. Only when
+     * JSON parsing fails does it try this XML parser, so XML values always incur the
+     * overhead of a failed JSON parse attempt before being handled.
+     *
+     * The built-in parser uses `fast-xml-parser` and ignores XML attributes by default.
+     * Use `xmlParserConfig` to customize attribute handling.
+     *
+     * @see https://docs.snowflake.com/en/developer-guide/node-js/nodejs-driver-consume
+     */
     xmlColumnVariantParser?: CustomParser;
 
     xmlParserConfig?: XMlParserConfigOption;

@@ -1,0 +1,66 @@
+# Requires PRs from non-snowflakedb org members to have at least 2 approvals.
+# This prevents developers from self-approving their own PRs using a
+# private/personal GitHub account.
+name: Approval Check
+
+on:
+  pull_request_review:
+    types: [submitted, dismissed]
+
+jobs:
+  check-approvals:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.ORG_MEMBERSHIP_TOKEN }}
+          script: |
+            const REQUIRED_APPROVALS = 2;
+            const ORG = 'snowflakedb';
+            const prAuthor = context.payload.pull_request.user.login;
+            const prNumber = context.payload.pull_request.number;
+
+            let isMember = false;
+            try {
+              const { status } = await github.rest.orgs.checkMembershipForUser({
+                org: ORG,
+                username: prAuthor,
+              });
+              isMember = status === 204;
+            } catch (error) {
+              if (error.status === 404 || error.status === 302) {
+                isMember = false;
+              } else {
+                throw error;
+              }
+            }
+
+            if (isMember) {
+              core.info(`PR author @${prAuthor} is a member of ${ORG} — skipping extra approval requirement.`);
+              return;
+            }
+
+            core.info(`PR author @${prAuthor} is not a member of ${ORG} — requiring ${REQUIRED_APPROVALS} approvals.`);
+
+            const { data: reviews } = await github.rest.pulls.listReviews({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: prNumber,
+            });
+
+            const latestReviewByUser = new Map();
+            for (const review of reviews) {
+              latestReviewByUser.set(review.user.login, review.state);
+            }
+
+            const approvalCount = [...latestReviewByUser.values()]
+              .filter(state => state === 'APPROVED')
+              .length;
+
+            core.info(`Current approvals: ${approvalCount}/${REQUIRED_APPROVALS}`);
+
+            if (approvalCount < REQUIRED_APPROVALS) {
+              core.setFailed(
+                `PRs from external contributors require at least ${REQUIRED_APPROVALS} approvals (currently ${approvalCount}).`
+              );
+            }

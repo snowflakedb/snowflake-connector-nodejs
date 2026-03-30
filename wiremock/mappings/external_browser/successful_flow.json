@@ -1,0 +1,128 @@
+{
+  "mappings": [
+    {
+      "request": {
+        "urlPathPattern": "/session/v1/login-request.*",
+        "method": "POST",
+        "bodyPatterns": [
+          {
+            "equalToJson": {
+              "data": {
+                "AUTHENTICATOR": "EXTERNALBROWSER"
+              }
+            },
+            "ignoreExtraElements": true
+          }
+        ]
+      },
+      "response": {
+        "status": 200,
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "jsonBody": {
+          "data": {
+            "masterToken": "master token",
+            "token": "session token",
+            "validityInSeconds": 3600,
+            "masterValidityInSeconds": 14400,
+            "displayUserName": "MOCK_USERNAME",
+            "serverVersion": "8.48.0",
+            "firstLogin": false,
+            "remMeToken": null,
+            "remMeValidityInSeconds": 0,
+            "healthCheckInterval": 45,
+            "newClientForUpgrade": "3.12.3",
+            "sessionId": 1172562260498,
+            "parameters": [
+              { "name": "CLIENT_PREFETCH_THREADS", "value": 4 },
+              { "name": "QUERY_CONTEXT_CACHE_SIZE", "value": 5 },
+              { "name": "CLIENT_RESULT_PREFETCH_THREADS", "value": 1 }
+            ],
+            "sessionInfo": {
+              "databaseName": "TEST_DATABASE",
+              "schemaName": "TEST_SCHEMA",
+              "warehouseName": "TEST_WAREHOUSE",
+              "roleName": "ANALYST"
+            },
+            "idToken": null,
+            "idTokenValidityInSeconds": 0,
+            "responseData": null,
+            "mfaToken": null,
+            "mfaTokenValidityInSeconds": 0
+          },
+          "code": null,
+          "message": null,
+          "success": true
+        }
+      }
+    },
+    {
+      "request": {
+        "urlPathPattern": "/session/heartbeat.*",
+        "method": "POST"
+      },
+      "response": {
+        "status": 200,
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "jsonBody": {
+          "code": null,
+          "message": null,
+          "success": true
+        }
+      }
+    },
+    {
+      "request": {
+        "urlPathPattern": "/queries/v1/query-request.*",
+        "method": "POST"
+      },
+      "response": {
+        "status": 200,
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "jsonBody": {
+          "data": {
+            "parameters": [],
+            "rowtype": [
+              {
+                "name": "1",
+                "database": "",
+                "schema": "",
+                "table": "",
+                "byteLength": null,
+                "scale": 0,
+                "nullable": false,
+                "precision": 1,
+                "collation": null,
+                "length": null,
+                "type": "fixed"
+              }
+            ],
+            "rowset": [["1"]],
+            "total": 1,
+            "returned": 1,
+            "queryId": "01baf79b-0108-1a60-0000-01110354a6ce",
+            "databaseProvider": null,
+            "finalDatabaseName": "TEST_DATABASE",
+            "finalSchemaName": "TEST_SCHEMA",
+            "finalWarehouseName": "TEST_WAREHOUSE",
+            "finalRoleName": "ANALYST",
+            "numberOfBinds": 0,
+            "arrayBindSupported": false,
+            "statementTypeId": 4096,
+            "version": 1,
+            "sendResultTime": 1741817979585,
+            "queryResultFormat": "json"
+          },
+          "code": null,
+          "message": null,
+          "success": true
+        }
+      }
+    }
+  ]
+}

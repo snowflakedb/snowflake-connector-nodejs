@@ -10,79 +10,80 @@ on:
     types: [submitted, dismissed]
 
 jobs:
-  name: Require 2 approvals for external contributors
-  runs-on: ubuntu-latest
-  permissions:
-    contents: read
-    pull-requests: read
-  steps:
-    - uses: actions/github-script@v7
-      with:
-        github-token: ${{ secrets.SNOWFLAKE_GITHUB_TOKEN }}
-        script: |
-          const REQUIRED_APPROVALS = 2;
-          const ORG = 'snowflakedb';
-          const prAuthor = context.payload.pull_request.user.login;
-          const prNumber = context.payload.pull_request.number;
+  check-approvals:
+    name: Require 2 approvals for external contributors
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: read
+    steps:
+      - uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.SNOWFLAKE_GITHUB_TOKEN }}
+          script: |
+            const REQUIRED_APPROVALS = 2;
+            const ORG = 'snowflakedb';
+            const prAuthor = context.payload.pull_request.user.login;
+            const prNumber = context.payload.pull_request.number;
 
-          let isMember = false;
-          try {
-            const { status } = await github.rest.orgs.checkMembershipForUser({
-              org: ORG,
-              username: prAuthor,
-            });
-            isMember = status === 204;
-          } catch (error) {
-            if (error.status === 404 || error.status === 302) {
-              isMember = false;
-            } else {
-              throw error;
-            }
-          }
-
-          if (isMember) {
-            core.info(`PR author @${prAuthor} is a member of ${ORG} — skipping extra approval requirement.`);
-            return;
-          }
-
-          core.info(`PR author @${prAuthor} is not a member of ${ORG} — requiring ${REQUIRED_APPROVALS} approvals.`);
-
-          const { data: reviews } = await github.rest.pulls.listReviews({
-            owner: context.repo.owner,
-            repo: context.repo.repo,
-            pull_number: prNumber,
-          });
-
-          const latestReviewByUser = new Map();
-          for (const review of reviews) {
-            latestReviewByUser.set(review.user.login, review.state);
-          }
-
-          const approvers = [...latestReviewByUser.entries()]
-            .filter(([, state]) => state === 'APPROVED')
-            .map(([login]) => login);
-
-          const orgApprovers = [];
-          for (const login of approvers) {
+            let isMember = false;
             try {
               const { status } = await github.rest.orgs.checkMembershipForUser({
                 org: ORG,
-                username: login,
+                username: prAuthor,
               });
-              if (status === 204) {
-                orgApprovers.push(login);
+              isMember = status === 204;
+            } catch (error) {
+              if (error.status === 404 || error.status === 302) {
+                isMember = false;
+              } else {
+                throw error;
               }
-            } catch {
-              core.info(`Reviewer @${login} is not a member of ${ORG} — approval not counted.`);
             }
-          }
 
-          const approvalCount = orgApprovers.length;
+            if (isMember) {
+              core.info(`PR author @${prAuthor} is a member of ${ORG} — skipping extra approval requirement.`);
+              return;
+            }
 
-          core.info(`Current approvals: ${approvalCount}/${REQUIRED_APPROVALS}`);
+            core.info(`PR author @${prAuthor} is not a member of ${ORG} — requiring ${REQUIRED_APPROVALS} approvals.`);
 
-          if (approvalCount < REQUIRED_APPROVALS) {
-            core.setFailed(
-              `PRs from external contributors require at least ${REQUIRED_APPROVALS} approvals (currently ${approvalCount}).`
-            );
-          }
+            const { data: reviews } = await github.rest.pulls.listReviews({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: prNumber,
+            });
+
+            const latestReviewByUser = new Map();
+            for (const review of reviews) {
+              latestReviewByUser.set(review.user.login, review.state);
+            }
+
+            const approvers = [...latestReviewByUser.entries()]
+              .filter(([, state]) => state === 'APPROVED')
+              .map(([login]) => login);
+
+            const orgApprovers = [];
+            for (const login of approvers) {
+              try {
+                const { status } = await github.rest.orgs.checkMembershipForUser({
+                  org: ORG,
+                  username: login,
+                });
+                if (status === 204) {
+                  orgApprovers.push(login);
+                }
+              } catch {
+                core.info(`Reviewer @${login} is not a member of ${ORG} — approval not counted.`);
+              }
+            }
+
+            const approvalCount = orgApprovers.length;
+
+            core.info(`Current approvals: ${approvalCount}/${REQUIRED_APPROVALS}`);
+
+            if (approvalCount < REQUIRED_APPROVALS) {
+              core.setFailed(
+                `PRs from external contributors require at least ${REQUIRED_APPROVALS} approvals (currently ${approvalCount}).`
+              );
+            }

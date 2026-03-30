@@ -13,7 +13,7 @@ jobs:
     steps:
       - uses: actions/github-script@v7
         with:
-          github-token: ${{ secrets.ORG_MEMBERSHIP_TOKEN }}
+          github-token: ${{ secrets.SNOWFLAKE_GITHUB_TOKEN }}
           script: |
             const REQUIRED_APPROVALS = 2;
             const ORG = 'snowflakedb';

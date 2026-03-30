@@ -56,55 +56,6 @@ export async function coordinateAuth(
   }
 }
 
-export async function serializeFirstConnect<T>(
-  host: string,
-  username: string,
-  authType: string,
-  connectFn: () => Promise<T>,
-): Promise<T> {
-  const key = buildCoordinatorKey(host, username, authType + '_connect');
-
-  const existing = pendingAuths.get(key) as PendingAuth<T> | undefined;
-  if (existing) {
-    Logger().debug(
-      'AuthCoordinator: connect in progress for key %s, waiting before starting own connect',
-      key.substring(0, 8),
-    );
-    try {
-      await existing.promise;
-    } catch {
-      // first connection failed; proceed with our own attempt anyway
-    }
-    return connectFn();
-  }
-
-  let resolve!: (value: T) => void;
-  let reject!: (err: Error) => void;
-  const promise = new Promise<T>((res, rej) => {
-    resolve = res;
-    reject = rej;
-  });
-  promise.catch(() => {});
-
-  pendingAuths.set(key, { promise, resolve, reject } as PendingAuth<unknown>);
-
-  Logger().debug(
-    'AuthCoordinator: first connect for key %s, running connect flow',
-    key.substring(0, 8),
-  );
-
-  try {
-    const result = await connectFn();
-    resolve(result);
-    return result;
-  } catch (err) {
-    reject(err instanceof Error ? err : new Error(String(err)));
-    throw err;
-  } finally {
-    pendingAuths.delete(key);
-  }
-}
-
 export function clearPendingAuths(): void {
   pendingAuths.clear();
 }

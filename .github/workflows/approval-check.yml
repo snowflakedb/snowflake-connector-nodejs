@@ -1,11 +1,12 @@
 # Requires PRs from non-snowflakedb org members to have at least 2 approvals.
 # This prevents developers from self-approving their own PRs using a
 # private/personal GitHub account.
+#
+# Checks ALL open PRs associated with the head commit to prevent bypass when
+# two PRs (one internal, one external) share the same commit SHA.
 name: Approval Check
 
 on:
-  pull_request_target:
-    types: [opened, synchronize, reopened]
   pull_request_review:
     types: [submitted, dismissed]
 
@@ -23,67 +24,71 @@ jobs:
           script: |
             const REQUIRED_APPROVALS = 2;
             const ORG = 'snowflakedb';
-            const prAuthor = context.payload.pull_request.user.login;
-            const prNumber = context.payload.pull_request.number;
+            const headSha = context.payload.pull_request.head.sha;
 
-            let isMember = false;
-            try {
-              const { status } = await github.rest.orgs.checkMembershipForUser({
-                org: ORG,
-                username: prAuthor,
-              });
-              isMember = status === 204;
-            } catch (error) {
-              if (error.status === 404 || error.status === 302) {
-                isMember = false;
-              } else {
+            async function isOrgMember(username) {
+              try {
+                const { status } = await github.rest.orgs.checkMembershipForUser({
+                  org: ORG,
+                  username,
+                });
+                return status === 204;
+              } catch (error) {
+                if (error.status === 404 || error.status === 302) {
+                  return false;
+                }
                 throw error;
               }
             }
 
-            if (isMember) {
-              core.info(`PR author @${prAuthor} is a member of ${ORG} — skipping extra approval requirement.`);
-              return;
-            }
+            async function getOrgApprovalCount(prNumber) {
+              const { data: reviews } = await github.rest.pulls.listReviews({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                pull_number: prNumber,
+              });
 
-            core.info(`PR author @${prAuthor} is not a member of ${ORG} — requiring ${REQUIRED_APPROVALS} approvals.`);
+              const latestReviewByUser = new Map();
+              for (const review of reviews) {
+                latestReviewByUser.set(review.user.login, review.state);
+              }
 
-            const { data: reviews } = await github.rest.pulls.listReviews({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              pull_number: prNumber,
-            });
+              const approvers = [...latestReviewByUser.entries()]
+                .filter(([, state]) => state === 'APPROVED')
+                .map(([login]) => login);
 
-            const latestReviewByUser = new Map();
-            for (const review of reviews) {
-              latestReviewByUser.set(review.user.login, review.state);
-            }
-
-            const approvers = [...latestReviewByUser.entries()]
-              .filter(([, state]) => state === 'APPROVED')
-              .map(([login]) => login);
-
-            const orgApprovers = [];
-            for (const login of approvers) {
-              try {
-                const { status } = await github.rest.orgs.checkMembershipForUser({
-                  org: ORG,
-                  username: login,
-                });
-                if (status === 204) {
+              const orgApprovers = [];
+              for (const login of approvers) {
+                if (await isOrgMember(login)) {
                   orgApprovers.push(login);
                 }
-              } catch {
-                core.info(`Reviewer @${login} is not a member of ${ORG} — approval not counted.`);
+              }
+              return orgApprovers.length;
+            }
+
+            const { data: associatedPRs } = await github.rest.repos.listPullRequestsAssociatedWithCommit({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              commit_sha: headSha,
+            });
+
+            const openPRs = associatedPRs.filter(pr => pr.state === 'open');
+
+            const failingPRs = [];
+            for (const pr of openPRs) {
+              if (await isOrgMember(pr.user.login)) {
+                core.info(`Skipping PR #${pr.number} — author @${pr.user.login} is an org member`);
+                continue;
+              }
+              const approvalCount = await getOrgApprovalCount(pr.number);
+              if (approvalCount < REQUIRED_APPROVALS) {
+                failingPRs.push({ number: pr.number, approvalCount });
               }
             }
 
-            const approvalCount = orgApprovers.length;
-
-            core.info(`Current approvals: ${approvalCount}/${REQUIRED_APPROVALS}`);
-
-            if (approvalCount < REQUIRED_APPROVALS) {
-              core.setFailed(
-                `PRs from external contributors require at least ${REQUIRED_APPROVALS} approvals (currently ${approvalCount}).`
-              );
+            if (failingPRs.length > 0) {
+              const details = failingPRs
+                .map(p => `PR #${p.number} has ${p.approvalCount}/${REQUIRED_APPROVALS}`)
+                .join(', ');
+              core.setFailed(`Insufficient org approvals: ${details}`);
             }

@@ -1,12 +1,6 @@
 import Logger from '../logger';
 
-interface PendingAuth<T = string> {
-  promise: Promise<T>;
-  resolve: (value: T) => void;
-  reject: (err: Error) => void;
-}
-
-const pendingAuths = new Map<string, PendingAuth<unknown>>();
+export const PENDING_AUTHS = new Map<string, Promise<unknown>>();
 
 function buildCoordinatorKey(host: string, username: string, authType: string): string {
   return `${host}:${username}:${authType}`;
@@ -16,46 +10,25 @@ export async function coordinateAuth(
   host: string,
   username: string,
   authType: string,
-  authFn: () => Promise<string>,
-): Promise<string> {
+  authFn: () => Promise<unknown>,
+): Promise<unknown> {
   const key = buildCoordinatorKey(host, username, authType);
 
-  const existing = pendingAuths.get(key) as PendingAuth<string> | undefined;
+  const existing = PENDING_AUTHS.get(key);
   if (existing) {
-    Logger().debug(
-      'AuthCoordinator: auth already in progress for key %s, waiting for result',
-      key.substring(0, 8),
-    );
-    return existing.promise;
+    Logger().debug('AuthCoordinator: auth already in progress for key %s, waiting for result', key);
+    return existing;
   }
 
-  let resolve!: (value: string) => void;
-  let reject!: (err: Error) => void;
-  const promise = new Promise<string>((res, rej) => {
-    resolve = res;
-    reject = rej;
-  });
+  const promise = authFn();
   promise.catch(() => {});
+  PENDING_AUTHS.set(key, promise);
 
-  pendingAuths.set(key, { promise, resolve, reject } as PendingAuth<unknown>);
-
-  Logger().debug(
-    'AuthCoordinator: first caller for key %s, running auth flow',
-    key.substring(0, 8),
-  );
+  Logger().debug('AuthCoordinator: first caller for key %s, running auth flow', key);
 
   try {
-    const token = await authFn();
-    resolve(token);
-    return token;
-  } catch (err) {
-    reject(err instanceof Error ? err : new Error(String(err)));
-    throw err;
+    return await promise;
   } finally {
-    pendingAuths.delete(key);
+    PENDING_AUTHS.delete(key);
   }
-}
-
-export function clearPendingAuths(): void {
-  pendingAuths.clear();
 }

@@ -1,9 +1,9 @@
 import assert from 'assert';
-import { coordinateAuth, clearPendingAuths } from '../../../lib/authentication/auth_coordinator';
+import { coordinateAuth, PENDING_AUTHS } from '../../../lib/authentication/auth_coordinator';
 
 describe('AuthCoordinator', function () {
   afterEach(function () {
-    clearPendingAuths();
+    PENDING_AUTHS.clear();
   });
 
   describe('coordinateAuth', function () {
@@ -56,12 +56,12 @@ describe('AuthCoordinator', function () {
 
     it('propagates errors to all waiting callers', async function () {
       let resolveAuth: () => void;
-      const gate = new Promise<void>((resolve) => {
+      const authPromise = new Promise<void>((resolve) => {
         resolveAuth = resolve;
       });
 
       const authFn = async () => {
-        await gate;
+        await authPromise;
         throw new Error('auth failed');
       };
 

@@ -28,7 +28,10 @@ if (process.env.CLOUD_PROVIDER === 'AWS') {
 
     /**
      * TODO:
-     * We need a more reliable way to drop databases as we have a bunch of stale ones
+     * We need a more reliable way to drop databases as we have a bunch of stale ones.
+     *
+     * Unistore recommends reusing the same tables between tests.
+     * Rewrite this test during UD migration.
      *
      * For now, manual deletion can be executed via:
      * BEGIN

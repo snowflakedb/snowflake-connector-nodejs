@@ -28,7 +28,8 @@ if (process.env.CLOUD_PROVIDER === 'AWS') {
 
     /**
      * TODO:
-     * We need a more reliable way to drop databases as we have a bunch of stale ones.
+     * This test often times out because it runs more than 5 minutes, causing stale databases
+     * to accumulate since the cleanup code in `after()` never executes.
      *
      * Unistore recommends reusing the same tables between tests.
      * Rewrite this test during UD migration.

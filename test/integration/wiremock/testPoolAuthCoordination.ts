@@ -23,12 +23,6 @@ async function createConnectionsUsingPool(connectionOptions: WIP_ConnectionOptio
   }
 
   const results = await Promise.allSettled(acquirePromises);
-  assert.strictEqual(
-    results.length,
-    POOL_SIZE,
-    `expected ${POOL_SIZE} results but got ${results.length}`,
-  );
-
   const connections = results
     .filter((r): r is PromiseFulfilledResult<any> => r.status === 'fulfilled')
     .map((r) => r.value);

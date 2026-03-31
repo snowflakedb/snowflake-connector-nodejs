@@ -4,42 +4,42 @@ import * as testUtil from '../testUtil';
 import { runWireMockAsync, addWireMockMappingsFromFile } from '../../wiremockRunner';
 import axios from 'axios';
 import { PENDING_AUTHS } from '../../../lib/authentication/auth_coordinator';
-import { withBrowserActionTimeout } from '../../../lib/authentication/authentication_util';
 import { WIP_ConnectionOptions } from '../../../lib/connection/types';
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const snowflake = require('../../../lib/snowflake').default;
 
+const POOL_SIZE = 3;
+
 async function createConnectionsUsingPool(connectionOptions: WIP_ConnectionOptions) {
-  const poolSize = 3;
   const pool = snowflake.createPool(connectionOptions, {
-    max: poolSize,
+    max: POOL_SIZE,
     min: 0,
   });
 
-  const connections: any[] = [];
   const acquirePromises = [];
-  for (let i = 0; i < poolSize; i++) {
-    acquirePromises.push(
-      pool.acquire().then((conn: any) => {
-        connections.push(conn);
-        return conn;
-      }),
-    );
+  for (let i = 0; i < POOL_SIZE; i++) {
+    acquirePromises.push(pool.acquire());
   }
 
-  await Promise.all(acquirePromises);
+  const results = await Promise.allSettled(acquirePromises);
   assert.strictEqual(
-    connections.length,
-    poolSize,
-    `expected ${poolSize} connections but got ${connections.length}`,
+    results.length,
+    POOL_SIZE,
+    `expected ${POOL_SIZE} results but got ${results.length}`,
   );
+
+  const connections = results
+    .filter((r): r is PromiseFulfilledResult<any> => r.status === 'fulfilled')
+    .map((r) => r.value);
 
   for (const conn of connections) {
     await pool.release(conn);
   }
   await pool.drain();
   await pool.clear();
+
+  return { connectedCount: connections.length, failedCount: results.length - connections.length };
 }
 
 describe('Pool auth coordination', function () {
@@ -61,54 +61,51 @@ describe('Pool auth coordination', function () {
   });
 
   describe('EXTERNALBROWSER', function () {
-    function simulateExternalBrowserRedirect(loginUrl: string) {
-      const url = new URL(loginUrl);
-      const token = url.searchParams.get('proof_key') || 'mock-token';
-      const callbackPort = url.searchParams.get('browser_mode_redirect_port');
-      return axios.get(`http://127.0.0.1:${callbackPort}/?token=${token}`).catch(() => {});
-    }
-
     it('opens browser only once for pooled connections', async function () {
       await addWireMockMappingsFromFile(wiremock, 'wiremock/mappings/login_request_ok.json');
 
       let browserOpenCount = 0;
-
       const connectionOptions = {
         accessUrl: `http://127.0.0.1:${port}`,
         authenticator: 'EXTERNALBROWSER',
         disableConsoleLogin: false,
         openExternalBrowserCallback: (loginUrl: string) => {
           browserOpenCount++;
-          return simulateExternalBrowserRedirect(loginUrl);
+          const url = new URL(loginUrl);
+          const callbackPort = url.searchParams.get('browser_mode_redirect_port');
+          return axios.get(`http://127.0.0.1:${callbackPort}/?token=test-token`).catch(() => {});
         },
       };
 
-      await createConnectionsUsingPool(connectionOptions);
+      const { connectedCount } = await createConnectionsUsingPool(connectionOptions);
+      assert.strictEqual(connectedCount, POOL_SIZE);
+      assert.strictEqual(browserOpenCount, 1);
+    });
 
-      assert.strictEqual(
-        browserOpenCount,
-        1,
-        `expected 1 browser open but got ${browserOpenCount}`,
-      );
+    it('propagates auth error to all pooled connections', async function () {
+      let browserOpenCount = 0;
+
+      const connectionOptions = {
+        accessUrl: `http://127.0.0.1:${port}`,
+        authenticator: 'EXTERNALBROWSER',
+        disableConsoleLogin: false,
+        browserActionTimeout: 100,
+        openExternalBrowserCallback: () => {
+          browserOpenCount++;
+        },
+      };
+
+      const { failedCount } = await createConnectionsUsingPool(connectionOptions);
+      assert.strictEqual(failedCount, POOL_SIZE);
+      assert.strictEqual(browserOpenCount, 1);
     });
   });
 
   describe('OAUTH_AUTHORIZATION_CODE', function () {
-    function simulateOauthBrowserRedirect(urlString: string) {
-      const redirectUri = new URL(urlString);
-      const url = `${redirectUri.searchParams.get('redirect_uri')}?code=9s6wFkGDOjmgNEdwJMlDzv1AwxDjDVBxiT6wVqXjG5s&state=${redirectUri.searchParams.get('state')}`;
-      return withBrowserActionTimeout(3000, axios.get(url));
-    }
+    let baseConnectionOptions: WIP_ConnectionOptions;
 
-    it('opens browser only once for pooled connections', async function () {
-      await addWireMockMappingsFromFile(
-        wiremock,
-        'wiremock/mappings/oauth/authorization_code/successful_flow.json',
-      );
-
-      let browserOpenCount = 0;
-
-      const connectionOptions = {
+    beforeEach(() => {
+      baseConnectionOptions = {
         accessUrl: `http://127.0.0.1:${port}`,
         account: 'MOCK_ACCOUNT_NAME',
         username: 'MOCK_USERNAME',
@@ -120,19 +117,44 @@ describe('Pool auth coordination', function () {
         oauthTokenRequestUrl: `http://127.0.0.1:${port}/oauth/token-request`,
         oauthRedirectUri: 'http://localhost:8009/snowflake/oauth-redirect',
         oauthHttpAllowed: true,
+      };
+    });
+
+    it('opens browser only once for pooled connections', async function () {
+      await addWireMockMappingsFromFile(
+        wiremock,
+        'wiremock/mappings/oauth/authorization_code/successful_flow.json',
+      );
+
+      let browserOpenCount = 0;
+      const connectionOptions = {
+        ...baseConnectionOptions,
         openExternalBrowserCallback: (urlString: string) => {
           browserOpenCount++;
-          return simulateOauthBrowserRedirect(urlString);
+          const authUrl = new URL(urlString);
+          const url = `${authUrl.searchParams.get('redirect_uri')}?code=test-code&state=${authUrl.searchParams.get('state')}`;
+          return axios.get(url);
         },
       };
 
-      await createConnectionsUsingPool(connectionOptions);
+      const { connectedCount } = await createConnectionsUsingPool(connectionOptions);
+      assert.strictEqual(connectedCount, POOL_SIZE);
+      assert.strictEqual(browserOpenCount, 1);
+    });
 
-      assert.strictEqual(
-        browserOpenCount,
-        1,
-        `expected 1 browser open but got ${browserOpenCount}`,
-      );
+    it('propagates auth error to all pooled connections', async function () {
+      let browserOpenCount = 0;
+      const connectionOptions = {
+        ...baseConnectionOptions,
+        browserActionTimeout: 100,
+        openExternalBrowserCallback: () => {
+          browserOpenCount++;
+        },
+      };
+
+      const { failedCount } = await createConnectionsUsingPool(connectionOptions);
+      assert.strictEqual(failedCount, POOL_SIZE);
+      assert.strictEqual(browserOpenCount, 1);
     });
   });
 });

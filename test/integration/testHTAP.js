@@ -26,6 +26,20 @@ if (process.env.CLOUD_PROVIDER === 'AWS') {
       await testUtil.connectAsync(connection);
     });
 
+    /**
+     * TODO:
+     * We need a more reliable way to drop databases as we have a bunch of stale ones
+     *
+     * For now, manual deletion can be executed via:
+     * BEGIN
+     *   SHOW DATABASES LIKE 'QCC_TEST_DB_%';
+     *   LET res RESULTSET := (SELECT "name" FROM TABLE(RESULT_SCAN(LAST_QUERY_ID())));
+     *   LET c CURSOR FOR res;
+     *   FOR rec IN c DO
+     *     EXECUTE IMMEDIATE 'DROP DATABASE IF EXISTS ' || rec."name";
+     *   END FOR;
+     * END;
+     */
     after(async () => {
       await testUtil.dropDBsIgnoringErrorsAsync(connection, dbNames);
       await testUtil.destroyConnectionAsync(connection);

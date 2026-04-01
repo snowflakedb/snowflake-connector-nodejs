@@ -15,8 +15,10 @@ function getUniqueDBNames(amount = 3) {
 // Only the AWS servers support the hybrid table in the GitHub action.
 if (process.env.CLOUD_PROVIDER === 'AWS') {
   describe('Query Context Cache test', function () {
-    // Longer timeout as each create hybrid table takes ~45s to complete
-    this.timeout(5 * 60 * 1000);
+    // TODO:
+    // Longer timeout as each create hybrid table takes a few minutes to complete.
+    // This is a temporary workaround while we figure out why it's taking so long.
+    this.timeout(10 * 60 * 1000);
 
     let connection;
     const dbNames = getUniqueDBNames();
@@ -26,6 +28,24 @@ if (process.env.CLOUD_PROVIDER === 'AWS') {
       await testUtil.connectAsync(connection);
     });
 
+    /**
+     * TODO:
+     * This test often times out causing stale databases to accumulate since the
+     * cleanup code in `after()` never executes.
+     *
+     * Unistore recommends reusing the same tables between tests.
+     * Rewrite this test during UD migration.
+     *
+     * For now, manual deletion can be executed via:
+     * BEGIN
+     *   SHOW DATABASES LIKE 'QCC_TEST_DB_%';
+     *   LET res RESULTSET := (SELECT "name" FROM TABLE(RESULT_SCAN(LAST_QUERY_ID())));
+     *   LET c CURSOR FOR res;
+     *   FOR rec IN c DO
+     *     EXECUTE IMMEDIATE 'DROP DATABASE IF EXISTS ' || rec."name";
+     *   END FOR;
+     * END;
+     */
     after(async () => {
       await testUtil.dropDBsIgnoringErrorsAsync(connection, dbNames);
       await testUtil.destroyConnectionAsync(connection);

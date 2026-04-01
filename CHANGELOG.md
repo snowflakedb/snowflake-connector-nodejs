@@ -9,6 +9,7 @@ New features:
 Changes:
 
 - Bumped `@aws-sdk/*` dependencies to address `fast-xml-parser` vulnerability (snowflakedb/snowflake-connector-nodejs#1355)
+- Added 30-second idle socket timeout for keep-alive HTTP agents to proactively discard stale connections before the server closes them, preventing `socket hang up` / `ECONNRESET` errors (snowflakedb/snowflake-connector-nodejs#1352)
 
 Bugfixes:
 

@@ -4,10 +4,8 @@ import { runWireMockAsync, addWireMockMappingsFromFile } from '../../wiremockRun
 import * as testUtil from '../testUtil';
 
 // TODO:
-// This should have an e2e test on an account where we can set SESSION_TOKEN_VALIDITY to a small value and:
-// - login
-// - sleep for SESSION_TOKEN_VALIDITY + 1 second
-// - execute a query
+// Consider dropping this test during UD migration as test/authentication/testSessionTokenRenewal.ts
+// implements the same logic using a real backend.
 describe('Session token renewal', function () {
   let wiremock: WireMockRestClient;
   let connectionConfig: any;

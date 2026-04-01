@@ -15,8 +15,10 @@ function getUniqueDBNames(amount = 3) {
 // Only the AWS servers support the hybrid table in the GitHub action.
 if (process.env.CLOUD_PROVIDER === 'AWS') {
   describe('Query Context Cache test', function () {
-    // Longer timeout as each create hybrid table takes ~45s to complete
-    this.timeout(5 * 60 * 1000);
+    // TODO:
+    // Longer timeout as each create hybrid table takes a few minutes to complete.
+    // This is a temporary workaround while we figure out why it's taking so long.
+    this.timeout(10 * 60 * 1000);
 
     let connection;
     const dbNames = getUniqueDBNames();
@@ -28,8 +30,8 @@ if (process.env.CLOUD_PROVIDER === 'AWS') {
 
     /**
      * TODO:
-     * This test often times out because it runs more than 5 minutes, causing stale databases
-     * to accumulate since the cleanup code in `after()` never executes.
+     * This test often times out causing stale databases to accumulate since the
+     * cleanup code in `after()` never executes.
      *
      * Unistore recommends reusing the same tables between tests.
      * Rewrite this test during UD migration.

@@ -17,7 +17,7 @@ Bugfixes:
 
 Internal:
 
-- Include `spcs_token` when driver runs inside SPCS (snowflakedb/snowflake-connector-nodejs#TODO)
+- Include `spcs_token` when driver runs inside SPCS (snowflakedb/snowflake-connector-nodejs#1372)
 
 ## 2.3.6
 

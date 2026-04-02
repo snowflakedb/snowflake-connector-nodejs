@@ -147,6 +147,8 @@ describe('external browser authentication', function () {
     getDisableConsoleLogin: () => true,
     browserRedirectPort: 0,
     host: 'fakehost',
+    account: credentials.account,
+    username: credentials.username,
     openExternalBrowserCallback: browserOpenCallback,
   };
   const httpResponseStub = sinon.stub();
@@ -182,20 +184,12 @@ describe('external browser authentication', function () {
   it('external browser - authenticate method is thenable', (done) => {
     const auth = new AuthWeb(connectionConfig, httpclient);
 
-    auth
-      .authenticate(credentials.authenticator, '', credentials.account, credentials.username)
-      .then(done)
-      .catch(done);
+    auth.authenticate().then(done).catch(done);
   });
 
   it('external browser - get success', async function () {
     const auth = new AuthWeb(connectionConfig, httpclient);
-    await auth.authenticate(
-      credentials.authenticator,
-      '',
-      credentials.account,
-      credentials.username,
-    );
+    await auth.authenticate();
 
     const body = { data: {} };
     auth.updateBody(body);
@@ -215,12 +209,7 @@ describe('external browser authentication', function () {
     );
     await assert.rejects(
       async () => {
-        await auth.authenticate(
-          credentials.authenticator,
-          '',
-          credentials.account,
-          credentials.username,
-        );
+        await auth.authenticate();
       },
       {
         message: /Error while getting SAML token:/,

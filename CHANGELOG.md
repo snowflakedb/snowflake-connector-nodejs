@@ -16,6 +16,10 @@ Bugfixes:
 - Fixed connection pools re-prompting browser authentication for every pooled connection when using `EXTERNALBROWSER` or `OAUTH_AUTHORIZATION_CODE` authenticators; the first connection now completes auth and caches tokens before subsequent pool connections start (snowflakedb/snowflake-connector-nodejs#1359)
 - Fixed session token renewal failing due to a malformed request, which caused long-running connections to disconnect instead of refreshing their expired session token (snowflakedb/snowflake-connector-nodejs#1357)
 
+Internal:
+
+- Include `spcs_token` when driver runs inside SPCS (snowflakedb/snowflake-connector-nodejs#1372)
+
 ## 2.3.6
 
 New features:

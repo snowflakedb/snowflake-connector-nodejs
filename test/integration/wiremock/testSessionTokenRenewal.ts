@@ -30,7 +30,7 @@ describe('Session token renewal', function () {
   it('renews expired session token and retries query', async function () {
     const connection = testUtil.createConnection(connectionConfig);
     await testUtil.connectAsync(connection);
-    const rows = await testUtil.executeCmdAsync(connection, 'SELECT 1');
+    const { rows } = await testUtil.executeCmdAsync(connection, 'SELECT 1');
     assert.deepStrictEqual(rows, [{ '1': 1 }]);
   });
 });

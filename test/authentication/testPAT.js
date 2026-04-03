@@ -72,7 +72,7 @@ describe('PAT authentication', function () {
     const connectionOption = connParameters.okta;
     const connection = snowflake.createConnection(connectionOption);
     await connection.connectAsync();
-    const rows = await testUtil.executeCmdAsync(connection, command);
+    const { rows } = await testUtil.executeCmdAsync(connection, command);
     if (shouldReturnToken) {
       return rows[0]['token_secret'];
     }

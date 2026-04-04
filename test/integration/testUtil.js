@@ -101,7 +101,14 @@ const executeCmdAsync = function (connection, sqlText, additionalParameters = {}
     connection.execute({
       sqlText,
       ...additionalParameters,
-      complete: (err, statement, rows) => (err ? reject(err) : resolve({ rows, statement })),
+      complete: (err, statement, rows) => {
+        if (err) {
+          err.statement = statement;
+          reject(err);
+        } else {
+          resolve({ rows, statement });
+        }
+      },
     });
   });
 };

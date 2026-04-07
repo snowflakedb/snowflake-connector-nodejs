@@ -1,0 +1,43 @@
+{
+  "mappings": [
+    {
+      "request": {
+        "urlPathPattern": "/queries/v1/query-request.*",
+        "method": "POST"
+      },
+      "response": {
+        "status": 200,
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "jsonBody": {
+          "data": {
+            "errorCode": "200001",
+            "age": 0,
+            "sqlState": "22000",
+            "queryId": "01c37557-c810-44d1-0000-011109f5513e",
+            "queryContext": {
+              "entries": [
+                {
+                  "id": 0,
+                  "timestamp": 1775206502642407,
+                  "priority": 0,
+                  "context": "CMamhAI="
+                },
+                {
+                  "id": 69924,
+                  "timestamp": 1775206502558790,
+                  "priority": 1
+                }
+              ]
+            }
+          },
+          "code": "200001",
+          "message": "A primary key already exists.",
+          "success": false,
+          "headers": null
+        }
+      }
+    }
+  ]
+}

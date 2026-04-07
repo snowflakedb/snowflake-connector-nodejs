@@ -1,7 +1,9 @@
 import assert from 'assert';
 import crypto from 'crypto';
+import { WireMockRestClient } from 'wiremock-rest-client';
 import * as testUtil from './testUtil';
 import { valid as connOption } from './connectionOptions';
+import { runWireMockAsync, addWireMockMappingsFromFile } from '../wiremockRunner';
 
 const snowflake = require('./../../lib/snowflake').default;
 snowflake.configure({
@@ -23,12 +25,7 @@ describe('Query Context Cache', function () {
       // this.skip();
     }
 
-    // connection = testUtil.createConnection(connOption);
-    connection = snowflake.createConnection({
-      // put creds here
-      proxyHost: '127.0.0.1',
-      proxyPort: 8080,
-    });
+    connection = testUtil.createConnection(connOption);
     await testUtil.connectAsync(connection);
 
     for (const db of DB_NAMES) {
@@ -97,71 +94,44 @@ describe('Query Context Cache', function () {
       );
     }
   });
+});
+
+describe('Query Context Cache on failed query', function () {
+  let wiremock: WireMockRestClient;
+  let connection: any;
+
+  before(async function () {
+    const port = await testUtil.getFreePort();
+    wiremock = await runWireMockAsync(port);
+    await addWireMockMappingsFromFile(wiremock, 'wiremock/mappings/login_request_ok.json');
+    await addWireMockMappingsFromFile(
+      wiremock,
+      'wiremock/mappings/query_request_failed_with_qcc.json',
+    );
+    connection = snowflake.createConnection({
+      account: 'test-account',
+      username: 'test-user',
+      password: 'test-password',
+      accessUrl: `http://127.0.0.1:${port}`,
+    });
+    await testUtil.connectAsync(connection);
+  });
+
+  after(async function () {
+    await wiremock.global.shutdown();
+  });
 
   it('updates query context cache on failed query', async function () {
-    const tableName = randomHybridTableName();
-
-    await testUtil.executeCmdAsync(connection, `use database ${DB_NAMES[0]}`);
-    await testUtil.executeCmdAsync(
-      connection,
-      `create or replace hybrid table ${tableName} (pk text primary key, value text)`,
-    );
-    // await testUtil.executeCmdAsync(
-    //   connection,
-    //   'alter session set TRANSACTION_ABORT_ON_ERROR = true',
-    // );
-
+    let statement: any;
     try {
-      // Q0: begin transaction
-      await testUtil.executeCmdAsync(connection, 'begin');
-
-      // Q1: successful insert — QCC gets updated
-      const { statement: q1Statement } = await testUtil.executeCmdAsync(
-        connection,
-        `insert into ${tableName} values ('1', 'value1')`,
-      );
-      const qccSizeAfterQ1 = q1Statement.getQueryContextCacheSize();
-      assert.ok(qccSizeAfterQ1 >= 2, `Expected QCC size >= 2 after Q1, got ${qccSizeAfterQ1}`);
-
-      // Q2: duplicate primary key — fails, marks txn as aborted.
-      // The server still returns queryContext in the error response, but the
-      // connector currently discards the body on failure so QCC is not updated.
-      let q2Statement: any;
-      try {
-        await testUtil.executeCmdAsync(
-          connection,
-          `insert into ${tableName} values ('1', 'value1')`,
-        );
-        assert.fail('Q2 was expected to fail with a duplicate key error');
-      } catch (err: any) {
-        assert.ok(err, 'Q2 did not produce an error');
-        q2Statement = err.statement;
-      }
-
-      assert.ok(q2Statement, 'Q2 error did not have a statement attached');
-      const qccSizeAfterQ2 = q2Statement.getQueryContextCacheSize();
-      assert.ok(
-        qccSizeAfterQ2 >= qccSizeAfterQ1,
-        `Expected QCC size after failed Q2 (${qccSizeAfterQ2}) >= QCC size after Q1 (${qccSizeAfterQ1})`,
-      );
-
-      // Q3: select after aborted txn — if Q3 lands on a different GS than Q2,
-      // it may miss Q2's sessionDPO change when QCC was not updated by Q2.
-      try {
-        await testUtil.executeCmdAsync(connection, `select * from ${tableName}`);
-      } catch {
-        // Expected to fail because the transaction is aborted
-      }
-    } finally {
-      try {
-        await testUtil.executeCmdAsync(connection, 'rollback');
-      } catch {
-        // best-effort rollback
-      }
-      await testUtil.executeCmdAsync(
-        connection,
-        `drop table if exists ${DB_NAMES[0]}.public.${tableName}`,
-      );
+      await testUtil.executeCmdAsync(connection, 'select 1');
+      assert.fail('Expected query to fail');
+    } catch (err: any) {
+      assert.strictEqual(err.code, '200001');
+      assert.match(err.message, /A primary key already exists/);
+      statement = err.statement;
     }
+    assert.strictEqual(statement.getQueryContextCacheSize(), 2);
+    assert.strictEqual(statement.getQueryContextDTOSize(), 2);
   });
 });

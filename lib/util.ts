@@ -1,5 +1,4 @@
 import util from 'util';
-import Url from 'url';
 import os from 'os';
 import * as Logger from './logger';
 import fs from 'fs';
@@ -186,50 +185,6 @@ export const string = {
 export function exists(value: any) {
   return value !== null && value !== undefined;
 }
-
-/**
- * A collection of url-related utility functions.
- */
-export const url = {
-  /**
-   * Appends a query parameter to a url. If an invalid url is specified, an
-   * exception is thrown.
-   *
-   * @param url
-   * @param paramName the name of the query parameter.
-   * @param paramValue the value of the query parameter.
-   *
-   * @deprecated Use native URL constructor instead
-   */
-  appendParam: function (url: string, paramName: string, paramValue: any) {
-    // if the specified url is valid
-    const urlAsObject = Url.parse(url);
-    if (urlAsObject) {
-      // if the url already has query parameters, use '&' as the separator
-      // when appending the additional query parameter, otherwise use '?'
-      url += (urlAsObject.search ? '&' : '?') + paramName + '=' + paramValue;
-    }
-
-    return url;
-  },
-
-  /**
-   * @deprecated This method should only be used in axios middleware. Once that migration is complete, this function can be removed.
-   */
-  appendRetryParam: function (option: {
-    url: string;
-    retryCount: number;
-    includeRetryReason: boolean;
-    retryReason: string;
-  }) {
-    let retryUrl = this.appendParam(option.url, 'retryCount', option.retryCount);
-    if (option.includeRetryReason) {
-      retryUrl = this.appendParam(retryUrl, 'retryReason', option.retryReason);
-    }
-
-    return retryUrl;
-  },
-};
 
 /**
  * Shallow-copies everything from a source object into a destination object.

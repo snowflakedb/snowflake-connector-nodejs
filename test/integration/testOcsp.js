@@ -277,7 +277,7 @@ describe('OCSP validation', function () {
 
 describe('OCSP privatelink', function () {
   const mockUrl = 'http://www.mockAccount.com';
-  const mockParsedUrl = require('url').parse(mockUrl);
+  const mockParsedUrl = new URL(mockUrl);
   const mockDataBuf = Buffer.from('mockData');
   const mockFunc = function () {
     return;

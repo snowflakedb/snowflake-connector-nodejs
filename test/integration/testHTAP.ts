@@ -7,10 +7,9 @@ import { runWireMockAsync, addWireMockMappingsFromFile } from '../wiremockRunner
 
 const DB_NAMES = ['qcc_test_db1', 'qcc_test_db2', 'qcc_test_db3'] as const;
 
-const randomHybridTableName = () => `hybrid_table_${crypto.randomUUID().replaceAll('-', '')}`;
-
 describe('Query Context Cache', function () {
   let connection: any;
+  const tableName = `ht_${crypto.randomUUID().replaceAll('-', '')}`;
 
   before(async function () {
     if (process.env.CLOUD_PROVIDER !== 'AWS') {
@@ -29,12 +28,14 @@ describe('Query Context Cache', function () {
     if (!connection) {
       return;
     }
+    for (const db of DB_NAMES) {
+      await testUtil.executeCmdAsync(connection, `drop table if exists ${db}.public.${tableName}`);
+    }
     await testUtil.destroyConnectionAsync(connection);
   });
 
   it('tracks per-database context entries after hybrid table inserts', async function () {
-    const tableName = randomHybridTableName();
-    const queryGroups = [
+    for (const { sqlTexts, expectedQccSize } of [
       {
         sqlTexts: [
           `use database ${DB_NAMES[0]}`,
@@ -67,23 +68,13 @@ describe('Query Context Cache', function () {
         ],
         expectedQccSize: 4,
       },
-    ];
-
-    try {
-      for (const { sqlTexts, expectedQccSize } of queryGroups) {
-        let lastStatement: any;
-        for (const sql of sqlTexts) {
-          ({ statement: lastStatement } = await testUtil.executeCmdAsync(connection, sql));
-        }
-        assert.strictEqual(lastStatement.getQueryContextCacheSize(), expectedQccSize);
-        assert.strictEqual(lastStatement.getQueryContextDTOSize(), expectedQccSize);
+    ]) {
+      let lastStatement: any;
+      for (const sql of sqlTexts) {
+        ({ statement: lastStatement } = await testUtil.executeCmdAsync(connection, sql));
       }
-    } finally {
-      await Promise.allSettled(
-        DB_NAMES.map((db) =>
-          testUtil.executeCmdAsync(connection, `drop table if exists ${db}.public.${tableName}`),
-        ),
-      );
+      assert.strictEqual(lastStatement.getQueryContextCacheSize(), expectedQccSize);
+      assert.strictEqual(lastStatement.getQueryContextDTOSize(), expectedQccSize);
     }
   });
 });
@@ -100,10 +91,7 @@ describe('Query Context Cache on failed query', function () {
       wiremock,
       'wiremock/mappings/query_request_failed_with_qcc.json',
     );
-    connection = snowflake.createConnection({
-      account: 'test-account',
-      username: 'test-user',
-      password: 'test-password',
+    connection = testUtil.createConnection({
       accessUrl: `http://127.0.0.1:${port}`,
     });
     await testUtil.connectAsync(connection);

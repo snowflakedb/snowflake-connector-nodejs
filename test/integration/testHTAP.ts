@@ -14,7 +14,7 @@ describe('Query Context Cache', function () {
 
   before(async function () {
     if (process.env.CLOUD_PROVIDER !== 'AWS') {
-      // this.skip();
+      this.skip();
     }
 
     connection = testUtil.createConnection(connOption);

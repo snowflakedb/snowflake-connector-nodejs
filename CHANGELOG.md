@@ -19,6 +19,7 @@ Bugfixes:
 
 - Fixed connection pools re-prompting browser authentication for every pooled connection when using `EXTERNALBROWSER` or `OAUTH_AUTHORIZATION_CODE` authenticators; the first connection now completes auth and caches tokens before subsequent pool connections start (snowflakedb/snowflake-connector-nodejs#1359)
 - Fixed session token renewal failing due to a malformed request, which caused long-running connections to disconnect instead of refreshing their expired session token (snowflakedb/snowflake-connector-nodejs#1357)
+- Fixed query context cache not being updated on failed queries, which could cause stale cache when subsequent queries land on a different GS node (snowflakedb/snowflake-connector-nodejs#1375)
 
 Internal:
 

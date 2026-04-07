@@ -5,14 +5,6 @@ import * as testUtil from './testUtil';
 import { valid as connOption } from './connectionOptions';
 import { runWireMockAsync, addWireMockMappingsFromFile } from '../wiremockRunner';
 
-const snowflake = require('./../../lib/snowflake').default;
-snowflake.configure({
-  logLevel: 'TRACE',
-  disableOCSPChecks: true,
-});
-// @ts-ignore
-process.env.NODE_TLS_REJECT_UNAUTHORIZED = 0;
-
 const DB_NAMES = ['qcc_test_db1', 'qcc_test_db2', 'qcc_test_db3'] as const;
 
 const randomHybridTableName = () => `hybrid_table_${crypto.randomUUID().replaceAll('-', '')}`;

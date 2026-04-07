@@ -1,6 +1,10 @@
 # Changelog
 
-## Upcoming Release
+##
+
+- TBA
+
+## 2.4.0
 
 New features:
 
@@ -9,7 +13,7 @@ New features:
 Changes:
 
 - Bumped `@aws-sdk/*` dependencies to address `fast-xml-parser` vulnerability (snowflakedb/snowflake-connector-nodejs#1355)
-- Added 30-second idle socket timeout for keep-alive HTTP agents to proactively discard stale connections before the server closes them, preventing `socket hang up` / `ECONNRESET` errors (snowflakedb/snowflake-connector-nodejs#1352)
+- Improved keep-alive HTTP agents with a 30-second idle socket timeout that proactively discards stale connections before the server closes them, preventing `socket hang up` and `ECONNRESET` errors (snowflakedb/snowflake-connector-nodejs#1352)
 
 Bugfixes:
 
@@ -19,7 +23,7 @@ Bugfixes:
 
 Internal:
 
-- Include `spcs_token` when driver runs inside SPCS (snowflakedb/snowflake-connector-nodejs#1372)
+- Included `spcs_token` when driver runs inside SPCS (snowflakedb/snowflake-connector-nodejs#1372)
 
 ## 2.3.6
 

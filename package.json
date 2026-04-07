@@ -1,6 +1,6 @@
 {
   "name": "snowflake-sdk",
-  "version": "2.3.6",
+  "version": "2.4.0",
   "description": "Node.js driver for Snowflake",
   "engines": {
     "node": ">=18"

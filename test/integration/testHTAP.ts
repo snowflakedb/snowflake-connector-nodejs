@@ -1,7 +1,9 @@
 import assert from 'assert';
 import crypto from 'crypto';
+import { WireMockRestClient } from 'wiremock-rest-client';
 import * as testUtil from './testUtil';
 import { valid as connOption } from './connectionOptions';
+import { runWireMockAsync, addWireMockMappingsFromFile } from '../wiremockRunner';
 
 const DB_NAMES = ['qcc_test_db1', 'qcc_test_db2', 'qcc_test_db3'] as const;
 
@@ -74,5 +76,42 @@ describe('Query Context Cache', function () {
       assert.strictEqual(lastStatement.getQueryContextCacheSize(), expectedQccSize);
       assert.strictEqual(lastStatement.getQueryContextDTOSize(), expectedQccSize);
     }
+  });
+});
+
+describe('Query Context Cache on failed query', function () {
+  let wiremock: WireMockRestClient;
+  let connection: any;
+
+  before(async function () {
+    const port = await testUtil.getFreePort();
+    wiremock = await runWireMockAsync(port);
+    await addWireMockMappingsFromFile(wiremock, 'wiremock/mappings/login_request_ok.json');
+    await addWireMockMappingsFromFile(
+      wiremock,
+      'wiremock/mappings/query_request_failed_with_qcc.json',
+    );
+    connection = testUtil.createConnection({
+      accessUrl: `http://127.0.0.1:${port}`,
+    });
+    await testUtil.connectAsync(connection);
+  });
+
+  after(async function () {
+    await wiremock.global.shutdown();
+  });
+
+  it('updates query context cache on failed query', async function () {
+    let statement: any;
+    try {
+      await testUtil.executeCmdAsync(connection, 'select 1');
+      assert.fail('Expected query to fail');
+    } catch (err: any) {
+      assert.strictEqual(err.code, '200001');
+      assert.match(err.message, /A primary key already exists/);
+      statement = err.statement;
+    }
+    assert.strictEqual(statement.getQueryContextCacheSize(), 2);
+    assert.strictEqual(statement.getQueryContextDTOSize(), 2);
   });
 });

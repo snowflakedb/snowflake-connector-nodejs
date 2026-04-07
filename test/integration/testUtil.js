@@ -96,35 +96,17 @@ module.exports.executeCmdUsePool = function (connectionPool, sql, callback, bind
   });
 };
 
-const executeCmdAsync = function (connection, sqlText, binds = undefined) {
+const executeCmdAsync = function (connection, sqlText, additionalParameters = {}) {
   return new Promise((resolve, reject) => {
     connection.execute({
       sqlText,
-      binds,
-      complete: (err, _, rows) => (err ? reject(err) : resolve(rows)),
+      ...additionalParameters,
+      complete: (err, statement, rows) => (err ? reject(err) : resolve({ rows, statement })),
     });
   });
 };
 
 module.exports.executeCmdAsync = executeCmdAsync;
-
-const executeCmdAsyncWithAdditionalParameters = function (
-  connection,
-  sqlText,
-  additionalParameters,
-) {
-  return new Promise((resolve, reject) => {
-    const executeParams = {
-      sqlText: sqlText,
-      complete: (err, rowStatement, rows) =>
-        err ? reject(err) : resolve({ rowStatement: rowStatement, rows: rows }),
-      ...additionalParameters,
-    };
-    connection.execute(executeParams);
-  });
-};
-
-module.exports.executeCmdAsyncWithAdditionalParameters = executeCmdAsyncWithAdditionalParameters;
 /**
  * Drop tables one by one if exist - any connection error is ignored
  * @param connection Connection

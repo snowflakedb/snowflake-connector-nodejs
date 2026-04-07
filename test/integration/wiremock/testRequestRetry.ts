@@ -161,14 +161,10 @@ describe('Request Retries', () => {
       await addWireMockMappingsFromFile(wiremock, 'wiremock/mappings/login_request_ok.json');
       await registerRetryMappings(error, 'cancel_query_byid');
       await testUtil.connectAsync(connection);
-      const { rowStatement } = await testUtil.executeCmdAsyncWithAdditionalParameters(
-        connection,
-        'SELECT 1',
-        {
-          asyncExec: true,
-        },
-      );
-      await new Promise((resolve) => rowStatement.cancel(resolve));
+      const { statement } = await testUtil.executeCmdAsync(connection, 'SELECT 1', {
+        asyncExec: true,
+      });
+      await new Promise((resolve) => statement.cancel(resolve));
       assert.strictEqual(
         getAxiosRequestsCount('/queries/01baf79b-0108-1a60-0000-01110354a6ce/abort-request'),
         shouldRetry ? 4 : 1,
@@ -181,7 +177,7 @@ describe('Request Retries', () => {
       await addWireMockMappingsFromFile(wiremock, 'wiremock/mappings/login_request_ok.json');
       await registerRetryMappings(error, 'query_request');
       await testUtil.connectAsync(connection);
-      await testUtil.executeCmdAsyncWithAdditionalParameters(connection, 'SELECT 1', {
+      await testUtil.executeCmdAsync(connection, 'SELECT 1', {
         asyncExec: true,
       });
       assert.strictEqual(getAxiosRequestsCount('/queries/v1/query-request'), shouldRetry ? 4 : 1);
@@ -195,7 +191,7 @@ describe('Request Retries', () => {
       );
       const connection = testUtil.createConnection({ ...baseConnectionConfig, timeout: 1000 });
       await testUtil.connectAsync(connection);
-      await testUtil.executeCmdAsyncWithAdditionalParameters(connection, 'SELECT 1', {
+      await testUtil.executeCmdAsync(connection, 'SELECT 1', {
         asyncExec: true,
       });
       assert.strictEqual(getAxiosRequestsCount('/queries/v1/query-request'), 4);

@@ -40,7 +40,9 @@ describe('Session token renewal', function () {
     await new Promise((resolve) => setTimeout(resolve, 61_000));
 
     // This query will fail once, trigger session token renewal, and succeed on retry
-    const [sessionTokenValidity] = await testUtil.executeCmdAsync(
+    const {
+      rows: [sessionTokenValidity],
+    } = await testUtil.executeCmdAsync(
       authTest.connection,
       "SHOW PARAMETERS LIKE 'SESSION_TOKEN_VALIDITY' IN ACCOUNT",
     );

@@ -2,7 +2,9 @@
 
 ##
 
-- TBA
+Changes:
+
+- Replaced deprecated Node.js `url.parse()` with the WHATWG `URL` constructor (snowflakedb/snowflake-connector-nodejs#1380)
 
 ## 2.4.0
 

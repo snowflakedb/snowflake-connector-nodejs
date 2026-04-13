@@ -5,6 +5,7 @@
 Changes:
 
 - Replaced deprecated Node.js `url.parse()` with the WHATWG `URL` constructor (snowflakedb/snowflake-connector-nodejs#1380)
+- Fixed file name pattern wildcard matching behaviour, should be now similar to the dropped 'glob' package's default 'dot:false' behaviour (snowflakedb/snowflake-connector-nodejs#1381)
 
 ## 2.4.0
 

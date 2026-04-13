@@ -35,7 +35,18 @@ describe('FileUtil.getDigestAndSizeForFile()', function () {
 });
 
 describe('globToRegex', function () {
-  const files = ['matched.gzip', 'matched2.gzip', 'matched.txt', 'notmatched.txt'];
+  const files = [
+    'matched.gzip',
+    'matched2.gzip',
+    'matched.txt',
+    'notmatched.txt',
+    '.hidden_file.txt',
+    '.env',
+    '.streamlit',
+    'app.py',
+    'config.toml',
+    'archive.tar.gz',
+  ];
   const testCases = [
     {
       pattern: 'ma*',
@@ -57,9 +68,61 @@ describe('globToRegex', function () {
       pattern: 'm?t?he*',
       expectedMatches: ['matched.gzip', 'matched2.gzip', 'matched.txt'],
     },
+    {
+      pattern: '*.*',
+      expectedMatches: [
+        'matched.gzip',
+        'matched2.gzip',
+        'matched.txt',
+        'notmatched.txt',
+        'app.py',
+        'config.toml',
+        'archive.tar.gz',
+      ],
+    },
+    {
+      pattern: '*',
+      expectedMatches: [
+        'matched.gzip',
+        'matched2.gzip',
+        'matched.txt',
+        'notmatched.txt',
+        'app.py',
+        'config.toml',
+        'archive.tar.gz',
+      ],
+    },
+    {
+      pattern: '?.*',
+      expectedMatches: [],
+    },
+    {
+      pattern: '.*',
+      expectedMatches: ['.hidden_file.txt', '.env', '.streamlit'],
+    },
+    {
+      pattern: '.*.txt',
+      expectedMatches: ['.hidden_file.txt'],
+    },
+    {
+      pattern: '.env',
+      expectedMatches: ['.env'],
+    },
+    {
+      pattern: '*.*.*',
+      expectedMatches: ['archive.tar.gz'],
+    },
+    {
+      pattern: '*.toml',
+      expectedMatches: ['config.toml'],
+    },
+    {
+      pattern: '*.py',
+      expectedMatches: ['app.py'],
+    },
   ];
   for (const { pattern, expectedMatches } of testCases) {
-    it(`${pattern} should match ${expectedMatches.join(', ')}`, () => {
+    it(`"${pattern}" should match [${expectedMatches.join(', ')}]`, () => {
       const regex = globToRegex(pattern);
       const matchedFiles = files.filter((file) => regex.test(file));
       assert.deepStrictEqual(matchedFiles, expectedMatches);

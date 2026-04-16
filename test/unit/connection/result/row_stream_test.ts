@@ -77,35 +77,32 @@ describe('RowStream', function () {
       highWaterMark = 1000,
     ) {
       const callLog: string[] = [];
+
+      let totalRows = 0;
       const chunks = chunkDefs.map((def, i) => {
-        const startIndex = chunkDefs.slice(0, i).reduce((s, d) => s + d.rows.length, 0);
-        return createMockChunk(i, startIndex, def.rows, callLog);
+        const chunk = createMockChunk(i, totalRows, def.rows, callLog);
+        totalRows += def.rows.length;
+        return chunk;
       });
 
-      const totalRows = chunkDefs.reduce((s, d) => s + d.rows.length, 0);
-      const columns = [{ getId: () => 0, getName: () => 'col', getType: () => 'TEXT' }];
-
-      const config = new ConnectionConfig({
-        ...mandatoryConnectionOptions,
-        rowStreamHighWaterMark: highWaterMark,
-      });
-
-      const result = {
-        getReturnedRows: () => totalRows,
-        findOverlappingChunks: () => chunks,
+      const statement = {
+        getColumns: () => [{ getId: () => 0, getName: () => 'col', getType: () => 'TEXT' }],
       };
-
       const context = {
-        connectionConfig: config,
-        result,
+        connectionConfig: new ConnectionConfig({
+          ...mandatoryConnectionOptions,
+          rowStreamHighWaterMark: highWaterMark,
+        }),
+        result: {
+          getReturnedRows: () => totalRows,
+          findOverlappingChunks: () => chunks,
+        },
         isFetchingResult: false,
         rowMode: undefined,
         fetchAsString: undefined,
       };
 
-      const statement = { getColumns: () => columns };
       const stream = new RowStream(statement, context) as unknown as Readable;
-
       return { stream, callLog, chunks };
     }
 

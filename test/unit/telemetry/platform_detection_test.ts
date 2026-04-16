@@ -14,7 +14,7 @@ function getFreshModule({
       },
       GetCallerIdentityCommand: class {},
     },
-  }) as typeof import('../../../lib/telemetry/platform_detection/index');
+  }) as typeof import('../../../lib/telemetry/platform_detection');
 }
 
 describe('getDetectedPlatforms()', () => {

@@ -77,8 +77,8 @@ describe('getDetectedPlatforms()', () => {
       signal.addEventListener('abort', () => req.emit('error', signal.reason));
       return req;
     });
-    const { getDetectedPlatforms, DETECTION_TIMEOUT_MS } = getFreshModule();
     const start = Date.now();
+    const { getDetectedPlatforms, DETECTION_TIMEOUT_MS } = getFreshModule();
     const platforms = await getDetectedPlatforms();
     const elapsed = Date.now() - start;
     assert.deepStrictEqual(platforms, []);

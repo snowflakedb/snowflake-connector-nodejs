@@ -125,6 +125,13 @@ async function hasGcpIdentity(abortSignal: AbortSignal): Promise<boolean> {
   return result.ok;
 }
 
+function envPresent(...envVars: string[]): boolean {
+  return envVars.every((v) => {
+    const val = process.env[v];
+    return val !== undefined && val !== '';
+  });
+}
+
 /*
  * We intentionally avoid using fetch() here, since aborting fetch requests
  * can sometimes leave sockets open and prevent the Node.js process from exiting (tested on 22).
@@ -149,13 +156,6 @@ function httpGet(
       res.on('error', reject);
     });
     req.on('error', reject);
-  });
-}
-
-function envPresent(...envVars: string[]): boolean {
-  return envVars.every((v) => {
-    const val = process.env[v];
-    return val !== undefined && val !== '';
   });
 }
 

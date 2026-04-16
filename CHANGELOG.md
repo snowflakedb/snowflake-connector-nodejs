@@ -11,6 +11,10 @@ Bugfixes:
 
 - Fixed file name pattern matching to not match dot-prefixed files/directories by default, aligning with standard glob behavior and default of `dot: false`. Was lingering around since v2.3.3. (snowflakedb/snowflake-connector-nodejs#1381)
 
+Internal:
+
+- Extended login-request `PLATFORM` telemetry to detect cloud VMs, managed identities, and GitHub Actions in addition to serverless environments (snowflakedb/snowflake-connector-nodejs#1386)
+
 ## 2.4.0
 
 New features:

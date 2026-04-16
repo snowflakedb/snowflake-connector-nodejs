@@ -2,6 +2,10 @@
 
 ## Upcoming Release
 
+Internal changes:
+
+- The login-request now requests `sessionId` as a string to avoid precision loss
+
 Changes:
 
 - Replaced deprecated Node.js `url.parse()` with the WHATWG `URL` constructor (snowflakedb/snowflake-connector-nodejs#1380)

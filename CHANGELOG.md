@@ -4,7 +4,7 @@
 
 Internal changes:
 
-- The login-request now requests `sessionId` as a string to avoid precision loss
+- The login-request now requests `sessionId` as a string to avoid precision loss (snowflakedb/snowflake-connector-nodejs#1384)
 
 Changes:
 

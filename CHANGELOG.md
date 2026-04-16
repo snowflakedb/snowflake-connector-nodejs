@@ -2,10 +2,6 @@
 
 ## Upcoming Release
 
-Internal changes:
-
-- The login-request now requests `sessionId` as a string to avoid precision loss (snowflakedb/snowflake-connector-nodejs#1384)
-
 Changes:
 
 - Replaced deprecated Node.js `url.parse()` with the WHATWG `URL` constructor (snowflakedb/snowflake-connector-nodejs#1380)
@@ -14,6 +10,10 @@ Changes:
 Bugfixes:
 
 - Fixed file name pattern matching to not match dot-prefixed files/directories by default, aligning with standard glob behavior and default of `dot: false`. Was lingering around since v2.3.3. (snowflakedb/snowflake-connector-nodejs#1381)
+
+Internal:
+
+- The login-request now requests `sessionId` as a string to avoid precision loss (snowflakedb/snowflake-connector-nodejs#1384)
 
 ## 2.4.0
 

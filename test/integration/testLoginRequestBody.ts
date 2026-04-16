@@ -125,6 +125,12 @@ describe('/login-request body', () => {
       }
     });
 
+    it('contains PLATFORM as an array', async () => {
+      await initConnection();
+      const platform = getClientEnvironment().PLATFORM;
+      assert.ok(Array.isArray(platform), 'PLATFORM should be an array');
+    });
+
     it('contains PLATFORM field with mocked lambda env', async () => {
       sinon.stub(process, 'env').value({ ...process.env, LAMBDA_TASK_ROOT: '/var/task' });
       delete require.cache[require.resolve('../../lib/telemetry/platform_detection')];
@@ -139,6 +145,23 @@ describe('/login-request body', () => {
       assert.ok(
         platform.includes('is_aws_lambda'),
         `Expected PLATFORM to include is_aws_lambda, got: ${JSON.stringify(platform)}`,
+      );
+    });
+
+    it('contains PLATFORM field with mocked GitHub Actions env', async () => {
+      sinon.stub(process, 'env').value({ ...process.env, GITHUB_ACTIONS: 'true' });
+      delete require.cache[require.resolve('../../lib/telemetry/platform_detection')];
+      const freshCoreInstance = rewiremock.proxy('../../lib/snowflake', {
+        '../../lib/telemetry/platform_detection': rewiremock.proxy(
+          '../../lib/telemetry/platform_detection',
+        ),
+      });
+      await initConnection({}, freshCoreInstance);
+      const platform = getClientEnvironment().PLATFORM;
+      assert.ok(Array.isArray(platform), 'PLATFORM should be an array');
+      assert.ok(
+        platform.includes('is_github_action'),
+        `Expected PLATFORM to include is_github_action, got: ${JSON.stringify(platform)}`,
       );
     });
   });

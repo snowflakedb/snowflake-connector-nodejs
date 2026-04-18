@@ -1,11 +1,11 @@
-import BrowserLogger from './logger/browser';
+import NodeLogger from './logger/node';
 
-let instance: BrowserLogger;
+let instance: NodeLogger;
 
 /**
  * Sets the logger instance. For internal use only.
  */
-export function setInstance(newInstance: BrowserLogger) {
+export function setInstance(newInstance: NodeLogger) {
   instance = newInstance;
 }
 
@@ -26,15 +26,8 @@ export function setInstance(newInstance: BrowserLogger) {
  * ```
  */
 export function getInstance() {
-  // use the browser implementation of logger as the default implementation;
-  // we do this so that unit tests don't fail when the modules they're testing
-  // log messages
-  //
-  // TODO:
-  // BrowserLogger API doesn't match regular logger used by the driver, replace this with actual logger
-  // used in node when removing browser-related code.
   if (!instance) {
-    instance = new BrowserLogger();
+    instance = new NodeLogger();
   }
 
   return instance;

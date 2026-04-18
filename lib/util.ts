@@ -206,22 +206,6 @@ export function apply(dst: any, src: any) {
 }
 
 /**
- * Returns true if the code is currently being run in the browser, false
- * otherwise.
- */
-export function isBrowser() {
-  // @ts-ignore TS2339: Property 'browser' does not exist on type 'Process'
-  return !!(process && process.browser);
-}
-
-/**
- * Returns true if the code is currently being run in node, false otherwise.
- */
-export function isNode() {
-  return !isBrowser();
-}
-
-/**
  * Returns the next sleep time calculated by exponential backoff with
  * decorrelated jitter.
  * sleep = min(cap, random_between(base, sleep * 3))

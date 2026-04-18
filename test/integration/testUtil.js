@@ -6,8 +6,6 @@ const fsPromises = require('fs').promises;
 const crypto = require('crypto');
 const Logger = require('../../lib/logger');
 const path = require('path');
-const os = require('os');
-const net = require('net');
 
 module.exports.createConnection = function (validConnectionOptionsOverride = {}, coreInstance) {
   coreInstance = coreInstance || snowflake;
@@ -318,16 +316,6 @@ module.exports.assertLogMessage = function (expectedLevel, expectedMessage, actu
 };
 
 /**
- * @param directory string
- * @return string
- */
-module.exports.createTestingDirectoryInTemp = function (directory) {
-  const tempDir = path.join(os.tmpdir(), directory);
-  fs.mkdirSync(tempDir, { recursive: true });
-  return tempDir;
-};
-
-/**
  * @param mainDir string
  * @param fileName string
  * @param data string
@@ -420,14 +408,4 @@ module.exports.isRequestCancelledError = function (error) {
     'ERR_CANCELED',
     `Expected error code "ERR_CANCELED", but received ${error.code}`,
   );
-};
-
-module.exports.getFreePort = async function () {
-  return new Promise((res) => {
-    const srv = net.createServer();
-    srv.listen(0, () => {
-      const port = srv.address().port;
-      srv.close(() => res(port));
-    });
-  });
 };

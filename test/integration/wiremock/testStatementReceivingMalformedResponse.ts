@@ -3,6 +3,7 @@ import { WireMockRestClient } from 'wiremock-rest-client';
 import { WIP_ConnectionOptions } from '../../../lib/connection/types';
 import * as testUtil from '../testUtil';
 import { runWireMockAsync, addWireMockMappingsFromFile } from '../../wiremockRunner';
+import { getFreePort } from '../../../lib/util';
 
 /*
  * This test doesn't cover all potential unhandled rejection leaks in statement.js,
@@ -19,7 +20,7 @@ describe('SELECT 1 receiving response with missing rowset', function () {
   let connectionConfig: WIP_ConnectionOptions;
 
   before(async () => {
-    const port = await testUtil.getFreePort();
+    const port = await getFreePort();
     wiremock = await runWireMockAsync(port);
     connectionConfig = {
       account: 'test-account',

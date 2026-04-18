@@ -6,6 +6,7 @@ import { runWireMockAsync, addWireMockMappingsFromFile } from '../wiremockRunner
 import * as testUtil from './testUtil';
 import axiosInstance from '../../lib/http/axios_instance';
 import { WIP_ConnectionOptions } from '../../lib/connection/types';
+import { getFreePort } from '../../lib/util';
 
 describe('/login-request body', () => {
   let wiremock: any;
@@ -31,7 +32,7 @@ describe('/login-request body', () => {
   }
 
   before(async () => {
-    const port = await testUtil.getFreePort();
+    const port = await getFreePort();
     wiremock = await runWireMockAsync(port);
     await addWireMockMappingsFromFile(wiremock, 'wiremock/mappings/login_request_ok.json');
   });

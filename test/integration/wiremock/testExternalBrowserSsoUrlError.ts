@@ -5,6 +5,7 @@ import { WIP_ConnectionOptions } from '../../../lib/connection/types';
 import * as testUtil from '../testUtil';
 import { runWireMockAsync, addWireMockMappingsFromFile } from '../../wiremockRunner';
 import { rest } from '../../../lib/global_config';
+import { getFreePort } from '../../../lib/util';
 
 describe('External browser authenticator-request error', function () {
   let wiremock: WireMockRestClient;
@@ -15,7 +16,7 @@ describe('External browser authenticator-request error', function () {
   // to avoid the "host" and HTTPS_PROTOCOL hacks below, but the Universal Driver will replace this code,
   // so it's not worth the effort now.
   before(async () => {
-    const port = await testUtil.getFreePort();
+    const port = await getFreePort();
     wiremock = await runWireMockAsync(port);
     connectionConfig = {
       // A hackish option to include port in SSO url request

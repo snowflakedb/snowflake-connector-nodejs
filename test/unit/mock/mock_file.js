@@ -30,7 +30,6 @@ exports.createFsMock = function () {
   return new FsMock();
 };
 const badPermissionsConfig = 'bad_perm_config.json';
-exports.badPermissionsConfig = badPermissionsConfig;
 
 const wrongOwner = 'wrong_file_owner.json';
 exports.wrongOwner = wrongOwner;
@@ -114,5 +113,3 @@ class FsMock {
     }
   }
 }
-
-exports = FsMock;

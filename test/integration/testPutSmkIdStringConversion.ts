@@ -3,6 +3,7 @@ import rewiremock from 'rewiremock/node';
 import os from 'os';
 import path from 'path';
 import { runWireMockAsync, addWireMockMappingsFromFile } from '../wiremockRunner';
+import { getFreePort } from '../../lib/util';
 
 const OriginalFileTransferAgent = require('../../lib/file_transfer_agent/file_transfer_agent');
 
@@ -47,7 +48,7 @@ describe('smkId patching in PUT statements', () => {
     let wiremock: any;
 
     before(async () => {
-      const port = await testUtil.getFreePort();
+      const port = await getFreePort();
       wiremock = await runWireMockAsync(port);
       await addWireMockMappingsFromFile(wiremock, 'wiremock/mappings/login_request_ok.json');
     });

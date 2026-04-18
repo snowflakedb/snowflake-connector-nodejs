@@ -8,9 +8,9 @@ const OcspResponseCache = require('./../../lib/agent/ocsp_response_cache');
 const sharedLogger = require('./sharedLogger');
 const Logger = require('./../../lib/logger');
 const { hangWebServerUrl } = require('../hangWebserver');
-const testUtil = require('./testUtil');
 const ProxyAgent = require('./../../lib/agent/https_proxy_agent');
 const { runWireMockAsync } = require('../wiremockRunner');
+const { getFreePort } = require('./../../lib/util');
 
 Logger.getInstance().setLogger(sharedLogger.logger);
 
@@ -70,7 +70,7 @@ describe('Connection with OCSP test', function () {
     let httpRequestSpy;
 
     before(async () => {
-      const port = await testUtil.getFreePort();
+      const port = await getFreePort();
       wiremockClient = await runWireMockAsync(port, {
         wiremockJarArgs: ['--proxy-all', connectionOptions.accessUrl],
       });

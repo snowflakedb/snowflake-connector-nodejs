@@ -519,7 +519,7 @@ export function isWindows() {
 }
 
 export async function getFreePort() {
-  return new Promise((res) => {
+  return new Promise<number>((res) => {
     const srv = net.createServer();
     srv.listen(0, () => {
       // @ts-ignore TS2339: Property 'port' does not exist on type 'string | AddressInfo'

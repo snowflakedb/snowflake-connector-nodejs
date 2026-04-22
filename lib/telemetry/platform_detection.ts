@@ -3,6 +3,7 @@ import { STSClient, GetCallerIdentityCommand } from '@aws-sdk/client-sts';
 
 type Detector = (abortSignal: AbortSignal) => boolean | Promise<boolean>;
 
+const AWS_METADATA_BASE_URL = 'http://169.254.169.254';
 const AZURE_METADATA_BASE_URL = 'http://169.254.169.254';
 const GCE_METADATA_ROOT_URL = 'http://metadata.google.internal';
 const GCE_METADATA_BASE_URL = 'http://metadata.google.internal/computeMetadata/v1';
@@ -67,12 +68,24 @@ function isGithubAction(): boolean {
   return envPresent('GITHUB_ACTIONS');
 }
 
+// Intentionally not using the available AWS SDK, as it does not support abort signals and is easy to
+// misconfigure retry logic.
 async function isEc2Instance(abortSignal: AbortSignal): Promise<boolean> {
-  const result = await httpGet(
-    'http://169.254.169.254/latest/dynamic/instance-identity/document',
+  const tokenResult = await httpRequest(
+    `${AWS_METADATA_BASE_URL}/latest/api/token`,
     abortSignal,
+    { 'X-aws-ec2-metadata-token-ttl-seconds': '21600' },
+    'PUT',
+  ).catch(() => null);
+  const token = tokenResult?.ok ? tokenResult.body.trim() : null;
+
+  const result = await httpRequest(
+    `${AWS_METADATA_BASE_URL}/latest/dynamic/instance-identity/document`,
+    abortSignal,
+    token ? { 'X-aws-ec2-metadata-token': token } : undefined,
   );
   if (!result.ok) return false;
+
   const doc = JSON.parse(result.body) as { instanceId?: string };
   return !!doc.instanceId;
 }
@@ -87,8 +100,8 @@ async function hasAwsIdentity(abortSignal: AbortSignal): Promise<boolean> {
 }
 
 async function isAzureVm(abortSignal: AbortSignal): Promise<boolean> {
-  const result = await httpGet(
-    `${AZURE_METADATA_BASE_URL}/metadata/instance?api-version=2019-03-11`,
+  const result = await httpRequest(
+    `${AZURE_METADATA_BASE_URL}/metadata/instance?api-version=2021-02-01`,
     abortSignal,
     { Metadata: 'true' },
   );
@@ -103,7 +116,7 @@ async function hasAzureManagedIdentity(abortSignal: AbortSignal): Promise<boolea
     'api-version': '2018-02-01',
     resource: 'https://management.azure.com',
   });
-  const result = await httpGet(
+  const result = await httpRequest(
     `${AZURE_METADATA_BASE_URL}/metadata/identity/oauth2/token?${params}`,
     abortSignal,
     { Metadata: 'true' },
@@ -112,12 +125,12 @@ async function hasAzureManagedIdentity(abortSignal: AbortSignal): Promise<boolea
 }
 
 async function isGceVm(abortSignal: AbortSignal): Promise<boolean> {
-  const result = await httpGet(GCE_METADATA_ROOT_URL, abortSignal);
+  const result = await httpRequest(GCE_METADATA_ROOT_URL, abortSignal);
   return result.headers['metadata-flavor'] === 'Google';
 }
 
 async function hasGcpIdentity(abortSignal: AbortSignal): Promise<boolean> {
-  const result = await httpGet(
+  const result = await httpRequest(
     `${GCE_METADATA_BASE_URL}/instance/service-accounts/default/email`,
     abortSignal,
     { 'Metadata-Flavor': 'Google' },
@@ -136,17 +149,18 @@ function envPresent(...envVars: string[]): boolean {
  * We intentionally avoid using fetch() here, since aborting fetch requests
  * can sometimes leave sockets open and prevent the Node.js process from exiting (tested on 22).
  */
-function httpGet(
+function httpRequest(
   url: string,
   signal: AbortSignal,
   headers?: Record<string, string>,
+  method: string = 'GET',
 ): Promise<{
   ok: boolean;
   headers: http.IncomingHttpHeaders;
   body: string;
 }> {
   return new Promise((resolve, reject) => {
-    const req = http.get(url, { signal, headers }, (res) => {
+    const req = http.request(url, { method, signal, headers }, (res) => {
       let body = '';
       const statusCode = res.statusCode ?? 0;
       res.on('data', (chunk) => (body += chunk));
@@ -156,6 +170,7 @@ function httpGet(
       res.on('error', reject);
     });
     req.on('error', reject);
+    req.end();
   });
 }
 

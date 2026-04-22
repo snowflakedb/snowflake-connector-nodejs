@@ -19,23 +19,26 @@ function getFreshModule({
 
 describe('getDetectedPlatforms()', () => {
   interface MockRoute {
-    match: (url: string) => boolean;
+    match: (url: string, method: string, headers: Record<string, string>) => boolean;
     status: number;
     body: string;
     headers?: Record<string, string>;
   }
 
-  let httpGetStub: sinon.SinonStub;
-  let httpGetHandlers: MockRoute[];
+  let httpRequestStub: sinon.SinonStub;
+  let httpRequestHandlers: MockRoute[];
   let envStub: sinon.SinonStub;
 
   beforeEach(() => {
-    httpGetHandlers = [];
+    httpRequestHandlers = [];
     envStub = sinon.stub(process, 'env').value({});
-    httpGetStub = sinon.stub(http, 'get').callsFake((url: any, _opts: any, cb?: any) => {
+    httpRequestStub = sinon.stub(http, 'request').callsFake((url: any, _opts: any, cb?: any) => {
+      const opts = typeof _opts === 'object' && _opts !== null ? _opts : {};
       const callback = typeof _opts === 'function' ? _opts : cb;
       const urlStr = String(url);
-      const route = httpGetHandlers.find((r) => r.match(urlStr));
+      const method = String(opts.method || 'GET').toUpperCase();
+      const headers: Record<string, string> = opts.headers || {};
+      const route = httpRequestHandlers.find((r) => r.match(urlStr, method, headers));
       const req = new EventEmitter() as http.ClientRequest;
       (req as any).end = () => {};
 
@@ -71,10 +74,15 @@ describe('getDetectedPlatforms()', () => {
   });
 
   it('returns [] when all detectors time out (should take ~200ms)', async () => {
-    httpGetStub.callsFake((_url: any, opts: any) => {
+    httpRequestStub.callsFake((_url: any, opts: any) => {
       const signal: AbortSignal = opts?.signal;
       const req = new EventEmitter() as http.ClientRequest;
-      signal.addEventListener('abort', () => req.emit('error', signal.reason));
+      (req as any).end = () => {};
+      if (signal?.aborted) {
+        process.nextTick(() => req.emit('error', signal.reason));
+      } else {
+        signal?.addEventListener('abort', () => req.emit('error', signal.reason));
+      }
       return req;
     });
     const start = Date.now();
@@ -150,14 +158,51 @@ describe('getDetectedPlatforms()', () => {
     assert.ok(platforms.includes('is_gce_cloud_run_job'));
   });
 
-  it('returns is_ec2_instance when EC2 instance metadata service available', async () => {
-    httpGetHandlers.push({
-      match: (url) => url.includes('169.254.169.254/latest/dynamic/instance-identity/document'),
-      status: 200,
-      body: '{ "instanceId": "i-12345" }',
+  describe('is_ec2_instance', () => {
+    const TOKEN_URL = '169.254.169.254/latest/api/token';
+    const IDENTITY_URL = '169.254.169.254/latest/dynamic/instance-identity/document';
+
+    it('detects via IMDSv2 using token PUT and authenticated GET', async () => {
+      let capturedIdentityHeaders: Record<string, string> = {};
+      httpRequestHandlers.push({
+        match: (url, method) => url.includes(TOKEN_URL) && method === 'PUT',
+        status: 200,
+        body: 'imds-token',
+      });
+      httpRequestHandlers.push({
+        match: (url, method, headers) => {
+          if (!url.includes(IDENTITY_URL) || method !== 'GET') return false;
+          capturedIdentityHeaders = headers;
+          return true;
+        },
+        status: 200,
+        body: '{ "instanceId": "i-12345" }',
+      });
+      const { getDetectedPlatforms } = getFreshModule();
+      assert.ok((await getDetectedPlatforms()).includes('is_ec2_instance'));
+      assert.strictEqual(capturedIdentityHeaders['X-aws-ec2-metadata-token'], 'imds-token');
     });
-    const { getDetectedPlatforms } = getFreshModule();
-    assert.ok((await getDetectedPlatforms()).includes('is_ec2_instance'));
+
+    it('falls back to IMDSv1 (no token) when IMDSv2 token PUT fails', async () => {
+      let capturedIdentityHeaders: Record<string, string> = {};
+      httpRequestHandlers.push({
+        match: (url, method) => url.includes(TOKEN_URL) && method === 'PUT',
+        status: 403,
+        body: 'Forbidden',
+      });
+      httpRequestHandlers.push({
+        match: (url, method, headers) => {
+          if (!url.includes(IDENTITY_URL) || method !== 'GET') return false;
+          capturedIdentityHeaders = headers;
+          return true;
+        },
+        status: 200,
+        body: '{ "instanceId": "i-legacy" }',
+      });
+      const { getDetectedPlatforms } = getFreshModule();
+      assert.ok((await getDetectedPlatforms()).includes('is_ec2_instance'));
+      assert.strictEqual(capturedIdentityHeaders['X-aws-ec2-metadata-token'], undefined);
+    });
   });
 
   describe('has_aws_identity', () => {
@@ -193,7 +238,7 @@ describe('getDetectedPlatforms()', () => {
   });
 
   it('returns is_azure_vm when Azure VM metadata service returns 200', async () => {
-    httpGetHandlers.push({
+    httpRequestHandlers.push({
       match: (url) => url.includes('169.254.169.254/metadata/instance'),
       status: 200,
       body: '{}',
@@ -215,7 +260,7 @@ describe('getDetectedPlatforms()', () => {
     });
 
     it('detects in Azure VM', async () => {
-      httpGetHandlers.push({
+      httpRequestHandlers.push({
         match: (url) => url.includes('169.254.169.254/metadata/identity/oauth2/token'),
         status: 200,
         body: '{}',
@@ -226,7 +271,7 @@ describe('getDetectedPlatforms()', () => {
   });
 
   it('returns is_gce_vm when GCE VM metadata service returns Metadata-Flavor header', async () => {
-    httpGetHandlers.push({
+    httpRequestHandlers.push({
       match: (url) => url.includes('metadata.google.internal'),
       status: 200,
       body: '',
@@ -237,7 +282,7 @@ describe('getDetectedPlatforms()', () => {
   });
 
   it('returns has_gcp_identity when GCE VM metadata service returns service account email', async () => {
-    httpGetHandlers.push({
+    httpRequestHandlers.push({
       match: (url) =>
         url.includes(
           'metadata.google.internal/computeMetadata/v1/instance/service-accounts/default/email',

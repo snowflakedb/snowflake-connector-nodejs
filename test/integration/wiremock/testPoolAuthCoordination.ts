@@ -1,10 +1,10 @@
 import assert from 'assert';
 import { WireMockRestClient } from 'wiremock-rest-client';
-import * as testUtil from '../testUtil';
 import { runWireMockAsync, addWireMockMappingsFromFile } from '../../wiremockRunner';
 import axios from 'axios';
 import { PENDING_AUTHS } from '../../../lib/authentication/auth_coordinator';
 import { WIP_ConnectionOptions } from '../../../lib/connection/types';
+import { getFreePort } from '../../../lib/util';
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const snowflake = require('../../../lib/snowflake').default;
@@ -41,7 +41,7 @@ describe('Pool auth coordination', function () {
   let port: number;
 
   before(async function () {
-    port = await testUtil.getFreePort();
+    port = await getFreePort();
     wiremock = await runWireMockAsync(port);
   });
 

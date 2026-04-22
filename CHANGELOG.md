@@ -5,7 +5,7 @@
 Changes:
 
 - Replaced deprecated Node.js `url.parse()` with the WHATWG `URL` constructor (snowflakedb/snowflake-connector-nodejs#1380)
-- Bumped axios to `1.15.0` to address deprecated `url.parse()` warning in Node.js 22+ ([axios/axios#10625](https://github.com/axios/axios/pull/10625)) (snowflakedb/snowflake-connector-nodejs#1387)
+- Bumped axios to `1.15.1` to address deprecated `url.parse()` warning in Node.js 22+ ([axios/axios#10625](https://github.com/axios/axios/pull/10625)) and to address a set of security issues, including CVE-2025-62718 (snowflakedb/snowflake-connector-nodejs#1387) and (snowflakedb/snowflake-connector-nodejs#1391)
 - Reduced peak memory usage when streaming large result sets by reordering chunk lifecycle to free the previous chunk before parsing the next one (snowflakedb/snowflake-connector-nodejs#1382)
 
 Bugfixes:
@@ -16,6 +16,7 @@ Internal:
 
 - Extended login-request `PLATFORM` telemetry to detect cloud VMs, managed identities, and GitHub Actions in addition to serverless environments (snowflakedb/snowflake-connector-nodejs#1386)
 - The login-request now requests `sessionId` as a string to avoid precision loss (snowflakedb/snowflake-connector-nodejs#1384)
+- Removed dead browser-related code and `browser-request` dependency (snowflakedb/snowflake-connector-nodejs#1387)
 
 ## 2.4.0
 

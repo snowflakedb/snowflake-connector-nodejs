@@ -2,6 +2,8 @@ import assert from 'assert';
 import rewiremock from 'rewiremock/node';
 import os from 'os';
 import path from 'path';
+import fs from 'fs';
+import zlib from 'zlib';
 
 const OriginalFileTransferAgent = require('../../lib/file_transfer_agent/file_transfer_agent');
 
@@ -12,11 +14,27 @@ describe('smkId in PUT statements', () => {
   let testUtil: any;
   let fileTransferAgentUsedContext: any;
 
-  function getTmpFilePath() {
-    const tmpFile = testUtil.createTempFile(os.tmpdir(), testUtil.createRandomFileName(), '');
+  const FILE_CONTENT = 'smkId-string-test-content\n';
+  const STAGE_PATH = '@~/test_smkId_in_put';
+
+  function toPlatformPath(filePath: string) {
     return process.platform === 'win32'
-      ? `${process.env.USERPROFILE}\\AppData\\Local\\Temp\\${path.basename(tmpFile)}`
-      : tmpFile;
+      ? `${process.env.USERPROFILE}\\AppData\\Local\\Temp\\${path.basename(filePath)}`
+      : filePath;
+  }
+
+  function createTmpFileWithContent() {
+    const tmpFile = testUtil.createTempFile(
+      os.tmpdir(),
+      testUtil.createRandomFileName(),
+      FILE_CONTENT,
+    );
+    return toPlatformPath(tmpFile);
+  }
+
+  function createTmpDir() {
+    const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'get-smkId-'));
+    return { realPath: tmpDir, platformPath: toPlatformPath(tmpDir) };
   }
 
   before(() => {
@@ -35,13 +53,44 @@ describe('smkId in PUT statements', () => {
 
   it('FileTransferAgent receives smkId as string', async () => {
     const connection = testUtil.createConnection();
-    const putFilePath = getTmpFilePath();
+    const putFilePath = createTmpFileWithContent();
+    const { realPath: getDir, platformPath: getDirForQuery } = createTmpDir();
+    const fileName = path.basename(putFilePath);
+
     await testUtil.connectAsync(connection);
-    await testUtil.executeCmdAsync(connection, `PUT file://${putFilePath} @~/test_smkId_in_put`);
-    assert.strictEqual(
-      typeof fileTransferAgentUsedContext.fileMetadata.data.encryptionMaterial.smkId,
-      'string',
-      'smkId should be a string',
-    );
+    try {
+      await testUtil.executeCmdAsync(connection, `PUT file://${putFilePath} ${STAGE_PATH}`);
+      assert.strictEqual(
+        typeof fileTransferAgentUsedContext.fileMetadata.data.encryptionMaterial.smkId,
+        'string',
+        'smkId should be a string',
+      );
+
+      await testUtil.executeCmdAsync(
+        connection,
+        `GET ${STAGE_PATH}/${fileName}.gz file://${getDirForQuery}`,
+      );
+      assert.strictEqual(
+        typeof fileTransferAgentUsedContext.fileMetadata.data.encryptionMaterial[0].smkId,
+        'string',
+        'smkId should be a string on GET as well',
+      );
+
+      const downloadedFile = path.join(getDir, `${fileName}.gz`);
+      assert.ok(fs.existsSync(downloadedFile), `Downloaded file should exist at ${downloadedFile}`);
+
+      const decompressed = zlib.gunzipSync(fs.readFileSync(downloadedFile)).toString();
+      assert.strictEqual(
+        decompressed,
+        FILE_CONTENT,
+        'Downloaded file content should match the uploaded content',
+      );
+    } finally {
+      await testUtil
+        .executeCmdAsync(connection, `REMOVE ${STAGE_PATH}/${fileName}.gz`)
+        .catch(() => undefined);
+      testUtil.deleteFileSyncIgnoringErrors?.(putFilePath);
+      fs.rmSync(getDir, { recursive: true, force: true });
+    }
   });
 });

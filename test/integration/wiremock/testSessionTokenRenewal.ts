@@ -2,6 +2,7 @@ import assert from 'assert';
 import { WireMockRestClient } from 'wiremock-rest-client';
 import { runWireMockAsync, addWireMockMappingsFromFile } from '../../wiremockRunner';
 import * as testUtil from '../testUtil';
+import { getFreePort } from '../../../lib/util';
 
 // TODO:
 // Consider dropping this test during UD migration as test/authentication/testSessionTokenRenewal.ts
@@ -11,7 +12,7 @@ describe('Session token renewal', function () {
   let connectionConfig: any;
 
   before(async () => {
-    const port = await testUtil.getFreePort();
+    const port = await getFreePort();
     wiremock = await runWireMockAsync(port);
     connectionConfig = {
       account: 'test-account',

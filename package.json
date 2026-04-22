@@ -20,7 +20,7 @@
     "asn1.js": "^5.0.0",
     "asn1.js-rfc2560": "^5.0.0",
     "asn1.js-rfc5280": "^3.0.0",
-    "axios": "^1.15.0",
+    "axios": "^1.15.1",
     "big-integer": "^1.6.43",
     "bignumber.js": "^9.1.2",
     "expand-tilde": "^2.0.2",

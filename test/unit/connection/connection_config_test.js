@@ -656,16 +656,6 @@ describe('ConnectionConfig: basic', function () {
       errorCode: ErrorCodes.ERR_CONN_CREATE_INVALID_DISABLE_CONSOLE_LOGIN,
     },
     {
-      name: 'invalid disableGCPTokenUpload',
-      options: {
-        account: 'account',
-        username: 'username',
-        password: 'password',
-        forceGCPUseDownscopedCredential: 'invalid',
-      },
-      errorCode: ErrorCodes.ERR_CONN_CREATE_INVALID_FORCE_GCP_USE_DOWNSCOPED_CREDENTIAL,
-    },
-    {
       name: 'invalid representNullAsStringNull',
       options: {
         account: 'account',
@@ -710,7 +700,6 @@ describe('ConnectionConfig: basic', function () {
     },
     {
       name: 'invalid config - lack of clientId for oauth authenticator',
-
       options: {
         account: 'account',
         username: 'username',

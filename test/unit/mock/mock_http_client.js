@@ -150,12 +150,13 @@ function serializeRequest(request) {
   // { url: 'foo', method: 'GET' } even though they are semantically equivalent
   // requests, i.e. they should produce the same output
   const clonedRequest = createSortedClone(request);
+
+  // Ignore these fields, in future we should migrate this entire thing to
+  // wiremock for better matchers
   delete clonedRequest.useSnowflakeRetryMiddleware;
-  delete clonedRequest.json.data.CLIENT_CAPABILITIES;
-  // Ignore CLIENT_ENVIRONMENT for now,
-  // in future we should migrate this entire thing to wiremock for better matchers
-  if (clonedRequest.json && clonedRequest.json.data && clonedRequest.json.data.CLIENT_ENVIRONMENT) {
-    clonedRequest.json.data.CLIENT_ENVIRONMENT = {};
+  if (clonedRequest.json && clonedRequest.json.data) {
+    delete clonedRequest.json.data.CLIENT_CAPABILITIES;
+    delete clonedRequest.json.data.CLIENT_ENVIRONMENT;
   }
   return JSON.stringify(clonedRequest);
 }

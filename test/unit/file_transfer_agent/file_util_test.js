@@ -7,7 +7,6 @@ const crypto = require('crypto');
 const {
   globToRegex,
   getMatchingFilePaths,
-  isFileNotWritableByGroupOrOthers,
   validateNoExtraPermissionsForOthers,
   getSecureHandle,
   isFileModeCorrect,
@@ -35,7 +34,18 @@ describe('FileUtil.getDigestAndSizeForFile()', function () {
 });
 
 describe('globToRegex', function () {
-  const files = ['matched.gzip', 'matched2.gzip', 'matched.txt', 'notmatched.txt'];
+  const files = [
+    'matched.gzip',
+    'matched2.gzip',
+    'matched.txt',
+    'notmatched.txt',
+    '.hidden_file.txt',
+    '.env',
+    '.streamlit',
+    'app.py',
+    'config.toml',
+    'archive.tar.gz',
+  ];
   const testCases = [
     {
       pattern: 'ma*',
@@ -57,9 +67,61 @@ describe('globToRegex', function () {
       pattern: 'm?t?he*',
       expectedMatches: ['matched.gzip', 'matched2.gzip', 'matched.txt'],
     },
+    {
+      pattern: '*.*',
+      expectedMatches: [
+        'matched.gzip',
+        'matched2.gzip',
+        'matched.txt',
+        'notmatched.txt',
+        'app.py',
+        'config.toml',
+        'archive.tar.gz',
+      ],
+    },
+    {
+      pattern: '*',
+      expectedMatches: [
+        'matched.gzip',
+        'matched2.gzip',
+        'matched.txt',
+        'notmatched.txt',
+        'app.py',
+        'config.toml',
+        'archive.tar.gz',
+      ],
+    },
+    {
+      pattern: '?.*',
+      expectedMatches: [],
+    },
+    {
+      pattern: '.*',
+      expectedMatches: ['.hidden_file.txt', '.env', '.streamlit'],
+    },
+    {
+      pattern: '.*.txt',
+      expectedMatches: ['.hidden_file.txt'],
+    },
+    {
+      pattern: '.env',
+      expectedMatches: ['.env'],
+    },
+    {
+      pattern: '*.*.*',
+      expectedMatches: ['archive.tar.gz'],
+    },
+    {
+      pattern: '*.toml',
+      expectedMatches: ['config.toml'],
+    },
+    {
+      pattern: '*.py',
+      expectedMatches: ['app.py'],
+    },
   ];
   for (const { pattern, expectedMatches } of testCases) {
-    it(`${pattern} should match ${expectedMatches.join(', ')}`, () => {
+    it(`"${pattern}" should match [${expectedMatches.join(', ')}]`, () => {
       const regex = globToRegex(pattern);
       const matchedFiles = files.filter((file) => regex.test(file));
       assert.deepStrictEqual(matchedFiles, expectedMatches);
@@ -161,60 +223,6 @@ if (os.platform() !== 'win32') {
         }
       });
     });
-  });
-}
-
-if (os.platform() !== 'win32') {
-  describe('FileUtil.isFileNotWritableByGroupOrOthers()', function () {
-    let tempDir = null;
-    let oldMask = null;
-
-    before(async function () {
-      tempDir = await fsPromises.mkdtemp(path.join(os.tmpdir(), 'permission_tests'));
-      oldMask = process.umask(0o000);
-    });
-
-    after(async function () {
-      await fsPromises.rm(tempDir, { recursive: true, force: true });
-      process.umask(oldMask);
-    });
-
-    [
-      { filePerm: 0o700, isValid: true },
-      { filePerm: 0o600, isValid: true },
-      { filePerm: 0o500, isValid: true },
-      { filePerm: 0o400, isValid: true },
-      { filePerm: 0o300, isValid: true },
-      { filePerm: 0o200, isValid: true },
-      { filePerm: 0o100, isValid: true },
-      { filePerm: 0o707, isValid: false },
-      { filePerm: 0o706, isValid: false },
-      { filePerm: 0o705, isValid: true },
-      { filePerm: 0o704, isValid: true },
-      { filePerm: 0o703, isValid: false },
-      { filePerm: 0o702, isValid: false },
-      { filePerm: 0o701, isValid: true },
-      { filePerm: 0o770, isValid: false },
-      { filePerm: 0o760, isValid: false },
-      { filePerm: 0o750, isValid: true },
-      { filePerm: 0o740, isValid: true },
-      { filePerm: 0o730, isValid: false },
-      { filePerm: 0o720, isValid: false },
-      { filePerm: 0o710, isValid: true },
-    ].forEach(async function ({ filePerm, isValid }) {
-      it(
-        'File with permission: ' + filePerm.toString(8) + ' should be valid=' + isValid,
-        async function () {
-          const filePath = path.join(tempDir, `file_${filePerm.toString()}`);
-          await writeFile(filePath, filePerm);
-          assert.strictEqual(await isFileNotWritableByGroupOrOthers(filePath, fsPromises), isValid);
-        },
-      );
-    });
-
-    async function writeFile(filePath, mode) {
-      await fsPromises.writeFile(filePath, '', { encoding: 'utf8', mode: mode });
-    }
   });
 }
 

@@ -1,5 +1,4 @@
 import util from 'util';
-import Url from 'url';
 import os from 'os';
 import * as Logger from './logger';
 import fs from 'fs';
@@ -188,50 +187,6 @@ export function exists(value: any) {
 }
 
 /**
- * A collection of url-related utility functions.
- */
-export const url = {
-  /**
-   * Appends a query parameter to a url. If an invalid url is specified, an
-   * exception is thrown.
-   *
-   * @param url
-   * @param paramName the name of the query parameter.
-   * @param paramValue the value of the query parameter.
-   *
-   * @deprecated Use native URL constructor instead
-   */
-  appendParam: function (url: string, paramName: string, paramValue: any) {
-    // if the specified url is valid
-    const urlAsObject = Url.parse(url);
-    if (urlAsObject) {
-      // if the url already has query parameters, use '&' as the separator
-      // when appending the additional query parameter, otherwise use '?'
-      url += (urlAsObject.search ? '&' : '?') + paramName + '=' + paramValue;
-    }
-
-    return url;
-  },
-
-  /**
-   * @deprecated This method should only be used in axios middleware. Once that migration is complete, this function can be removed.
-   */
-  appendRetryParam: function (option: {
-    url: string;
-    retryCount: number;
-    includeRetryReason: boolean;
-    retryReason: string;
-  }) {
-    let retryUrl = this.appendParam(option.url, 'retryCount', option.retryCount);
-    if (option.includeRetryReason) {
-      retryUrl = this.appendParam(retryUrl, 'retryReason', option.retryReason);
-    }
-
-    return retryUrl;
-  },
-};
-
-/**
  * Shallow-copies everything from a source object into a destination object.
  *
  * @param {Object} dst the object to copy properties to.
@@ -248,22 +203,6 @@ export function apply(dst: any, src: any) {
   }
 
   return dst;
-}
-
-/**
- * Returns true if the code is currently being run in the browser, false
- * otherwise.
- */
-export function isBrowser() {
-  // @ts-ignore TS2339: Property 'browser' does not exist on type 'Process'
-  return !!(process && process.browser);
-}
-
-/**
- * Returns true if the code is currently being run in node, false otherwise.
- */
-export function isNode() {
-  return !isBrowser();
 }
 
 /**
@@ -481,37 +420,6 @@ export function checkParametersDefined(...parameters: any[]) {
   return parameters.every((element) => element !== undefined && element !== null);
 }
 
-/**
- * Checks if the provided file or directory permissions are correct.
- * @param filePath
- * @param expectedMode
- * @param fsPromises
- * @returns {Promise<boolean>} resolves always to true for Windows
- */
-export async function isFileModeCorrect(filePath: string, expectedMode: number, fsPromises: any) {
-  if (os.platform() === 'win32') {
-    return true;
-  }
-  return await fsPromises.stat(filePath).then((stats: any) => {
-    // we have to limit the number of LSB bits to 9 with the mask, as the stats.mode starts with the file type,
-    // e.g. the directory with permissions 755 will have stats.mask of 40755.
-    const mask = (1 << 9) - 1;
-    return (stats.mode & mask) === expectedMode;
-  });
-}
-
-/**
- * Checks if the provided file or directory is writable only by the user.
- * @returns {Promise<boolean>} resolves always to true for Windows
- */
-export async function isFileNotWritableByGroupOrOthers(configFilePath: string, fsPromises: any) {
-  if (os.platform() === 'win32') {
-    return true;
-  }
-  const stats = await fsPromises.stat(configFilePath);
-  return (stats.mode & (1 << 4)) === 0 && (stats.mode & (1 << 1)) === 0;
-}
-
 export function shouldRetryOktaAuth({
   maxRetryTimeout,
   maxRetryCount,
@@ -584,7 +492,7 @@ export function isWindows() {
 }
 
 export async function getFreePort() {
-  return new Promise((res) => {
+  return new Promise<number>((res) => {
     const srv = net.createServer();
     srv.listen(0, () => {
       // @ts-ignore TS2339: Property 'port' does not exist on type 'string | AddressInfo'

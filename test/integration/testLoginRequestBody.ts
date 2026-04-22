@@ -1,10 +1,12 @@
 import sinon from 'sinon';
 import assert from 'assert';
+import fs from 'fs';
 import rewiremock from 'rewiremock/node';
 import { runWireMockAsync, addWireMockMappingsFromFile } from '../wiremockRunner';
 import * as testUtil from './testUtil';
 import axiosInstance from '../../lib/http/axios_instance';
 import { WIP_ConnectionOptions } from '../../lib/connection/types';
+import { getFreePort } from '../../lib/util';
 
 describe('/login-request body', () => {
   let wiremock: any;
@@ -30,7 +32,7 @@ describe('/login-request body', () => {
   }
 
   before(async () => {
-    const port = await testUtil.getFreePort();
+    const port = await getFreePort();
     wiremock = await runWireMockAsync(port);
     await addWireMockMappingsFromFile(wiremock, 'wiremock/mappings/login_request_ok.json');
   });
@@ -146,6 +148,24 @@ describe('/login-request body', () => {
     await initConnection();
     assert.deepStrictEqual(getLoginRequestData().CLIENT_CAPABILITIES, {
       SMK_ID_AS_STRING: true,
+    });
+  });
+
+  describe('SPCS_TOKEN', () => {
+    it('is not included when SNOWFLAKE_RUNNING_INSIDE_SPCS is not set', async () => {
+      await initConnection();
+      assert.strictEqual(getLoginRequestData().SPCS_TOKEN, undefined);
+    });
+
+    it('is included when SNOWFLAKE_RUNNING_INSIDE_SPCS is set', async () => {
+      sinon.stub(process, 'env').value({ ...process.env, SNOWFLAKE_RUNNING_INSIDE_SPCS: 'true' });
+      sinon
+        .stub(fs, 'readFileSync')
+        .callThrough()
+        .withArgs('/snowflake/session/spcs_token', 'utf-8')
+        .returns('test-spcs-token');
+      await initConnection();
+      assert.strictEqual(getLoginRequestData().SPCS_TOKEN, 'test-spcs-token');
     });
   });
 });

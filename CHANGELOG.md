@@ -2,13 +2,61 @@
 
 ## Upcoming Release
 
+Changes:
+
+- Replaced deprecated Node.js `url.parse()` with the WHATWG `URL` constructor (snowflakedb/snowflake-connector-nodejs#1380)
+- Bumped axios to `1.15.1` to address deprecated `url.parse()` warning in Node.js 22+ ([axios/axios#10625](https://github.com/axios/axios/pull/10625)) and to address a set of security issues, including CVE-2025-62718 (snowflakedb/snowflake-connector-nodejs#1387) and (snowflakedb/snowflake-connector-nodejs#1391)
+- Reduced peak memory usage when streaming large result sets by reordering chunk lifecycle to free the previous chunk before parsing the next one (snowflakedb/snowflake-connector-nodejs#1382)
+
+Bugfixes:
+
+- Fixed file name pattern matching to not match dot-prefixed files/directories by default, aligning with standard glob behavior and default of `dot: false`. Was lingering around since v2.3.3. (snowflakedb/snowflake-connector-nodejs#1381)
+
+Internal:
+
+- Extended login-request `PLATFORM` telemetry to detect cloud VMs, managed identities, and GitHub Actions in addition to serverless environments (snowflakedb/snowflake-connector-nodejs#1386)
+- The login-request now requests `sessionId` as a string to avoid precision loss (snowflakedb/snowflake-connector-nodejs#1384)
+- Removed dead browser-related code and `browser-request` dependency (snowflakedb/snowflake-connector-nodejs#1387)
+- Removed `smkId` string conversion; the driver now requests the server to return it as a string (snowflakedb/snowflake-connector-nodejs#1344)
+
+## 2.4.0
+
+New features:
+
+- Added `browserRedirectPort` connection option to customize the port of the local server that receives the `EXTERNALBROWSER` authentication callback (snowflakedb/snowflake-connector-nodejs#1004)
+
+Changes:
+
+- Bumped `@aws-sdk/*` dependencies to address `fast-xml-parser` vulnerability (snowflakedb/snowflake-connector-nodejs#1355)
+- Improved keep-alive HTTP agents with a 30-second idle socket timeout that proactively discards stale connections before the server closes them, preventing `socket hang up` and `ECONNRESET` errors (snowflakedb/snowflake-connector-nodejs#1352)
+
+Bugfixes:
+
+- Fixed connection pools re-prompting browser authentication for every pooled connection when using `EXTERNALBROWSER` or `OAUTH_AUTHORIZATION_CODE` authenticators; the first connection now completes auth and caches tokens before subsequent pool connections start (snowflakedb/snowflake-connector-nodejs#1359)
+- Fixed session token renewal failing due to a malformed request, which caused long-running connections to disconnect instead of refreshing their expired session token (snowflakedb/snowflake-connector-nodejs#1357)
+- Fixed query context cache not being updated on failed queries, which could cause stale cache when subsequent queries land on a different GS node (snowflakedb/snowflake-connector-nodejs#1375)
+
+Internal:
+
+- Included `spcs_token` when driver runs inside SPCS (snowflakedb/snowflake-connector-nodejs#1372)
+
+## 2.3.6
+
 New features:
 
 - `connect()` now supports every authenticator type (including external browser and Okta), matching `connectAsync()` (snowflakedb/snowflake-connector-nodejs#1342)
 
-Internal changes:
+Changes:
 
-- Removed `smkId` string conversion; the driver now requests the server to return it as a string (snowflakedb/snowflake-connector-nodejs#1344)
+- Removed `@google-cloud/storage` dependency, GCS transfers now use the JSON API directly; the `forceGCPUseDownscopedCredential` connection option has been removed as it is no longer needed (snowflakedb/snowflake-connector-nodejs#1341)
+- Updated default `jsonColumnVariantParser` to fall back to eval-based parsing for non-JSON-compliant variant values (e.g. `undefined`, `NaN`, `Infinity`), restoring pre-2.3.5 behavior while keeping `JSON.parse` as the primary parser (snowflakedb/snowflake-connector-nodejs#1351)
+
+Bugfixes:
+
+- Fixed `OAUTH_AUTHORIZATION_CODE` authenticator not honoring `openExternalBrowserCallback` connection option (snowflakedb/snowflake-connector-nodejs#1353)
+- Fixed `createConnection()` and `createPool()` types to accept no arguments, matching runtime behavior of loading configuration from `connections.toml` (snowflakedb/snowflake-connector-nodejs#1347)
+- Fixed `account` field in `ConnectionOptions` type to be optional, since it can be derived from `accessUrl` or `host` (snowflakedb/snowflake-connector-nodejs#1347)
+- Fixed external browser SSO authentication crashing when the SSO URL request returns a server-side error (snowflakedb/snowflake-connector-nodejs#1350)
 
 ## 2.3.5
 

@@ -6,8 +6,6 @@ const fsPromises = require('fs').promises;
 const crypto = require('crypto');
 const Logger = require('../../lib/logger');
 const path = require('path');
-const os = require('os');
-const net = require('net');
 
 module.exports.createConnection = function (validConnectionOptionsOverride = {}, coreInstance) {
   coreInstance = coreInstance || snowflake;
@@ -96,35 +94,24 @@ module.exports.executeCmdUsePool = function (connectionPool, sql, callback, bind
   });
 };
 
-const executeCmdAsync = function (connection, sqlText, binds = undefined) {
+const executeCmdAsync = function (connection, sqlText, additionalParameters = {}) {
   return new Promise((resolve, reject) => {
     connection.execute({
       sqlText,
-      binds,
-      complete: (err, _, rows) => (err ? reject(err) : resolve(rows)),
+      ...additionalParameters,
+      complete: (err, statement, rows) => {
+        if (err) {
+          err.statement = statement;
+          reject(err);
+        } else {
+          resolve({ rows, statement });
+        }
+      },
     });
   });
 };
 
 module.exports.executeCmdAsync = executeCmdAsync;
-
-const executeCmdAsyncWithAdditionalParameters = function (
-  connection,
-  sqlText,
-  additionalParameters,
-) {
-  return new Promise((resolve, reject) => {
-    const executeParams = {
-      sqlText: sqlText,
-      complete: (err, rowStatement, rows) =>
-        err ? reject(err) : resolve({ rowStatement: rowStatement, rows: rows }),
-      ...additionalParameters,
-    };
-    connection.execute(executeParams);
-  });
-};
-
-module.exports.executeCmdAsyncWithAdditionalParameters = executeCmdAsyncWithAdditionalParameters;
 /**
  * Drop tables one by one if exist - any connection error is ignored
  * @param connection Connection
@@ -329,16 +316,6 @@ module.exports.assertLogMessage = function (expectedLevel, expectedMessage, actu
 };
 
 /**
- * @param directory string
- * @return string
- */
-module.exports.createTestingDirectoryInTemp = function (directory) {
-  const tempDir = path.join(os.tmpdir(), directory);
-  fs.mkdirSync(tempDir, { recursive: true });
-  return tempDir;
-};
-
-/**
  * @param mainDir string
  * @param fileName string
  * @param data string
@@ -431,14 +408,4 @@ module.exports.isRequestCancelledError = function (error) {
     'ERR_CANCELED',
     `Expected error code "ERR_CANCELED", but received ${error.code}`,
   );
-};
-
-module.exports.getFreePort = async function () {
-  return new Promise((res) => {
-    const srv = net.createServer();
-    srv.listen(0, () => {
-      const port = srv.address().port;
-      srv.close(() => res(port));
-    });
-  });
 };

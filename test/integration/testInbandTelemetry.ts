@@ -4,6 +4,7 @@ import rewiremock from 'rewiremock/node';
 import { runWireMockAsync, addWireMockMappingsFromFile } from '../wiremockRunner';
 import * as testUtil from './testUtil';
 import axiosInstance from '../../lib/http/axios_instance';
+import { getFreePort } from '../../lib/util';
 
 describe('Inband Telemetry', () => {
   let wiremock: any;
@@ -27,7 +28,7 @@ describe('Inband Telemetry', () => {
   }
 
   before(async () => {
-    const port = await testUtil.getFreePort();
+    const port = await getFreePort();
     wiremock = await runWireMockAsync(port);
   });
 

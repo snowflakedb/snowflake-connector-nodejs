@@ -12,7 +12,7 @@ export interface WIP_ConnectionOptions {
   /**
    * Your account identifier.
    */
-  account: string;
+  account?: string;
 
   /**
    * Specifies a fully-qualified endpoint for connecting to Snowflake.
@@ -146,8 +146,9 @@ export interface WIP_ConnectionOptions {
   oauthScope?: string;
 
   /**
-   * URI to use for authorization code redirection (Snowflake security integration metadata).
-   * Default: `http://127.0.0.1:{randomAvailablePort}`.
+   * When authenticator=OAUTH_AUTHORIZATION_CODE, customize the URI for authorization code redirection.
+   *
+   * @default "http://127.0.0.1:{randomAvailablePort}"
    */
   oauthRedirectUri?: string;
 
@@ -198,7 +199,23 @@ export interface WIP_ConnectionOptions {
   browserActionTimeout?: number;
 
   /**
-   * Customize implementation for opening the browser window used for MFA/SSO authentication.
+   * When authenticator=EXTERNALBROWSER, customize the port of
+   * the local server that receives the authentication callback.
+   *
+   * The server always redirects to `http://localhost:${browserRedirectPort}`.
+   *
+   * For OAUTH_AUTHORIZATION_CODE, use {@link oauthRedirectUri}
+   * instead, which supports customizing both host and port.
+   *
+   * @default 0 (random available port)
+   */
+  browserRedirectPort?: number;
+
+  /**
+   * Specifies a custom callback for opening the browser window during authentication.
+   * Supported when the authenticator is set to:
+   * * EXTERNALBROWSER
+   * * OAUTH_AUTHORIZATION_CODE
    *
    * By default, the npm `open` package is used.
    */
@@ -284,13 +301,6 @@ export interface WIP_ConnectionOptions {
   application?: string;
 
   /**
-   * The option to use https request only for the snowflake server if other GCP metadata or configuration is already set on the machine.
-   *
-   * @default false
-   */
-  forceGCPUseDownscopedCredential?: boolean;
-
-  /**
    * Turn on the validation function which checks whether all the connection configuration from users are valid or not.
    *
    * @default false
@@ -361,6 +371,7 @@ export type WIP_ConnectionConfig =
     | 'oauthEnableSingleUseRefreshTokens'
     | 'rowStreamHighWaterMark'
   > & {
+    browserRedirectPort: number;
     crlValidatorConfig: CRLValidatorConfig;
     getClientType(): string;
     getClientVersion(): string;

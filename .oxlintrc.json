@@ -1,7 +1,6 @@
 {
   "$schema": "https://raw.githubusercontent.com/oxc-project/oxc/main/npm/oxlint/configuration_schema.json",
   "rules": {
-    "camelcase": "error",
     "eqeqeq": ["error", "always", { "null": "ignore" }],
     "no-async-promise-executor": "error",
     "no-console": ["error", { "allow": ["warn", "error"] }],

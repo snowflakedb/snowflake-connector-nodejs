@@ -134,18 +134,22 @@ describe('external browser authentication', function () {
 
   const credentials = connectionOptionsExternalBrowser;
   const BROWSER_ACTION_TIMEOUT = 10000;
+  const browserOpenCallback = () => {
+    const client = net.createConnection({ port: browserRedirectPort }, () => {
+      client.write(`GET /?token=${mockToken} HTTP/1.1\r\n`);
+    });
+  };
   const connectionConfig = {
     getBrowserActionTimeout: () => BROWSER_ACTION_TIMEOUT,
     getProxy: () => {},
     getAuthenticator: () => credentials.authenticator,
     getServiceName: () => '',
     getDisableConsoleLogin: () => true,
+    browserRedirectPort: 0,
     host: 'fakehost',
-  };
-  const browserOpenCallback = () => {
-    const client = net.createConnection({ port: browserRedirectPort }, () => {
-      client.write(`GET /?token=${mockToken} HTTP/1.1\r\n`);
-    });
+    account: credentials.account,
+    username: credentials.username,
+    openExternalBrowserCallback: browserOpenCallback,
   };
   const httpResponseStub = sinon.stub();
 
@@ -154,6 +158,9 @@ describe('external browser authentication', function () {
       requestAsync: async function (options) {
         const response = {
           data: {
+            success: true,
+            code: null,
+            message: null,
             data: httpResponseStub(),
           },
         };
@@ -175,22 +182,14 @@ describe('external browser authentication', function () {
   });
 
   it('external browser - authenticate method is thenable', (done) => {
-    const auth = new AuthWeb(connectionConfig, httpclient, browserOpenCallback);
+    const auth = new AuthWeb(connectionConfig, httpclient);
 
-    auth
-      .authenticate(credentials.authenticator, '', credentials.account, credentials.username)
-      .then(done)
-      .catch(done);
+    auth.authenticate().then(done).catch(done);
   });
 
   it('external browser - get success', async function () {
-    const auth = new AuthWeb(connectionConfig, httpclient, browserOpenCallback);
-    await auth.authenticate(
-      credentials.authenticator,
-      '',
-      credentials.account,
-      credentials.username,
-    );
+    const auth = new AuthWeb(connectionConfig, httpclient);
+    await auth.authenticate();
 
     const body = { data: {} };
     auth.updateBody(body);
@@ -200,25 +199,17 @@ describe('external browser authentication', function () {
   });
 
   it('external browser - get fail', async function () {
-    httpResponseStub.returns({ ssoUrl: mockSsoURL });
-    const fastFailConnectionConfig = {
-      getBrowserActionTimeout: () => 10,
-      getProxy: () => {},
-      getAuthenticator: () => credentials.authenticator,
-      getServiceName: () => '',
-      getDisableConsoleLogin: () => true,
-      host: 'fakehost',
-    };
-
-    const auth = new AuthWeb(fastFailConnectionConfig, httpclient, () => null);
+    const auth = new AuthWeb(
+      {
+        ...connectionConfig,
+        getBrowserActionTimeout: () => 10,
+        openExternalBrowserCallback: () => null,
+      },
+      httpclient,
+    );
     await assert.rejects(
       async () => {
-        await auth.authenticate(
-          credentials.authenticator,
-          '',
-          credentials.account,
-          credentials.username,
-        );
+        await auth.authenticate();
       },
       {
         message: /Error while getting SAML token:/,
@@ -260,8 +251,11 @@ describe('external browser authentication', function () {
     assert.strictEqual(body['data']['AUTHENTICATOR'], AuthenticationTypes.ID_TOKEN_AUTHENTICATOR);
   });
 
-  it('external browser - id token, webbrowser cb provided', async function () {
-    const auth = new AuthIDToken(connectionOptionsIdToken, httpclient, browserOpenCallback);
+  it('external browser - id token, openExternalBrowserCallback provided', async function () {
+    const auth = new AuthIDToken(
+      { ...connectionOptionsIdToken, openExternalBrowserCallback: browserOpenCallback },
+      httpclient,
+    );
     await auth.authenticate(
       credentials.authenticator,
       '',
@@ -859,6 +853,7 @@ describe('test getAuthenticator()', () => {
         getClientStoreTemporaryCredential: () => true,
         getPasscode: () => '',
         getPasscodeInPassword: () => false,
+        browserRedirectPort: 0,
         idToken: idToken || null,
         host: 'host',
         workloadIdentityProvider: 'AWS',

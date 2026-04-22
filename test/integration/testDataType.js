@@ -35,6 +35,8 @@ describe('Test DataType', function () {
     'insert into testNumber values (12345678901234567890123456789012345678)';
   const insertRegularSizedNumber = 'insert into testNumber values (100000001)';
   const insertVariantJSON =
+    "insert into testVariant select parse_json('{a : 1 , b :[1 , 2 , 3, -Infinity, undefined], c : {a : 1}}')";
+  const insertVariantJSONForCustomParser =
     "insert into testVariant select parse_json('{a : 1 , b :[1 , 2 , 3], c : {a : 1}}')";
   const insertVariantXML =
     "insert into testVariant select parse_xml('<root><a>1</a><b>1</b><c><a>1</a></c></root>')";
@@ -194,7 +196,7 @@ describe('Test DataType', function () {
               testUtil.executeQueryAndVerify(
                 connection,
                 selectVariant,
-                [{ COLA: { a: 1, b: [1, 2, 3], c: { a: 1 } } }],
+                [{ COLA: { a: 1, b: [1, 2, 3, -Infinity, undefined], c: { a: 1 } } }],
                 callback,
                 null,
                 true,
@@ -249,7 +251,7 @@ describe('Test DataType', function () {
                 snowflake.configure({
                   jsonColumnVariantParser: (rawColumnValue) => JSON.parse(rawColumnValue),
                 });
-                testUtil.executeCmd(connection, insertVariantJSON, callback);
+                testUtil.executeCmd(connection, insertVariantJSONForCustomParser, callback);
               },
               function (callback) {
                 testUtil.executeQueryAndVerify(
@@ -428,11 +430,11 @@ describe('Test DataType', function () {
 
   it('DECFLOAT is returned as string', async () => {
     const testDecfloatValue = '-9.8765432099999998623226732747455716901e-250';
-    const { rowStatement, rows } = await testUtil.executeCmdAsyncWithAdditionalParameters(
+    const { statement, rows } = await testUtil.executeCmdAsync(
       connection,
       `SELECT ${testDecfloatValue}::DECFLOAT`,
     );
-    assert.strictEqual(rowStatement.getColumn(0).getType(), 'decfloat');
+    assert.strictEqual(statement.getColumn(0).getType(), 'decfloat');
     assert.strictEqual(Object.values(rows[0])[0], testDecfloatValue);
   });
 });
@@ -460,7 +462,7 @@ describe('JS_TREAT_INTEGER_AS_BIGINT', () => {
   }
 
   it('returns integer as BigInt', async () => {
-    const rows = await testUtil.executeCmdAsync(connection, `select 4611693738694448603`);
+    const { rows } = await testUtil.executeCmdAsync(connection, `select 4611693738694448603`);
     const selectedValue = getFirstRowValue(rows);
     assert.ok(bigInt.isInstance(selectedValue));
     assert.strictEqual(selectedValue.toString(), bigInt('4611693738694448603').toString());
@@ -470,7 +472,7 @@ describe('JS_TREAT_INTEGER_AS_BIGINT', () => {
   // We need to revisit JSON/ARRAY column types and their conversion to JS objects.
   // Regardless of whether structured types are enabled or not, JSON.parse will lose precision.
   it('returns integer as number with precision loss in structured JSON', async () => {
-    const rows = await testUtil.executeCmdAsync(
+    const { rows } = await testUtil.executeCmdAsync(
       connection,
       `select {'bigIntVal': 4611693738694448603}::OBJECT(bigIntVal BIGINT)`,
     );
@@ -480,14 +482,17 @@ describe('JS_TREAT_INTEGER_AS_BIGINT', () => {
   });
 
   it('returns float as number with precision loss', async () => {
-    const rows = await testUtil.executeCmdAsync(connection, 'select 4611693738694448603.45::FLOAT');
+    const { rows } = await testUtil.executeCmdAsync(
+      connection,
+      'select 4611693738694448603.45::FLOAT',
+    );
     const selectedValue = getFirstRowValue(rows);
     assert.strictEqual(Number.isInteger(selectedValue), true);
     assert.strictEqual(Number.isSafeInteger(selectedValue), false);
   });
 
   it('returns float as number with precision loss in structured JSON', async () => {
-    const rows = await testUtil.executeCmdAsync(
+    const { rows } = await testUtil.executeCmdAsync(
       connection,
       `select {'floatVal': 4611693738694448603.45}::OBJECT(floatVal FLOAT)`,
     );

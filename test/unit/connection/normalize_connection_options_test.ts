@@ -18,14 +18,12 @@ describe('normalizeConnectionOptions', function () {
       normalizeConnectionOptions({
         account: 'testaccount',
         client_request_mfa_token: true,
-        force_gcp_use_downscoped_credential: true,
         disable_saml_url_check: true,
         crl_allow_certificates_without_crl_url: true,
       }),
       {
         account: 'testaccount',
         clientRequestMFAToken: true,
-        forceGCPUseDownscopedCredential: true,
         disableSamlURLCheck: true,
         crlAllowCertificatesWithoutCrlURL: true,
       },

@@ -53,7 +53,7 @@ describe('Request Retries', () => {
   let baseConnectionConfig: any = {};
 
   before(async () => {
-    const port = await testUtil.getFreePort();
+    const port = await Util.getFreePort();
     wiremock = await runWireMockAsync(port);
     baseConnectionConfig = {
       accessUrl: `http://127.0.0.1:${port}`,

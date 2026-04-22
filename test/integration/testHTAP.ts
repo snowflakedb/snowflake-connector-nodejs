@@ -4,6 +4,7 @@ import { WireMockRestClient } from 'wiremock-rest-client';
 import * as testUtil from './testUtil';
 import { valid as connOption } from './connectionOptions';
 import { runWireMockAsync, addWireMockMappingsFromFile } from '../wiremockRunner';
+import { getFreePort } from '../../lib/util';
 
 const DB_NAMES = ['qcc_test_db1', 'qcc_test_db2', 'qcc_test_db3'] as const;
 
@@ -84,7 +85,7 @@ describe('Query Context Cache on failed query', function () {
   let connection: any;
 
   before(async function () {
-    const port = await testUtil.getFreePort();
+    const port = await getFreePort();
     wiremock = await runWireMockAsync(port);
     await addWireMockMappingsFromFile(wiremock, 'wiremock/mappings/login_request_ok.json');
     await addWireMockMappingsFromFile(

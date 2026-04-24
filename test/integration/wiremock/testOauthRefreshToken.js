@@ -135,6 +135,22 @@ describe('Oauth Refresh token for Autorization Code', function () {
     assert.strictEqual(refreshTokenInCache, 'new_refresh_token');
   });
 
+  it('Reauthenticates with refreshed token when cached access token is invalid', async function () {
+    await authUtil.writeToCache(accessTokenKey, 'invalid_token');
+    await authUtil.writeToCache(refreshTokenKey, 'cached_refresh_token');
+    await addWireMockMappingsFromFile(
+      wireMock,
+      'wiremock/mappings/oauth/token_cache_and_refresh/reauthenticate_on_invalid_oauth_token.json',
+    );
+    await authTest.createConnection(connectionOptionAuthorizationCode);
+    await authTest.connectAsync();
+    authTest.verifyNoErrorWasThrown();
+    const accessTokenInCache = await authUtil.readCache(accessTokenKey);
+    const refreshTokenInCache = await authUtil.readCache(refreshTokenKey);
+    assert.strictEqual(accessTokenInCache, 'new_access_token');
+    assert.strictEqual(refreshTokenInCache, 'new_refresh_token');
+  });
+
   it('Restart authentication when error during refreshing token', async function () {
     await authUtil.writeToCache(accessTokenKey, 'expired_token');
     await authUtil.writeToCache(refreshTokenKey, 'first_refresh_token');

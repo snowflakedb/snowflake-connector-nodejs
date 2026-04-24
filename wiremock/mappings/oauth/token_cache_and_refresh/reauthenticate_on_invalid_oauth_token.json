@@ -1,0 +1,97 @@
+{
+  "mappings": [
+    {
+      "scenarioName": "Reauthenticate on invalid oauth token",
+      "requiredScenarioState": "Started",
+      "newScenarioState": "Access token invalid",
+      "request": {
+        "urlPathPattern": "/session/v1/login-request.*",
+        "method": "POST",
+        "bodyPatterns": [
+          {
+            "equalToJson": {
+              "data": {
+                "TOKEN": "invalid_token"
+              }
+            },
+            "ignoreExtraElements": true
+          }
+        ]
+      },
+      "response": {
+        "status": 200,
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "jsonBody": {
+          "data": {
+            "nextAction": "RETRY_LOGIN",
+            "authnMethod": "OAUTH",
+            "signInOptions": {}
+          },
+          "code": "390303",
+          "message": "OAuth access token is invalid.",
+          "success": false,
+          "headers": null
+        }
+      }
+    },
+    {
+      "scenarioName": "Reauthenticate on invalid oauth token",
+      "requiredScenarioState": "Access token invalid",
+      "newScenarioState": "Token refreshed",
+      "request": {
+        "urlPathPattern": "/oauth/token-request.*",
+        "method": "POST"
+      },
+      "response": {
+        "status": 200,
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "jsonBody": {
+          "access_token": "new_access_token",
+          "refresh_token": "new_refresh_token",
+          "token_type": "Bearer",
+          "expires_in": 599,
+          "idpInitiated": false
+        }
+      }
+    },
+    {
+      "scenarioName": "Reauthenticate on invalid oauth token",
+      "requiredScenarioState": "Token refreshed",
+      "newScenarioState": "Reauthenticated successfully",
+      "request": {
+        "urlPathPattern": "/session/v1/login-request.*",
+        "method": "POST",
+        "bodyPatterns": [
+          {
+            "equalToJson": {
+              "data": {
+                "TOKEN": "new_access_token"
+              }
+            },
+            "ignoreExtraElements": true
+          }
+        ]
+      },
+      "response": {
+        "status": 200,
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "jsonBody": {
+          "data": {
+            "token": "session token",
+            "masterToken": "master token",
+            "sessionId": 1172562260498
+          },
+          "code": null,
+          "message": null,
+          "success": true
+        }
+      }
+    }
+  ]
+}

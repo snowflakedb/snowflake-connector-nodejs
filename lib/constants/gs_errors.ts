@@ -1,4 +1,4 @@
-exports.code = {
+export const code = {
   INCORRECT_USERNAME_PASSWORD: '390100',
   SESSION_TOKEN_INVALID: '390104',
   GONE_SESSION: '390111',
@@ -7,4 +7,4 @@ exports.code = {
   OAUTH_TOKEN_EXPIRED: '390318',
   MASTER_TOKEN_EXPIRED: '390114',
   ID_TOKEN_INVALID: '390195',
-};
+} as const;

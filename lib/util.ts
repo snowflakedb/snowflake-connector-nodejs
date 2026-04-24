@@ -356,17 +356,6 @@ export function isGetCommand(sqlText: string) {
 }
 
 /**
- * Add double quotes to smkId's value to parse it as a string instead of integer
- * to preserve precision of numbers exceeding JavaScript's max safe integer
- * e.g (inputting 32621973126123526	outputs 32621973126123530)
- *
- * @param body the data in JSON
- */
-export function convertSmkIdToString(body: string) {
-  return body.replace(/"smkId"(\s*):(\s*)([0-9]+)/g, '"smkId"$1:$2"$3"');
-}
-
-/**
  * Under some circumstances the object passed to JSON.stringify in exception handling
  * can contain circular reference, on which JSON.stringify bails out
  * MDN way of handling such error

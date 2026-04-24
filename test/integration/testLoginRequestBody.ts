@@ -144,6 +144,13 @@ describe('/login-request body', () => {
     });
   });
 
+  it('includes required capabilities', async () => {
+    await initConnection();
+    assert.deepStrictEqual(getLoginRequestData().CLIENT_CAPABILITIES, {
+      SMK_ID_AS_STRING: true,
+    });
+  });
+
   describe('SPCS_TOKEN', () => {
     it('is not included when SNOWFLAKE_RUNNING_INSIDE_SPCS is not set', async () => {
       await initConnection();

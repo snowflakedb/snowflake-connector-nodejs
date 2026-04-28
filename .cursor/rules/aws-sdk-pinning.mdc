@@ -1,0 +1,36 @@
+---
+description: "Enforce tilde-pinning for all @aws-sdk/* dependencies in package.json"
+globs: package.json
+alwaysApply: false
+---
+### Code Rules
+
+All `@aws-sdk/*` entries in `package.json` MUST use the tilde (`~`) range so only patch versions float. This applies to both `dependencies` and `devDependencies`, and to any new `@aws-sdk/*` entry added in the future.
+
+Currently covered entries (must match `package.json`):
+
+- `dependencies`:
+  - `@aws-sdk/client-s3`
+  - `@aws-sdk/client-sts`
+  - `@aws-sdk/credential-provider-node`
+  - `@aws-sdk/ec2-metadata-service`
+- `devDependencies`:
+  - `@aws-sdk/types`
+
+❌ `"@aws-sdk/client-s3": "^3.1038.0"`
+❌ `"@aws-sdk/client-s3": "3.1038.0"` (exact pin — too strict, blocks patch fixes)
+✅ `"@aws-sdk/client-s3": "~3.1038.0"`
+
+### Reasoning
+
+AWS does not guarantee that `@aws-sdk/*` minor releases avoid breaking changes for the Node.js versions the driver still supports (Node 18). As of January 2026, the AWS SDK for JavaScript has dropped Node 18 from its tested matrix and will start emitting deprecation warnings / publishing engine constraints incompatible with Node 18 — see [AWS SDK for JavaScript aligns with Node.js release schedule](https://aws.amazon.com/blogs/developer/aws-sdk-for-javascript-aligns-with-node-js-release-schedule/) and the [Node.js and ECMAScript version support policy](https://github.com/aws/aws-sdk-js-v3#nodejs-and-ecmascript-version-support-policy). Past minor releases have already shipped CJS-incompatible code that broke our consumers — see (snowflakedb/snowflake-connector-nodejs#1395).
+
+The Snowflake Node.js driver still supports Node 18, so tilde-pinning lets us pick up patch-level security and bug fixes while preventing silent minor bumps from dropping Node 18 compatibility or otherwise breaking the driver.
+
+### When bumping
+
+Bumping `@aws-sdk/*` is a manual process:
+
+1. Bump each entry in `package.json` to the latest available minor (still using the `~` range) and run `npm install` locally. Do NOT commit `package-lock.json` — it is gitignored.
+2. Run the full test suite on Node 18 to validate the new minor still works on our minimum supported Node version. The AWS SDK no longer runs tests on Node 18, so this validation is on us.
+3. Only after Node 18 validation passes, submit the bump PR.

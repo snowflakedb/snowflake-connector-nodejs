@@ -7,6 +7,7 @@ Changes:
 - Replaced deprecated Node.js `url.parse()` with the WHATWG `URL` constructor (snowflakedb/snowflake-connector-nodejs#1380)
 - Bumped axios to `1.15.1` to address deprecated `url.parse()` warning in Node.js 22+ ([axios/axios#10625](https://github.com/axios/axios/pull/10625)) and to address a set of security issues, including CVE-2025-62718 (snowflakedb/snowflake-connector-nodejs#1387) and (snowflakedb/snowflake-connector-nodejs#1391)
 - Reduced peak memory usage when streaming large result sets by reordering chunk lifecycle to free the previous chunk before parsing the next one (snowflakedb/snowflake-connector-nodejs#1382)
+- Pinned all `@aws-sdk/*` dependencies to their latest minor (patch floats only). AWS does not guarantee that minor releases avoid breaking changes for the Node.js versions we still support (Node 18+); see (snowflakedb/snowflake-connector-nodejs#1395) (snowflakedb/snowflake-connector-nodejs#1396)
 
 Bugfixes:
 

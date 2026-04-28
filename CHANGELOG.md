@@ -12,7 +12,7 @@ Changes:
 Bugfixes:
 
 - Fixed file name pattern matching to not match dot-prefixed files/directories by default, aligning with standard glob behavior and default of `dot: false`. Was lingering around since v2.3.3. (snowflakedb/snowflake-connector-nodejs#1381)
-- Fixed `OAUTH_AUTHORIZATION_CODE` cache not evicting entries on server `390303` errors (snowflakedb/snowflake-connector-nodejs#1392)
+- Fixed `OAUTH_AUTHORIZATION_CODE` cache not evicting entries on server `390303` errors (snowflakedb/snowflake-connector-nodejs#1392, snowflakedb/snowflake-connector-nodejs#1394)
 
 Internal:
 

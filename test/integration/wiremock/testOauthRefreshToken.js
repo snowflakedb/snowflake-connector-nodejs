@@ -135,7 +135,7 @@ describe('Oauth Refresh token for Autorization Code', function () {
     assert.strictEqual(refreshTokenInCache, 'new_refresh_token');
   });
 
-  it('Reauthenticates with refreshed token when cached access token is invalid', async function () {
+  it('Reauthenticates with refresh token when cached access token returns success=false from the server', async function () {
     await authUtil.writeToCache(accessTokenKey, 'invalid_token');
     await authUtil.writeToCache(refreshTokenKey, 'cached_refresh_token');
     await addWireMockMappingsFromFile(

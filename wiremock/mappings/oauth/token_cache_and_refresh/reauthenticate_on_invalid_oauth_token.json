@@ -29,8 +29,8 @@
             "authnMethod": "OAUTH",
             "signInOptions": {}
           },
-          "code": "390303",
-          "message": "OAuth access token is invalid.",
+          "code": "123456",
+          "message": "Authentication failed.",
           "success": false,
           "headers": null
         }

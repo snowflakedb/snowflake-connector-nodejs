@@ -9,7 +9,7 @@ const Core = require('./../../lib/core');
 const { stdout } = require('test-console');
 const { assertLogMessage } = require('./testUtil');
 const { configureLogger } = require('../configureLogger');
-const { v4: uuidv4 } = require('uuid');
+const { randomUUID } = require('crypto');
 
 describe('Connection test', function () {
   it('return tokens in qaMode', function () {
@@ -105,8 +105,8 @@ describe('Connection test', function () {
   });
 
   it('Failed connection returns sanitized error', function (done) {
-    const randomId = uuidv4();
-    const randomId2 = uuidv4();
+    const randomId = randomUUID();
+    const randomId2 = randomUUID();
     const connection = snowflake.createConnection({
       account: 'some-account',
       username: randomId,

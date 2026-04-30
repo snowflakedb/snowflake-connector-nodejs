@@ -26,6 +26,23 @@ else
 fi
 npm install
 
+echo "==============================================================="
+echo " "
+echo "                NODE.JS VERSION INFORMATION"
+echo " "
+echo "---------------------------------------------------------------"
+echo "   The Node.js version currently being used for tests is: "
+echo " "
+node --version | awk '{print "                            " $0}'
+echo " "
+echo "   To change this version, adjust your CI/CD runner or the "
+echo "   environment variable setup accordingly."
+echo "---------------------------------------------------------------"
+echo "   Output of \`which node\`:"
+which node | awk '{print "                            " $0}'
+echo "==============================================================="
+
+
 PACKAGE_NAME=$(cd $WORKSPACE && ls snowflake-sdk*.tgz)
 echo "[INFO] Test $PACKAGE_NAME installation"
 npm install $WORKSPACE/${PACKAGE_NAME}

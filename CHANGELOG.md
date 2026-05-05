@@ -20,7 +20,7 @@ Internal:
 - The login-request now requests `sessionId` as a string to avoid precision loss (snowflakedb/snowflake-connector-nodejs#1384)
 - Removed dead browser-related code and `browser-request` dependency (snowflakedb/snowflake-connector-nodejs#1387)
 - Dropped `uuid` dependency in favor of Node's built-in `crypto.randomUUID()` (snowflakedb/snowflake-connector-nodejs#1397)
-- Minicore binaries are now signed (snowflakedb/snowflake-connector-nodejs#TODO)
+- Minicore binaries are now signed (snowflakedb/snowflake-connector-nodejs#1401)
 
 ## 2.4.0
 

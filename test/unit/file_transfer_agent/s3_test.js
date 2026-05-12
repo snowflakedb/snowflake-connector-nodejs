@@ -54,6 +54,7 @@ describe('S3 client', function () {
             return Promise.resolve();
           };
         }
+        S3.prototype.destroy = function () {};
         return new S3();
       },
     });
@@ -158,6 +159,7 @@ describe('S3 client', function () {
             throw err;
           };
         }
+        S3.prototype.destroy = function () {};
         return new S3();
       },
     });
@@ -178,6 +180,7 @@ describe('S3 client', function () {
           };
         }
 
+        S3.prototype.destroy = function () {};
         return new S3();
       },
     });
@@ -198,6 +201,7 @@ describe('S3 client', function () {
             throw err;
           };
         }
+        S3.prototype.destroy = function () {};
         return new S3();
       },
     });
@@ -217,6 +221,7 @@ describe('S3 client', function () {
             throw err;
           };
         }
+        S3.prototype.destroy = function () {};
         return new S3();
       },
     });
@@ -231,6 +236,154 @@ describe('S3 client', function () {
     assert.strictEqual(meta['resultStatus'], resultStatus.UPLOADED);
   });
 
+  it('getFileHeader destroys client after success', async function () {
+    let destroyed = false;
+    mock('s3', {
+      S3: function () {
+        function S3() {
+          this.getObject = function () {
+            return Promise.resolve({ Metadata: '' });
+          };
+        }
+        S3.prototype.destroy = function () {
+          destroyed = true;
+        };
+        return new S3();
+      },
+    });
+    s3 = require('s3');
+    const client = new SnowflakeS3Util(noProxyConnectionConfig, s3, filesystem);
+    await client.getFileHeader(meta, dataFile);
+    assert.strictEqual(destroyed, true);
+  });
+
+  it('getFileHeader destroys client after error', async function () {
+    let destroyed = false;
+    mock('s3', {
+      S3: function () {
+        function S3() {
+          this.getObject = function () {
+            const err = new Error();
+            err.Code = 'ExpiredToken';
+            throw err;
+          };
+        }
+        S3.prototype.destroy = function () {
+          destroyed = true;
+        };
+        return new S3();
+      },
+    });
+    s3 = require('s3');
+    const client = new SnowflakeS3Util(noProxyConnectionConfig, s3);
+    await client.getFileHeader(meta, dataFile);
+    assert.strictEqual(destroyed, true);
+  });
+
+  it('uploadFile destroys client after success', async function () {
+    let destroyed = false;
+    mock('s3', {
+      S3: function () {
+        function S3() {
+          this.putObject = function () {
+            return Promise.resolve();
+          };
+        }
+        S3.prototype.destroy = function () {
+          destroyed = true;
+        };
+        return new S3();
+      },
+    });
+    s3 = require('s3');
+    const client = new SnowflakeS3Util(noProxyConnectionConfig, s3, filesystem);
+    await client.uploadFile(dataFile, meta, encryptionMetadata);
+    assert.strictEqual(destroyed, true);
+  });
+
+  it('uploadFile destroys client after error', async function () {
+    let destroyed = false;
+    mock('s3', {
+      S3: function () {
+        function S3() {
+          this.putObject = function () {
+            const err = new Error();
+            err.Code = 'ExpiredToken';
+            throw err;
+          };
+        }
+        S3.prototype.destroy = function () {
+          destroyed = true;
+        };
+        return new S3();
+      },
+    });
+    s3 = require('s3');
+    const client = new SnowflakeS3Util(noProxyConnectionConfig, s3, filesystem);
+    await client.uploadFile(dataFile, meta, encryptionMetadata);
+    assert.strictEqual(destroyed, true);
+  });
+
+  it('nativeDownloadFile destroys client after success', async function () {
+    let destroyed = false;
+    mock('s3', {
+      S3: function () {
+        function S3() {
+          this.getObject = function () {
+            return Promise.resolve({
+              $metadata: { httpStatusCode: 200 },
+              Body: {
+                transformToByteArray: function () {
+                  return Promise.resolve(Buffer.from('mock'));
+                },
+              },
+            });
+          };
+        }
+        S3.prototype.destroy = function () {
+          destroyed = true;
+        };
+        return new S3();
+      },
+    });
+    mock('filesystem', {
+      createReadStream: function () {
+        return Readable.from([Buffer.from('mock')]);
+      },
+      writeFile: function (path, data, encoding, cb) {
+        cb(null);
+      },
+    });
+    s3 = require('s3');
+    filesystem = require('filesystem');
+    const client = new SnowflakeS3Util(noProxyConnectionConfig, s3, filesystem);
+    await client.nativeDownloadFile(meta, '/tmp/mock');
+    assert.strictEqual(destroyed, true);
+  });
+
+  it('nativeDownloadFile destroys client after error', async function () {
+    let destroyed = false;
+    mock('s3', {
+      S3: function () {
+        function S3() {
+          this.getObject = function () {
+            const err = new Error();
+            err.Code = 'ExpiredToken';
+            throw err;
+          };
+        }
+        S3.prototype.destroy = function () {
+          destroyed = true;
+        };
+        return new S3();
+      },
+    });
+    s3 = require('s3');
+    const client = new SnowflakeS3Util(noProxyConnectionConfig, s3);
+    await client.nativeDownloadFile(meta, '/tmp/mock');
+    assert.strictEqual(destroyed, true);
+  });
+
   it('upload - fail expired token', async function () {
     mock('s3', {
       S3: function () {
@@ -241,6 +394,7 @@ describe('S3 client', function () {
             throw err;
           };
         }
+        S3.prototype.destroy = function () {};
         return new S3();
       },
     });
@@ -269,6 +423,7 @@ describe('S3 client', function () {
             throw err;
           };
         }
+        S3.prototype.destroy = function () {};
         return new S3();
       },
     });
@@ -297,6 +452,7 @@ describe('S3 client', function () {
             throw err;
           };
         }
+        S3.prototype.destroy = function () {};
         return new S3();
       },
     });
@@ -323,6 +479,7 @@ describe('S3 client', function () {
           this.putObject = function () {};
         }
 
+        S3.prototype.destroy = function () {};
         return new S3();
       },
     });

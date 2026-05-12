@@ -68,7 +68,13 @@ sections. That format is no longer valid for new releases.
 ## Phase 2: Sort Entries into Sections
 
 After grammar/logic fixes are applied, sort entries into named sections.
-Use these sections in this exact order:
+The four sections below are the **defaults**, but you may rename, split, or
+combine them when it makes the release easier for an end-user to scan — for
+example, `Bugfixes and Performance:` or `Dependencies:` instead of a single
+`Changes:` bucket. When proposing custom section names, use the `AskQuestion`
+tool to confirm them with the user.
+
+Default sections, in this order:
 
 ### Section 1 — `New features:`
 
@@ -112,9 +118,10 @@ Internal:
 
 ### Section 5 — Other (custom name)
 
-If there are entries that don't fit the four sections above, use the
-`AskQuestion` tool to ask the user what section name to use for them, or
-whether to fold them into one of the existing sections.
+If there are entries that don't fit the four default sections above, or if the
+release would be clearer with different groupings (e.g., a patch release with
+many dependency changes might benefit from a dedicated `Dependencies:` section),
+use the `AskQuestion` tool to propose custom section names to the user.
 
 ### Sorting rules
 
@@ -128,7 +135,11 @@ whether to fold them into one of the existing sections.
 
 ## Output format
 
-The final output under `## Upcoming Release` must look like:
+The final output under `## Upcoming Release` must use named sections with
+bullet entries. You may use the default section names or custom ones — whichever
+makes the release easiest for an end-user to understand at a glance.
+
+Example with default sections:
 
 ```markdown
 ## Upcoming Release
@@ -152,4 +163,24 @@ Bugfixes:
 Internal:
 
 - Included `spcs_token` when driver runs inside SPCS (org/repo#1372)
+```
+
+Example with custom sections (e.g., for a patch release):
+
+```markdown
+## Upcoming Release
+
+Bugfixes and Performance:
+
+- Reduced peak memory usage when streaming large result sets
+- Fixed a crash when loading config
+
+Dependencies:
+
+- Bumped axios to 1.15.1 to address CVE-2025-62718
+- Dropped `uuid` dependency in favor of Node built-in `crypto.randomUUID()`
+
+Internal:
+
+- Extended login-request telemetry to detect cloud VMs
 ```

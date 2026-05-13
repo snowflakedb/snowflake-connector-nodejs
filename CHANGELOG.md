@@ -2,25 +2,30 @@
 
 ## Upcoming Release
 
-Changes:
-
-- Replaced deprecated Node.js `url.parse()` with the WHATWG `URL` constructor (snowflakedb/snowflake-connector-nodejs#1380)
-- Bumped axios to `1.15.1` to address deprecated `url.parse()` warning in Node.js 22+ ([axios/axios#10625](https://github.com/axios/axios/pull/10625)) and to address a set of security issues, including CVE-2025-62718 (snowflakedb/snowflake-connector-nodejs#1387) and (snowflakedb/snowflake-connector-nodejs#1391)
-- Reduced peak memory usage when streaming large result sets by reordering chunk lifecycle to free the previous chunk before parsing the next one (snowflakedb/snowflake-connector-nodejs#1382)
-- Pinned all `@aws-sdk/*` dependencies to their latest minor (patch floats only). AWS does not guarantee that minor releases avoid breaking changes for the Node.js versions we still support (Node 18+); see (snowflakedb/snowflake-connector-nodejs#1395) (snowflakedb/snowflake-connector-nodejs#1396)
-
 Bugfixes:
 
-- Destroy S3 clients after use in `s3_util.js` (`getFileHeader`, `uploadFileStream`, `nativeDownloadFile`) to prevent keepAlive socket accumulation and memory leak on long-lived pods
-- Fixed file name pattern matching to not match dot-prefixed files/directories by default, aligning with standard glob behavior and default of `dot: false`. Was lingering around since v2.3.3. (snowflakedb/snowflake-connector-nodejs#1381)
+- Destroy S3 clients after use in `s3_util.js` (`getFileHeader`, `uploadFileStream`, `nativeDownloadFile`) to prevent keepAlive socket accumulation and memory leak on long-lived pods (snowflakedb/snowflake-connector-nodejs#1403)
+
+## 2.4.1
+
+Bugfixes and Performance:
+
+- Reduced peak memory usage when streaming large result sets by reordering chunk lifecycle to free the previous chunk before parsing the next one (snowflakedb/snowflake-connector-nodejs#1382)
+- Fixed file name pattern matching to not match dot-prefixed files/directories by default, aligning with standard glob behavior and the default of `dot: false`. This bug was introduced in v2.3.3. (snowflakedb/snowflake-connector-nodejs#1381)
 - Fixed `OAUTH_AUTHORIZATION_CODE` cache not evicting entries on server `390303` errors (snowflakedb/snowflake-connector-nodejs#1392, snowflakedb/snowflake-connector-nodejs#1394)
+
+Dependencies:
+
+- Bumped axios to `1.15.1` to address deprecated `url.parse()` warning in Node.js 22+ ([axios/axios#10625](https://github.com/axios/axios/pull/10625)) and to address a set of security issues, including CVE-2025-62718 (snowflakedb/snowflake-connector-nodejs#1387, snowflakedb/snowflake-connector-nodejs#1391)
+- Pinned all `@aws-sdk/*` dependencies to their latest minor (patch floats only). AWS does not guarantee that minor releases avoid breaking changes for the Node.js versions we still support (Node 18+); see (snowflakedb/snowflake-connector-nodejs#1395) (snowflakedb/snowflake-connector-nodejs#1396)
+- Removed `browser-request` dependency and related dead code (snowflakedb/snowflake-connector-nodejs#1387)
+- Dropped `uuid` dependency in favor of Node's built-in `crypto.randomUUID()` (snowflakedb/snowflake-connector-nodejs#1397)
 
 Internal:
 
+- Replaced deprecated Node.js `url.parse()` with the WHATWG `URL` constructor (snowflakedb/snowflake-connector-nodejs#1380)
 - Extended login-request `PLATFORM` telemetry to detect cloud VMs, managed identities, and GitHub Actions in addition to serverless environments (snowflakedb/snowflake-connector-nodejs#1386)
 - The login-request now requests `sessionId` as a string to avoid precision loss (snowflakedb/snowflake-connector-nodejs#1384)
-- Removed dead browser-related code and `browser-request` dependency (snowflakedb/snowflake-connector-nodejs#1387)
-- Dropped `uuid` dependency in favor of Node's built-in `crypto.randomUUID()` (snowflakedb/snowflake-connector-nodejs#1397)
 - Minicore binaries are now signed (snowflakedb/snowflake-connector-nodejs#1401)
 
 ## 2.4.0

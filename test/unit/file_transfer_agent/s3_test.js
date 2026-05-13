@@ -7,6 +7,62 @@ const extractBucketNameAndPath =
 
 const resultStatus = require('../../../lib/file_util').resultStatus;
 
+// Reusable S3 method behaviours.
+const resolveEmptyMetadata = () => Promise.resolve({ Metadata: '' });
+const resolveDownload = () =>
+  Promise.resolve({
+    $metadata: { httpStatusCode: 200 },
+    Body: {
+      transformToByteArray: () => Promise.resolve(Buffer.from('mock')),
+    },
+  });
+const throwWithCode = (code) => () => {
+  const err = new Error();
+  err.Code = code;
+  throw err;
+};
+
+// Registers a mock `s3` module and returns the freshly-required handle.
+// Only the fields explicitly passed are attached to the constructed S3 instance,
+// so each test can opt into exactly the surface it exercises.
+function mockS3({ getObject, putObject, captureConfig = false, onDestroy } = {}) {
+  mock('s3', {
+    S3: function (config) {
+      function S3() {
+        if (captureConfig) {
+          this.config = config;
+        }
+        if (getObject) {
+          this.getObject = getObject;
+        }
+        if (putObject) {
+          this.putObject = putObject;
+        }
+      }
+      S3.prototype.destroy = onDestroy || function () {};
+      return new S3();
+    },
+  });
+  return require('s3');
+}
+
+// Registers a mock `filesystem` module with sensible defaults; tests can override `writeFile`.
+function mockFilesystem({ writeFile } = {}) {
+  const impl = {
+    createReadStream: function () {
+      return Readable.from([Buffer.from('mock')]);
+    },
+    readFileSync: async function (data) {
+      return data;
+    },
+  };
+  if (writeFile) {
+    impl.writeFile = writeFile;
+  }
+  mock('filesystem', impl);
+  return require('filesystem');
+}
+
 describe('S3 client', function () {
   const mockDataFile = 'mockDataFile';
   const mockLocation = 'mockLocation';
@@ -41,33 +97,12 @@ describe('S3 client', function () {
   };
 
   before(function () {
-    mock('s3', {
-      S3: function (config) {
-        function S3() {
-          this.getObject = function () {
-            return Promise.resolve({
-              Metadata: '',
-            });
-          };
-          this.config = config;
-          this.putObject = function () {
-            return Promise.resolve();
-          };
-        }
-        return new S3();
-      },
+    s3 = mockS3({
+      getObject: resolveEmptyMetadata,
+      putObject: () => Promise.resolve(),
+      captureConfig: true,
     });
-    mock('filesystem', {
-      createReadStream: function () {
-        return Readable.from([Buffer.from('mock')]);
-      },
-      readFileSync: async function (data) {
-        return data;
-      },
-    });
-    s3 = require('s3');
-    filesystem = require('filesystem');
-
+    filesystem = mockFilesystem();
     AWS = new SnowflakeS3Util(noProxyConnectionConfig, s3, filesystem);
   });
 
@@ -149,78 +184,28 @@ describe('S3 client', function () {
   });
 
   it('get file header - fail expired token', async function () {
-    mock('s3', {
-      S3: function () {
-        function S3() {
-          this.getObject = function () {
-            const err = new Error();
-            err.Code = 'ExpiredToken';
-            throw err;
-          };
-        }
-        return new S3();
-      },
-    });
-    s3 = require('s3');
+    s3 = mockS3({ getObject: throwWithCode('ExpiredToken') });
     const AWS = new SnowflakeS3Util(noProxyConnectionConfig, s3);
     await AWS.getFileHeader(meta, dataFile);
     assert.strictEqual(meta['resultStatus'], resultStatus.RENEW_TOKEN);
   });
 
   it('get file header - fail no such key', async function () {
-    mock('s3', {
-      S3: function () {
-        function S3() {
-          this.getObject = function () {
-            const err = new Error();
-            err.Code = 'NoSuchKey';
-            throw err;
-          };
-        }
-
-        return new S3();
-      },
-    });
-    s3 = require('s3');
-
+    s3 = mockS3({ getObject: throwWithCode('NoSuchKey') });
     const AWS = new SnowflakeS3Util(noProxyConnectionConfig, s3);
     await AWS.getFileHeader(meta, dataFile);
     assert.strictEqual(meta['resultStatus'], resultStatus.NOT_FOUND_FILE);
   });
 
   it('get file header - fail HTTP 400', async function () {
-    mock('s3', {
-      S3: function () {
-        function S3() {
-          this.getObject = function () {
-            const err = new Error();
-            err.Code = '400';
-            throw err;
-          };
-        }
-        return new S3();
-      },
-    });
-    s3 = require('s3');
+    s3 = mockS3({ getObject: throwWithCode('400') });
     const AWS = new SnowflakeS3Util(noProxyConnectionConfig, s3, filesystem);
     await AWS.getFileHeader(meta, dataFile);
     assert.strictEqual(meta['resultStatus'], resultStatus.RENEW_TOKEN);
   });
 
   it('get file header - fail unknown', async function () {
-    mock('s3', {
-      S3: function () {
-        function S3() {
-          this.getObject = function () {
-            const err = new Error();
-            err.Code = 'unknown';
-            throw err;
-          };
-        }
-        return new S3();
-      },
-    });
-    s3 = require('s3');
+    s3 = mockS3({ getObject: throwWithCode('unknown') });
     const AWS = new SnowflakeS3Util(noProxyConnectionConfig, s3, filesystem);
     await AWS.getFileHeader(meta, dataFile);
     assert.strictEqual(meta['resultStatus'], resultStatus.ERROR);
@@ -231,100 +216,115 @@ describe('S3 client', function () {
     assert.strictEqual(meta['resultStatus'], resultStatus.UPLOADED);
   });
 
+  it('getFileHeader destroys client after success', async function () {
+    let destroyed = false;
+    s3 = mockS3({
+      getObject: resolveEmptyMetadata,
+      onDestroy: () => {
+        destroyed = true;
+      },
+    });
+    const client = new SnowflakeS3Util(noProxyConnectionConfig, s3, filesystem);
+    await client.getFileHeader(meta, dataFile);
+    assert.strictEqual(destroyed, true);
+  });
+
+  it('getFileHeader destroys client after error', async function () {
+    let destroyed = false;
+    s3 = mockS3({
+      getObject: throwWithCode('ExpiredToken'),
+      onDestroy: () => {
+        destroyed = true;
+      },
+    });
+    const client = new SnowflakeS3Util(noProxyConnectionConfig, s3);
+    await client.getFileHeader(meta, dataFile);
+    assert.strictEqual(destroyed, true);
+  });
+
+  it('uploadFile destroys client after success', async function () {
+    let destroyed = false;
+    s3 = mockS3({
+      putObject: () => Promise.resolve(),
+      onDestroy: () => {
+        destroyed = true;
+      },
+    });
+    const client = new SnowflakeS3Util(noProxyConnectionConfig, s3, filesystem);
+    await client.uploadFile(dataFile, meta, encryptionMetadata);
+    assert.strictEqual(destroyed, true);
+  });
+
+  it('uploadFile destroys client after error', async function () {
+    let destroyed = false;
+    s3 = mockS3({
+      putObject: throwWithCode('ExpiredToken'),
+      onDestroy: () => {
+        destroyed = true;
+      },
+    });
+    const client = new SnowflakeS3Util(noProxyConnectionConfig, s3, filesystem);
+    await client.uploadFile(dataFile, meta, encryptionMetadata);
+    assert.strictEqual(destroyed, true);
+  });
+
+  it('nativeDownloadFile destroys client after success', async function () {
+    let destroyed = false;
+    s3 = mockS3({
+      getObject: resolveDownload,
+      onDestroy: () => {
+        destroyed = true;
+      },
+    });
+    filesystem = mockFilesystem({
+      writeFile: (path, data, encoding, cb) => cb(null),
+    });
+    const client = new SnowflakeS3Util(noProxyConnectionConfig, s3, filesystem);
+    await client.nativeDownloadFile(meta, '/tmp/mock');
+    assert.strictEqual(destroyed, true);
+  });
+
+  it('nativeDownloadFile destroys client after error', async function () {
+    let destroyed = false;
+    s3 = mockS3({
+      getObject: throwWithCode('ExpiredToken'),
+      onDestroy: () => {
+        destroyed = true;
+      },
+    });
+    const client = new SnowflakeS3Util(noProxyConnectionConfig, s3);
+    await client.nativeDownloadFile(meta, '/tmp/mock');
+    assert.strictEqual(destroyed, true);
+  });
+
   it('upload - fail expired token', async function () {
-    mock('s3', {
-      S3: function () {
-        function S3() {
-          this.putObject = function () {
-            const err = new Error();
-            err.Code = 'ExpiredToken';
-            throw err;
-          };
-        }
-        return new S3();
-      },
-    });
-    mock('filesystem', {
-      createReadStream: function () {
-        return Readable.from([Buffer.from('mock')]);
-      },
-      readFileSync: async function (data) {
-        return data;
-      },
-    });
-    s3 = require('s3');
-    filesystem = require('filesystem');
+    s3 = mockS3({ putObject: throwWithCode('ExpiredToken') });
+    filesystem = mockFilesystem();
     const AWS = new SnowflakeS3Util(noProxyConnectionConfig, s3, filesystem);
     await AWS.uploadFile(dataFile, meta, encryptionMetadata);
     assert.strictEqual(meta['resultStatus'], resultStatus.RENEW_TOKEN);
   });
 
   it('upload - fail wsaeconnaborted', async function () {
-    mock('s3', {
-      S3: function () {
-        function S3() {
-          this.putObject = function () {
-            const err = new Error();
-            err.Code = '10053';
-            throw err;
-          };
-        }
-        return new S3();
-      },
-    });
-    mock('filesystem', {
-      createReadStream: function () {
-        return Readable.from([Buffer.from('mock')]);
-      },
-      readFileSync: async function (data) {
-        return data;
-      },
-    });
-    s3 = require('s3');
-    filesystem = require('filesystem');
+    s3 = mockS3({ putObject: throwWithCode('10053') });
+    filesystem = mockFilesystem();
     const AWS = new SnowflakeS3Util(noProxyConnectionConfig, s3, filesystem);
     await AWS.uploadFile(dataFile, meta, encryptionMetadata);
     assert.strictEqual(meta['resultStatus'], resultStatus.NEED_RETRY_WITH_LOWER_CONCURRENCY);
   });
 
   it('upload - fail HTTP 400', async function () {
-    mock('s3', {
-      S3: function () {
-        function S3() {
-          this.putObject = function () {
-            const err = new Error();
-            err.Code = '400';
-            throw err;
-          };
-        }
-        return new S3();
-      },
-    });
-    mock('filesystem', {
-      createReadStream: function () {
-        return Readable.from([Buffer.from('mock')]);
-      },
-      readFileSync: async function (data) {
-        return data;
-      },
-    });
-    s3 = require('s3');
-    filesystem = require('filesystem');
+    s3 = mockS3({ putObject: throwWithCode('400') });
+    filesystem = mockFilesystem();
     const AWS = new SnowflakeS3Util(noProxyConnectionConfig, s3, filesystem);
     await AWS.uploadFile(dataFile, meta, encryptionMetadata);
     assert.strictEqual(meta['resultStatus'], resultStatus.NEED_RETRY);
   });
 
   it('proxy configured', async function () {
-    mock('s3', {
-      S3: function (config) {
-        function S3() {
-          this.config = config;
-          this.putObject = function () {};
-        }
-
-        return new S3();
-      },
+    s3 = mockS3({
+      putObject: () => {},
+      captureConfig: true,
     });
     const proxyOptions = {
       host: '127.0.0.1',
@@ -342,7 +342,6 @@ describe('S3 client', function () {
         checkMode: 'DISABLED',
       },
     };
-    s3 = require('s3');
     const AWS = new SnowflakeS3Util(proxyConnectionConfig, s3);
     meta['client'] = AWS.createClient(meta['stageInfo']);
 

@@ -314,8 +314,36 @@ declare module 'snowflake-sdk' {
      */
     isAnError(): boolean;
 
-    /*
-     * Returns a serialized version of this connection.
+    /**
+     * Returns a JSON-serialized string of the connection state (master/session
+     * tokens and their expiration timestamps). Useful when the same authenticated
+     * session needs to be shared across multiple clients/processes — pair with
+     * {@link deserializeConnection} on the receiving side.
+     *
+     * WARNING: The format of the serialized string is not stable and may change
+     * without notice. We do not guarantee that a serialized string can be shared
+     * across different driver versions; the only guarantee is that a string
+     * produced by {@link serialize} can be passed to {@link deserializeConnection}
+     * on the same driver version.
+     *
+     * The Snowflake backend also alters many behaviors based on driver type and version;
+     * sharing a session with a different driver type or substantially different version
+     * may lead to unexpected bugs.
+     *
+     * @example
+     * // Shape of the returned JSON string (token values redacted):
+     * {
+     *   "services": {
+     *     "sf": {
+     *       "tokenInfo": {
+     *         "masterToken": "...",
+     *         "masterTokenExpirationTime": 1778832267622,
+     *         "sessionToken": "...",
+     *         "sessionTokenExpirationTime": 1778749466622
+     *       }
+     *     }
+     *   }
+     * }
      */
     serialize(): string;
   }
@@ -658,17 +686,30 @@ declare module 'snowflake-sdk' {
   export function normalizeConnectionOptions(options: Record<string, unknown>): ConnectionOptions;
 
   /**
-   * Deserializes a serialized connection.
+   * Functional equivalent of {@link Connection.serialize} — returns the same
+   * JSON-serialized string for the given connection. Use whichever form is
+   * more convenient at the call site.
+   *
+   * See {@link Connection.serialize} for the payload shape and the
+   * unstable-API warning.
+   */
+  export function serializeConnection(connection: Connection): string;
+
+  /**
+   * Rehydrates a connection from the string produced by
+   * {@link serializeConnection} (or {@link Connection.serialize}). The returned
+   * connection reuses the embedded session/master tokens, so it can issue
+   * queries without going through the login flow again — this is the typical
+   * way to share an authenticated session across processes/clients.
+   *
+   * `options` should describe the same Snowflake account the original
+   * connection targeted (e.g. `accessUrl`, `account`); credentials are not
+   * required because the session is already established.
    */
   export function deserializeConnection(
     options: ConnectionOptions,
     serializedConnection: string,
   ): Connection;
-
-  /**
-   * Serializes a given connection.
-   */
-  export function serializeConnection(connection: Connection): string;
 
   /**
    * Configures this instance of the Snowflake core module.

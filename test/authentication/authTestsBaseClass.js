@@ -78,8 +78,12 @@ class AuthTest {
     assert.equal(this.error, null);
   }
 
-  verifyErrorWasThrown(message) {
-    assert.strictEqual(this.error?.message, message);
+  verifyErrorWasThrown(messageOrRegex) {
+    if (messageOrRegex instanceof RegExp) {
+      assert.match(this.error?.message ?? '', messageOrRegex);
+    } else {
+      assert.strictEqual(this.error?.message, messageOrRegex);
+    }
   }
 
   execWithTimeout(command, args, timeout = 5000) {

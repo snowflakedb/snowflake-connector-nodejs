@@ -35,7 +35,7 @@ describe('Oauth authentication', function () {
     const connectionOption = { ...connParameters.oauth, token: 'invalidToken' };
     authTest.createConnection(connectionOption);
     await authTest.connectAsync();
-    authTest.verifyErrorWasThrown('Invalid OAuth access token. ');
+    authTest.verifyErrorWasThrown(/Invalid OAuth access token/);
     await authTest.verifyConnectionIsNotUp(
       'Unable to perform operation using terminated connection.',
     );

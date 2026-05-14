@@ -5,6 +5,7 @@
 Bugfixes:
 
 - Destroy S3 clients after use in `s3_util.js` (`getFileHeader`, `uploadFileStream`, `nativeDownloadFile`) to prevent keepAlive socket accumulation and memory leak on long-lived pods (snowflakedb/snowflake-connector-nodejs#1403)
+- Fixed `deserializeConnection()` not deriving `accessUrl`/`host` from `account`, causing it to fail with a missing `accessUrl` error when only `account` was provided (snowflakedb/snowflake-connector-nodejs#1406)
 
 ## 2.4.1
 

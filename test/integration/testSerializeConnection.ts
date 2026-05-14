@@ -35,7 +35,7 @@ describe('Connection serialize / deserialize', function () {
 
   it('snowflake.deserializeConnection() rehydrates into a usable Connection', async () => {
     const connection2 = snowflake.deserializeConnection(
-      connOptions,
+      { account: connOptions.account, host: connOptions.host, accessUrl: connOptions.accessUrl },
       snowflake.serializeConnection(connection),
     );
     try {

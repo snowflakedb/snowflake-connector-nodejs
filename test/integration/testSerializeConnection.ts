@@ -1,6 +1,6 @@
 import assert from 'assert';
 import * as testUtil from './testUtil';
-import { valid as connOption } from './connectionOptions';
+import { valid as connOptions } from './connectionOptions';
 
 const snowflake = require('../../lib/snowflake').default;
 
@@ -35,7 +35,7 @@ describe('Connection serialize / deserialize', function () {
 
   it('snowflake.deserializeConnection() rehydrates into a usable Connection', async () => {
     const connection2 = snowflake.deserializeConnection(
-      connOption,
+      connOptions,
       snowflake.serializeConnection(connection),
     );
     try {

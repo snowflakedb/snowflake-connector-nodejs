@@ -31,10 +31,6 @@ describe('session token authentication', function () {
       const auth = new AuthSessionToken(config);
       const body = { data: {} };
       auth.updateBody(body);
-      // updateBody is intentionally a no-op for SESSION_TOKEN auth because the
-      // connection flow short-circuits before any login request is sent (see
-      // connection.js connectAsync). No TOKEN or AUTHENTICATOR field needs to be
-      // set since the body is never transmitted to the server.
       assert.deepStrictEqual(body, { data: {} });
     });
 

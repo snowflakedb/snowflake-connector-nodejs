@@ -26,12 +26,15 @@ describe('session token authentication', function () {
       await auth.authenticate();
     });
 
-    it('updateBody is a no-op', function () {
+    it('updateBody is a no-op (login request is never sent)', function () {
       const config = { sessionToken: 'fake-token' };
       const auth = new AuthSessionToken(config);
       const body = { data: {} };
       auth.updateBody(body);
-      // Body should remain unchanged (no TOKEN, no PASSWORD, etc.)
+      // updateBody is intentionally a no-op for SESSION_TOKEN auth because the
+      // connection flow short-circuits before any login request is sent (see
+      // connection.js connectAsync). No TOKEN or AUTHENTICATOR field needs to be
+      // set since the body is never transmitted to the server.
       assert.deepStrictEqual(body, { data: {} });
     });
 
@@ -99,6 +102,24 @@ describe('session token authentication', function () {
       );
 
       assert.strictEqual(config.getAuthenticator(), AuthenticationTypes.SESSION_TOKEN);
+    });
+
+    it('auto-detection skips username and password checks when validateCredentials is true', function () {
+      // No authenticator field, no username, no password: should still work
+      // because sessionToken triggers auto-detection which bypasses credential checks
+      const config = new ConnectionConfig(
+        {
+          accessUrl: 'http://fakeaccount.snowflakecomputing.com',
+          account: 'fakeaccount',
+          sessionToken: 'fake-session-token-value',
+          masterToken: 'fake-master-token-value',
+        },
+        true, // validateCredentials = true
+        true,
+      );
+
+      assert.strictEqual(config.getAuthenticator(), AuthenticationTypes.SESSION_TOKEN);
+      assert.strictEqual(config.sessionToken, 'fake-session-token-value');
     });
   });
 

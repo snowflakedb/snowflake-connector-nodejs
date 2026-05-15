@@ -151,6 +151,22 @@ describe('Oauth Refresh token for Autorization Code', function () {
     assert.strictEqual(refreshTokenInCache, 'new_refresh_token');
   });
 
+  it('Surfaces error but clears access token cache on success=false with a non-oauth failure code', async function () {
+    await authUtil.writeToCache(accessTokenKey, 'invalid_token');
+    await authUtil.writeToCache(refreshTokenKey, 'cached_refresh_token');
+    await addWireMockMappingsFromFile(
+      wireMock,
+      'wiremock/mappings/oauth/token_cache_and_refresh/surfaces_error_on_non_oauth_failure_code.json',
+    );
+    await authTest.createConnection(connectionOptionAuthorizationCode);
+    await authTest.connectAsync();
+    authTest.verifyErrorWasThrown('Authentication failed.');
+    const accessTokenInCache = await authUtil.readCache(accessTokenKey);
+    const refreshTokenInCache = await authUtil.readCache(refreshTokenKey);
+    assert.strictEqual(accessTokenInCache, null);
+    assert.strictEqual(refreshTokenInCache, 'cached_refresh_token');
+  });
+
   it('Restart authentication when error during refreshing token', async function () {
     await authUtil.writeToCache(accessTokenKey, 'expired_token');
     await authUtil.writeToCache(refreshTokenKey, 'first_refresh_token');

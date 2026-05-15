@@ -29,7 +29,7 @@
             "authnMethod": "OAUTH",
             "signInOptions": {}
           },
-          "code": "123456",
+          "code": "390303",
           "message": "Authentication failed.",
           "success": false,
           "headers": null

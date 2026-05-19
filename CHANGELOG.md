@@ -2,6 +2,8 @@
 
 ## Upcoming Release
 
+## 2.4.2
+
 Bugfixes:
 
 - Destroy S3 clients after use in `s3_util.js` (`getFileHeader`, `uploadFileStream`, `nativeDownloadFile`) to prevent keepAlive socket accumulation and memory leak on long-lived pods (snowflakedb/snowflake-connector-nodejs#1403)

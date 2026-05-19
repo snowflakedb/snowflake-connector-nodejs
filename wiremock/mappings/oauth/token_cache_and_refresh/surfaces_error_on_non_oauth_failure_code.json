@@ -1,0 +1,40 @@
+{
+  "mappings": [
+    {
+      "scenarioName": "Surface error on non-oauth failure code",
+      "requiredScenarioState": "Started",
+      "newScenarioState": "Login rejected",
+      "request": {
+        "urlPathPattern": "/session/v1/login-request.*",
+        "method": "POST",
+        "bodyPatterns": [
+          {
+            "equalToJson": {
+              "data": {
+                "TOKEN": "invalid_token"
+              }
+            },
+            "ignoreExtraElements": true
+          }
+        ]
+      },
+      "response": {
+        "status": 200,
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "jsonBody": {
+          "data": {
+            "nextAction": "RETRY_LOGIN",
+            "authnMethod": "OAUTH",
+            "signInOptions": {}
+          },
+          "code": "123456",
+          "message": "Authentication failed.",
+          "success": false,
+          "headers": null
+        }
+      }
+    }
+  ]
+}

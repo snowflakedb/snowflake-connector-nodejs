@@ -2,6 +2,10 @@
 
 ## Upcoming Release
 
+New features:
+
+- Added one in-band telemetry record per successful login describing which connection-identifier fields the user supplied (`account_provided`, `account_with_region`, `account_org_provided`, `region_provided`, `host_provided`). No hostname or account value is included. Unlike the Go, Python, and JDBC drivers, the Node.js driver emits this event unconditionally rather than gating on the server-side `CLIENT_TELEMETRY_ENABLED` parameter, matching the existing `minicore_error` in-band-telemetry precedent. The emission can be disabled locally by setting `SF_TELEMETRY_DISABLE_CONNECTION_SHAPE=true`. The telemetry collection is time-boxed and will be removed in a future release.
+
 Bugfixes:
 
 - Fixed platform-detection probe not aborting within 200ms on Bun (snowflakedb/snowflake-connector-nodejs#1412)

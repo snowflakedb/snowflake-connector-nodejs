@@ -32,6 +32,10 @@ describe('SF service tests', function () {
       'session?delete=true&requestId',
       'queries/v1/query-request',
       'session/v1/login-request',
+      // In-band telemetry endpoint (e.g. minicore_error,
+      // client_connection_identifier_shape) — exits through the same HttpClient
+      // pipeline that attaches the request-GUID header.
+      'telemetry/send',
     ];
 
     function countCallsWithGuid(requestOptions) {

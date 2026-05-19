@@ -30,7 +30,13 @@ describe('connection with CRL validation', () => {
     const axiosRequestSpy = sinon.spy(axiosInstance, 'request');
     const validateCrlSpy = sinon.spy(CRL_VALIDATOR_INTERNAL, 'validateCrl');
     await assert.doesNotReject(testCrlConnection());
-    assert.strictEqual(validateCrlSpy.callCount, 1);
+    // CRL validation runs on every HTTPS request the connection makes — login,
+    // plus any post-login in-band telemetry (e.g. client_connection_identifier_shape).
+    // The assertion only needs to confirm CRL ran for this connection.
+    assert.ok(
+      validateCrlSpy.callCount >= 1,
+      `validateCrl was expected to run at least once, ran ${validateCrlSpy.callCount} time(s)`,
+    );
     const loginRequestData = axiosRequestSpy.getCall(0).args[0].data as any;
     assert.strictEqual(
       loginRequestData.data.CLIENT_ENVIRONMENT.CERT_REVOCATION_CHECK_MODE,
@@ -57,7 +63,13 @@ describe('connection with CRL validation', () => {
           proxyPort: proxyServer.port,
         }),
       );
-      assert.strictEqual(validateCrlSpy.callCount, 1);
+      // See sibling test above: any post-login HTTPS request (e.g. in-band
+      // telemetry) also goes through CRL validation, so we assert at-least-once
+      // rather than pinning to an exact count.
+      assert.ok(
+        validateCrlSpy.callCount >= 1,
+        `validateCrl was expected to run at least once, ran ${validateCrlSpy.callCount} time(s)`,
+      );
     });
   });
 

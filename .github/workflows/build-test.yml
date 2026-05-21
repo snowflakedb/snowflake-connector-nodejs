@@ -173,6 +173,31 @@ jobs:
           token: ${{ secrets.CODE_COV_UPLOAD_TOKEN }}
           fail_ci_if_error: true
 
+  test-bun:
+    needs: build
+    name: Bun smoke test on Ubuntu (AWS)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22.x'
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+      - name: Download Build Artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: artifacts
+          path: artifacts
+      - name: Bun smoke test
+        shell: bash
+        env:
+          PARAMETERS_SECRET: ${{ secrets.PARAMETERS_SECRET }}
+          NODEJS_PRIVATE_KEY_SECRET: ${{ secrets.NODEJS_PRIVATE_KEY_SECRET }}
+          CLOUD_PROVIDER: AWS
+        run: ./ci/test_bun.sh
+
   test-rockylinux9:
     needs: build
     name: ${{ matrix.cloud }} Node.js ${{ matrix.nodeVersion }} on Rocky Linux 9

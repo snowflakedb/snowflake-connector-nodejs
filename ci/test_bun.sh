@@ -36,11 +36,24 @@ fi
 
 env | grep SNOWFLAKE_ | grep -v -E "(PASS|KEY|SECRET|TOKEN)" | sort
 
-cd $WORKSPACE
+PACKAGE_NAME=$(cd $WORKSPACE && ls snowflake-sdk*.tgz)
 
-PACKAGE_NAME=$(ls snowflake-sdk*.tgz)
-echo "[INFO] Installing $PACKAGE_NAME for Bun smoke test"
-npm install $WORKSPACE/${PACKAGE_NAME}
+# Run Bun in an isolated directory containing only the smoke test and an
+# install of the packed snowflake-sdk. The repo's own tsconfig.json has a
+# `paths` entry that remaps `asn1.js` to a local .d.ts shim; Bun honors
+# tsconfig `paths` for runtime module resolution, which breaks transitive
+# imports of the real `asn1.js` package (e.g. asn1.js-rfc5280). Running from
+# a clean directory with no tsconfig.json avoids that.
+BUN_TEST_DIR=$WORKSPACE/bun-smoke
+rm -rf $BUN_TEST_DIR
+mkdir -p $BUN_TEST_DIR
+cp $SOURCE_ROOT/ci/container/test_npm_package_bun.ts $BUN_TEST_DIR/
+cp $WORKSPACE/${PACKAGE_NAME} $BUN_TEST_DIR/
+cd $BUN_TEST_DIR
+
+echo "[INFO] Installing $PACKAGE_NAME for Bun smoke test in $BUN_TEST_DIR"
+npm init -y > /dev/null
+npm install ./${PACKAGE_NAME}
 
 echo "[INFO] Running Bun smoke test"
-bun run $SOURCE_ROOT/ci/container/test_npm_package_bun.ts
+bun run ./test_npm_package_bun.ts

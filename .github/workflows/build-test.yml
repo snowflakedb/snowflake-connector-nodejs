@@ -175,7 +175,7 @@ jobs:
 
   test-bun:
     needs: build
-    name: Bun smoke test on Linux
+    name: Bun smoke test on Ubuntu (AWS)
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4

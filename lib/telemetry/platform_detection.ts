@@ -159,14 +159,14 @@ type HttpRequestResult = {
   body: string;
 };
 
-const IS_BUN = typeof process !== 'undefined' && !!process.versions?.bun;
 function httpRequest(
   url: string,
   signal: AbortSignal,
   headers?: Record<string, string>,
   method: string = 'GET',
 ): Promise<HttpRequestResult> {
-  return IS_BUN
+  const isBun = typeof process !== 'undefined' && !!process.versions?.bun;
+  return isBun
     ? httpRequestFetch(url, signal, headers, method)
     : httpRequestNode(url, signal, headers, method);
 }

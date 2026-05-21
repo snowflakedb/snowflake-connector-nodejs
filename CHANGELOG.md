@@ -2,6 +2,10 @@
 
 ## Upcoming Release
 
+Bugfixes:
+
+- Fixed platform-detection probe not aborting within 200ms on Bun (snowflakedb/snowflake-connector-nodejs#1412)
+
 ## 2.4.2
 
 Bugfixes:

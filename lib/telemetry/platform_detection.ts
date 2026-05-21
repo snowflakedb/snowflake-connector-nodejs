@@ -146,19 +146,52 @@ function envPresent(...envVars: string[]): boolean {
 }
 
 /*
- * We intentionally avoid using fetch() here, since aborting fetch requests
- * can sometimes leave sockets open and prevent the Node.js process from exiting (tested on 22).
+ * Runtime-dispatched HTTP helper.
+ *
+ * - On Node.js, we use node:http: aborting an in-flight fetch in Node can
+ *   leave undici's socket alive, delaying process exit until the request fails (tested on 22 & 24).
+ * - On Bun, we use fetch: Bun's node:http does not handle AbortSignal properly
+ *   during the connect phase. See: https://github.com/oven-sh/bun/issues/31167
  */
+type HttpRequestResult = {
+  ok: boolean;
+  headers: http.IncomingHttpHeaders;
+  body: string;
+};
+
 function httpRequest(
   url: string,
   signal: AbortSignal,
   headers?: Record<string, string>,
   method: string = 'GET',
-): Promise<{
-  ok: boolean;
-  headers: http.IncomingHttpHeaders;
-  body: string;
-}> {
+): Promise<HttpRequestResult> {
+  const isBun = typeof process !== 'undefined' && !!process.versions?.bun;
+  return isBun
+    ? httpRequestFetch(url, signal, headers, method)
+    : httpRequestNode(url, signal, headers, method);
+}
+
+async function httpRequestFetch(
+  url: string,
+  signal: AbortSignal,
+  headers: Record<string, string> | undefined,
+  method: string,
+): Promise<HttpRequestResult> {
+  const res = await fetch(url, { method, headers, signal });
+  const body = await res.text();
+  const resHeaders: http.IncomingHttpHeaders = {};
+  res.headers.forEach((value, key) => {
+    resHeaders[key] = value;
+  });
+  return { ok: res.ok, headers: resHeaders, body };
+}
+
+function httpRequestNode(
+  url: string,
+  signal: AbortSignal,
+  headers: Record<string, string> | undefined,
+  method: string,
+): Promise<HttpRequestResult> {
   return new Promise((resolve, reject) => {
     const req = http.request(url, { method, signal, headers }, (res) => {
       let body = '';

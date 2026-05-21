@@ -6,6 +6,10 @@ Bugfixes:
 
 - Fixed platform-detection probe not aborting within 200ms on Bun (snowflakedb/snowflake-connector-nodejs#1412)
 
+Dependencies:
+
+- Bumped `@aws-sdk/*` dependencies to `~3.1051.0` to address `fast-xml-builder` security vulnerabilities (snowflakedb/snowflake-connector-nodejs#1414)
+
 ## 2.4.2
 
 Bugfixes:

@@ -2,6 +2,10 @@
 
 ## Upcoming Release
 
+New features:
+
+- Added native `SESSION_TOKEN` authentication support for pre-authenticated connections (e.g. connections.toml entries written by Cortex Code Desktop). The SDK now auto-detects when `sessionToken` and `masterToken` are present and skips the login request, connecting directly with the supplied tokens.
+
 Bugfixes:
 
 - Fixed platform-detection probe not aborting within 200ms on Bun (snowflakedb/snowflake-connector-nodejs#1412)

@@ -212,6 +212,22 @@ export interface WIP_ConnectionOptions {
   browserRedirectPort?: number;
 
   /**
+   * Customize the body returned by the local callback server after the browser
+   * completes the authentication redirect. Supported when the authenticator is set to:
+   * * EXTERNALBROWSER
+   * * OAUTH_AUTHORIZATION_CODE
+   *
+   * The function is invoked once per callback request. On success, `error` is
+   * `undefined`. On failure, `error` contains the formatted error message
+   * returned by the identity provider. The string is NOT HTML-escaped before
+   * being passed; the caller owns escaping when interpolating it into HTML.
+   *
+   * The returned string is sent verbatim as the HTTP response body with
+   * `Content-Type: text/html; charset=utf-8`.
+   */
+  browserResponseRenderer?: (result: { error?: string }) => string;
+
+  /**
    * Specifies a custom callback for opening the browser window during authentication.
    * Supported when the authenticator is set to:
    * * EXTERNALBROWSER

@@ -2,6 +2,10 @@
 
 ## Upcoming Release
 
+New features:
+
+- Added `browserResponseRenderer` connection option to customize the HTML response shown in the browser after `EXTERNALBROWSER` and `OAUTH_AUTHORIZATION_CODE` callbacks (snowflakedb/snowflake-connector-nodejs#1416)
+
 Bugfixes:
 
 - Fixed platform-detection probe not aborting within 200ms on Bun (snowflakedb/snowflake-connector-nodejs#1412)

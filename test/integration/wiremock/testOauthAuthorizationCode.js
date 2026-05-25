@@ -181,6 +181,71 @@ describe('Oauth Authorization Code authentication', function () {
     authTest.verifyNoErrorWasThrown();
   });
 
+  it('uses browserResponseRenderer for the OAuth callback success response', async function () {
+    await addWireMockMappingsFromFile(
+      wireMock,
+      'wiremock/mappings/oauth/authorization_code/successful_flow.json',
+    );
+
+    let capturedResponse;
+    authTest.createConnection({
+      ...connectionOption,
+      browserResponseRenderer: ({ error }) =>
+        error
+          ? `<html><body><h1>BAD</h1><pre>${error}</pre></body></html>`
+          : '<html><body><h1>WELCOME</h1></body></html>',
+      openExternalBrowserCallback: async (urlString) => {
+        const redirectUri = new URL(urlString);
+        const url = `${redirectUri.searchParams.get('redirect_uri')}?code=9s6wFkGDOjmgNEdwJMlDzv1AwxDjDVBxiT6wVqXjG5s&state=${redirectUri.searchParams.get('state')}`;
+        capturedResponse = await authUtil.withBrowserActionTimeout(3000, get(url));
+      },
+    });
+    await authTest.connectAsync();
+
+    authTest.verifyNoErrorWasThrown();
+    await authTest.verifyConnectionIsUp();
+
+    assert.ok(capturedResponse, 'expected the browser callback to receive a response');
+    assert.strictEqual(capturedResponse.status, 200);
+    assert.match(capturedResponse.headers['content-type'], /text\/html; charset=utf-8/i);
+    assert.ok(
+      capturedResponse.data.includes('<h1>WELCOME</h1>'),
+      `expected success body, got: ${capturedResponse.data}`,
+    );
+  });
+
+  it('uses browserResponseRenderer for the OAuth callback error response', async function () {
+    await addWireMockMappingsFromFile(
+      wireMock,
+      'wiremock/mappings/oauth/authorization_code/successful_flow.json',
+    );
+
+    let capturedResponse;
+    authTest.createConnection({
+      ...connectionOption,
+      browserResponseRenderer: ({ error }) =>
+        error
+          ? `<html><body><h1>BAD</h1><pre>${error}</pre></body></html>`
+          : '<html><body><h1>WELCOME</h1></body></html>',
+      openExternalBrowserCallback: async (urlString) => {
+        const redirectUri = new URL(urlString);
+        const url = `${redirectUri.searchParams.get('redirect_uri')}?error=invalid_scope&error_description=One+or+more+scopes+are+not+configured+for+the+authorization+server+resource.`;
+        capturedResponse = await authUtil.withBrowserActionTimeout(3000, get(url));
+      },
+    });
+    await authTest.connectAsync();
+
+    authTest.verifyErrorWasThrown(
+      'Error while getting oauth authorization code. ErrorCode invalid_scope. Message: One or more scopes are not configured for the authorization server resource.',
+    );
+
+    assert.ok(capturedResponse, 'expected the browser callback to receive a response');
+    assert.strictEqual(capturedResponse.status, 200);
+    assert.match(capturedResponse.headers['content-type'], /text\/html; charset=utf-8/i);
+    assert.ok(capturedResponse.data.includes('<h1>BAD</h1>'));
+    assert.ok(capturedResponse.data.includes('invalid_scope'));
+  });
+
   it('Should not open browser when the port is unavailable', async function () {
     const PORT = 8011;
 

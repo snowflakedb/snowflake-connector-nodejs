@@ -2,6 +2,10 @@
 
 ## Upcoming Release
 
+Changes:
+
+- Switched AWS Workload Identity attestation to use STS `GetWebIdentityToken` JWTs; no longer uses SigV4 `GetCallerIdentity` envelopes. (snowflakedb/snowflake-connector-nodejs#1415)
+
 Bugfixes:
 
 - Fixed platform-detection probe not aborting within 200ms on Bun (snowflakedb/snowflake-connector-nodejs#1412)

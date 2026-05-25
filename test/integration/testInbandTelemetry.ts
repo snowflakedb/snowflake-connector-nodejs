@@ -11,11 +11,10 @@ describe('Inband Telemetry', () => {
   let connection: any;
   let axiosRequestSpy: sinon.SinonSpy;
 
-  async function initConnection(coreInstance?: any, optionsOverride?: Record<string, unknown>) {
+  async function initConnection(coreInstance?: any) {
     connection = testUtil.createConnection(
       {
         accessUrl: wiremock.rootUrl,
-        ...optionsOverride,
       },
       coreInstance?.default,
     );

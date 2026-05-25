@@ -10,6 +10,10 @@ Dependencies:
 
 - Bumped `@aws-sdk/*` dependencies to `~3.1051.0` to address `fast-xml-builder` security vulnerabilities (snowflakedb/snowflake-connector-nodejs#1414)
 
+Internal:
+
+- Added in-band telemetry reporting which connection-identifier fields were supplied at login as booleans (`account_provided`, `account_with_region`, `account_org_provided`, `region_provided`, `host_provided`); no actual customer values (hostname, account, etc.) are sent (snowflakedb/snowflake-connector-nodejs#1411)
+
 ## 2.4.2
 
 Bugfixes:

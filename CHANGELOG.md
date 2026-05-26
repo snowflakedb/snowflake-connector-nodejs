@@ -2,6 +2,10 @@
 
 ## Upcoming Release
 
+TBA
+
+## 2.4.3
+
 Bugfixes:
 
 - Fixed platform-detection probe not aborting within 200ms on Bun (snowflakedb/snowflake-connector-nodejs#1412)
@@ -12,7 +16,7 @@ Dependencies:
 
 Internal:
 
-- Added in-band telemetry reporting which connection-identifier fields were supplied at login as booleans (`account_provided`, `account_with_region`, `account_org_provided`, `region_provided`, `host_provided`); no actual customer values (hostname, account, etc.) are sent (snowflakedb/snowflake-connector-nodejs#1411)
+- Added in-band telemetry reporting, as boolean flags, which connection-identifier fields were supplied at login (`account_provided`, `account_with_region`, `account_org_provided`, `region_provided`, `host_provided`); no actual customer values (hostname, account, etc.) are sent (snowflakedb/snowflake-connector-nodejs#1411)
 
 ## 2.4.2
 

@@ -3,9 +3,10 @@ name: changelog-cleanup
 description: >-
   Analyze and clean up the Upcoming Release section in CHANGELOG.md. Reviews
   each entry for grammar and logic issues, then sorts entries into named
-  sections (New features, Changes, Bugfixes, Internal for non-customer-facing
-  work, and Other as needed). Use when the user mentions changelog cleanup,
-  changelog sorting, release notes review, or preparing a release.
+  sections (New features, Changes, Bugfixes, Dependencies, Internal for
+  non-customer-facing work, and Other as needed). Use when the user mentions
+  changelog cleanup, changelog sorting, release notes review, or preparing a
+  release.
 ---
 
 # Changelog Cleanup
@@ -40,6 +41,10 @@ Bugfixes:
 - Entry three
 - Entry four
 
+Dependencies:
+
+- Entry five
+
 Internal:
 
 - Entry visible only in Snowflake-internal or non-customer contexts (see below)
@@ -68,11 +73,11 @@ sections. That format is no longer valid for new releases.
 ## Phase 2: Sort Entries into Sections
 
 After grammar/logic fixes are applied, sort entries into named sections.
-The four sections below are the **defaults**, but you may rename, split, or
+The five sections below are the **defaults**, but you may rename, split, or
 combine them when it makes the release easier for an end-user to scan — for
-example, `Bugfixes and Performance:` or `Dependencies:` instead of a single
-`Changes:` bucket. When proposing custom section names, use the `AskQuestion`
-tool to confirm them with the user.
+example, `Bugfixes and Performance:` instead of a single `Bugfixes:` bucket.
+When proposing custom section names, use the `AskQuestion` tool to confirm
+them with the user.
 
 Default sections, in this order:
 
@@ -83,17 +88,27 @@ the leading verb.
 
 ### Section 2 — `Changes:`
 
-Entries that describe enhancing, changing, updating, removing, bumping
-dependencies, refactoring, or modifying existing behavior
-(e.g. `Improved`, `Changed`, `Updated`, `Removed`, `Bumped`, `Replaced`),
-regardless of the leading verb.
+Entries that describe enhancing, changing, updating, removing, refactoring, or
+modifying existing behavior (e.g. `Improved`, `Changed`, `Updated`, `Removed`,
+`Replaced`), regardless of the leading verb. Dependency bumps belong in
+`Dependencies:` (see Section 4), not here.
 
 ### Section 3 — `Bugfixes:`
 
 Entries that semantically describe fixing incorrect behavior (e.g. `Fixed`),
 regardless of the leading verb.
 
-### Section 4 — `Internal:`
+### Section 4 — `Dependencies:`
+
+Customer-visible dependency changes: bumps (e.g. `Bumped axios to ...`),
+removals, replacements, or pins of third-party packages that ship to customers.
+Include CVE-driven bumps here. Omit this section if the release has no
+dependency changes.
+
+Internal-only dependency or tooling changes (e.g. dev-dependency bumps, CI
+tooling) belong in `Internal:` instead.
+
+### Section 5 — `Internal:`
 
 Entries that **do not affect end customers** in any meaningful way: no change
 to public API, connection options, query behavior, error handling, packaging, or
@@ -116,12 +131,12 @@ Internal:
 - Included `spcs_token` when driver runs inside SPCS (org/repo#1372)
 ```
 
-### Section 5 — Other (custom name)
+### Section 6 — Other (custom name)
 
-If there are entries that don't fit the four default sections above, or if the
-release would be clearer with different groupings (e.g., a patch release with
-many dependency changes might benefit from a dedicated `Dependencies:` section),
-use the `AskQuestion` tool to propose custom section names to the user.
+If there are entries that don't fit the five default sections above, or if the
+release would be clearer with different groupings (e.g., merging `Bugfixes:`
+and a perf cluster into `Bugfixes and Performance:`), use the `AskQuestion`
+tool to propose custom section names to the user.
 
 ### Sorting rules
 
@@ -153,12 +168,16 @@ Changes:
 
 - Improved error details when OAuth fails
 - Changed default `jsonColumnVariantParser` to `JSON.parse`
-- Bumped axios to 1.14.0
 
 Bugfixes:
 
 - Fixed a crash when loading config
 - Fixed typo in error message
+
+Dependencies:
+
+- Bumped axios to 1.15.1 to address CVE-2025-62718
+- Dropped `uuid` dependency in favor of Node built-in `crypto.randomUUID()`
 
 Internal:
 
@@ -178,7 +197,6 @@ Bugfixes and Performance:
 Dependencies:
 
 - Bumped axios to 1.15.1 to address CVE-2025-62718
-- Dropped `uuid` dependency in favor of Node built-in `crypto.randomUUID()`
 
 Internal:
 

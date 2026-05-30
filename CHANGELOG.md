@@ -2,9 +2,11 @@
 
 ## Upcoming Release
 
-Changes:
+Internal:
 
 - Switched AWS Workload Identity attestation to use STS `GetWebIdentityToken` JWTs; no longer uses SigV4 `GetCallerIdentity` envelopes. (snowflakedb/snowflake-connector-nodejs#1415)
+
+## 2.4.3
 
 Bugfixes:
 
@@ -13,6 +15,10 @@ Bugfixes:
 Dependencies:
 
 - Bumped `@aws-sdk/*` dependencies to `~3.1051.0` to address `fast-xml-builder` security vulnerabilities (snowflakedb/snowflake-connector-nodejs#1414)
+
+Internal:
+
+- Added in-band telemetry reporting, as boolean flags, which connection-identifier fields were supplied at login (`account_provided`, `account_with_region`, `account_org_provided`, `region_provided`, `host_provided`); no actual customer values (hostname, account, etc.) are sent (snowflakedb/snowflake-connector-nodejs#1411)
 
 ## 2.4.2
 

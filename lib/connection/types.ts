@@ -20,6 +20,13 @@ export interface WIP_ConnectionOptions {
   accessUrl?: string;
 
   /**
+   * @deprecated
+   * Append a region or any sub domains before snowflakecomputing.com to the
+   * end of account parameter after a dot, e.g., account=<account>.<region>.
+   */
+  region?: string;
+
+  /**
    * The login name for your Snowflake user or your Identity Provider (e.g. your login name for Okta).
    */
   username?: string;

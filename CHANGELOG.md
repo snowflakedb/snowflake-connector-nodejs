@@ -4,6 +4,10 @@
 
 TBA
 
+Bugfixes:
+
+- Read the OAuth `token_file_path` (and the normalized `tokenFilePath`) when it is passed through programmatic connection options to `connect()`/`createConnection`, not only when the driver loads `connections.toml` itself. Previously such callers had the field ignored and sent an empty token.
+
 ## 2.4.3
 
 Bugfixes:

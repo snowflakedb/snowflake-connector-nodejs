@@ -1818,6 +1818,45 @@ describe('connection.destroy()', function () {
       },
     );
   });
+
+  it('destroy with serverSessionKeepAlive skips session deletion', function (done) {
+    const connectionOptionsServerKeepAlive = mockConnectionOptions.serverSessionKeepAlive;
+    const connection = snowflake.createConnection(connectionOptionsServerKeepAlive);
+
+    async.series(
+      [
+        function (callback) {
+          connection.connect(function (err, conn) {
+            assert.ok(!err, 'there should be no error');
+            assert.strictEqual(
+              conn,
+              connection,
+              'the connect() callback should be invoked with the connection',
+            );
+            callback();
+          });
+        },
+        function (callback) {
+          // When serverSessionKeepAlive is true, destroy should succeed WITHOUT
+          // making a session delete request. If it tried to make the request,
+          // the mock HTTP client would throw "no response available" error since
+          // we didn't configure a delete response for this user.
+          connection.destroy(function (err, conn) {
+            assert.ok(!err, 'there should be no error - session delete should be skipped');
+            assert.strictEqual(
+              conn,
+              connection,
+              'the destroy() callback should be invoked with the connection',
+            );
+            callback();
+          });
+        },
+      ],
+      function () {
+        done();
+      },
+    );
+  });
 });
 
 describe('serialize connection', function () {

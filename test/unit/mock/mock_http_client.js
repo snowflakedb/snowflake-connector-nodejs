@@ -1947,5 +1947,61 @@ function buildRequestOutputMappings(clientInfo) {
         },
       },
     },
+    // serverSessionKeepAlive test - login mapping only, no session delete mapping
+    // to verify that no delete request is made when serverSessionKeepAlive is true
+    {
+      request: {
+        method: 'POST',
+        url: 'http://fakeaccount.snowflakecomputing.com/session/v1/login-request',
+        headers: {
+          Accept: 'application/json',
+          'Content-Type': 'application/json',
+          CLIENT_APP_VERSION: clientInfo.version,
+          CLIENT_APP_ID: 'JavaScript',
+        },
+        json: {
+          data: {
+            ACCOUNT_NAME: 'fakeaccount',
+            AUTHENTICATOR: 'SNOWFLAKE',
+            LOGIN_NAME: 'fakeserversessionkeepalive',
+            PASSWORD: 'fakepassword',
+            CLIENT_APP_ID: 'JavaScript',
+            CLIENT_APP_VERSION: clientInfo.version,
+            CLIENT_ENVIRONMENT: clientInfo.environment,
+            SESSION_PARAMETERS: {
+              CLIENT_REQUEST_MFA_TOKEN: false,
+              CLIENT_STORE_TEMPORARY_CREDENTIAL: false,
+            },
+          },
+        },
+      },
+      output: {
+        err: null,
+        response: {
+          statusCode: 200,
+          statusMessage: 'OK',
+          body: {
+            code: null,
+            data: {
+              displayUserName: 'FAKESERVERSESSIONKEEPALIVE',
+              firstLogin: false,
+              healthCheckInterval: 45,
+              masterToken: 'SERVER_SESSION_KEEP_ALIVE_MASTER_TOKEN',
+              masterValidityInSeconds: 14400,
+              newClientForUpgrade: null,
+              remMeToken: 'REMEM_TOKEN',
+              remMeValidityInSeconds: 14400,
+              serverVersion: 'Dev',
+              sessionId: '51539800307',
+              token: 'SERVER_SESSION_KEEP_ALIVE_SESSION_TOKEN',
+              validityInSeconds: 3600,
+              parameters: [],
+            },
+            message: null,
+            success: true,
+          },
+        },
+      },
+    },
   ];
 }

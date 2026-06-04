@@ -795,6 +795,17 @@ describe('ConnectionConfig: basic', function () {
       },
       errorCode: ErrorCodes.ERR_CONN_CREATE_INVALID_QUERY_TAG,
     },
+    {
+      name: 'invalid serverSessionKeepAlive',
+
+      options: {
+        account: 'account',
+        username: 'username',
+        password: 'password',
+        serverSessionKeepAlive: 'invalid',
+      },
+      errorCode: ErrorCodes.ERR_CONN_CREATE_INVALID_SERVER_SESSION_KEEP_ALIVE,
+    },
   ];
 
   const createNegativeITCallback = function (testCase) {
@@ -1619,6 +1630,53 @@ describe('ConnectionConfig: basic', function () {
         username: 'user',
         password: 'password',
         account: 'myorg-myaccount',
+      },
+    },
+    {
+      name: 'serverSessionKeepAlive true',
+      input: {
+        account: 'account',
+        username: 'username',
+        password: 'password',
+        serverSessionKeepAlive: true,
+      },
+      options: {
+        accessUrl: 'https://account.snowflakecomputing.com',
+        username: 'username',
+        password: 'password',
+        account: 'account',
+        serverSessionKeepAlive: (config) => config.getServerSessionKeepAlive() === true,
+      },
+    },
+    {
+      name: 'serverSessionKeepAlive false',
+      input: {
+        account: 'account',
+        username: 'username',
+        password: 'password',
+        serverSessionKeepAlive: false,
+      },
+      options: {
+        accessUrl: 'https://account.snowflakecomputing.com',
+        username: 'username',
+        password: 'password',
+        account: 'account',
+        serverSessionKeepAlive: (config) => config.getServerSessionKeepAlive() === false,
+      },
+    },
+    {
+      name: 'serverSessionKeepAlive defaults to false',
+      input: {
+        account: 'account',
+        username: 'username',
+        password: 'password',
+      },
+      options: {
+        accessUrl: 'https://account.snowflakecomputing.com',
+        username: 'username',
+        password: 'password',
+        account: 'account',
+        serverSessionKeepAlive: (config) => config.getServerSessionKeepAlive() === false,
       },
     },
   ];

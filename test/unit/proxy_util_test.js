@@ -568,3 +568,52 @@ describe('isByPassProxy', function () {
     });
   });
 });
+
+describe('isByPassProxy - full request URL mimicking production flow', function () {
+  function makeProxy(noProxy) {
+    return { host: 'my.pro.xy', port: 8080, noProxy };
+  }
+
+  [
+    {
+      name: 'non-PrivateLink regionless account bypasses proxy',
+      noProxy: '*.snowflakecomputing.com',
+      url: 'https://myaccount.snowflakecomputing.com/session/v1/login-request?requestId=abc',
+      shouldMatch: true,
+    },
+    {
+      name: 'non-PrivateLink locator account bypasses proxy',
+      noProxy: '*.snowflakecomputing.com',
+      url: 'https://myaccount.us-east-1.snowflakecomputing.com/session/v1/login-request?requestId=abc',
+      shouldMatch: true,
+    },
+    {
+      name: 'PrivateLink regionless account bypasses proxy',
+      noProxy: '*.snowflakecomputing.com',
+      url: 'https://myorg-myaccount.privatelink.snowflakecomputing.com/session/v1/login-request?requestId=abc',
+      shouldMatch: true,
+    },
+    {
+      name: 'PrivateLink locator account bypasses proxy',
+      noProxy: '*.snowflakecomputing.com',
+      url: 'https://myaccount.us-west-2.privatelink.snowflakecomputing.com/session/v1/login-request?requestId=abc',
+      shouldMatch: true,
+    },
+  ].forEach(({ name, noProxy, url, shouldMatch }) => {
+    it(name, function () {
+      const hostname = ProxyUtil.getHostFromURL(url);
+      const result = ProxyUtil.isByPassProxy(makeProxy(noProxy), hostname);
+      if (shouldMatch) {
+        assert.ok(
+          result,
+          `Expected hostname "${hostname}" (from "${url}") to match noProxy "${noProxy}"`,
+        );
+      } else {
+        assert.ok(
+          !result,
+          `Expected hostname "${hostname}" (from "${url}") NOT to match noProxy "${noProxy}"`,
+        );
+      }
+    });
+  });
+});

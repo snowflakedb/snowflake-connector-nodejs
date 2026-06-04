@@ -2,7 +2,9 @@
 
 ## Upcoming Release
 
-TBA
+Bugfixes:
+
+- Fixed `noProxy` connection option and `NO_PROXY` environment variable not bypassing the proxy for PrivateLink connections (snowflakedb/snowflake-connector-nodejs#XXXX).
 
 ## 2.4.3
 

@@ -2,7 +2,9 @@
 
 ## Upcoming Release
 
-TBA
+Bugfixes:
+
+- Fixed global URL detection incorrectly truncating account names containing "global" (e.g. `myorg-global`) (snowflakedb/snowflake-connector-nodejs#XXXX)
 
 ## 2.4.3
 

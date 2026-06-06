@@ -20,6 +20,9 @@ describe('Azure client', function () {
       return null;
     },
     accessUrl: 'http://fakeaccount.snowflakecomputing.com',
+    getUploadPartSizeMb: function () {
+      return 8;
+    },
   };
 
   let Azure = null;
@@ -41,11 +44,38 @@ describe('Azure client', function () {
   let sinonSandbox;
   const getPropertiesStub = sinon.stub();
   const uploadStub = sinon.stub();
+  const stageBlockStub = sinon.stub();
+  const commitBlockListStub = sinon.stub();
+  const deleteIfExistsStub = sinon.stub();
 
   function verifyNameAndPath(bucketPath, containerName, path) {
     const result = Azure.extractContainerNameAndPath(bucketPath);
     assert.strictEqual(result.containerName, containerName);
     assert.strictEqual(result.path, path);
+  }
+
+  // Configure the `fs.promises` shape that `uploadFile` needs to dispatch
+  // between the single-block (small-file) and multi-block (multipart) paths.
+  // The single-block path needs `stat` (for the size check) and `readFile`
+  // (to slurp the Buffer); the multi-block path needs `stat` and `open`
+  // (for chunked reads). `fileSize` controls which branch the test exercises.
+  function stubFsForUpload(fileSize) {
+    const mockBytes = Buffer.alloc(fileSize, 0);
+    sinonSandbox.stub(fs.promises, 'stat').resolves({ size: fileSize });
+    sinonSandbox.stub(fs.promises, 'readFile').resolves(mockBytes);
+    sinonSandbox.stub(fs.promises, 'open').callsFake(async function () {
+      let position = 0;
+      return {
+        read: async function (buf, offset, length /* , filePos */) {
+          const remaining = Math.max(0, fileSize - position);
+          const toRead = Math.min(length, remaining);
+          buf.fill(0, offset, offset + toRead);
+          position += toRead;
+          return { bytesRead: toRead };
+        },
+        close: async function () {},
+      };
+    });
   }
 
   before(function () {
@@ -58,6 +88,9 @@ describe('Azure client', function () {
         getBlockBlobClient: () => ({
           upload: uploadStub,
           uploadStream: uploadStub,
+          stageBlock: stageBlockStub,
+          commitBlockList: commitBlockListStub,
+          deleteIfExists: deleteIfExistsStub,
         }),
       }),
     });
@@ -68,6 +101,15 @@ describe('Azure client', function () {
   afterEach(() => {
     getPropertiesStub.reset();
     uploadStub.reset();
+    stageBlockStub.reset();
+    commitBlockListStub.reset();
+    deleteIfExistsStub.reset();
+    // `stubFsForUpload` adds per-test stubs on `fs.promises`; restore them so
+    // each test starts from a clean slate. The class-level `BlobServiceClient`
+    // and `createReadStream` stubs persist via the outer `after()` hook.
+    if (fs.promises.stat.restore) fs.promises.stat.restore();
+    if (fs.promises.readFile.restore) fs.promises.readFile.restore();
+    if (fs.promises.open.restore) fs.promises.open.restore();
   });
 
   after(() => {
@@ -132,12 +174,24 @@ describe('Azure client', function () {
     assert.strictEqual(meta['resultStatus'], resultStatus.ERROR);
   });
 
-  it('upload - success', async function () {
+  it('upload - small file uses single block path', async function () {
+    // 4 bytes is comfortably below the 8 MiB threshold, so dispatch lands on
+    // `blockBlobClient.upload` rather than the stageBlock+commitBlockList pair.
+    stubFsForUpload(4);
+    uploadStub.resolves();
     await Azure.uploadFile(dataFile, meta, encryptionMetadata);
     assert.strictEqual(meta['resultStatus'], resultStatus.UPLOADED);
+    assert.strictEqual(uploadStub.callCount, 1, 'small-file path should call upload() once');
+    assert.strictEqual(stageBlockStub.callCount, 0, 'small-file path should NOT stage blocks');
+    assert.strictEqual(
+      commitBlockListStub.callCount,
+      0,
+      'small-file path should NOT commit a block list',
+    );
   });
 
   it('upload - fail expired token', async function () {
+    stubFsForUpload(4);
     uploadStub.throws(() => {
       const err = new Error('Server failed to authenticate the request.');
       err.statusCode = 403;
@@ -148,6 +202,7 @@ describe('Azure client', function () {
   });
 
   it('upload - fail HTTP 400', async function () {
+    stubFsForUpload(4);
     uploadStub.throws(() => {
       const err = new Error();
       err.statusCode = 400;
@@ -155,5 +210,91 @@ describe('Azure client', function () {
     });
     await Azure.uploadFile(dataFile, meta, encryptionMetadata);
     assert.strictEqual(meta['resultStatus'], resultStatus.NEED_RETRY);
+  });
+
+  it('upload - multipart path engaged when file exceeds uploadPartSizeMb', async function () {
+    // Force the multi-block codepath by faking a file larger than the
+    // configured uploadPartSizeMb. 8 MiB part size + 17 MiB file => 3 blocks:
+    // 8 MiB, 8 MiB, 1 MiB.
+    const partSizeMb = noProxyConnectionConfig.getUploadPartSizeMb();
+    const partSize = partSizeMb * 1024 * 1024;
+    const fileSize = partSize * 2 + 1024 * 1024; // 17 MiB
+    stubFsForUpload(fileSize);
+    stageBlockStub.resolves();
+    commitBlockListStub.resolves();
+
+    await Azure.uploadFile(dataFile, meta, encryptionMetadata);
+
+    assert.strictEqual(meta['resultStatus'], resultStatus.UPLOADED);
+    assert.strictEqual(uploadStub.callCount, 0, 'multipart path should NOT call upload()');
+    assert.strictEqual(stageBlockStub.callCount, 3, 'expected 3 stageBlock calls for 3 chunks');
+    assert.strictEqual(commitBlockListStub.callCount, 1, 'commitBlockList should fire once');
+    assert.strictEqual(
+      deleteIfExistsStub.callCount,
+      0,
+      'deleteIfExists should NOT fire on success',
+    );
+
+    // Verify the block list passed to commitBlockList: 3 ascending fixed-width
+    // base64 IDs. Decoded form is `block-NNNNNNNNNN`.
+    const passedBlockIds = commitBlockListStub.firstCall.args[0];
+    assert.strictEqual(passedBlockIds.length, 3);
+    const decoded = passedBlockIds.map((id) => Buffer.from(id, 'base64').toString());
+    assert.deepStrictEqual(decoded, ['block-0000000001', 'block-0000000002', 'block-0000000003']);
+
+    // Verify metadata + headers travel on commit, not on stageBlock.
+    const commitOpts = commitBlockListStub.firstCall.args[1];
+    assert.strictEqual(commitOpts.metadata.sfcdigest, mockDigest);
+    assert.ok(commitOpts.metadata.encryptiondata, 'encryption envelope present');
+    assert.strictEqual(commitOpts.blobHTTPHeaders.blobContentType, 'application/octet-stream');
+  });
+
+  it('upload - multipart abort cleanup on stageBlock failure', async function () {
+    // Stage the first chunk successfully, then throw on the second.
+    // The driver should issue deleteIfExists() to release the staged block
+    // and surface NEED_RETRY so the caller's retry loop can take over.
+    const partSizeMb = noProxyConnectionConfig.getUploadPartSizeMb();
+    const partSize = partSizeMb * 1024 * 1024;
+    const fileSize = partSize * 2 + 1024;
+    stubFsForUpload(fileSize);
+    stageBlockStub.onFirstCall().resolves();
+    stageBlockStub.onSecondCall().throws(() => {
+      const err = new Error('boom');
+      err.statusCode = 500;
+      throw err;
+    });
+    deleteIfExistsStub.resolves();
+
+    await Azure.uploadFile(dataFile, meta, encryptionMetadata);
+
+    assert.strictEqual(meta['resultStatus'], resultStatus.NEED_RETRY);
+    assert.strictEqual(stageBlockStub.callCount, 2, 'expected 2 stageBlock calls before failure');
+    assert.strictEqual(
+      commitBlockListStub.callCount,
+      0,
+      'commit must NOT fire after stage failure',
+    );
+    assert.strictEqual(deleteIfExistsStub.callCount, 1, 'cleanup deleteIfExists must fire');
+  });
+
+  it('upload - multipart abort cleanup suppresses cleanup error', async function () {
+    // The cleanup error must not mask the original cause; meta retains
+    // NEED_RETRY from the stageBlock failure.
+    const partSizeMb = noProxyConnectionConfig.getUploadPartSizeMb();
+    const partSize = partSizeMb * 1024 * 1024;
+    const fileSize = partSize * 2;
+    stubFsForUpload(fileSize);
+    stageBlockStub.onFirstCall().resolves();
+    stageBlockStub.onSecondCall().throws(() => {
+      const err = new Error('staged block 2 boom');
+      err.statusCode = 500;
+      throw err;
+    });
+    deleteIfExistsStub.throws(() => new Error('cleanup boom'));
+
+    await Azure.uploadFile(dataFile, meta, encryptionMetadata);
+
+    assert.strictEqual(meta['resultStatus'], resultStatus.NEED_RETRY);
+    assert.strictEqual(meta['lastError'].message, 'staged block 2 boom');
   });
 });

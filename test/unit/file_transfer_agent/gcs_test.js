@@ -25,6 +25,9 @@ describe('GCS client', function () {
     crlValidatorConfig: {
       checkMode: 'DISABLED',
     },
+    getUploadPartSizeMb: function () {
+      return 8;
+    },
   };
 
   let GCS;
@@ -42,6 +45,10 @@ describe('GCS client', function () {
     sinonSandbox = sinon.createSandbox();
     sinonSandbox.stub(fs, 'statSync').returns({ size: 1 });
     sinonSandbox.stub(fs, 'createReadStream').callsFake(() => Readable.from([Buffer.from('mock')]));
+    // The Buffer-bodied upload path uses `fs.promises` instead of the legacy
+    // sync/stream APIs; stub both so existing tests and new ones can coexist.
+    sinonSandbox.stub(fs.promises, 'stat').resolves({ size: 4 });
+    sinonSandbox.stub(fs.promises, 'readFile').resolves(Buffer.from('mock'));
     meta = {
       stageInfo: {
         location: mockLocation + '/' + mockTable + '/' + mockPath + '/',
@@ -314,6 +321,49 @@ describe('GCS client', function () {
   it('upload - success', async function () {
     await GCS.uploadFile(dataFile, meta, encryptionMetadata);
     assert.strictEqual(meta['resultStatus'], resultStatus.UPLOADED);
+  });
+
+  it('upload sends Buffer body to axios.put (not a Readable)', async function () {
+    // The Buffer-bodied upload path is what sidesteps the bun
+    // `body.pipe(httpRequest)` regression: the body axios.put sees must be a
+    // `Buffer`, with `Content-Length` derived from its byte length. Verify
+    // both: the second positional argument is a Buffer and the headers carry
+    // the matching content-length.
+    const putSpy = sinon.spy(async () => {});
+    httpClient.put = putSpy;
+    const GCS = new SnowflakeGCSUtil(connectionConfig, httpClient);
+
+    await GCS.uploadFile(dataFile, meta, encryptionMetadata);
+
+    assert.strictEqual(meta['resultStatus'], resultStatus.UPLOADED);
+    assert.ok(putSpy.calledOnce, 'axios.put should be called once');
+    const [, body, options] = putSpy.firstCall.args;
+    assert.ok(Buffer.isBuffer(body), 'axios.put body must be a Buffer, not a Readable');
+    assert.strictEqual(options.headers['Content-Length'], body.length);
+  });
+
+  it('upload of file larger than uploadPartSizeMb still ships via single Buffer PUT', async function () {
+    // Workspace stage presigned URLs do not support GCS resumable upload
+    // initiation today, so files larger than `uploadPartSizeMb` fall back to
+    // a single Buffer PUT and emit a debug log. Verify both: result is
+    // UPLOADED and the body Buffer matches the (mocked) file size.
+    fs.promises.stat.restore();
+    fs.promises.readFile.restore();
+    const largeSize = (connectionConfig.getUploadPartSizeMb() + 4) * 1024 * 1024; // 12 MiB
+    sinonSandbox.stub(fs.promises, 'stat').resolves({ size: largeSize });
+    sinonSandbox.stub(fs.promises, 'readFile').resolves(Buffer.alloc(largeSize, 0));
+    const putSpy = sinon.spy(async () => {});
+    httpClient.put = putSpy;
+    const GCS = new SnowflakeGCSUtil(connectionConfig, httpClient);
+
+    await GCS.uploadFile(dataFile, meta, encryptionMetadata);
+
+    assert.strictEqual(meta['resultStatus'], resultStatus.UPLOADED);
+    assert.ok(putSpy.calledOnce);
+    const [, body, options] = putSpy.firstCall.args;
+    assert.ok(Buffer.isBuffer(body));
+    assert.strictEqual(body.length, largeSize);
+    assert.strictEqual(options.headers['Content-Length'], largeSize);
   });
 
   it('upload - fail need retry', async function () {

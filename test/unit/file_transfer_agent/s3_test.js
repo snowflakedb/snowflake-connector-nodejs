@@ -25,7 +25,16 @@ const throwWithCode = (code) => () => {
 // Registers a mock `s3` module and returns the freshly-required handle.
 // Only the fields explicitly passed are attached to the constructed S3 instance,
 // so each test can opt into exactly the surface it exercises.
-function mockS3({ getObject, putObject, captureConfig = false, onDestroy } = {}) {
+function mockS3({
+  getObject,
+  putObject,
+  createMultipartUpload,
+  uploadPart,
+  completeMultipartUpload,
+  abortMultipartUpload,
+  captureConfig = false,
+  onDestroy,
+} = {}) {
   mock('s3', {
     S3: function (config) {
       function S3() {
@@ -38,6 +47,18 @@ function mockS3({ getObject, putObject, captureConfig = false, onDestroy } = {})
         if (putObject) {
           this.putObject = putObject;
         }
+        if (createMultipartUpload) {
+          this.createMultipartUpload = createMultipartUpload;
+        }
+        if (uploadPart) {
+          this.uploadPart = uploadPart;
+        }
+        if (completeMultipartUpload) {
+          this.completeMultipartUpload = completeMultipartUpload;
+        }
+        if (abortMultipartUpload) {
+          this.abortMultipartUpload = abortMultipartUpload;
+        }
       }
       S3.prototype.destroy = onDestroy || function () {};
       return new S3();
@@ -47,13 +68,41 @@ function mockS3({ getObject, putObject, captureConfig = false, onDestroy } = {})
 }
 
 // Registers a mock `filesystem` module with sensible defaults; tests can override `writeFile`.
-function mockFilesystem({ writeFile } = {}) {
+function mockFilesystem({ writeFile, fileSize = 4 } = {}) {
+  // The Buffer-and-multipart upload path stat()s the file before reading it,
+  // so the mock has to expose enough of `fs.promises` for that codepath.
+  const mockBytes = Buffer.from('mock');
   const impl = {
     createReadStream: function () {
-      return Readable.from([Buffer.from('mock')]);
+      return Readable.from([mockBytes]);
     },
     readFileSync: async function (data) {
       return data;
+    },
+    promises: {
+      stat: async function () {
+        return { size: fileSize };
+      },
+      readFile: async function () {
+        return mockBytes;
+      },
+      open: async function () {
+        // Pretend each `read()` returns exactly the requested length, drawing
+        // from `fileSize` total — the test cares about chunking, not bytes.
+        let position = 0;
+        return {
+          read: async function (buf, offset, length /* , filePos */) {
+            const remaining = Math.max(0, fileSize - position);
+            const toRead = Math.min(length, remaining);
+            // Fill buffer with deterministic bytes so the consumer doesn't
+            // see uninitialized memory.
+            buf.fill(0, offset, offset + toRead);
+            position += toRead;
+            return { bytesRead: toRead };
+          },
+          close: async function () {},
+        };
+      },
     },
   };
   if (writeFile) {
@@ -75,6 +124,9 @@ describe('S3 client', function () {
   const noProxyConnectionConfig = {
     getProxy: function () {
       return null;
+    },
+    getUploadPartSizeMb: function () {
+      return 8;
     },
   };
 
@@ -216,6 +268,49 @@ describe('S3 client', function () {
     assert.strictEqual(meta['resultStatus'], resultStatus.UPLOADED);
   });
 
+  it('upload - multipart path engaged when file exceeds uploadPartSizeMb', async function () {
+    // Force the multipart codepath by faking a file that's larger than the
+    // smallest legal uploadPartSizeMb (5 MiB) and exposing the lifecycle calls
+    // that path uses end-to-end.
+    const partSizeMb = 5;
+    const partSize = partSizeMb * 1024 * 1024;
+    const fileSize = partSize * 2 + 1024; // 3 parts: full, full, remainder
+    const multipartFs = mockFilesystem({ fileSize });
+    let createdMultipart = 0;
+    let uploadedParts = 0;
+    let completed = 0;
+    let aborted = 0;
+    const multipartS3 = mockS3({
+      createMultipartUpload: async () => {
+        createdMultipart += 1;
+        return { UploadId: 'mock-upload-id' };
+      },
+      uploadPart: async () => {
+        uploadedParts += 1;
+        return { ETag: `etag-${uploadedParts}` };
+      },
+      completeMultipartUpload: async () => {
+        completed += 1;
+      },
+      abortMultipartUpload: async () => {
+        aborted += 1;
+      },
+    });
+    const multipartConfig = {
+      getProxy: () => null,
+      getUploadPartSizeMb: () => partSizeMb,
+    };
+    const multipartUtil = new SnowflakeS3Util(multipartConfig, multipartS3, multipartFs);
+    const localMeta = JSON.parse(JSON.stringify(meta));
+    localMeta['client'] = multipartUtil.createClient(localMeta['stageInfo']);
+    await multipartUtil.uploadFile(dataFile, localMeta, encryptionMetadata);
+    assert.strictEqual(localMeta['resultStatus'], resultStatus.UPLOADED);
+    assert.strictEqual(createdMultipart, 1, 'createMultipartUpload should fire once');
+    assert.strictEqual(uploadedParts, 3, 'expected 3 UploadPart calls for 3 chunks');
+    assert.strictEqual(completed, 1, 'completeMultipartUpload should fire once');
+    assert.strictEqual(aborted, 0, 'abortMultipartUpload should not fire on success');
+  });
+
   it('getFileHeader destroys client after success', async function () {
     let destroyed = false;
     s3 = mockS3({
@@ -337,6 +432,9 @@ describe('S3 client', function () {
       accessUrl: 'http://snowflake.com',
       getProxy: function () {
         return proxyOptions;
+      },
+      getUploadPartSizeMb: function () {
+        return 8;
       },
       crlValidatorConfig: {
         checkMode: 'DISABLED',

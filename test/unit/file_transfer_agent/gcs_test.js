@@ -342,11 +342,13 @@ describe('GCS client', function () {
     assert.strictEqual(options.headers['Content-Length'], body.length);
   });
 
-  it('upload of file larger than uploadPartSizeMb still ships via single Buffer PUT', async function () {
-    // Workspace stage presigned URLs do not support GCS resumable upload
-    // initiation today, so files larger than `uploadPartSizeMb` fall back to
-    // a single Buffer PUT and emit a debug log. Verify both: result is
-    // UPLOADED and the body Buffer matches the (mocked) file size.
+  it('upload of file larger than uploadPartSizeMb on legacy presigned-URL path still ships via single Buffer PUT', async function () {
+    // Workspace stage presigned URLs are signed for one specific PUT and
+    // cannot initiate a resumable upload. So when GS hands back a
+    // `presignedUrl` (the legacy path; pre-CB_2023_06 deployments or driver
+    // versions before 1.6.21), large files fall back to a single Buffer PUT
+    // even though the access-token path would split into chunks. Verify
+    // both: result is UPLOADED and the body Buffer matches the file size.
     fs.promises.stat.restore();
     fs.promises.readFile.restore();
     const largeSize = (connectionConfig.getUploadPartSizeMb() + 4) * 1024 * 1024; // 12 MiB
@@ -364,6 +366,158 @@ describe('GCS client', function () {
     assert.ok(Buffer.isBuffer(body));
     assert.strictEqual(body.length, largeSize);
     assert.strictEqual(options.headers['Content-Length'], largeSize);
+  });
+
+  it('upload - resumable path engaged on access-token + large file', async function () {
+    // The access-token path (gcsToken populated, no presignedUrl) with a
+    // file larger than uploadPartSizeMb takes the resumable upload session:
+    // one POST to initiate, N×PUT to deliver chunks, no single-PUT.
+    fs.promises.stat.restore();
+    fs.promises.readFile.restore();
+    const partSizeMb = connectionConfig.getUploadPartSizeMb();
+    const partSize = partSizeMb * 1024 * 1024;
+    // 17 MiB; chunked into [8 MiB, 8 MiB, 1 MiB] per the 256-KiB-aligned
+    // partition rule. Final chunk is unaligned; preceding two are 8 MiB.
+    const fileSize = partSize * 2 + 1024 * 1024;
+    sinonSandbox.stub(fs.promises, 'stat').resolves({ size: fileSize });
+    sinonSandbox.stub(fs.promises, 'open').callsFake(async () => {
+      let position = 0;
+      return {
+        read: async (buf, offset, length /* , filePos */) => {
+          const remaining = Math.max(0, fileSize - position);
+          const toRead = Math.min(length, remaining);
+          buf.fill(0, offset, offset + toRead);
+          position += toRead;
+          return { bytesRead: toRead };
+        },
+        close: async () => {},
+      };
+    });
+    meta.presignedUrl = '';
+    meta.client = { gcsToken: mockAccessToken };
+    meta.uploadSize = fileSize;
+
+    const sessionUrl =
+      'https://storage.googleapis.com/upload/storage/v1/b/mockLocation/o?upload_id=resumable-mock';
+    const postSpy = sinon.spy(async () => ({
+      status: 200,
+      headers: { location: sessionUrl },
+    }));
+    let putCalls = 0;
+    const putSpy = sinon.spy(async () => {
+      putCalls += 1;
+      // Final call gets 200; preceding calls get 308 to mimic GCS's
+      // "Resume Incomplete" signal.
+      if (putCalls === 3) {
+        return { status: 200, headers: {} };
+      }
+      // Compute the highest committed byte from the chunks issued so far,
+      // matching the wire shape GCS would send back.
+      const committed = putCalls * partSize - 1;
+      return { status: 308, headers: { range: `bytes=0-${committed}` } };
+    });
+    httpClient.post = postSpy;
+    httpClient.put = putSpy;
+    httpClient.delete = sinon.spy(async () => ({ status: 204 }));
+    const GCS = new SnowflakeGCSUtil(connectionConfig, httpClient);
+
+    await GCS.uploadFile(dataFile, meta, encryptionMetadata);
+
+    assert.strictEqual(meta['resultStatus'], resultStatus.UPLOADED);
+    assert.strictEqual(postSpy.callCount, 1, 'one initiation POST');
+    assert.strictEqual(putSpy.callCount, 3, 'three chunk PUTs (8 MiB + 8 MiB + 1 MiB)');
+    assert.strictEqual(httpClient.delete.callCount, 0, 'no DELETE on success');
+
+    // Verify Content-Range headers on the chunk PUTs.
+    const ranges = putSpy.getCalls().map((c) => c.args[2].headers['Content-Range']);
+    assert.deepStrictEqual(ranges, [
+      `bytes 0-${partSize - 1}/${fileSize}`,
+      `bytes ${partSize}-${partSize * 2 - 1}/${fileSize}`,
+      `bytes ${partSize * 2}-${fileSize - 1}/${fileSize}`,
+    ]);
+
+    // Initiation POST carries Snowflake metadata as x-goog-meta-* headers
+    // and announces XML API resumable mode via x-goog-resumable: start.
+    const [, , initOpts] = postSpy.firstCall.args;
+    assert.strictEqual(initOpts.headers['x-goog-resumable'], 'start');
+    assert.strictEqual(initOpts.headers['x-upload-content-length'], fileSize);
+    assert.strictEqual(initOpts.headers['x-goog-meta-sfc-digest'], meta['SHA256_DIGEST']);
+    assert.ok(initOpts.headers['x-goog-meta-encryptiondata']);
+    assert.strictEqual(initOpts.headers['x-goog-meta-matdesc'], mockMatDesc);
+  });
+
+  it('upload - resumable path issues DELETE on chunk failure', async function () {
+    // A non-recoverable chunk failure (e.g., 4xx) must abort the session
+    // via DELETE so the upload doesn't linger as a half-staged blob.
+    fs.promises.stat.restore();
+    fs.promises.readFile.restore();
+    const partSize = connectionConfig.getUploadPartSizeMb() * 1024 * 1024;
+    const fileSize = partSize * 2 + 1024;
+    sinonSandbox.stub(fs.promises, 'stat').resolves({ size: fileSize });
+    sinonSandbox.stub(fs.promises, 'open').callsFake(async () => {
+      let position = 0;
+      return {
+        read: async (buf, offset, length /* , filePos */) => {
+          const remaining = Math.max(0, fileSize - position);
+          const toRead = Math.min(length, remaining);
+          buf.fill(0, offset, offset + toRead);
+          position += toRead;
+          return { bytesRead: toRead };
+        },
+        close: async () => {},
+      };
+    });
+    meta.presignedUrl = '';
+    meta.client = { gcsToken: mockAccessToken };
+    meta.uploadSize = fileSize;
+
+    httpClient.post = async () => ({
+      status: 200,
+      headers: { location: 'https://storage.googleapis.com/upload-session' },
+    });
+    httpClient.put = async () => {
+      const err = new Error('boom');
+      err['code'] = 500;
+      err['response'] = { status: 500 };
+      throw err;
+    };
+    const deleteSpy = sinon.spy(async () => ({ status: 204 }));
+    httpClient.delete = deleteSpy;
+    const GCS = new SnowflakeGCSUtil(connectionConfig, httpClient);
+
+    await GCS.uploadFile(dataFile, meta, encryptionMetadata);
+
+    assert.strictEqual(meta['resultStatus'], resultStatus.NEED_RETRY);
+    assert.strictEqual(deleteSpy.callCount, 1, 'DELETE must fire on terminal failure');
+  });
+
+  it('upload - resumable initiate failure surfaces NEED_RETRY without DELETE', async function () {
+    // If the initiation POST itself fails, there is no session to abort —
+    // DELETE must NOT fire. meta should still reflect a retryable error
+    // so the caller's outer retry loop takes over.
+    fs.promises.stat.restore();
+    fs.promises.readFile.restore();
+    const partSize = connectionConfig.getUploadPartSizeMb() * 1024 * 1024;
+    const fileSize = partSize * 2;
+    sinonSandbox.stub(fs.promises, 'stat').resolves({ size: fileSize });
+    meta.presignedUrl = '';
+    meta.client = { gcsToken: mockAccessToken };
+    meta.uploadSize = fileSize;
+
+    httpClient.post = async () => {
+      const err = new Error('init boom');
+      err['code'] = 503;
+      err['response'] = { status: 503 };
+      throw err;
+    };
+    const deleteSpy = sinon.spy(async () => ({ status: 204 }));
+    httpClient.delete = deleteSpy;
+    const GCS = new SnowflakeGCSUtil(connectionConfig, httpClient);
+
+    await GCS.uploadFile(dataFile, meta, encryptionMetadata);
+
+    assert.strictEqual(meta['resultStatus'], resultStatus.NEED_RETRY);
+    assert.strictEqual(deleteSpy.callCount, 0, 'no DELETE when there is no session');
   });
 
   it('upload - fail need retry', async function () {

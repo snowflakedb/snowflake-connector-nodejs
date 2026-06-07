@@ -626,6 +626,36 @@ describe('ConnectionConfig: basic', function () {
       errorCode: ErrorCodes.ERR_CONN_CREATE_INVALID_UPLOAD_PART_SIZE_MB,
     },
     {
+      name: 'uploadPartSizeMb above Azure 4000 MiB maximum',
+      options: {
+        username: 'username',
+        password: 'password',
+        account: 'account',
+        uploadPartSizeMb: 4001,
+      },
+      errorCode: ErrorCodes.ERR_CONN_CREATE_INVALID_UPLOAD_PART_SIZE_MB,
+    },
+    {
+      name: 'uploadPartSizeMb zero is rejected',
+      options: {
+        username: 'username',
+        password: 'password',
+        account: 'account',
+        uploadPartSizeMb: 0,
+      },
+      errorCode: ErrorCodes.ERR_CONN_CREATE_INVALID_UPLOAD_PART_SIZE_MB,
+    },
+    {
+      name: 'uploadPartSizeMb negative is rejected',
+      options: {
+        username: 'username',
+        password: 'password',
+        account: 'account',
+        uploadPartSizeMb: -8,
+      },
+      errorCode: ErrorCodes.ERR_CONN_CREATE_INVALID_UPLOAD_PART_SIZE_MB,
+    },
+    {
       name: 'invalid includeRetryReason',
       options: {
         username: 'username',
@@ -1751,6 +1781,15 @@ describe('ConnectionConfig: basic', function () {
           uploadPartSizeMb: 5,
         },
         result: 5,
+        getter: 'getUploadPartSizeMb',
+      },
+      {
+        name: 'uploadPartSizeMb at exact Azure maximum (4000)',
+        input: {
+          ...mandatoryOption,
+          uploadPartSizeMb: 4000,
+        },
+        result: 4000,
         getter: 'getUploadPartSizeMb',
       },
     ];

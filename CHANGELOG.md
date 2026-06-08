@@ -4,7 +4,7 @@
 
 Internal:
 
-- `sessionId` is again no longer sent as string (pre-2.4.1 behaviour) for the time being (snowflakedb/snowflake-connector-nodejs#XXXX).
+- `sessionId` is again no longer sent as string (pre-2.4.1 behaviour) for the time being (snowflakedb/snowflake-connector-nodejs#1428).
 
 ## 2.4.3
 

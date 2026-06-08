@@ -28,6 +28,9 @@ describe('GCS client', function () {
     getUploadPartSizeMb: function () {
       return 8;
     },
+    getUploadPartSizeBytes: function () {
+      return 8 * 1024 * 1024;
+    },
   };
 
   let GCS;

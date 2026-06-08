@@ -128,6 +128,9 @@ describe('S3 client', function () {
     getUploadPartSizeMb: function () {
       return 8;
     },
+    getUploadPartSizeBytes: function () {
+      return 8 * 1024 * 1024;
+    },
   };
 
   let AWS;
@@ -299,6 +302,7 @@ describe('S3 client', function () {
     const multipartConfig = {
       getProxy: () => null,
       getUploadPartSizeMb: () => partSizeMb,
+      getUploadPartSizeBytes: () => partSizeMb * 1024 * 1024,
     };
     const multipartUtil = new SnowflakeS3Util(multipartConfig, multipartS3, multipartFs);
     const localMeta = JSON.parse(JSON.stringify(meta));
@@ -344,6 +348,7 @@ describe('S3 client', function () {
     const multipartConfig = {
       getProxy: () => null,
       getUploadPartSizeMb: () => partSizeMb,
+      getUploadPartSizeBytes: () => partSizeMb * 1024 * 1024,
     };
     const multipartUtil = new SnowflakeS3Util(multipartConfig, multipartS3, multipartFs);
     const localMeta = JSON.parse(JSON.stringify(meta));
@@ -403,6 +408,7 @@ describe('S3 client', function () {
     const multipartConfig = {
       getProxy: () => null,
       getUploadPartSizeMb: () => partSizeMb,
+      getUploadPartSizeBytes: () => partSizeMb * 1024 * 1024,
     };
     const multipartUtil = new SnowflakeS3Util(multipartConfig, multipartS3, shortReadFs);
     const localMeta = JSON.parse(JSON.stringify(meta));
@@ -541,6 +547,9 @@ describe('S3 client', function () {
       },
       getUploadPartSizeMb: function () {
         return 8;
+      },
+      getUploadPartSizeBytes: function () {
+        return 8 * 1024 * 1024;
       },
       crlValidatorConfig: {
         checkMode: 'DISABLED',

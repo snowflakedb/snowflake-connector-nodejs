@@ -4,7 +4,7 @@
 
 Internal:
 
-- Reverted the change from #1384 (introduced in 2.4.1) due to compatibility issues with session sharing between drivers (see snowflakedb/snowflake-connector-nodejs#1428).
+- Reverted the change from (snowflakedb/snowflake-connector-nodejs#1384) (introduced in 2.4.1) due to compatibility issues with session sharing between drivers (snowflakedb/snowflake-connector-nodejs#1428)
 
 ## 2.4.3
 

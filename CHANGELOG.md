@@ -2,6 +2,10 @@
 
 ## Upcoming Release
 
+New features:
+
+- Added Buffer-bodied multipart upload across all three cloud-provider backends (S3 multipart, Azure block-blob, GCS XML API resumable). Bounds in-flight memory by `uploadPartSizeMb` (default 8 MiB) regardless of file size and gives per-part retry granularity on transient errors (snowflakedb/snowflake-connector-nodejs#1427)
+
 Internal:
 
 - Reverted the change from (snowflakedb/snowflake-connector-nodejs#1384) (introduced in 2.4.1) due to compatibility issues with session sharing between drivers (snowflakedb/snowflake-connector-nodejs#1428)

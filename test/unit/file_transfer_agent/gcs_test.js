@@ -327,11 +327,10 @@ describe('GCS client', function () {
   });
 
   it('upload sends Buffer body to axios.put (not a Readable)', async function () {
-    // The Buffer-bodied upload path is what sidesteps the bun
-    // `body.pipe(httpRequest)` regression: the body axios.put sees must be a
-    // `Buffer`, with `Content-Length` derived from its byte length. Verify
-    // both: the second positional argument is a Buffer and the headers carry
-    // the matching content-length.
+    // The Buffer-bodied upload path bounds in-flight memory and gives a
+    // predictable wire shape (known `Content-Length`, no chunked transfer
+    // encoding). Verify both: the second positional argument is a Buffer
+    // and the headers carry the matching content-length.
     const putSpy = sinon.spy(async () => {});
     httpClient.put = putSpy;
     const GCS = new SnowflakeGCSUtil(connectionConfig, httpClient);

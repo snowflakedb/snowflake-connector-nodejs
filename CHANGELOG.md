@@ -2,7 +2,9 @@
 
 ## Upcoming Release
 
-TBA
+Internal:
+
+- Fixed CRL validator unit tests failing due to hardcoded `nextUpdate` expiry date; replaced with a dynamic 1-year-from-now value (snowflakedb/snowflake-connector-nodejs#XXXX).
 
 ## 2.4.3
 

@@ -220,7 +220,7 @@ export function createTestCRL(
     });
   const issuingDistributionPointUrls = options.issuingDistributionPointUrls ?? null;
   const revokedCertificates = options.revokedCertificates ?? ['0'];
-  const nextUpdate = options.nextUpdate ?? new Date('2026-06-08T00:00:00Z').getTime();
+  const nextUpdate = options.nextUpdate ?? Date.now() + 1000 * 60 * 60 * 24 * 365; // 1 year from now
 
   const tbsCertList: rfc5280.TBSCertList = {
     version: new asn1.bignum(1),

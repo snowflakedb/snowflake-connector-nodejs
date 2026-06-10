@@ -6,6 +6,11 @@ Bugfixes:
 
 - Fixed global URL detection incorrectly truncating account names containing "global" (e.g. `myorg-global`) (snowflakedb/snowflake-connector-nodejs#1423)
 
+Internal:
+
+- Reverted the change from (snowflakedb/snowflake-connector-nodejs#1384) (introduced in 2.4.1) due to compatibility issues with session sharing between drivers (snowflakedb/snowflake-connector-nodejs#1428)
+
+
 ## 2.4.3
 
 Bugfixes:

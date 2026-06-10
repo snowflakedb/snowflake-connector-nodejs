@@ -2,9 +2,16 @@
 
 ## Upcoming Release
 
+Bugfixes:
+
+- Fixed `noProxy` connection option and `NO_PROXY` environment variable not bypassing the proxy for PrivateLink connections (snowflakedb/snowflake-connector-nodejs#1422).
+- Fixed interrupted streaming HTTP responses being treated as successful empty responses instead of errors, which could cause `streamRows()` to hang silently on large result sets (snowflakedb/snowflake-connector-nodejs#1420)
+- Fixed `LOCAL_FS` stage download writing to the wrong path by using the destination file's base name, consistent with cloud stages (snowflakedb/snowflake-connector-nodejs#1431)
+
 Internal:
 
 - Switched AWS Workload Identity attestation to use STS `GetWebIdentityToken` JWTs; no longer uses SigV4 `GetCallerIdentity` envelopes. (snowflakedb/snowflake-connector-nodejs#1415)
+- Reverted the change from (snowflakedb/snowflake-connector-nodejs#1384) (introduced in 2.4.1) due to compatibility issues with session sharing between drivers (snowflakedb/snowflake-connector-nodejs#1428)
 
 ## 2.4.3
 

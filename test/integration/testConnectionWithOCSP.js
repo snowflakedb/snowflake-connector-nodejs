@@ -8,7 +8,7 @@ const OcspResponseCache = require('./../../lib/agent/ocsp_response_cache');
 const sharedLogger = require('./sharedLogger');
 const Logger = require('./../../lib/logger');
 const { hangWebServerUrl } = require('../hangWebserver');
-const ProxyAgent = require('./../../lib/agent/https_proxy_agent');
+const ProxyAgent = require('./../../lib/agent/https_proxy_agent').default;
 const { runWireMockAsync } = require('../wiremockRunner');
 const { getFreePort } = require('./../../lib/util');
 

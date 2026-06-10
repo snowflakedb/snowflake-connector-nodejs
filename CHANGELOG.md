@@ -2,7 +2,9 @@
 
 ## Upcoming Release
 
-TBA
+Bugfixes:
+
+- Fixed interrupted streaming HTTP responses being treated as successful empty responses instead of errors, which could cause `streamRows()` to hang silently on large result sets (snowflakedb/snowflake-connector-nodejs#1420)
 
 ## 2.4.3
 

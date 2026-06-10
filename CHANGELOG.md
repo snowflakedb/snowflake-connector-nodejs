@@ -2,6 +2,10 @@
 
 ## Upcoming Release
 
+Bugfixes:
+
+- Fixed `LOCAL_FS` stage download writing to the wrong path by using the destination file's base name, consistent with cloud stages (snowflakedb/snowflake-connector-nodejs#1431)
+
 Internal:
 
 - Reverted the change from (snowflakedb/snowflake-connector-nodejs#1384) (introduced in 2.4.1) due to compatibility issues with session sharing between drivers (snowflakedb/snowflake-connector-nodejs#1428)

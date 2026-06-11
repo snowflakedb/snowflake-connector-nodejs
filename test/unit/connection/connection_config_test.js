@@ -1666,7 +1666,7 @@ describe('ConnectionConfig: basic', function () {
         username: 'username',
         password: 'password',
         account: 'account',
-        serverSessionKeepAlive: (config) => config.getServerSessionKeepAlive() === true,
+        serverSessionKeepAlive: true,
       },
     },
     {
@@ -1682,7 +1682,7 @@ describe('ConnectionConfig: basic', function () {
         username: 'username',
         password: 'password',
         account: 'account',
-        serverSessionKeepAlive: (config) => config.getServerSessionKeepAlive() === false,
+        serverSessionKeepAlive: false,
       },
     },
     {
@@ -1697,7 +1697,7 @@ describe('ConnectionConfig: basic', function () {
         username: 'username',
         password: 'password',
         account: 'account',
-        serverSessionKeepAlive: (config) => config.getServerSessionKeepAlive() === false,
+        serverSessionKeepAlive: false,
       },
     },
   ];

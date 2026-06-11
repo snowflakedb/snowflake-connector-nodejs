@@ -43,7 +43,7 @@ describe('should parse toml connection configuration', function () {
     assert.strictEqual(configuration['authenticator'], 'oauth');
   });
 
-  it('parses token_file_path without reading the token file', async function () {
+  it('parses token_file_path', async function () {
     process.env.SNOWFLAKE_DEFAULT_CONNECTION_NAME = 'aws-oauth-file';
     const configuration = await loadConnectionConfiguration();
     assert.strictEqual(configuration['authenticator'], 'oauth');

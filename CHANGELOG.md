@@ -11,7 +11,8 @@ Bugfixes:
 
 Internal:
 
-- Reverted the change from (snowflakedb/snowflake-connector-nodejs#1384) (introduced in 2.4.1) due to compatibility issues with session sharing between drivers (snowflakedb/snowflake-connector-nodejs#1428)
+- Switched AWS Workload Identity attestation to use STS `GetWebIdentityToken` JWTs; no longer uses SigV4 `GetCallerIdentity` envelopes. (snowflakedb/snowflake-connector-nodejs#1415)
+- Reverted `SESSION_ID_AS_STRING` change from snowflakedb/snowflake-connector-nodejs#1384 (introduced in 2.4.1) due to compatibility issues with session sharing between drivers (snowflakedb/snowflake-connector-nodejs#1428)
 
 ## 2.4.3
 

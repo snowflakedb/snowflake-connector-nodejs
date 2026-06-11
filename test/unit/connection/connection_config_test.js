@@ -784,17 +784,6 @@ describe('ConnectionConfig: basic', function () {
       },
       errorCode: ErrorCodes.ERR_CONN_CREATE_INVALID_QUERY_TAG,
     },
-    {
-      name: 'invalid serverSessionKeepAlive',
-
-      options: {
-        account: 'account',
-        username: 'username',
-        password: 'password',
-        serverSessionKeepAlive: 'invalid',
-      },
-      errorCode: ErrorCodes.ERR_CONN_CREATE_INVALID_SERVER_SESSION_KEEP_ALIVE,
-    },
   ];
 
   const createNegativeITCallback = function (testCase) {

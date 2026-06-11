@@ -89,6 +89,16 @@ export interface WIP_ConnectionOptions {
   clientSessionKeepAliveHeartbeatFrequency?: number;
 
   /**
+   * When true, the session is not destroyed on the server side when the connection
+   * is closed. This allows async queries to continue running after disconnect.
+   * Any unfinished queries will continue to live in Snowflake and consume credits
+   * until they finish.
+   *
+   * @default false
+   */
+  serverSessionKeepAlive?: boolean;
+
+  /**
    * Enable MFA/SSO token caching.
    *
    * https://docs.snowflake.com/en/developer-guide/node-js/nodejs-driver-authenticate#authentication-token-caching
@@ -109,16 +119,6 @@ export interface WIP_ConnectionOptions {
    *    - **macOS**: `~/Library/Caches/Snowflake`
    */
   credentialCacheDir?: string;
-
-  /**
-   * When true, the session is not destroyed on the server side when the connection
-   * is closed. This allows async queries to continue running after disconnect.
-   * Any unfinished queries will continue to live in Snowflake and consume credits
-   * until they finish.
-   *
-   * @default false
-   */
-  serverSessionKeepAlive?: boolean;
 
   /**
    * Specifies the token to use for authentication. Set this option if you set the authenticator option to

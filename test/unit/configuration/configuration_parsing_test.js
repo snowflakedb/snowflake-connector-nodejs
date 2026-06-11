@@ -43,13 +43,12 @@ describe('should parse toml connection configuration', function () {
     assert.strictEqual(configuration['authenticator'], 'oauth');
   });
 
-  it('should throw exception when token file does not exist', async function () {
+  it('parses token_file_path without reading the token file', async function () {
     process.env.SNOWFLAKE_DEFAULT_CONNECTION_NAME = 'aws-oauth-file';
-    try {
-      await loadConnectionConfiguration();
-    } catch (error) {
-      assert.match(error.message, /ENOENT: no such file or directory/);
-    }
+    const configuration = await loadConnectionConfiguration();
+    assert.strictEqual(configuration['authenticator'], 'oauth');
+    assert.strictEqual(configuration['tokenFilePath'], '/Users/test/.snowflake/token');
+    assert.strictEqual(configuration['token'], undefined);
   });
 
   it('should throw error toml when file does not exist', function (done) {
@@ -183,7 +182,7 @@ describe('Configuration parsing tests', function () {
               "common": {
                   "log_level": "${logLevel}",
                   "log_path": "${logPath}"
-              } 
+              }
           }`;
       await writeFile(filePath, fileContent);
 
@@ -209,7 +208,7 @@ describe('Configuration parsing tests', function () {
     {
       testCaseName: 'config with empty common',
       fileContent: `{
-        "common": {} 
+        "common": {}
      }`,
     },
     {
@@ -219,7 +218,7 @@ describe('Configuration parsing tests', function () {
                 "log_level": "ERROR",
                 "log_path": null,
                 "unknown_key": "unknown_value"
-            } 
+            }
         }`,
     },
     {
@@ -227,7 +226,7 @@ describe('Configuration parsing tests', function () {
       fileContent: `{
             "common": {
                 "unknown_key": "unknown_value"
-            } 
+            }
         }`,
     },
   ].forEach(({ testCaseName, fileContent }) => {
@@ -313,7 +312,7 @@ describe('Configuration parsing tests', function () {
             "common": {
                 "log_level": "unknown",
                 "log_path": "/some-path/some-directory"
-            } 
+            }
         }`,
     },
     {
@@ -326,7 +325,7 @@ describe('Configuration parsing tests', function () {
             "common": {
                 "log_level": 5,
                 "log_path": "/some-path/some-directory"
-            } 
+            }
         }`,
     },
     {
@@ -335,7 +334,7 @@ describe('Configuration parsing tests', function () {
             "common": {
                 "log_level": "${Levels.Info}",
                 "log_path": true
-            } 
+            }
         }`,
     },
   ].forEach(({ testCaseName, fileContent }) => {
@@ -368,7 +367,7 @@ describe('Configuration parsing tests', function () {
       "common": {
           "log_level": "${Levels.Info}",
           "log_path": "/some-path/some-directory"
-      } 
+      }
   }`;
     await writeFile(filePath, fileContent);
     setTimeout(() => {
@@ -398,7 +397,7 @@ describe('Configuration parsing tests', function () {
       "common": {
           "log_level": "${Levels.Info}",
           "log_path": "/some-path/some-directory"
-      } 
+      }
   }`;
     await writeFile(filePath, fileContent);
     setTimeout(() => fs.chmodSync(filePath, 0o777), 2000);
@@ -423,7 +422,7 @@ describe('Configuration parsing tests', function () {
       "common": {
           "log_level": "${Levels.Info}",
           "log_path": "/some-path/some-directory"
-      } 
+      }
   }`;
     await writeFile(filePath, fileContent);
     setTimeout(async () => {

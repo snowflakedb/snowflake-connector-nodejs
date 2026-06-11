@@ -4,7 +4,8 @@
 
 New features:
 
-- Added `serverSessionKeepAlive` connection option that keeps the session alive on the server side when `connection.destroy()` is called. Useful when you want to close the local connection while keeping async queries running on the server (snowflakedb/snowflake-connector-nodejs#1004)
+- Added `tokenFilePath` connection option that reads the authentication token from a file when no `token` is provided (snowflakedb/snowflake-connector-nodejs#1421)
+- Added `serverSessionKeepAlive` connection option that keeps the session alive on the server side when `connection.destroy()` is called. Useful when you want to close the local connection while keeping async queries running on the server (snowflakedb/snowflake-connector-nodejs#1426)
 
 Bugfixes:
 
@@ -17,10 +18,6 @@ Internal:
 
 - Switched AWS Workload Identity attestation to use STS `GetWebIdentityToken` JWTs; no longer uses SigV4 `GetCallerIdentity` envelopes. (snowflakedb/snowflake-connector-nodejs#1415)
 - Reverted `SESSION_ID_AS_STRING` change from snowflakedb/snowflake-connector-nodejs#1384 (introduced in 2.4.1) due to compatibility issues with session sharing between drivers (snowflakedb/snowflake-connector-nodejs#1428)
-
-Bugfixes:
-
-- Read the OAuth `token_file_path` (and the normalized `tokenFilePath`) when it is passed through programmatic connection options to `connect()`/`createConnection`, not only when the driver loads `connections.toml` itself. Previously such callers had the field ignored and sent an empty token.
 
 ## 2.4.3
 

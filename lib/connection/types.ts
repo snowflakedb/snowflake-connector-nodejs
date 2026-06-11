@@ -129,6 +129,17 @@ export interface WIP_ConnectionOptions {
   token?: string;
 
   /**
+   * Specifies the path to a file containing the token for authentication.
+   *
+   * This option works similarly to the `token` property, but retrieves the token value by reading the specified file from disk.
+   *
+   * If `token` is not provided, the driver will attempt to read the token from this file for suitable token-based authenticators.
+   *
+   * If both `token` and `tokenFilePath` are set, `token` takes precedence and this file path will be ignored.
+   */
+  tokenFilePath?: string;
+
+  /**
    * Enable single use refresh tokens for OAuth
    */
   oauthEnableSingleUseRefreshTokens?: boolean;

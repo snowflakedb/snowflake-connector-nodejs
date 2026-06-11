@@ -59,6 +59,5 @@ export async function getAwsAttestationToken(impersonationPath?: string[]) {
     throw new Error('Failed to obtain AWS web identity token from STS');
   }
 
-  Logger().debug(`AWS outbound token prefix: ${token.slice(0, 10)}`);
   return token;
 }

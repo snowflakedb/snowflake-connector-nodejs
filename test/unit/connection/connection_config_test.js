@@ -1653,6 +1653,53 @@ describe('ConnectionConfig: basic', function () {
         account: 'myorg-myaccount',
       },
     },
+    {
+      name: 'serverSessionKeepAlive true',
+      input: {
+        account: 'account',
+        username: 'username',
+        password: 'password',
+        serverSessionKeepAlive: true,
+      },
+      options: {
+        accessUrl: 'https://account.snowflakecomputing.com',
+        username: 'username',
+        password: 'password',
+        account: 'account',
+        serverSessionKeepAlive: true,
+      },
+    },
+    {
+      name: 'serverSessionKeepAlive false',
+      input: {
+        account: 'account',
+        username: 'username',
+        password: 'password',
+        serverSessionKeepAlive: false,
+      },
+      options: {
+        accessUrl: 'https://account.snowflakecomputing.com',
+        username: 'username',
+        password: 'password',
+        account: 'account',
+        serverSessionKeepAlive: false,
+      },
+    },
+    {
+      name: 'serverSessionKeepAlive defaults to false',
+      input: {
+        account: 'account',
+        username: 'username',
+        password: 'password',
+      },
+      options: {
+        accessUrl: 'https://account.snowflakecomputing.com',
+        username: 'username',
+        password: 'password',
+        account: 'account',
+        serverSessionKeepAlive: false,
+      },
+    },
   ];
 
   const createItCallback = function (testCase) {

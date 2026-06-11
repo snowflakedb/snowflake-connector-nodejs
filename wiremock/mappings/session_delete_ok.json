@@ -1,0 +1,27 @@
+{
+  "mappings": [
+    {
+      "request": {
+        "urlPathPattern": "/session",
+        "method": "POST",
+        "queryParameters": {
+          "delete": {
+            "equalTo": "true"
+          }
+        }
+      },
+      "response": {
+        "status": 200,
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "jsonBody": {
+          "data": null,
+          "code": null,
+          "message": null,
+          "success": true
+        }
+      }
+    }
+  ]
+}

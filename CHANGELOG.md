@@ -2,6 +2,10 @@
 
 ## Upcoming Release
 
+New features:
+
+- Added `serverSessionKeepAlive` connection option that keeps the session alive on the server side when `connection.destroy()` is called. Useful when you want to close the local connection while keeping async queries running on the server (snowflakedb/snowflake-connector-nodejs#1004)
+
 Bugfixes:
 
 - Fixed global URL detection incorrectly truncating account names containing "global" (e.g. `myorg-global`) (snowflakedb/snowflake-connector-nodejs#1423)

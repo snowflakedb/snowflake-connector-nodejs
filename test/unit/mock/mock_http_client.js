@@ -155,7 +155,6 @@ function serializeRequest(request) {
   // wiremock for better matchers
   delete clonedRequest.useSnowflakeRetryMiddleware;
   if (clonedRequest.json && clonedRequest.json.data) {
-    delete clonedRequest.json.data.CLIENT_CAPABILITIES;
     delete clonedRequest.json.data.CLIENT_ENVIRONMENT;
   }
   return JSON.stringify(clonedRequest);

@@ -48,14 +48,6 @@ const connectionOptionsWithClientSessionKeepAlive = {
   clientSessionKeepAliveHeartbeatFrequency: 1800,
 };
 
-const connectionOptionsWithServerSessionKeepAlive = {
-  accessUrl: 'http://fakeaccount.snowflakecomputing.com',
-  username: 'fakeserversessionkeepalive',
-  password: 'fakepassword',
-  account: 'fakeaccount',
-  serverSessionKeepAlive: true,
-};
-
 const connectionOptionsForSessionGone = {
   accessUrl: 'http://fakeaccount.snowflakecomputing.com',
   username: 'fakesessiongone',
@@ -160,7 +152,6 @@ exports.connectionOptions = {
   deserialize: connectionOptionsDeserialize,
   serviceName: connectionOptionsWithServiceName,
   clientSessionKeepAlive: connectionOptionsWithClientSessionKeepAlive,
-  serverSessionKeepAlive: connectionOptionsWithServerSessionKeepAlive,
   sessionGone: connectionOptionsForSessionGone,
   sessionExpired: connectionOptionsForSessionExpired,
   http504: connectionOptions504,

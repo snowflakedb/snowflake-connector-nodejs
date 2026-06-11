@@ -63,4 +63,4 @@ class SnowflakeHttpsProxyAgent extends HttpsProxyAgent<string> {
   }
 }
 
-module.exports = SnowflakeHttpsProxyAgent;
+export default SnowflakeHttpsProxyAgent;

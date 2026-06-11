@@ -975,6 +975,49 @@ describe('ConnectionConfig: basic', function () {
       },
     },
     {
+      name: 'global url with cn TLD strips org prefix',
+      input: {
+        username: 'username',
+        password: 'password',
+        account: 'myorg-myaccount.cn-northwest-1.global',
+      },
+      options: {
+        accessUrl: 'https://myorg-myaccount.cn-northwest-1.global.snowflakecomputing.cn',
+        username: 'username',
+        password: 'password',
+        account: 'myorg',
+      },
+    },
+    {
+      name: 'account name ending with global does not trigger global URL stripping',
+      input: {
+        username: 'username',
+        password: 'password',
+        account: 'myorg-global',
+      },
+      options: {
+        accessUrl: 'https://myorg-global.snowflakecomputing.com',
+        username: 'username',
+        password: 'password',
+        account: 'myorg-global',
+      },
+    },
+    {
+      name: 'account name ending with global and explicit accessUrl does not trigger global URL stripping',
+      input: {
+        username: 'username',
+        password: 'password',
+        account: 'myorg-global',
+        accessUrl: 'https://myorg-global.snowflakecomputing.com',
+      },
+      options: {
+        accessUrl: 'https://myorg-global.snowflakecomputing.com',
+        username: 'username',
+        password: 'password',
+        account: 'myorg-global',
+      },
+    },
+    {
       name: 'china url with account and cn region',
       input: {
         username: 'username',
@@ -1608,6 +1651,53 @@ describe('ConnectionConfig: basic', function () {
         username: 'user',
         password: 'password',
         account: 'myorg-myaccount',
+      },
+    },
+    {
+      name: 'serverSessionKeepAlive true',
+      input: {
+        account: 'account',
+        username: 'username',
+        password: 'password',
+        serverSessionKeepAlive: true,
+      },
+      options: {
+        accessUrl: 'https://account.snowflakecomputing.com',
+        username: 'username',
+        password: 'password',
+        account: 'account',
+        serverSessionKeepAlive: true,
+      },
+    },
+    {
+      name: 'serverSessionKeepAlive false',
+      input: {
+        account: 'account',
+        username: 'username',
+        password: 'password',
+        serverSessionKeepAlive: false,
+      },
+      options: {
+        accessUrl: 'https://account.snowflakecomputing.com',
+        username: 'username',
+        password: 'password',
+        account: 'account',
+        serverSessionKeepAlive: false,
+      },
+    },
+    {
+      name: 'serverSessionKeepAlive defaults to false',
+      input: {
+        account: 'account',
+        username: 'username',
+        password: 'password',
+      },
+      options: {
+        accessUrl: 'https://account.snowflakecomputing.com',
+        username: 'username',
+        password: 'password',
+        account: 'account',
+        serverSessionKeepAlive: false,
       },
     },
   ];

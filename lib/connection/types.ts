@@ -240,20 +240,27 @@ export interface WIP_ConnectionOptions {
   browserRedirectPort?: number;
 
   /**
-   * Customize the body returned by the local callback server after the browser
-   * completes the authentication redirect. Supported when the authenticator is set to:
+   * Lets you customize the web page a user sees in their browser after they
+   * finish signing in, instead of the default confirmation message. Use it to
+   * show your own branding, wording, or a "you can close this tab" page.
+   *
+   * Supported when authenticator is set to:
    * * EXTERNALBROWSER
    * * OAUTH_AUTHORIZATION_CODE
    *
-   * The function is invoked once per callback request. On success, `error` is
-   * `undefined`. On failure, `error` contains the formatted error message
-   * returned by the identity provider. The string is NOT HTML-escaped before
-   * being passed; the caller owns escaping when interpolating it into HTML.
+   * Return the full HTML page to display. On success, `error` is `null`.
+   * If sign-in failed, `error` contains the message from your identity provider
+   * (already HTML-escaped, so it is safe to embed directly).
    *
-   * The returned string is sent verbatim as the HTTP response body with
-   * `Content-Type: text/html; charset=utf-8`.
+   * @example
+   * browserResponseRenderer: ({ error }) => {
+   *   const message = error
+   *     ? `<h1>Login failed</h1><p>${error}</p>`
+   *     : '<h1>All set! You can close this tab.</h1>';
+   *   return `<html><body>${message}</body></html>`;
+   * }
    */
-  browserResponseRenderer?: (result: { error?: string }) => string;
+  browserResponseRenderer?: (result: { error: string | null }) => string;
 
   /**
    * Specifies a custom callback for opening the browser window during authentication.

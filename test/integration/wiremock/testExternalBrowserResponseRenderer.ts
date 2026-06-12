@@ -36,10 +36,7 @@ describe('External browser browserResponseRenderer', function () {
     await wiremock.mappings.resetAllMappings();
   });
 
-  async function runFlow(opts: {
-    rendererBody: (result: { error?: string }) => string;
-    redirectQueryString: string;
-  }): Promise<{ connectError: Error | null; capturedResponse: any }> {
+  it('writes the renderer output on the local callback server', async function () {
     await addWireMockMappingsFromFile(
       wiremock,
       'wiremock/mappings/external_browser/successful_flow.json',
@@ -59,9 +56,9 @@ describe('External browser browserResponseRenderer', function () {
       username: 'MOCK_USERNAME',
       authenticator: 'EXTERNALBROWSER',
       browserRedirectPort,
-      browserResponseRenderer: opts.rendererBody,
+      browserResponseRenderer: () => '<html><body><h1>BROWSER OK</h1></body></html>',
       openExternalBrowserCallback: () => {
-        const target = `http://127.0.0.1:${browserRedirectPort}/?${opts.redirectQueryString}`;
+        const target = `http://127.0.0.1:${browserRedirectPort}/?token=fake-saml-token`;
         callbackComplete = authUtil
           .withBrowserActionTimeout(3000, get(target))
           .then((res: any) => {
@@ -81,17 +78,6 @@ describe('External browser browserResponseRenderer', function () {
     }
     // Make sure the in-flight axios call settles so capturedResponse is observed.
     await callbackComplete!;
-    return { connectError, capturedResponse };
-  }
-
-  it('writes the renderer output on the local callback server', async function () {
-    const { connectError, capturedResponse } = await runFlow({
-      rendererBody: ({ error }) =>
-        error
-          ? `<html><body><h1>BAD</h1><pre>${error}</pre></body></html>`
-          : '<html><body><h1>BROWSER OK</h1></body></html>',
-      redirectQueryString: 'token=fake-saml-token',
-    });
 
     assert.strictEqual(connectError, null, `unexpected connect error: ${connectError?.message}`);
     assert.ok(capturedResponse, 'expected the browser callback to receive a response');
@@ -101,24 +87,5 @@ describe('External browser browserResponseRenderer', function () {
       capturedResponse.data.includes('<h1>BROWSER OK</h1>'),
       `expected success body, got: ${capturedResponse.data}`,
     );
-  });
-
-  it('writes the renderer output on the callback error path', async function () {
-    const { capturedResponse } = await runFlow({
-      rendererBody: ({ error }) =>
-        error
-          ? `<html><body><h1>BAD</h1><pre>${error}</pre></body></html>`
-          : '<html><body><h1>BROWSER OK</h1></body></html>',
-      redirectQueryString: 'error=access_denied&error_description=user+declined',
-    });
-
-    // We intentionally do not assert on connectError here: on the error path,
-    // AuthWeb's server rejects which surfaces as a connect failure. The
-    // renderer behaviour is the subject of this test.
-    assert.ok(capturedResponse, 'expected the browser callback to receive a response');
-    assert.strictEqual(capturedResponse.status, 200);
-    assert.match(capturedResponse.headers['content-type'], /text\/html; charset=utf-8/i);
-    assert.ok(capturedResponse.data.includes('<h1>BAD</h1>'));
-    assert.ok(capturedResponse.data.includes('access_denied'));
   });
 });

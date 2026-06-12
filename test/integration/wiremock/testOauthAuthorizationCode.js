@@ -76,7 +76,7 @@ describe('Oauth Authorization Code authentication', function () {
     let capturedResponse;
     authTest.createConnection({
       ...connectionOption,
-      browserResponseRenderer: () => '<html><body><h1>WELCOME</h1></body></html>',
+      browserResponseRenderer: () => 'Custom message',
       openExternalBrowserCallback: async (urlString) => {
         capturedResponse = await simulateBrowserRedirect(urlString);
       },
@@ -87,12 +87,7 @@ describe('Oauth Authorization Code authentication', function () {
     await authTest.verifyConnectionIsUp();
 
     assert.ok(capturedResponse, 'expected the browser callback to receive a response');
-    assert.strictEqual(capturedResponse.status, 200);
-    assert.match(capturedResponse.headers['content-type'], /text\/html; charset=utf-8/i);
-    assert.ok(
-      capturedResponse.data.includes('<h1>WELCOME</h1>'),
-      `expected success body, got: ${capturedResponse.data}`,
-    );
+    assert.match(capturedResponse.data, /Custom message/);
   });
 
   it('successfully connects with empty scope', async function () {

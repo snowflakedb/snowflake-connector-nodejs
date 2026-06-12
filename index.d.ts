@@ -125,13 +125,6 @@ declare module 'snowflake-sdk' {
     //Detail information: https://docs.snowflake.com/en/developer-guide/node-js/nodejs-driver-options
 
     /**
-     * @deprecated
-     * Append a region or any sub domains before snowflakecomputing.com to the
-     * end of account parameter after a dot, e.g., account=<account>.<region>.
-     */
-    region?: string;
-
-    /**
      * Specifies whether the OCSP request is also sent to the proxy specified.
      */
     useConnectionConfigProxyForOCSP?: boolean;

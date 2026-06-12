@@ -27,6 +27,12 @@ describe('Inband Telemetry', () => {
       .filter((call) => call.firstArg.url?.includes('/telemetry/send'));
   }
 
+  function getTelemetryLogsByType(type: string) {
+    return getTelemetryRequests()
+      .flatMap((call) => call.firstArg.data?.logs ?? [])
+      .filter((log: any) => log?.message?.type === type);
+  }
+
   before(async () => {
     const port = await getFreePort();
     wiremock = await runWireMockAsync(port);
@@ -59,10 +65,37 @@ describe('Inband Telemetry', () => {
       `Cannot find module './binaries/sf_mini_core_0.0.1.dummy-test-platform-to-force-load-error`,
       'i',
     );
-    const logEntry = getTelemetryRequests()[0].firstArg.data.logs[0];
-    assert.strictEqual(logEntry.message.type, 'minicore_error');
-    assert.match(logEntry.message.value.binaryName, /dummy-test-platform-to-force-load-error/);
-    assert.match(logEntry.message.value.message, expectedErrorRegexp);
-    assert.match(logEntry.message.value.stack, expectedErrorRegexp);
+    const minicoreLogs = getTelemetryLogsByType('minicore_error');
+    assert.strictEqual(minicoreLogs.length, 1);
+    const minicoreLog = minicoreLogs[0];
+    assert.match(minicoreLog.message.value.binaryName, /dummy-test-platform-to-force-load-error/);
+    assert.match(minicoreLog.message.value.message, expectedErrorRegexp);
+    assert.match(minicoreLog.message.value.stack, expectedErrorRegexp);
+  });
+
+  it('client_connection_identifier_shape is logged once per successful login', async () => {
+    await addWireMockMappingsFromFile(wiremock, 'wiremock/mappings/login_request_ok.json');
+    await addWireMockMappingsFromFile(wiremock, 'wiremock/mappings/telemetry_send_ok.json');
+
+    await initConnection();
+    await testUtil.sleepAsync(50); // Wait a bit for the async telemetry request to be sent
+
+    const shapeLogs = getTelemetryLogsByType('client_connection_identifier_shape');
+    assert.strictEqual(shapeLogs.length, 1);
+  });
+
+  it('client_connection_identifier_shape is suppressed when env-switch is engaged', async () => {
+    await addWireMockMappingsFromFile(wiremock, 'wiremock/mappings/login_request_ok.json');
+    await addWireMockMappingsFromFile(wiremock, 'wiremock/mappings/telemetry_send_ok.json');
+    sinon.stub(process, 'env').value({
+      ...process.env,
+      SF_TELEMETRY_DISABLE_CONNECTION_SHAPE: 'true',
+    });
+
+    await initConnection();
+    await testUtil.sleepAsync(50); // Wait a bit for the async telemetry request to be sent
+
+    const shapeLogs = getTelemetryLogsByType('client_connection_identifier_shape');
+    assert.strictEqual(shapeLogs.length, 0);
   });
 });

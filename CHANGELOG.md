@@ -5,6 +5,22 @@
 New features:
 
 - Added `browserResponseRenderer` connection option to customize the HTML response shown in the browser after `EXTERNALBROWSER` and `OAUTH_AUTHORIZATION_CODE` callbacks (snowflakedb/snowflake-connector-nodejs#1416)
+- Added `tokenFilePath` connection option that reads the authentication token from a file when no `token` is provided (snowflakedb/snowflake-connector-nodejs#1421)
+- Added `serverSessionKeepAlive` connection option that keeps the session alive on the server side when `connection.destroy()` is called. Useful when you want to close the local connection while keeping async queries running on the server (snowflakedb/snowflake-connector-nodejs#1426)
+
+Bugfixes:
+
+- Fixed global URL detection incorrectly truncating account names containing "global" (e.g. `myorg-global`) (snowflakedb/snowflake-connector-nodejs#1423)
+- Fixed `noProxy` connection option and `NO_PROXY` environment variable not bypassing the proxy for PrivateLink connections (snowflakedb/snowflake-connector-nodejs#1422).
+- Fixed interrupted streaming HTTP responses being treated as successful empty responses instead of errors, which could cause `streamRows()` to hang silently on large result sets (snowflakedb/snowflake-connector-nodejs#1420)
+- Fixed `LOCAL_FS` stage download writing to the wrong path by using the destination file's base name, consistent with cloud stages (snowflakedb/snowflake-connector-nodejs#1431)
+
+Internal:
+
+- Switched AWS Workload Identity attestation to use STS `GetWebIdentityToken` JWTs; no longer uses SigV4 `GetCallerIdentity` envelopes. (snowflakedb/snowflake-connector-nodejs#1415)
+- Reverted `SESSION_ID_AS_STRING` change from snowflakedb/snowflake-connector-nodejs#1384 (introduced in 2.4.1) due to compatibility issues with session sharing between drivers (snowflakedb/snowflake-connector-nodejs#1428)
+
+## 2.4.3
 
 Bugfixes:
 
@@ -13,6 +29,10 @@ Bugfixes:
 Dependencies:
 
 - Bumped `@aws-sdk/*` dependencies to `~3.1051.0` to address `fast-xml-builder` security vulnerabilities (snowflakedb/snowflake-connector-nodejs#1414)
+
+Internal:
+
+- Added in-band telemetry reporting, as boolean flags, which connection-identifier fields were supplied at login (`account_provided`, `account_with_region`, `account_org_provided`, `region_provided`, `host_provided`); no actual customer values (hostname, account, etc.) are sent (snowflakedb/snowflake-connector-nodejs#1411)
 
 ## 2.4.2
 

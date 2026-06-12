@@ -32,6 +32,7 @@ describe('SF service tests', function () {
       'session?delete=true&requestId',
       'queries/v1/query-request',
       'session/v1/login-request',
+      'telemetry/send',
     ];
 
     function countCallsWithGuid(requestOptions) {

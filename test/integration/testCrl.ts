@@ -30,7 +30,9 @@ describe('connection with CRL validation', () => {
     const axiosRequestSpy = sinon.spy(axiosInstance, 'request');
     const validateCrlSpy = sinon.spy(CRL_VALIDATOR_INTERNAL, 'validateCrl');
     await assert.doesNotReject(testCrlConnection());
-    assert.strictEqual(validateCrlSpy.callCount, 1);
+    // TODO(SNOW-3548350)
+    // Revert back to 1 once telemetry event on login is removed
+    assert.strictEqual(validateCrlSpy.callCount, 2);
     const loginRequestData = axiosRequestSpy.getCall(0).args[0].data as any;
     assert.strictEqual(
       loginRequestData.data.CLIENT_ENVIRONMENT.CERT_REVOCATION_CHECK_MODE,
@@ -57,7 +59,9 @@ describe('connection with CRL validation', () => {
           proxyPort: proxyServer.port,
         }),
       );
-      assert.strictEqual(validateCrlSpy.callCount, 1);
+      // TODO(SNOW-3548350)
+      // Revert back to 1 once telemetry event on login is removed
+      assert.strictEqual(validateCrlSpy.callCount, 2);
     });
   });
 

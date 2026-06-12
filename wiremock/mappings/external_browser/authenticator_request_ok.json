@@ -1,0 +1,25 @@
+{
+  "mappings": [
+    {
+      "request": {
+        "urlPathPattern": "/session/authenticator-request",
+        "method": "POST"
+      },
+      "response": {
+        "status": 200,
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "jsonBody": {
+          "data": {
+            "ssoUrl": "http://127.0.0.1:9999/sso-stub",
+            "proofKey": "proof-key-123"
+          },
+          "code": null,
+          "message": null,
+          "success": true
+        }
+      }
+    }
+  ]
+}

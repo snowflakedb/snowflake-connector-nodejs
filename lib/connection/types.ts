@@ -89,6 +89,16 @@ export interface WIP_ConnectionOptions {
   clientSessionKeepAliveHeartbeatFrequency?: number;
 
   /**
+   * When true, the session is not destroyed on the server side when the connection
+   * is closed. This allows async queries to continue running after disconnect.
+   * Any unfinished queries will continue to live in Snowflake and consume credits
+   * until they finish.
+   *
+   * @default false
+   */
+  serverSessionKeepAlive?: boolean;
+
+  /**
    * Enable MFA/SSO token caching.
    *
    * https://docs.snowflake.com/en/developer-guide/node-js/nodejs-driver-authenticate#authentication-token-caching
@@ -117,6 +127,17 @@ export interface WIP_ConnectionOptions {
    * * WORKLOAD_IDENTITY
    */
   token?: string;
+
+  /**
+   * Specifies the path to a file containing the token for authentication.
+   *
+   * This option works similarly to the `token` property, but retrieves the token value by reading the specified file from disk.
+   *
+   * If `token` is not provided, the driver will attempt to read the token from this file for suitable token-based authenticators.
+   *
+   * If both `token` and `tokenFilePath` are set, `token` takes precedence and this file path will be ignored.
+   */
+  tokenFilePath?: string;
 
   /**
    * Enable single use refresh tokens for OAuth
@@ -230,7 +251,7 @@ export interface WIP_ConnectionOptions {
 
   /**
    * When authenticator=WORKLOAD_IDENTITY, specifies the identity provider. Available options:
-   * * AWS - Uses `@aws-sdk` to find credentials and encodes signed GetCallerIdentity request as token
+   * * AWS - Uses `@aws-sdk` to find credentials and calls STS `GetWebIdentityToken` to obtain a signed JWT token
    * * AZURE - Uses `@azure/identity` to find credentials and get JWT token
    * * GCP - Uses `google-auth-library` to find credentials and get JWT token
    * * OIDC - Reads JWT token from `ConnectionOptions.token`

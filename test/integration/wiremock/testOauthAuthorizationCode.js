@@ -67,6 +67,29 @@ describe('Oauth Authorization Code authentication', function () {
     await authTest.verifyConnectionIsUp();
   });
 
+  it('uses browserResponseRenderer for the OAuth callback response', async function () {
+    await addWireMockMappingsFromFile(
+      wireMock,
+      'wiremock/mappings/oauth/authorization_code/successful_flow.json',
+    );
+
+    let capturedResponse;
+    authTest.createConnection({
+      ...connectionOption,
+      browserResponseRenderer: () => 'Custom message',
+      openExternalBrowserCallback: async (urlString) => {
+        capturedResponse = await simulateBrowserRedirect(urlString);
+      },
+    });
+    await authTest.connectAsync();
+
+    authTest.verifyNoErrorWasThrown();
+    await authTest.verifyConnectionIsUp();
+
+    assert.ok(capturedResponse, 'expected the browser callback to receive a response');
+    assert.match(capturedResponse.data, /Custom message/);
+  });
+
   it('successfully connects with empty scope', async function () {
     let authorizationUrlUsed;
     await addWireMockMappingsFromFile(

@@ -1,5 +1,7 @@
 const assert = require('assert');
 const mock = require('mock-require');
+const sinon = require('sinon');
+const fs = require('fs');
 const { Readable } = require('stream');
 const SnowflakeS3Util = require('./../../../lib/file_transfer_agent/s3_util').S3Util;
 const extractBucketNameAndPath =
@@ -46,21 +48,9 @@ function mockS3({ getObject, putObject, captureConfig = false, onDestroy } = {})
   return require('s3');
 }
 
-// Registers a mock `filesystem` module with sensible defaults; tests can override `writeFile`.
-function mockFilesystem({ writeFile } = {}) {
-  const impl = {
-    createReadStream: function () {
-      return Readable.from([Buffer.from('mock')]);
-    },
-    readFileSync: async function (data) {
-      return data;
-    },
-  };
-  if (writeFile) {
-    impl.writeFile = writeFile;
-  }
-  mock('filesystem', impl);
-  return require('filesystem');
+function stubFs({ writeFile } = {}) {
+  sinon.stub(fs, 'createReadStream').callsFake(() => Readable.from([Buffer.from('mock')]));
+  sinon.stub(fs, 'writeFile').callsFake(writeFile || ((path, data, encoding, cb) => cb(null)));
 }
 
 describe('S3 client', function () {
@@ -80,7 +70,6 @@ describe('S3 client', function () {
 
   let AWS;
   let s3;
-  let filesystem;
   const dataFile = mockDataFile;
   const meta = {
     stageInfo: {
@@ -102,8 +91,11 @@ describe('S3 client', function () {
       putObject: () => Promise.resolve(),
       captureConfig: true,
     });
-    filesystem = mockFilesystem();
-    AWS = new SnowflakeS3Util(noProxyConnectionConfig, s3, filesystem);
+    AWS = new SnowflakeS3Util(noProxyConnectionConfig, s3);
+  });
+
+  afterEach(function () {
+    sinon.restore();
   });
 
   describe('AWS client endpoint testing', async function () {
@@ -199,19 +191,20 @@ describe('S3 client', function () {
 
   it('get file header - fail HTTP 400', async function () {
     s3 = mockS3({ getObject: throwWithCode('400') });
-    const AWS = new SnowflakeS3Util(noProxyConnectionConfig, s3, filesystem);
+    const AWS = new SnowflakeS3Util(noProxyConnectionConfig, s3);
     await AWS.getFileHeader(meta, dataFile);
     assert.strictEqual(meta['resultStatus'], resultStatus.RENEW_TOKEN);
   });
 
   it('get file header - fail unknown', async function () {
     s3 = mockS3({ getObject: throwWithCode('unknown') });
-    const AWS = new SnowflakeS3Util(noProxyConnectionConfig, s3, filesystem);
+    const AWS = new SnowflakeS3Util(noProxyConnectionConfig, s3);
     await AWS.getFileHeader(meta, dataFile);
     assert.strictEqual(meta['resultStatus'], resultStatus.ERROR);
   });
 
   it('upload - success', async function () {
+    stubFs();
     await AWS.uploadFile(dataFile, meta, encryptionMetadata);
     assert.strictEqual(meta['resultStatus'], resultStatus.UPLOADED);
   });
@@ -224,7 +217,7 @@ describe('S3 client', function () {
         destroyed = true;
       },
     });
-    const client = new SnowflakeS3Util(noProxyConnectionConfig, s3, filesystem);
+    const client = new SnowflakeS3Util(noProxyConnectionConfig, s3);
     await client.getFileHeader(meta, dataFile);
     assert.strictEqual(destroyed, true);
   });
@@ -250,7 +243,8 @@ describe('S3 client', function () {
         destroyed = true;
       },
     });
-    const client = new SnowflakeS3Util(noProxyConnectionConfig, s3, filesystem);
+    stubFs();
+    const client = new SnowflakeS3Util(noProxyConnectionConfig, s3);
     await client.uploadFile(dataFile, meta, encryptionMetadata);
     assert.strictEqual(destroyed, true);
   });
@@ -263,7 +257,8 @@ describe('S3 client', function () {
         destroyed = true;
       },
     });
-    const client = new SnowflakeS3Util(noProxyConnectionConfig, s3, filesystem);
+    stubFs();
+    const client = new SnowflakeS3Util(noProxyConnectionConfig, s3);
     await client.uploadFile(dataFile, meta, encryptionMetadata);
     assert.strictEqual(destroyed, true);
   });
@@ -276,10 +271,8 @@ describe('S3 client', function () {
         destroyed = true;
       },
     });
-    filesystem = mockFilesystem({
-      writeFile: (path, data, encoding, cb) => cb(null),
-    });
-    const client = new SnowflakeS3Util(noProxyConnectionConfig, s3, filesystem);
+    stubFs({ writeFile: (path, data, encoding, cb) => cb(null) });
+    const client = new SnowflakeS3Util(noProxyConnectionConfig, s3);
     await client.nativeDownloadFile(meta, '/tmp/mock');
     assert.strictEqual(destroyed, true);
   });
@@ -299,24 +292,24 @@ describe('S3 client', function () {
 
   it('upload - fail expired token', async function () {
     s3 = mockS3({ putObject: throwWithCode('ExpiredToken') });
-    filesystem = mockFilesystem();
-    const AWS = new SnowflakeS3Util(noProxyConnectionConfig, s3, filesystem);
+    stubFs();
+    const AWS = new SnowflakeS3Util(noProxyConnectionConfig, s3);
     await AWS.uploadFile(dataFile, meta, encryptionMetadata);
     assert.strictEqual(meta['resultStatus'], resultStatus.RENEW_TOKEN);
   });
 
   it('upload - fail wsaeconnaborted', async function () {
     s3 = mockS3({ putObject: throwWithCode('10053') });
-    filesystem = mockFilesystem();
-    const AWS = new SnowflakeS3Util(noProxyConnectionConfig, s3, filesystem);
+    stubFs();
+    const AWS = new SnowflakeS3Util(noProxyConnectionConfig, s3);
     await AWS.uploadFile(dataFile, meta, encryptionMetadata);
     assert.strictEqual(meta['resultStatus'], resultStatus.NEED_RETRY_WITH_LOWER_CONCURRENCY);
   });
 
   it('upload - fail HTTP 400', async function () {
     s3 = mockS3({ putObject: throwWithCode('400') });
-    filesystem = mockFilesystem();
-    const AWS = new SnowflakeS3Util(noProxyConnectionConfig, s3, filesystem);
+    stubFs();
+    const AWS = new SnowflakeS3Util(noProxyConnectionConfig, s3);
     await AWS.uploadFile(dataFile, meta, encryptionMetadata);
     assert.strictEqual(meta['resultStatus'], resultStatus.NEED_RETRY);
   });

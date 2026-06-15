@@ -596,66 +596,6 @@ describe('ConnectionConfig: basic', function () {
       errorCode: ErrorCodes.ERR_CONN_CREATE_INVALID_DISABLED_QUERY_CONTEXT_CACHE,
     },
     {
-      name: 'uploadPartSizeMb wrong type',
-      options: {
-        username: 'username',
-        password: 'password',
-        account: 'account',
-        uploadPartSizeMb: '8',
-      },
-      errorCode: ErrorCodes.ERR_CONN_CREATE_INVALID_UPLOAD_PART_SIZE_MB,
-    },
-    {
-      name: 'uploadPartSizeMb non-integer',
-      options: {
-        username: 'username',
-        password: 'password',
-        account: 'account',
-        uploadPartSizeMb: 8.5,
-      },
-      errorCode: ErrorCodes.ERR_CONN_CREATE_INVALID_UPLOAD_PART_SIZE_MB,
-    },
-    {
-      name: 'uploadPartSizeMb below S3 5 MiB minimum',
-      options: {
-        username: 'username',
-        password: 'password',
-        account: 'account',
-        uploadPartSizeMb: 4,
-      },
-      errorCode: ErrorCodes.ERR_CONN_CREATE_INVALID_UPLOAD_PART_SIZE_MB,
-    },
-    {
-      name: 'uploadPartSizeMb above Azure 4000 MiB maximum',
-      options: {
-        username: 'username',
-        password: 'password',
-        account: 'account',
-        uploadPartSizeMb: 4001,
-      },
-      errorCode: ErrorCodes.ERR_CONN_CREATE_INVALID_UPLOAD_PART_SIZE_MB,
-    },
-    {
-      name: 'uploadPartSizeMb zero is rejected',
-      options: {
-        username: 'username',
-        password: 'password',
-        account: 'account',
-        uploadPartSizeMb: 0,
-      },
-      errorCode: ErrorCodes.ERR_CONN_CREATE_INVALID_UPLOAD_PART_SIZE_MB,
-    },
-    {
-      name: 'uploadPartSizeMb negative is rejected',
-      options: {
-        username: 'username',
-        password: 'password',
-        account: 'account',
-        uploadPartSizeMb: -8,
-      },
-      errorCode: ErrorCodes.ERR_CONN_CREATE_INVALID_UPLOAD_PART_SIZE_MB,
-    },
-    {
       name: 'invalid includeRetryReason',
       options: {
         username: 'username',
@@ -1848,39 +1788,6 @@ describe('ConnectionConfig: basic', function () {
         },
         result: '123456',
         getter: 'getPasscode',
-      },
-      {
-        name: 'uploadPartSizeMb default (8)',
-        input: { ...mandatoryOption },
-        result: 8,
-        getter: 'getUploadPartSizeMb',
-      },
-      {
-        name: 'uploadPartSizeMb override (16)',
-        input: {
-          ...mandatoryOption,
-          uploadPartSizeMb: 16,
-        },
-        result: 16,
-        getter: 'getUploadPartSizeMb',
-      },
-      {
-        name: 'uploadPartSizeMb at exact S3 minimum (5)',
-        input: {
-          ...mandatoryOption,
-          uploadPartSizeMb: 5,
-        },
-        result: 5,
-        getter: 'getUploadPartSizeMb',
-      },
-      {
-        name: 'uploadPartSizeMb at exact Azure maximum (4000)',
-        input: {
-          ...mandatoryOption,
-          uploadPartSizeMb: 4000,
-        },
-        result: 4000,
-        getter: 'getUploadPartSizeMb',
       },
     ];
 

@@ -4,6 +4,10 @@ const fs = require('fs');
 const { Readable } = require('stream');
 const SnowflakeGCSUtil = require('./../../../lib/file_transfer_agent/gcs_util');
 const resultStatus = require('../../../lib/file_util').resultStatus;
+const {
+  MULTIPART_THRESHOLD_BYTES,
+  MULTIPART_PART_SIZE_BYTES,
+} = require('../../../lib/file_transfer_agent/multipart');
 
 describe('GCS client', function () {
   const mockDataFile = 'mockDataFile';
@@ -24,12 +28,6 @@ describe('GCS client', function () {
     accessUrl: 'http://fakeaccount.snowflakecomputing.com',
     crlValidatorConfig: {
       checkMode: 'DISABLED',
-    },
-    getUploadPartSizeMb: function () {
-      return 8;
-    },
-    getUploadPartSizeBytes: function () {
-      return 8 * 1024 * 1024;
     },
   };
 
@@ -344,7 +342,7 @@ describe('GCS client', function () {
     assert.strictEqual(options.headers['Content-Length'], body.length);
   });
 
-  it('upload of file larger than uploadPartSizeMb on legacy presigned-URL path still ships via single Buffer PUT', async function () {
+  it('upload of file larger than the multipart threshold on legacy presigned-URL path still ships via single Buffer PUT', async function () {
     // Workspace stage presigned URLs are signed for one specific PUT and
     // cannot initiate a resumable upload. So when GS hands back a
     // `presignedUrl` (the legacy path; pre-CB_2023_06 deployments or driver
@@ -353,7 +351,7 @@ describe('GCS client', function () {
     // both: result is UPLOADED and the body Buffer matches the file size.
     fs.promises.stat.restore();
     fs.promises.readFile.restore();
-    const largeSize = (connectionConfig.getUploadPartSizeMb() + 4) * 1024 * 1024; // 12 MiB
+    const largeSize = MULTIPART_THRESHOLD_BYTES + 4 * 1024 * 1024;
     sinonSandbox.stub(fs.promises, 'stat').resolves({ size: largeSize });
     sinonSandbox.stub(fs.promises, 'readFile').resolves(Buffer.alloc(largeSize, 0));
     const putSpy = sinon.spy(async () => {});
@@ -372,15 +370,15 @@ describe('GCS client', function () {
 
   it('upload - resumable path engaged on access-token + large file', async function () {
     // The access-token path (gcsToken populated, no presignedUrl) with a
-    // file larger than uploadPartSizeMb takes the resumable upload session:
-    // one POST to initiate, N×PUT to deliver chunks, no single-PUT.
+    // file larger than the multipart threshold takes the resumable upload
+    // session: one POST to initiate, N×PUT to deliver chunks, no single-PUT.
     fs.promises.stat.restore();
     fs.promises.readFile.restore();
-    const partSizeMb = connectionConfig.getUploadPartSizeMb();
-    const partSize = partSizeMb * 1024 * 1024;
-    // 17 MiB; chunked into [8 MiB, 8 MiB, 1 MiB] per the 256-KiB-aligned
-    // partition rule. Final chunk is unaligned; preceding two are 8 MiB.
-    const fileSize = partSize * 2 + 1024 * 1024;
+    const partSize = MULTIPART_PART_SIZE_BYTES;
+    // Exceed the threshold by a full part plus an unaligned remainder so the
+    // final chunk is smaller than the rest.
+    const fileSize = MULTIPART_THRESHOLD_BYTES + partSize + 1024 * 1024;
+    const expectedChunks = Math.ceil(fileSize / partSize);
     sinonSandbox.stub(fs.promises, 'stat').resolves({ size: fileSize });
     sinonSandbox.stub(fs.promises, 'open').callsFake(async () => {
       let position = 0;
@@ -410,7 +408,7 @@ describe('GCS client', function () {
       putCalls += 1;
       // Final call gets 200; preceding calls get 308 to mimic GCS's
       // "Resume Incomplete" signal.
-      if (putCalls === 3) {
+      if (putCalls === expectedChunks) {
         return { status: 200, headers: {} };
       }
       // Compute the highest committed byte from the chunks issued so far,
@@ -427,16 +425,17 @@ describe('GCS client', function () {
 
     assert.strictEqual(meta['resultStatus'], resultStatus.UPLOADED);
     assert.strictEqual(postSpy.callCount, 1, 'one initiation POST');
-    assert.strictEqual(putSpy.callCount, 3, 'three chunk PUTs (8 MiB + 8 MiB + 1 MiB)');
+    assert.strictEqual(putSpy.callCount, expectedChunks, 'one chunk PUT per part');
     assert.strictEqual(httpClient.delete.callCount, 0, 'no DELETE on success');
 
     // Verify Content-Range headers on the chunk PUTs.
     const ranges = putSpy.getCalls().map((c) => c.args[2].headers['Content-Range']);
-    assert.deepStrictEqual(ranges, [
-      `bytes 0-${partSize - 1}/${fileSize}`,
-      `bytes ${partSize}-${partSize * 2 - 1}/${fileSize}`,
-      `bytes ${partSize * 2}-${fileSize - 1}/${fileSize}`,
-    ]);
+    const expectedRanges = Array.from({ length: expectedChunks }, (_, i) => {
+      const start = i * partSize;
+      const end = Math.min(start + partSize, fileSize) - 1;
+      return `bytes ${start}-${end}/${fileSize}`;
+    });
+    assert.deepStrictEqual(ranges, expectedRanges);
 
     // Initiation POST carries Snowflake metadata as x-goog-meta-* headers
     // and announces XML API resumable mode via x-goog-resumable: start.
@@ -453,8 +452,7 @@ describe('GCS client', function () {
     // via DELETE so the upload doesn't linger as a half-staged blob.
     fs.promises.stat.restore();
     fs.promises.readFile.restore();
-    const partSize = connectionConfig.getUploadPartSizeMb() * 1024 * 1024;
-    const fileSize = partSize * 2 + 1024;
+    const fileSize = MULTIPART_THRESHOLD_BYTES + MULTIPART_PART_SIZE_BYTES + 1024;
     sinonSandbox.stub(fs.promises, 'stat').resolves({ size: fileSize });
     sinonSandbox.stub(fs.promises, 'open').callsFake(async () => {
       let position = 0;
@@ -499,8 +497,7 @@ describe('GCS client', function () {
     // so the caller's outer retry loop takes over.
     fs.promises.stat.restore();
     fs.promises.readFile.restore();
-    const partSize = connectionConfig.getUploadPartSizeMb() * 1024 * 1024;
-    const fileSize = partSize * 2;
+    const fileSize = MULTIPART_THRESHOLD_BYTES + MULTIPART_PART_SIZE_BYTES;
     sinonSandbox.stub(fs.promises, 'stat').resolves({ size: fileSize });
     meta.presignedUrl = '';
     meta.client = { gcsToken: mockAccessToken };

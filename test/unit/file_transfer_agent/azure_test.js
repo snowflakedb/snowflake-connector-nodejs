@@ -5,6 +5,10 @@ const { Readable } = require('stream');
 const sinon = require('sinon');
 const SnowflakeAzureUtil = require('./../../../lib/file_transfer_agent/azure_util');
 const resultStatus = require('../../../lib/file_util').resultStatus;
+const {
+  MULTIPART_THRESHOLD_BYTES,
+  MULTIPART_PART_SIZE_BYTES,
+} = require('../../../lib/file_transfer_agent/multipart');
 
 describe('Azure client', function () {
   const mockDataFile = 'mockDataFile';
@@ -20,12 +24,6 @@ describe('Azure client', function () {
       return null;
     },
     accessUrl: 'http://fakeaccount.snowflakecomputing.com',
-    getUploadPartSizeMb: function () {
-      return 8;
-    },
-    getUploadPartSizeBytes: function () {
-      return 8 * 1024 * 1024;
-    },
   };
 
   let Azure = null;
@@ -215,13 +213,12 @@ describe('Azure client', function () {
     assert.strictEqual(meta['resultStatus'], resultStatus.NEED_RETRY);
   });
 
-  it('upload - multipart path engaged when file exceeds uploadPartSizeMb', async function () {
-    // Force the multi-block codepath by faking a file larger than the
-    // configured uploadPartSizeMb. 8 MiB part size + 17 MiB file => 3 blocks:
-    // 8 MiB, 8 MiB, 1 MiB.
-    const partSizeMb = noProxyConnectionConfig.getUploadPartSizeMb();
-    const partSize = partSizeMb * 1024 * 1024;
-    const fileSize = partSize * 2 + 1024 * 1024; // 17 MiB
+  it('upload - multipart path engaged when file exceeds the multipart threshold', async function () {
+    // Force the multi-block codepath by faking a file larger than
+    // MULTIPART_THRESHOLD_BYTES, split into MULTIPART_PART_SIZE_BYTES chunks
+    // plus a remainder.
+    const fileSize = MULTIPART_THRESHOLD_BYTES + MULTIPART_PART_SIZE_BYTES + 1024 * 1024;
+    const expectedBlocks = Math.ceil(fileSize / MULTIPART_PART_SIZE_BYTES);
     stubFsForUpload(fileSize);
     stageBlockStub.resolves();
     commitBlockListStub.resolves();
@@ -230,7 +227,11 @@ describe('Azure client', function () {
 
     assert.strictEqual(meta['resultStatus'], resultStatus.UPLOADED);
     assert.strictEqual(uploadStub.callCount, 0, 'multipart path should NOT call upload()');
-    assert.strictEqual(stageBlockStub.callCount, 3, 'expected 3 stageBlock calls for 3 chunks');
+    assert.strictEqual(
+      stageBlockStub.callCount,
+      expectedBlocks,
+      'expected one stageBlock call per chunk',
+    );
     assert.strictEqual(commitBlockListStub.callCount, 1, 'commitBlockList should fire once');
     assert.strictEqual(
       deleteIfExistsStub.callCount,
@@ -238,12 +239,16 @@ describe('Azure client', function () {
       'deleteIfExists should NOT fire on success',
     );
 
-    // Verify the block list passed to commitBlockList: 3 ascending fixed-width
+    // Verify the block list passed to commitBlockList: ascending fixed-width
     // base64 IDs. Decoded form is `block-NNNNNNNNNN`.
     const passedBlockIds = commitBlockListStub.firstCall.args[0];
-    assert.strictEqual(passedBlockIds.length, 3);
+    assert.strictEqual(passedBlockIds.length, expectedBlocks);
     const decoded = passedBlockIds.map((id) => Buffer.from(id, 'base64').toString());
-    assert.deepStrictEqual(decoded, ['block-0000000001', 'block-0000000002', 'block-0000000003']);
+    const expectedDecoded = Array.from(
+      { length: expectedBlocks },
+      (_, i) => `block-${String(i + 1).padStart(10, '0')}`,
+    );
+    assert.deepStrictEqual(decoded, expectedDecoded);
 
     // Verify metadata + headers travel on commit, not on stageBlock.
     const commitOpts = commitBlockListStub.firstCall.args[1];
@@ -256,9 +261,7 @@ describe('Azure client', function () {
     // Stage the first chunk successfully, then throw on the second.
     // The driver should issue deleteIfExists() to release the staged block
     // and surface NEED_RETRY so the caller's retry loop can take over.
-    const partSizeMb = noProxyConnectionConfig.getUploadPartSizeMb();
-    const partSize = partSizeMb * 1024 * 1024;
-    const fileSize = partSize * 2 + 1024;
+    const fileSize = MULTIPART_THRESHOLD_BYTES + MULTIPART_PART_SIZE_BYTES + 1024;
     stubFsForUpload(fileSize);
     stageBlockStub.onFirstCall().resolves();
     stageBlockStub.onSecondCall().throws(() => {
@@ -283,9 +286,7 @@ describe('Azure client', function () {
   it('upload - multipart abort cleanup suppresses cleanup error', async function () {
     // The cleanup error must not mask the original cause; meta retains
     // NEED_RETRY from the stageBlock failure.
-    const partSizeMb = noProxyConnectionConfig.getUploadPartSizeMb();
-    const partSize = partSizeMb * 1024 * 1024;
-    const fileSize = partSize * 2;
+    const fileSize = MULTIPART_THRESHOLD_BYTES + MULTIPART_PART_SIZE_BYTES;
     stubFsForUpload(fileSize);
     stageBlockStub.onFirstCall().resolves();
     stageBlockStub.onSecondCall().throws(() => {

@@ -6,6 +6,10 @@ const extractBucketNameAndPath =
   require('./../../../lib/file_transfer_agent/s3_util').extractBucketNameAndPath;
 
 const resultStatus = require('../../../lib/file_util').resultStatus;
+const {
+  MULTIPART_THRESHOLD_BYTES,
+  MULTIPART_PART_SIZE_BYTES,
+} = require('../../../lib/file_transfer_agent/multipart');
 
 // Reusable S3 method behaviours.
 const resolveEmptyMetadata = () => Promise.resolve({ Metadata: '' });
@@ -124,12 +128,6 @@ describe('S3 client', function () {
   const noProxyConnectionConfig = {
     getProxy: function () {
       return null;
-    },
-    getUploadPartSizeMb: function () {
-      return 8;
-    },
-    getUploadPartSizeBytes: function () {
-      return 8 * 1024 * 1024;
     },
   };
 
@@ -271,13 +269,12 @@ describe('S3 client', function () {
     assert.strictEqual(meta['resultStatus'], resultStatus.UPLOADED);
   });
 
-  it('upload - multipart path engaged when file exceeds uploadPartSizeMb', async function () {
-    // Force the multipart codepath by faking a file that's larger than the
-    // smallest legal uploadPartSizeMb (5 MiB) and exposing the lifecycle calls
-    // that path uses end-to-end.
-    const partSizeMb = 5;
-    const partSize = partSizeMb * 1024 * 1024;
-    const fileSize = partSize * 2 + 1024; // 3 parts: full, full, remainder
+  it('upload - multipart path engaged when file exceeds the multipart threshold', async function () {
+    // Force the multipart codepath by faking a file larger than
+    // MULTIPART_THRESHOLD_BYTES and exposing the lifecycle calls that path
+    // uses end-to-end.
+    const fileSize = MULTIPART_THRESHOLD_BYTES + MULTIPART_PART_SIZE_BYTES + 1024;
+    const expectedParts = Math.ceil(fileSize / MULTIPART_PART_SIZE_BYTES);
     const multipartFs = mockFilesystem({ fileSize });
     let createdMultipart = 0;
     let uploadedParts = 0;
@@ -301,8 +298,6 @@ describe('S3 client', function () {
     });
     const multipartConfig = {
       getProxy: () => null,
-      getUploadPartSizeMb: () => partSizeMb,
-      getUploadPartSizeBytes: () => partSizeMb * 1024 * 1024,
     };
     const multipartUtil = new SnowflakeS3Util(multipartConfig, multipartS3, multipartFs);
     const localMeta = JSON.parse(JSON.stringify(meta));
@@ -310,7 +305,7 @@ describe('S3 client', function () {
     await multipartUtil.uploadFile(dataFile, localMeta, encryptionMetadata);
     assert.strictEqual(localMeta['resultStatus'], resultStatus.UPLOADED);
     assert.strictEqual(createdMultipart, 1, 'createMultipartUpload should fire once');
-    assert.strictEqual(uploadedParts, 3, 'expected 3 UploadPart calls for 3 chunks');
+    assert.strictEqual(uploadedParts, expectedParts, 'expected one UploadPart call per chunk');
     assert.strictEqual(completed, 1, 'completeMultipartUpload should fire once');
     assert.strictEqual(aborted, 0, 'abortMultipartUpload should not fire on success');
   });
@@ -320,9 +315,7 @@ describe('S3 client', function () {
     // so the outer retry loop re-mints credentials; (b) abort the multipart
     // session so we don't leak parts in S3. The first uploadPart succeeds;
     // the second throws ExpiredToken.
-    const partSizeMb = 5;
-    const partSize = partSizeMb * 1024 * 1024;
-    const fileSize = partSize * 2 + 1024;
+    const fileSize = MULTIPART_THRESHOLD_BYTES + MULTIPART_PART_SIZE_BYTES + 1024;
     const multipartFs = mockFilesystem({ fileSize });
     let parts = 0;
     let aborted = 0;
@@ -347,8 +340,6 @@ describe('S3 client', function () {
     });
     const multipartConfig = {
       getProxy: () => null,
-      getUploadPartSizeMb: () => partSizeMb,
-      getUploadPartSizeBytes: () => partSizeMb * 1024 * 1024,
     };
     const multipartUtil = new SnowflakeS3Util(multipartConfig, multipartS3, multipartFs);
     const localMeta = JSON.parse(JSON.stringify(meta));
@@ -365,9 +356,7 @@ describe('S3 client', function () {
     // requested), upload bail out before submitting a partial part — sending
     // an under-sized UploadPart would later make CompleteMultipartUpload
     // disagree with the original Content-Length and corrupt the object.
-    const partSizeMb = 5;
-    const partSize = partSizeMb * 1024 * 1024;
-    const fileSize = partSize * 2 + 1024;
+    const fileSize = MULTIPART_THRESHOLD_BYTES + MULTIPART_PART_SIZE_BYTES + 1024;
     const shortReadFs = {
       createReadStream: () => Readable.from([Buffer.from('mock')]),
       readFileSync: async (data) => data,
@@ -407,8 +396,6 @@ describe('S3 client', function () {
     });
     const multipartConfig = {
       getProxy: () => null,
-      getUploadPartSizeMb: () => partSizeMb,
-      getUploadPartSizeBytes: () => partSizeMb * 1024 * 1024,
     };
     const multipartUtil = new SnowflakeS3Util(multipartConfig, multipartS3, shortReadFs);
     const localMeta = JSON.parse(JSON.stringify(meta));
@@ -544,12 +531,6 @@ describe('S3 client', function () {
       accessUrl: 'http://snowflake.com',
       getProxy: function () {
         return proxyOptions;
-      },
-      getUploadPartSizeMb: function () {
-        return 8;
-      },
-      getUploadPartSizeBytes: function () {
-        return 8 * 1024 * 1024;
       },
       crlValidatorConfig: {
         checkMode: 'DISABLED',

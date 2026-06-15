@@ -1,3 +1,5 @@
+import * as fs from 'fs';
+
 /**
  * Hardcoded multipart tuning.
  * NOT user-configurable until universal-driver would align configuration API.
@@ -40,4 +42,29 @@ if (MULTIPART_PART_SIZE_BYTES % GCS_CHUNK_GRANULARITY_BYTES !== 0) {
     `MULTIPART_PART_SIZE_BYTES (${MULTIPART_PART_SIZE_BYTES}) must be a multiple of ` +
       `GCS_CHUNK_GRANULARITY_BYTES (${GCS_CHUNK_GRANULARITY_BYTES}) for GCS resumable uploads.`,
   );
+}
+
+/**
+ * Read exactly `size` bytes (capped at MULTIPART_PART_SIZE_BYTES by the caller)
+ * from `fd` starting at `position`, into a fresh Buffer. Throws on a short read
+ * so a caller never uploads a partial part.
+ *
+ * The caller owns the fd lifecycle and the loop/advancement; this only does the
+ * allocate + read + validate that is identical across S3, Azure, and GCS.
+ *
+ * allocUnsafe is used because the buffer is filled immediately by fd.read and
+ * the bytesRead check below throws before any uninitialized memory could be
+ * observed by a caller. Zero-fill would be wasted I/O on multi-GiB uploads.
+ */
+export async function readChunk(
+  fd: fs.promises.FileHandle,
+  position: number,
+  size: number,
+): Promise<Buffer> {
+  const buffer = Buffer.allocUnsafe(size);
+  const { bytesRead } = await fd.read(buffer, 0, size, position);
+  if (bytesRead !== size) {
+    throw new Error(`Short read at offset ${position}: expected ${size} bytes, got ${bytesRead}`);
+  }
+  return buffer;
 }

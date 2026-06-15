@@ -240,6 +240,29 @@ export interface WIP_ConnectionOptions {
   browserRedirectPort?: number;
 
   /**
+   * Lets you customize the web page a user sees in their browser after they
+   * finish signing in, instead of the default confirmation message. Use it to
+   * show your own branding, wording, or a "you can close this tab" page.
+   *
+   * Supported when authenticator is set to:
+   * * EXTERNALBROWSER
+   * * OAUTH_AUTHORIZATION_CODE
+   *
+   * Return the full HTML page to display. On success, `error` is `null`.
+   * If sign-in failed, `error` contains the message from your identity provider
+   * (already HTML-escaped, so it is safe to embed directly).
+   *
+   * @example
+   * browserResponseRenderer: ({ error }) => {
+   *   const message = error
+   *     ? `<h1>Login failed</h1><p>${error}</p>`
+   *     : '<h1>All set! You can close this tab.</h1>';
+   *   return `<html><body>${message}</body></html>`;
+   * }
+   */
+  browserResponseRenderer?: (result: { error: string | null }) => string;
+
+  /**
    * Specifies a custom callback for opening the browser window during authentication.
    * Supported when the authenticator is set to:
    * * EXTERNALBROWSER

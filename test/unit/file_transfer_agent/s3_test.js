@@ -1,5 +1,7 @@
 const assert = require('assert');
 const mock = require('mock-require');
+const sinon = require('sinon');
+const fs = require('fs');
 const { Readable } = require('stream');
 const SnowflakeS3Util = require('./../../../lib/file_transfer_agent/s3_util').S3Util;
 const extractBucketNameAndPath =
@@ -71,49 +73,34 @@ function mockS3({
   return require('s3');
 }
 
-// Registers a mock `filesystem` module with sensible defaults; tests can override `writeFile`.
-function mockFilesystem({ writeFile, fileSize = 4 } = {}) {
-  // The Buffer-and-multipart upload path stat()s the file before reading it,
-  // so the mock has to expose enough of `fs.promises` for that codepath.
+// Stubs the `fs` surface used by the upload/download codepaths with sinon.
+// The Buffer-and-multipart upload path stat()s the file before reading it, so
+// `fs.promises` is stubbed too. `open` can be overridden to simulate odd reads
+// (e.g. a shrinking file) by passing a custom `read` implementation.
+function stubFs({ writeFile, fileSize = 4, read } = {}) {
   const mockBytes = Buffer.from('mock');
-  const impl = {
-    createReadStream: function () {
-      return Readable.from([mockBytes]);
-    },
-    readFileSync: async function (data) {
-      return data;
-    },
-    promises: {
-      stat: async function () {
-        return { size: fileSize };
-      },
-      readFile: async function () {
-        return mockBytes;
-      },
-      open: async function () {
-        // Pretend each `read()` returns exactly the requested length, drawing
-        // from `fileSize` total — the test cares about chunking, not bytes.
-        let position = 0;
-        return {
-          read: async function (buf, offset, length /* , filePos */) {
-            const remaining = Math.max(0, fileSize - position);
-            const toRead = Math.min(length, remaining);
-            // Fill buffer with deterministic bytes so the consumer doesn't
-            // see uninitialized memory.
-            buf.fill(0, offset, offset + toRead);
-            position += toRead;
-            return { bytesRead: toRead };
-          },
-          close: async function () {},
-        };
-      },
-    },
-  };
-  if (writeFile) {
-    impl.writeFile = writeFile;
-  }
-  mock('filesystem', impl);
-  return require('filesystem');
+
+  sinon.stub(fs, 'createReadStream').callsFake(() => Readable.from([mockBytes]));
+  sinon.stub(fs, 'writeFile').callsFake(writeFile || ((path, data, encoding, cb) => cb(null)));
+
+  sinon.stub(fs.promises, 'stat').callsFake(async () => ({ size: fileSize }));
+  sinon.stub(fs.promises, 'readFile').callsFake(async () => mockBytes);
+  sinon.stub(fs.promises, 'open').callsFake(async () => {
+    // By default each `read()` returns exactly the requested length, drawing
+    // from `fileSize` total — the test cares about chunking, not bytes.
+    let position = 0;
+    const defaultRead = async (buf, offset, length /* , filePos */) => {
+      const remaining = Math.max(0, fileSize - position);
+      const toRead = Math.min(length, remaining);
+      buf.fill(0, offset, offset + toRead);
+      position += toRead;
+      return { bytesRead: toRead };
+    };
+    return {
+      read: read || defaultRead,
+      close: async () => {},
+    };
+  });
 }
 
 describe('S3 client', function () {
@@ -133,7 +120,6 @@ describe('S3 client', function () {
 
   let AWS;
   let s3;
-  let filesystem;
   const dataFile = mockDataFile;
   const meta = {
     stageInfo: {
@@ -155,8 +141,11 @@ describe('S3 client', function () {
       putObject: () => Promise.resolve(),
       captureConfig: true,
     });
-    filesystem = mockFilesystem();
-    AWS = new SnowflakeS3Util(noProxyConnectionConfig, s3, filesystem);
+    AWS = new SnowflakeS3Util(noProxyConnectionConfig, s3);
+  });
+
+  afterEach(function () {
+    sinon.restore();
   });
 
   describe('AWS client endpoint testing', async function () {
@@ -252,19 +241,20 @@ describe('S3 client', function () {
 
   it('get file header - fail HTTP 400', async function () {
     s3 = mockS3({ getObject: throwWithCode('400') });
-    const AWS = new SnowflakeS3Util(noProxyConnectionConfig, s3, filesystem);
+    const AWS = new SnowflakeS3Util(noProxyConnectionConfig, s3);
     await AWS.getFileHeader(meta, dataFile);
     assert.strictEqual(meta['resultStatus'], resultStatus.RENEW_TOKEN);
   });
 
   it('get file header - fail unknown', async function () {
     s3 = mockS3({ getObject: throwWithCode('unknown') });
-    const AWS = new SnowflakeS3Util(noProxyConnectionConfig, s3, filesystem);
+    const AWS = new SnowflakeS3Util(noProxyConnectionConfig, s3);
     await AWS.getFileHeader(meta, dataFile);
     assert.strictEqual(meta['resultStatus'], resultStatus.ERROR);
   });
 
   it('upload - success', async function () {
+    stubFs();
     await AWS.uploadFile(dataFile, meta, encryptionMetadata);
     assert.strictEqual(meta['resultStatus'], resultStatus.UPLOADED);
   });
@@ -275,7 +265,7 @@ describe('S3 client', function () {
     // uses end-to-end.
     const fileSize = MULTIPART_THRESHOLD_BYTES + MULTIPART_PART_SIZE_BYTES + 1024;
     const expectedParts = Math.ceil(fileSize / MULTIPART_PART_SIZE_BYTES);
-    const multipartFs = mockFilesystem({ fileSize });
+    stubFs({ fileSize });
     let createdMultipart = 0;
     let uploadedParts = 0;
     let completed = 0;
@@ -299,7 +289,7 @@ describe('S3 client', function () {
     const multipartConfig = {
       getProxy: () => null,
     };
-    const multipartUtil = new SnowflakeS3Util(multipartConfig, multipartS3, multipartFs);
+    const multipartUtil = new SnowflakeS3Util(multipartConfig, multipartS3);
     const localMeta = JSON.parse(JSON.stringify(meta));
     localMeta['client'] = multipartUtil.createClient(localMeta['stageInfo']);
     await multipartUtil.uploadFile(dataFile, localMeta, encryptionMetadata);
@@ -316,7 +306,7 @@ describe('S3 client', function () {
     // session so we don't leak parts in S3. The first uploadPart succeeds;
     // the second throws ExpiredToken.
     const fileSize = MULTIPART_THRESHOLD_BYTES + MULTIPART_PART_SIZE_BYTES + 1024;
-    const multipartFs = mockFilesystem({ fileSize });
+    stubFs({ fileSize });
     let parts = 0;
     let aborted = 0;
     let completed = 0;
@@ -341,7 +331,7 @@ describe('S3 client', function () {
     const multipartConfig = {
       getProxy: () => null,
     };
-    const multipartUtil = new SnowflakeS3Util(multipartConfig, multipartS3, multipartFs);
+    const multipartUtil = new SnowflakeS3Util(multipartConfig, multipartS3);
     const localMeta = JSON.parse(JSON.stringify(meta));
     localMeta['client'] = multipartUtil.createClient(localMeta['stageInfo']);
     await multipartUtil.uploadFile(dataFile, localMeta, encryptionMetadata);
@@ -357,30 +347,20 @@ describe('S3 client', function () {
     // an under-sized UploadPart would later make CompleteMultipartUpload
     // disagree with the original Content-Length and corrupt the object.
     const fileSize = MULTIPART_THRESHOLD_BYTES + MULTIPART_PART_SIZE_BYTES + 1024;
-    const shortReadFs = {
-      createReadStream: () => Readable.from([Buffer.from('mock')]),
-      readFileSync: async (data) => data,
-      promises: {
-        stat: async () => ({ size: fileSize }),
-        readFile: async () => Buffer.from('mock'),
-        open: async () => {
-          let calls = 0;
-          return {
-            read: async (buf, offset, length /* , filePos */) => {
-              calls += 1;
-              if (calls === 2) {
-                // Simulate a shrunk file: return fewer bytes than requested.
-                buf.fill(0, offset, offset + 16);
-                return { bytesRead: 16 };
-              }
-              buf.fill(0, offset, offset + length);
-              return { bytesRead: length };
-            },
-            close: async () => {},
-          };
-        },
+    let calls = 0;
+    stubFs({
+      fileSize,
+      read: async (buf, offset, length /* , filePos */) => {
+        calls += 1;
+        if (calls === 2) {
+          // Simulate a shrunk file: return fewer bytes than requested.
+          buf.fill(0, offset, offset + 16);
+          return { bytesRead: 16 };
+        }
+        buf.fill(0, offset, offset + length);
+        return { bytesRead: length };
       },
-    };
+    });
     let parts = 0;
     let aborted = 0;
     const multipartS3 = mockS3({
@@ -397,7 +377,7 @@ describe('S3 client', function () {
     const multipartConfig = {
       getProxy: () => null,
     };
-    const multipartUtil = new SnowflakeS3Util(multipartConfig, multipartS3, shortReadFs);
+    const multipartUtil = new SnowflakeS3Util(multipartConfig, multipartS3);
     const localMeta = JSON.parse(JSON.stringify(meta));
     localMeta['client'] = multipartUtil.createClient(localMeta['stageInfo']);
     await multipartUtil.uploadFile(dataFile, localMeta, encryptionMetadata);
@@ -418,7 +398,7 @@ describe('S3 client', function () {
         destroyed = true;
       },
     });
-    const client = new SnowflakeS3Util(noProxyConnectionConfig, s3, filesystem);
+    const client = new SnowflakeS3Util(noProxyConnectionConfig, s3);
     await client.getFileHeader(meta, dataFile);
     assert.strictEqual(destroyed, true);
   });
@@ -444,7 +424,8 @@ describe('S3 client', function () {
         destroyed = true;
       },
     });
-    const client = new SnowflakeS3Util(noProxyConnectionConfig, s3, filesystem);
+    stubFs();
+    const client = new SnowflakeS3Util(noProxyConnectionConfig, s3);
     await client.uploadFile(dataFile, meta, encryptionMetadata);
     assert.strictEqual(destroyed, true);
   });
@@ -457,7 +438,8 @@ describe('S3 client', function () {
         destroyed = true;
       },
     });
-    const client = new SnowflakeS3Util(noProxyConnectionConfig, s3, filesystem);
+    stubFs();
+    const client = new SnowflakeS3Util(noProxyConnectionConfig, s3);
     await client.uploadFile(dataFile, meta, encryptionMetadata);
     assert.strictEqual(destroyed, true);
   });
@@ -470,10 +452,8 @@ describe('S3 client', function () {
         destroyed = true;
       },
     });
-    filesystem = mockFilesystem({
-      writeFile: (path, data, encoding, cb) => cb(null),
-    });
-    const client = new SnowflakeS3Util(noProxyConnectionConfig, s3, filesystem);
+    stubFs({ writeFile: (path, data, encoding, cb) => cb(null) });
+    const client = new SnowflakeS3Util(noProxyConnectionConfig, s3);
     await client.nativeDownloadFile(meta, '/tmp/mock');
     assert.strictEqual(destroyed, true);
   });
@@ -493,24 +473,24 @@ describe('S3 client', function () {
 
   it('upload - fail expired token', async function () {
     s3 = mockS3({ putObject: throwWithCode('ExpiredToken') });
-    filesystem = mockFilesystem();
-    const AWS = new SnowflakeS3Util(noProxyConnectionConfig, s3, filesystem);
+    stubFs();
+    const AWS = new SnowflakeS3Util(noProxyConnectionConfig, s3);
     await AWS.uploadFile(dataFile, meta, encryptionMetadata);
     assert.strictEqual(meta['resultStatus'], resultStatus.RENEW_TOKEN);
   });
 
   it('upload - fail wsaeconnaborted', async function () {
     s3 = mockS3({ putObject: throwWithCode('10053') });
-    filesystem = mockFilesystem();
-    const AWS = new SnowflakeS3Util(noProxyConnectionConfig, s3, filesystem);
+    stubFs();
+    const AWS = new SnowflakeS3Util(noProxyConnectionConfig, s3);
     await AWS.uploadFile(dataFile, meta, encryptionMetadata);
     assert.strictEqual(meta['resultStatus'], resultStatus.NEED_RETRY_WITH_LOWER_CONCURRENCY);
   });
 
   it('upload - fail HTTP 400', async function () {
     s3 = mockS3({ putObject: throwWithCode('400') });
-    filesystem = mockFilesystem();
-    const AWS = new SnowflakeS3Util(noProxyConnectionConfig, s3, filesystem);
+    stubFs();
+    const AWS = new SnowflakeS3Util(noProxyConnectionConfig, s3);
     await AWS.uploadFile(dataFile, meta, encryptionMetadata);
     assert.strictEqual(meta['resultStatus'], resultStatus.NEED_RETRY);
   });

@@ -213,8 +213,6 @@ describe('S3 client', function () {
   });
 
   describe('Multipart upload', () => {
-    // Threshold + one full part + an unaligned remainder, so the file splits
-    // into multiple parts with a smaller final chunk.
     const MULTIPART_FILE_SIZE = MULTIPART_THRESHOLD_BYTES + MULTIPART_PART_SIZE_BYTES + 1024;
 
     before(() => {

@@ -61,6 +61,20 @@ export interface GlobalConfigOptionsTyped {
    * - macOS: $HOME/Library/Caches/Snowflake/crls
    */
   crlCacheDir: string;
+
+  /**
+   * EXPERIMENTAL: enable multipart / resumable stage uploads for large files.
+   * When false (default) all uploads use the single-request path.
+   *
+   * Part size and threshold are not user-configurable; see
+   * lib/file_transfer_agent/multipart.ts.
+   *
+   * This is an experimental flag and may be removed in any future release
+   * without notice. Do not rely on it for production behavior.
+   *
+   * @default false
+   */
+  enableExperimentalMultipartUploads: boolean;
 }
 
 export const GLOBAL_CONFIG_DEFAULTS: GlobalConfigOptionsTyped = {
@@ -70,6 +84,7 @@ export const GLOBAL_CONFIG_DEFAULTS: GlobalConfigOptionsTyped = {
   get crlCacheDir() {
     return process.env.SNOWFLAKE_CRL_ON_DISK_CACHE_DIR || path.join(getDefaultCacheDir(), 'crls');
   },
+  enableExperimentalMultipartUploads: false,
 };
 
 export const globalConfigCustomValues: Partial<GlobalConfigOptionsTyped> = {};

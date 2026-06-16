@@ -7,7 +7,7 @@ New features:
 - Added `browserResponseRenderer` connection option to customize the HTML response shown in the browser after `EXTERNALBROWSER` and `OAUTH_AUTHORIZATION_CODE` callbacks (snowflakedb/snowflake-connector-nodejs#1416)
 - Added `tokenFilePath` connection option that reads the authentication token from a file when no `token` is provided (snowflakedb/snowflake-connector-nodejs#1421)
 - Added `serverSessionKeepAlive` connection option that keeps the session alive on the server side when `connection.destroy()` is called. Useful when you want to close the local connection while keeping async queries running on the server (snowflakedb/snowflake-connector-nodejs#1426)
-- Added Buffer-bodied multipart upload across all three cloud-provider backends (S3 multipart, Azure block-blob, GCS XML API resumable). Bounds in-flight memory by `uploadPartSizeMb` (default 8 MiB) regardless of file size and gives per-part retry granularity on transient errors (snowflakedb/snowflake-connector-nodejs#1427)
+- Added experimental multipart/chunked stage upload for large files on AWS, Azure and GCS, enabled via the `enableExperimentalMultipartUploads` configuration flag (snowflakedb/snowflake-connector-nodejs#1427)
 
 Bugfixes:
 

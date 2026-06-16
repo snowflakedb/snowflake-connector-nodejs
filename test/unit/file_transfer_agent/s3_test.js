@@ -3,6 +3,7 @@ const mock = require('mock-require');
 const sinon = require('sinon');
 const fs = require('fs');
 const { Readable } = require('stream');
+const snowflake = require('./../../../lib/snowflake').default;
 const SnowflakeS3Util = require('./../../../lib/file_transfer_agent/s3_util').S3Util;
 const extractBucketNameAndPath =
   require('./../../../lib/file_transfer_agent/s3_util').extractBucketNameAndPath;
@@ -259,135 +260,145 @@ describe('S3 client', function () {
     assert.strictEqual(meta['resultStatus'], resultStatus.UPLOADED);
   });
 
-  it('upload - multipart path engaged when file exceeds the multipart threshold', async function () {
-    // Force the multipart codepath by faking a file larger than
-    // MULTIPART_THRESHOLD_BYTES and exposing the lifecycle calls that path
-    // uses end-to-end.
-    const fileSize = MULTIPART_THRESHOLD_BYTES + MULTIPART_PART_SIZE_BYTES + 1024;
-    const expectedParts = Math.ceil(fileSize / MULTIPART_PART_SIZE_BYTES);
-    stubFs({ fileSize });
-    let createdMultipart = 0;
-    let uploadedParts = 0;
-    let completed = 0;
-    let aborted = 0;
-    const multipartS3 = mockS3({
-      createMultipartUpload: async () => {
-        createdMultipart += 1;
-        return { UploadId: 'mock-upload-id' };
-      },
-      uploadPart: async () => {
-        uploadedParts += 1;
-        return { ETag: `etag-${uploadedParts}` };
-      },
-      completeMultipartUpload: async () => {
-        completed += 1;
-      },
-      abortMultipartUpload: async () => {
-        aborted += 1;
-      },
+  describe('Multipart upload', () => {
+    before(() => {
+      snowflake.configure({ enableExperimentalMultipartUploads: true });
     });
-    const multipartConfig = {
-      getProxy: () => null,
-    };
-    const multipartUtil = new SnowflakeS3Util(multipartConfig, multipartS3);
-    const localMeta = JSON.parse(JSON.stringify(meta));
-    localMeta['client'] = multipartUtil.createClient(localMeta['stageInfo']);
-    await multipartUtil.uploadFile(dataFile, localMeta, encryptionMetadata);
-    assert.strictEqual(localMeta['resultStatus'], resultStatus.UPLOADED);
-    assert.strictEqual(createdMultipart, 1, 'createMultipartUpload should fire once');
-    assert.strictEqual(uploadedParts, expectedParts, 'expected one UploadPart call per chunk');
-    assert.strictEqual(completed, 1, 'completeMultipartUpload should fire once');
-    assert.strictEqual(aborted, 0, 'abortMultipartUpload should not fire on success');
-  });
 
-  it('upload - multipart aborts and renews token on UploadPart ExpiredToken', async function () {
-    // Token-expiry mid-multipart should: (a) propagate to meta as RENEW_TOKEN
-    // so the outer retry loop re-mints credentials; (b) abort the multipart
-    // session so we don't leak parts in S3. The first uploadPart succeeds;
-    // the second throws ExpiredToken.
-    const fileSize = MULTIPART_THRESHOLD_BYTES + MULTIPART_PART_SIZE_BYTES + 1024;
-    stubFs({ fileSize });
-    let parts = 0;
-    let aborted = 0;
-    let completed = 0;
-    const multipartS3 = mockS3({
-      createMultipartUpload: async () => ({ UploadId: 'mock-upload-id' }),
-      uploadPart: async () => {
-        parts += 1;
-        if (parts === 2) {
-          const err = new Error('expired token');
-          err.Code = 'ExpiredToken';
-          throw err;
-        }
-        return { ETag: `etag-${parts}` };
-      },
-      completeMultipartUpload: async () => {
-        completed += 1;
-      },
-      abortMultipartUpload: async () => {
-        aborted += 1;
-      },
+    after(() => {
+      snowflake.configure({ enableExperimentalMultipartUploads: false });
     });
-    const multipartConfig = {
-      getProxy: () => null,
-    };
-    const multipartUtil = new SnowflakeS3Util(multipartConfig, multipartS3);
-    const localMeta = JSON.parse(JSON.stringify(meta));
-    localMeta['client'] = multipartUtil.createClient(localMeta['stageInfo']);
-    await multipartUtil.uploadFile(dataFile, localMeta, encryptionMetadata);
-    assert.strictEqual(localMeta['resultStatus'], resultStatus.RENEW_TOKEN);
-    assert.strictEqual(parts, 2, 'second UploadPart triggers the failure');
-    assert.strictEqual(aborted, 1, 'abortMultipartUpload must fire');
-    assert.strictEqual(completed, 0, 'completeMultipartUpload must NOT fire');
-  });
 
-  it('upload - multipart short-read aborts and surfaces NEED_RETRY', async function () {
-    // If the file shrinks (or fd.read otherwise returns fewer bytes than
-    // requested), upload bail out before submitting a partial part — sending
-    // an under-sized UploadPart would later make CompleteMultipartUpload
-    // disagree with the original Content-Length and corrupt the object.
-    const fileSize = MULTIPART_THRESHOLD_BYTES + MULTIPART_PART_SIZE_BYTES + 1024;
-    let calls = 0;
-    stubFs({
-      fileSize,
-      read: async (buf, offset, length /* , filePos */) => {
-        calls += 1;
-        if (calls === 2) {
-          // Simulate a shrunk file: return fewer bytes than requested.
-          buf.fill(0, offset, offset + 16);
-          return { bytesRead: 16 };
-        }
-        buf.fill(0, offset, offset + length);
-        return { bytesRead: length };
-      },
+    it('multipart path engaged when file exceeds the multipart threshold', async function () {
+      // Force the multipart codepath by faking a file larger than
+      // MULTIPART_THRESHOLD_BYTES and exposing the lifecycle calls that path
+      // uses end-to-end.
+      const fileSize = MULTIPART_THRESHOLD_BYTES + MULTIPART_PART_SIZE_BYTES + 1024;
+      const expectedParts = Math.ceil(fileSize / MULTIPART_PART_SIZE_BYTES);
+      stubFs({ fileSize });
+      let createdMultipart = 0;
+      let uploadedParts = 0;
+      let completed = 0;
+      let aborted = 0;
+      const multipartS3 = mockS3({
+        createMultipartUpload: async () => {
+          createdMultipart += 1;
+          return { UploadId: 'mock-upload-id' };
+        },
+        uploadPart: async () => {
+          uploadedParts += 1;
+          return { ETag: `etag-${uploadedParts}` };
+        },
+        completeMultipartUpload: async () => {
+          completed += 1;
+        },
+        abortMultipartUpload: async () => {
+          aborted += 1;
+        },
+      });
+      const multipartConfig = {
+        getProxy: () => null,
+      };
+      const multipartUtil = new SnowflakeS3Util(multipartConfig, multipartS3);
+      const localMeta = JSON.parse(JSON.stringify(meta));
+      localMeta['client'] = multipartUtil.createClient(localMeta['stageInfo']);
+      await multipartUtil.uploadFile(dataFile, localMeta, encryptionMetadata);
+      assert.strictEqual(localMeta['resultStatus'], resultStatus.UPLOADED);
+      assert.strictEqual(createdMultipart, 1, 'createMultipartUpload should fire once');
+      assert.strictEqual(uploadedParts, expectedParts, 'expected one UploadPart call per chunk');
+      assert.strictEqual(completed, 1, 'completeMultipartUpload should fire once');
+      assert.strictEqual(aborted, 0, 'abortMultipartUpload should not fire on success');
     });
-    let parts = 0;
-    let aborted = 0;
-    const multipartS3 = mockS3({
-      createMultipartUpload: async () => ({ UploadId: 'mock-upload-id' }),
-      uploadPart: async () => {
-        parts += 1;
-        return { ETag: `etag-${parts}` };
-      },
-      completeMultipartUpload: async () => {},
-      abortMultipartUpload: async () => {
-        aborted += 1;
-      },
+
+    it('multipart aborts and renews token on UploadPart ExpiredToken', async function () {
+      // Token-expiry mid-multipart should: (a) propagate to meta as RENEW_TOKEN
+      // so the outer retry loop re-mints credentials; (b) abort the multipart
+      // session so we don't leak parts in S3. The first uploadPart succeeds;
+      // the second throws ExpiredToken.
+      const fileSize = MULTIPART_THRESHOLD_BYTES + MULTIPART_PART_SIZE_BYTES + 1024;
+      stubFs({ fileSize });
+      let parts = 0;
+      let aborted = 0;
+      let completed = 0;
+      const multipartS3 = mockS3({
+        createMultipartUpload: async () => ({ UploadId: 'mock-upload-id' }),
+        uploadPart: async () => {
+          parts += 1;
+          if (parts === 2) {
+            const err = new Error('expired token');
+            err.Code = 'ExpiredToken';
+            throw err;
+          }
+          return { ETag: `etag-${parts}` };
+        },
+        completeMultipartUpload: async () => {
+          completed += 1;
+        },
+        abortMultipartUpload: async () => {
+          aborted += 1;
+        },
+      });
+      const multipartConfig = {
+        getProxy: () => null,
+      };
+      const multipartUtil = new SnowflakeS3Util(multipartConfig, multipartS3);
+      const localMeta = JSON.parse(JSON.stringify(meta));
+      localMeta['client'] = multipartUtil.createClient(localMeta['stageInfo']);
+      await multipartUtil.uploadFile(dataFile, localMeta, encryptionMetadata);
+      assert.strictEqual(localMeta['resultStatus'], resultStatus.RENEW_TOKEN);
+      assert.strictEqual(parts, 2, 'second UploadPart triggers the failure');
+      assert.strictEqual(aborted, 1, 'abortMultipartUpload must fire');
+      assert.strictEqual(completed, 0, 'completeMultipartUpload must NOT fire');
     });
-    const multipartConfig = {
-      getProxy: () => null,
-    };
-    const multipartUtil = new SnowflakeS3Util(multipartConfig, multipartS3);
-    const localMeta = JSON.parse(JSON.stringify(meta));
-    localMeta['client'] = multipartUtil.createClient(localMeta['stageInfo']);
-    await multipartUtil.uploadFile(dataFile, localMeta, encryptionMetadata);
-    assert.strictEqual(localMeta['resultStatus'], resultStatus.NEED_RETRY);
-    assert.strictEqual(parts, 1, 'only the first part succeeded before the short read');
-    assert.strictEqual(aborted, 1, 'abortMultipartUpload must fire');
-    assert.ok(
-      String(localMeta['lastError']).includes('Short read'),
-      'meta.lastError captures the short-read cause',
-    );
+
+    it('multipart short-read aborts and surfaces NEED_RETRY', async function () {
+      // If the file shrinks (or fd.read otherwise returns fewer bytes than
+      // requested), upload bail out before submitting a partial part — sending
+      // an under-sized UploadPart would later make CompleteMultipartUpload
+      // disagree with the original Content-Length and corrupt the object.
+      const fileSize = MULTIPART_THRESHOLD_BYTES + MULTIPART_PART_SIZE_BYTES + 1024;
+      let calls = 0;
+      stubFs({
+        fileSize,
+        read: async (buf, offset, length /* , filePos */) => {
+          calls += 1;
+          if (calls === 2) {
+            // Simulate a shrunk file: return fewer bytes than requested.
+            buf.fill(0, offset, offset + 16);
+            return { bytesRead: 16 };
+          }
+          buf.fill(0, offset, offset + length);
+          return { bytesRead: length };
+        },
+      });
+      let parts = 0;
+      let aborted = 0;
+      const multipartS3 = mockS3({
+        createMultipartUpload: async () => ({ UploadId: 'mock-upload-id' }),
+        uploadPart: async () => {
+          parts += 1;
+          return { ETag: `etag-${parts}` };
+        },
+        completeMultipartUpload: async () => {},
+        abortMultipartUpload: async () => {
+          aborted += 1;
+        },
+      });
+      const multipartConfig = {
+        getProxy: () => null,
+      };
+      const multipartUtil = new SnowflakeS3Util(multipartConfig, multipartS3);
+      const localMeta = JSON.parse(JSON.stringify(meta));
+      localMeta['client'] = multipartUtil.createClient(localMeta['stageInfo']);
+      await multipartUtil.uploadFile(dataFile, localMeta, encryptionMetadata);
+      assert.strictEqual(localMeta['resultStatus'], resultStatus.NEED_RETRY);
+      assert.strictEqual(parts, 1, 'only the first part succeeded before the short read');
+      assert.strictEqual(aborted, 1, 'abortMultipartUpload must fire');
+      assert.ok(
+        String(localMeta['lastError']).includes('Short read'),
+        'meta.lastError captures the short-read cause',
+      );
+    });
   });
 
   it('getFileHeader destroys client after success', async function () {

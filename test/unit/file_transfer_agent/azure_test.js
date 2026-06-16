@@ -2,6 +2,7 @@ const assert = require('assert');
 const AZURE = require('@azure/storage-blob');
 const fs = require('fs');
 const { Readable } = require('stream');
+const snowflake = require('./../../../lib/snowflake').default;
 const sinon = require('sinon');
 const SnowflakeAzureUtil = require('./../../../lib/file_transfer_agent/azure_util');
 const resultStatus = require('../../../lib/file_util').resultStatus;
@@ -213,92 +214,101 @@ describe('Azure client', function () {
     assert.strictEqual(meta['resultStatus'], resultStatus.NEED_RETRY);
   });
 
-  it('upload - multipart path engaged when file exceeds the multipart threshold', async function () {
-    // Force the multi-block codepath by faking a file larger than
-    // MULTIPART_THRESHOLD_BYTES, split into MULTIPART_PART_SIZE_BYTES chunks
-    // plus a remainder.
-    const fileSize = MULTIPART_THRESHOLD_BYTES + MULTIPART_PART_SIZE_BYTES + 1024 * 1024;
-    const expectedBlocks = Math.ceil(fileSize / MULTIPART_PART_SIZE_BYTES);
-    stubFsForUpload(fileSize);
-    stageBlockStub.resolves();
-    commitBlockListStub.resolves();
-
-    await Azure.uploadFile(dataFile, meta, encryptionMetadata);
-
-    assert.strictEqual(meta['resultStatus'], resultStatus.UPLOADED);
-    assert.strictEqual(uploadStub.callCount, 0, 'multipart path should NOT call upload()');
-    assert.strictEqual(
-      stageBlockStub.callCount,
-      expectedBlocks,
-      'expected one stageBlock call per chunk',
-    );
-    assert.strictEqual(commitBlockListStub.callCount, 1, 'commitBlockList should fire once');
-    assert.strictEqual(
-      deleteIfExistsStub.callCount,
-      0,
-      'deleteIfExists should NOT fire on success',
-    );
-
-    // Verify the block list passed to commitBlockList: ascending fixed-width
-    // base64 IDs. Decoded form is `block-NNNNNNNNNN`.
-    const passedBlockIds = commitBlockListStub.firstCall.args[0];
-    assert.strictEqual(passedBlockIds.length, expectedBlocks);
-    const decoded = passedBlockIds.map((id) => Buffer.from(id, 'base64').toString());
-    const expectedDecoded = Array.from(
-      { length: expectedBlocks },
-      (_, i) => `block-${String(i + 1).padStart(10, '0')}`,
-    );
-    assert.deepStrictEqual(decoded, expectedDecoded);
-
-    // Verify metadata + headers travel on commit, not on stageBlock.
-    const commitOpts = commitBlockListStub.firstCall.args[1];
-    assert.strictEqual(commitOpts.metadata.sfcdigest, mockDigest);
-    assert.ok(commitOpts.metadata.encryptiondata, 'encryption envelope present');
-    assert.strictEqual(commitOpts.blobHTTPHeaders.blobContentType, 'application/octet-stream');
-  });
-
-  it('upload - multipart abort cleanup on stageBlock failure', async function () {
-    // Stage the first chunk successfully, then throw on the second.
-    // The driver should issue deleteIfExists() to release the staged block
-    // and surface NEED_RETRY so the caller's retry loop can take over.
-    const fileSize = MULTIPART_THRESHOLD_BYTES + MULTIPART_PART_SIZE_BYTES + 1024;
-    stubFsForUpload(fileSize);
-    stageBlockStub.onFirstCall().resolves();
-    stageBlockStub.onSecondCall().throws(() => {
-      const err = new Error('boom');
-      err.statusCode = 500;
-      throw err;
+  describe('Multipart upload', () => {
+    before(() => {
+      snowflake.configure({ enableExperimentalMultipartUploads: true });
     });
-    deleteIfExistsStub.resolves();
 
-    await Azure.uploadFile(dataFile, meta, encryptionMetadata);
-
-    assert.strictEqual(meta['resultStatus'], resultStatus.NEED_RETRY);
-    assert.strictEqual(stageBlockStub.callCount, 2, 'expected 2 stageBlock calls before failure');
-    assert.strictEqual(
-      commitBlockListStub.callCount,
-      0,
-      'commit must NOT fire after stage failure',
-    );
-    assert.strictEqual(deleteIfExistsStub.callCount, 1, 'cleanup deleteIfExists must fire');
-  });
-
-  it('upload - multipart abort cleanup suppresses cleanup error', async function () {
-    // The cleanup error must not mask the original cause; meta retains
-    // NEED_RETRY from the stageBlock failure.
-    const fileSize = MULTIPART_THRESHOLD_BYTES + MULTIPART_PART_SIZE_BYTES;
-    stubFsForUpload(fileSize);
-    stageBlockStub.onFirstCall().resolves();
-    stageBlockStub.onSecondCall().throws(() => {
-      const err = new Error('staged block 2 boom');
-      err.statusCode = 500;
-      throw err;
+    after(() => {
+      snowflake.configure({ enableExperimentalMultipartUploads: false });
     });
-    deleteIfExistsStub.throws(() => new Error('cleanup boom'));
 
-    await Azure.uploadFile(dataFile, meta, encryptionMetadata);
+    it('engages multipart path when file exceeds the multipart threshold', async () => {
+      // Force the multi-block codepath by faking a file larger than
+      // MULTIPART_THRESHOLD_BYTES, split into MULTIPART_PART_SIZE_BYTES chunks
+      // plus a remainder.
+      const fileSize = MULTIPART_THRESHOLD_BYTES + MULTIPART_PART_SIZE_BYTES + 1024 * 1024;
+      const expectedBlocks = Math.ceil(fileSize / MULTIPART_PART_SIZE_BYTES);
+      stubFsForUpload(fileSize);
+      stageBlockStub.resolves();
+      commitBlockListStub.resolves();
 
-    assert.strictEqual(meta['resultStatus'], resultStatus.NEED_RETRY);
-    assert.strictEqual(meta['lastError'].message, 'staged block 2 boom');
+      await Azure.uploadFile(dataFile, meta, encryptionMetadata);
+
+      assert.strictEqual(meta['resultStatus'], resultStatus.UPLOADED);
+      assert.strictEqual(uploadStub.callCount, 0, 'multipart path should NOT call upload()');
+      assert.strictEqual(
+        stageBlockStub.callCount,
+        expectedBlocks,
+        'expected one stageBlock call per chunk',
+      );
+      assert.strictEqual(commitBlockListStub.callCount, 1, 'commitBlockList should fire once');
+      assert.strictEqual(
+        deleteIfExistsStub.callCount,
+        0,
+        'deleteIfExists should NOT fire on success',
+      );
+
+      // Verify the block list passed to commitBlockList: ascending fixed-width
+      // base64 IDs. Decoded form is `NNNNNNNNNN`.
+      const passedBlockIds = commitBlockListStub.firstCall.args[0];
+      assert.strictEqual(passedBlockIds.length, expectedBlocks);
+      const decoded = passedBlockIds.map((id) => Buffer.from(id, 'base64').toString());
+      const expectedDecoded = Array.from({ length: expectedBlocks }, (_, i) =>
+        String(i + 1).padStart(10, '0'),
+      );
+      assert.deepStrictEqual(decoded, expectedDecoded);
+
+      // Verify metadata + headers travel on commit, not on stageBlock.
+      const commitOpts = commitBlockListStub.firstCall.args[1];
+      assert.strictEqual(commitOpts.metadata.sfcdigest, mockDigest);
+      assert.ok(commitOpts.metadata.encryptiondata, 'encryption envelope present');
+      assert.strictEqual(commitOpts.blobHTTPHeaders.blobContentType, 'application/octet-stream');
+    });
+
+    it('cleans up on stageBlock failure', async () => {
+      // Stage the first chunk successfully, then throw on the second.
+      // The driver should issue deleteIfExists() to release the staged block
+      // and surface NEED_RETRY so the caller's retry loop can take over.
+      const fileSize = MULTIPART_THRESHOLD_BYTES + MULTIPART_PART_SIZE_BYTES + 1024;
+      stubFsForUpload(fileSize);
+      stageBlockStub.onFirstCall().resolves();
+      stageBlockStub.onSecondCall().throws(() => {
+        const err = new Error('boom');
+        err.statusCode = 500;
+        throw err;
+      });
+      deleteIfExistsStub.resolves();
+
+      await Azure.uploadFile(dataFile, meta, encryptionMetadata);
+
+      assert.strictEqual(meta['resultStatus'], resultStatus.NEED_RETRY);
+      assert.strictEqual(stageBlockStub.callCount, 2, 'expected 2 stageBlock calls before failure');
+      assert.strictEqual(
+        commitBlockListStub.callCount,
+        0,
+        'commit must NOT fire after stage failure',
+      );
+      assert.strictEqual(deleteIfExistsStub.callCount, 1, 'cleanup deleteIfExists must fire');
+    });
+
+    it('suppresses cleanup error', async () => {
+      // The cleanup error must not mask the original cause; meta retains
+      // NEED_RETRY from the stageBlock failure.
+      const fileSize = MULTIPART_THRESHOLD_BYTES + MULTIPART_PART_SIZE_BYTES;
+      stubFsForUpload(fileSize);
+      stageBlockStub.onFirstCall().resolves();
+      stageBlockStub.onSecondCall().throws(() => {
+        const err = new Error('staged block 2 boom');
+        err.statusCode = 500;
+        throw err;
+      });
+      deleteIfExistsStub.throws(() => new Error('cleanup boom'));
+
+      await Azure.uploadFile(dataFile, meta, encryptionMetadata);
+
+      assert.strictEqual(meta['resultStatus'], resultStatus.NEED_RETRY);
+      assert.strictEqual(meta['lastError'].message, 'staged block 2 boom');
+    });
   });
 });

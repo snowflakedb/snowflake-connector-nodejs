@@ -29,6 +29,7 @@ run_tests_and_set_result() {
     bash << EOF
       set -e
       set -o pipefail
+      # TODO: upgrade this chainguard test image to the latest Node LTS
       docker run \
         --rm \
         --cpus=1 \

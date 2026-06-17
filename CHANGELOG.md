@@ -2,6 +2,14 @@
 
 ## Upcoming Release
 
+- TBA
+
+## 3.0.0
+
+**Breaking changes:**
+
+- Dropped official support for Node.js 18. The minimum supported Node.js version is now 20.x, and `engines.node` is set to `>=20`. This release may still run on Node.js 18 for now, but we no longer test against it and will not investigate or fix Node 18-only issues. Treat Node 18 as unsupported and migrate to a current Node.js LTS. See the v3.0 announcement (snowflakedb/snowflake-connector-nodejs#1398) for details and migration guidance.
+
 New features:
 
 - Added `browserResponseRenderer` connection option to customize the HTML response shown in the browser after `EXTERNALBROWSER` and `OAUTH_AUTHORIZATION_CODE` callbacks (snowflakedb/snowflake-connector-nodejs#1416)

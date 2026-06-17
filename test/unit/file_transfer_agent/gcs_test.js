@@ -447,7 +447,7 @@ describe('GCS client', function () {
       assert.strictEqual(del.callCount, 1);
     });
 
-    it('upload - resumable initiate failure surfaces NEED_RETRY without DELETE', async function () {
+    it('surfaces NEED_RETRY without DELETE on resumable initiate failure', async () => {
       stubFs(MULTIPART_FILE_SIZE);
       useAccessTokenUpload(MULTIPART_FILE_SIZE);
 

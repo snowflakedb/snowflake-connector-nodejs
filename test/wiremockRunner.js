@@ -34,8 +34,7 @@ async function runWireMockAsync(port, options = {}) {
         },
       );
       child.unref();
-      // Use 127.0.0.1 instead of localhost to avoid IPv6/IPv4 resolution issues on Node.js 18 + RHEL9
-      const baseUri = `http://127.0.0.1:${port}`;
+      const baseUri = `http://localhost:${port}`;
       const wireMock = new WireMockRestClient(baseUri, {
         logLevel: 'debug',
         ...options,

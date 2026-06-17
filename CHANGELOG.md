@@ -15,6 +15,7 @@ Bugfixes:
 - Fixed `noProxy` connection option and `NO_PROXY` environment variable not bypassing the proxy for PrivateLink connections (snowflakedb/snowflake-connector-nodejs#1422).
 - Fixed interrupted streaming HTTP responses being treated as successful empty responses instead of errors, which could cause `streamRows()` to hang silently on large result sets (snowflakedb/snowflake-connector-nodejs#1420)
 - Fixed `LOCAL_FS` stage download writing to the wrong path by using the destination file's base name, consistent with cloud stages (snowflakedb/snowflake-connector-nodejs#1431)
+- Fixed `OAUTH_AUTHORIZATION_CODE` cold-connect lockout from a cached invalid refresh token; the bad token is now evicted and the full browser flow restarts (snowflakedb/snowflake-connector-nodejs#1435)
 
 Internal:
 

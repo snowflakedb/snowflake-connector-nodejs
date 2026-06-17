@@ -1,0 +1,82 @@
+{
+  "mappings": [
+    {
+      "scenarioName": "Cold connect refresh token error restarts full flow",
+      "newScenarioState": "Refresh token rejected",
+      "request": {
+        "urlPathPattern": "/oauth/token-request.*",
+        "method": "POST",
+        "headers": {
+          "Content-Type": {
+            "contains": "application/x-www-form-urlencoded;charset=UTF-8"
+          }
+        },
+        "formParameters": {
+          "grant_type": {
+            "equalTo": "refresh_token"
+          },
+          "refresh_token": {
+            "equalTo": "invalid_refresh_token"
+          },
+          "client_secret": {
+            "equalTo": "clientSecret"
+          },
+          "client_id": {
+            "equalTo": "123"
+          }
+        }
+      },
+      "response": {
+        "status": 400,
+        "jsonBody": {
+          "error": "invalid_grant",
+          "error_description": "The refresh token is invalid, expired, revoked, or was already used."
+        }
+      }
+    },
+    {
+      "scenarioName": "Cold connect refresh token error restarts full flow",
+      "requiredScenarioState": "Refresh token rejected",
+      "newScenarioState": "Acquired new access token and new refresh token after full flow",
+      "request": {
+        "urlPathPattern": "/oauth/token-request.*",
+        "method": "POST",
+        "headers": {
+          "Content-Type": {
+            "contains": "application/x-www-form-urlencoded;charset=UTF-8"
+          }
+        },
+        "formParameters": {
+          "redirect_uri": {
+            "contains": "snowflake/oauth-redirect"
+          },
+          "code_verifier": {
+            "matches": "[a-zA-Z0-9\\-_]+"
+          },
+          "grant_type": {
+            "equalTo": "authorization_code"
+          },
+          "client_id": {
+            "equalTo": "123"
+          },
+          "client_secret": {
+            "equalTo": "clientSecret"
+          }
+        }
+      },
+      "response": {
+        "status": 200,
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "jsonBody": {
+          "access_token": "new-refreshed-access-token-123",
+          "refresh_token": "new-refresh-token-123",
+          "token_type": "Bearer",
+          "expires_in": 599,
+          "idpInitiated": false
+        }
+      }
+    }
+  ]
+}

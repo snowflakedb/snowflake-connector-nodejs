@@ -186,6 +186,25 @@ describe('Oauth Refresh token for Autorization Code', function () {
     assert.strictEqual(refreshTokenInCache, 'new-refresh-token-123');
   });
 
+  it('Restarts full flow on cold connect when only an invalid refresh token is cached', async function () {
+    await authUtil.writeToCache(refreshTokenKey, 'invalid_refresh_token');
+    await addWireMockMappingsFromFile(
+      wireMock,
+      'wiremock/mappings/oauth/token_cache_and_refresh/restarting_full_flow_on_cold_connect_refresh_token_error.json',
+    );
+    await addWireMockMappingsFromFile(wireMock, 'wiremock/mappings/login_request_ok.json');
+    await authTest.createConnection({
+      ...connectionOptionAuthorizationCode,
+      openExternalBrowserCallback: simulateBrowserRedirect,
+    });
+    await authTest.connectAsync();
+    authTest.verifyNoErrorWasThrown();
+    const accessTokenInCache = await authUtil.readCache(accessTokenKey);
+    const refreshTokenInCache = await authUtil.readCache(refreshTokenKey);
+    assert.strictEqual(accessTokenInCache, 'new-refreshed-access-token-123');
+    assert.strictEqual(refreshTokenInCache, 'new-refresh-token-123');
+  });
+
   it('Using cached token for successful authentication ', async function () {
     await authUtil.writeToCache(accessTokenKey, 'reused-access-token-123');
     await addWireMockMappingsFromFile(

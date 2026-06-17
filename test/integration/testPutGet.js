@@ -1,5 +1,6 @@
 const assert = require('assert');
 const async = require('async');
+const snowflake = require('./../../lib/snowflake').default;
 const connOption = require('./connectionOptions');
 const fileCompressionType = require('./../../lib/file_transfer_agent/file_compression_type');
 const fs = require('fs');
@@ -1045,89 +1046,78 @@ describe('PUT GET test with different size', function () {
     await testUtil.destroyConnectionAsync(connection);
   });
 
-  it('zero byte file', function (done) {
-    async.series(
-      [
-        function (callback) {
-          executePutWithFileSize(
-            `PUT ${zeroByteFilePath} ${stage} AUTO_COMPRESS=FALSE`,
-            0,
-            callback,
-          );
-        },
-        function (callback) {
-          executeGetWithFileSize(getQuery, 0, callback);
-        },
-      ],
-      done,
-    );
+  it('zero byte file', async function () {
+    await executePutWithFileSize(`PUT ${zeroByteFilePath} ${stage} AUTO_COMPRESS=FALSE`, 0);
+    await executeGetWithFileSize(getQuery, 0);
   });
 
-  it('large size file', function (done) {
-    async.series(
-      [
-        function (callback) {
-          executePutWithFileSize(
-            `PUT ${largeFilePath} ${stage} AUTO_COMPRESS=FALSE`,
-            100 * 1024 * 1024,
-            callback,
-          );
-        },
-        function (callback) {
-          executeGetWithFileSize(getQuery, 100 * 1024 * 1024, callback);
-        },
-      ],
-      done,
-    );
+  [true, false].forEach(function (enableExperimentalMultipartUploads) {
+    it(`large size file (enableExperimentalMultipartUploads=${enableExperimentalMultipartUploads})`, async function () {
+      snowflake.configure({ enableExperimentalMultipartUploads });
+      try {
+        await executePutWithFileSize(
+          `PUT ${largeFilePath} ${stage} AUTO_COMPRESS=FALSE`,
+          100 * 1024 * 1024,
+        );
+        await executeGetWithFileSize(getQuery, 100 * 1024 * 1024);
+      } finally {
+        // Always disable the experimental flag so it never leaks into other tests.
+        snowflake.configure({ enableExperimentalMultipartUploads: false });
+      }
+    });
   });
 
-  function executePutWithFileSize(putQuery, fileSize, callback) {
-    connection.execute({
-      sqlText: putQuery,
-      complete: function (err, stmt) {
-        if (err) {
-          callback(err);
-        } else {
-          const stream = stmt.streamRows();
-          stream.on('error', function (err) {
-            callback(err);
-          });
-          stream.on('data', function (row) {
-            // Check the file is correctly uploaded
-            assert.strictEqual(row['status'], UPLOADED);
-            assert.strictEqual(row.targetSize, fileSize);
-          });
-          stream.on('end', function () {
-            callback();
-          });
-        }
-      },
+  function executePutWithFileSize(putQuery, fileSize) {
+    return new Promise(function (resolve, reject) {
+      connection.execute({
+        sqlText: putQuery,
+        complete: function (err, stmt) {
+          if (err) {
+            reject(err);
+          } else {
+            const stream = stmt.streamRows();
+            stream.on('error', function (err) {
+              reject(err);
+            });
+            stream.on('data', function (row) {
+              // Check the file is correctly uploaded
+              assert.strictEqual(row['status'], UPLOADED);
+              assert.strictEqual(row.targetSize, fileSize);
+            });
+            stream.on('end', function () {
+              resolve();
+            });
+          }
+        },
+      });
     });
   }
 
-  function executeGetWithFileSize(getQuery, fileSize, callback) {
-    connection.execute({
-      sqlText: getQuery,
-      complete: function (err, stmt) {
-        if (err) {
-          callback(err);
-        } else {
-          const stream = stmt.streamRows();
-          stream.on('error', function (err) {
-            callback(err);
-          });
-          stream.on('data', function (row) {
-            assert.strictEqual(row['status'], DOWNLOADED);
-            // Verify the size of the file
-            const file = path.join(tmpDir, row.file);
-            const size = fs.statSync(file).size;
-            assert.strictEqual(size, fileSize);
-          });
-          stream.on('end', function () {
-            callback();
-          });
-        }
-      },
+  function executeGetWithFileSize(getQuery, fileSize) {
+    return new Promise(function (resolve, reject) {
+      connection.execute({
+        sqlText: getQuery,
+        complete: function (err, stmt) {
+          if (err) {
+            reject(err);
+          } else {
+            const stream = stmt.streamRows();
+            stream.on('error', function (err) {
+              reject(err);
+            });
+            stream.on('data', function (row) {
+              assert.strictEqual(row['status'], DOWNLOADED);
+              // Verify the size of the file
+              const file = path.join(tmpDir, row.file);
+              const size = fs.statSync(file).size;
+              assert.strictEqual(size, fileSize);
+            });
+            stream.on('end', function () {
+              resolve();
+            });
+          }
+        },
+      });
     });
   }
 });

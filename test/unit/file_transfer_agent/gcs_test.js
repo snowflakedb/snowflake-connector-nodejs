@@ -5,10 +5,8 @@ const { Readable } = require('stream');
 const snowflake = require('./../../../lib/snowflake').default;
 const SnowflakeGCSUtil = require('./../../../lib/file_transfer_agent/gcs_util');
 const resultStatus = require('../../../lib/file_util').resultStatus;
-const {
-  MULTIPART_THRESHOLD_BYTES,
-  MULTIPART_PART_SIZE_BYTES,
-} = require('../../../lib/file_transfer_agent/multipart');
+const { MULTIPART_PART_SIZE_BYTES } = require('../../../lib/file_transfer_agent/multipart');
+const { fakeFileHandle, MULTIPART_FILE_SIZE } = require('./multipart_test_utils');
 
 describe('GCS client', function () {
   const mockDataFile = 'mockDataFile';
@@ -32,9 +30,6 @@ describe('GCS client', function () {
     },
   };
 
-  let GCS;
-  let sinonSandbox;
-  let httpClient;
   const dataFile = mockDataFile;
   let meta;
   const encryptionMetadata = {
@@ -43,14 +38,28 @@ describe('GCS client', function () {
     matDesc: mockMatDesc,
   };
 
+  function mockGCS(methods = {}) {
+    const httpClient = Object.assign(
+      {
+        put: async () => {},
+        get: async () => {},
+        head: async () => ({ headers: '' }),
+      },
+      methods,
+    );
+    return new SnowflakeGCSUtil(connectionConfig, httpClient);
+  }
+
+  function stubFs(fileSize = 4) {
+    sinon.stub(fs, 'statSync').returns({ size: fileSize });
+    sinon.stub(fs, 'createReadStream').callsFake(() => Readable.from([Buffer.from('mock')]));
+    sinon.stub(fs.promises, 'stat').resolves({ size: fileSize });
+    sinon.stub(fs.promises, 'readFile').resolves(Buffer.alloc(fileSize, 0));
+    sinon.stub(fs.promises, 'open').callsFake(async () => fakeFileHandle(fileSize));
+  }
+
   beforeEach(() => {
-    sinonSandbox = sinon.createSandbox();
-    sinonSandbox.stub(fs, 'statSync').returns({ size: 1 });
-    sinonSandbox.stub(fs, 'createReadStream').callsFake(() => Readable.from([Buffer.from('mock')]));
-    // The Buffer-bodied upload path uses `fs.promises` instead of the legacy
-    // sync/stream APIs; stub both so existing tests and new ones can coexist.
-    sinonSandbox.stub(fs.promises, 'stat').resolves({ size: 4 });
-    sinonSandbox.stub(fs.promises, 'readFile').resolves(Buffer.from('mock'));
+    // TODO: make this a builder function instead of initializing for each test
     meta = {
       stageInfo: {
         location: mockLocation + '/' + mockTable + '/' + mockPath + '/',
@@ -62,16 +71,10 @@ describe('GCS client', function () {
       dstFileName: mockPresignedUrl,
       client: mockClient,
     };
-    httpClient = {
-      put: async () => {},
-      get: async () => {},
-      head: async () => ({ headers: '' }),
-    };
-    GCS = new SnowflakeGCSUtil(connectionConfig, httpClient);
   });
 
   afterEach(() => {
-    sinonSandbox.restore();
+    sinon.restore();
   });
 
   describe('GCS client endpoint testing', async function () {
@@ -205,6 +208,7 @@ describe('GCS client', function () {
 
     testCases.forEach(({ name, stageInfo, fileUrlResult }) => {
       it(name, () => {
+        const GCS = mockGCS();
         const stageInfoFull = {
           ...meta.stageInfo,
           ...stageInfo,
@@ -243,6 +247,7 @@ describe('GCS client', function () {
   });
 
   it('get file header - success', async function () {
+    const GCS = mockGCS();
     meta.presignedUrl = '';
 
     await GCS.getFileHeader(meta, dataFile);
@@ -250,25 +255,26 @@ describe('GCS client', function () {
   });
 
   it('get file header - fail not found file with presigned url', async function () {
-    httpClient.get = async () => {
-      const err = new Error();
-      err.response = { status: 401 };
-      throw err;
-    };
-    const GCS = new SnowflakeGCSUtil(connectionConfig, httpClient);
+    const GCS = mockGCS({
+      get: async () => {
+        const err = new Error();
+        err.response = { status: 401 };
+        throw err;
+      },
+    });
 
     await GCS.getFileHeader(meta, dataFile);
     assert.strictEqual(meta['resultStatus'], resultStatus.NOT_FOUND_FILE);
   });
 
   it('get file header - fail need retry', async function () {
-    httpClient.head = async () => {
-      const err = new Error();
-      err.response = { status: 403 };
-      throw err;
-    };
-    const GCS = new SnowflakeGCSUtil(connectionConfig, httpClient);
-
+    const GCS = mockGCS({
+      head: async () => {
+        const err = new Error();
+        err.response = { status: 403 };
+        throw err;
+      },
+    });
     meta.presignedUrl = '';
 
     await GCS.getFileHeader(meta, dataFile);
@@ -276,13 +282,13 @@ describe('GCS client', function () {
   });
 
   it('get file header - fail not found file without presigned url', async function () {
-    httpClient.head = async () => {
-      const err = new Error();
-      err.response = { status: 404 };
-      throw err;
-    };
-    const GCS = new SnowflakeGCSUtil(connectionConfig, httpClient);
-
+    const GCS = mockGCS({
+      head: async () => {
+        const err = new Error();
+        err.response = { status: 404 };
+        throw err;
+      },
+    });
     meta.presignedUrl = '';
 
     await GCS.getFileHeader(meta, dataFile);
@@ -290,13 +296,13 @@ describe('GCS client', function () {
   });
 
   it('get file header - fail expired token', async function () {
-    httpClient.head = async () => {
-      const err = new Error();
-      err.response = { status: 401 };
-      throw err;
-    };
-    const GCS = new SnowflakeGCSUtil(connectionConfig, httpClient);
-
+    const GCS = mockGCS({
+      head: async () => {
+        const err = new Error();
+        err.response = { status: 401 };
+        throw err;
+      },
+    });
     meta.presignedUrl = '';
 
     await GCS.getFileHeader(meta, dataFile);
@@ -306,11 +312,11 @@ describe('GCS client', function () {
   it('get file header - fail unknown status', async function () {
     const err = new Error();
     err.response = { status: 0 };
-    httpClient.head = async () => {
-      throw err;
-    };
-    const GCS = new SnowflakeGCSUtil(connectionConfig, httpClient);
-
+    const GCS = mockGCS({
+      head: async () => {
+        throw err;
+      },
+    });
     meta.presignedUrl = '';
 
     try {
@@ -321,11 +327,13 @@ describe('GCS client', function () {
   });
 
   it('upload - success', async function () {
+    stubFs();
+    const GCS = mockGCS();
     await GCS.uploadFile(dataFile, meta, encryptionMetadata);
     assert.strictEqual(meta['resultStatus'], resultStatus.UPLOADED);
   });
 
-  describe('Uploads with enableExperimentalMultipartUploads=true behavior', () => {
+  describe('Multipart upload', () => {
     before(() => {
       snowflake.configure({ enableExperimentalMultipartUploads: true });
     });
@@ -334,222 +342,154 @@ describe('GCS client', function () {
       snowflake.configure({ enableExperimentalMultipartUploads: false });
     });
 
-    it('upload sends Buffer body to axios.put (not a Readable)', async function () {
-      // The Buffer-bodied upload path bounds in-flight memory and gives a
-      // predictable wire shape (known `Content-Length`, no chunked transfer
-      // encoding). Verify both: the second positional argument is a Buffer
-      // and the headers carry the matching content-length.
-      const putSpy = sinon.spy(async () => {});
-      httpClient.put = putSpy;
-      const GCS = new SnowflakeGCSUtil(connectionConfig, httpClient);
+    // Points meta at the access-token (resumable) path and sizes the upload.
+    function useAccessTokenUpload(fileSize) {
+      meta.presignedUrl = '';
+      meta.client = { gcsToken: mockAccessToken };
+      meta.uploadSize = fileSize;
+    }
+
+    it('sends Buffer body to axios.put (not a Readable) when file is smaller than multipart threshold', async () => {
+      stubFs();
+      const put = sinon.stub().resolves();
+      const GCS = mockGCS({ put });
 
       await GCS.uploadFile(dataFile, meta, encryptionMetadata);
 
       assert.strictEqual(meta['resultStatus'], resultStatus.UPLOADED);
-      assert.ok(putSpy.calledOnce, 'axios.put should be called once');
-      const [, body, options] = putSpy.firstCall.args;
+      assert.strictEqual(put.callCount, 1);
+      const [, body, options] = put.firstCall.args;
       assert.ok(Buffer.isBuffer(body), 'axios.put body must be a Buffer, not a Readable');
       assert.strictEqual(options.headers['Content-Length'], body.length);
     });
 
-    it('upload of file larger than the multipart threshold on legacy presigned-URL path still ships via single Buffer PUT', async function () {
-      // Workspace stage presigned URLs are signed for one specific PUT and
-      // cannot initiate a resumable upload. So when GS hands back a
-      // `presignedUrl` (the legacy path; pre-CB_2023_06 deployments or driver
-      // versions before 1.6.21), large files fall back to a single Buffer PUT
-      // even though the access-token path would split into chunks. Verify
-      // both: result is UPLOADED and the body Buffer matches the file size.
-      fs.promises.stat.restore();
-      fs.promises.readFile.restore();
-      const largeSize = MULTIPART_THRESHOLD_BYTES + 4 * 1024 * 1024;
-      sinonSandbox.stub(fs.promises, 'stat').resolves({ size: largeSize });
-      sinonSandbox.stub(fs.promises, 'readFile').resolves(Buffer.alloc(largeSize, 0));
-      const putSpy = sinon.spy(async () => {});
-      httpClient.put = putSpy;
-      const GCS = new SnowflakeGCSUtil(connectionConfig, httpClient);
+    it('uploads large file via single Buffer PUT on legacy presigned-URL path', async () => {
+      stubFs(MULTIPART_FILE_SIZE);
+      const put = sinon.stub().resolves();
+      const GCS = mockGCS({ put });
 
       await GCS.uploadFile(dataFile, meta, encryptionMetadata);
 
       assert.strictEqual(meta['resultStatus'], resultStatus.UPLOADED);
-      assert.ok(putSpy.calledOnce);
-      const [, body, options] = putSpy.firstCall.args;
+      assert.strictEqual(put.callCount, 1);
+      const [, body, options] = put.firstCall.args;
       assert.ok(Buffer.isBuffer(body));
-      assert.strictEqual(body.length, largeSize);
-      assert.strictEqual(options.headers['Content-Length'], largeSize);
+      assert.strictEqual(body.length, MULTIPART_FILE_SIZE);
+      assert.strictEqual(options.headers['Content-Length'], MULTIPART_FILE_SIZE);
     });
 
-    it('upload - resumable path engaged on access-token + large file', async function () {
-      // The access-token path (gcsToken populated, no presignedUrl) with a
-      // file larger than the multipart threshold takes the resumable upload
-      // session: one POST to initiate, N×PUT to deliver chunks, no single-PUT.
-      fs.promises.stat.restore();
-      fs.promises.readFile.restore();
-      const partSize = MULTIPART_PART_SIZE_BYTES;
-      // Exceed the threshold by a full part plus an unaligned remainder so the
-      // final chunk is smaller than the rest.
-      const fileSize = MULTIPART_THRESHOLD_BYTES + partSize + 1024 * 1024;
-      const expectedChunks = Math.ceil(fileSize / partSize);
-      sinonSandbox.stub(fs.promises, 'stat').resolves({ size: fileSize });
-      sinonSandbox.stub(fs.promises, 'open').callsFake(async () => {
-        let position = 0;
-        return {
-          read: async (buf, offset, length /* , filePos */) => {
-            const remaining = Math.max(0, fileSize - position);
-            const toRead = Math.min(length, remaining);
-            buf.fill(0, offset, offset + toRead);
-            position += toRead;
-            return { bytesRead: toRead };
-          },
-          close: async () => {},
-        };
-      });
-      meta.presignedUrl = '';
-      meta.client = { gcsToken: mockAccessToken };
-      meta.uploadSize = fileSize;
+    it('engages resumable path on access-token + large file', async () => {
+      stubFs(MULTIPART_FILE_SIZE);
+      const expectedChunks = Math.ceil(MULTIPART_FILE_SIZE / MULTIPART_PART_SIZE_BYTES);
+      useAccessTokenUpload(MULTIPART_FILE_SIZE);
 
       const sessionUrl =
         'https://storage.googleapis.com/upload/storage/v1/b/mockLocation/o?upload_id=resumable-mock';
-      const postSpy = sinon.spy(async () => ({
-        status: 200,
-        headers: { location: sessionUrl },
-      }));
-      let putCalls = 0;
-      const putSpy = sinon.spy(async () => {
-        putCalls += 1;
+      const post = sinon.stub().resolves({ status: 200, headers: { location: sessionUrl } });
+      const put = sinon.stub().callsFake(async () => {
         // Final call gets 200; preceding calls get 308 to mimic GCS's
         // "Resume Incomplete" signal.
-        if (putCalls === expectedChunks) {
+        if (put.callCount === expectedChunks) {
           return { status: 200, headers: {} };
         }
-        // Compute the highest committed byte from the chunks issued so far,
-        // matching the wire shape GCS would send back.
-        const committed = putCalls * partSize - 1;
+        const committed = put.callCount * MULTIPART_PART_SIZE_BYTES - 1;
         return { status: 308, headers: { range: `bytes=0-${committed}` } };
       });
-      httpClient.post = postSpy;
-      httpClient.put = putSpy;
-      httpClient.delete = sinon.spy(async () => ({ status: 204 }));
-      const GCS = new SnowflakeGCSUtil(connectionConfig, httpClient);
+      const del = sinon.stub().resolves({ status: 204 });
+      const GCS = mockGCS({ post, put, delete: del });
 
       await GCS.uploadFile(dataFile, meta, encryptionMetadata);
 
       assert.strictEqual(meta['resultStatus'], resultStatus.UPLOADED);
-      assert.strictEqual(postSpy.callCount, 1, 'one initiation POST');
-      assert.strictEqual(putSpy.callCount, expectedChunks, 'one chunk PUT per part');
-      assert.strictEqual(httpClient.delete.callCount, 0, 'no DELETE on success');
+      assert.strictEqual(post.callCount, 1);
+      assert.strictEqual(put.callCount, expectedChunks);
+      assert.strictEqual(del.callCount, 0);
 
       // Verify Content-Range headers on the chunk PUTs.
-      const ranges = putSpy.getCalls().map((c) => c.args[2].headers['Content-Range']);
+      const ranges = put.getCalls().map((c) => c.args[2].headers['Content-Range']);
       const expectedRanges = Array.from({ length: expectedChunks }, (_, i) => {
-        const start = i * partSize;
-        const end = Math.min(start + partSize, fileSize) - 1;
-        return `bytes ${start}-${end}/${fileSize}`;
+        const start = i * MULTIPART_PART_SIZE_BYTES;
+        const end = Math.min(start + MULTIPART_PART_SIZE_BYTES, MULTIPART_FILE_SIZE) - 1;
+        return `bytes ${start}-${end}/${MULTIPART_FILE_SIZE}`;
       });
       assert.deepStrictEqual(ranges, expectedRanges);
 
       // Initiation POST carries Snowflake metadata as x-goog-meta-* headers
       // and announces XML API resumable mode via x-goog-resumable: start.
-      const [, , initOpts] = postSpy.firstCall.args;
+      const [, , initOpts] = post.firstCall.args;
       assert.strictEqual(initOpts.headers['x-goog-resumable'], 'start');
-      assert.strictEqual(initOpts.headers['x-upload-content-length'], fileSize);
+      assert.strictEqual(initOpts.headers['x-upload-content-length'], MULTIPART_FILE_SIZE);
       assert.strictEqual(initOpts.headers['x-goog-meta-sfc-digest'], meta['SHA256_DIGEST']);
       assert.ok(initOpts.headers['x-goog-meta-encryptiondata']);
       assert.strictEqual(initOpts.headers['x-goog-meta-matdesc'], mockMatDesc);
     });
 
-    it('upload - resumable path issues DELETE on chunk failure', async function () {
-      // A non-recoverable chunk failure (e.g., 4xx) must abort the session
-      // via DELETE so the upload doesn't linger as a half-staged blob.
-      fs.promises.stat.restore();
-      fs.promises.readFile.restore();
-      const fileSize = MULTIPART_THRESHOLD_BYTES + MULTIPART_PART_SIZE_BYTES + 1024;
-      sinonSandbox.stub(fs.promises, 'stat').resolves({ size: fileSize });
-      sinonSandbox.stub(fs.promises, 'open').callsFake(async () => {
-        let position = 0;
-        return {
-          read: async (buf, offset, length /* , filePos */) => {
-            const remaining = Math.max(0, fileSize - position);
-            const toRead = Math.min(length, remaining);
-            buf.fill(0, offset, offset + toRead);
-            position += toRead;
-            return { bytesRead: toRead };
-          },
-          close: async () => {},
-        };
-      });
-      meta.presignedUrl = '';
-      meta.client = { gcsToken: mockAccessToken };
-      meta.uploadSize = fileSize;
+    it('issues DELETE on chunk failure', async () => {
+      stubFs(MULTIPART_FILE_SIZE);
+      useAccessTokenUpload(MULTIPART_FILE_SIZE);
 
-      httpClient.post = async () => ({
+      const post = sinon.stub().resolves({
         status: 200,
         headers: { location: 'https://storage.googleapis.com/upload-session' },
       });
-      httpClient.put = async () => {
+      const put = sinon.stub().callsFake(async () => {
         const err = new Error('boom');
         err['code'] = 500;
         err['response'] = { status: 500 };
         throw err;
-      };
-      const deleteSpy = sinon.spy(async () => ({ status: 204 }));
-      httpClient.delete = deleteSpy;
-      const GCS = new SnowflakeGCSUtil(connectionConfig, httpClient);
+      });
+      const del = sinon.stub().resolves({ status: 204 });
+      const GCS = mockGCS({ post, put, delete: del });
 
       await GCS.uploadFile(dataFile, meta, encryptionMetadata);
 
       assert.strictEqual(meta['resultStatus'], resultStatus.NEED_RETRY);
-      assert.strictEqual(deleteSpy.callCount, 1, 'DELETE must fire on terminal failure');
+      assert.strictEqual(del.callCount, 1);
     });
 
     it('upload - resumable initiate failure surfaces NEED_RETRY without DELETE', async function () {
-      // If the initiation POST itself fails, there is no session to abort —
-      // DELETE must NOT fire. meta should still reflect a retryable error
-      // so the caller's outer retry loop takes over.
-      fs.promises.stat.restore();
-      fs.promises.readFile.restore();
-      const fileSize = MULTIPART_THRESHOLD_BYTES + MULTIPART_PART_SIZE_BYTES;
-      sinonSandbox.stub(fs.promises, 'stat').resolves({ size: fileSize });
-      meta.presignedUrl = '';
-      meta.client = { gcsToken: mockAccessToken };
-      meta.uploadSize = fileSize;
+      stubFs(MULTIPART_FILE_SIZE);
+      useAccessTokenUpload(MULTIPART_FILE_SIZE);
 
-      httpClient.post = async () => {
+      const post = sinon.stub().callsFake(async () => {
         const err = new Error('init boom');
         err['code'] = 503;
         err['response'] = { status: 503 };
         throw err;
-      };
-      const deleteSpy = sinon.spy(async () => ({ status: 204 }));
-      httpClient.delete = deleteSpy;
-      const GCS = new SnowflakeGCSUtil(connectionConfig, httpClient);
+      });
+      const del = sinon.stub().resolves({ status: 204 });
+      const GCS = mockGCS({ post, delete: del });
 
       await GCS.uploadFile(dataFile, meta, encryptionMetadata);
 
       assert.strictEqual(meta['resultStatus'], resultStatus.NEED_RETRY);
-      assert.strictEqual(deleteSpy.callCount, 0, 'no DELETE when there is no session');
+      assert.strictEqual(del.callCount, 0);
     });
   });
 
   it('upload - fail need retry', async function () {
-    httpClient.put = async () => {
-      const err = new Error();
-      err.code = 403;
-      throw err;
-    };
-    const GCS = new SnowflakeGCSUtil(connectionConfig, httpClient);
+    stubFs();
+    const GCS = mockGCS({
+      put: async () => {
+        const err = new Error();
+        err.code = 403;
+        throw err;
+      },
+    });
 
     await GCS.uploadFile(dataFile, meta, encryptionMetadata);
     assert.strictEqual(meta['resultStatus'], resultStatus.NEED_RETRY);
   });
 
   it('upload - fail renew presigned url', async function () {
-    httpClient.put = async () => {
-      const err = new Error();
-      err.code = 400;
-      throw err;
-    };
-    const GCS = new SnowflakeGCSUtil(connectionConfig, httpClient);
-
+    stubFs();
+    const GCS = mockGCS({
+      put: async () => {
+        const err = new Error();
+        err.code = 400;
+        throw err;
+      },
+    });
     meta.client = '';
     meta.lastError = { code: 0 };
 
@@ -558,9 +498,9 @@ describe('GCS client', function () {
   });
 
   it('upload with token uses REST path via httpClient.put', async function () {
-    const putSpy = sinon.spy(async () => {});
-    httpClient.put = putSpy;
-    const GCS = new SnowflakeGCSUtil(connectionConfig, httpClient);
+    stubFs();
+    const put = sinon.stub().resolves();
+    const GCS = mockGCS({ put });
 
     meta.presignedUrl = '';
     meta.client = { gcsToken: mockAccessToken };
@@ -569,27 +509,27 @@ describe('GCS client', function () {
 
     await GCS.uploadFile(dataFile, meta, encryptionMetadata);
     assert.strictEqual(meta['resultStatus'], resultStatus.UPLOADED);
-    assert.ok(putSpy.calledOnce, 'httpClient.put should be called');
-    const callArgs = putSpy.firstCall.args;
+    assert.strictEqual(put.callCount, 1);
+    const callArgs = put.firstCall.args;
     assert.ok(callArgs[2].headers['Authorization'].startsWith('Bearer '));
   });
 
   it('download with token uses REST path via httpClient.get', async function () {
+    stubFs();
     const mockStream = new Readable({
       read() {
         this.push(null);
       },
     });
-    const getSpy = sinon.spy(async () => ({
+    const get = sinon.stub().resolves({
       status: 200,
       headers: {
         'x-goog-meta-sfc-digest': 'mockDigest',
         'content-length': '0',
       },
       data: mockStream,
-    }));
-    httpClient.get = getSpy;
-    sinonSandbox.stub(fs, 'createWriteStream').returns(
+    });
+    sinon.stub(fs, 'createWriteStream').returns(
       new (require('stream').Writable)({
         write(_chunk, _encoding, cb) {
           cb();
@@ -599,7 +539,7 @@ describe('GCS client', function () {
         },
       }),
     );
-    const GCS = new SnowflakeGCSUtil(connectionConfig, httpClient);
+    const GCS = mockGCS({ get });
 
     meta.presignedUrl = '';
     meta.client = { gcsToken: mockAccessToken };
@@ -607,40 +547,41 @@ describe('GCS client', function () {
 
     await GCS.nativeDownloadFile(meta, '/tmp/testfile.csv');
     assert.strictEqual(meta['resultStatus'], resultStatus.DOWNLOADED);
-    assert.ok(getSpy.calledOnce, 'httpClient.get should be called');
-    const callArgs = getSpy.firstCall.args;
+    assert.strictEqual(get.callCount, 1);
+    const callArgs = get.firstCall.args;
     assert.ok(callArgs[1].headers['Authorization'].startsWith('Bearer '));
   });
 
   it('getFileHeader with token uses REST path via httpClient.head', async function () {
-    const headSpy = sinon.spy(async () => ({
+    const head = sinon.stub().resolves({
       headers: {
         'x-goog-meta-sfc-digest': 'mockDigest',
         'content-length': '100',
       },
-    }));
-    httpClient.head = headSpy;
-    const GCS = new SnowflakeGCSUtil(connectionConfig, httpClient);
+    });
+    const GCS = mockGCS({ head });
 
     meta.presignedUrl = '';
     meta.client = { gcsToken: mockAccessToken };
 
     const header = await GCS.getFileHeader(meta, dataFile);
     assert.strictEqual(meta['resultStatus'], resultStatus.UPLOADED);
-    assert.ok(headSpy.calledOnce, 'httpClient.head should be called');
-    const callArgs = headSpy.firstCall.args;
+    assert.strictEqual(head.callCount, 1);
+    const callArgs = head.firstCall.args;
     assert.ok(callArgs[1].headers['Authorization'].startsWith('Bearer '));
     assert.strictEqual(header.digest, 'mockDigest');
     assert.strictEqual(header.contentLength, '100');
   });
 
   it('upload - fail expired token', async function () {
-    httpClient.put = async () => {
-      const err = new Error();
-      err.code = 401;
-      throw err;
-    };
-    const GCS = new SnowflakeGCSUtil(connectionConfig, httpClient);
+    stubFs();
+    const GCS = mockGCS({
+      put: async () => {
+        const err = new Error();
+        err.code = 401;
+        throw err;
+      },
+    });
 
     meta.presignedUrl = '';
     meta.client = { gcsToken: mockAccessToken };

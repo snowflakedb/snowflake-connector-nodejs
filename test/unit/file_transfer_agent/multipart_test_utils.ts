@@ -2,6 +2,19 @@
  * Test doubles shared across the S3/Azure/GCS file-transfer-agent unit tests.
  */
 
+import {
+  MULTIPART_THRESHOLD_BYTES,
+  MULTIPART_PART_SIZE_BYTES,
+} from '../../../lib/file_transfer_agent/multipart';
+
+/**
+ * A file size large enough to trigger a multipart upload: it exceeds the
+ * threshold and spans more than a single part, so the chunked-upload codepaths
+ * run across all three providers (S3, Azure, GCS).
+ */
+export const MULTIPART_FILE_SIZE =
+  MULTIPART_THRESHOLD_BYTES + MULTIPART_PART_SIZE_BYTES + 1024 * 1024;
+
 type ChunkRead = (buf: Buffer, offset: number, length: number) => Promise<{ bytesRead: number }>;
 
 /**

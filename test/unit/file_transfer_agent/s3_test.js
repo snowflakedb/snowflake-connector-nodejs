@@ -9,11 +9,8 @@ const extractBucketNameAndPath =
   require('./../../../lib/file_transfer_agent/s3_util').extractBucketNameAndPath;
 
 const resultStatus = require('../../../lib/file_util').resultStatus;
-const {
-  MULTIPART_THRESHOLD_BYTES,
-  MULTIPART_PART_SIZE_BYTES,
-} = require('../../../lib/file_transfer_agent/multipart');
-const { fakeFileHandle } = require('./multipart_test_utils');
+const { MULTIPART_PART_SIZE_BYTES } = require('../../../lib/file_transfer_agent/multipart');
+const { fakeFileHandle, MULTIPART_FILE_SIZE } = require('./multipart_test_utils');
 
 // Reusable S3 method behaviours.
 const resolveEmptyMetadata = () => Promise.resolve({ Metadata: '' });
@@ -213,8 +210,6 @@ describe('S3 client', function () {
   });
 
   describe('Multipart upload', () => {
-    const MULTIPART_FILE_SIZE = MULTIPART_THRESHOLD_BYTES + MULTIPART_PART_SIZE_BYTES + 1024;
-
     before(() => {
       snowflake.configure({ enableExperimentalMultipartUploads: true });
     });

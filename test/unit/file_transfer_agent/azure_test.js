@@ -10,7 +10,7 @@ const {
   MULTIPART_THRESHOLD_BYTES,
   MULTIPART_PART_SIZE_BYTES,
 } = require('../../../lib/file_transfer_agent/multipart');
-const { fakeFileHandle } = require('./multipart_test_utils');
+const { fakeFileHandle, MULTIPART_FILE_SIZE } = require('./multipart_test_utils');
 
 function azureError({ code, statusCode, message } = {}) {
   const err = new Error(message);
@@ -172,8 +172,6 @@ describe('Azure client', function () {
   });
 
   describe('Multipart upload', () => {
-    const MULTIPART_FILE_SIZE = MULTIPART_THRESHOLD_BYTES + MULTIPART_PART_SIZE_BYTES + 1024 * 1024;
-
     before(() => {
       snowflake.configure({ enableExperimentalMultipartUploads: true });
     });

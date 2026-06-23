@@ -4,7 +4,7 @@
 
 Bugfixes:
 
-- Fixed the `util.isString` in bind uploader and replaced it with Node 24 compatible method, also added logging to the site which was silently crashing due to this deprecation. Finally, also replaced `util.isArray` in affected tests (snowflakedb/snowflake-connector-nodejs#1436).
+- Removed usage of deprecated `util.isString` to fix Node 24 compatibility. Added additional logging where this caused silent failure (snowflakedb/snowflake-connector-nodejs#1436).
 
 ## 3.0.0
 

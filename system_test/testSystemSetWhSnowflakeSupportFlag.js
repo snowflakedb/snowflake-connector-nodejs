@@ -5,7 +5,6 @@
  */
 const assert = require('assert');
 const async = require('async');
-const util = require('util');
 const snowflake = require('../lib/snowflake').default;
 const connOptions = require('../test/integration/connectionOptions');
 const connOptionsInternal = require('./connectionOptions');
@@ -145,7 +144,7 @@ describe.skip('exclude support warehouses', function () {
       sqlText: sqlText,
       complete: function (err, statement, rows) {
         assert.ok(!err);
-        assert.ok(util.isArray(rows));
+        assert.ok(Array.isArray(rows));
         assert.strictEqual(rows.length, 1);
 
         callback(rows[0].uuid);
@@ -202,7 +201,7 @@ describe.skip('exclude support warehouses', function () {
       sqlText: sqlText,
       complete: function (err, statement, rows) {
         assert.ok(!err);
-        assert.ok(util.isArray(rows));
+        assert.ok(Array.isArray(rows));
         assert.strictEqual(rows.length, 1);
 
         // the value is a string so compare with 'true' to convert to boolean

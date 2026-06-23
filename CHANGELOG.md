@@ -2,7 +2,9 @@
 
 ## Upcoming Release
 
-- TBA
+Bugfixes:
+
+- Removed usage of deprecated `util.isString` to fix Node 24 compatibility. Added additional logging where this caused silent failure (snowflakedb/snowflake-connector-nodejs#1436).
 
 ## 3.0.0
 

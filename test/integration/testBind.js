@@ -1,7 +1,6 @@
 const async = require('async');
 const assert = require('assert');
 const testUtil = require('./testUtil');
-const util = require('util');
 const sharedStatement = require('./sharedStatements');
 
 describe('Test Bind Varible', function () {
@@ -184,7 +183,7 @@ describe('Test Bind Varible', function () {
             sqlText: 'select * from testTbl where colA is null',
             complete: function (err, statement, rows) {
               assert.ok(!err);
-              assert.ok(util.isArray(rows));
+              assert.ok(Array.isArray(rows));
               assert.ok(rows.length === 1);
               callback();
             },

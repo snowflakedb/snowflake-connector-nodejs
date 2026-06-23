@@ -30,6 +30,20 @@ describe('Workload Identity Authentication E2E', () => {
     await connectAndVerify(connectionOptions, expectedUsername);
   });
 
+  // NOTE:
+  // AWS WIF supports two attestation methods: GetCallerIdentity (default) and
+  // GetWebIdentityToken (outbound, enabled via workloadIdentityUseAwsOutboundToken).
+  // The test above covers the default GetCallerIdentity method against SNOWFLAKE_TEST_WIF_USERNAME.
+  // This test covers the outbound token method, which maps to a distinct ISSUER-configured user.
+  if (provider === 'AWS') {
+    it('connects using AWS outbound token', async () => {
+      await connectAndVerify(
+        { ...connectionOptions, workloadIdentityUseAwsOutboundToken: true },
+        'TEST_WIF_E2E_AWS_OUTBOUND',
+      );
+    });
+  }
+
   if (provider === 'AWS' || provider === 'GCP') {
     it('connects using transitive impersonation', async () => {
       const impersonationPath = getValueFromEnv('SNOWFLAKE_TEST_WIF_IMPERSONATION_PATH').split(',');

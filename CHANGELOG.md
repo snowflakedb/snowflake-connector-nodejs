@@ -2,8 +2,13 @@
 
 ## Upcoming Release
 
+New features:
+
+- Added `workloadIdentityUseAwsOutboundToken` connection option (default `false`) that switches AWS Workload Identity attestation to STS `GetWebIdentityToken` JWTs. This method is recommended and may become the default in a future release (snowflakedb/snowflake-connector-nodejs#TODO)
+
 Bugfixes:
 
+- Reverted the unintentional breaking change from the 3.0.0 release (snowflakedb/snowflake-connector-nodejs#1415) that switched AWS Workload Identity attestation from SigV4 `GetCallerIdentity` to STS `GetWebIdentityToken`. AWS Workload Identity again defaults to `GetCallerIdentity`; the new method is now opt-in via `workloadIdentityUseAwsOutboundToken` (snowflakedb/snowflake-connector-nodejs#TODO)
 - Removed usage of deprecated `util.isString` to fix Node 24 compatibility. Added additional logging where this caused silent failure (snowflakedb/snowflake-connector-nodejs#1436).
 
 ## 3.0.0

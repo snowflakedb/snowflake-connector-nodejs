@@ -1,5 +1,5 @@
 import { defaultProvider } from '@aws-sdk/credential-provider-node';
-import { STSClient, AssumeRoleCommand } from '@aws-sdk/client-sts';
+import { STSClient, AssumeRoleCommand, GetWebIdentityTokenCommand } from '@aws-sdk/client-sts';
 import { MetadataService } from '@aws-sdk/ec2-metadata-service';
 import { HttpRequest } from '@smithy/protocol-http';
 import { SignatureV4 } from '@smithy/signature-v4';
@@ -50,10 +50,24 @@ export function getStsHostname(region: string) {
   return `sts.${region}.${domain}`;
 }
 
-export async function getAwsAttestationToken(impersonationPath?: string[]) {
+export async function getAwsAttestationToken(
+  useOutboundToken = false,
+  impersonationPath?: string[],
+) {
   const region = await getAwsRegion();
   const credentials = await getAwsCredentials(region, impersonationPath);
 
+  if (useOutboundToken) {
+    return getOutboundWebIdentityToken(region, credentials);
+  } else {
+    return getCallerIdentityToken(region, credentials);
+  }
+}
+
+async function getCallerIdentityToken(
+  region: string,
+  credentials: Awaited<ReturnType<typeof getAwsCredentials>>,
+) {
   const stsHostname = getStsHostname(region);
   const request = new HttpRequest({
     method: 'POST',
@@ -83,4 +97,24 @@ export async function getAwsAttestationToken(impersonationPath?: string[]) {
     headers: signedRequest.headers,
   };
   return btoa(JSON.stringify(token));
+}
+
+async function getOutboundWebIdentityToken(
+  region: string,
+  credentials: Awaited<ReturnType<typeof getAwsCredentials>>,
+) {
+  const stsClient = new STSClient({ credentials, region });
+  const response = await stsClient.send(
+    new GetWebIdentityTokenCommand({
+      Audience: ['snowflakecomputing.com'],
+      SigningAlgorithm: 'ES384',
+    }),
+  );
+
+  const token = response.WebIdentityToken;
+  if (!token) {
+    throw new Error('Failed to obtain AWS web identity token from STS');
+  }
+
+  return token;
 }

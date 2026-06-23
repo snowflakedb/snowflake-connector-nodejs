@@ -2,14 +2,23 @@ import sinon from 'sinon';
 import assert from 'assert';
 import rewiremock from 'rewiremock/node';
 import * as OriginalAttestationAws from '../../../../lib/authentication/auth_workload_identity/attestation_aws';
-import { assertAwsAttestationToken, AWS_CREDENTIALS, AWS_REGION } from './test_utils';
+import {
+  assertAwsAttestationToken,
+  AWS_CREDENTIALS,
+  AWS_REGION,
+  AWS_WEB_IDENTITY_TOKEN,
+} from './test_utils';
+
+class FakeAssumeRoleCommand {}
+class FakeGetWebIdentityTokenCommand {}
 
 describe('Attestation AWS', () => {
   const sinonSandbox = sinon.createSandbox();
   const awsSdkMock = {
     getDefaultCredentials: sinonSandbox.stub(),
     getMetadataRegion: sinonSandbox.stub(),
-    sendStsCommand: sinonSandbox.stub().returns({ Credentials: null }),
+    sendAssumeRole: sinonSandbox.stub().returns({ Credentials: null }),
+    sendGetWebIdentityToken: sinonSandbox.stub(),
   };
   let AttestationAws: typeof OriginalAttestationAws;
   const noCredentialsError = new Error('No credentials found');
@@ -22,9 +31,15 @@ describe('Attestation AWS', () => {
       defaultProvider: () => awsSdkMock.getDefaultCredentials,
     });
     rewiremock('@aws-sdk/client-sts').with({
-      AssumeRoleCommand: class {},
+      AssumeRoleCommand: FakeAssumeRoleCommand,
+      GetWebIdentityTokenCommand: FakeGetWebIdentityTokenCommand,
       STSClient: class {
-        send = () => awsSdkMock.sendStsCommand();
+        send = (command: unknown) => {
+          if (command instanceof FakeGetWebIdentityTokenCommand) {
+            return awsSdkMock.sendGetWebIdentityToken();
+          }
+          return awsSdkMock.sendAssumeRole();
+        };
       },
     });
     rewiremock('@aws-sdk/ec2-metadata-service').with({
@@ -38,8 +53,12 @@ describe('Attestation AWS', () => {
 
   beforeEach(() => {
     sinonSandbox.restore();
+    awsSdkMock.sendAssumeRole.resetHistory();
+    awsSdkMock.sendGetWebIdentityToken.resetHistory();
     awsSdkMock.getDefaultCredentials.throws(noCredentialsError);
     awsSdkMock.getMetadataRegion.throws(noRegionError);
+    awsSdkMock.sendAssumeRole.returns({ Credentials: null });
+    awsSdkMock.sendGetWebIdentityToken.returns({ WebIdentityToken: AWS_WEB_IDENTITY_TOKEN });
   });
 
   after(() => {
@@ -70,7 +89,7 @@ describe('Attestation AWS', () => {
         SecretAccessKey: 'impersonation-secret-access-key',
       };
       awsSdkMock.getDefaultCredentials.returns(AWS_CREDENTIALS);
-      awsSdkMock.sendStsCommand.returns({ Credentials: impersonationCredentials });
+      awsSdkMock.sendAssumeRole.returns({ Credentials: impersonationCredentials });
       assert.deepEqual(await AttestationAws.getAwsCredentials(AWS_REGION, ['impersonation-role']), {
         accessKeyId: impersonationCredentials.AccessKeyId,
         secretAccessKey: impersonationCredentials.SecretAccessKey,
@@ -114,15 +133,32 @@ describe('Attestation AWS', () => {
       await assert.rejects(AttestationAws.getAwsAttestationToken(), noCredentialsError);
     });
 
-    it('returns error when no region is found', async () => {
+    it('throws error when no region is found', async () => {
       await assert.rejects(AttestationAws.getAwsAttestationToken(), noRegionError);
     });
 
-    it('returns a valid attestation token', async () => {
+    it('returns a valid SigV4 attestation token by default', async () => {
       awsSdkMock.getDefaultCredentials.returns(AWS_CREDENTIALS);
       awsSdkMock.getMetadataRegion.returns(AWS_REGION);
       const token = await AttestationAws.getAwsAttestationToken();
       assertAwsAttestationToken(token, AWS_REGION);
+    });
+
+    it('throws error when STS returns no WebIdentityToken with outbound token', async () => {
+      awsSdkMock.getDefaultCredentials.returns(AWS_CREDENTIALS);
+      awsSdkMock.getMetadataRegion.returns(AWS_REGION);
+      awsSdkMock.sendGetWebIdentityToken.returns({});
+      await assert.rejects(
+        AttestationAws.getAwsAttestationToken(true),
+        /Failed to obtain AWS web identity token from STS/,
+      );
+    });
+
+    it('returns the WebIdentityToken JWT from STS with outbound token', async () => {
+      awsSdkMock.getDefaultCredentials.returns(AWS_CREDENTIALS);
+      awsSdkMock.getMetadataRegion.returns(AWS_REGION);
+      const token = await AttestationAws.getAwsAttestationToken(true);
+      assert.strictEqual(token, AWS_WEB_IDENTITY_TOKEN);
     });
   });
 });

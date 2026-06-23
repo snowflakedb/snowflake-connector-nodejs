@@ -6,6 +6,7 @@ export const AWS_CREDENTIALS = {
   secretAccessKey: 'test',
   sessionToken: 'test',
 };
+export const AWS_WEB_IDENTITY_TOKEN = 'fake.jwt.token-for-testing-only';
 
 export function assertAwsAttestationToken(token: string | null | undefined, region: string) {
   if (!token) {

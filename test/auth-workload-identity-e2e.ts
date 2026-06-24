@@ -32,14 +32,20 @@ describe('Workload Identity Authentication E2E', () => {
 
   // NOTE:
   // AWS WIF supports two attestation methods: GetCallerIdentity (default) and
-  // GetWebIdentityToken (outbound, enabled via workloadIdentityUseAwsOutboundToken).
-  // The test above covers the default GetCallerIdentity method against SNOWFLAKE_TEST_WIF_USERNAME.
-  // This test covers the outbound token method, which maps to a distinct ISSUER-configured user.
+  // GetWebIdentityToken (enabled via workloadIdentityUseAwsOutboundToken).
+  // This test covers the GetCallerIdentity method against the dedicated
+  // TEST_WIF_E2E_AWS_WITH_ISSUER Snowflake user. Since an EC2 instance can only have one
+  // IAM role, the test impersonates a dedicated role that maps to that user.
   if (provider === 'AWS') {
-    it('connects using AWS outbound token', async () => {
+    it('connects using GetCallerIdentity', async () => {
       await connectAndVerify(
-        { ...connectionOptions, workloadIdentityUseAwsOutboundToken: true },
-        'TEST_WIF_E2E_AWS_OUTBOUND',
+        {
+          ...connectionOptions,
+          workloadIdentityImpersonationPath: [
+            'arn:aws:iam::376129840140:role/drivers-wif-automated-tests-with-issuer',
+          ],
+        },
+        'TEST_WIF_E2E_AWS_WITH_ISSUER',
       );
     });
   }

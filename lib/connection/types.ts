@@ -274,7 +274,9 @@ export interface WIP_ConnectionOptions {
 
   /**
    * When authenticator=WORKLOAD_IDENTITY, specifies the identity provider. Available options:
-   * * AWS - Uses `@aws-sdk` to find credentials and calls STS `GetWebIdentityToken` to obtain a signed JWT token
+   * * AWS - Uses `@aws-sdk` to find credentials. Supports two attestation methods:
+   *   * `GetCallerIdentity` (default) - encodes a SigV4-signed `GetCallerIdentity` request as the token
+   *   * `GetWebIdentityToken` - obtains a signed JWT token, enabled via {@link workloadIdentityAwsUseOutboundToken}
    * * AZURE - Uses `@azure/identity` to find credentials and get JWT token
    * * GCP - Uses `google-auth-library` to find credentials and get JWT token
    * * OIDC - Reads JWT token from `ConnectionOptions.token`
@@ -299,6 +301,27 @@ export interface WIP_ConnectionOptions {
    * When workloadIdentityProvider=AZURE, customize Azure Managed Identity Client Id
    */
   workloadIdentityAzureClientId?: string;
+
+  /**
+   * When workloadIdentityProvider=AWS, selects the AWS attestation method.
+   *
+   * AWS WIF supports two methods:
+   * * `GetCallerIdentity` (default, `false`) - the connector encodes a SigV4-signed
+   *   `GetCallerIdentity` request as the attestation token.
+   * * `GetWebIdentityToken` (`true`) - the connector calls STS `GetWebIdentityToken` and
+   *   forwards a standards-based JWT instead. This provides stateless token verification and
+   *   compatibility with AWS outbound identity federation. It requires the AWS IAM role to have
+   *   `sts:GetWebIdentityToken` permission and the Snowflake service user to be configured with an
+   *   `ISSUER`.
+   *
+   * The `GetWebIdentityToken` method is recommended and may become the default in a future release.
+   *
+   * See {@link https://docs.snowflake.com/en/user-guide/workload-identity-federation#label-wif-aws-upgrade-jwt}
+   * for setup instructions, including the Node.js connector configuration.
+   *
+   * @default false
+   */
+  workloadIdentityAwsUseOutboundToken?: boolean;
 
   /**
    * Enables Certificate Revocation List (CRL) validation.
@@ -419,6 +442,7 @@ export type WIP_ConnectionConfig =
     | 'workloadIdentityImpersonationPath'
     | 'workloadIdentityAzureEntraIdResource'
     | 'workloadIdentityAzureClientId'
+    | 'workloadIdentityAwsUseOutboundToken'
     | 'oauthEnableSingleUseRefreshTokens'
     | 'rowStreamHighWaterMark'
   > & {

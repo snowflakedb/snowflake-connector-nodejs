@@ -36,7 +36,10 @@ class AuthWorkloadIdentity implements AuthClass {
     }
 
     if (provider === WorkloadIdentityProvider.AWS) {
-      token = await getAwsAttestationToken(impersonationPath);
+      token = await getAwsAttestationToken(
+        this.connectionConfig.workloadIdentityAwsUseOutboundToken,
+        impersonationPath,
+      );
     } else if (provider === WorkloadIdentityProvider.AZURE) {
       token = await getAzureAttestationToken({
         managedIdentityClientId: this.connectionConfig.workloadIdentityAzureClientId,

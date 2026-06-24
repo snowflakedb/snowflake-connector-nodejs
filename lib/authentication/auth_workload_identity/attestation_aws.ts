@@ -1,6 +1,9 @@
 import { defaultProvider } from '@aws-sdk/credential-provider-node';
 import { STSClient, AssumeRoleCommand, GetWebIdentityTokenCommand } from '@aws-sdk/client-sts';
 import { MetadataService } from '@aws-sdk/ec2-metadata-service';
+import { HttpRequest } from '@smithy/protocol-http';
+import { SignatureV4 } from '@smithy/signature-v4';
+import { Sha256 } from '@aws-crypto/sha256-js';
 import Logger from '../../logger';
 
 export async function getAwsCredentials(region: string, impersonationPath: string[] = []) {
@@ -42,10 +45,64 @@ export async function getAwsRegion() {
   }
 }
 
-export async function getAwsAttestationToken(impersonationPath?: string[]) {
+export function getStsHostname(region: string) {
+  const domain = region.startsWith('cn-') ? 'amazonaws.com.cn' : 'amazonaws.com';
+  return `sts.${region}.${domain}`;
+}
+
+export async function getAwsAttestationToken(
+  useOutboundToken = false,
+  impersonationPath?: string[],
+) {
   const region = await getAwsRegion();
   const credentials = await getAwsCredentials(region, impersonationPath);
 
+  if (useOutboundToken) {
+    return getOutboundWebIdentityToken(region, credentials);
+  } else {
+    return getCallerIdentityToken(region, credentials);
+  }
+}
+
+async function getCallerIdentityToken(
+  region: string,
+  credentials: Awaited<ReturnType<typeof getAwsCredentials>>,
+) {
+  const stsHostname = getStsHostname(region);
+  const request = new HttpRequest({
+    method: 'POST',
+    protocol: 'https',
+    hostname: stsHostname,
+    path: '/',
+    headers: {
+      host: stsHostname,
+      'x-snowflake-audience': 'snowflakecomputing.com',
+    },
+    query: {
+      Action: 'GetCallerIdentity',
+      Version: '2011-06-15',
+    },
+  });
+  const signedRequest = await new SignatureV4({
+    credentials,
+    applyChecksum: false,
+    region,
+    service: 'sts',
+    sha256: Sha256,
+  }).sign(request);
+
+  const token = {
+    url: `https://${stsHostname}/?Action=GetCallerIdentity&Version=2011-06-15`,
+    method: 'POST',
+    headers: signedRequest.headers,
+  };
+  return btoa(JSON.stringify(token));
+}
+
+async function getOutboundWebIdentityToken(
+  region: string,
+  credentials: Awaited<ReturnType<typeof getAwsCredentials>>,
+) {
   const stsClient = new STSClient({ credentials, region });
   const response = await stsClient.send(
     new GetWebIdentityTokenCommand({

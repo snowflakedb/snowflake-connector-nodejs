@@ -7,7 +7,12 @@ import { GoogleAuth } from 'google-auth-library';
 import { WIP_ConnectionConfig, WIP_ConnectionOptions } from '../../../../lib/connection/types';
 import { AuthRequestBody } from '../../../../lib/authentication/types';
 import OriginalAuthWorkloadIdentity from '../../../../lib/authentication/auth_workload_identity';
-import { AWS_CREDENTIALS, AWS_REGION, AWS_WEB_IDENTITY_TOKEN } from './test_utils';
+import {
+  assertAwsAttestationToken,
+  AWS_CREDENTIALS,
+  AWS_REGION,
+  AWS_WEB_IDENTITY_TOKEN,
+} from './test_utils';
 import ConnectionConfig from '../../../../lib/connection/connection_config';
 
 describe('Workload Identity Authentication', async () => {
@@ -136,10 +141,6 @@ describe('Workload Identity Authentication', async () => {
       workloadIdentityProvider: 'AWS',
     });
 
-    beforeEach(() => {
-      awsSdkMock.sendGetWebIdentityToken.returns({ WebIdentityToken: AWS_WEB_IDENTITY_TOKEN });
-    });
-
     it('throws error when credentials are not found', async () => {
       const err = new Error('No credentials found');
       awsSdkMock.getCredentials.throws(err);
@@ -147,10 +148,28 @@ describe('Workload Identity Authentication', async () => {
       await assert.rejects(auth.authenticate(), err);
     });
 
-    it('sets valid fields for updateBody() to use', async () => {
+    it('sets valid fields for updateBody() to use with GetCallerIdentity (default)', async () => {
       awsSdkMock.getCredentials.returns(AWS_CREDENTIALS);
       awsSdkMock.getMetadataRegion.returns(AWS_REGION);
       const auth = new AuthWorkloadIdentity(connectionConfig);
+      const body: AuthRequestBody = { data: {} };
+      await auth.authenticate();
+      auth.updateBody(body);
+      assert.strictEqual(body.data.AUTHENTICATOR, 'WORKLOAD_IDENTITY');
+      assert.strictEqual(body.data.PROVIDER, 'AWS');
+      assertAwsAttestationToken(body.data.TOKEN, AWS_REGION);
+    });
+
+    it('sets valid fields for updateBody() to use with GetWebIdentityToken (outbound)', async () => {
+      awsSdkMock.getCredentials.returns(AWS_CREDENTIALS);
+      awsSdkMock.getMetadataRegion.returns(AWS_REGION);
+      awsSdkMock.sendGetWebIdentityToken.returns({ WebIdentityToken: AWS_WEB_IDENTITY_TOKEN });
+      const auth = new AuthWorkloadIdentity(
+        getConnectionConfig({
+          workloadIdentityProvider: 'AWS',
+          workloadIdentityAwsUseOutboundToken: true,
+        }),
+      );
       const body: AuthRequestBody = { data: {} };
       await auth.authenticate();
       auth.updateBody(body);

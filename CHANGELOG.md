@@ -5,6 +5,7 @@
 New features:
 
 - Added `workloadIdentityAwsUseOutboundToken` connection option (default `false`) that switches AWS Workload Identity attestation to STS `GetWebIdentityToken` JWTs. This method is recommended and may become the default in a future release (snowflakedb/snowflake-connector-nodejs#1437)
+- Added a `customLogger` option to `snowflake.configure()` to route the driver's log messages through your own logger (e.g. winston, pino, OpenTelemetry) instead of the built-in file/console logging (snowflakedb/snowflake-connector-nodejs#1045).
 
 Bugfixes:
 

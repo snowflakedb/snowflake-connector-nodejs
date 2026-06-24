@@ -276,7 +276,7 @@ export interface WIP_ConnectionOptions {
    * When authenticator=WORKLOAD_IDENTITY, specifies the identity provider. Available options:
    * * AWS - Uses `@aws-sdk` to find credentials. Supports two attestation methods:
    *   * `GetCallerIdentity` (default) - encodes a SigV4-signed `GetCallerIdentity` request as the token
-   *   * `GetWebIdentityToken` - obtains a signed JWT token, enabled via {@link workloadIdentityUseAwsOutboundToken}
+   *   * `GetWebIdentityToken` - obtains a signed JWT token, enabled via {@link workloadIdentityAwsUseOutboundToken}
    * * AZURE - Uses `@azure/identity` to find credentials and get JWT token
    * * GCP - Uses `google-auth-library` to find credentials and get JWT token
    * * OIDC - Reads JWT token from `ConnectionOptions.token`
@@ -321,7 +321,7 @@ export interface WIP_ConnectionOptions {
    *
    * @default false
    */
-  workloadIdentityUseAwsOutboundToken?: boolean;
+  workloadIdentityAwsUseOutboundToken?: boolean;
 
   /**
    * Enables Certificate Revocation List (CRL) validation.
@@ -442,7 +442,7 @@ export type WIP_ConnectionConfig =
     | 'workloadIdentityImpersonationPath'
     | 'workloadIdentityAzureEntraIdResource'
     | 'workloadIdentityAzureClientId'
-    | 'workloadIdentityUseAwsOutboundToken'
+    | 'workloadIdentityAwsUseOutboundToken'
     | 'oauthEnableSingleUseRefreshTokens'
     | 'rowStreamHighWaterMark'
   > & {

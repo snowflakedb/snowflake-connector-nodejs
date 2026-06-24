@@ -167,7 +167,7 @@ describe('Workload Identity Authentication', async () => {
       const auth = new AuthWorkloadIdentity(
         getConnectionConfig({
           workloadIdentityProvider: 'AWS',
-          workloadIdentityUseAwsOutboundToken: true,
+          workloadIdentityAwsUseOutboundToken: true,
         }),
       );
       const body: AuthRequestBody = { data: {} };

@@ -719,4 +719,73 @@ declare module 'snowflake-sdk' {
     options?: ConnectionOptions,
     poolOptions?: PoolOptions,
   ): Pool<Connection>;
+
+  /**
+   * Options for constructing an {@link EmbeddedStreamlit} instance.
+   */
+  export interface EmbeddedStreamlitConfig {
+    /** Fully-qualified Streamlit app name `db.schema.app` (must contain no `:`). */
+    streamlitId: string;
+    /** Origin of the embedding (3rd-party) page, e.g. `https://analytics.example.com`. */
+    parentOrigin: string;
+  }
+
+  /**
+   * Options accepted by {@link EmbeddedStreamlit.prepare} (and
+   * {@link generateStreamlitEmbedUrl}). Exactly one credential mode must be
+   * supplied: `pat`, `keyPair`, `sessionToken`, or an explicit `subjectToken`.
+   */
+  export interface EmbeddedStreamlitPrepareOptions {
+    /** Programmatic Access Token value. */
+    pat?: string;
+    /** A pre-signed RS256 key-pair JWT. */
+    keyPair?: string;
+    /** An existing Snowflake session token. */
+    sessionToken?: string;
+    /** Explicit `subject_token` value (forward-compatibility escape hatch). */
+    subjectToken?: string;
+    /**
+     * Explicit / overriding `subject_token_type` URN. For the `keyPair` mode
+     * this defaults to the PROVISIONAL `urn:ietf:params:oauth:token-type:jwt`
+     * (no GS enum value exists for key-pair JWT yet).
+     */
+    subjectTokenType?: string;
+    /** A Snowflake {@link Connection} used to resolve the account `accessUrl`. */
+    connection?: Connection;
+    /** Account name, used to construct the host when `host`/`connection` are absent. */
+    account?: string;
+    /** Explicit host or full base URL (overrides `connection`/`account`). */
+    host?: string;
+    /** Account user (reserved; not required by the token-exchange today). */
+    user?: string;
+    /** Explicit `/oauth/token` endpoint URL (primarily for tests). */
+    tokenEndpoint?: string;
+    /** Injectable axios instance (primarily for tests). */
+    axiosInstance?: unknown;
+  }
+
+  /**
+   * Generates a short-lived Streamlit embed URL by performing an OAuth
+   * token-exchange against the Snowflake `/oauth/token` endpoint with a service
+   * credential, then assembling the embed URL. Replaces the
+   * `SYSTEM$STREAMLIT_GENERATE_EMBED_URL` SQL system function for embedding
+   * Streamlit-in-Snowflake apps in 3rd-party pages without a SQL session.
+   */
+  export class EmbeddedStreamlit {
+    constructor(config: EmbeddedStreamlitConfig);
+    /** Prepare the credential and target endpoint. Returns `this` for chaining. */
+    prepare(options: EmbeddedStreamlitPrepareOptions): EmbeddedStreamlit;
+    /** Perform the token-exchange and return the assembled embed URL. */
+    getEmbedUrl(): Promise<string>;
+    /** The token-exchange `expires_in` (seconds), available after `getEmbedUrl()`. */
+    getExpiresIn(): number | undefined;
+  }
+
+  /**
+   * One-shot convenience wrapper around {@link EmbeddedStreamlit}: prepares the
+   * credential and returns the assembled embed URL.
+   */
+  export function generateStreamlitEmbedUrl(
+    options: EmbeddedStreamlitConfig & EmbeddedStreamlitPrepareOptions,
+  ): Promise<string>;
 }

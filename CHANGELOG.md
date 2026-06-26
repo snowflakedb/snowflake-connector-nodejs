@@ -10,6 +10,7 @@ Bugfixes:
 
 - Reverted the unintentional breaking change from the 3.0.0 release (snowflakedb/snowflake-connector-nodejs#1415) that switched AWS Workload Identity attestation from SigV4 `GetCallerIdentity` to STS `GetWebIdentityToken`. AWS Workload Identity again defaults to `GetCallerIdentity`; the new method is now opt-in via `workloadIdentityAwsUseOutboundToken` (snowflakedb/snowflake-connector-nodejs#1437)
 - Removed usage of deprecated `util.isString` to fix Node 24 compatibility. Added additional logging where this caused silent failure (snowflakedb/snowflake-connector-nodejs#1436).
+- Fixed GCS uploads to versioned stages (e.g. `snow://workspace/...` live versions) failing with `403 AccessDenied` when the server scopes upload credentials with an access token, by not re-resolving the stage per file in that case — one resolution already covers every file under the staging directory. The legacy presigned-URL flow (which re-resolves per file to mint each object's URL) is unchanged (snowflakedb/snowflake-connector-nodejs#1440).
 
 ## 3.0.0
 

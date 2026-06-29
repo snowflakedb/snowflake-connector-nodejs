@@ -42,7 +42,7 @@ async function runWireMockAsync(port, options = {}) {
       waitForWiremockStarted(wireMock, counter, maxRetries)
         .then((restClient) => {
           restClient.rootUrl = baseUri;
-          resolve(restClient);
+          resolve(patchAdminClientWithNativeFetch(restClient, baseUri));
         })
         .catch(reject);
     } catch (err) {
@@ -89,6 +89,88 @@ async function waitForWiremockStarted(wireMock, counter, maxRetries = 30) {
         return Promise.reject('Wiremock: Waiting time has expired');
       }
     });
+}
+
+/**
+ * @param {string} baseUri - WireMock base URI, e.g. http://localhost:8081
+ * @param {string} path - Admin path beginning with `/`, e.g. `/__admin/shutdown`
+ * @param {Object} [options={}] - Fetch options (method, body, ...)
+ * @returns {Promise<any>} Parsed JSON body when present, otherwise the raw text.
+ */
+async function adminFetch(baseUri, path, options = {}) {
+  const response = await fetch(`${baseUri}${path}`, {
+    headers: { 'Content-Type': 'application/json' },
+    ...options,
+  });
+  const text = await response.text();
+  if (!response.ok) {
+    throw new Error(`WireMock admin request failed: [${response.status}] ${path} - ${text}`);
+  }
+  try {
+    return text ? JSON.parse(text) : text;
+  } catch {
+    return text;
+  }
+}
+
+/**
+ * Replaces the `wiremock-rest-client` admin methods that our tests use with native-`fetch`
+ * implementations (see {@link adminFetch}). All existing call sites keep working unchanged - only
+ * the transport underneath changes.
+ *
+ * WHY THIS PATCH EXISTS:
+ * `wiremock-rest-client` routes every admin call through `cross-fetch`, which on the server side
+ * pulls in the unmaintained `node-fetch@2`. Node's June 2026 security release (CVE-2026-48931 - the
+ * HTTP "response queue poisoning" fix, shipped in 22.23.0 / 24.17.0 / 26.3.1) added a guard
+ * listener on idle keep-alive sockets. That guard makes `node-fetch@2` mis-detect a perfectly
+ * complete response as truncated and throw `FetchError: ... Premature close`
+ * (nodejs/node#63989, #64098). WireMock's admin server closes its keep-alive socket aggressively -
+ * especially on `/__admin/shutdown` - so as soon as the GitHub Actions runners picked up those Node
+ * patches, the rest-client started crashing our WireMock tests in setup/teardown hooks.
+ *
+ * Node's native `fetch` (undici) does NOT have this bug, so we re-point each admin method the tests
+ * rely on at `adminFetch`, which talks to WireMock directly. Keeping the workaround here (rather
+ * than pinning a CI Node version) makes it independent of the runtime and resilient to future
+ * re-regressions of the same kind (it already re-regressed once on the 26.x line).
+ *
+ * TODO: Drop wiremock-rest-client in the Universal Driver migration
+ *
+ * @param {Object} restClient - The WireMock REST client instance
+ * @param {string} baseUri - WireMock base URI
+ * @returns {Object} The same client, with admin methods patched.
+ */
+function patchAdminClientWithNativeFetch(restClient, baseUri) {
+  // Shutdown is pure teardown: the server is going away, so a dropped connection while it tears
+  // down its socket is expected and harmless. Swallow connection errors so cleanup never fails the
+  // suite (an unreachable server here just means it already stopped).
+  restClient.global.shutdown = async () => {
+    try {
+      return await adminFetch(baseUri, '/__admin/shutdown', { method: 'POST' });
+    } catch (err) {
+      Logger.getInstance().info(`Ignoring WireMock shutdown error: ${err.message || err}`);
+      return '';
+    }
+  };
+
+  restClient.mappings.resetAllMappings = () =>
+    adminFetch(baseUri, '/__admin/mappings/reset', { method: 'POST' });
+
+  restClient.mappings.createMapping = (stubMapping) =>
+    adminFetch(baseUri, '/__admin/mappings', {
+      method: 'POST',
+      body: JSON.stringify(stubMapping),
+    });
+
+  restClient.scenarios.resetAllScenarios = () =>
+    adminFetch(baseUri, '/__admin/scenarios/reset', { method: 'POST' });
+
+  restClient.requests.getCount = (requestPattern) =>
+    adminFetch(baseUri, '/__admin/requests/count', {
+      method: 'POST',
+      body: JSON.stringify(requestPattern),
+    });
+
+  return restClient;
 }
 
 /**

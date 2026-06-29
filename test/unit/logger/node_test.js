@@ -257,6 +257,28 @@ describe('Logger node tests', function () {
     assert.deepStrictEqual(collected, [OBJ_LOG_MSG_ERROR, OBJ_LOG_MSG_WARN, OBJ_LOG_MSG_INFO]);
   });
 
+  it('omits the driver timestamp for a custom logger even when timestamps are enabled', function () {
+    // given - timestamps enabled (default), so the built-in path would prepend [time]:
+    const collected = [];
+    const customLogger = createCollectingLogger(collected);
+    const logger = new NodeLogger({
+      level: logTagToLevel(LOG_LEVEL_TAGS.TRACE),
+    });
+    logger.configure({ customLogger });
+
+    // when
+    logMessages(logger);
+
+    // then - the custom logger receives bare messages without a [time]: prefix
+    assert.deepStrictEqual(collected, [
+      OBJ_LOG_MSG_ERROR,
+      OBJ_LOG_MSG_WARN,
+      OBJ_LOG_MSG_INFO,
+      OBJ_LOG_MSG_DEBUG,
+      OBJ_LOG_MSG_TRACE,
+    ]);
+  });
+
   it('reverts to file logging when configure() is called without a custom logger', async function () {
     // given - a custom logger is active
     const collected = [];

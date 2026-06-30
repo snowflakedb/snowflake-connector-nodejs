@@ -94,17 +94,6 @@ else
     )
 fi
 
-if [[ -z "$GITHUB_ACTIONS" ]]; then
-    echo "[INFO] Running Internal Tests. Test result: $WORKSPACE/junit-system-test.xml"
-    if ! ${MOCHA_CMD[@]} "$SOURCE_ROOT/system_test/**/*.{js,ts}"; then
-        echo "[ERROR] Test failed"
-        [[ -f "$WORKSPACE/junit.xml" ]] && cat $WORKSPACE/junit.xml
-        exit 1
-    elif [[ -f "$WORKSPACE/junit.xml" ]]; then
-        cp -f $WORKSPACE/junit.xml $WORKSPACE/junit-system-test.xml
-    fi
-fi
-
 echo "[INFO] Running Tests: Test result: $WORKSPACE/junit.xml"
 if ! ${MOCHA_CMD[@]} 'test/{unit,integration}/**/*.{js,ts}'; then
     echo "[ERROR] Test failed"

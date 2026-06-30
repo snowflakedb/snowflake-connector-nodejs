@@ -129,8 +129,7 @@ export function createTestCertificate(
     signatureAlgorithmOid?: string;
     rsassaPssHashOid?: string;
     crlDistributionPoints?: (
-      | TestCertificateCrlDistributionPointValue
-      | TestCertificateCrlDistributionPointValue[]
+      TestCertificateCrlDistributionPointValue | TestCertificateCrlDistributionPointValue[]
     )[];
   } = {},
 ): rfc5280.CertificateDecoded {

@@ -51,7 +51,7 @@ jobs:
         # (CVE-2026-48931 fix) that makes node-fetch@2 throw "Premature close" and breaks the
         # WireMock REST client in tests (nodejs/node#63989). Fixed in 22.23.1 / 24.18.0. Revert to
         # floating majors once GitHub runner tool-cache no longer serves the broken patches.
-        nodeVersion: ['20.20.2', '22.23.1', '24.18.0']
+        nodeVersion: ['20.x', '22.23.1', '24.18.0']
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -95,7 +95,7 @@ jobs:
         # WireMock REST client in tests (https://github.com/nodejs/node/issues/63989).
         # Fixed in 22.23.1 / 24.18.0.
         # Revert to floating majors once GitHub runner tool-cache no longer serves the broken patches.
-        nodeVersion: ['20.20.2', '22.23.1', '24.18.0']
+        nodeVersion: ['20.x', '22.23.1', '24.18.0']
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-java@v4
@@ -162,7 +162,7 @@ jobs:
         # WireMock REST client in tests (https://github.com/nodejs/node/issues/63989).
         # Fixed in 22.23.1 / 24.18.0.
         # Revert to floating majors once GitHub runner tool-cache no longer serves the broken patches.
-        nodeVersion: ['20.20.2', '22.23.1', '24.18.0']
+        nodeVersion: ['20.x', '22.23.1', '24.18.0']
     steps:
       - uses: actions/checkout@v4
       - name: Download Build Artifacts

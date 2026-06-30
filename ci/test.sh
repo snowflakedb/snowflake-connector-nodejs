@@ -9,32 +9,8 @@ THIS_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 source $THIS_DIR/_init.sh
 
 export WORKSPACE=${WORKSPACE:-/tmp}
-export NETWORK_NAME=proxytest
-export PROXY_IMAGE=$DOCKER_REGISTRY_NAME/client-squid
-export SUBNET=192.168.0.0/16
-export PROXY_IP=192.168.0.100
-export PROXY_PORT=3128
-export GATEWAY_HOST=192.168.0.1
-echo "[INFO] The host IP address: $GATEWAY_HOST"
 
 source $THIS_DIR/scripts/set_git_info.sh
-
-echo "[INFO] Creating a subnet for tests"
-if ! docker network ls | awk '{print $2}' | grep -q $NETWORK_NAME; then
-    echo "[INFO] Creating a network $NETWORK_NAME"
-    docker network create --subnet $SUBNET --gateway $GATEWAY_HOST $NETWORK_NAME
-else
-    echo "[INFO] The network $NETWORK_NAME already up."
-fi
-
-echo "[INFO] Checking any proxy node"
-for h in $(docker ps --filter "label=proxy-node" --format "{{.ID}}"); do
-    echo "[INFO] Killing the existing proxy node"
-    docker kill $h
-done
-echo "[INFO] Starting a proxy node"
-docker pull $PROXY_IMAGE
-docker run --net $NETWORK_NAME --ip $PROXY_IP --add-host snowflake.reg.local:$GATEWAY_HOST --label proxy-node -d $PROXY_IMAGE
 
 declare -A TARGET_TEST_IMAGES
 if [[ -n "$TARGET_DOCKER_TEST_IMAGE" ]]; then
@@ -65,8 +41,6 @@ for name in "${!TARGET_TEST_IMAGES[@]}"; do
         -e LOCAL_USER_ID=$(id -u $USER) \
         -e LOCAL_USER_NAME=$USER \
         -e USERID \
-        -e PROXY_IP \
-        -e PROXY_PORT \
         -e GIT_COMMIT \
         -e GIT_BRANCH \
         -e GIT_URL \

@@ -67,9 +67,6 @@ popd >& /dev/null
 
 env | grep SNOWFLAKE_ | grep -v -E "(PASS|KEY|SECRET|TOKEN)" | sort
 
-[[ -n "$PROXY_IP" ]] && echo "[INFO] SNOWFLAKE_TEST_PROXY_HOST=$PROXY_IP" && export SNOWFLAKE_TEST_PROXY_HOST=$PROXY_IP
-[[ -n "$PROXY_PORT" ]] && echo "[INFO] SNOWFLAKE_TEST_PROXY_PORT=$PROXY_PORT" && export SNOWFLAKE_TEST_PROXY_PORT=$PROXY_PORT
-
 echo "[INFO] Starting hang_webserver.py 12345"
 python3 $THIS_DIR/hang_webserver.py 12345 > hang_webserver.out 2>&1 &
 

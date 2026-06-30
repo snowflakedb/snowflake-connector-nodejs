@@ -194,6 +194,116 @@ describe('Logger node tests', function () {
     assert.deepStrictEqual(infoLogs[2], OBJ_LOG_MSG_INFO);
   });
 
+  it('routes messages to a custom logger and not to a file', async function () {
+    // given
+    const collected = [];
+    const customLogger = createCollectingLogger(collected);
+    const filePath = path.join(tempDir, 'custom_logger_should_not_exist.log');
+    const logger = new NodeLogger({
+      includeTimestamp: false,
+      level: logTagToLevel(LOG_LEVEL_TAGS.TRACE),
+      filePath: filePath,
+    });
+    logger.configure({ customLogger });
+
+    // when
+    logMessages(logger);
+
+    // then - everything went to the custom logger, respecting the level order
+    assert.deepStrictEqual(collected, [
+      OBJ_LOG_MSG_ERROR,
+      OBJ_LOG_MSG_WARN,
+      OBJ_LOG_MSG_INFO,
+      OBJ_LOG_MSG_DEBUG,
+      OBJ_LOG_MSG_TRACE,
+    ]);
+    // and nothing was written to a log file
+    await logger.closeTransports();
+    await assert.rejects(
+      async () => await readLogs(filePath),
+      (err) => {
+        assert.strictEqual(err.name, 'Error');
+        assert.match(err.message, /ENOENT: no such file or directory./);
+        return true;
+      },
+    );
+  });
+
+  it('respects the log level when using a custom logger', function () {
+    // given
+    const collected = [];
+    const customLogger = createCollectingLogger(collected);
+    const logger = new NodeLogger({
+      includeTimestamp: false,
+      level: logTagToLevel(LOG_LEVEL_TAGS.WARN),
+    });
+    logger.configure({ customLogger });
+
+    // when
+    logMessages(logger);
+
+    // then - only error and warn pass the level filter
+    assert.deepStrictEqual(collected, [OBJ_LOG_MSG_ERROR, OBJ_LOG_MSG_WARN]);
+  });
+
+  it('applies a custom logger set via configure()', function () {
+    const collected = [];
+    const customLogger = createCollectingLogger(collected);
+    const logger = new NodeLogger({ includeTimestamp: false });
+
+    logger.configure({ customLogger });
+    logMessages(logger);
+
+    assert.deepStrictEqual(collected, [OBJ_LOG_MSG_ERROR, OBJ_LOG_MSG_WARN, OBJ_LOG_MSG_INFO]);
+  });
+
+  it('omits the driver timestamp for a custom logger even when timestamps are enabled', function () {
+    // given - timestamps enabled (default), so the built-in path would prepend [time]:
+    const collected = [];
+    const customLogger = createCollectingLogger(collected);
+    const logger = new NodeLogger({
+      level: logTagToLevel(LOG_LEVEL_TAGS.TRACE),
+    });
+    logger.configure({ customLogger });
+
+    // when
+    logMessages(logger);
+
+    // then - the custom logger receives bare messages without a [time]: prefix
+    assert.deepStrictEqual(collected, [
+      OBJ_LOG_MSG_ERROR,
+      OBJ_LOG_MSG_WARN,
+      OBJ_LOG_MSG_INFO,
+      OBJ_LOG_MSG_DEBUG,
+      OBJ_LOG_MSG_TRACE,
+    ]);
+  });
+
+  it('reverts to file logging when configure() is called without a custom logger', async function () {
+    // given - a custom logger is active
+    const collected = [];
+    const customLogger = createCollectingLogger(collected);
+    const filePath = path.join(tempDir, 'revert_to_file_logs.log');
+    const logger = new NodeLogger({
+      includeTimestamp: false,
+      level: logTagToLevel(LOG_LEVEL_TAGS.INFO),
+      filePath: filePath,
+    });
+    logger.configure({ customLogger });
+    logMessages(logger);
+    assert.deepStrictEqual(collected, [OBJ_LOG_MSG_ERROR, OBJ_LOG_MSG_WARN, OBJ_LOG_MSG_INFO]);
+
+    // when - configure() is called again without customLogger (declarative reset)
+    logger.configure({ level: logTagToLevel(LOG_LEVEL_TAGS.INFO), filePath: filePath });
+    logMessages(logger);
+
+    // then - the custom logger received nothing new, and messages went to the file
+    assert.deepStrictEqual(collected, [OBJ_LOG_MSG_ERROR, OBJ_LOG_MSG_WARN, OBJ_LOG_MSG_INFO]);
+    await logger.closeTransports();
+    const logs = await readLogs(filePath);
+    assert.deepStrictEqual(logs, [OBJ_LOG_MSG_ERROR, OBJ_LOG_MSG_WARN, OBJ_LOG_MSG_INFO]);
+  });
+
   async function readLogs(filePath) {
     const logs = await fsPromises.readFile(filePath, { encoding: 'utf8' });
     return logs
@@ -208,6 +318,16 @@ describe('Logger node tests', function () {
       level: level,
       filePath: filePath,
     });
+  }
+
+  function createCollectingLogger(collected) {
+    return {
+      error: (message) => collected.push({ level: ERROR, message }),
+      warn: (message) => collected.push({ level: WARN, message }),
+      info: (message) => collected.push({ level: INFO, message }),
+      debug: (message) => collected.push({ level: DEBUG, message }),
+      trace: (message) => collected.push({ level: TRACE, message }),
+    };
   }
 
   function logMessages(logger) {

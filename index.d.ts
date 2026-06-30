@@ -19,6 +19,18 @@ declare module 'snowflake-sdk' {
   export type ConnectionCallback = (err: SnowflakeError | undefined, conn: Connection) => void;
   export type RowMode = 'object' | 'array' | 'object_with_renamed_duplicated_columns';
   export type LogLevel = 'ERROR' | 'WARN' | 'INFO' | 'DEBUG' | 'TRACE' | 'OFF';
+
+  /**
+   * The interface a custom logger must implement. See {@link ConfigureOptions.customLogger}
+   * for behavior, requirements, and usage examples.
+   */
+  export interface SnowflakeLogger {
+    error(message: string): void;
+    warn(message: string): void;
+    info(message: string): void;
+    debug(message: string): void;
+    trace(message: string): void;
+  }
   export type DataType = 'String' | 'Boolean' | 'Number' | 'Date' | 'JSON' | 'Buffer';
   export type QueryStatus =
     | 'RUNNING'
@@ -59,6 +71,34 @@ declare module 'snowflake-sdk' {
      * additionalLogToConsole is a Boolean value that indicates whether to send log messages also to the console when a filePath is specified.
      */
     additionalLogToConsole?: boolean | null;
+
+    /**
+     * A custom logger to receive the driver's log messages instead of the built-in
+     * file/console logger. When set, it fully overrides the built-in logging. Each
+     * method receives an already level-filtered, formatted, and secret-masked message
+     * string (see {@link SnowflakeLogger} for the required interface).
+     *
+     * Any logger that exposes the five methods works drop-in: pino, bunyan, and the
+     * built-in `console` all conform. Winston uses different level names (`verbose`,
+     * `silly`) and has no `.trace()`; wrap it with a small adapter.
+     *
+     * @example
+     * // pino / bunyan / console — drop-in:
+     * snowflake.configure({ customLogger: require('pino')() });
+     *
+     * // winston — wrap to map levels:
+     * const logger = require('winston').createLogger({ ... });
+     * snowflake.configure({
+     *   customLogger: {
+     *     error: (m) => logger.error(m),
+     *     warn:  (m) => logger.warn(m),
+     *     info:  (m) => logger.info(m),
+     *     debug: (m) => logger.debug(m),
+     *     trace: (m) => logger.debug(m), // winston has no trace; fold into debug
+     *   },
+     * });
+     */
+    customLogger?: SnowflakeLogger;
 
     /**
      * The option to turn off the OCSP check.

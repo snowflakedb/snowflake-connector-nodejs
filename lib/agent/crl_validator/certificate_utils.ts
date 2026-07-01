@@ -72,7 +72,7 @@ export function isCertificateRevoked(
   decodedCertificate: rfc5280.CertificateDecoded,
   crl: rfc5280.CertificateListDecoded,
 ) {
-  for (const revokedCert of crl.tbsCertList.revokedCertificates) {
+  for (const revokedCert of crl.tbsCertList.revokedCertificates ?? []) {
     if (revokedCert.userCertificate.eq(decodedCertificate.tbsCertificate.serialNumber)) {
       return true;
     }

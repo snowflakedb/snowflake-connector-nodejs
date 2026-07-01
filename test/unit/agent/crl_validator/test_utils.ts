@@ -218,7 +218,6 @@ export function createTestCRL(
       rsassaPssHashOid: options.rsassaPssHashOid,
     });
   const issuingDistributionPointUrls = options.issuingDistributionPointUrls ?? null;
-  const revokedCertificates = options.revokedCertificates ?? ['0'];
   const nextUpdate = options.nextUpdate ?? Date.now() + 1000 * 60 * 60 * 24 * 365; // 1 year from now
 
   const tbsCertList: rfc5280.TBSCertList = {
@@ -227,7 +226,7 @@ export function createTestCRL(
     issuer: issuerCertificate.tbsCertificate.subject,
     thisUpdate: { type: 'utcTime', value: new Date('2026-06-01T00:00:00Z').getTime() },
     nextUpdate: { type: 'utcTime', value: nextUpdate },
-    revokedCertificates: revokedCertificates.map((serialNumber) => ({
+    revokedCertificates: options.revokedCertificates?.map((serialNumber) => ({
       userCertificate: new asn1.bignum(serialNumber),
       revocationDate: {
         type: 'utcTime' as const,

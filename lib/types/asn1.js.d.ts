@@ -125,7 +125,7 @@ declare module 'asn1.js-rfc5280' {
     issuer: NameRDNSequence;
     thisUpdate: Time;
     nextUpdate: Time;
-    revokedCertificates: {
+    revokedCertificates?: {
       userCertificate: BN;
       revocationDate: Time;
       crlEntryExtensions?: Extension[];

@@ -161,7 +161,17 @@ describe('isCertificateRevoked', () => {
 
   it('returns false in certificate is not in CRL', () => {
     const certificate = createTestCertificate();
-    const crl = createTestCRL();
+    const crl = createTestCRL({
+      revokedCertificates: [1001],
+    });
+    const isRevoked = isCertificateRevoked(certificate, crl);
+    assert.strictEqual(isRevoked, false);
+  });
+
+  it('returns false for CRL with no revoked certificates', () => {
+    const certificate = createTestCertificate();
+    const crl = createTestCRL({ revokedCertificates: undefined });
+    assert.strictEqual(crl.tbsCertList.revokedCertificates, undefined);
     const isRevoked = isCertificateRevoked(certificate, crl);
     assert.strictEqual(isRevoked, false);
   });

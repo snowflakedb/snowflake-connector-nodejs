@@ -16,15 +16,6 @@ module.exports.createConnection = function (validConnectionOptionsOverride = {},
   });
 };
 
-module.exports.createProxyConnection = function (validConnectionOptionsOverride, coreInstance) {
-  coreInstance = coreInstance || snowflake;
-
-  return coreInstance.createConnection({
-    ...connOptions.connectionWithProxy,
-    ...validConnectionOptionsOverride,
-  });
-};
-
 module.exports.createConnectionPool = function (validConnectionOptionsOverride, coreInstance) {
   coreInstance = coreInstance || snowflake;
 

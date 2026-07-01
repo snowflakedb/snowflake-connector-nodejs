@@ -292,6 +292,13 @@ describe('Request Retries', () => {
   // TODO:
   // We probably don't want this test in UD as unlike our spaghetti codebase, all query-requests
   // would go through single entrypoint
+  // A GCS upload session uses one credential style throughout: either presigned
+  // URLs or a scoped access token, never a mix. This suite covers the presigned
+  // flow, so every stage resolution returns a presigned URL and no access token
+  // (the mapping's stageInfo.creds is empty). The connector re-resolves per file
+  // to mint each object's presigned URL. When a session instead returns a scoped
+  // access token, the connector does NOT re-resolve (one resolution covers all
+  // files) — see the unit coverage in file_transfer_agent_test.js.
   describe('Query PUT with GCS presigned URL refresh', () => {
     const tmpFileName = testUtil.createRandomFileName();
     let tmpFilePath: string;

@@ -308,12 +308,22 @@ describe('Request Retries', () => {
       await addWireMockMappingsFromFile(wiremock, 'wiremock/mappings/login_request_ok.json');
       await addWireMockMappingsFromFile(
         wiremock,
-        'wiremock/mappings/request_retries/query_request_put_presigned_url_refresh_fail.json.template',
+        'wiremock/mappings/query_put_gcs_presigned_ok.json.template',
+        {
+          replaceVariables: {
+            putFileName: tmpFileName,
+            putFilePath: tmpFilePath,
+            wiremockUrl: baseConnectionConfig.accessUrl,
+          },
+        },
+      );
+      await addWireMockMappingsFromFile(
+        wiremock,
+        'wiremock/mappings/request_retries/query_request_put_presigned_url_refresh_retry.json.template',
         {
           replaceVariables: {
             failureResponse: JSON.stringify(buildWiremockFailureResponse(error)),
             putFileName: tmpFileName,
-            putFilePath: tmpFilePath,
             wiremockUrl: baseConnectionConfig.accessUrl,
           },
         },

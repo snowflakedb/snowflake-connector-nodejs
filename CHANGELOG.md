@@ -14,6 +14,10 @@ Bugfixes:
 - Fixed CRL validation failing with `crl.tbsCertList.revokedCertificates is not iterable` for CRLs that contain no revoked certificates, where the OPTIONAL `revokedCertificates` field (RFC 5280 §5.1) is absent (snowflakedb/snowflake-connector-nodejs#1448)
 - Fixed an unnecessary second PUT (stage re-resolution) per file during GCS uploads when the server scopes upload credentials with an access token (snowflakedb/snowflake-connector-nodejs#1440)
 
+Internal:
+
+- Replaced the global HTTP(S) agent cache with a per-connection cache and implemented cache cleanup when a connection is destroyed (snowflakedb/snowflake-connector-nodejs#1443)
+
 ## 3.0.0
 
 **Breaking changes:**

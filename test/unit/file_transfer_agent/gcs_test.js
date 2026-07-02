@@ -28,6 +28,7 @@ describe('GCS client', function () {
     crlValidatorConfig: {
       checkMode: 'DISABLED',
     },
+    agentCache: new Map(),
   };
 
   const dataFile = mockDataFile;

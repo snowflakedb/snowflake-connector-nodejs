@@ -430,6 +430,7 @@ describe('S3 client', function () {
       crlValidatorConfig: {
         checkMode: 'DISABLED',
       },
+      agentCache: new Map(),
     };
     const AWS = new SnowflakeS3Util(proxyConnectionConfig, s3);
     meta['client'] = AWS.createClient(meta['stageInfo']);

@@ -8,20 +8,32 @@
  * preserved, and the base64 is URL-encoded.
  */
 
-'use strict';
+import http from 'http';
+import https from 'https';
+import assert from 'assert';
+import HttpsOcspAgentDefault from '../../../lib/agent/https_ocsp_agent';
 
-const http = require('http');
-const https = require('https');
-const assert = require('assert');
-const HttpsOcspAgent = require('../../../lib/agent/https_ocsp_agent');
+// The module does not export TypeScript types, so cast to a constructor that
+// satisfies the https.request `agent` option.
+type OcspAgentConstructor = new (options: {
+  protocol: string;
+  hostname: string;
+  keepAlive: boolean;
+}) => https.Agent;
+const HttpsOcspAgent = HttpsOcspAgentDefault as unknown as OcspAgentConstructor;
 
-const log = (...args) => process.stdout.write(args.join(' ') + '\n');
-const logError = (...args) => process.stderr.write(args.join(' ') + '\n');
+const log = (...args: unknown[]) => process.stdout.write(args.join(' ') + '\n');
+const logError = (...args: unknown[]) => process.stderr.write(args.join(' ') + '\n');
 
 const PROXY_PORT = 19999;
 const TARGET_HOST = 'pvdmwqsfcb1stg.blob.core.windows.net'; // Microsoft TLS G2 RSA CA cert
 
-const received = [];
+interface ProxyEntry {
+  method: string;
+  path: string;
+}
+
+const received: ProxyEntry[] = [];
 
 const proxy = http.createServer((req, res) => {
   if (req.url === '/ocsp_response_cache.json') {
@@ -31,8 +43,8 @@ const proxy = http.createServer((req, res) => {
     return;
   }
 
-  if (req.url.startsWith('/retry/')) {
-    const entry = { method: req.method, path: req.url };
+  if (req.url && req.url.startsWith('/retry/')) {
+    const entry: ProxyEntry = { method: req.method ?? 'UNKNOWN', path: req.url };
     received.push(entry);
     log(`  → proxy received: ${req.method} ${req.url}`);
 
@@ -48,11 +60,11 @@ const proxy = http.createServer((req, res) => {
       { hostname: responderHost, port: 80, path: responderPath, method: 'GET' },
       (upstream) => {
         log(`  → upstream response: ${upstream.statusCode}`);
-        res.writeHead(upstream.statusCode, upstream.headers);
+        res.writeHead(upstream.statusCode ?? 502, upstream.headers);
         upstream.pipe(res);
       },
     );
-    fwd.on('error', (e) => {
+    fwd.on('error', (e: Error) => {
       logError('  → forward error:', e.message);
       res.writeHead(502);
       res.end(e.message);
@@ -67,7 +79,8 @@ const proxy = http.createServer((req, res) => {
 
 proxy.listen(PROXY_PORT, () => {
   log(`Mock proxy listening on http://localhost:${PROXY_PORT}`);
-  process.env.SF_OCSP_RESPONSE_CACHE_SERVER_URL = `http://localhost:${PROXY_PORT}/ocsp_response_cache.json`;
+  process.env['SF_OCSP_RESPONSE_CACHE_SERVER_URL'] =
+    `http://localhost:${PROXY_PORT}/ocsp_response_cache.json`;
 
   const agent = new HttpsOcspAgent({
     protocol: 'https:',
@@ -88,7 +101,7 @@ proxy.listen(PROXY_PORT, () => {
   req.on('timeout', () => {
     req.destroy();
   });
-  req.on('error', (err) => {
+  req.on('error', (err: Error) => {
     // HTTP-level errors (403, reset) are fine – OCSP fires during TLS, before HTTP
     log(`  HTTP layer result: ${err.message} (expected for private storage)`);
     check();
@@ -108,7 +121,7 @@ function check() {
   for (const r of ocsp) {
     assert.strictEqual(r.method, 'GET', `FAIL: expected GET but got ${r.method} for ${r.path}`);
 
-    const b64part = r.path.split('/').pop();
+    const b64part = r.path.split('/').pop() ?? '';
     const hasEncoding =
       b64part.includes('%2F') || b64part.includes('%3D') || b64part.includes('%2B');
     assert.ok(

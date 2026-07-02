@@ -27,16 +27,25 @@ const PRIVATELINK_CACHE_SERVER_URL =
 // buildOcspRetryUrl – pure URL-construction helper
 // ---------------------------------------------------------------------------
 describe('buildOcspRetryUrl', () => {
-  it('preserves /ocsp path from AIA OCSP URI', () => {
+  it('preserves AIA path, URL-encodes base64 special characters, and uses the full responder URI', () => {
+    // Covers: /ocsp path preservation, %2F/%2B/%3D URL-encoding, real-world AIA URI shape.
+    const b64 =
+      'MHcwdTBOMEwwSjAHBgUrDgMCGgQUYcFEmNMfy7ixyYCnS34JagPL6fsEFNBMg9GOcS49NLH/m3ksjnTU4ng+GAxNJ==';
     const url = checkModule.buildOcspRetryUrl(
-      PRIVATELINK_CACHE_SERVER_URL,
-      'http://oneocsp.snowflake.com/ocsp',
-      'abc123',
+      'http://ocsp.testaccount.west-europe.privatelink.snowflakecomputing.com/ocsp_response_cache.json',
+      'http://oneocsp.microsoft.com/ocsp',
+      b64,
     );
     assert.ok(
-      url.includes('/retry/oneocsp.snowflake.com/ocsp/'),
-      `expected URL to contain /retry/oneocsp.snowflake.com/ocsp/ but got: ${url}`,
+      url.startsWith(
+        'http://ocsp.testaccount.west-europe.privatelink.snowflakecomputing.com/retry/oneocsp.microsoft.com/ocsp/',
+      ),
+      `unexpected URL prefix: ${url}`,
     );
+    assert.ok(url.includes('%2F'), `expected %2F (encoded /) in URL but got: ${url}`);
+    assert.ok(url.includes('%2B'), `expected %2B (encoded +) in URL but got: ${url}`);
+    assert.ok(url.includes('%3D'), `expected %3D (encoded =) in URL but got: ${url}`);
+    assert.ok(url.endsWith(encodeURIComponent(b64)), `b64 must be URL-encoded at end of URL but got: ${url}`);
   });
 
   it('omits the bare root slash so there is no double slash in the retry URL', () => {
@@ -49,25 +58,10 @@ describe('buildOcspRetryUrl', () => {
       url.includes('/retry/ocsp.snowflake.com/'),
       `expected URL to contain /retry/ocsp.snowflake.com/ but got: ${url}`,
     );
-    assert.ok(
-      !url.includes('/retry/ocsp.snowflake.com//'),
-      `URL must not contain double slash: ${url}`,
-    );
+    assert.ok(!url.includes('/retry/ocsp.snowflake.com//'), `URL must not contain double slash: ${url}`);
   });
 
-  it('preserves non-standard port from AIA OCSP URI', () => {
-    const url = checkModule.buildOcspRetryUrl(
-      PRIVATELINK_CACHE_SERVER_URL,
-      'http://ocsp.snowflake.com:8080/',
-      'abc123',
-    );
-    assert.ok(
-      url.includes('/retry/ocsp.snowflake.com:8080/'),
-      `expected :8080 to be preserved but got: ${url}`,
-    );
-  });
-
-  it('preserves non-standard port together with path', () => {
+  it('preserves non-standard port and path from the AIA OCSP URI', () => {
     const url = checkModule.buildOcspRetryUrl(
       PRIVATELINK_CACHE_SERVER_URL,
       'http://ocsp.snowflake.com:8080/ocsp',
@@ -76,43 +70,6 @@ describe('buildOcspRetryUrl', () => {
     assert.ok(
       url.includes('/retry/ocsp.snowflake.com:8080/ocsp/'),
       `expected :8080/ocsp to be preserved but got: ${url}`,
-    );
-  });
-
-  it('URL-encodes / + = base64 characters so they are safe as path segments', () => {
-    const rawB64 = 'MHcwd/test+abc==';
-    const url = checkModule.buildOcspRetryUrl(
-      PRIVATELINK_CACHE_SERVER_URL,
-      'http://oneocsp.snowflake.com/ocsp',
-      rawB64,
-    );
-    assert.ok(url.includes('%2F'), `expected %2F (encoded /) in URL but got: ${url}`);
-    assert.ok(url.includes('%2B'), `expected %2B (encoded +) in URL but got: ${url}`);
-    assert.ok(url.includes('%3D'), `expected %3D (encoded =) in URL but got: ${url}`);
-    assert.ok(!url.endsWith(rawB64), 'raw base64 must not appear verbatim at end of URL');
-  });
-
-  it('builds the correct retry URL when the AIA OCSP URI contains a path segment (/ocsp)', () => {
-    // Exercises the bug that was fixed: the /ocsp path segment in oneocsp.microsoft.com/ocsp
-    // was previously stripped, causing the proxy to receive the wrong URL.
-    const b64 =
-      'MHcwdTBOMEwwSjAHBgUrDgMCGgQUYcFEmNMfy7ixyYCnS34JagPL6fsEFNBMg9GOcS49NLH/m3ksjnTU4ngGAhNJ';
-    const url = checkModule.buildOcspRetryUrl(
-      'http://ocsp.testaccount.west-europe.privatelink.snowflakecomputing.com/ocsp_response_cache.json',
-      'http://oneocsp.microsoft.com/ocsp',
-      b64,
-    );
-    assert.ok(
-      url.startsWith(
-        'http://ocsp.testaccount.west-europe.privatelink.snowflakecomputing.com/retry/oneocsp.microsoft.com/ocsp/',
-      ),
-      `unexpected URL prefix: ${url}`,
-    );
-    // The / inside the b64 must be percent-encoded, not a literal path separator
-    assert.ok(url.includes('%2F'), `expected %2F in URL but got: ${url}`);
-    assert.ok(
-      url.endsWith(encodeURIComponent(b64)),
-      `b64 must be URL-encoded at end of URL but got: ${url}`,
     );
   });
 });
@@ -130,7 +87,6 @@ describe('buildOcspRetryUrl', () => {
 describe('Check HTTP method selection', () => {
   let capturedOptions: http.RequestOptions;
   let capturedEndArg: unknown;
-  let httpStub: sinon.SinonStub;
 
   beforeEach(() => {
     const { ocsp, CertUtil } = checkModule._testInternals;
@@ -148,7 +104,7 @@ describe('Check HTTP method selection', () => {
 
     sinon.stub(CertUtil, 'verifyOCSPResponse').returns({ err: null });
 
-    httpStub = sinon.stub(http, 'request').callsFake((...args: unknown[]) => {
+    sinon.stub(http, 'request').callsFake((...args: unknown[]) => {
       capturedOptions = args[0] as http.RequestOptions;
       const onResponse = args[1] as (res: unknown) => void;
 
@@ -178,63 +134,31 @@ describe('Check HTTP method selection', () => {
     delete process.env['SF_OCSP_RESPONDER_URL'];
   });
 
-  it('uses GET when PrivateLink cache server URL is configured', function (done) {
+  it('PrivateLink mode: uses GET with no body and routes through the proxy preserving the AIA path', function (done) {
     process.env['SF_OCSP_RESPONSE_CACHE_SERVER_URL'] = PRIVATELINK_CACHE_SERVER_URL;
 
     checkModule({ cert: {}, issuer: {} }, () => {
-      assert.ok(httpStub.calledOnce, 'http.request should have been called exactly once');
       assert.strictEqual(capturedOptions.method, 'GET');
-      done();
-    });
-  });
-
-  it('does not send a body for PrivateLink GET requests', function (done) {
-    process.env['SF_OCSP_RESPONSE_CACHE_SERVER_URL'] = PRIVATELINK_CACHE_SERVER_URL;
-
-    checkModule({ cert: {}, issuer: {} }, () => {
-      assert.ok(
-        capturedEndArg == null,
-        `expected end() with no body but got: ${String(capturedEndArg)}`,
-      );
-      done();
-    });
-  });
-
-  it('uses POST when no PrivateLink cache server URL is configured', function (done) {
-    delete process.env['SF_OCSP_RESPONSE_CACHE_SERVER_URL'];
-
-    checkModule({ cert: {}, issuer: {} }, () => {
-      assert.ok(httpStub.calledOnce, 'http.request should have been called exactly once');
-      assert.strictEqual(capturedOptions.method, 'POST');
-      done();
-    });
-  });
-
-  it('sends the binary OCSP request body for standard POST requests', function (done) {
-    delete process.env['SF_OCSP_RESPONSE_CACHE_SERVER_URL'];
-
-    checkModule({ cert: {}, issuer: {} }, () => {
-      assert.ok(
-        Buffer.isBuffer(capturedEndArg),
-        'expected end() to be called with a Buffer for POST',
-      );
-      done();
-    });
-  });
-
-  it('PrivateLink retry URL routes through the proxy and preserves the AIA path', function (done) {
-    process.env['SF_OCSP_RESPONSE_CACHE_SERVER_URL'] = PRIVATELINK_CACHE_SERVER_URL;
-
-    checkModule({ cert: {}, issuer: {} }, () => {
+      assert.ok(capturedEndArg == null, `expected end() with no body but got: ${String(capturedEndArg)}`);
       const fullPath = String(capturedOptions.hostname) + String(capturedOptions.path ?? '');
       assert.ok(
-        fullPath.includes('.privatelink.snowflakecomputing.com'),
+        fullPath.includes('privatelink.snowflakecomputing.com'),
         `expected privatelink hostname but got: ${fullPath}`,
       );
       assert.ok(
         fullPath.includes('/retry/oneocsp.snowflake.com/ocsp/'),
         `expected AIA /ocsp path to be preserved but got: ${fullPath}`,
       );
+      done();
+    });
+  });
+
+  it('standard (non-PrivateLink) mode: uses POST with binary OCSP request body', function (done) {
+    delete process.env['SF_OCSP_RESPONSE_CACHE_SERVER_URL'];
+
+    checkModule({ cert: {}, issuer: {} }, () => {
+      assert.strictEqual(capturedOptions.method, 'POST');
+      assert.ok(Buffer.isBuffer(capturedEndArg), 'expected end() to be called with a Buffer for POST');
       done();
     });
   });

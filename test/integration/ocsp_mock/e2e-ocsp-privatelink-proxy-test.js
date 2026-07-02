@@ -15,6 +15,9 @@ const https = require('https');
 const assert = require('assert');
 const HttpsOcspAgent = require('../../../lib/agent/https_ocsp_agent');
 
+const log = (...args) => process.stdout.write(args.join(' ') + '\n');
+const logError = (...args) => process.stderr.write(args.join(' ') + '\n');
+
 const PROXY_PORT = 19999;
 const TARGET_HOST = 'pvdmwqsfcb1stg.blob.core.windows.net'; // Microsoft TLS G2 RSA CA cert
 
@@ -31,7 +34,7 @@ const proxy = http.createServer((req, res) => {
   if (req.url.startsWith('/retry/')) {
     const entry = { method: req.method, path: req.url };
     received.push(entry);
-    console.log(`  → proxy received: ${req.method} ${req.url}`);
+    log(`  → proxy received: ${req.method} ${req.url}`);
 
     // /retry/oneocsp.microsoft.com/ocsp/{b64} → forward to real responder
     const withoutRetry = req.url.slice('/retry/'.length);
@@ -39,18 +42,18 @@ const proxy = http.createServer((req, res) => {
     const responderHost = withoutRetry.slice(0, slash);
     const responderPath = withoutRetry.slice(slash);
 
-    console.log(`  → forwarding to: GET http://${responderHost}${responderPath}`);
+    log(`  → forwarding to: GET http://${responderHost}${responderPath}`);
 
     const fwd = http.request(
       { hostname: responderHost, port: 80, path: responderPath, method: 'GET' },
       (upstream) => {
-        console.log(`  → upstream response: ${upstream.statusCode}`);
+        log(`  → upstream response: ${upstream.statusCode}`);
         res.writeHead(upstream.statusCode, upstream.headers);
         upstream.pipe(res);
       },
     );
     fwd.on('error', (e) => {
-      console.error('  → forward error:', e.message);
+      logError('  → forward error:', e.message);
       res.writeHead(502);
       res.end(e.message);
     });
@@ -63,7 +66,7 @@ const proxy = http.createServer((req, res) => {
 });
 
 proxy.listen(PROXY_PORT, () => {
-  console.log(`Mock proxy listening on http://localhost:${PROXY_PORT}`);
+  log(`Mock proxy listening on http://localhost:${PROXY_PORT}`);
   process.env.SF_OCSP_RESPONSE_CACHE_SERVER_URL = `http://localhost:${PROXY_PORT}/ocsp_response_cache.json`;
 
   const agent = new HttpsOcspAgent({
@@ -72,12 +75,12 @@ proxy.listen(PROXY_PORT, () => {
     keepAlive: false,
   });
 
-  console.log(`Making TLS connection to ${TARGET_HOST} via HttpsOcspAgent...`);
+  log(`Making TLS connection to ${TARGET_HOST} via HttpsOcspAgent...`);
 
   const req = https.request(
     { hostname: TARGET_HOST, path: '/', method: 'HEAD', agent, timeout: 10000 },
     (tlsRes) => {
-      console.log(`  TLS+HTTP succeeded, HTTP status: ${tlsRes.statusCode}`);
+      log(`  TLS+HTTP succeeded, HTTP status: ${tlsRes.statusCode}`);
       tlsRes.resume();
       check();
     },
@@ -87,7 +90,7 @@ proxy.listen(PROXY_PORT, () => {
   });
   req.on('error', (err) => {
     // HTTP-level errors (403, reset) are fine – OCSP fires during TLS, before HTTP
-    console.log(`  HTTP layer result: ${err.message} (expected for private storage)`);
+    log(`  HTTP layer result: ${err.message} (expected for private storage)`);
     check();
   });
   req.end();
@@ -95,11 +98,11 @@ proxy.listen(PROXY_PORT, () => {
 
 function check() {
   proxy.close();
-  console.log('\n--- Assertions ---');
+  log('\n--- Assertions ---');
 
   const ocsp = received.filter((r) => r.path.startsWith('/retry/'));
   assert.ok(ocsp.length > 0, 'FAIL: no OCSP request reached the proxy');
-  console.log(`PASS: proxy received ${ocsp.length} OCSP retry request(s)`);
+  log(`PASS: proxy received ${ocsp.length} OCSP retry request(s)`);
 
   // Every request must be GET and must have URL-encoded b64
   for (const r of ocsp) {
@@ -113,7 +116,7 @@ function check() {
       `FAIL: base64 must be URL-encoded (expected %2F/%3D/%2B) but got: ${b64part}`,
     );
   }
-  console.log(`PASS: all ${ocsp.length} requests used GET with URL-encoded base64`);
+  log(`PASS: all ${ocsp.length} requests used GET with URL-encoded base64`);
 
   // At least one request must have gone through oneocsp.microsoft.com/ocsp/
   // (the cert chain for *.blob.core.windows.net — the customer's failing case)
@@ -123,7 +126,7 @@ function check() {
     msOcsp.length > 0,
     `FAIL: expected at least one request to oneocsp.microsoft.com/ocsp/ but got only: ${ocsp.map((r) => r.path).join(', ')}`,
   );
-  console.log(`PASS: ${msOcsp.length} request(s) routed through oneocsp.microsoft.com/ocsp/`);
+  log(`PASS: ${msOcsp.length} request(s) routed through oneocsp.microsoft.com/ocsp/`);
 
-  console.log('\n✓ All assertions passed – fix is working end-to-end.');
+  log('\n✓ All assertions passed – fix is working end-to-end.');
 }

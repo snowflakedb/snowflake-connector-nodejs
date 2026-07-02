@@ -45,7 +45,10 @@ describe('buildOcspRetryUrl', () => {
     assert.ok(url.includes('%2F'), `expected %2F (encoded /) in URL but got: ${url}`);
     assert.ok(url.includes('%2B'), `expected %2B (encoded +) in URL but got: ${url}`);
     assert.ok(url.includes('%3D'), `expected %3D (encoded =) in URL but got: ${url}`);
-    assert.ok(url.endsWith(encodeURIComponent(b64)), `b64 must be URL-encoded at end of URL but got: ${url}`);
+    assert.ok(
+      url.endsWith(encodeURIComponent(b64)),
+      `b64 must be URL-encoded at end of URL but got: ${url}`,
+    );
   });
 
   it('omits the bare root slash so there is no double slash in the retry URL', () => {
@@ -58,7 +61,10 @@ describe('buildOcspRetryUrl', () => {
       url.includes('/retry/ocsp.snowflake.com/'),
       `expected URL to contain /retry/ocsp.snowflake.com/ but got: ${url}`,
     );
-    assert.ok(!url.includes('/retry/ocsp.snowflake.com//'), `URL must not contain double slash: ${url}`);
+    assert.ok(
+      !url.includes('/retry/ocsp.snowflake.com//'),
+      `URL must not contain double slash: ${url}`,
+    );
   });
 
   it('preserves non-standard port and path from the AIA OCSP URI', () => {
@@ -139,7 +145,10 @@ describe('Check HTTP method selection', () => {
 
     checkModule({ cert: {}, issuer: {} }, () => {
       assert.strictEqual(capturedOptions.method, 'GET');
-      assert.ok(capturedEndArg == null, `expected end() with no body but got: ${String(capturedEndArg)}`);
+      assert.ok(
+        capturedEndArg == null,
+        `expected end() with no body but got: ${String(capturedEndArg)}`,
+      );
       const fullPath = String(capturedOptions.hostname) + String(capturedOptions.path ?? '');
       assert.ok(
         fullPath.includes('privatelink.snowflakecomputing.com'),
@@ -158,7 +167,10 @@ describe('Check HTTP method selection', () => {
 
     checkModule({ cert: {}, issuer: {} }, () => {
       assert.strictEqual(capturedOptions.method, 'POST');
-      assert.ok(Buffer.isBuffer(capturedEndArg), 'expected end() to be called with a Buffer for POST');
+      assert.ok(
+        Buffer.isBuffer(capturedEndArg),
+        'expected end() to be called with a Buffer for POST',
+      );
       done();
     });
   });

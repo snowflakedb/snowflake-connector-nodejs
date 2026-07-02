@@ -17,8 +17,6 @@ describe('Session token renewal', function () {
     connectionConfig = {
       account: 'test-account',
       accessUrl: `http://127.0.0.1:${port}`,
-      proxyHost: '127.0.0.1',
-      proxyPort: 8080,
     };
     await addWireMockMappingsFromFile(wiremock, 'wiremock/mappings/login_request_ok.json');
     await addWireMockMappingsFromFile(wiremock, 'wiremock/mappings/session_token_renewal.json');

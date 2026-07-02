@@ -297,7 +297,7 @@ describe('OCSP privatelink', function () {
       connOption.privatelink.account,
     );
     const ocspResponseCacheServerUrl = `http://ocsp.${host}/ocsp_response_cache.json`;
-    const ocspResponderUrl = `http://ocsp.${host}/retry/${mockParsedUrl.hostname}/${mockDataBuf.toString('base64')}`;
+    const ocspResponderUrl = `http://ocsp.${host}/retry/${mockParsedUrl.hostname}/${encodeURIComponent(mockDataBuf.toString('base64'))}`;
 
     const connection = snowflake.createConnection({ ...connOption.privatelink, host });
 
@@ -324,7 +324,7 @@ describe('OCSP privatelink', function () {
       connOption.privatelink.account,
     );
     const ocspResponseCacheServerUrl = `http://ocsp.${host}/ocsp_response_cache.json`;
-    const ocspResponderUrl = `http://ocsp.${host}/retry/${mockParsedUrl.hostname}/${mockDataBuf.toString('base64')}`;
+    const ocspResponderUrl = `http://ocsp.${host}/retry/${mockParsedUrl.hostname}/${encodeURIComponent(mockDataBuf.toString('base64'))}`;
 
     const connection = snowflake.createConnection({ ...connOption.privatelink, host });
 

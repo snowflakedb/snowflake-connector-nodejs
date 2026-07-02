@@ -1702,6 +1702,25 @@ describe('ConnectionConfig: basic', function () {
     },
   ];
 
+  // pragma: allowlist nextline secret
+  const encryptedInlinePrivateKey =
+    '-----BEGIN ENCRYPTED PRIVATE KEY-----\nMIIF...\n-----END ENCRYPTED PRIVATE KEY-----';
+
+  testCases.push({
+    name: 'inline encrypted private key with passphrase',
+    input: {
+      username: 'username',
+      account: 'account',
+      authenticator: 'SNOWFLAKE_JWT',
+      privateKey: encryptedInlinePrivateKey,
+      privateKeyPass: 'passphrase',
+    },
+    options: {
+      privateKey: (options) => options.getPrivateKey() === encryptedInlinePrivateKey,
+      privateKeyPass: (options) => options.getPrivateKeyPass() === 'passphrase',
+    },
+  });
+
   const createItCallback = function (testCase) {
     return function () {
       const resultOptions = new ConnectionConfig(testCase.input);

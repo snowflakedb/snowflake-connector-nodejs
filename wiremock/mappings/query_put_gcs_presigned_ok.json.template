@@ -1,7 +1,7 @@
 {
   "mappings": [
     {
-      "name": "1. Initial PUT command resolution (returns stageInfo with presignedUrl=null, forcing per-file re-resolution)",
+      "name": "Initial PUT command resolution (returns stageInfo with presignedUrl=null, forcing per-file re-resolution)",
       "request": {
         "urlPathPattern": "/queries/v1/query-request.*",
         "method": "POST",
@@ -38,19 +38,13 @@
       }
     },
     {
-      "name": "2. Successful presigned-URL refresh on final retry (retryCount=3, returns a real presignedUrl)",
-      "priority": 1,
+      "name": "Successful per-file presigned-URL refresh (returns a real presignedUrl)",
       "request": {
         "urlPathPattern": "/queries/v1/query-request.*",
         "method": "POST",
         "bodyPatterns": [
           { "contains": "PUT file://{{ putFileName }}" }
-        ],
-        "queryParameters": {
-          "retryCount": {
-            "equalTo": "3"
-          }
-        }
+        ]
       },
       "response": {
         "status": 200,
@@ -81,18 +75,7 @@
       }
     },
     {
-      "name": "3. Failing presigned-URL refresh on earlier retries (retryCount 0-2, returns injected failureResponse)",
-      "request": {
-        "urlPathPattern": "/queries/v1/query-request.*",
-        "method": "POST",
-        "bodyPatterns": [
-          { "contains": "PUT file://{{ putFileName }}" }
-        ]
-      },
-      "response": {{ failureResponse }}
-    },
-    {
-      "name": "4. Fake GCS upload endpoint (target of the refreshed presignedUrl)",
+      "name": "Fake GCS upload endpoint (target of the refreshed presignedUrl)",
       "request": {
         "urlPathPattern": "/fake-gcs-upload",
         "method": "PUT"

@@ -228,7 +228,7 @@ describe('Check HTTP method selection', () => {
     checkModule({ cert: {}, issuer: {} }, () => {
       const fullPath = String(capturedOptions.hostname) + String(capturedOptions.path ?? '');
       assert.ok(
-        fullPath.includes('privatelink.snowflakecomputing.com'),
+        fullPath.includes('.privatelink.snowflakecomputing.com'),
         `expected privatelink hostname but got: ${fullPath}`,
       );
       assert.ok(

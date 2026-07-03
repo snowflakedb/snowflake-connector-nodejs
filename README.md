@@ -1,5 +1,5 @@
 ---
-NodeJS Driver for Snowflake
+NodeJS Driver for Snowflake 
 ---
 
 <p>

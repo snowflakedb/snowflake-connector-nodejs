@@ -9,7 +9,7 @@ New features:
 
 Bugfixes:
 
-- Fixed PrivateLink OCSP proxy requests failing with `HTTP 405 Method Not Allowed` for certificates whose AIA OCSP URI contains a path component (e.g. `oneocsp.microsoft.com/ocsp`). The driver now sends `GET` requests to the `/retry/` proxy with the full AIA path preserved and the base64 OCSP request URL-encoded, matching the Python connector's behaviour. (snowflakedb/snowflake-connector-nodejs#1449)
+- Fixed PrivateLink OCSP proxy requests failing with `HTTP 405 Method Not Allowed` for certificates whose AIA OCSP URI contains a path component (e.g. `oneocsp.microsoft.com/ocsp`). The driver now sends `GET` requests to the `/retry/` proxy with the full AIA path preserved and the base64 OCSP request URL-encoded (snowflakedb/snowflake-connector-nodejs#1449)
 - Reverted the unintentional breaking change from the 3.0.0 release (snowflakedb/snowflake-connector-nodejs#1415) that switched AWS Workload Identity attestation from SigV4 `GetCallerIdentity` to STS `GetWebIdentityToken`. AWS Workload Identity again defaults to `GetCallerIdentity`; the new method is now opt-in via `workloadIdentityAwsUseOutboundToken` (snowflakedb/snowflake-connector-nodejs#1437)
 - Removed usage of deprecated `util.isString` to fix Node 24 compatibility. Added additional logging where this caused silent failure (snowflakedb/snowflake-connector-nodejs#1436)
 - Fixed CRL validation failing with `crl.tbsCertList.revokedCertificates is not iterable` for CRLs that contain no revoked certificates, where the OPTIONAL `revokedCertificates` field (RFC 5280 §5.1) is absent (snowflakedb/snowflake-connector-nodejs#1448)

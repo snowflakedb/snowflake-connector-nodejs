@@ -15,6 +15,10 @@ Bugfixes:
 - Fixed an unnecessary second PUT (stage re-resolution) per file during GCS uploads when the server scopes upload credentials with an access token (snowflakedb/snowflake-connector-nodejs#1440)
 - Fixed key-pair authentication ignoring `privateKeyPass` for an inline `privateKey`, so encrypted private keys can now be passed directly just like in `privateKeyPath` (snowflakedb/snowflake-connector-nodejs#1450)
 
+Internal:
+
+- Replaced the global HTTP(S) agent cache with a per-connection cache and implemented cache cleanup when a connection is destroyed (snowflakedb/snowflake-connector-nodejs#1443)
+
 ## 3.0.0
 
 **Breaking changes:**

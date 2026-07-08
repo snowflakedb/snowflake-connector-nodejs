@@ -4,7 +4,6 @@ import { WIP_ConnectionOptions } from '../../lib/connection/types';
 import ErrorCode from '../../lib/error_code';
 import { CertificateRevokedError, CRL_VALIDATOR_INTERNAL } from '../../lib/agent/crl_validator';
 import { createConnection, connectAsync, destroyConnectionAsync } from './testUtil';
-import { httpsAgentCache } from '../../lib/http/node';
 import axiosInstance from '../../lib/http/axios_instance';
 import { startProxyServer, ProxyServer } from '../proxy_server';
 
@@ -22,7 +21,6 @@ describe('connection with CRL validation', () => {
   const regularError = new Error('CRL validation failed');
 
   afterEach(() => {
-    httpsAgentCache.clear();
     sinon.restore();
   });
 

@@ -32,7 +32,7 @@ describe('PAT authentication', function () {
     const connectionOption = { ...connParameters.PATCredentials, token: 'invalidToken' };
     authTest.createConnection(connectionOption);
     await authTest.connectAsync();
-    authTest.verifyErrorWasThrown('Programmatic access token is invalid.');
+    authTest.verifyErrorWasThrown(/Programmatic access token is invalid/);
     await authTest.verifyConnectionIsNotUp(
       'Unable to perform operation using terminated connection.',
     );
@@ -47,7 +47,7 @@ describe('PAT authentication', function () {
     };
     authTest.createConnection(connectionOption);
     await authTest.connectAsync();
-    authTest.verifyErrorWasThrown('Programmatic access token is invalid.');
+    authTest.verifyErrorWasThrown(/Programmatic access token is invalid/);
     await authTest.verifyConnectionIsNotUp(
       'Unable to perform operation using terminated connection.',
     );

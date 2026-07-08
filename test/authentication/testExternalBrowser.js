@@ -50,7 +50,7 @@ describe('External browser authentication tests', function () {
       );
       await authTest.connectAndProvideCredentials(provideCredentialsPromise);
       authTest.verifyErrorWasThrown(
-        'The user you were trying to authenticate as differs from the user currently logged in at the IDP.',
+        /The user you were trying to authenticate as differs from the user currently logged in at the IDP/,
       );
       await authTest.verifyConnectionIsNotUp(
         'Unable to perform operation using terminated connection.',

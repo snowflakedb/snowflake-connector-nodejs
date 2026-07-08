@@ -50,7 +50,7 @@ describe('Oauth Snowflake Authorization code tests', function () {
       );
       await authTest.connectAndProvideCredentials(provideCredentialsPromise);
       authTest.verifyErrorWasThrown(
-        'The user you were trying to authenticate as differs from the user tied to the access token.',
+        /The user you were trying to authenticate as differs from the user tied to the access token/,
       );
       await authTest.verifyConnectionIsNotUp(
         'Unable to perform operation using terminated connection.',

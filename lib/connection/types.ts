@@ -205,17 +205,23 @@ export interface WIP_ConnectionOptions {
   disableSamlURLCheck?: boolean;
 
   /**
-   * Specifies the private key (in PEM format) for key pair authentication.
+   * When authenticator=SNOWFLAKE_JWT, specifies the private key (in PEM format).
+   *
+   * If the key is encrypted, use {@link privateKeyPass} to provide the passphrase.
    */
   privateKey?: string;
 
   /**
-   * Specifies the local path to the private key file (e.g. rsa_key.p8)
+   * When authenticator=SNOWFLAKE_JWT, specifies the local path to the private key file (in PEM
+   * format).
+   *
+   * If the key is encrypted, use {@link privateKeyPass} to provide the passphrase.
    */
   privateKeyPath?: string;
 
   /**
-   * Specifies the passcode to decrypt the private key file, if the file is encrypted.
+   * When authenticator=SNOWFLAKE_JWT, specifies the passcode to decrypt the encrypted private key
+   * passed in {@link privateKey} or {@link privateKeyPath}.
    */
   privateKeyPass?: string;
 

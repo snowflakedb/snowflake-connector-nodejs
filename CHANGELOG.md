@@ -1,6 +1,6 @@
 # Changelog
 
-## Upcoming Release 2
+## Upcoming Release
 
 New features:
 

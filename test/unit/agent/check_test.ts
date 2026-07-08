@@ -2,11 +2,9 @@ import assert from 'assert';
 import sinon from 'sinon';
 import http from 'http';
 import { EventEmitter } from 'events';
-import checkExport from '../../../lib/agent/check';
+import untypedCheckModule from '../../../lib/agent/check';
 
-// check.js uses module.exports = function + attached properties, so the
-// default import is the function and helpers are properties on it.
-const checkModule = checkExport as unknown as {
+const checkModule = untypedCheckModule as unknown as {
   (options: unknown, cb: (...args: unknown[]) => void): void;
   buildOcspRetryUrl: (cacheServerUrl: string, ocspResponderUri: string, b64data: string) => string;
   _testInternals: {
@@ -23,31 +21,16 @@ const checkModule = checkExport as unknown as {
 const PRIVATELINK_CACHE_SERVER_URL =
   'http://ocsp.account.west-europe.privatelink.snowflakecomputing.com/ocsp_response_cache.json';
 
-// ---------------------------------------------------------------------------
-// buildOcspRetryUrl – pure URL-construction helper
-// ---------------------------------------------------------------------------
 describe('buildOcspRetryUrl', () => {
   it('preserves AIA path, URL-encodes base64 special characters, and uses the full responder URI', () => {
-    // Covers: /ocsp path preservation, %2F/%2B/%3D URL-encoding, real-world AIA URI shape.
-    const b64 =
-      'MHcwdTBOMEwwSjAHBgUrDgMCGgQUYcFEmNMfy7ixyYCnS34JagPL6fsEFNBMg9GOcS49NLH/m3ksjnTU4ng+GAxNJ==';
     const url = checkModule.buildOcspRetryUrl(
       'http://ocsp.testaccount.west-europe.privatelink.snowflakecomputing.com/ocsp_response_cache.json',
       'http://oneocsp.microsoft.com/ocsp',
-      b64,
+      'MHcwdTBOMEwwSjAHBgUrDgMCGgQUYcFEmNMfy7ixyYCnS34JagPL6fsEFNBMg9GOcS49NLH/m3ksjnTU4ng+GAxNJ==',
     );
-    assert.ok(
-      url.startsWith(
-        'http://ocsp.testaccount.west-europe.privatelink.snowflakecomputing.com/retry/oneocsp.microsoft.com/ocsp/',
-      ),
-      `unexpected URL prefix: ${url}`,
-    );
-    assert.ok(url.includes('%2F'), `expected %2F (encoded /) in URL but got: ${url}`);
-    assert.ok(url.includes('%2B'), `expected %2B (encoded +) in URL but got: ${url}`);
-    assert.ok(url.includes('%3D'), `expected %3D (encoded =) in URL but got: ${url}`);
-    assert.ok(
-      url.endsWith(encodeURIComponent(b64)),
-      `b64 must be URL-encoded at end of URL but got: ${url}`,
+    assert.strictEqual(
+      url,
+      'http://ocsp.testaccount.west-europe.privatelink.snowflakecomputing.com/retry/oneocsp.microsoft.com/ocsp/MHcwdTBOMEwwSjAHBgUrDgMCGgQUYcFEmNMfy7ixyYCnS34JagPL6fsEFNBMg9GOcS49NLH%2Fm3ksjnTU4ng%2BGAxNJ%3D%3D',
     );
   });
 
@@ -57,13 +40,9 @@ describe('buildOcspRetryUrl', () => {
       'http://ocsp.snowflake.com/',
       'abc123',
     );
-    assert.ok(
-      url.includes('/retry/ocsp.snowflake.com/'),
-      `expected URL to contain /retry/ocsp.snowflake.com/ but got: ${url}`,
-    );
-    assert.ok(
-      !url.includes('/retry/ocsp.snowflake.com//'),
-      `URL must not contain double slash: ${url}`,
+    assert.strictEqual(
+      url,
+      'http://ocsp.account.west-europe.privatelink.snowflakecomputing.com/retry/ocsp.snowflake.com/abc123',
     );
   });
 
@@ -73,23 +52,13 @@ describe('buildOcspRetryUrl', () => {
       'http://ocsp.snowflake.com:8080/ocsp',
       'abc123',
     );
-    assert.ok(
-      url.includes('/retry/ocsp.snowflake.com:8080/ocsp/'),
-      `expected :8080/ocsp to be preserved but got: ${url}`,
+    assert.strictEqual(
+      url,
+      'http://ocsp.account.west-europe.privatelink.snowflakecomputing.com/retry/ocsp.snowflake.com:8080/ocsp/abc123',
     );
   });
 });
 
-// ---------------------------------------------------------------------------
-// Check() – HTTP method selection via http.request stub
-//
-// Internal module references are accessed via _testInternals so this file
-// does not need to import @techteamer/ocsp or cert_util directly (which
-// conflicts with Node.js native ESM resolution of extension-less paths).
-//
-// All callsFake functions use (...args: unknown[]) to avoid sinon v20
-// strict parameter-type inference errors that prevent ts-node compilation.
-// ---------------------------------------------------------------------------
 describe('Check HTTP method selection', () => {
   let capturedOptions: http.RequestOptions;
   let capturedEndArg: unknown;
@@ -136,12 +105,13 @@ describe('Check HTTP method selection', () => {
 
   afterEach(() => {
     sinon.restore();
-    delete process.env['SF_OCSP_RESPONSE_CACHE_SERVER_URL'];
-    delete process.env['SF_OCSP_RESPONDER_URL'];
   });
 
   it('PrivateLink mode: uses GET with no body and routes through the proxy preserving the AIA path', function (done) {
-    process.env['SF_OCSP_RESPONSE_CACHE_SERVER_URL'] = PRIVATELINK_CACHE_SERVER_URL;
+    sinon.stub(process, 'env').value({
+      ...process.env,
+      SF_OCSP_RESPONSE_CACHE_SERVER_URL: PRIVATELINK_CACHE_SERVER_URL,
+    });
 
     checkModule({ cert: {}, issuer: {} }, () => {
       assert.strictEqual(capturedOptions.method, 'GET');
@@ -163,7 +133,10 @@ describe('Check HTTP method selection', () => {
   });
 
   it('standard (non-PrivateLink) mode: uses POST with binary OCSP request body', function (done) {
-    delete process.env['SF_OCSP_RESPONSE_CACHE_SERVER_URL'];
+    sinon.stub(process, 'env').value({
+      ...process.env,
+      SF_OCSP_RESPONSE_CACHE_SERVER_URL: undefined,
+    });
 
     checkModule({ cert: {}, issuer: {} }, () => {
       assert.strictEqual(capturedOptions.method, 'POST');

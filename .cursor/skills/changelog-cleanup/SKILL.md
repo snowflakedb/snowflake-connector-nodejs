@@ -147,6 +147,9 @@ tool to propose custom section names to the user.
 - Omit sections that have no entries (don't output an empty section heading).
 - Each section heading is followed by a blank line, then its bullet entries.
 - Separate sections from each other with a blank line after the last bullet.
+- Entries must not end with a trailing period. Remove any trailing `.` from
+  bullet entries for consistency (a trailing `(...#1234)` reference already has
+  no period after it, so nothing to remove in that case).
 
 ## Output format
 

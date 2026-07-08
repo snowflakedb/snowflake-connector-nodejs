@@ -26,6 +26,12 @@ const throwWithCode = (code) => () => {
   err.Code = code;
   throw err;
 };
+const throwNotFound = () => () => {
+  const err = new Error();
+  err.name = 'NotFound';
+  err.$metadata = { httpStatusCode: 404 };
+  throw err;
+};
 
 // Registers a mock `s3` module and returns the freshly-required handle. Any
 // method passed (getObject, putObject, uploadPart, …) is attached to the S3
@@ -88,7 +94,7 @@ describe('S3 client', function () {
 
   before(function () {
     s3 = mockS3({
-      getObject: resolveEmptyMetadata,
+      headObject: resolveEmptyMetadata,
       putObject: () => Promise.resolve(),
     });
     AWS = new SnowflakeS3Util(noProxyConnectionConfig, s3);
@@ -176,28 +182,31 @@ describe('S3 client', function () {
   });
 
   it('get file header - fail expired token', async function () {
-    s3 = mockS3({ getObject: throwWithCode('ExpiredToken') });
+    s3 = mockS3({ headObject: throwWithCode('ExpiredToken') });
     const AWS = new SnowflakeS3Util(noProxyConnectionConfig, s3);
     await AWS.getFileHeader(meta, dataFile);
     assert.strictEqual(meta['resultStatus'], resultStatus.RENEW_TOKEN);
   });
 
-  it('get file header - fail no such key', async function () {
-    s3 = mockS3({ getObject: throwWithCode('NoSuchKey') });
+  it('get file header - fail not found (HeadObject NotFound)', async function () {
+    s3 = mockS3({ headObject: throwNotFound() });
     const AWS = new SnowflakeS3Util(noProxyConnectionConfig, s3);
-    await AWS.getFileHeader(meta, dataFile);
+    const fileHeader = await AWS.getFileHeader(meta, dataFile);
     assert.strictEqual(meta['resultStatus'], resultStatus.NOT_FOUND_FILE);
+    assert.strictEqual(fileHeader.digest, null);
+    assert.strictEqual(fileHeader.contentLength, null);
+    assert.strictEqual(fileHeader.encryptionMetadata, null);
   });
 
   it('get file header - fail HTTP 400', async function () {
-    s3 = mockS3({ getObject: throwWithCode('400') });
+    s3 = mockS3({ headObject: throwWithCode('400') });
     const AWS = new SnowflakeS3Util(noProxyConnectionConfig, s3);
     await AWS.getFileHeader(meta, dataFile);
     assert.strictEqual(meta['resultStatus'], resultStatus.RENEW_TOKEN);
   });
 
   it('get file header - fail unknown', async function () {
-    s3 = mockS3({ getObject: throwWithCode('unknown') });
+    s3 = mockS3({ headObject: throwWithCode('unknown') });
     const AWS = new SnowflakeS3Util(noProxyConnectionConfig, s3);
     await AWS.getFileHeader(meta, dataFile);
     assert.strictEqual(meta['resultStatus'], resultStatus.ERROR);
@@ -309,7 +318,7 @@ describe('S3 client', function () {
   it('getFileHeader destroys client after success', async function () {
     let destroyed = false;
     s3 = mockS3({
-      getObject: resolveEmptyMetadata,
+      headObject: resolveEmptyMetadata,
       onDestroy: () => {
         destroyed = true;
       },
@@ -322,7 +331,7 @@ describe('S3 client', function () {
   it('getFileHeader destroys client after error', async function () {
     let destroyed = false;
     s3 = mockS3({
-      getObject: throwWithCode('ExpiredToken'),
+      headObject: throwWithCode('ExpiredToken'),
       onDestroy: () => {
         destroyed = true;
       },

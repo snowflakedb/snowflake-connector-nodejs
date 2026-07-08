@@ -599,6 +599,16 @@ describe('Util', function () {
         // pragma: allowlist nextline secret
         key: '-----BEGIN PRIVATE KEY-----\ntest\n-----END PRIVATE KEY-----\n\n\n',
       },
+      {
+        name: 'encrypted pkcs8 key',
+        // pragma: allowlist nextline secret
+        key: '-----BEGIN ENCRYPTED PRIVATE KEY-----\ntest\n-----END ENCRYPTED PRIVATE KEY-----',
+      },
+      {
+        name: 'pkcs1 rsa key',
+        // pragma: allowlist nextline secret
+        key: '-----BEGIN RSA PRIVATE KEY-----\ntest\n-----END RSA PRIVATE KEY-----',
+      },
     ].forEach(({ name, key }) => {
       it(`${name} is valid`, () => {
         assert.ok(Util.isPrivateKey(key));
@@ -621,6 +631,11 @@ describe('Util', function () {
         name: 'key with invalid end',
         // pragma: allowlist nextline secret
         key: '-----BEGIN PRIVATE KEY-----\ntest\n-----END PUBLIC KEY-----\n\n\n',
+      },
+      {
+        name: 'encrypted key with mismatched end',
+        // pragma: allowlist nextline secret
+        key: '-----BEGIN ENCRYPTED PRIVATE KEY-----\ntest\n-----END PRIVATE KEY-----',
       },
     ].forEach(({ name, key }) => {
       it(`${name} is invalid`, () => {

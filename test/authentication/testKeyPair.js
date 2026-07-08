@@ -38,9 +38,24 @@ describe('Key-pair authentication', function () {
       } catch (err) {
         assert.strictEqual(
           err.message,
-          'Invalid private key. The specified value must be a string in pem format of type pkcs8',
+          'Invalid private key. The specified value must be a PEM-formatted private key.',
         );
       }
+    });
+
+    it('Successful connection using inline encrypted private key', async function () {
+      const privateKey = await getFileContent(
+        connParameters.snowflakeAuthTestEncryptedPrivateKeyPath,
+      );
+      const connectionOption = {
+        ...connParameters.keypairPrivateKey,
+        privateKey: privateKey,
+        privateKeyPass: connParameters.snowflakeAuthTestPrivateKeyPassword,
+      };
+      authTest.createConnection(connectionOption);
+      await authTest.connectAsync();
+      authTest.verifyNoErrorWasThrown();
+      await authTest.verifyConnectionIsUp();
     });
 
     it('Invalid private key', async function () {

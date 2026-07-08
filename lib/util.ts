@@ -112,16 +112,20 @@ export function isNumber(value: any) {
 }
 
 /**
- * Determines if a given value is a private key string in pem format of type pkcs8.
+ * Determines if a given value is a private key string in PEM format
+ * (PKCS#8 or PKCS#1, encrypted or unencrypted).
  */
 export function isPrivateKey(value: string) {
   const trimmedValue = value.trim();
-  // The private key is expected to be decrypted when set in the connection string
-  // secret scanner complains about first check since it looks like private key, but it's only check
-  // pragma: allowlist nextline secret
-  return (
-    trimmedValue.startsWith('-----BEGIN PRIVATE KEY-----') &&
-    trimmedValue.endsWith('\n-----END PRIVATE KEY-----')
+  const headers = [
+    '-----BEGIN PRIVATE KEY-----', // pragma: allowlist secret - unencrypted PKCS#8
+    '-----BEGIN ENCRYPTED PRIVATE KEY-----', // pragma: allowlist secret - encrypted PKCS#8
+    '-----BEGIN RSA PRIVATE KEY-----', // pragma: allowlist secret - PKCS#1 (may be encrypted via DEK-Info)
+  ];
+  return headers.some(
+    (header) =>
+      trimmedValue.startsWith(header) &&
+      trimmedValue.endsWith('\n' + header.replace('BEGIN', 'END')),
   );
 }
 

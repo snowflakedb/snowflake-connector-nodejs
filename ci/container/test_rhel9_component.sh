@@ -120,10 +120,6 @@ else
     exit 1
 fi
 
-# Set environment variables for optimized Wiremock startup on RHEL9
-export WIREMOCK_STARTUP_TIMEOUT_MS=60000
-echo "[INFO] Wiremock startup timeout set to ${WIREMOCK_STARTUP_TIMEOUT_MS}ms for RHEL9"
-
 # Run tests using npm test:ci (unit and integration tests)
 cd ${CONNECTOR_DIR}
 echo "[INFO] Running Tests"
@@ -134,4 +130,3 @@ if [[ -f "${WIREMOCK_RUNNER}.bak" ]]; then
     echo "[INFO] Restoring original wiremockRunner.js"
     mv "${WIREMOCK_RUNNER}.bak" "$WIREMOCK_RUNNER" 2>/dev/null || true
 fi
-

@@ -13,10 +13,13 @@ New features:
 
 Bugfixes:
 
+- Fixed PrivateLink OCSP proxy requests failing with `HTTP 405 Method Not Allowed` for certificates whose AIA OCSP URI contains a path component (e.g. `oneocsp.microsoft.com/ocsp`). The driver now sends `GET` requests to the `/retry/` proxy with the full AIA path preserved and the base64 OCSP request URL-encoded (snowflakedb/snowflake-connector-nodejs#1449)
 - Reverted the unintentional breaking change from the 3.0.0 release (snowflakedb/snowflake-connector-nodejs#1415) that switched AWS Workload Identity attestation from SigV4 `GetCallerIdentity` to STS `GetWebIdentityToken`. AWS Workload Identity again defaults to `GetCallerIdentity`; the new method is now opt-in via `workloadIdentityAwsUseOutboundToken` (snowflakedb/snowflake-connector-nodejs#1437)
 - Removed usage of deprecated `util.isString` to fix Node 24 compatibility. Added additional logging where this caused silent failure (snowflakedb/snowflake-connector-nodejs#1436)
 - Fixed CRL validation failing with `crl.tbsCertList.revokedCertificates is not iterable` for CRLs that contain no revoked certificates, where the OPTIONAL `revokedCertificates` field (RFC 5280 §5.1) is absent (snowflakedb/snowflake-connector-nodejs#1448)
 - Fixed an unnecessary second PUT (stage re-resolution) per file during GCS uploads when the server scopes upload credentials with an access token (snowflakedb/snowflake-connector-nodejs#1440)
+- Fixed key-pair authentication ignoring `privateKeyPass` for an inline `privateKey`, so encrypted private keys can now be passed directly just like in `privateKeyPath` (snowflakedb/snowflake-connector-nodejs#1450)
+- Fixed a race condition that could crash the Node process with `Error: aborted` when checking whether a file exists on an S3 stage (snowflakedb/snowflake-connector-nodejs#1453)
 
 Internal:
 

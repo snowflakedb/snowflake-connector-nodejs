@@ -461,6 +461,4 @@ export type WIP_ConnectionConfig =
     getOauthClientId(): string;
     getOauthClientSecret(): string;
     getProxy(): { [key: string]: any }; // TODO: return a proper object shape when typing connection_config.js
-    agentCache: Map<string, any>;
-    destroyAgentCache(): void;
   };

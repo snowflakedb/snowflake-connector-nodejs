@@ -14,6 +14,7 @@ Bugfixes:
 - Fixed CRL validation failing with `crl.tbsCertList.revokedCertificates is not iterable` for CRLs that contain no revoked certificates, where the OPTIONAL `revokedCertificates` field (RFC 5280 §5.1) is absent (snowflakedb/snowflake-connector-nodejs#1448)
 - Fixed an unnecessary second PUT (stage re-resolution) per file during GCS uploads when the server scopes upload credentials with an access token (snowflakedb/snowflake-connector-nodejs#1440)
 - Fixed key-pair authentication ignoring `privateKeyPass` for an inline `privateKey`, so encrypted private keys can now be passed directly just like in `privateKeyPath` (snowflakedb/snowflake-connector-nodejs#1450)
+- Fixed a race condition that could crash the Node process with `Error: aborted` when checking whether a file exists on an S3 stage (snowflakedb/snowflake-connector-nodejs#1453)
 
 Internal:
 

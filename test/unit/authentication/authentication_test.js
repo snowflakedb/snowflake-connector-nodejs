@@ -22,6 +22,7 @@ const connectionOptionsDefault = mockConnectionOptions.authDefault;
 const connectionOptionsExternalBrowser = mockConnectionOptions.authExternalBrowser;
 const connectionOptionsKeyPair = mockConnectionOptions.authKeyPair;
 const connectionOptionsKeyPairPath = mockConnectionOptions.authKeyPairPath;
+const connectionOptionsKeyPairEncrypted = mockConnectionOptions.authKeyPairEncrypted;
 const connectionOptionsOauth = mockConnectionOptions.authOauth;
 const connectionOptionsOkta = mockConnectionOptions.authOkta;
 const connectionOptionsIdToken = mockConnectionOptions.authIdToken;
@@ -282,7 +283,11 @@ describe('key-pair authentication', function () {
   before(function () {
     sinonSandbox = sinon.createSandbox();
     sinonSandbox.stub(crypto, 'createPrivateKey').callsFake((options) => {
-      assert.strictEqual(options.key, mockPrivateKeyFile);
+      // The key material may come from the file (mockPrivateKeyFile) or inline
+      assert.ok(
+        options.key === mockPrivateKeyFile ||
+          options.key === connectionOptionsKeyPair.getPrivateKey(),
+      );
       if (options.passphrase) {
         assert.strictEqual(options.passphrase, connectionOptionsKeyPairPath.getPrivateKeyPass());
       }
@@ -371,6 +376,21 @@ describe('key-pair authentication', function () {
       '',
       connectionOptionsKeyPairPath.account,
       connectionOptionsKeyPairPath.username,
+    );
+
+    const body = { data: {} };
+    auth.updateBody(body);
+
+    assert.strictEqual(body['data']['TOKEN'], mockToken, 'Token should be equal');
+  });
+
+  it('key-pair - get token with inline encrypted private key and passphrase', function () {
+    const auth = new AuthKeypair(connectionOptionsKeyPairEncrypted);
+    auth.authenticate(
+      connectionOptionsKeyPairEncrypted.authenticator,
+      '',
+      connectionOptionsKeyPairEncrypted.account,
+      connectionOptionsKeyPairEncrypted.username,
     );
 
     const body = { data: {} };

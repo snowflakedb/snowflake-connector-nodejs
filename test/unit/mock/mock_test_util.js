@@ -122,6 +122,18 @@ const connectionOptionsKeyPairPath = {
   authenticator: 'SNOWFLAKE_JWT',
 };
 
+const connectionOptionsKeyPairEncrypted = {
+  accessUrl: 'http://fakeaccount.snowflakecomputing.com',
+  username: 'fakeusername',
+  account: 'fakeaccount',
+  getPrivateKey: () => 'fakeprivatekey',
+  getPrivateKeyPath: () => '',
+  getPrivateKeyPass: () => 'fakeprivatekeypass',
+  getAuthenticator: () => 'SNOWFLAKE_JWT',
+  getServiceName: () => '',
+  authenticator: 'SNOWFLAKE_JWT',
+};
+
 const connectionOptionsOauth = {
   accessUrl: 'http://fakeaccount.snowflakecomputing.com',
   username: 'fakeusername',
@@ -160,6 +172,7 @@ exports.connectionOptions = {
   authExternalBrowser: connectionOptionsExternalBrowser,
   authKeyPair: connectionOptionsKeyPair,
   authKeyPairPath: connectionOptionsKeyPairPath,
+  authKeyPairEncrypted: connectionOptionsKeyPairEncrypted,
   authOauth: connectionOptionsOauth,
   authOkta: connectionOptionsOkta,
   authIdToken: connectionOptionsidToken,

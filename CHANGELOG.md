@@ -2,7 +2,9 @@
 
 ## Upcoming Release
 
-- TBA
+Bugfixes:
+
+- Fixed `compressFileWithGZIP` crashing the Node process with an unhandled stream `'error'` event when the source file for a `PUT` cannot be read (e.g. it is removed before compression). The gzip read/transform/write chain now uses `stream.pipeline`, so such failures reject the `PUT` operation instead of terminating the process.
 
 ## 3.1.0
 

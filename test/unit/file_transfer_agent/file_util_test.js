@@ -33,6 +33,42 @@ describe('FileUtil.getDigestAndSizeForFile()', function () {
   });
 });
 
+describe('FileUtil.compressFileWithGZIP()', function () {
+  it('gzip-compresses a file and the output round-trips to the source content', async function () {
+    const zlib = require('zlib');
+    const fileUtil = new FileUtil();
+    const tmpDir = await fsPromises.mkdtemp(path.join(os.tmpdir(), 'compress-'));
+    const srcPath = path.join(tmpDir, `src_${crypto.randomUUID()}.txt`);
+    const content = Buffer.from('snowflake-nodejs-compress-test\n'.repeat(100));
+
+    await fsPromises.writeFile(srcPath, content);
+    try {
+      const result = await fileUtil.compressFileWithGZIP(srcPath, tmpDir);
+      assert.ok(result.name.endsWith('_c.gz'));
+      assert.ok(result.size > 0);
+      const decompressed = zlib.gunzipSync(await fsPromises.readFile(result.name));
+      assert.deepStrictEqual(decompressed, content);
+    } finally {
+      await fsPromises.rm(tmpDir, { recursive: true, force: true });
+    }
+  });
+
+  it('rejects instead of crashing the process when the source file is missing', async function () {
+    const fileUtil = new FileUtil();
+    const tmpDir = await fsPromises.mkdtemp(path.join(os.tmpdir(), 'compress-'));
+    const missingPath = path.join(tmpDir, `missing_${crypto.randomUUID()}.txt`);
+
+    try {
+      await assert.rejects(
+        () => fileUtil.compressFileWithGZIP(missingPath, tmpDir),
+        (err) => err && err.code === 'ENOENT',
+      );
+    } finally {
+      await fsPromises.rm(tmpDir, { recursive: true, force: true });
+    }
+  });
+});
+
 describe('globToRegex', function () {
   const files = [
     'matched.gzip',

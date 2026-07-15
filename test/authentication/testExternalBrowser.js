@@ -1,8 +1,7 @@
 const assert = require('assert');
 const connParameters = require('./connectionParameters');
 const AuthTest = require('./authTestsBaseClass.js');
-const authUtil = require('../../lib/authentication/authentication_util');
-const AuthenticationTypes = require('../../lib/authentication/authentication_types');
+const { buildCacheKey, CacheTokenTypes } = require('../../lib/authentication/cache_key_builder');
 
 describe('External browser authentication tests', function () {
   const provideBrowserCredentialsPath = '/externalbrowser/provideBrowserCredentials.js';
@@ -103,11 +102,13 @@ describe('External browser authentication tests', function () {
       ...connParameters.externalBrowser,
       clientStoreTemporaryCredential: true,
     };
-    const idTokenKey = authUtil.buildOauthAccessTokenCacheKey(
-      connectionOption.host,
-      connectionOption.username,
-      AuthenticationTypes.ID_TOKEN_AUTHENTICATOR,
-    );
+    const idTokenKey = buildCacheKey({
+      tokenType: CacheTokenTypes.ID_TOKEN,
+      idp: connectionOption.host,
+      snowflake: connectionOption.host,
+      username: connectionOption.username,
+      role: connectionOption.role || '',
+    });
 
     let firstIdToken;
 

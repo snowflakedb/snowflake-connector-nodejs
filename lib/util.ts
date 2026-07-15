@@ -403,6 +403,10 @@ export function isCorrectSubdomain(value: string) {
   return subdomainRegex.test(value);
 }
 
+/**
+ * @deprecated Use `buildCacheKey` from `./authentication/cache_key_builder` instead.
+ * This function returns the legacy v1 key format and should not be used for new code.
+ */
 export function buildCredentialCacheKey(host: string, username: string, credType: string) {
   if (!host || !username || !credType) {
     Logger.getInstance().debug(

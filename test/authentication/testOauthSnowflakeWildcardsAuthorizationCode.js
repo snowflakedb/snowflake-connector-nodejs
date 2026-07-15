@@ -1,8 +1,7 @@
 const assert = require('assert');
 const connParameters = require('./connectionParameters');
 const AuthTest = require('./authTestsBaseClass.js');
-const AuthenticationTypes = require('../../lib/authentication/authentication_types');
-const authUtil = require('../../lib/authentication/authentication_util');
+const { buildCacheKey, CacheTokenTypes } = require('../../lib/authentication/cache_key_builder');
 
 describe('Oauth Snowflake Wildcards Authorization code tests', function () {
   const provideBrowserCredentialsPath = '/externalbrowser/provideBrowserCredentials.js';
@@ -79,16 +78,22 @@ describe('Oauth Snowflake Wildcards Authorization code tests', function () {
       ...connParameters.oauthSnowflakeWildcardsAuthorizationCode,
       clientStoreTemporaryCredential: true,
     };
-    const accessTokenKey = authUtil.buildOauthAccessTokenCacheKey(
-      connectionOption.host,
-      connectionOption.username,
-      AuthenticationTypes.OAUTH_AUTHORIZATION_CODE,
-    );
-    const refreshTokenKey = authUtil.buildOauthRefreshTokenCacheKey(
-      connectionOption.host,
-      connectionOption.username,
-      AuthenticationTypes.OAUTH_AUTHORIZATION_CODE,
-    );
+    const oauthTokenRequestUrl =
+      connectionOption.oauthTokenRequestUrl || connectionOption.accessUrl + '/oauth/token-request';
+    const accessTokenKey = buildCacheKey({
+      tokenType: CacheTokenTypes.OAUTH_ACCESS_TOKEN,
+      idp: oauthTokenRequestUrl,
+      snowflake: connectionOption.host,
+      username: connectionOption.username,
+      role: connectionOption.role || '',
+    });
+    const refreshTokenKey = buildCacheKey({
+      tokenType: CacheTokenTypes.OAUTH_REFRESH_TOKEN,
+      idp: oauthTokenRequestUrl,
+      snowflake: connectionOption.host,
+      username: connectionOption.username,
+      role: connectionOption.role || '',
+    });
     let firstIdToken;
 
     before(async () => {

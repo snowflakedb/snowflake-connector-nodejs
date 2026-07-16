@@ -92,10 +92,9 @@ describe('cache_key_builder', function () {
   });
 
   describe('buildCacheKey', function () {
-    it('golden hash matches cross-driver spec', function () {
-      // The golden vector uses already-uppercased content inside double-quoted
-      // segments. normalizeIdentifier preserves quoted content verbatim, so the
-      // raw input must carry the uppercase form to match the spec hash.
+    it('produces the expected hash for a known golden input', function () {
+      // normalizeIdentifier preserves double-quoted content verbatim, so the
+      // raw input must carry the uppercase form to produce the expected hash.
       assert.strictEqual(
         buildCacheKey({
           tokenType: 'DPOP_BUNDLED_ACCESS_TOKEN',

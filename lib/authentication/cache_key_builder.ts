@@ -1,9 +1,6 @@
 import * as crypto from 'crypto';
 
-/**
- * Canonical token type strings for the v2 cache key contract.
- * These must match the cross-driver spec exactly.
- */
+/** Canonical token type strings for the v2 cache key contract. */
 export const CacheTokenTypes = {
   ID_TOKEN: 'ID_TOKEN',
   MFA_TOKEN: 'MFA_TOKEN',
@@ -29,9 +26,6 @@ export interface CacheKeyInput {
  *
  * Strips scheme, userinfo, query string, and fragment. Trims a root-only
  * trailing slash. Uppercases the remainder. Preserves explicit ports and paths.
- *
- * Cross-driver spec §2.3: strip scheme, strip userinfo, drop query/fragment,
- * trim root slash, uppercase remainder.
  */
 export function normalizeUrl(url: string): string {
   let s = url.replace(/^https?:\/\//, '');

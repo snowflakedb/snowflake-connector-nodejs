@@ -203,6 +203,20 @@ describe('cache_key_builder', function () {
       assert.notStrictEqual(key1, key2);
     });
 
+    it('throws when idp is empty', function () {
+      assert.throws(
+        () =>
+          buildCacheKey({
+            tokenType: CacheTokenTypes.ID_TOKEN,
+            idp: '',
+            snowflake: 'host',
+            username: 'user',
+            role: '',
+          }),
+        /idp URL must not be empty/,
+      );
+    });
+
     it('throws when snowflake is empty', function () {
       assert.throws(
         () =>

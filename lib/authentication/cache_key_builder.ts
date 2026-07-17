@@ -84,6 +84,9 @@ export function normalizeIdentifier(id: string): string {
  * @throws {Error} if `snowflake` or `username` is empty.
  */
 export function buildCacheKey(input: CacheKeyInput): string {
+  if (!input.idp) {
+    throw new Error('idp URL must not be empty');
+  }
   if (!input.snowflake) {
     throw new Error('snowflake URL must not be empty');
   }

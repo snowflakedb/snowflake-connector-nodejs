@@ -1,5 +1,6 @@
 const connParameters = require('./connectionParameters');
 const AuthTest = require('./authTestsBaseClass.js');
+const authUtil = require('../../lib/authentication/authentication_util');
 const { buildCacheKey, CacheTokenTypes } = require('../../lib/authentication/cache_key_builder');
 
 describe('Oauth Okta Authorization code tests', function () {

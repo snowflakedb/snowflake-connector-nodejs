@@ -28,15 +28,26 @@ export interface CacheKeyInput {
  * trailing slash. Uppercases the remainder. Preserves explicit ports and paths.
  */
 export function normalizeUrl(url: string): string {
-  let s = url.replace(/^https?:\/\//, '');
+  // Strip scheme (case-insensitive: https://, HTTPS://, etc.)
+  const schemeEnd = url.indexOf('://');
+  let s = schemeEnd >= 0 ? url.slice(schemeEnd + 3) : url;
 
-  const atIdx = s.indexOf('@');
-  if (atIdx >= 0) {
-    s = s.slice(atIdx + 1);
-  }
-
+  // Strip query string and fragment before any other processing.
   s = s.split('?')[0].split('#')[0];
 
+  // Strip userinfo ("user:pass@") from the authority only. The authority ends
+  // at the first '/', so an '@' after that first '/' is part of the path and
+  // must be preserved.
+  const firstSlash = s.indexOf('/');
+  const authorityEnd = firstSlash >= 0 ? firstSlash : s.length;
+  const authority = s.slice(0, authorityEnd);
+  const path = s.slice(authorityEnd);
+  const atInAuthority = authority.indexOf('@');
+  const normalizedAuthority = atInAuthority >= 0 ? authority.slice(atInAuthority + 1) : authority;
+
+  s = normalizedAuthority + path;
+
+  // Trim a root-only trailing slash so bare-host URLs have no slash suffix.
   s = s.replace(/\/$/, '');
   return s.toUpperCase();
 }

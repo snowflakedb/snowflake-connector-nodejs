@@ -61,6 +61,24 @@ describe('cache_key_builder', function () {
       );
     });
 
+    it('preserves @ in path (not treated as userinfo)', function () {
+      assert.strictEqual(
+        normalizeUrl('https://login.example.com/tenant@domain.com/oauth2/v2.0'),
+        'LOGIN.EXAMPLE.COM/TENANT@DOMAIN.COM/OAUTH2/V2.0',
+      );
+    });
+
+    it('strips userinfo but preserves @ in path', function () {
+      assert.strictEqual(
+        normalizeUrl('https://user@login.example.com/path@with-at/resource'),
+        'LOGIN.EXAMPLE.COM/PATH@WITH-AT/RESOURCE',
+      );
+    });
+
+    it('strips scheme case-insensitively', function () {
+      assert.strictEqual(normalizeUrl('HTTPS://host.example.com/path'), 'HOST.EXAMPLE.COM/PATH');
+    });
+
     it('uppercases non-URL input verbatim', function () {
       assert.strictEqual(normalizeUrl('not a url'), 'NOT A URL');
     });

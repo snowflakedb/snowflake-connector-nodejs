@@ -3,7 +3,7 @@ const assert = require('assert');
 const connOption = require('./connectionOptions');
 const testUtil = require('./testUtil');
 const Logger = require('../../lib/logger');
-const Util = require('../../lib/util');
+const { buildCacheKey, CacheTokenTypes } = require('../../lib/authentication/cache_key_builder');
 const {
   JsonCredentialManager,
 } = require('../../lib/authentication/secure_storage/json_credential_manager');
@@ -43,11 +43,13 @@ if (process.env.RUN_MANUAL_TESTS_ONLY === 'true') {
 
     describe('Connection - MFA authenticator', function () {
       const connectionOption = { ...connOption.MFA, passcode: null, clientRequestMFAToken: true };
-      const key = Util.buildCredentialCacheKey(
-        connectionOption.host,
-        connectionOption.username,
-        'USERNAME_PASSWORD_MFA',
-      );
+      const key = buildCacheKey({
+        tokenType: CacheTokenTypes.MFA_TOKEN,
+        idp: connectionOption.host,
+        snowflake: connectionOption.host,
+        username: connectionOption.username,
+        role: '',
+      });
       const defaultCredentialManager = new JsonCredentialManager();
       let oldToken;
 

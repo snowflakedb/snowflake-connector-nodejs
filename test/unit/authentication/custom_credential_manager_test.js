@@ -1,14 +1,17 @@
 const assert = require('assert');
-const Util = require('../../../lib/util');
 const { randomUUID } = require('crypto');
 const GlobalConfig = require('../../../lib/global_config');
 const {
   JsonCredentialManager,
 } = require('../../../lib/authentication/secure_storage/json_credential_manager');
-const host = 'mock_host';
-const user = 'mock_user';
-const credType = 'mock_cred';
-const key = Util.buildCredentialCacheKey(host, user, credType);
+const { buildCacheKey, CacheTokenTypes } = require('../../../lib/authentication/cache_key_builder');
+const key = buildCacheKey({
+  tokenType: CacheTokenTypes.ID_TOKEN,
+  idp: 'mock_host',
+  snowflake: 'mock_host',
+  username: 'mock_user',
+  role: '',
+});
 const randomPassword = randomUUID();
 const defaultCredentialManager = new JsonCredentialManager();
 const mockCustomCrednetialManager = {

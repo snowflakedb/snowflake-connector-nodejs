@@ -8,16 +8,26 @@ export const CacheTokenTypes = {
   OAUTH_REFRESH_TOKEN: 'OAUTH_REFRESH_TOKEN',
 } as const;
 
+/** OAuth flows that require idp + role in keyData. */
+const OAUTH_TYPES = new Set([
+  'OAUTH_ACCESS_TOKEN',
+  'OAUTH_REFRESH_TOKEN',
+  'DPOP_BUNDLED_ACCESS_TOKEN',
+]);
+
 export interface CacheKeyInput {
   /** Canonical wire string, e.g. 'MFA_TOKEN', 'OAUTH_ACCESS_TOKEN'. */
   tokenType: string;
-  /** Raw IdP/token-endpoint URL. For non-OAuth flows, equals the Snowflake server URL. */
+  /**
+   * Raw IdP/token-endpoint URL (full URL, not just hostname).
+   * Required for OAuth flows; pass an empty string for MFA and ID token flows.
+   */
   idp: string;
   /** Raw Snowflake server URL (the host you connect to). */
   snowflake: string;
   /** Raw Snowflake username. */
   username: string;
-  /** Raw role; empty string when role is not applicable (e.g. MFA). */
+  /** Raw role; empty string when role is not applicable (e.g. MFA, ID token). */
   role: string;
 }
 
@@ -77,16 +87,22 @@ export function normalizeIdentifier(id: string): string {
 /**
  * Builds a versioned, SHA256-hashed cache key from the given inputs.
  *
- * The key format is `SnowflakeTokenCache.v2.<sha256hex>` where the hash is
- * computed over a compact, sorted-key canonical JSON document. This key is
- * used verbatim by both the OS keystore and JSON file backends.
+ * The key format is:
+ *   `SnowflakeTokenCache.v2.<TOKEN_TYPE>.<sha256hex>`
+ *
+ * where the hash is computed over a compact, sorted-key canonical JSON document.
+ * The `keyData` fields differ by flow:
+ * - OAuth flows (`OAUTH_ACCESS_TOKEN`, `OAUTH_REFRESH_TOKEN`, `DPOP_BUNDLED_ACCESS_TOKEN`):
+ *   `{ idp, role, snowflake, username }` (4 fields).
+ * - MFA and ID token flows (`MFA_TOKEN`, `ID_TOKEN`):
+ *   `{ snowflake, username }` (2 fields; idp and role are excluded).
+ *
+ * This key is used verbatim by both the OS keystore and JSON file backends;
+ * hashing occurs exactly once here.
  *
  * @throws {Error} if `snowflake` or `username` is empty.
  */
 export function buildCacheKey(input: CacheKeyInput): string {
-  if (!input.idp) {
-    throw new Error('idp URL must not be empty');
-  }
   if (!input.snowflake) {
     throw new Error('snowflake URL must not be empty');
   }
@@ -94,14 +110,23 @@ export function buildCacheKey(input: CacheKeyInput): string {
     throw new Error('username must not be empty');
   }
 
-  const keyData: Record<string, string> = {
-    idp: normalizeUrl(input.idp),
-    role: normalizeIdentifier(input.role),
-    snowflake: normalizeUrl(input.snowflake),
-    token_type: input.tokenType,
-    username: normalizeIdentifier(input.username),
-  };
+  let keyData: Record<string, string>;
+  if (OAUTH_TYPES.has(input.tokenType)) {
+    keyData = {
+      idp: normalizeUrl(input.idp || ''),
+      role: normalizeIdentifier(input.role || ''),
+      snowflake: normalizeUrl(input.snowflake),
+      username: normalizeIdentifier(input.username),
+    };
+  } else {
+    // MFA_TOKEN, ID_TOKEN — no idp or role in keyData
+    keyData = {
+      snowflake: normalizeUrl(input.snowflake),
+      username: normalizeIdentifier(input.username),
+    };
+  }
 
+  // Sort keys explicitly — JSON.stringify does NOT guarantee sorted order
   const sortedKeys = Object.keys(keyData).sort();
   const canonical =
     '{' +
@@ -109,5 +134,5 @@ export function buildCacheKey(input: CacheKeyInput): string {
     '}';
 
   const hash = crypto.createHash('sha256').update(canonical, 'utf8').digest('hex');
-  return `SnowflakeTokenCache.v2.${hash}`;
+  return `SnowflakeTokenCache.v2.${input.tokenType}.${hash}`;
 }

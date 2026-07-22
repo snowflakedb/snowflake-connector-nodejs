@@ -89,7 +89,7 @@ describe('cache_key_builder', function () {
       assert.strictEqual(normalizeIdentifier('user@domain.com'), 'USER@DOMAIN.COM');
     });
 
-    it('preserves double-quoted segment verbatim', function () {
+    it('preserves double-quoted segment verbatim including lowercase letters', function () {
       assert.strictEqual(normalizeIdentifier('"First Last"@domain.com'), '"First Last"@DOMAIN.COM');
     });
 
@@ -107,33 +107,53 @@ describe('cache_key_builder', function () {
     it('empty string returns empty string', function () {
       assert.strictEqual(normalizeIdentifier(''), '');
     });
+
+    it('mixed-case email with quoted display name preserves lowercase inside quotes', function () {
+      // The quoted segment "First Last" must survive verbatim; the unquoted
+      // domain part must be uppercased.
+      assert.strictEqual(
+        normalizeIdentifier('"First Last"@long-corporate-domain.example.com'),
+        '"First Last"@LONG-CORPORATE-DOMAIN.EXAMPLE.COM',
+      );
+    });
   });
 
   describe('buildCacheKey', function () {
-    it('produces the expected hash for a known golden input', function () {
-      // normalizeIdentifier preserves double-quoted content verbatim, so the
-      // raw input must carry the uppercase form to produce the expected hash.
+    it('golden hash A — OAuth flow (DPOP_BUNDLED_ACCESS_TOKEN)', function () {
       assert.strictEqual(
         buildCacheKey({
           tokenType: 'DPOP_BUNDLED_ACCESS_TOKEN',
           idp: 'https://login.microsoftonline.com:443/tenant-id/oauth2/v2.0',
           snowflake: 'https://myorg-myaccount.privatelink.snowflakecomputing.com',
-          username: '"FIRST LAST"@long-corporate-domain.example.com',
-          role: '"ANALYST ROLE WITH SPACES":north_america:prod:readonly',
+          username: '"First Last"@long-corporate-domain.example.com',
+          role: '"Analyst Role With Spaces":north_america:prod:readonly',
         }),
-        'SnowflakeTokenCache.v2.75ff2ad65a68afb402f125f62894697673c5ef3d863aba466d16b7a81053d1f4',
+        'SnowflakeTokenCache.v2.DPOP_BUNDLED_ACCESS_TOKEN.be782aa7c9abf8698adc9e6de61b954ccec7d9202899b44c2eb4e1dfa4313d5f',
       );
     });
 
-    it('key starts with versioned prefix', function () {
+    it('golden hash B — MFA flow (MFA_TOKEN)', function () {
+      assert.strictEqual(
+        buildCacheKey({
+          tokenType: 'MFA_TOKEN',
+          idp: '',
+          snowflake: 'https://myorg-myaccount.privatelink.snowflakecomputing.com',
+          username: '"First Last"@long-corporate-domain.example.com',
+          role: '',
+        }),
+        'SnowflakeTokenCache.v2.MFA_TOKEN.a508fa2858a6e22e9fdbc90b4149a3ff666d1acbb286c85ff179499ac92d75c8',
+      );
+    });
+
+    it('key starts with versioned prefix including token type', function () {
       const key = buildCacheKey({
         tokenType: CacheTokenTypes.ID_TOKEN,
-        idp: 'host.example.com',
+        idp: '',
         snowflake: 'host.example.com',
         username: 'testuser',
         role: '',
       });
-      assert.ok(key.startsWith('SnowflakeTokenCache.v2.'));
+      assert.ok(key.startsWith('SnowflakeTokenCache.v2.ID_TOKEN.'));
     });
 
     it('different snowflake hosts produce different keys', function () {
@@ -160,7 +180,7 @@ describe('cache_key_builder', function () {
       assert.notStrictEqual(key1, key2);
     });
 
-    it('different roles produce different keys', function () {
+    it('different roles produce different OAuth keys', function () {
       const base = {
         tokenType: CacheTokenTypes.OAUTH_ACCESS_TOKEN,
         idp: 'idp.example.com',
@@ -172,28 +192,38 @@ describe('cache_key_builder', function () {
       assert.notStrictEqual(key1, key2);
     });
 
-    it('MFA with empty role produces a stable key', function () {
-      const key = buildCacheKey({
+    it('MFA token key is stable across identical calls', function () {
+      const params = {
         tokenType: CacheTokenTypes.MFA_TOKEN,
+        idp: '',
+        snowflake: 'account.snowflakecomputing.com',
+        username: 'user',
+        role: '',
+      };
+      assert.strictEqual(buildCacheKey(params), buildCacheKey(params));
+    });
+
+    it('MFA and OAuth keys differ for the same user and host', function () {
+      const mfaKey = buildCacheKey({
+        tokenType: CacheTokenTypes.MFA_TOKEN,
+        idp: '',
+        snowflake: 'account.snowflakecomputing.com',
+        username: 'user',
+        role: '',
+      });
+      const oauthKey = buildCacheKey({
+        tokenType: CacheTokenTypes.OAUTH_ACCESS_TOKEN,
         idp: 'account.snowflakecomputing.com',
         snowflake: 'account.snowflakecomputing.com',
         username: 'user',
         role: '',
       });
-      assert.ok(key.startsWith('SnowflakeTokenCache.v2.'));
-      const key2 = buildCacheKey({
-        tokenType: CacheTokenTypes.MFA_TOKEN,
-        idp: 'account.snowflakecomputing.com',
-        snowflake: 'account.snowflakecomputing.com',
-        username: 'user',
-        role: '',
-      });
-      assert.strictEqual(key, key2);
+      assert.notStrictEqual(mfaKey, oauthKey);
     });
 
     it('different token types produce different keys', function () {
       const base = {
-        idp: 'account.snowflakecomputing.com',
+        idp: '',
         snowflake: 'account.snowflakecomputing.com',
         username: 'user',
         role: '',
@@ -203,26 +233,12 @@ describe('cache_key_builder', function () {
       assert.notStrictEqual(key1, key2);
     });
 
-    it('throws when idp is empty', function () {
-      assert.throws(
-        () =>
-          buildCacheKey({
-            tokenType: CacheTokenTypes.ID_TOKEN,
-            idp: '',
-            snowflake: 'host',
-            username: 'user',
-            role: '',
-          }),
-        /idp URL must not be empty/,
-      );
-    });
-
     it('throws when snowflake is empty', function () {
       assert.throws(
         () =>
           buildCacheKey({
             tokenType: CacheTokenTypes.ID_TOKEN,
-            idp: 'host',
+            idp: '',
             snowflake: '',
             username: 'user',
             role: '',
@@ -236,13 +252,31 @@ describe('cache_key_builder', function () {
         () =>
           buildCacheKey({
             tokenType: CacheTokenTypes.ID_TOKEN,
-            idp: 'host',
+            idp: '',
             snowflake: 'host',
             username: '',
             role: '',
           }),
         /username must not be empty/,
       );
+    });
+
+    it('MFA key ignores idp and role values — only snowflake and username matter', function () {
+      const keyWithEmptyIdp = buildCacheKey({
+        tokenType: CacheTokenTypes.MFA_TOKEN,
+        idp: '',
+        snowflake: 'account.snowflakecomputing.com',
+        username: 'user',
+        role: '',
+      });
+      const keyWithIgnoredIdp = buildCacheKey({
+        tokenType: CacheTokenTypes.MFA_TOKEN,
+        idp: 'some-idp-that-is-ignored.example.com',
+        snowflake: 'account.snowflakecomputing.com',
+        username: 'user',
+        role: 'IGNORED_ROLE',
+      });
+      assert.strictEqual(keyWithEmptyIdp, keyWithIgnoredIdp);
     });
   });
 

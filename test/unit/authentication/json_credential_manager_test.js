@@ -12,14 +12,14 @@ const fs = require('node:fs/promises');
 
 const key = buildCacheKey({
   tokenType: CacheTokenTypes.ID_TOKEN,
-  idp: 'mock_host',
+  idp: '',
   snowflake: 'mock_host',
   username: 'mock_user',
   role: '',
 });
 const key2 = buildCacheKey({
   tokenType: CacheTokenTypes.MFA_TOKEN,
-  idp: 'mock_host',
+  idp: '',
   snowflake: 'mock_host',
   username: 'mock_user',
   role: '',
@@ -171,15 +171,21 @@ describe('Json credential remove stale lock', function () {
 describe('Json credential format', function () {
   const cacheDirPath = path.join(os.homedir(), ...pathFromHome());
   const cacheFilePath = path.join(cacheDirPath, 'credential_cache_v1.json');
-  it('test - stored key equals the final SnowflakeTokenCache.v2.<hash> string (no double hash)', async function () {
+  it('test - stored key equals the final SnowflakeTokenCache.v2.<TOKEN_TYPE>.<hash> string (no double hash)', async function () {
     const credentialManager = new JsonCredentialManager();
     await credentialManager.write(key, randomPassword);
     await credentialManager.write(key2, randomPassword2);
     const credentials = JSON.parse(await fs.readFile(cacheFilePath, 'utf8'));
     assert.ok(credentials);
     assert.ok(credentials['tokens']);
-    assert.ok(key.startsWith('SnowflakeTokenCache.v2.'), 'key should use v2 format');
-    assert.ok(key2.startsWith('SnowflakeTokenCache.v2.'), 'key2 should use v2 format');
+    assert.ok(
+      key.startsWith('SnowflakeTokenCache.v2.ID_TOKEN.'),
+      'key should use v2 format with token type',
+    );
+    assert.ok(
+      key2.startsWith('SnowflakeTokenCache.v2.MFA_TOKEN.'),
+      'key2 should use v2 format with token type',
+    );
     assert.strictEqual(credentials['tokens'][key], randomPassword);
     assert.strictEqual(credentials['tokens'][key2], randomPassword2);
     await fs.rm(cacheFilePath);

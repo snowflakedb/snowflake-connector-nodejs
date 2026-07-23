@@ -2,7 +2,16 @@
 
 ## Upcoming Release
 
-- TBA
+Bug fixes:
+
+- Fixed token cache key collisions for multi-account (shared IdP) and multi-role
+  scenarios by switching to a versioned, SHA256-hashed canonical-JSON key with the
+  token type in the key prefix, applied uniformly across the JSON file backend and
+  custom credential managers. (snowflakedb/snowflake-connector-nodejs#N)
+- Fixed token cache key normalization to use lowercase for consistency with
+  case-insensitive Snowflake identifiers; token type in the key prefix now uses
+  PascalCase (`MfaToken`, `OauthAccessToken`) instead of `SCREAMING_SNAKE_CASE`.
+  (snowflakedb/snowflake-connector-nodejs#N)
 
 ## 3.1.0
 

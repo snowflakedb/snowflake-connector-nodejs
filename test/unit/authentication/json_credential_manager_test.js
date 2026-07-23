@@ -3,17 +3,27 @@ const {
   JsonCredentialManager,
   defaultJsonTokenCachePaths,
 } = require('../../../lib/authentication/secure_storage/json_credential_manager');
+const { buildCacheKey, CacheTokenTypes } = require('../../../lib/authentication/cache_key_builder');
 const Util = require('../../../lib/util');
-const { randomUUID, createHash } = require('crypto');
+const { randomUUID } = require('crypto');
 const path = require('path');
 const os = require('os');
 const fs = require('node:fs/promises');
-const host = 'mock_host';
-const user = 'mock_user';
-const credType = 'mock_cred';
-const credType2 = 'mock_cred2';
-const key = Util.buildCredentialCacheKey(host, user, credType);
-const key2 = Util.buildCredentialCacheKey(host, user, credType2);
+
+const key = buildCacheKey({
+  tokenType: CacheTokenTypes.ID_TOKEN,
+  idp: '',
+  snowflake: 'mock_host',
+  username: 'mock_user',
+  role: '',
+});
+const key2 = buildCacheKey({
+  tokenType: CacheTokenTypes.MFA_TOKEN,
+  idp: '',
+  snowflake: 'mock_host',
+  username: 'mock_user',
+  role: '',
+});
 const randomPassword = randomUUID();
 const randomPassword2 = randomUUID();
 
@@ -161,17 +171,23 @@ describe('Json credential remove stale lock', function () {
 describe('Json credential format', function () {
   const cacheDirPath = path.join(os.homedir(), ...pathFromHome());
   const cacheFilePath = path.join(cacheDirPath, 'credential_cache_v1.json');
-  it('test - json format', async function () {
+  it('test - stored key equals the final SnowflakeTokenCache.v2.<TokenType>.<hash> string (no double hash)', async function () {
     const credentialManager = new JsonCredentialManager();
     await credentialManager.write(key, randomPassword);
     await credentialManager.write(key2, randomPassword2);
-    const hashedKey1 = createHash('sha256').update(key).digest('hex');
-    const hashedKey2 = createHash('sha256').update(key2).digest('hex');
     const credentials = JSON.parse(await fs.readFile(cacheFilePath, 'utf8'));
-    assert.strictEqual(Util.exists(credentials), true);
-    assert.strictEqual(Util.exists(credentials['tokens']), true);
-    assert.strictEqual(credentials['tokens'][hashedKey1], randomPassword);
-    assert.strictEqual(credentials['tokens'][hashedKey2], randomPassword2);
+    assert.ok(credentials);
+    assert.ok(credentials['tokens']);
+    assert.ok(
+      key.startsWith('SnowflakeTokenCache.v2.IdToken.'),
+      'key should use v2 PascalCase format',
+    );
+    assert.ok(
+      key2.startsWith('SnowflakeTokenCache.v2.MfaToken.'),
+      'key2 should use v2 PascalCase format',
+    );
+    assert.strictEqual(credentials['tokens'][key], randomPassword);
+    assert.strictEqual(credentials['tokens'][key2], randomPassword2);
     await fs.rm(cacheFilePath);
   });
 });

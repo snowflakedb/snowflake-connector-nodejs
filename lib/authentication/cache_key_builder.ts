@@ -1,22 +1,26 @@
 import * as crypto from 'crypto';
 
-/** Canonical token type strings for the v2 cache key contract. */
+/**
+ * PascalCase token type strings for the v2 cache key prefix.
+ * The property names are kept for backward compatibility with call sites;
+ * the string values are the PascalCase segments written into the key.
+ */
 export const CacheTokenTypes = {
-  ID_TOKEN: 'ID_TOKEN',
-  MFA_TOKEN: 'MFA_TOKEN',
-  OAUTH_ACCESS_TOKEN: 'OAUTH_ACCESS_TOKEN',
-  OAUTH_REFRESH_TOKEN: 'OAUTH_REFRESH_TOKEN',
+  ID_TOKEN: 'IdToken',
+  MFA_TOKEN: 'MfaToken',
+  OAUTH_ACCESS_TOKEN: 'OauthAccessToken',
+  OAUTH_REFRESH_TOKEN: 'OauthRefreshToken',
 } as const;
 
 /** OAuth flows that require idp + role in keyData. */
-const OAUTH_TYPES = new Set([
-  'OAUTH_ACCESS_TOKEN',
-  'OAUTH_REFRESH_TOKEN',
-  'DPOP_BUNDLED_ACCESS_TOKEN',
-]);
+const OAUTH_TYPES = new Set(['OauthAccessToken', 'OauthRefreshToken', 'DpopBundledAccessToken']);
 
 export interface CacheKeyInput {
-  /** Canonical wire string, e.g. 'MFA_TOKEN', 'OAUTH_ACCESS_TOKEN'. */
+  /**
+   * PascalCase token type string written into the key prefix,
+   * e.g. 'MfaToken', 'OauthAccessToken'. Use `CacheTokenTypes` constants or
+   * pass the literal for types not covered by the enum (e.g. 'DpopBundledAccessToken').
+   */
   tokenType: string;
   /**
    * Raw IdP/token-endpoint URL (full URL, not just hostname).
@@ -27,7 +31,7 @@ export interface CacheKeyInput {
   snowflake: string;
   /** Raw Snowflake username. */
   username: string;
-  /** Raw role; empty string when role is not applicable (e.g. MFA, ID token). */
+  /** Raw role; empty string when role is not applicable (e.g. MfaToken, IdToken). */
   role: string;
 }
 
@@ -35,7 +39,7 @@ export interface CacheKeyInput {
  * Normalizes a URL for use as a cache key component.
  *
  * Strips scheme, userinfo, query string, and fragment. Trims a root-only
- * trailing slash. Uppercases the remainder. Preserves explicit ports and paths.
+ * trailing slash. Lowercases the remainder. Preserves explicit ports and paths.
  */
 export function normalizeUrl(url: string): string {
   // Strip scheme (case-insensitive: https://, HTTPS://, etc.)
@@ -59,43 +63,39 @@ export function normalizeUrl(url: string): string {
 
   // Trim a root-only trailing slash so bare-host URLs have no slash suffix.
   s = s.replace(/\/$/, '');
-  return s.toUpperCase();
+  return s.toLowerCase();
 }
 
 /**
  * Normalizes a Snowflake identifier for use as a cache key component.
  *
- * Uppercases characters outside double-quoted segments; preserves the contents
- * of `"..."` segments verbatim (including their surrounding quotes).
+ * Values that contain at least one double-quote character (`"`) are returned
+ * **verbatim** — they carry case-sensitive SQL semantics and must not be altered.
+ * Values without any double quotes are **lowercased** — they are case-insensitive
+ * in Snowflake, so lowercasing produces a stable canonical form.
  */
 export function normalizeIdentifier(id: string): string {
-  let result = '';
-  let inQuotes = false;
-  for (const ch of id) {
-    if (ch === '"') {
-      inQuotes = !inQuotes;
-      result += ch;
-    } else if (inQuotes) {
-      result += ch;
-    } else {
-      result += ch.toUpperCase();
-    }
-  }
-  return result;
+  // Quoted identifiers have case-sensitive semantics — return verbatim.
+  // Unquoted identifiers are case-insensitive in Snowflake — lowercase for canonical form.
+  return id.includes('"') ? id : id.toLowerCase();
 }
 
 /**
  * Builds a versioned, SHA256-hashed cache key from the given inputs.
  *
  * The key format is:
- *   `SnowflakeTokenCache.v2.<TOKEN_TYPE>.<sha256hex>`
+ *   `SnowflakeTokenCache.v2.<TokenType>.<sha256hex>`
  *
- * where the hash is computed over a compact, sorted-key canonical JSON document.
+ * where `<TokenType>` is PascalCase (e.g. `MfaToken`, `OauthAccessToken`) and the
+ * hash is computed over a compact, sorted-key canonical JSON document.
  * The `keyData` fields differ by flow:
- * - OAuth flows (`OAUTH_ACCESS_TOKEN`, `OAUTH_REFRESH_TOKEN`, `DPOP_BUNDLED_ACCESS_TOKEN`):
+ * - OAuth flows (`OauthAccessToken`, `OauthRefreshToken`, `DpopBundledAccessToken`):
  *   `{ idp, role, snowflake, username }` (4 fields).
- * - MFA and ID token flows (`MFA_TOKEN`, `ID_TOKEN`):
+ * - MFA and ID token flows (`MfaToken`, `IdToken`):
  *   `{ snowflake, username }` (2 fields; idp and role are excluded).
+ *
+ * `normalizeUrl` lowercases its output; `normalizeIdentifier` returns verbatim for
+ * values containing double quotes, and lowercases everything else.
  *
  * This key is used verbatim by both the OS keystore and JSON file backends;
  * hashing occurs exactly once here.
@@ -119,7 +119,7 @@ export function buildCacheKey(input: CacheKeyInput): string {
       username: normalizeIdentifier(input.username),
     };
   } else {
-    // MFA_TOKEN, ID_TOKEN — no idp or role in keyData
+    // MfaToken, IdToken — no idp or role in keyData
     keyData = {
       snowflake: normalizeUrl(input.snowflake),
       username: normalizeIdentifier(input.username),

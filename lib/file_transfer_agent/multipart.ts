@@ -1,4 +1,7 @@
-import * as fs from 'fs';
+import type * as fs from 'fs';
+import * as FilesystemAccess from '../filesystem_access';
+
+const { assertFilesystemAccessAllowed } = FilesystemAccess;
 
 /**
  * Hardcoded multipart tuning.
@@ -61,6 +64,7 @@ export async function readChunk(
   position: number,
   size: number,
 ): Promise<Buffer> {
+  assertFilesystemAccessAllowed();
   const buffer = Buffer.allocUnsafe(size);
   const { bytesRead } = await fd.read(buffer, 0, size, position);
   if (bytesRead !== size) {

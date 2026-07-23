@@ -16,6 +16,7 @@ describe('Snowflake Configure Tests', function () {
       keepAlive: GlobalConfig.getKeepAlive(),
       jsonColumnVariantParser: GlobalConfig.jsonColumnVariantParser,
       xmlColumnVariantParser: GlobalConfig.xmlColumnVariantParser,
+      blockFilesystemAccess: GlobalConfig.isFilesystemAccessBlocked(),
     };
   });
 
@@ -64,6 +65,11 @@ describe('Snowflake Configure Tests', function () {
         name: 'invalid proxy',
         options: { useEnvProxy: 'unsupported' },
         errorCode: ErrorCodes.ERR_GLOBAL_CONFIGURE_INVALID_USE_ENV_PROXY,
+      },
+      {
+        name: 'invalid blockFilesystemAccess',
+        options: { blockFilesystemAccess: 'unsupported' },
+        errorCode: ErrorCodes.ERR_GLOBAL_CONFIGURE_INVALID_BLOCK_FILESYSTEM_ACCESS,
       },
     ];
 
@@ -183,6 +189,18 @@ describe('Snowflake Configure Tests', function () {
           useEnvProxy: true,
         },
       },
+      {
+        name: 'blockFilesystemAccess false',
+        options: {
+          blockFilesystemAccess: false,
+        },
+      },
+      {
+        name: 'blockFilesystemAccess true',
+        options: {
+          blockFilesystemAccess: true,
+        },
+      },
     ];
 
     testCases.forEach((testCase) => {
@@ -201,6 +219,8 @@ describe('Snowflake Configure Tests', function () {
             val = GlobalConfig.getKeepAlive();
           } else if (key === 'useEnvProxy') {
             val = GlobalConfig.isEnvProxyActive();
+          } else if (key === 'blockFilesystemAccess') {
+            val = GlobalConfig.isFilesystemAccessBlocked();
           } else {
             val = GlobalConfig[key];
           }

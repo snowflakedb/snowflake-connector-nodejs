@@ -61,6 +61,14 @@ declare module 'snowflake-sdk' {
 
   export type ConfigureOptions = Partial<GlobalConfigOptionsTyped> & {
     /**
+     * Blocks filesystem access performed by file-transfer operations such as PUT/GET.
+     * Driver-managed credentials, logging, caches, and configuration discovery remain available.
+     *
+     * @default false
+     */
+    blockFilesystemAccess?: boolean;
+
+    /**
      * Set the logLevel and logFilePath,
      * https://docs.snowflake.com/en/developer-guide/node-js/nodejs-driver-logs.
      */

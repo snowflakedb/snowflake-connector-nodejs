@@ -27,14 +27,14 @@ jobs:
     name: Build
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - name: Build
         shell: bash
         env:
           WHITESOURCE_API_KEY: ${{ secrets.WHITESOURCE_API_KEY }}
         run: ./ci/build.sh
       - name: Upload Build Artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: artifacts
           path: artifacts
@@ -58,15 +58,15 @@ jobs:
           - { label: '22.x', version: '22.23.1' }
           - { label: '24.x', version: '24.18.0' }
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v6
         with:
           node-version: ${{ matrix.nodeVersion.version }}
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@v7
         with:
           python-version: '3.12'
       - name: Download Build Artifacts
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v7
         with:
           name: artifacts
           path: artifacts
@@ -106,21 +106,21 @@ jobs:
           - { label: '22.x', version: '22.23.1' }
           - { label: '24.x', version: '24.18.0' }
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-java@v4
+      - uses: actions/checkout@v7
+      - uses: actions/setup-java@v5
         with:
           distribution: 'temurin'
           java-version: '17'
           java-package: 'jre'
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v6
         with:
           node-version: ${{ matrix.nodeVersion.version }}
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@v7
         with:
           python-version: '3.7'
           architecture: 'x64'
       - name: Download Build Artifacts
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v7
         with:
           name: artifacts
           path: artifacts
@@ -143,9 +143,9 @@ jobs:
         image: ['nodejs-chainguard-node18', 'nodejs-chainguard-node18-fips']
         cloud: ['AWS', 'AZURE', 'GCP']
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - name: Download Build Artifacts
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v7
         with:
           name: artifacts
           path: artifacts
@@ -177,14 +177,14 @@ jobs:
           - { label: '22.x', version: '22.23.1' }
           - { label: '24.x', version: '24.18.0' }
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - name: Download Build Artifacts
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v7
         with:
           name: artifacts
           path: artifacts
       - name: Use Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
           node-version: ${{ matrix.nodeVersion.version }}
       - name: Tests
@@ -206,15 +206,15 @@ jobs:
     name: Bun smoke test on Ubuntu (AWS)
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v6
         with:
           node-version: '22.x'
       - uses: oven-sh/setup-bun@v2
         with:
           bun-version: latest
       - name: Download Build Artifacts
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v7
         with:
           name: artifacts
           path: artifacts
@@ -238,7 +238,7 @@ jobs:
         cloud: ['AWS', 'AZURE', 'GCP']
         nodeVersion: ['20', '22']
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - name: Test
         shell: bash
         env:

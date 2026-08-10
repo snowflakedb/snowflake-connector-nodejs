@@ -2,7 +2,9 @@
 
 ## Upcoming Release
 
-- TBA
+Bugfixes:
+
+- Fixed the TypeScript typing for `connection.fetchResult()`, which incorrectly required `sqlText` and omitted `queryId` (snowflakedb/snowflake-connector-nodejs#TODO)
 
 ## 3.1.0
 

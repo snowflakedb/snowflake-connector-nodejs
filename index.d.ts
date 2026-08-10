@@ -308,7 +308,9 @@ declare module 'snowflake-sdk' {
     /**
      * Fetches the result of a previously issued statement.
      */
-    fetchResult(options: StatementOption): RowStatement | FileAndStageBindStatement;
+    fetchResult(
+      options: { queryId: string } & Partial<StatementOption>,
+    ): RowStatement | FileAndStageBindStatement;
 
     /**
      * Immediately terminates the connection without waiting for currently executing statements to complete.

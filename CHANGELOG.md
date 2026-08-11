@@ -10,6 +10,7 @@ Changes:
 Bugfixes:
 
 - Fixed the TypeScript typing for `connection.fetchResult()`, which incorrectly required `sqlText` and omitted `queryId` (snowflakedb/snowflake-connector-nodejs#1462)
+- Fixed Azure PUT/GET file transfers failing on non-commercial Azure clouds (snowflakedb/snowflake-connector-nodejs#1459)
 
 ## 3.1.0
 

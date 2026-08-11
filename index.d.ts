@@ -308,7 +308,9 @@ declare module 'snowflake-sdk' {
     /**
      * Fetches the result of a previously issued statement.
      */
-    fetchResult(options: StatementOption): RowStatement | FileAndStageBindStatement;
+    fetchResult(
+      options: { queryId: string } & Partial<StatementOption>,
+    ): RowStatement | FileAndStageBindStatement;
 
     /**
      * Immediately terminates the connection without waiting for currently executing statements to complete.
@@ -527,6 +529,9 @@ declare module 'snowflake-sdk' {
      * Fetches the rows in this statement's result and invokes each()
      * callback on each row. If start and end values are specified each()
      * callback will only be invoked on rows in the specified range.
+     *
+     * @deprecated
+     * This method is going to be removed in the next major version. Use `streamRows` instead.
      */
     fetchRows(options?: StreamOptions): Readable;
   }
@@ -636,16 +641,6 @@ declare module 'snowflake-sdk' {
      * Returns true if this column is type MAP.
      */
     isMap(): boolean;
-
-    /**
-     * Returns the value of this column in a row.
-     */
-    getRowValue(row: object): any;
-
-    /**
-     * Returns the value of this in a row as a String.
-     */
-    getRowValueAsString(row: object): string;
   }
 
   export interface OcspModes {

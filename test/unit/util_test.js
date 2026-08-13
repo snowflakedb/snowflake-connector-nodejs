@@ -1,4 +1,5 @@
 const Util = require('./../../lib/util');
+const { isPrivateLink } = require('./../../lib/url_util');
 const assert = require('assert');
 
 describe('Util', function () {
@@ -678,7 +679,7 @@ describe('Util', function () {
       },
     ].forEach(({ name, host, result }) => {
       it(`${name} is valid`, () => {
-        assert.equal(Util.isPrivateLink(host), result);
+        assert.equal(isPrivateLink(host), result);
       });
     });
   });

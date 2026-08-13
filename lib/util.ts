@@ -335,17 +335,6 @@ export function constructHostname(region: string, account: string) {
 }
 
 /**
- * Returns true if host indicates private link
- */
-export function isPrivateLink(host: string) {
-  return host.toLowerCase().includes('privatelink.snowflakecomputing.');
-}
-
-export function createOcspResponseCacheServerUrl(host: string) {
-  return `http://ocsp.${host}/ocsp_response_cache.json`;
-}
-
-/**
  * Returns if command is a PUT command
  */
 export function isPutCommand(sqlText: string) {

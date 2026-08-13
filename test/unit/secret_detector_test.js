@@ -47,7 +47,7 @@ describe('Secret Detector', function () {
     assert.strictEqual(result.errstr, errstr.toString());
   });
 
-  it('test - mask token', async function () {
+  it('mask token', async function () {
     const longToken =
       '_Y1ZNETTn5/qfUWj3Jedby7gipDzQs=U' +
       'KyJH9DS=nFzzWnfZKGV+C7GopWCGD4Lj' +
@@ -90,7 +90,7 @@ describe('Secret Detector', function () {
     assert.strictEqual(result.errstr, null);
   });
 
-  it('test - false positive', async function () {
+  it('false positive', async function () {
     const falsePositiveToken =
       '2020-04-30 23:06:04,069 - MainThread auth.py:397' +
       ' - write_temporary_credential() - DEBUG - no ID ' +
@@ -102,7 +102,7 @@ describe('Secret Detector', function () {
     assert.strictEqual(result.errstr, null);
   });
 
-  it('test - password', async function () {
+  it('password', async function () {
     const randomPassword = 'Fh[+2J~AcqeqW%?';
 
     let randomPasswordWithPrefix = 'password:' + randomPassword;
@@ -136,7 +136,7 @@ describe('Secret Detector', function () {
     assert.strictEqual(result.errstr, null);
   });
 
-  it('test - token password', async function () {
+  it('token password', async function () {
     const longToken =
       '_Y1ZNETTn5/qfUWj3Jedby7gipDzQs=U' +
       'KyJH9DS=nFzzWnfZKGV+C7GopWCGD4Lj' +
@@ -293,7 +293,7 @@ describe('Secret Detector', function () {
     }
   });
 
-  it('test - passcode masking', async function () {
+  it('passcode masking', async function () {
     const fourDigitPasscode = 'passcode=1234';
     let result = SecretDetector.maskSecrets(fourDigitPasscode);
     assert.strictEqual(result.masked, true);
@@ -325,7 +325,7 @@ describe('Secret Detector', function () {
     assert.strictEqual(result.errstr, null);
   });
 
-  it('test - url token masking', async function () {
+  it('url token masking', async function () {
     const TEST_TOKEN_VALUE =
       'ETMsDgAAAZNi6aPlABRBRVMvQ0JDL1BLQ1M1UGFkZGluZwEAABAAEExQLlI3h9PIi9TcCRVdwlEAAABQLsgIQdJ0%2B8eQhDMjViFuY5v03Daxt235tNHYVLNoIqM70yLw4zyVdPlkEi208dS88lSqRvPdgQ/RACU7u%2Bn9gWLiTZ79dkZwl4zQactAKJgAFCUrvbxA2tnUP%2BsX6nPBNBzVWnK5';
     const TEST_TOKEN_VERSION_PREFIX = 'ver:1';
@@ -387,7 +387,7 @@ describe('Secret Detector', function () {
     assert.strictEqual(result.maskedtxt, 'token=****');
     assert.strictEqual(result.errstr, null);
   });
-  describe('test - oauthClientId masking', async function () {
+  describe('oauthClientId masking', async function () {
     const randomOauthClientIdValue = 'Fh[+2J~AcqeqW%?';
 
     const testCases = [
@@ -422,7 +422,7 @@ describe('Secret Detector', function () {
     ];
 
     testCases.forEach(({ name, outhClientIdString, maskedtxt, maskedFlag, errstr }) => {
-      it(`test - ${name}`, async function () {
+      it(`${name}`, async function () {
         const result = SecretDetector.maskSecrets(outhClientIdString);
         assert.strictEqual(result.masked, maskedFlag);
         assert.strictEqual(result.maskedtxt, maskedtxt);
@@ -431,7 +431,7 @@ describe('Secret Detector', function () {
     });
   });
 
-  describe('test - oauthClientSecret masking', async function () {
+  describe('oauthClientSecret masking', async function () {
     const randomOauthClientIdValue = 'Fh[+2J~AcqeqW%?';
 
     const testCases = [
@@ -466,7 +466,7 @@ describe('Secret Detector', function () {
     ];
 
     testCases.forEach(({ name, outhClientSecretString, maskedtxt, maskedFlag, errstr }) => {
-      it(`test - ${name}`, async function () {
+      it(`${name}`, async function () {
         const result = SecretDetector.maskSecrets(outhClientSecretString);
         assert.strictEqual(result.masked, maskedFlag);
         assert.strictEqual(result.maskedtxt, maskedtxt);
@@ -475,7 +475,7 @@ describe('Secret Detector', function () {
     });
   });
 
-  describe('test - clientSecret masking', async function () {
+  describe('clientSecret masking', async function () {
     const randomOauthClientIdValue = 'Fh[+2J~AcqeqW%?';
 
     const testCases = [
@@ -510,12 +510,92 @@ describe('Secret Detector', function () {
     ];
 
     testCases.forEach(({ name, clientSecretString, maskedtxt, maskedFlag, errstr }) => {
-      it(`test - ${name}`, async function () {
+      it(`${name}`, async function () {
         const result = SecretDetector.maskSecrets(clientSecretString);
         assert.strictEqual(result.masked, maskedFlag);
         assert.strictEqual(result.maskedtxt, maskedtxt);
         assert.strictEqual(result.errstr, errstr);
       });
     });
+  });
+
+  // Additional cloud-storage URL query-param and SSE-C header masking cases
+  // (SAS `sig`, X-Amz-Signature/Credential/Security-Token, X-Goog-Signature,
+  // full presigned URL, SSE-C header). See Finding #4 for context.
+  it('Azure SAS sig token masking', async function () {
+    const sig = 'a1B2c3D4e5F6g7H8i9J0kLmNoPqRsTuVwXyZ0123456';
+    const result = SecretDetector.maskSecrets('sig=' + sig);
+    assert.strictEqual(result.masked, true);
+    assert.strictEqual(result.maskedtxt, 'sig=****');
+    assert.ok(!result.maskedtxt.includes(sig), 'sig value must be masked');
+    assert.strictEqual(result.errstr, null);
+  });
+
+  it('S3 X-Amz-Signature masking', async function () {
+    const sig = '0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef';
+    const result = SecretDetector.maskSecrets('X-Amz-Signature=' + sig);
+    assert.strictEqual(result.masked, true);
+    assert.strictEqual(result.maskedtxt, 'X-Amz-Signature=****');
+    assert.ok(!result.maskedtxt.includes(sig), 'signature value must be masked');
+    assert.strictEqual(result.errstr, null);
+  });
+
+  it('GCS X-Goog-Signature masking', async function () {
+    const sig = 'fedcba9876543210fedcba9876543210fedcba9876543210fedcba9876543210';
+    const result = SecretDetector.maskSecrets('X-Goog-Signature=' + sig);
+    assert.strictEqual(result.masked, true);
+    assert.strictEqual(result.maskedtxt, 'X-Goog-Signature=****');
+    assert.ok(!result.maskedtxt.includes(sig), 'signature value must be masked');
+    assert.strictEqual(result.errstr, null);
+  });
+
+  it('S3 X-Amz-Credential masking', async function () {
+    const cred = 'AKIAIOSFODNN7EXAMPLE%2F20130524%2Fus-east-1%2Fs3%2Faws4_request';
+    const result = SecretDetector.maskSecrets('X-Amz-Credential=' + cred);
+    assert.strictEqual(result.masked, true);
+    assert.strictEqual(result.maskedtxt, 'X-Amz-Credential=****');
+    assert.ok(!result.maskedtxt.includes(cred), 'credential value must be masked');
+    assert.strictEqual(result.errstr, null);
+  });
+
+  it('S3 X-Amz-Security-Token masking', async function () {
+    const token = 'FQoGZXIvYXdzEND%2F%2F%2F%2F%2F%2FwEaDF9wZXhhbXBsZXRva2Vu';
+    const result = SecretDetector.maskSecrets('X-Amz-Security-Token=' + token);
+    assert.strictEqual(result.masked, true);
+    assert.strictEqual(result.maskedtxt, 'X-Amz-Security-Token=****');
+    assert.ok(!result.maskedtxt.includes(token), 'security token value must be masked');
+    assert.strictEqual(result.errstr, null);
+  });
+
+  it('full presigned S3 URL masking', async function () {
+    const sig = 'abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789';
+    const cred = 'AKIAIOSFODNN7EXAMPLE%2F20130524%2Fus-east-1%2Fs3%2Faws4_request';
+    const url =
+      'https://mybucket.s3.us-east-1.amazonaws.com/path/to/file.csv?' +
+      'X-Amz-Algorithm=AWS4-HMAC-SHA256' +
+      '&X-Amz-Credential=' +
+      cred +
+      '&X-Amz-Date=20130524T000000Z&X-Amz-Expires=86400&X-Amz-SignedHeaders=host' +
+      '&X-Amz-Signature=' +
+      sig;
+    const result = SecretDetector.maskSecrets(url);
+    assert.strictEqual(result.masked, true);
+    assert.ok(!result.maskedtxt.includes(sig), 'signature value must be masked');
+    assert.ok(!result.maskedtxt.includes(cred), 'credential value must be masked');
+    assert.ok(result.maskedtxt.includes('****'), 'masked marker must be present');
+    assert.ok(
+      result.maskedtxt.includes('mybucket.s3.us-east-1.amazonaws.com'),
+      'non-secret host must be preserved',
+    );
+    assert.strictEqual(result.errstr, null);
+  });
+
+  it('SSE-C customer key masking', async function () {
+    const key = 'c2VjcmV0S2V5Rm9yU1NFQ0N1c3RvbWVyMzJieXRlc3g=';
+    const result = SecretDetector.maskSecrets('x-amz-server-side-encryption-customer-key=' + key);
+    assert.strictEqual(result.masked, true);
+    assert.strictEqual(result.maskedtxt, 'x-amz-server-side-encryption-customer-key=****');
+    assert.ok(!result.maskedtxt.includes(key), 'SSE-C customer key must be masked');
+    assert.strictEqual(result.errstr, null);
   });
 });

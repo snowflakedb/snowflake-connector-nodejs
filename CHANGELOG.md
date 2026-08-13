@@ -10,6 +10,7 @@ Changes:
 
 - Marked `RowStatement.fetchRows()` as deprecated. This method will be removed in the next major version; use `streamRows()` instead (snowflakedb/snowflake-connector-nodejs#1463)
 - Removed the `getRowValue()` and `getRowValueAsString()` methods from the `Column` interface. These methods required an internal row representation that is never exposed publicly, so calling them on user-visible rows always threw a runtime error (snowflakedb/snowflake-connector-nodejs#1463)
+- Reduced what is written when the driver logs the responses it receives from cloud storage while downloading large result sets: the debug and trace messages now list the response header names instead of the whole header object, so header values are no longer part of the log output
 
 Bugfixes:
 

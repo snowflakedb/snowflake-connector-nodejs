@@ -701,57 +701,6 @@ describe('Util', function () {
     });
   });
 
-  describe('Util test - custom credential manager util functions', function () {
-    const mockUser = 'mockUser';
-    const mockHost = 'mockHost';
-    const mockCred = 'mockCred';
-
-    describe('test function build credential key', function () {
-      const testCases = [
-        {
-          name: 'when all the parameters are null',
-          user: null,
-          host: null,
-          cred: null,
-          result: null,
-        },
-        {
-          name: 'when two parameters are null or undefined',
-          user: mockUser,
-          host: null,
-          cred: undefined,
-          result: null,
-        },
-        {
-          name: 'when one parameter is null',
-          user: mockUser,
-          host: mockHost,
-          cred: undefined,
-          result: null,
-        },
-        {
-          name: 'when one parameter is undefined',
-          user: mockUser,
-          host: undefined,
-          cred: mockCred,
-          result: null,
-        },
-        {
-          name: 'when all the parameters are valid',
-          user: mockUser,
-          host: mockHost,
-          cred: mockCred,
-          result: '{MOCKHOST}:{MOCKUSER}:{MOCKCRED}',
-        },
-      ];
-      testCases.forEach(({ name, user, host, cred, result }) => {
-        it(`${name}`, function () {
-          assert.strictEqual(Util.buildCredentialCacheKey(host, user, cred), result);
-        });
-      });
-    });
-  });
-
   describe('test valid custom credential manager', function () {
     function sampleManager() {
       this.read = function () {};

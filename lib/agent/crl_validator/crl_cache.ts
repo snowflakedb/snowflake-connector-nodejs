@@ -7,14 +7,14 @@ import Logger from '../../logger';
 
 export const CRL_MEMORY_CACHE = new Map<
   string,
-  { expireAt: number; crl: rfc5280.CertificateListDecoded }
+  { expireAt: number; crl: rfc5280.CertificateListDecoded; raw: Buffer }
 >();
 
 export function getCrlFromMemory(url: string) {
   const cachedEntry = CRL_MEMORY_CACHE.get(url);
   if (cachedEntry) {
     if (cachedEntry.expireAt > Date.now()) {
-      return cachedEntry.crl;
+      return { crl: cachedEntry.crl, raw: cachedEntry.raw };
     } else {
       CRL_MEMORY_CACHE.delete(url);
       return null;
@@ -24,13 +24,14 @@ export function getCrlFromMemory(url: string) {
   }
 }
 
-export function setCrlInMemory(url: string, crl: rfc5280.CertificateListDecoded) {
+export function setCrlInMemory(url: string, crl: rfc5280.CertificateListDecoded, raw: Buffer) {
   CRL_MEMORY_CACHE.set(url, {
     expireAt: Math.min(
       Date.now() + GlobalConfigTyped.getValue('crlCacheValidityTime'),
       crl.tbsCertList.nextUpdate.value,
     ),
     crl,
+    raw,
   });
 }
 
@@ -78,7 +79,7 @@ export async function getCrlFromDisk(url: string) {
     const rawCrl = await fs.readFile(filePath);
     const decodedCrl = rfc5280.CertificateList.decode(rawCrl, 'der');
     if (decodedCrl.tbsCertList.nextUpdate.value > Date.now()) {
-      return decodedCrl;
+      return { crl: decodedCrl, raw: rawCrl };
     } else {
       Logger().debug(`CRL ${filePath} is expired, ignoring.`);
       return null;

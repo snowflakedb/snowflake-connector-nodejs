@@ -13,6 +13,10 @@ Bugfixes:
 - Fixed Azure PUT/GET file transfers failing on non-commercial Azure clouds (snowflakedb/snowflake-connector-nodejs#1459)
 - Fixed `compressFileWithGZIP` crashing the Node process with an unhandled stream `'error'` event when the source file for a `PUT` cannot be read (snowflakedb/snowflake-connector-nodejs#1454)
 
+Internal:
+
+- Improved crl signature verification performance by 100x (snowflakedb/snowflake-connector-nodejs#1469)
+
 ## 3.1.0
 
 New features:

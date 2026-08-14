@@ -44,6 +44,7 @@ describe('Azure client', function () {
     stageInfo: {
       location: mockLocation,
       path: mockTable + '/' + mockPath + '/',
+      storageAccount: 'mockAccount',
       creds: {},
     },
     SHA256_DIGEST: mockDigest,
@@ -86,6 +87,78 @@ describe('Azure client', function () {
     assert.strictEqual(result.containerName, containerName);
     assert.strictEqual(result.path, path);
   }
+
+  it('createClient uses commercial endpoint when GS sends none', function () {
+    const Azure = mockBlobClient();
+    Azure.createClient({ creds: { AZURE_SAS_TOKEN: '?sig=abc' }, storageAccount: 'myacct' });
+    const connectionString = AZURE.BlobServiceClient.firstCall.args[0];
+    assert.strictEqual(connectionString, 'https://myacct.blob.core.windows.net?sig=abc');
+  });
+
+  it('createClient honors stageInfo endPoint for Azure Gov', function () {
+    const Azure = mockBlobClient();
+    Azure.createClient({
+      creds: { AZURE_SAS_TOKEN: '?sig=abc' },
+      storageAccount: 'myacct',
+      endPoint: 'core.usgovcloudapi.net',
+    });
+    const connectionString = AZURE.BlobServiceClient.firstCall.args[0];
+    assert.strictEqual(connectionString, 'https://myacct.blob.core.usgovcloudapi.net?sig=abc');
+  });
+
+  it('createClient does not double-prefix a blob. endPoint from stageInfo', function () {
+    const Azure = mockBlobClient();
+    Azure.createClient({
+      creds: { AZURE_SAS_TOKEN: '?sig=abc' },
+      storageAccount: 'myacct',
+      endPoint: 'blob.core.usgovcloudapi.net',
+    });
+    const connectionString = AZURE.BlobServiceClient.firstCall.args[0];
+    assert.strictEqual(connectionString, 'https://myacct.blob.core.usgovcloudapi.net?sig=abc');
+  });
+
+  it('createClient honors stageInfo endPoint for Azure China', function () {
+    const Azure = mockBlobClient();
+    Azure.createClient({
+      creds: { AZURE_SAS_TOKEN: '?sig=abc' },
+      storageAccount: 'myacct',
+      endPoint: 'core.chinacloudapi.cn',
+    });
+    const connectionString = AZURE.BlobServiceClient.firstCall.args[0];
+    assert.strictEqual(connectionString, 'https://myacct.blob.core.chinacloudapi.cn?sig=abc');
+  });
+
+  it('createClient uses a scheme-prefixed endPoint verbatim as the base URL', function () {
+    const Azure = mockBlobClient();
+    Azure.createClient({
+      creds: { AZURE_SAS_TOKEN: '?sig=abc' },
+      storageAccount: 'myacct',
+      endPoint: 'https://127.0.0.1:10000/devstoreaccount1',
+    });
+    const connectionString = AZURE.BlobServiceClient.firstCall.args[0];
+    assert.strictEqual(connectionString, 'https://127.0.0.1:10000/devstoreaccount1?sig=abc');
+  });
+
+  it('createClient throws naming storageAccount when it is missing', function () {
+    const Azure = mockBlobClient();
+    assert.throws(
+      () => Azure.createClient({ creds: { AZURE_SAS_TOKEN: '?sig=abc' } }),
+      /storageAccount/,
+    );
+  });
+
+  it('createClient throws naming storageAccount when it is empty', function () {
+    const Azure = mockBlobClient();
+    assert.throws(
+      () =>
+        Azure.createClient({
+          creds: { AZURE_SAS_TOKEN: '?sig=abc' },
+          storageAccount: '',
+          endPoint: 'core.usgovcloudapi.net',
+        }),
+      /storageAccount/,
+    );
+  });
 
   it('extract bucket name and path', async function () {
     const Azure = mockBlobClient();

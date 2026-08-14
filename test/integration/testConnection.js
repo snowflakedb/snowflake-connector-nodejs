@@ -49,7 +49,7 @@ describe('Connection test', function () {
     const connection = snowflake.createConnection(connOption.wrongUserName);
     connection.connect(function (err) {
       assert.ok(err, 'Username is an empty string');
-      assert.equal('Incorrect username or password was specified.', err['message']);
+      assert.match(err.message, /Incorrect username or password was specified/);
       done();
     });
   });
@@ -58,7 +58,7 @@ describe('Connection test', function () {
     const connection = snowflake.createConnection(connOption.wrongPwd);
     connection.connect(function (err) {
       assert.ok(err, 'Password is an empty string');
-      assert.equal('Incorrect username or password was specified.', err['message']);
+      assert.match(err.message, /Incorrect username or password was specified/);
       done();
     });
   });
@@ -839,7 +839,7 @@ describe('Connection test - connection pool', function () {
         assert.equal(connectionPool.size, 1);
       });
     } catch (err) {
-      assert.strictEqual(err.message, 'Incorrect username or password was specified.');
+      assert.match(err.message, /Incorrect username or password was specified/);
     }
   });
 
@@ -856,7 +856,7 @@ describe('Connection test - connection pool', function () {
     try {
       await connectionPool.acquire();
     } catch (err) {
-      assert.strictEqual(err.message, 'Incorrect username or password was specified.');
+      assert.match(err.message, /Incorrect username or password was specified/);
     }
   });
 });

@@ -68,7 +68,8 @@ describe('getCrl', () => {
         maxContentLength: 20971520,
       }),
     );
-    assert.deepEqual(fetchedCrl, testCrl);
+    assert.deepEqual(fetchedCrl.crl, testCrl);
+    assert.deepEqual(fetchedCrl.raw, testCrlRaw);
   });
 
   it('fetches only once if multiple requests are made at the same time', async () => {
@@ -85,8 +86,8 @@ describe('getCrl', () => {
     ]);
     assert.strictEqual(axiosGetStub.callCount, 1);
     assert.strictEqual(PENDING_FETCH_REQUESTS.size, 0);
-    assert.deepEqual(crl1, testCrl);
-    assert.deepEqual(crl2, testCrl);
+    assert.deepEqual(crl1.crl, testCrl);
+    assert.deepEqual(crl2.crl, testCrl);
   });
 
   it('writes fetched data to cache', async () => {
@@ -96,18 +97,19 @@ describe('getCrl', () => {
       onDiskCache: true,
     });
     assert.strictEqual(axiosGetStub.callCount, 1);
-    assert.deepEqual(crlCacheModule.getCrlFromMemory(crlUrl), testCrl);
-    assert.deepEqual(await crlCacheModule.getCrlFromDisk(crlUrl), testCrl);
+    assert.deepEqual(crlCacheModule.getCrlFromMemory(crlUrl)?.crl, testCrl);
+    assert.deepEqual((await crlCacheModule.getCrlFromDisk(crlUrl))?.crl, testCrl);
   });
 
   it('returns from memory cache if entry exists', async () => {
-    crlCacheModule.setCrlInMemory(crlUrl, testCrl);
+    crlCacheModule.setCrlInMemory(crlUrl, testCrl, testCrlRaw);
     const fetchedCrl = await getCrl(crlUrl, {
       inMemoryCache: true,
       onDiskCache: false,
     });
     assert.strictEqual(axiosGetStub.callCount, 0);
-    assert.deepEqual(fetchedCrl, testCrl);
+    assert.deepEqual(fetchedCrl.crl, testCrl);
+    assert.deepEqual(fetchedCrl.raw, testCrlRaw);
   });
 
   it('returns from disk cache and adds to memory cache if entry exists', async () => {
@@ -117,7 +119,7 @@ describe('getCrl', () => {
       onDiskCache: true,
     });
     assert.strictEqual(axiosGetStub.callCount, 0);
-    assert.deepEqual(fetchedCrl, testCrl);
-    assert.deepEqual(crlCacheModule.getCrlFromMemory(crlUrl), testCrl);
+    assert.deepEqual(fetchedCrl.crl, testCrl);
+    assert.deepEqual(crlCacheModule.getCrlFromMemory(crlUrl)?.crl, testCrl);
   });
 });

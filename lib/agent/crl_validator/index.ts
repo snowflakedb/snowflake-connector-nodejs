@@ -112,13 +112,13 @@ export async function validateCrl(certChain: DetailedPeerCertificate, config: CR
 
     for (const crlUrl of crlUrls) {
       logDebug(`fetching ${crlUrl}`);
-      const crl = await getCrl(crlUrl, {
+      const { crl, raw } = await getCrl(crlUrl, {
         inMemoryCache: config.inMemoryCache,
         onDiskCache: config.onDiskCache,
       });
 
       logDebug(`validating ${crlUrl} signature`);
-      if (!isCrlSignatureValid(crl, issuerPublicKey)) {
+      if (!isCrlSignatureValid(raw, issuerPublicKey)) {
         throw new Error(
           `CRL ${crlUrl} signature is invalid. Expected signature by ${getCertificateDebugName(certificate.issuerCertificate)}`,
         );

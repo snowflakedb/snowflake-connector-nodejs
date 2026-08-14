@@ -10,25 +10,25 @@ const FIXTURES_DIR = path.join(__dirname, 'fixtures');
 
 describe('isCrlSignatureValid with real OpenSSL-generated CRL', () => {
   describe('RSASSA-PSS SHA-256', () => {
-    let crl: rfc5280.CertificateListDecoded;
+    let rawCrl: Buffer;
     let caPem: string;
 
     before(() => {
-      const crlDer = fs.readFileSync(path.join(FIXTURES_DIR, 'pss_sha256.crl'));
+      rawCrl = fs.readFileSync(path.join(FIXTURES_DIR, 'pss_sha256.crl'));
       caPem = fs.readFileSync(path.join(FIXTURES_DIR, 'pss_sha256_ca.pem'), 'utf8');
-      crl = rfc5280.CertificateList.decode(crlDer, 'der');
     });
 
     it('validates the CRL against its CA public key', () => {
+      const crl = rfc5280.CertificateList.decode(rawCrl, 'der');
       const signatureOid = crl.signatureAlgorithm.algorithm.join('.');
       assert.strictEqual(signatureOid, ALGORITHM_OID.RSASSA_PSS);
-      const isValid = isCrlSignatureValid(crl, caPem);
+      const isValid = isCrlSignatureValid(rawCrl, caPem);
       assert.strictEqual(isValid, true);
     });
 
     it('rejects the CRL when verified against an unrelated key', () => {
       const unrelatedKeyPair = createCertificateKeyPair();
-      const isValid = isCrlSignatureValid(crl, unrelatedKeyPair.publicKeyPem);
+      const isValid = isCrlSignatureValid(rawCrl, unrelatedKeyPair.publicKeyPem);
       assert.strictEqual(isValid, false);
     });
   });

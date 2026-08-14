@@ -11,7 +11,13 @@ import {
   writeCrlToDisk,
 } from './crl_cache';
 
-export const PENDING_FETCH_REQUESTS = new Map<string, Promise<rfc5280.CertificateListDecoded>>();
+export const PENDING_FETCH_REQUESTS = new Map<
+  string,
+  Promise<{
+    crl: rfc5280.CertificateListDecoded;
+    raw: Buffer;
+  }>
+>();
 
 let memoryCacheCleanerInterval: NodeJS.Timeout | undefined;
 let diskCacheCleanerInterval: NodeJS.Timeout | undefined;
@@ -64,7 +70,7 @@ export async function getCrl(
     const cachedCrl = await getCrlFromDisk(url);
     if (cachedCrl) {
       if (options.inMemoryCache) {
-        setCrlInMemory(url, cachedCrl);
+        setCrlInMemory(url, cachedCrl.crl, cachedCrl.raw);
       }
       logDebug(`Returning from disk cache`);
       return cachedCrl;
@@ -74,26 +80,26 @@ export async function getCrl(
   const fetchPromise = (async () => {
     try {
       logDebug(`Downloading CRL`);
-      const { data } = await axios.get(url, {
+      const { data: raw } = await axios.get<Buffer>(url, {
         timeout: GlobalConfigTyped.getValue('crlDownloadTimeout'),
         responseType: 'arraybuffer',
         maxContentLength: GlobalConfigTyped.getValue('crlDownloadMaxSize'),
       });
 
       logDebug(`Parsing CRL`);
-      const parsedCrl = rfc5280.CertificateList.decode(data, 'der');
+      const parsedCrl = rfc5280.CertificateList.decode(raw, 'der');
 
       if (options.inMemoryCache) {
         logDebug('Saving to memory cache');
-        setCrlInMemory(url, parsedCrl);
+        setCrlInMemory(url, parsedCrl, raw);
       }
 
       if (options.onDiskCache) {
         logDebug('Saving to disk cache');
-        await writeCrlToDisk(url, data);
+        await writeCrlToDisk(url, raw);
       }
 
-      return parsedCrl;
+      return { crl: parsedCrl, raw };
     } finally {
       PENDING_FETCH_REQUESTS.delete(url);
     }

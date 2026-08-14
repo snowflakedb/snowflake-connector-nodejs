@@ -5,7 +5,7 @@ const { getFreePort } = require('../../../lib/util');
 const GlobalConfig = require('../../../lib/global_config');
 const authUtil = require('../../../lib/authentication/authentication_util');
 const { get } = require('axios');
-const AuthenticationTypes = require('../../../lib/authentication/authentication_types');
+const { buildCacheKey, CacheTokenType } = require('../../../lib/authentication/cache_key_builder');
 const {
   JsonCredentialManager,
 } = require('../../../lib/authentication/secure_storage/json_credential_manager');
@@ -32,16 +32,20 @@ describe('Oauth Refresh token for Autorization Code', function () {
       oauthTokenRequestUrl: `http://127.0.0.1:${port}/oauth/token-request`,
       clientStoreTemporaryCredential: true,
     };
-    accessTokenKey = authUtil.buildOauthAccessTokenCacheKey(
-      new URL(connectionOptionAuthorizationCode.oauthAuthorizationUrl).host,
-      connectionOptionAuthorizationCode.username,
-      AuthenticationTypes.OAUTH_AUTHORIZATION_CODE,
-    );
-    refreshTokenKey = authUtil.buildOauthRefreshTokenCacheKey(
-      new URL(connectionOptionAuthorizationCode.oauthTokenRequestUrl).host,
-      connectionOptionAuthorizationCode.username,
-      AuthenticationTypes.OAUTH_AUTHORIZATION_CODE,
-    );
+    accessTokenKey = buildCacheKey({
+      tokenType: CacheTokenType.OAUTH_ACCESS_TOKEN,
+      oauthIdpUrl: connectionOptionAuthorizationCode.oauthTokenRequestUrl,
+      snowflakeHost: connectionOptionAuthorizationCode.host,
+      username: connectionOptionAuthorizationCode.username,
+      role: connectionOptionAuthorizationCode.role,
+    });
+    refreshTokenKey = buildCacheKey({
+      tokenType: CacheTokenType.OAUTH_REFRESH_TOKEN,
+      oauthIdpUrl: connectionOptionAuthorizationCode.oauthTokenRequestUrl,
+      snowflakeHost: connectionOptionAuthorizationCode.host,
+      username: connectionOptionAuthorizationCode.username,
+      role: connectionOptionAuthorizationCode.role,
+    });
   });
   beforeEach(async () => {
     authTest = new AuthTest();

@@ -403,16 +403,6 @@ export function isCorrectSubdomain(value: string) {
   return subdomainRegex.test(value);
 }
 
-export function buildCredentialCacheKey(host: string, username: string, credType: string) {
-  if (!host || !username || !credType) {
-    Logger.getInstance().debug(
-      'Cannot build the credential cache key because one of host, username, and credType is null',
-    );
-    return null;
-  }
-  return `{${host.toUpperCase()}}:{${username.toUpperCase()}}:{${credType.toUpperCase()}}`;
-}
-
 export function checkValidCustomCredentialManager(customCredentialManager: any) {
   if (typeof customCredentialManager !== 'object') {
     return false;

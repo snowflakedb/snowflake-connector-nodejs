@@ -12,6 +12,7 @@ Bugfixes:
 - Fixed the TypeScript typing for `connection.fetchResult()`, which incorrectly required `sqlText` and omitted `queryId` (snowflakedb/snowflake-connector-nodejs#1462)
 - Fixed Azure PUT/GET file transfers failing on non-commercial Azure clouds (snowflakedb/snowflake-connector-nodejs#1459)
 - Fixed `compressFileWithGZIP` crashing the Node process with an unhandled stream `'error'` event when the source file for a `PUT` cannot be read (snowflakedb/snowflake-connector-nodejs#1454)
+- Fixed token cache key collisions in multi-account and multi-role scenarios (snowflakedb/snowflake-connector-nodejs#1456)
 
 Internal:
 

@@ -4,13 +4,11 @@ const GlobalConfig = require('../../../lib/global_config');
 const {
   JsonCredentialManager,
 } = require('../../../lib/authentication/secure_storage/json_credential_manager');
-const { buildCacheKey, CacheTokenTypes } = require('../../../lib/authentication/cache_key_builder');
+const { buildCacheKey, CacheTokenType } = require('../../../lib/authentication/cache_key_builder');
 const key = buildCacheKey({
-  tokenType: CacheTokenTypes.ID_TOKEN,
-  idp: 'mock_host',
-  snowflake: 'mock_host',
+  tokenType: CacheTokenType.ID_TOKEN,
+  snowflakeHost: 'mock_host',
   username: 'mock_user',
-  role: '',
 });
 const randomPassword = randomUUID();
 const defaultCredentialManager = new JsonCredentialManager();

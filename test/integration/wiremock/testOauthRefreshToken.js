@@ -5,7 +5,7 @@ const { getFreePort } = require('../../../lib/util');
 const GlobalConfig = require('../../../lib/global_config');
 const authUtil = require('../../../lib/authentication/authentication_util');
 const { get } = require('axios');
-const { buildCacheKey, CacheTokenTypes } = require('../../../lib/authentication/cache_key_builder');
+const { buildCacheKey, CacheTokenType } = require('../../../lib/authentication/cache_key_builder');
 const {
   JsonCredentialManager,
 } = require('../../../lib/authentication/secure_storage/json_credential_manager');
@@ -33,18 +33,18 @@ describe('Oauth Refresh token for Autorization Code', function () {
       clientStoreTemporaryCredential: true,
     };
     accessTokenKey = buildCacheKey({
-      tokenType: CacheTokenTypes.OAUTH_ACCESS_TOKEN,
-      idp: connectionOptionAuthorizationCode.oauthTokenRequestUrl,
-      snowflake: connectionOptionAuthorizationCode.host,
+      tokenType: CacheTokenType.OAUTH_ACCESS_TOKEN,
+      oauthIdpUrl: connectionOptionAuthorizationCode.oauthTokenRequestUrl,
+      snowflakeHost: connectionOptionAuthorizationCode.host,
       username: connectionOptionAuthorizationCode.username,
-      role: connectionOptionAuthorizationCode.role || '',
+      role: connectionOptionAuthorizationCode.role,
     });
     refreshTokenKey = buildCacheKey({
-      tokenType: CacheTokenTypes.OAUTH_REFRESH_TOKEN,
-      idp: connectionOptionAuthorizationCode.oauthTokenRequestUrl,
-      snowflake: connectionOptionAuthorizationCode.host,
+      tokenType: CacheTokenType.OAUTH_REFRESH_TOKEN,
+      oauthIdpUrl: connectionOptionAuthorizationCode.oauthTokenRequestUrl,
+      snowflakeHost: connectionOptionAuthorizationCode.host,
       username: connectionOptionAuthorizationCode.username,
-      role: connectionOptionAuthorizationCode.role || '',
+      role: connectionOptionAuthorizationCode.role,
     });
   });
   beforeEach(async () => {

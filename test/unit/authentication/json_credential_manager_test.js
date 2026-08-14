@@ -3,7 +3,7 @@ const {
   JsonCredentialManager,
   defaultJsonTokenCachePaths,
 } = require('../../../lib/authentication/secure_storage/json_credential_manager');
-const { buildCacheKey, CacheTokenTypes } = require('../../../lib/authentication/cache_key_builder');
+const { buildCacheKey, CacheTokenType } = require('../../../lib/authentication/cache_key_builder');
 const Util = require('../../../lib/util');
 const { randomUUID } = require('crypto');
 const path = require('path');
@@ -11,18 +11,14 @@ const os = require('os');
 const fs = require('node:fs/promises');
 
 const key = buildCacheKey({
-  tokenType: CacheTokenTypes.ID_TOKEN,
-  idp: '',
-  snowflake: 'mock_host',
+  tokenType: CacheTokenType.ID_TOKEN,
+  snowflakeHost: 'mock_host',
   username: 'mock_user',
-  role: '',
 });
 const key2 = buildCacheKey({
-  tokenType: CacheTokenTypes.MFA_TOKEN,
-  idp: '',
-  snowflake: 'mock_host',
+  tokenType: CacheTokenType.MFA_TOKEN,
+  snowflakeHost: 'mock_host',
   username: 'mock_user',
-  role: '',
 });
 const randomPassword = randomUUID();
 const randomPassword2 = randomUUID();

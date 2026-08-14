@@ -25,7 +25,7 @@ export interface CacheKeyInput {
  *
  * In Snowflake, identifiers wrapped in double quotes (`"`) are case-sensitive,
  * while unquoted identifiers are case-insensitive.
- * e.g. `"MyRole"` is kept verbatim, while `MyRole` is lowercased to `myrole`.
+ * e.g. `"MyRole"` is kept unchanged, while `MyRole` is lowercased to `myrole`.
  */
 export function normalizeIdentifier(id: string): string {
   return id.includes('"') ? id : id.toLowerCase();

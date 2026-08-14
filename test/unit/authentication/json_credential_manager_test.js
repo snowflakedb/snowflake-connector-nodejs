@@ -167,7 +167,8 @@ describe('Json credential remove stale lock', function () {
 describe('Json credential format', function () {
   const cacheDirPath = path.join(os.homedir(), ...pathFromHome());
   const cacheFilePath = path.join(cacheDirPath, 'credential_cache_v1.json');
-  it('test - stored key equals the final SnowflakeTokenCache.v2.<TokenType>.<hash> string (no double hash)', async function () {
+
+  it('stored key equals the final SnowflakeTokenCache.v2.<TokenType>.<hash> string', async function () {
     const credentialManager = new JsonCredentialManager();
     await credentialManager.write(key, randomPassword);
     await credentialManager.write(key2, randomPassword2);

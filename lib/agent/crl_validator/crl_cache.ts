@@ -78,7 +78,10 @@ export async function getCrlFromDisk(url: string) {
     const rawCrl = await fs.readFile(filePath);
     const decodedCrl = rfc5280.CertificateList.decode(rawCrl, 'der');
     if (decodedCrl.tbsCertList.nextUpdate.value > Date.now()) {
-      return decodedCrl;
+      // NOTE:
+      // Returning the raw DER bytes alongside the decoded CRL so the signature
+      // can be verified against the original tbsCertList bytes without re-encoding.
+      return { crl: decodedCrl, rawCrl };
     } else {
       Logger().debug(`CRL ${filePath} is expired, ignoring.`);
       return null;

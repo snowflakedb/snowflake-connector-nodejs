@@ -10,6 +10,7 @@ import {
   setCrlInMemory,
   writeCrlToDisk,
 } from './crl_cache';
+import { getRawTbsCertList, isCrlSignatureValid } from './crl_signature_verifier';
 
 export const PENDING_FETCH_REQUESTS = new Map<string, Promise<rfc5280.CertificateListDecoded>>();
 
@@ -28,9 +29,19 @@ export async function getCrl(
   options: {
     inMemoryCache: boolean;
     onDiskCache: boolean;
+    // POC: issuer public key used to validate the CRL signature before it is
+    // committed to any cache.
+    issuerPublicKey: string;
   },
 ) {
   const logDebug = (msg: string) => Logger().debug(`getCrl[${url}]: ${msg}`);
+
+  const assertSignatureValid = (crl: rfc5280.CertificateListDecoded, rawCrl: Buffer) => {
+    const rawTbsCertList = getRawTbsCertList(rawCrl);
+    if (!isCrlSignatureValid(crl, rawTbsCertList, options.issuerPublicKey)) {
+      throw new Error(`CRL ${url} signature is invalid`);
+    }
+  };
 
   if (!crlCacheCleanerCreated) {
     crlCacheCleanerCreated = true;
@@ -61,9 +72,16 @@ export async function getCrl(
 
   if (options.onDiskCache) {
     logDebug(`Checking on-disk cache`);
-    const cachedCrl = await getCrlFromDisk(url);
-    if (cachedCrl) {
-      if (options.inMemoryCache) {
+    const diskEntry = await getCrlFromDisk(url);
+    if (diskEntry) {
+      const { crl: cachedCrl, rawCrl } = diskEntry;
+      // POC: validate signature before promoting a disk-cached CRL into memory.
+      logDebug(`Validating signature of disk-cached CRL`);
+      assertSignatureValid(cachedCrl, rawCrl);
+
+      // POC: a disk read should populate the memory cache when it is not already present.
+      if (options.inMemoryCache && !getCrlFromMemory(url)) {
+        logDebug(`Populating memory cache from disk`);
         setCrlInMemory(url, cachedCrl);
       }
       logDebug(`Returning from disk cache`);
@@ -82,6 +100,10 @@ export async function getCrl(
 
       logDebug(`Parsing CRL`);
       const parsedCrl = rfc5280.CertificateList.decode(data, 'der');
+
+      // POC: validate signature before committing the CRL to any cache.
+      logDebug(`Validating signature of downloaded CRL`);
+      assertSignatureValid(parsedCrl, data);
 
       if (options.inMemoryCache) {
         logDebug('Saving to memory cache');

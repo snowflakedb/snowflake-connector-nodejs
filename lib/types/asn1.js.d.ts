@@ -24,6 +24,7 @@ declare module 'asn1.js' {
     explicit(tag: number): this;
     use(entity: ASN1Entity<unknown>): this;
     int(): this;
+    bitstr(): this;
   }
 
   export interface ASN1Entity<T> {

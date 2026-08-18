@@ -2,6 +2,10 @@
 
 ## Upcoming Release
 
+- TBA
+
+## 3.2.0
+
 Changes:
 
 - Marked `RowStatement.fetchRows()` as deprecated. This method will be removed in the next major version; use `streamRows()` instead (snowflakedb/snowflake-connector-nodejs#1463)
@@ -16,7 +20,7 @@ Bugfixes:
 
 Internal:
 
-- Improved crl signature verification performance by 100x (snowflakedb/snowflake-connector-nodejs#1469)
+- Improved CRL signature verification performance by 100x (snowflakedb/snowflake-connector-nodejs#1469)
 
 ## 3.1.0
 

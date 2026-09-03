@@ -14,3 +14,31 @@ When sending API requests to mock servers, always use snowflake.com domains inst
 ❌ `https://test.com/api/endpoint`
 ❌ `https://example.com/api/endpoint`
 ✅ `https://snowflake.com/api/endpoint`
+
+### Mocking environment variables
+
+Mock `process.env` with `sinon` instead of assigning to or deleting keys directly. Spread the real
+env and override only the variable under test, then restore in `afterEach`.
+
+❌ `process.env.MY_VAR = 'value'` / `delete process.env.MY_VAR`
+
+✅
+
+```typescript
+afterEach(() => {
+  sinon.restore();
+});
+
+it('reads the value from the env variable', () => {
+  sinon.stub(process, 'env').value({
+    ...process.env,
+    MY_VAR: 'value',
+  });
+  // ...
+});
+```
+
+To leave a variable unset, simply omit it from the stubbed object (do not `delete` it).
+
+If the code under test caches values read from the env, reset that cache after stubbing (and in
+`afterEach`) so each test sees the stubbed value.

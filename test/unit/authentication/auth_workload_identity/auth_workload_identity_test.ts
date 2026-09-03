@@ -78,6 +78,34 @@ describe('Workload Identity Authentication', async () => {
     rewiremock.disable();
   });
 
+  describe('host allowlist guard', () => {
+    it('rejects authenticate() for a non-Snowflake host and never fetches cloud credentials', async () => {
+      const connectionConfig = getConnectionConfig({
+        workloadIdentityProvider: 'AWS',
+        host: 'attacker.example',
+      });
+      const auth = new AuthWorkloadIdentity(connectionConfig);
+      await assert.rejects(
+        auth.authenticate(),
+        /WORKLOAD_IDENTITY requires a recognized Snowflake host/,
+      );
+      sinon.assert.notCalled(awsSdkMock.getCredentials);
+      sinon.assert.notCalled(awsSdkMock.getMetadataRegion);
+    });
+
+    it('allows authenticate() to proceed for a Snowflake host', async () => {
+      awsSdkMock.getCredentials.returns(AWS_CREDENTIALS);
+      awsSdkMock.getMetadataRegion.returns(AWS_REGION);
+      const connectionConfig = getConnectionConfig({
+        workloadIdentityProvider: 'AWS',
+        host: 'test-account.snowflakecomputing.com',
+      });
+      const auth = new AuthWorkloadIdentity(connectionConfig);
+      await auth.authenticate();
+      sinon.assert.called(awsSdkMock.getCredentials);
+    });
+  });
+
   [
     {
       name: 'missing workloadIdentityProvider',

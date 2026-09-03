@@ -1,0 +1,25 @@
+---
+description: "General coding standards"
+globs: lib/**/*.ts,lib/**/*.js
+alwaysApply: false
+---
+### Error handling
+
+Throw a plain `Error` with a clear message. Avoid adding new entries to `ErrorCode`
+(`lib/error_code.ts`) and `lib/constants/error_messages.js`.
+
+We are moving toward a new design where the driver exposes a small set of error groups instead of a
+unique code for every error. For now, just throw plain errors - they will be sorted into those
+groups later.
+
+❌
+
+```typescript
+throw createInvalidParameterError(ErrorCode.ERR_CONN_CREATE_INVALID_SOMETHING_NEW, someValue);
+```
+
+✅
+
+```typescript
+throw new Error(`Invalid something: ${someValue}. Expected ...`);
+```

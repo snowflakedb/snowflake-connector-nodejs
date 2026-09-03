@@ -75,6 +75,16 @@ export interface WIP_ConnectionOptions {
    * * `OAUTH_CLIENT_CREDENTIALS` - OAuth client credentials flow for service-to-service auth
    * * `WORKLOAD_IDENTITY` - Workload identity authentication
    * * `https://<okta_account_name>.okta.com` - Native SSO authentication through Okta
+   *
+   * With `WORKLOAD_IDENTITY`, the driver automatically gets credentials from the cloud
+   * environment it runs in (AWS/Azure/GCP) to authenticate. Because those credentials are sent to
+   * the host you connect to, a malicious host could capture and reuse them. To prevent that, the
+   * driver only connects to Snowflake hosts - `snowflakecomputing.com`, `snowflakecomputing.cn`,
+   * `snowflakecomputing.mil` and their subdomains - and refuses any other host before sending
+   * anything.
+   *
+   * If you run on a different domain (say a private or test endpoint), add its host suffix to the
+   * `SNOWFLAKE_WIF_ALLOWED_HOST_SUFFIXES` environment variable (comma-separated).
    */
   authenticator?: string;
 
@@ -452,6 +462,7 @@ export type WIP_ConnectionConfig =
     | 'oauthEnableSingleUseRefreshTokens'
     | 'rowStreamHighWaterMark'
   > & {
+    accessUrl: string; // If accessUrl is not present, config will construct it from other options or throw an Error
     browserRedirectPort: number;
     crlValidatorConfig: CRLValidatorConfig;
     getClientType(): string;

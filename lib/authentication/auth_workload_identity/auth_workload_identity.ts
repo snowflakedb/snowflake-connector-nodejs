@@ -7,6 +7,7 @@ import Logger from '../../logger';
 import { getAzureAttestationToken } from './attestation_azure';
 import { getGcpAttestationToken } from './attestation_gcp';
 import AuthenticationTypes from '../authentication_types';
+import { validateAccessUrl } from './host_allowlist';
 
 class AuthWorkloadIdentity implements AuthClass {
   tokenProvider!: WorkloadIdentityProviderKey;
@@ -24,8 +25,11 @@ class AuthWorkloadIdentity implements AuthClass {
     const {
       workloadIdentityProvider: provider,
       workloadIdentityImpersonationPath: impersonationPath,
+      accessUrl,
     } = this.connectionConfig;
     let token: string;
+
+    validateAccessUrl(accessUrl);
 
     if (
       impersonationPath &&

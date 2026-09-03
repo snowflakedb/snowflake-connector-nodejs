@@ -9,7 +9,7 @@ Changes:
 
 Bugfixes:
 
-- Hardened OCSP response validation to ensure a response corresponds to the certificate being checked, to treat a definitive result as authoritative in fail-open mode, and to anchor PrivateLink host detection (snowflakedb/snowflake-connector-nodejs#1473)
+- Hardened OCSP response validation and PrivateLink host detection (snowflakedb/snowflake-connector-nodejs#1473)
 
 ## 3.2.0
 

@@ -2,6 +2,10 @@
 
 ## Upcoming Release
 
+- TBA
+
+## 3.3.0
+
 Changes:
 
 - Cloud storage response logs now list header names instead of full header objects, keeping header values out of the logs (snowflakedb/snowflake-connector-nodejs#1471)

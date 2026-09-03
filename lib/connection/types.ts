@@ -462,7 +462,9 @@ export type WIP_ConnectionConfig =
     | 'oauthEnableSingleUseRefreshTokens'
     | 'rowStreamHighWaterMark'
   > & {
-    accessUrl: string; // If accessUrl is not present, config will construct it from other options or throw an Error
+    // ConnectionConfig always derives accessUrl and host from other options
+    accessUrl: string;
+    host: string;
     browserRedirectPort: number;
     crlValidatorConfig: CRLValidatorConfig;
     getClientType(): string;

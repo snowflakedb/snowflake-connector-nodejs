@@ -79,8 +79,10 @@ describe('OCSP early exist error', function () {
     ];
     {
       GlobalConfig.setOcspFailOpen(true);
+      // A signature that did not verify is a definitive result and is honored
+      // even in fail-open mode.
       const err = SocketUtil.canEarlyExitForOCSP(errors);
-      assert.ok(!err);
+      assert.equal(err.code, ErrorCodes.ERR_OCSP_INVALID_SIGNATURE);
     }
     {
       GlobalConfig.setOcspFailOpen(false);

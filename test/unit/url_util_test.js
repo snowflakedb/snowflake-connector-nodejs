@@ -6,6 +6,7 @@ describe('URLUtil', function () {
     assert.ok(URLUtil.isValidURL('https://ssoTestURL.okta.com'));
     assert.ok(URLUtil.isValidURL('https://ssoTestURL.okta.com:8080'));
     assert.ok(URLUtil.isValidURL('https://ssoTestURL.okta.com/testpathvalue'));
+    assert.ok(URLUtil.isValidURL('https://my_account.snowflakecomputing.com'));
   });
 
   it('Invalid URL', function () {

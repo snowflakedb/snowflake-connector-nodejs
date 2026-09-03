@@ -2,14 +2,7 @@
 
 ## Upcoming Release
 
-Changes:
-
-- Cloud storage response logs now list header names instead of full header objects, keeping header values out of the logs (snowflakedb/snowflake-connector-nodejs#1471)
-- Restricted the `WORKLOAD_IDENTITY` authenticator to recognized Snowflake hosts (`*.snowflakecomputing.com`/`.cn`/`.mil`). Use `SNOWFLAKE_WIF_ALLOWED_HOST_SUFFIXES` to extend the list (snowflakedb/snowflake-connector-nodejs#1472)
-
-Bugfixes:
-
-- Hardened OCSP response validation and PrivateLink host detection (snowflakedb/snowflake-connector-nodejs#1473)
+- TBA
 
 ## 3.3.0
 

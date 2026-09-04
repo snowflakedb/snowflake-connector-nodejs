@@ -36,7 +36,7 @@
     "oauth4webapi": "^3.0.1",
     "open": "^7.3.1",
     "simple-lru-cache": "^0.0.2",
-    "toml": "^3.0.0",
+    "toml": "^5.0.0",
     "winston": "^3.1.0"
   },
   "devDependencies": {

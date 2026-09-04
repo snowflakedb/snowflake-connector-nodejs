@@ -2,7 +2,9 @@
 
 ## Upcoming Release
 
-- TBA
+Dependencies:
+
+- Bumped `toml` dependency to `^5.0.0` (snowflakedb/snowflake-connector-nodejs#1477)
 
 ## 3.3.0
 

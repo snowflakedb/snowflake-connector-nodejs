@@ -340,6 +340,24 @@ export interface WIP_ConnectionOptions {
   workloadIdentityAwsUseOutboundToken?: boolean;
 
   /**
+   * When workloadIdentityProvider=AWS, overrides the AWS STS host used by the attestation
+   * flows, so AWS partitions the connector does not know about can be reached without a
+   * connector release.
+   *
+   * Accepts a bare host (`sts.example.com`), a host with a port (`sts.example.com:8443`) or a
+   * full URL (`https://sts.example.com`). The value is used as given - no partition suffix is
+   * appended or rewritten - and `https` is assumed when no scheme is provided.
+   *
+   * When not set, the regional endpoint `sts.<region>.amazonaws.com` is used
+   * (`sts.<region>.amazonaws.com.cn` for China regions).
+   *
+   * @example
+   * // us-isob-east-1
+   * workloadIdentityHost: 'sts.sc2s.sgov.gov'
+   */
+  workloadIdentityHost?: string;
+
+  /**
    * Enables Certificate Revocation List (CRL) validation.
    *
    * When `ENABLED` is set, it fails if the certificate is revoked or if any error occurs (network, parsing, etc.).
@@ -459,6 +477,7 @@ export type WIP_ConnectionConfig =
     | 'workloadIdentityAzureEntraIdResource'
     | 'workloadIdentityAzureClientId'
     | 'workloadIdentityAwsUseOutboundToken'
+    | 'workloadIdentityHost'
     | 'oauthEnableSingleUseRefreshTokens'
     | 'rowStreamHighWaterMark'
   > & {

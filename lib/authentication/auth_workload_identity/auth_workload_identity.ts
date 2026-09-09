@@ -25,6 +25,7 @@ class AuthWorkloadIdentity implements AuthClass {
     const {
       workloadIdentityProvider: provider,
       workloadIdentityImpersonationPath: impersonationPath,
+      workloadIdentityHost,
       host,
     } = this.connectionConfig;
     let token: string;
@@ -39,11 +40,19 @@ class AuthWorkloadIdentity implements AuthClass {
       throw new Error(`workloadIdentityImpersonationPath for ${provider} is not supported`);
     }
 
-    if (provider === WorkloadIdentityProvider.AWS) {
-      token = await getAwsAttestationToken(
-        this.connectionConfig.workloadIdentityAwsUseOutboundToken,
-        impersonationPath,
+    if (workloadIdentityHost && provider !== WorkloadIdentityProvider.AWS) {
+      throw createInvalidParameterError(
+        ErrorCode.ERR_CONN_CREATE_INVALID_WORKLOAD_IDENTITY_PARAMETERS,
+        'workloadIdentityHost is supported only for AWS',
       );
+    }
+
+    if (provider === WorkloadIdentityProvider.AWS) {
+      token = await getAwsAttestationToken({
+        useOutboundToken: this.connectionConfig.workloadIdentityAwsUseOutboundToken,
+        impersonationPath,
+        workloadIdentityHost,
+      });
     } else if (provider === WorkloadIdentityProvider.AZURE) {
       token = await getAzureAttestationToken({
         managedIdentityClientId: this.connectionConfig.workloadIdentityAzureClientId,

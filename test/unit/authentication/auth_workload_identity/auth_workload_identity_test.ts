@@ -171,6 +171,7 @@ describe('Workload Identity Authentication', async () => {
 
     it('throws error when credentials are not found', async () => {
       const err = new Error('No credentials found');
+      awsSdkMock.getMetadataRegion.returns(AWS_REGION);
       awsSdkMock.getCredentials.throws(err);
       const auth = new AuthWorkloadIdentity(connectionConfig);
       await assert.rejects(auth.authenticate(), err);
@@ -204,6 +205,37 @@ describe('Workload Identity Authentication', async () => {
       assert.strictEqual(body.data.AUTHENTICATOR, 'WORKLOAD_IDENTITY');
       assert.strictEqual(body.data.PROVIDER, 'AWS');
       assert.strictEqual(body.data.TOKEN, AWS_WEB_IDENTITY_TOKEN);
+    });
+
+    it('uses workloadIdentityHost as the STS host', async () => {
+      awsSdkMock.getCredentials.returns(AWS_CREDENTIALS);
+      awsSdkMock.getMetadataRegion.returns(AWS_REGION);
+      const auth = new AuthWorkloadIdentity(
+        getConnectionConfig({
+          workloadIdentityProvider: 'AWS',
+          workloadIdentityHost: 'sts.sc2s.sgov.gov',
+        }),
+      );
+      const body: AuthRequestBody = { data: {} };
+      await auth.authenticate();
+      auth.updateBody(body);
+      assertAwsAttestationToken(body.data.TOKEN, AWS_REGION, 'sts.sc2s.sgov.gov');
+    });
+  });
+
+  (['AZURE', 'GCP', 'OIDC'] as const).forEach((provider) => {
+    it(`authenticate() rejects workloadIdentityHost for ${provider}`, async () => {
+      const auth = new AuthWorkloadIdentity(
+        getConnectionConfig({
+          token: 'test-token',
+          workloadIdentityProvider: provider,
+          workloadIdentityHost: 'sts.sc2s.sgov.gov',
+        }),
+      );
+      await assert.rejects(
+        auth.authenticate(),
+        /InvalidParameterError: Invalid authenticator: WORKLOAD_IDENTITY parameters. workloadIdentityHost is supported only for AWS/,
+      );
     });
   });
 

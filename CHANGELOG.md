@@ -2,6 +2,10 @@
 
 ## Upcoming Release
 
+New features:
+
+- Added the `workloadIdentityHost` connection option that overrides the STS host used by the AWS Workload Identity flows, so AWS partitions the connector does not know about can be reached without a connector release. The value is used as given and defaults to the regional `sts.<region>.amazonaws.com` (snowflakedb/snowflake-connector-nodejs#1479)
+
 Dependencies:
 
 - Bumped `toml` dependency to `^5.0.0` (snowflakedb/snowflake-connector-nodejs#1477)

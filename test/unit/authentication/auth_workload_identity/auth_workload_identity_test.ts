@@ -213,13 +213,13 @@ describe('Workload Identity Authentication', async () => {
       const auth = new AuthWorkloadIdentity(
         getConnectionConfig({
           workloadIdentityProvider: 'AWS',
-          workloadIdentityHost: 'sts.sc2s.sgov.gov',
+          workloadIdentityHost: 'sts.wif.snowflake.com',
         }),
       );
       const body: AuthRequestBody = { data: {} };
       await auth.authenticate();
       auth.updateBody(body);
-      assertAwsAttestationToken(body.data.TOKEN, AWS_REGION, 'sts.sc2s.sgov.gov');
+      assertAwsAttestationToken(body.data.TOKEN, AWS_REGION, 'sts.wif.snowflake.com');
     });
   });
 
@@ -229,12 +229,12 @@ describe('Workload Identity Authentication', async () => {
         getConnectionConfig({
           token: 'test-token',
           workloadIdentityProvider: provider,
-          workloadIdentityHost: 'sts.sc2s.sgov.gov',
+          workloadIdentityHost: 'sts.wif.snowflake.com',
         }),
       );
       await assert.rejects(
         auth.authenticate(),
-        /InvalidParameterError: Invalid authenticator: WORKLOAD_IDENTITY parameters. workloadIdentityHost is supported only for AWS/,
+        new RegExp(`workloadIdentityHost is supported only for AWS, got ${provider}`),
       );
     });
   });

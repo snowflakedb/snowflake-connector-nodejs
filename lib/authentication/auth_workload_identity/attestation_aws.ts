@@ -5,7 +5,6 @@ import { HttpRequest } from '@smithy/protocol-http';
 import { SignatureV4 } from '@smithy/signature-v4';
 import { Sha256 } from '@aws-crypto/sha256-js';
 import Logger from '../../logger';
-import { createInvalidParameterError, ErrorCode } from '../../errors';
 
 export async function getAwsCredentials(
   region: string,
@@ -57,9 +56,9 @@ export function getStsHostname(region: string) {
 }
 
 /**
- * STS endpoint the AWS Workload Identity flows talk to. Either the regional default or the
- * verbatim `workloadIdentityHost` override, which lets non-commercial AWS partitions be
- * reached without a driver release.
+ * STS endpoint the AWS Workload Identity flows talk to. Either the one derived from the region
+ * or the verbatim `workloadIdentityHost` override, which lets AWS partitions unknown to the
+ * driver be reached.
  */
 export type StsEndpoint = {
   /** host[:port], used as the SigV4-signed `Host` header */
@@ -97,7 +96,7 @@ export function regionalStsEndpoint(region: string): StsEndpoint {
 export function parseWorkloadIdentityHost(workloadIdentityHost: string): StsEndpoint {
   const trimmed = workloadIdentityHost.trim();
   if (!trimmed) {
-    throw invalidWorkloadIdentityHost('workloadIdentityHost is empty');
+    throw new Error('workloadIdentityHost is empty');
   }
 
   const withScheme = trimmed.includes('://') ? trimmed : `https://${trimmed}`;
@@ -105,22 +104,20 @@ export function parseWorkloadIdentityHost(workloadIdentityHost: string): StsEndp
   try {
     url = new URL(withScheme);
   } catch {
-    throw invalidWorkloadIdentityHost(`workloadIdentityHost "${trimmed}" is malformed`);
+    throw new Error(`Invalid workloadIdentityHost "${trimmed}": malformed URL`);
   }
 
   if (url.protocol !== 'https:' && url.protocol !== 'http:') {
-    throw invalidWorkloadIdentityHost(
-      `workloadIdentityHost "${trimmed}" must use https or http, got scheme "${url.protocol.slice(0, -1)}"`,
+    throw new Error(
+      `Invalid workloadIdentityHost "${trimmed}": must use https or http, got scheme "${url.protocol.slice(0, -1)}"`,
     );
   }
   if (!url.hostname) {
-    throw invalidWorkloadIdentityHost(
-      `workloadIdentityHost "${trimmed}" does not contain a hostname`,
-    );
+    throw new Error(`Invalid workloadIdentityHost "${trimmed}": does not contain a hostname`);
   }
   if (url.username || url.password || url.search || url.hash) {
-    throw invalidWorkloadIdentityHost(
-      `workloadIdentityHost "${trimmed}" must not contain user info, a query or a fragment`,
+    throw new Error(
+      `Invalid workloadIdentityHost "${trimmed}": must not contain user info, a query or a fragment`,
     );
   }
 
@@ -134,13 +131,6 @@ export function parseWorkloadIdentityHost(workloadIdentityHost: string): StsEndp
     baseUrl: `${url.protocol}//${url.host}${path}`,
     overridden: true,
   };
-}
-
-function invalidWorkloadIdentityHost(message: string) {
-  return createInvalidParameterError(
-    ErrorCode.ERR_CONN_CREATE_INVALID_WORKLOAD_IDENTITY_PARAMETERS,
-    message,
-  );
 }
 
 function stsClientEndpointConfig(stsEndpoint?: StsEndpoint) {

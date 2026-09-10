@@ -181,9 +181,9 @@ describe('Attestation AWS', () => {
       awsSdkMock.getDefaultCredentials.returns(AWS_CREDENTIALS);
       awsSdkMock.getMetadataRegion.returns(AWS_REGION);
       const token = await AttestationAws.getAwsAttestationToken({
-        workloadIdentityHost: 'sts.sc2s.sgov.gov',
+        workloadIdentityHost: 'sts.wif.snowflake.com',
       });
-      assertAwsAttestationToken(token, AWS_REGION, 'sts.sc2s.sgov.gov');
+      assertAwsAttestationToken(token, AWS_REGION, 'sts.wif.snowflake.com');
     });
 
     it('points the SDK at the workloadIdentityHost with outbound token', async () => {
@@ -191,7 +191,7 @@ describe('Attestation AWS', () => {
       awsSdkMock.getMetadataRegion.returns(AWS_REGION);
       const token = await AttestationAws.getAwsAttestationToken({
         useOutboundToken: true,
-        workloadIdentityHost: 'sts.sc2s.sgov.gov',
+        workloadIdentityHost: 'sts.wif.snowflake.com',
       });
       assert.strictEqual(token, AWS_WEB_IDENTITY_TOKEN);
       assert.strictEqual(stsClientConfigs.length, 1);
@@ -202,7 +202,7 @@ describe('Attestation AWS', () => {
           useDualstackEndpoint: stsClientConfigs[0].useDualstackEndpoint,
         },
         {
-          endpoint: 'https://sts.sc2s.sgov.gov',
+          endpoint: 'https://sts.wif.snowflake.com',
           useFipsEndpoint: false,
           useDualstackEndpoint: false,
         },
@@ -217,15 +217,17 @@ describe('Attestation AWS', () => {
       });
       await AttestationAws.getAwsAttestationToken({
         impersonationPath: ['impersonation-role'],
-        workloadIdentityHost: 'sts.sc2s.sgov.gov',
+        workloadIdentityHost: 'sts.wif.snowflake.com',
       });
       assert.strictEqual(stsClientConfigs.length, 1);
-      assert.strictEqual(stsClientConfigs[0].endpoint, 'https://sts.sc2s.sgov.gov');
+      assert.strictEqual(stsClientConfigs[0].endpoint, 'https://sts.wif.snowflake.com');
     });
 
     it('rejects a malformed workloadIdentityHost before looking up region or credentials', async () => {
       await assert.rejects(
-        AttestationAws.getAwsAttestationToken({ workloadIdentityHost: 'ftp://sts.example.com' }),
+        AttestationAws.getAwsAttestationToken({
+          workloadIdentityHost: 'ftp://sts.custom.snowflake.com',
+        }),
         /must use https or http, got scheme "ftp"/,
       );
       sinon.assert.notCalled(awsSdkMock.getMetadataRegion);
@@ -261,38 +263,42 @@ describe('Attestation AWS', () => {
     const validCases: [string, string, { authority: string; baseUrl: string; port?: number }][] = [
       [
         'bare host',
-        'sts.sc2s.sgov.gov',
-        { authority: 'sts.sc2s.sgov.gov', baseUrl: 'https://sts.sc2s.sgov.gov' },
+        'sts.wif.snowflake.com',
+        { authority: 'sts.wif.snowflake.com', baseUrl: 'https://sts.wif.snowflake.com' },
       ],
       [
         'host with port',
-        'sts.example.com:8443',
-        { authority: 'sts.example.com:8443', baseUrl: 'https://sts.example.com:8443', port: 8443 },
+        'sts.custom.snowflake.com:8443',
+        {
+          authority: 'sts.custom.snowflake.com:8443',
+          baseUrl: 'https://sts.custom.snowflake.com:8443',
+          port: 8443,
+        },
       ],
       [
         'full URL',
-        'https://sts.example.com',
-        { authority: 'sts.example.com', baseUrl: 'https://sts.example.com' },
+        'https://sts.custom.snowflake.com',
+        { authority: 'sts.custom.snowflake.com', baseUrl: 'https://sts.custom.snowflake.com' },
       ],
       [
         'trailing slashes',
-        'https://sts.example.com///',
-        { authority: 'sts.example.com', baseUrl: 'https://sts.example.com' },
+        'https://sts.custom.snowflake.com///',
+        { authority: 'sts.custom.snowflake.com', baseUrl: 'https://sts.custom.snowflake.com' },
       ],
       [
         'http scheme',
-        'http://sts.example.com',
-        { authority: 'sts.example.com', baseUrl: 'http://sts.example.com' },
+        'http://sts.custom.snowflake.com',
+        { authority: 'sts.custom.snowflake.com', baseUrl: 'http://sts.custom.snowflake.com' },
       ],
       [
         'surrounding whitespace',
-        '  sts.example.com  ',
-        { authority: 'sts.example.com', baseUrl: 'https://sts.example.com' },
+        '  sts.custom.snowflake.com  ',
+        { authority: 'sts.custom.snowflake.com', baseUrl: 'https://sts.custom.snowflake.com' },
       ],
       [
         'uppercase host',
-        'STS.Example.COM',
-        { authority: 'sts.example.com', baseUrl: 'https://sts.example.com' },
+        'STS.Custom.Snowflake.COM',
+        { authority: 'sts.custom.snowflake.com', baseUrl: 'https://sts.custom.snowflake.com' },
       ],
     ];
 
@@ -307,28 +313,34 @@ describe('Attestation AWS', () => {
     }
 
     it('keeps a path prefix', () => {
-      const endpoint = AttestationAws.parseWorkloadIdentityHost('https://sts.example.com/custom/');
+      const endpoint = AttestationAws.parseWorkloadIdentityHost(
+        'https://sts.custom.snowflake.com/custom/',
+      );
       assert.strictEqual(endpoint.path, '/custom');
-      assert.strictEqual(endpoint.baseUrl, 'https://sts.example.com/custom');
+      assert.strictEqual(endpoint.baseUrl, 'https://sts.custom.snowflake.com/custom');
     });
 
     const invalidCases: [string, string, RegExp][] = [
       ['empty value', '   ', /workloadIdentityHost is empty/],
-      ['unsupported scheme', 'ftp://sts.example.com', /must use https or http, got scheme "ftp"/],
+      [
+        'unsupported scheme',
+        'ftp://sts.custom.snowflake.com',
+        /must use https or http, got scheme "ftp"/,
+      ],
       [
         'query',
-        'https://sts.example.com?Action=Foo',
+        'https://sts.custom.snowflake.com?Action=Foo',
         /must not contain user info, a query or a fragment/,
       ],
       [
         'fragment',
-        'https://sts.example.com#frag',
+        'https://sts.custom.snowflake.com#frag',
         /must not contain user info, a query or a fragment/,
       ],
       // pragma: allowlist nextline secret
       [
         'user info',
-        'https://user:pass@sts.example.com',
+        'https://user:pass@sts.custom.snowflake.com',
         /must not contain user info, a query or a fragment/,
       ],
     ];

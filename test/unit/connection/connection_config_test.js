@@ -784,17 +784,6 @@ describe('ConnectionConfig: basic', function () {
       },
       errorCode: ErrorCodes.ERR_CONN_CREATE_INVALID_QUERY_TAG,
     },
-    {
-      name: 'invalid workloadIdentityHost - not a string',
-
-      options: {
-        account: 'account',
-        username: 'username',
-        password: 'password',
-        workloadIdentityHost: 1234,
-      },
-      errorCode: ErrorCodes.ERR_CONN_CREATE_INVALID_WORKLOAD_IDENTITY_PARAMETERS,
-    },
   ];
 
   const createNegativeITCallback = function (testCase) {

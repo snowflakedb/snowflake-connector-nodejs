@@ -41,10 +41,7 @@ class AuthWorkloadIdentity implements AuthClass {
     }
 
     if (workloadIdentityHost && provider !== WorkloadIdentityProvider.AWS) {
-      throw createInvalidParameterError(
-        ErrorCode.ERR_CONN_CREATE_INVALID_WORKLOAD_IDENTITY_PARAMETERS,
-        'workloadIdentityHost is supported only for AWS',
-      );
+      throw new Error(`workloadIdentityHost is supported only for AWS, got ${provider}`);
     }
 
     if (provider === WorkloadIdentityProvider.AWS) {

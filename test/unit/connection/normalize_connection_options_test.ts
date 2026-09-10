@@ -64,6 +64,7 @@ describe('normalizeConnectionOptions', function () {
         oauth_client_id: 'myid',
         client_session_keep_alive: true,
         workload_identity_provider: 'AWS',
+        workload_identity_host: 'sts.sc2s.sgov.gov',
       }),
       {
         account: 'testaccount',
@@ -75,6 +76,7 @@ describe('normalizeConnectionOptions', function () {
         oauthClientId: 'myid',
         clientSessionKeepAlive: true,
         workloadIdentityProvider: 'AWS',
+        workloadIdentityHost: 'sts.sc2s.sgov.gov',
       },
     );
   });

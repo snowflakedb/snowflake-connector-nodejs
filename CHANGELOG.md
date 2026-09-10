@@ -2,6 +2,10 @@
 
 ## Upcoming Release
 
+Bugfixes:
+
+- A failed PUT now reports the underlying storage error instead of `Unknown Error in uploading a file` (snowflakedb/snowflake-connector-nodejs#1478)
+
 Dependencies:
 
 - Bumped `toml` dependency to `^5.0.0` (snowflakedb/snowflake-connector-nodejs#1477)

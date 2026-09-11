@@ -86,7 +86,16 @@ describe('RowStream', function () {
       });
 
       const statement = {
-        getColumns: () => [{ getId: () => 0, getName: () => 'col', getType: () => 'TEXT' }],
+        getColumns: () => [
+          {
+            getId: () => 0,
+            getName: () => 'col',
+            getType: () => 'TEXT',
+            _getRowValueOnce: (row: ReturnType<typeof mockRow>) => row.getColumnValue(),
+            _getRowValueAsStringOnce: (row: ReturnType<typeof mockRow>) =>
+              row.getColumnValueAsString(),
+          },
+        ],
       };
       const context = {
         connectionConfig: new ConnectionConfig({

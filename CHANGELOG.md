@@ -2,6 +2,10 @@
 
 ## Upcoming Release
 
+Changes:
+
+- Reduced memory held by remote `streamRows()` and `execute()` result chunks by converting cells once and emitting them directly instead of caching them in rows discarded after streaming (snowflakedb/snowflake-connector-nodejs#1481)
+
 Dependencies:
 
 - Bumped `toml` dependency to `^5.0.0` (snowflakedb/snowflake-connector-nodejs#1477)

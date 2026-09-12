@@ -58,6 +58,7 @@ describe('RowStream', function () {
         clearRows: () => {
           callLog.push(`chunk${id}:clearRows`);
         },
+        isRowsetDiscardable: () => true,
         getId: () => id,
         isLoading: () => loading,
         load: function () {
@@ -86,7 +87,18 @@ describe('RowStream', function () {
       });
 
       const statement = {
-        getColumns: () => [{ getId: () => 0, getName: () => 'col', getType: () => 'TEXT' }],
+        getColumns: () => [
+          {
+            getId: () => 0,
+            getName: () => 'col',
+            getType: () => 'TEXT',
+            _getRowValue: (row: ReturnType<typeof mockRow>) => row.getColumnValue(),
+            _getRowValueAsString: (row: ReturnType<typeof mockRow>) => row.getColumnValueAsString(),
+            _getRowValueOnce: (row: ReturnType<typeof mockRow>) => row.getColumnValue(),
+            _getRowValueAsStringOnce: (row: ReturnType<typeof mockRow>) =>
+              row.getColumnValueAsString(),
+          },
+        ],
       };
       const context = {
         connectionConfig: new ConnectionConfig({

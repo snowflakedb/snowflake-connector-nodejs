@@ -31,12 +31,13 @@ const ROWTYPE = [
 }));
 
 const ROWSET = [
-  ['1', '12.34', 'alice', 'true', '19000', '1700000000.123456789', '3661.5', '0a0b', '{"k":1}'],
+  ['1', '12.34', 'alice', 'true', '19000', '1700000000.123456789', '3661.5', '0a0b', '{"k": 1}'],
   [null, null, null, null, null, null, null, null, null],
   ['4294967297', '0.01', 'bob', 'false', '0', '0.000000000', '0.0', 'ff', '[1,2]'],
 ];
 
-function buildResult() {
+function buildResult(remote = true) {
+  const rowsetAsString = ROWSET.map((row) => JSON.stringify(row)).join(',');
   const connectionConfig = new ConnectionConfig({
     username: 'username',
     password: 'password',
@@ -56,7 +57,17 @@ function buildResult() {
         ],
         rowtype: ROWTYPE,
         // copied: the cached getters write converted values back into these arrays
-        rowset: ROWSET.map((row) => row.slice()),
+        rowset: remote ? [] : ROWSET.map((row) => row.slice()),
+        chunks: remote
+          ? [
+              {
+                url: 'https://s3.snowflake.com/chunk',
+                rowCount: ROWSET.length,
+                uncompressedSize: 1,
+                compressedSize: 1,
+              },
+            ]
+          : undefined,
         total: ROWSET.length,
         returned: ROWSET.length,
         queryId: 'row-stream-one-pass-test',
@@ -68,9 +79,20 @@ function buildResult() {
       success: true,
     },
     statement: {},
-    services: {},
+    services: remote
+      ? {
+          largeResultSet: {
+            getObject: ({ callback }: { callback(error: null, body: string): void }) =>
+              callback(null, rowsetAsString),
+          },
+        }
+      : {},
     connectionConfig,
   });
+  if (remote) {
+    const chunks = (result as unknown as { _chunks: { _rowsetAsString: string }[] })._chunks;
+    chunks[0]._rowsetAsString = rowsetAsString;
+  }
   return { result, connectionConfig };
 }
 
@@ -187,10 +209,33 @@ describe('RowStream one-pass extraction', function () {
       assert.strictEqual(canonical(row.CREATED), canonical(preRead[rowIndex][2]));
     });
 
-    const streamedAsString = await streamAll(built, { fetchAsString: ['JSON', 'Number'] });
-    streamedAsString.forEach((row, rowIndex) => {
-      assert.strictEqual(row.ID, rows[rowIndex].getColumnValueAsString('ID'));
-      assert.strictEqual(row.V, rows[rowIndex].getColumnValueAsString('V'));
+    const builtAsString = buildResult();
+    const cachedRows = internalRows(builtAsString.result);
+    cachedRows.forEach((row) => {
+      row.getColumnValue('ID');
+      row.getColumnValue('V');
     });
+    const streamedAsString = await streamAll(builtAsString, {
+      fetchAsString: ['JSON', 'Number'],
+    });
+    streamedAsString.forEach((row, rowIndex) => {
+      assert.strictEqual(row.ID, cachedRows[rowIndex].getColumnValueAsString('ID'));
+      assert.strictEqual(row.V, cachedRows[rowIndex].getColumnValueAsString('V'));
+    });
+  });
+
+  it('preserves cached values when an inline chunk is streamed repeatedly', async function () {
+    const built = buildResult(false);
+    const first = await streamAll(built);
+    const asString = await streamAll(built, { fetchAsString: ['JSON'] });
+    const second = await streamAll(built);
+
+    assert.strictEqual(asString[0].V, '{"k":1}');
+    assert.strictEqual(second[0].CREATED, first[0].CREATED);
+    assert.strictEqual(second[0].V, first[0].V);
+
+    const rows = internalRows(built.result);
+    assert.strictEqual(rows[0]._arrayProcessedColumns[4], true);
+    assert.strictEqual(rows[0]._arrayProcessedColumns[8], true);
   });
 });

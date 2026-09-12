@@ -2,6 +2,10 @@
 
 ## Upcoming Release
 
+Changes:
+
+- Reduced per-row memory of internal result rows by sharing `getColumnValue`, `getColumnValueAsString`, `getRowIndex` and `getStatement` through a prototype instead of storing four function references on every row (~24 B/row) (snowflakedb/snowflake-connector-nodejs#1480)
+
 Dependencies:
 
 - Bumped `toml` dependency to `^5.0.0` (snowflakedb/snowflake-connector-nodejs#1477)

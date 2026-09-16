@@ -43,7 +43,7 @@ describe('Connection with OCSP test', function () {
   this.timeout(180000);
   function cleanupOcspState() {
     OcspResponseCache.deleteCache();
-    snowflake.configure({ ocspFailOpen: true });
+    snowflake.configure({ disableOCSPChecks: false, ocspFailOpen: true });
     SocketUtil.variables.OCSP_RESPONSE_CACHE = undefined;
     SocketUtil.variables.SF_OCSP_RESPONSE_CACHE_SERVER_ENABLED = true;
   }
@@ -142,7 +142,7 @@ describe('Connection with OCSP test', function () {
     // inject validity error
     process.env.SF_OCSP_TEST_INJECT_VALIDITY_ERROR = 'true';
 
-    snowflake.configure({ ocspFailOpen: false });
+    snowflake.configure({ disableOCSPChecks: false, ocspFailOpen: false });
     const connection = snowflake.createConnection(getConnectionOptions());
 
     connection.connect(function (err) {
@@ -178,7 +178,7 @@ describe('Connection with OCSP test', function () {
     // inject validity error
     process.env.SF_OCSP_TEST_INJECT_UNKNOWN_STATUS = 'true';
 
-    snowflake.configure({ ocspFailOpen: false });
+    snowflake.configure({ disableOCSPChecks: false, ocspFailOpen: false });
     const connection = snowflake.createConnection(getConnectionOptions());
 
     connection.connect(function (err) {
@@ -211,7 +211,7 @@ describe('Connection with OCSP test', function () {
 
   // TODO SNOW-930797 Fix and enable Revoked Cert tests
   it.skip('OCSP Revoked Cert - Fail Closed', function (done) {
-    snowflake.configure({ ocspFailOpen: false });
+    snowflake.configure({ disableOCSPChecks: false, ocspFailOpen: false });
     const connection = snowflake.createConnection(testRevokedConnectionOptions);
 
     connection.connect(function (err) {
@@ -252,7 +252,7 @@ describe('Connection with OCSP test', function () {
     process.env.SF_OCSP_RESPONSE_CACHE_SERVER_URL = `${hangWebServerUrl}/hang`;
     process.env.SF_OCSP_TEST_OCSP_RESPONSE_CACHE_SERVER_TIMEOUT = 1000;
 
-    snowflake.configure({ ocspFailOpen: false });
+    snowflake.configure({ disableOCSPChecks: false, ocspFailOpen: false });
     const connection = snowflake.createConnection(getConnectionOptions());
 
     connection.connect(function (err) {
@@ -298,7 +298,7 @@ describe('Connection with OCSP test', function () {
     process.env.SF_OCSP_RESPONDER_URL = `${hangWebServerUrl}/hang`;
     process.env.SF_OCSP_TEST_OCSP_RESPONDER_TIMEOUT = 1000;
 
-    snowflake.configure({ ocspFailOpen: false });
+    snowflake.configure({ disableOCSPChecks: false, ocspFailOpen: false });
     const connection = snowflake.createConnection(getConnectionOptions());
 
     connection.connect(function (err) {
@@ -347,7 +347,7 @@ describe('Connection with OCSP test', function () {
     // fake OCSP responder.
     process.env.SF_OCSP_RESPONDER_URL = `${hangWebServerUrl}/403`;
 
-    snowflake.configure({ ocspFailOpen: false });
+    snowflake.configure({ disableOCSPChecks: false, ocspFailOpen: false });
     const connection = snowflake.createConnection(getConnectionOptions());
 
     connection.connect(function (err) {
@@ -393,7 +393,7 @@ describe('Connection with OCSP test', function () {
     // fake OCSP responder.
     process.env.SF_OCSP_RESPONDER_URL = `${hangWebServerUrl}/404`;
 
-    snowflake.configure({ ocspFailOpen: false });
+    snowflake.configure({ disableOCSPChecks: false, ocspFailOpen: false });
     const connection = snowflake.createConnection(getConnectionOptions());
 
     connection.connect(function (err) {

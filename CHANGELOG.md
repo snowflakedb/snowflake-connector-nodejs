@@ -5,6 +5,7 @@
 Dependencies:
 
 - Bumped `toml` dependency to `^5.0.0` (snowflakedb/snowflake-connector-nodejs#1477)
+- OCSP is now off by default. Enable it with `snowflake.configure({ disableOCSPChecks: false })` or `snowflake.configure({ ocspFailOpen: true|false })` before `createConnection()`. Leftover OCSP knobs have no effect until OCSP is enabled. CRL still takes precedence when `certRevocationCheckMode` is enabled.
 
 ## 3.3.0
 

@@ -2,6 +2,10 @@
 
 ## Upcoming Release
 
+Bugfixes:
+
+- Fixed encrypted S3 and Azure `GET` file transfers writing ciphertext and then crashing when a transient file-header request failed (SNOW-4110206)
+
 Dependencies:
 
 - Bumped `toml` dependency to `^5.0.0` (snowflakedb/snowflake-connector-nodejs#1477)

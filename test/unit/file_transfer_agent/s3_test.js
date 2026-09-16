@@ -210,6 +210,32 @@ describe('S3 client', function () {
     const AWS = new SnowflakeS3Util(noProxyConnectionConfig, s3);
     await AWS.getFileHeader(meta, dataFile);
     assert.strictEqual(meta['resultStatus'], resultStatus.ERROR);
+    assert.strictEqual(meta['lastError'].Code, 'unknown');
+  });
+
+  it('get file header - retries AWS SDK v3 SlowDown', async function () {
+    const err = new Error('throttled');
+    err.name = 'SlowDown';
+    err.$metadata = { httpStatusCode: 503 };
+    s3 = mockS3({ headObject: sinon.stub().rejects(err) });
+    const AWS = new SnowflakeS3Util(noProxyConnectionConfig, s3);
+
+    const fileHeader = await AWS.getFileHeader(meta, dataFile);
+
+    assert.strictEqual(fileHeader, null);
+    assert.strictEqual(meta['resultStatus'], resultStatus.NEED_RETRY);
+    assert.strictEqual(meta['lastError'], err);
+  });
+
+  it('get file header - retries a generic storage error without Code', async function () {
+    const err = new Error('network failure');
+    s3 = mockS3({ headObject: sinon.stub().rejects(err) });
+    const AWS = new SnowflakeS3Util(noProxyConnectionConfig, s3);
+
+    await AWS.getFileHeader(meta, dataFile);
+
+    assert.strictEqual(meta['resultStatus'], resultStatus.NEED_RETRY);
+    assert.strictEqual(meta['lastError'], err);
   });
 
   it('upload - success', async function () {

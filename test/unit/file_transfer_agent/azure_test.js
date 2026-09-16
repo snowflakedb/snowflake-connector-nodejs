@@ -197,8 +197,11 @@ describe('Azure client', function () {
     const Azure = mockBlobClient({
       getProperties: sinon.stub().throws(azureError({ statusCode: 404 })),
     });
-    await Azure.getFileHeader(meta, dataFile);
+    const fileHeader = await Azure.getFileHeader(meta, dataFile);
     assert.strictEqual(meta['resultStatus'], resultStatus.NOT_FOUND_FILE);
+    assert.strictEqual(fileHeader.digest, null);
+    assert.strictEqual(fileHeader.contentLength, null);
+    assert.strictEqual(fileHeader.encryptionMetadata, null);
   });
 
   it('get file header - fail HTTP 400', async function () {
@@ -215,6 +218,32 @@ describe('Azure client', function () {
     });
     await Azure.getFileHeader(meta, dataFile);
     assert.strictEqual(meta['resultStatus'], resultStatus.ERROR);
+    assert.strictEqual(meta['lastError'].code, 'unknown');
+  });
+
+  it('get file header - retries HTTP 503', async function () {
+    const err = azureError({ code: 'ServerBusy', statusCode: 503 });
+    const Azure = mockBlobClient({
+      getProperties: sinon.stub().rejects(err),
+    });
+
+    const fileHeader = await Azure.getFileHeader(meta, dataFile);
+
+    assert.strictEqual(fileHeader, null);
+    assert.strictEqual(meta['resultStatus'], resultStatus.NEED_RETRY);
+    assert.strictEqual(meta['lastError'], err);
+  });
+
+  it('get file header - retries a generic storage error without code', async function () {
+    const err = new Error('network failure');
+    const Azure = mockBlobClient({
+      getProperties: sinon.stub().rejects(err),
+    });
+
+    await Azure.getFileHeader(meta, dataFile);
+
+    assert.strictEqual(meta['resultStatus'], resultStatus.NEED_RETRY);
+    assert.strictEqual(meta['lastError'], err);
   });
 
   it('upload - success', async function () {

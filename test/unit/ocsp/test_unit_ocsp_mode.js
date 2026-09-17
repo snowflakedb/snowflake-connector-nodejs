@@ -10,7 +10,6 @@ const HttpsCrlAgent = require('../../../lib/agent/https_crl_agent').default;
 
 function restoreDefaultOff() {
   snowflake.configure({ disableOCSPChecks: true });
-  GlobalConfig.setOcspFailOpen(true);
 }
 
 function enableOcsp(ocspFailOpen) {

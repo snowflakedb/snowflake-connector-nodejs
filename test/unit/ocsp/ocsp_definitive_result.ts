@@ -1,5 +1,5 @@
 import assert from 'assert';
-import GlobalConfig from '../../../lib/global_config';
+import * as GlobalConfig from '../../../lib/global_config';
 import untypedSocketUtil from '../../../lib/agent/socket_util';
 import Errors from '../../../lib/errors';
 

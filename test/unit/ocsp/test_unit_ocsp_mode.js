@@ -9,8 +9,7 @@ const { getProxyAgent } = require('../../../lib/http/node');
 const HttpsCrlAgent = require('../../../lib/agent/https_crl_agent').default;
 
 function restoreDefaultOff() {
-  snowflake.configure({ ocspFailOpen: true });
-  snowflake.configure({ disableOCSPChecks: true });
+  GlobalConfig._setOcspDefaults();
 }
 
 function enableOcsp(ocspFailOpen) {

@@ -11,7 +11,8 @@ import {
 import SocketUtil from './socket_util';
 import ProxyUtil from '../proxy_util';
 import Logger from '../logger';
-import * as GlobalConfig from '../global_config';
+
+const GlobalConfig = require('../global_config');
 
 export type SnowflakeHttpsProxyAgentOptions = AgentConnectOpts & {
   crlValidatorConfig: CRLValidatorConfig;

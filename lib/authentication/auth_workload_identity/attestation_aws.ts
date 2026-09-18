@@ -108,6 +108,7 @@ function stsClientEndpointConfig(stsEndpoint?: StsEndpoint) {
   }
 
   // FIPS and dualstack are endpoint-selection inputs, not crypto settings, and the SDK
+  // endpoint resolver rejects them when combined with a custom endpoint.
   return {
     endpoint: { url: stsEndpoint.url },
     useFipsEndpoint: false,

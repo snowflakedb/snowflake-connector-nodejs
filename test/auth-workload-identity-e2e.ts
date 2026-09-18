@@ -35,7 +35,7 @@ describe('Workload Identity Authentication E2E', () => {
       await connectAndVerify(
         {
           ...connectionOptions,
-          // Tests run in us-west-2, so the explicit regional host must authenticate the same
+          // Tests run in us-east-2, so the explicit regional host must authenticate the same
           // as the region-derived default.
           workloadIdentityHost: 'sts.us-east-2.amazonaws.com',
         },

@@ -32,10 +32,6 @@ describe('Workload Identity Authentication E2E', () => {
 
   if (provider === 'AWS') {
     it('connects using a custom workloadIdentityHost', async () => {
-      const {
-        getAwsRegion,
-      } = require('../lib/authentication/auth_workload_identity/attestation_aws');
-      console.warn(`AWS region from metadata: ${await getAwsRegion()}`);
       await connectAndVerify(
         {
           ...connectionOptions,

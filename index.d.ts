@@ -102,15 +102,20 @@ declare module 'snowflake-sdk' {
 
     /**
      * When true, OCSP checks stay off. When false, OCSP is enabled (fail-open
-     * unless `ocspFailOpen` is also set to false). OCSP is off by default.
-     * Call this before `createConnection()`.
+     * unless `ocspFailOpen` is also set to false). Setting `ocspFailOpen` also
+     * enables OCSP.
+     *
+     * @default true
      */
     disableOCSPChecks?: boolean;
 
     /**
-     * Presence of this option opts into OCSP and overrides `disableOCSPChecks`.
-     * `true` is fail-open; `false` is fail-closed. Default is unused while OCSP is off.
+     * Selects the OCSP fail mode: `true` is fail-open, `false` is fail-closed.
+     * Setting this also turns OCSP on.
+     *
      * Detailed information: https://docs.snowflake.com/en/user-guide/ocsp.
+     *
+     * @default true
      */
     ocspFailOpen?: boolean;
 
@@ -287,7 +292,7 @@ declare module 'snowflake-sdk' {
 
     /**
      * Set the private link as the OCSP cache server's URL.
-     * No-ops with a warning when OCSP is off. Call after enabling OCSP.
+     * No-ops with a warning when OCSP is off.
      */
     setupOcspPrivateLink(host: string): void;
 

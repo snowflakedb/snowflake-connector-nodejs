@@ -9,19 +9,16 @@
  * tests do not depend on openssl being available on the CI image.
  */
 import crypto from 'crypto';
+import fs from 'fs';
+import path from 'path';
 import https from 'https';
 import { IncomingMessage, ServerResponse } from 'http';
-import asn1, { ASN1Entity } from 'asn1.js';
+import asn1 from 'asn1.js';
 import rfc5280, { NameRDNSequence, TBSCertificate } from 'asn1.js-rfc5280';
 
 const SHA256_WITH_RSA_OID = [1, 2, 840, 113549, 1, 1, 11];
 const COMMON_NAME_OID = [2, 5, 4, 3];
 const DER_PRINTABLE_STRING = 19;
-
-// asn1.js-rfc5280 exposes TBSCertificate at runtime, but lib/types/asn1.js.d.ts only declares
-// the entities the connector itself uses (it never builds a certificate from scratch).
-const TBSCertificateEntity = (rfc5280 as unknown as { TBSCertificate: ASN1Entity<TBSCertificate> })
-  .TBSCertificate;
 
 export type PinnedTlsVersion = 'TLSv1.2' | 'TLSv1.3';
 
@@ -35,6 +32,11 @@ export interface GeneratedCertificate {
  * trust anchor (basicConstraints CA:TRUE), so a client can trust it by pointing
  * NODE_EXTRA_CA_CERTS at the PEM.
  */
+// TODO: This overlaps with the certificate generation in the CRL tests
+// (test/unit/agent/crl_validator/test_utils.ts) - the signature-algorithm OID, RSA keypair,
+// and name-field building are duplicated. They could share a common buildCertificate(...)
+// helper. Revisit during the new-driver migration, and only if these tests stay in Node
+// rather than running solely in sf_core.
 export function generateSelfSignedCertificate(commonName = 'localhost'): GeneratedCertificate {
   const { privateKey, publicKey } = crypto.generateKeyPairSync('rsa', { modulusLength: 2048 });
   const signatureAlgorithm = {
@@ -85,7 +87,7 @@ export function generateSelfSignedCertificate(commonName = 'localhost'): Generat
     ],
   };
 
-  const tbsDer = TBSCertificateEntity.encode(tbsCertificate, 'der');
+  const tbsDer = rfc5280.TBSCertificate.encode(tbsCertificate, 'der');
   const signature = crypto.createSign('sha256').update(tbsDer).sign(privateKey);
   const certDer = rfc5280.Certificate.encode(
     { tbsCertificate, signatureAlgorithm, signature: { unused: 0, data: signature } },
@@ -172,29 +174,12 @@ function respondJson(res: ServerResponse, body: unknown) {
   res.end(JSON.stringify(body));
 }
 
-const LOGIN_RESPONSE = {
-  data: {
-    masterToken: 'master token',
-    token: 'session token',
-    validityInSeconds: 3600,
-    masterValidityInSeconds: 14400,
-    displayUserName: 'TLS_TEST_USER',
-    serverVersion: '8.48.0',
-    firstLogin: false,
-    healthCheckInterval: 45,
-    sessionId: 1172562260498,
-    parameters: [{ name: 'CLIENT_PREFETCH_THREADS', value: 4 }],
-    sessionInfo: {
-      databaseName: 'TEST_DATABASE',
-      schemaName: 'TEST_SCHEMA',
-      warehouseName: 'TEST_WAREHOUSE',
-      roleName: 'ANALYST',
-    },
-  },
-  code: null,
-  message: null,
-  success: true,
-};
+const LOGIN_REQUEST_OK_RESPONSE = JSON.parse(
+  fs.readFileSync(
+    path.join(__dirname, '..', 'wiremock', 'mappings', 'login_request_ok.json'),
+    'utf8',
+  ),
+).mappings[0].response.jsonBody;
 
 export interface MockSnowflakeServerOptions {
   certificate: GeneratedCertificate;
@@ -271,8 +256,9 @@ export async function startMockSnowflakeServer(
     const url = req.url ?? '';
 
     if (url.includes('/session/v1/login-request')) {
-      respondJson(res, LOGIN_RESPONSE);
+      respondJson(res, LOGIN_REQUEST_OK_RESPONSE);
     } else if (url.includes('/queries/v1/query-request')) {
+      // TODO: when migrating to the new driver, read this from wiremock stub
       respondJson(res, buildPutResponse());
     } else {
       respondJson(res, { data: null, code: null, message: null, success: true });

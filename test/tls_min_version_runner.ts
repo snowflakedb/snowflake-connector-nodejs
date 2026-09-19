@@ -10,6 +10,7 @@
  */
 // core.js is untyped, so follow the require idiom the other TypeScript tests use.
 const snowflake = require('../lib/snowflake').default;
+import { connectAsync, executeCmdAsync } from './integration/testUtil';
 
 export const RESULT_MARKER = '##TLS_MIN_VERSION_RESULT##';
 
@@ -36,21 +37,6 @@ function describeError(error: unknown): string {
   return parts.join(' <- ');
 }
 
-function connect(connection: any): Promise<void> {
-  return new Promise((resolve, reject) =>
-    connection.connect((err: Error | undefined) => (err ? reject(err) : resolve())),
-  );
-}
-
-function execute(connection: any, sqlText: string): Promise<void> {
-  return new Promise((resolve, reject) =>
-    connection.execute({
-      sqlText,
-      complete: (err: Error | undefined) => (err ? reject(err) : resolve()),
-    }),
-  );
-}
-
 async function main() {
   const accessUrl = process.env.TLS_TEST_ACCESS_URL;
   const putFilePath = process.env.TLS_TEST_PUT_FILE;
@@ -74,7 +60,7 @@ async function main() {
 
   const result: RunnerResult = { connect: 'ok' };
   try {
-    await connect(connection);
+    await connectAsync(connection);
   } catch (err) {
     result.connect = describeError(err);
     process.stdout.write(`${RESULT_MARKER}${JSON.stringify(result)}\n`);
@@ -83,7 +69,7 @@ async function main() {
 
   if (putFilePath) {
     try {
-      await execute(connection, `PUT file://${putFilePath} @~ AUTO_COMPRESS=FALSE`);
+      await executeCmdAsync(connection, `PUT file://${putFilePath} @~ AUTO_COMPRESS=FALSE`);
       result.put = 'ok';
     } catch (err) {
       result.put = describeError(err);

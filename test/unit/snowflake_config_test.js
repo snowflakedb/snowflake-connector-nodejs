@@ -136,12 +136,14 @@ describe('Snowflake Configure Tests', function () {
       {
         name: 'ocspFailOpen false',
         options: {
+          disableOCSPChecks: false,
           ocspFailOpen: false,
         },
       },
       {
         name: 'ocspFailOpen true',
         options: {
+          disableOCSPChecks: false,
           ocspFailOpen: true,
         },
       },

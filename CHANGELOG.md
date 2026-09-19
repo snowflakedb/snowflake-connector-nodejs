@@ -6,6 +6,10 @@ New features:
 
 - Added the `workloadIdentityHost` connection option that overrides the STS host used by the AWS Workload Identity flows, so AWS partitions unknown to the driver can be reached. The value is used as given; when not set, the STS host is derived from the AWS region (snowflakedb/snowflake-connector-nodejs#1479)
 
+Bugfixes:
+
+- A failed PUT now reports the underlying storage error instead of `Unknown Error in uploading a file` (snowflakedb/snowflake-connector-nodejs#1478)
+
 Dependencies:
 
 - Bumped `toml` dependency to `^5.0.0` (snowflakedb/snowflake-connector-nodejs#1477)

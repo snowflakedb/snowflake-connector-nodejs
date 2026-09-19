@@ -6,7 +6,11 @@ import { SignatureV4 } from '@smithy/signature-v4';
 import { Sha256 } from '@aws-crypto/sha256-js';
 import Logger from '../../logger';
 
-export async function getAwsCredentials(region: string, impersonationPath: string[] = []) {
+export async function getAwsCredentials(
+  region: string,
+  impersonationPath: string[] = [],
+  stsEndpoint?: StsEndpoint,
+) {
   Logger().debug('Getting AWS credentials from default provider');
   let credentials = await defaultProvider()();
 
@@ -15,6 +19,7 @@ export async function getAwsCredentials(region: string, impersonationPath: strin
     const stsClient = new STSClient({
       credentials,
       region,
+      ...stsClientEndpointConfig(stsEndpoint),
     });
     const command = new AssumeRoleCommand({
       RoleArn: roleArn,
@@ -50,32 +55,149 @@ export function getStsHostname(region: string) {
   return `sts.${region}.${domain}`;
 }
 
-export async function getAwsAttestationToken(
+/**
+ * STS endpoint the AWS Workload Identity flows talk to. Either the one derived from the region
+ * or the verbatim `workloadIdentityHost` override, which lets AWS partitions unknown to the
+ * driver be reached.
+ */
+export type StsEndpoint = {
+  /** host[:port], used as the SigV4-signed `Host` header */
+  authority: string;
+  /** bare hostname, without port */
+  hostname: string;
+  /** port, when the override specifies a non-default one */
+  port?: number;
+  /** 'https:' or 'http:' */
+  protocol: string;
+  /** path prefix without a trailing slash, empty for the common case */
+  path: string;
+  /** protocol + authority + path, used as the AWS SDK `endpoint` */
+  baseUrl: string;
+  /** whether workloadIdentityHost was set, as opposed to the regional default */
+  overridden: boolean;
+};
+
+export function regionalStsEndpoint(region: string): StsEndpoint {
+  const hostname = getStsHostname(region);
+  return {
+    authority: hostname,
+    hostname,
+    protocol: 'https:',
+    path: '',
+    baseUrl: `https://${hostname}`,
+    overridden: false,
+  };
+}
+
+/**
+ * Normalizes a user-supplied `workloadIdentityHost`. Accepts a bare host, a host:port or a
+ * full URL; the value is used as given, without any partition suffix mapping.
+ */
+export function parseWorkloadIdentityHost(workloadIdentityHost: string): StsEndpoint {
+  const trimmed = workloadIdentityHost.trim();
+  if (!trimmed) {
+    throw new Error('workloadIdentityHost is empty');
+  }
+
+  const withScheme = trimmed.includes('://') ? trimmed : `https://${trimmed}`;
+  let url: URL;
+  try {
+    url = new URL(withScheme);
+  } catch {
+    throw new Error(`Invalid workloadIdentityHost "${trimmed}": malformed URL`);
+  }
+
+  if (url.protocol !== 'https:' && url.protocol !== 'http:') {
+    throw new Error(
+      `Invalid workloadIdentityHost "${trimmed}": must use https or http, got scheme "${url.protocol.slice(0, -1)}"`,
+    );
+  }
+  if (!url.hostname) {
+    throw new Error(`Invalid workloadIdentityHost "${trimmed}": does not contain a hostname`);
+  }
+  if (url.username || url.password || url.search || url.hash) {
+    throw new Error(
+      `Invalid workloadIdentityHost "${trimmed}": must not contain user info, a query or a fragment`,
+    );
+  }
+
+  const path = url.pathname.replace(/\/+$/, '');
+  return {
+    authority: url.host,
+    hostname: url.hostname,
+    port: url.port ? Number(url.port) : undefined,
+    protocol: url.protocol,
+    path,
+    baseUrl: `${url.protocol}//${url.host}${path}`,
+    overridden: true,
+  };
+}
+
+function stsClientEndpointConfig(stsEndpoint?: StsEndpoint) {
+  // Without an override the SDK resolves the STS endpoint itself, honoring its own
+  // FIPS/dualstack settings.
+  if (!stsEndpoint?.overridden) {
+    return {};
+  }
+
+  if (process.env.AWS_USE_FIPS_ENDPOINT || process.env.AWS_USE_DUALSTACK_ENDPOINT) {
+    Logger().warn(
+      'workloadIdentityHost is set, so FIPS and dualstack endpoint preferences are ignored for STS requests',
+    );
+  }
+
+  // FIPS and dualstack are endpoint-selection inputs, not crypto settings, and the SDK
+  // endpoint resolver rejects them when combined with a custom endpoint.
+  return {
+    endpoint: stsEndpoint.baseUrl,
+    useFipsEndpoint: false,
+    useDualstackEndpoint: false,
+  };
+}
+
+export async function getAwsAttestationToken({
   useOutboundToken = false,
-  impersonationPath?: string[],
-) {
+  impersonationPath,
+  workloadIdentityHost,
+}: {
+  useOutboundToken?: boolean;
+  impersonationPath?: string[];
+  workloadIdentityHost?: string;
+} = {}) {
+  // Parsed up front so that a malformed override fails with a configuration error instead
+  // of a region or credentials error.
+  const endpointOverride = workloadIdentityHost
+    ? parseWorkloadIdentityHost(workloadIdentityHost)
+    : undefined;
+
   const region = await getAwsRegion();
-  const credentials = await getAwsCredentials(region, impersonationPath);
+  const stsEndpoint = endpointOverride ?? regionalStsEndpoint(region);
+  if (stsEndpoint.overridden) {
+    Logger().debug(`Using explicit STS endpoint for AWS attestation: ${stsEndpoint.baseUrl}`);
+  }
+
+  const credentials = await getAwsCredentials(region, impersonationPath, stsEndpoint);
 
   if (useOutboundToken) {
-    return getOutboundWebIdentityToken(region, credentials);
+    return getOutboundWebIdentityToken(region, credentials, stsEndpoint);
   } else {
-    return getCallerIdentityToken(region, credentials);
+    return getCallerIdentityToken(region, credentials, stsEndpoint);
   }
 }
 
 async function getCallerIdentityToken(
   region: string,
   credentials: Awaited<ReturnType<typeof getAwsCredentials>>,
+  stsEndpoint: StsEndpoint,
 ) {
-  const stsHostname = getStsHostname(region);
   const request = new HttpRequest({
     method: 'POST',
-    protocol: 'https',
-    hostname: stsHostname,
-    path: '/',
+    protocol: stsEndpoint.protocol,
+    hostname: stsEndpoint.hostname,
+    port: stsEndpoint.port,
+    path: stsEndpoint.path || '/',
     headers: {
-      host: stsHostname,
+      host: stsEndpoint.authority,
       'x-snowflake-audience': 'snowflakecomputing.com',
     },
     query: {
@@ -92,7 +214,7 @@ async function getCallerIdentityToken(
   }).sign(request);
 
   const token = {
-    url: `https://${stsHostname}/?Action=GetCallerIdentity&Version=2011-06-15`,
+    url: `${stsEndpoint.baseUrl}${stsEndpoint.path ? '' : '/'}?Action=GetCallerIdentity&Version=2011-06-15`,
     method: 'POST',
     headers: signedRequest.headers,
   };
@@ -102,8 +224,13 @@ async function getCallerIdentityToken(
 async function getOutboundWebIdentityToken(
   region: string,
   credentials: Awaited<ReturnType<typeof getAwsCredentials>>,
+  stsEndpoint: StsEndpoint,
 ) {
-  const stsClient = new STSClient({ credentials, region });
+  const stsClient = new STSClient({
+    credentials,
+    region,
+    ...stsClientEndpointConfig(stsEndpoint),
+  });
   const response = await stsClient.send(
     new GetWebIdentityTokenCommand({
       Audience: ['snowflakecomputing.com'],

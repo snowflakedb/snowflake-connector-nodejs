@@ -23,6 +23,8 @@ describe('Attestation AWS', () => {
   let AttestationAws: typeof OriginalAttestationAws;
   const noCredentialsError = new Error('No credentials found');
   const noRegionError = new Error('No region found');
+  // Every STSClient instantiation, so tests can assert the endpoint the SDK was pointed at
+  let stsClientConfigs: Record<string, unknown>[] = [];
 
   before(() => {
     // NOTE:
@@ -34,6 +36,9 @@ describe('Attestation AWS', () => {
       AssumeRoleCommand: FakeAssumeRoleCommand,
       GetWebIdentityTokenCommand: FakeGetWebIdentityTokenCommand,
       STSClient: class {
+        constructor(config: Record<string, unknown>) {
+          stsClientConfigs.push(config);
+        }
         send = (command: unknown) => {
           if (command instanceof FakeGetWebIdentityTokenCommand) {
             return awsSdkMock.sendGetWebIdentityToken();
@@ -53,8 +58,11 @@ describe('Attestation AWS', () => {
 
   beforeEach(() => {
     sinonSandbox.restore();
+    stsClientConfigs = [];
     awsSdkMock.sendAssumeRole.resetHistory();
     awsSdkMock.sendGetWebIdentityToken.resetHistory();
+    awsSdkMock.getDefaultCredentials.resetHistory();
+    awsSdkMock.getMetadataRegion.resetHistory();
     awsSdkMock.getDefaultCredentials.throws(noCredentialsError);
     awsSdkMock.getMetadataRegion.throws(noRegionError);
     awsSdkMock.sendAssumeRole.returns({ Credentials: null });
@@ -149,7 +157,7 @@ describe('Attestation AWS', () => {
       awsSdkMock.getMetadataRegion.returns(AWS_REGION);
       awsSdkMock.sendGetWebIdentityToken.returns({});
       await assert.rejects(
-        AttestationAws.getAwsAttestationToken(true),
+        AttestationAws.getAwsAttestationToken({ useOutboundToken: true }),
         /Failed to obtain AWS web identity token from STS/,
       );
     });
@@ -157,8 +165,190 @@ describe('Attestation AWS', () => {
     it('returns the WebIdentityToken JWT from STS with outbound token', async () => {
       awsSdkMock.getDefaultCredentials.returns(AWS_CREDENTIALS);
       awsSdkMock.getMetadataRegion.returns(AWS_REGION);
-      const token = await AttestationAws.getAwsAttestationToken(true);
+      const token = await AttestationAws.getAwsAttestationToken({ useOutboundToken: true });
       assert.strictEqual(token, AWS_WEB_IDENTITY_TOKEN);
     });
+
+    it('does not override the SDK endpoint without workloadIdentityHost', async () => {
+      awsSdkMock.getDefaultCredentials.returns(AWS_CREDENTIALS);
+      awsSdkMock.getMetadataRegion.returns(AWS_REGION);
+      await AttestationAws.getAwsAttestationToken({ useOutboundToken: true });
+      assert.strictEqual(stsClientConfigs.length, 1);
+      assert.strictEqual(stsClientConfigs[0].endpoint, undefined);
+    });
+
+    it('signs the SigV4 token for the workloadIdentityHost', async () => {
+      awsSdkMock.getDefaultCredentials.returns(AWS_CREDENTIALS);
+      awsSdkMock.getMetadataRegion.returns(AWS_REGION);
+      const token = await AttestationAws.getAwsAttestationToken({
+        workloadIdentityHost: 'sts.wif.snowflake.com',
+      });
+      assertAwsAttestationToken(token, AWS_REGION, 'sts.wif.snowflake.com');
+    });
+
+    it('points the SDK at the workloadIdentityHost with outbound token', async () => {
+      awsSdkMock.getDefaultCredentials.returns(AWS_CREDENTIALS);
+      awsSdkMock.getMetadataRegion.returns(AWS_REGION);
+      const token = await AttestationAws.getAwsAttestationToken({
+        useOutboundToken: true,
+        workloadIdentityHost: 'sts.wif.snowflake.com',
+      });
+      assert.strictEqual(token, AWS_WEB_IDENTITY_TOKEN);
+      assert.strictEqual(stsClientConfigs.length, 1);
+      assert.deepStrictEqual(
+        {
+          endpoint: stsClientConfigs[0].endpoint,
+          useFipsEndpoint: stsClientConfigs[0].useFipsEndpoint,
+          useDualstackEndpoint: stsClientConfigs[0].useDualstackEndpoint,
+        },
+        {
+          endpoint: 'https://sts.wif.snowflake.com',
+          useFipsEndpoint: false,
+          useDualstackEndpoint: false,
+        },
+      );
+    });
+
+    it('points the impersonation client at the workloadIdentityHost', async () => {
+      awsSdkMock.getDefaultCredentials.returns(AWS_CREDENTIALS);
+      awsSdkMock.getMetadataRegion.returns(AWS_REGION);
+      awsSdkMock.sendAssumeRole.returns({
+        Credentials: { AccessKeyId: 'key', SecretAccessKey: 'secret' },
+      });
+      await AttestationAws.getAwsAttestationToken({
+        impersonationPath: ['impersonation-role'],
+        workloadIdentityHost: 'sts.wif.snowflake.com',
+      });
+      assert.strictEqual(stsClientConfigs.length, 1);
+      assert.strictEqual(stsClientConfigs[0].endpoint, 'https://sts.wif.snowflake.com');
+    });
+
+    it('rejects a malformed workloadIdentityHost before looking up region or credentials', async () => {
+      await assert.rejects(
+        AttestationAws.getAwsAttestationToken({
+          workloadIdentityHost: 'ftp://sts.custom.snowflake.com',
+        }),
+        /must use https or http, got scheme "ftp"/,
+      );
+      sinon.assert.notCalled(awsSdkMock.getMetadataRegion);
+      sinon.assert.notCalled(awsSdkMock.getDefaultCredentials);
+    });
+  });
+
+  describe('regionalStsEndpoint', () => {
+    it('returns the regional endpoint for a non-china region', () => {
+      assert.deepStrictEqual(AttestationAws.regionalStsEndpoint('us-east-1'), {
+        authority: 'sts.us-east-1.amazonaws.com',
+        hostname: 'sts.us-east-1.amazonaws.com',
+        protocol: 'https:',
+        path: '',
+        baseUrl: 'https://sts.us-east-1.amazonaws.com',
+        overridden: false,
+      });
+    });
+
+    it('returns the regional endpoint for a china region', () => {
+      assert.deepStrictEqual(AttestationAws.regionalStsEndpoint('cn-north-1'), {
+        authority: 'sts.cn-north-1.amazonaws.com.cn',
+        hostname: 'sts.cn-north-1.amazonaws.com.cn',
+        protocol: 'https:',
+        path: '',
+        baseUrl: 'https://sts.cn-north-1.amazonaws.com.cn',
+        overridden: false,
+      });
+    });
+  });
+
+  describe('parseWorkloadIdentityHost', () => {
+    const validCases: [string, string, { authority: string; baseUrl: string; port?: number }][] = [
+      [
+        'bare host',
+        'sts.wif.snowflake.com',
+        { authority: 'sts.wif.snowflake.com', baseUrl: 'https://sts.wif.snowflake.com' },
+      ],
+      [
+        'host with port',
+        'sts.custom.snowflake.com:8443',
+        {
+          authority: 'sts.custom.snowflake.com:8443',
+          baseUrl: 'https://sts.custom.snowflake.com:8443',
+          port: 8443,
+        },
+      ],
+      [
+        'full URL',
+        'https://sts.custom.snowflake.com',
+        { authority: 'sts.custom.snowflake.com', baseUrl: 'https://sts.custom.snowflake.com' },
+      ],
+      [
+        'trailing slashes',
+        'https://sts.custom.snowflake.com///',
+        { authority: 'sts.custom.snowflake.com', baseUrl: 'https://sts.custom.snowflake.com' },
+      ],
+      [
+        'http scheme',
+        'http://sts.custom.snowflake.com',
+        { authority: 'sts.custom.snowflake.com', baseUrl: 'http://sts.custom.snowflake.com' },
+      ],
+      [
+        'surrounding whitespace',
+        '  sts.custom.snowflake.com  ',
+        { authority: 'sts.custom.snowflake.com', baseUrl: 'https://sts.custom.snowflake.com' },
+      ],
+      [
+        'uppercase host',
+        'STS.Custom.Snowflake.COM',
+        { authority: 'sts.custom.snowflake.com', baseUrl: 'https://sts.custom.snowflake.com' },
+      ],
+    ];
+
+    for (const [name, host, expected] of validCases) {
+      it(`accepts ${name}`, () => {
+        const endpoint = AttestationAws.parseWorkloadIdentityHost(host);
+        assert.strictEqual(endpoint.authority, expected.authority);
+        assert.strictEqual(endpoint.baseUrl, expected.baseUrl);
+        assert.strictEqual(endpoint.port, expected.port);
+        assert.strictEqual(endpoint.overridden, true);
+      });
+    }
+
+    it('keeps a path prefix', () => {
+      const endpoint = AttestationAws.parseWorkloadIdentityHost(
+        'https://sts.custom.snowflake.com/custom/',
+      );
+      assert.strictEqual(endpoint.path, '/custom');
+      assert.strictEqual(endpoint.baseUrl, 'https://sts.custom.snowflake.com/custom');
+    });
+
+    const invalidCases: [string, string, RegExp][] = [
+      ['empty value', '   ', /workloadIdentityHost is empty/],
+      [
+        'unsupported scheme',
+        'ftp://sts.custom.snowflake.com',
+        /must use https or http, got scheme "ftp"/,
+      ],
+      [
+        'query',
+        'https://sts.custom.snowflake.com?Action=Foo',
+        /must not contain user info, a query or a fragment/,
+      ],
+      [
+        'fragment',
+        'https://sts.custom.snowflake.com#frag',
+        /must not contain user info, a query or a fragment/,
+      ],
+      // pragma: allowlist nextline secret
+      [
+        'user info',
+        'https://user:pass@sts.custom.snowflake.com',
+        /must not contain user info, a query or a fragment/,
+      ],
+    ];
+
+    for (const [name, host, expectedError] of invalidCases) {
+      it(`rejects ${name}`, () => {
+        assert.throws(() => AttestationAws.parseWorkloadIdentityHost(host), expectedError);
+      });
+    }
   });
 });

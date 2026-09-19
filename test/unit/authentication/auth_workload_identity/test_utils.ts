@@ -8,13 +8,17 @@ export const AWS_CREDENTIALS = {
 };
 export const AWS_WEB_IDENTITY_TOKEN = 'fake.jwt.token-for-testing-only';
 
-export function assertAwsAttestationToken(token: string | null | undefined, region: string) {
+export function assertAwsAttestationToken(
+  token: string | null | undefined,
+  region: string,
+  expectedAuthority = `sts.${region}.amazonaws.com`,
+) {
   if (!token) {
     assert.fail('Token is empty');
   }
   const decodedToken = JSON.parse(atob(token));
   const parsedUrl = new URL(decodedToken.url);
-  assert.strictEqual(parsedUrl.hostname, `sts.${region}.amazonaws.com`);
+  assert.strictEqual(parsedUrl.host, expectedAuthority);
   assert.strictEqual(parsedUrl.searchParams.get('Action'), 'GetCallerIdentity');
   assert.strictEqual(parsedUrl.searchParams.get('Version'), '2011-06-15');
   assert.strictEqual(decodedToken.method, 'POST');
@@ -25,6 +29,6 @@ export function assertAwsAttestationToken(token: string | null | undefined, regi
     'x-amz-security-token',
     'authorization',
   ]);
-  assert.strictEqual(decodedToken.headers.host, `sts.${region}.amazonaws.com`);
+  assert.strictEqual(decodedToken.headers.host, expectedAuthority);
   assert.strictEqual(decodedToken.headers['x-snowflake-audience'], 'snowflakecomputing.com');
 }

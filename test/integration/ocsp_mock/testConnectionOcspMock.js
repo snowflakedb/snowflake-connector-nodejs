@@ -7,12 +7,13 @@ const snowflake = require('./../../../lib/snowflake').default;
 const HttpsMockAgent = require('./https_ocsp_mock_agent');
 const Logger = require('../../../lib/logger');
 const Util = require('../../../lib/util');
+const { resetOcspState, enableOcsp } = require('../../ocspTestState');
 
 const ErrorCodes = Errors.codes;
 
 describe('Connection test with OCSP Mock', function () {
   before(() => {
-    snowflake.configure({ disableOCSPChecks: false, ocspFailOpen: true });
+    enableOcsp(true);
     // NOTE:
     // Mock backoff to 100ms for fast retries
     sinon
@@ -25,7 +26,7 @@ describe('Connection test with OCSP Mock', function () {
   });
 
   after(() => {
-    snowflake.configure({ disableOCSPChecks: true, ocspFailOpen: true });
+    resetOcspState();
     sinon.restore();
   });
 

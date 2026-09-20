@@ -125,11 +125,11 @@ export async function getAwsAttestationToken({
     ? parseWorkloadIdentityHost(workloadIdentityHost)
     : undefined;
 
-  const region = await getAwsRegion();
   if (customStsEndpoint) {
     Logger().debug(`Using explicit STS endpoint for AWS attestation: ${customStsEndpoint.href}`);
   }
 
+  const region = await getAwsRegion();
   const credentials = await getAwsCredentials(region, impersonationPath, customStsEndpoint);
 
   if (useOutboundToken) {

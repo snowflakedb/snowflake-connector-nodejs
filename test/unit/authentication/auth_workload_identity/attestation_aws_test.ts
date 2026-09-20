@@ -256,8 +256,7 @@ describe('Attestation AWS', () => {
     for (const [name, host, expectedOrigin] of validCases) {
       it(`accepts ${name}`, () => {
         const endpoint = AttestationAws.parseWorkloadIdentityHost(host);
-        assert.strictEqual(endpoint.url.origin, expectedOrigin);
-        assert.strictEqual(endpoint.overridden, true);
+        assert.strictEqual(endpoint.origin, expectedOrigin);
       });
     }
 
@@ -265,8 +264,8 @@ describe('Attestation AWS', () => {
       const endpoint = AttestationAws.parseWorkloadIdentityHost(
         'https://sts.custom.snowflake.com/custom/',
       );
-      assert.strictEqual(endpoint.url.origin, 'https://sts.custom.snowflake.com');
-      assert.strictEqual(endpoint.url.pathname, '/custom');
+      assert.strictEqual(endpoint.origin, 'https://sts.custom.snowflake.com');
+      assert.strictEqual(endpoint.pathname, '/custom');
     });
 
     const invalidCases: [string, string, RegExp][] = [

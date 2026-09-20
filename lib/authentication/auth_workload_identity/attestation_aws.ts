@@ -6,16 +6,10 @@ import { SignatureV4 } from '@smithy/signature-v4';
 import { Sha256 } from '@aws-crypto/sha256-js';
 import Logger from '../../logger';
 
-export type StsEndpoint = {
-  url: URL;
-  // true if workloadIdentityHost overrides the default regional STS endpoint
-  overridden: boolean;
-};
-
 export async function getAwsCredentials(
   region: string,
   impersonationPath: string[] = [],
-  stsEndpoint?: StsEndpoint,
+  customStsEndpoint?: URL,
 ) {
   Logger().debug('Getting AWS credentials from default provider');
   let credentials = await defaultProvider()();
@@ -25,7 +19,7 @@ export async function getAwsCredentials(
     const stsClient = new STSClient({
       credentials,
       region,
-      ...stsClientEndpointConfig(stsEndpoint),
+      ...stsClientEndpointConfig(customStsEndpoint),
     });
     const command = new AssumeRoleCommand({
       RoleArn: roleArn,
@@ -65,7 +59,7 @@ export function getStsHostname(region: string) {
  * Normalizes a user-supplied `workloadIdentityHost`. Accepts a bare host, a host:port or a
  * full URL; the value is used as given, without any partition suffix mapping.
  */
-export function parseWorkloadIdentityHost(workloadIdentityHost: string): StsEndpoint {
+export function parseWorkloadIdentityHost(workloadIdentityHost: string): URL {
   const trimmed = workloadIdentityHost.trim();
   if (!trimmed) {
     throw new Error('workloadIdentityHost is empty');
@@ -91,13 +85,13 @@ export function parseWorkloadIdentityHost(workloadIdentityHost: string): StsEndp
   }
 
   url.pathname = url.pathname.replace(/\/+$/, '');
-  return { url, overridden: true };
+  return url;
 }
 
-function stsClientEndpointConfig(stsEndpoint?: StsEndpoint) {
+function stsClientEndpointConfig(customStsEndpoint?: URL) {
   // Without an override the SDK resolves the STS endpoint itself, honoring its own
   // FIPS/dualstack settings.
-  if (!stsEndpoint?.overridden) {
+  if (!customStsEndpoint) {
     return {};
   }
 
@@ -110,7 +104,7 @@ function stsClientEndpointConfig(stsEndpoint?: StsEndpoint) {
   // FIPS and dualstack are endpoint-selection inputs, not crypto settings, and the SDK
   // endpoint resolver rejects them when combined with a custom endpoint.
   return {
-    endpoint: { url: stsEndpoint.url },
+    endpoint: { url: customStsEndpoint },
     useFipsEndpoint: false,
     useDualstackEndpoint: false,
   };
@@ -127,24 +121,21 @@ export async function getAwsAttestationToken({
 } = {}) {
   // Parsed up front so that a malformed override fails with a configuration error instead
   // of a region or credentials error.
-  const endpointOverride = workloadIdentityHost
+  const customStsEndpoint = workloadIdentityHost
     ? parseWorkloadIdentityHost(workloadIdentityHost)
-    : null;
+    : undefined;
 
   const region = await getAwsRegion();
-  const stsEndpoint: StsEndpoint = endpointOverride ?? {
-    url: new URL(`https://${getStsHostname(region)}`),
-    overridden: false,
-  };
-  if (stsEndpoint.overridden) {
-    Logger().debug(`Using explicit STS endpoint for AWS attestation: ${stsEndpoint.url.href}`);
+  if (customStsEndpoint) {
+    Logger().debug(`Using explicit STS endpoint for AWS attestation: ${customStsEndpoint.href}`);
   }
 
-  const credentials = await getAwsCredentials(region, impersonationPath, stsEndpoint);
+  const credentials = await getAwsCredentials(region, impersonationPath, customStsEndpoint);
 
   if (useOutboundToken) {
-    return getOutboundWebIdentityToken(region, credentials, stsEndpoint);
+    return getOutboundWebIdentityToken(region, credentials, customStsEndpoint);
   } else {
+    const stsEndpoint = customStsEndpoint ?? new URL(`https://${getStsHostname(region)}`);
     return getCallerIdentityToken(region, credentials, stsEndpoint);
   }
 }
@@ -152,9 +143,9 @@ export async function getAwsAttestationToken({
 async function getCallerIdentityToken(
   region: string,
   credentials: Awaited<ReturnType<typeof getAwsCredentials>>,
-  stsEndpoint: StsEndpoint,
+  stsEndpoint: URL,
 ) {
-  const { url } = stsEndpoint;
+  const url = stsEndpoint;
   const request = new HttpRequest({
     method: 'POST',
     protocol: url.protocol,
@@ -189,12 +180,12 @@ async function getCallerIdentityToken(
 async function getOutboundWebIdentityToken(
   region: string,
   credentials: Awaited<ReturnType<typeof getAwsCredentials>>,
-  stsEndpoint: StsEndpoint,
+  customStsEndpoint?: URL,
 ) {
   const stsClient = new STSClient({
     credentials,
     region,
-    ...stsClientEndpointConfig(stsEndpoint),
+    ...stsClientEndpointConfig(customStsEndpoint),
   });
   const response = await stsClient.send(
     new GetWebIdentityTokenCommand({

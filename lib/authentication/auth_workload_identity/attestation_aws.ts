@@ -145,15 +145,14 @@ async function getCallerIdentityToken(
   credentials: Awaited<ReturnType<typeof getAwsCredentials>>,
   stsEndpoint: URL,
 ) {
-  const url = stsEndpoint;
   const request = new HttpRequest({
     method: 'POST',
-    protocol: url.protocol,
-    hostname: url.hostname,
-    port: url.port ? Number(url.port) : undefined,
-    path: url.pathname,
+    protocol: stsEndpoint.protocol,
+    hostname: stsEndpoint.hostname,
+    port: stsEndpoint.port ? Number(stsEndpoint.port) : undefined,
+    path: stsEndpoint.pathname,
     headers: {
-      host: url.host,
+      host: stsEndpoint.host,
       'x-snowflake-audience': 'snowflakecomputing.com',
     },
     query: {
@@ -170,7 +169,7 @@ async function getCallerIdentityToken(
   }).sign(request);
 
   const token = {
-    url: `${url.origin}${url.pathname}?Action=GetCallerIdentity&Version=2011-06-15`,
+    url: `${stsEndpoint.origin}${stsEndpoint.pathname}?Action=GetCallerIdentity&Version=2011-06-15`,
     method: 'POST',
     headers: signedRequest.headers,
   };

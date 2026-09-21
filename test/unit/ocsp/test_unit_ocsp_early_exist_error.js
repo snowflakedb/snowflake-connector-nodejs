@@ -6,6 +6,14 @@ const ErrorCodes = Errors.codes;
 const assert = require('assert');
 
 describe('OCSP early exist error', function () {
+  beforeEach(function () {
+    GlobalConfig.setDisableOCSPChecks(false);
+  });
+
+  afterEach(function () {
+    GlobalConfig.setDisableOCSPChecks(true);
+    GlobalConfig.setOcspFailOpen(true);
+  });
   it('canEarlyExitForOCSP - no error', function (done) {
     const errors = [null, null, null];
     {

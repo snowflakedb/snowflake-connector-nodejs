@@ -1,7 +1,8 @@
 import assert from 'assert';
-import GlobalConfig from '../../../lib/global_config';
 import untypedSocketUtil from '../../../lib/agent/socket_util';
 import Errors from '../../../lib/errors';
+
+const GlobalConfig = require('../../../lib/global_config');
 
 const ErrorCodes = Errors.codes;
 
@@ -10,6 +11,14 @@ const SocketUtil = untypedSocketUtil as unknown as {
 };
 
 describe('OCSP definitive result is authoritative in fail-open', () => {
+  beforeEach(() => {
+    GlobalConfig.setDisableOCSPChecks(false);
+  });
+
+  afterEach(() => {
+    GlobalConfig.setDisableOCSPChecks(true);
+    GlobalConfig.setOcspFailOpen(true);
+  });
   it('signature verification failure is fatal even in fail-open', () => {
     const errors = [Errors.createOCSPError(ErrorCodes.ERR_OCSP_INVALID_SIGNATURE), null];
     {

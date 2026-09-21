@@ -12,6 +12,7 @@ const ErrorCodes = Errors.codes;
 
 describe('Connection test with OCSP Mock', function () {
   before(() => {
+    snowflake.configure({ disableOCSPChecks: false, ocspFailOpen: true });
     // NOTE:
     // Mock backoff to 100ms for fast retries
     sinon
@@ -23,7 +24,10 @@ describe('Connection test with OCSP Mock', function () {
       });
   });
 
-  after(() => sinon.restore());
+  after(() => {
+    snowflake.configure({ disableOCSPChecks: true, ocspFailOpen: true });
+    sinon.restore();
+  });
 
   const valid = {
     ...connOption.valid,

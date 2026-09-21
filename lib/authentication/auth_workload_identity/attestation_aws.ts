@@ -9,7 +9,7 @@ import Logger from '../../logger';
 export async function getAwsCredentials(
   region: string,
   impersonationPath: string[] = [],
-  stsEndpoint?: StsEndpoint,
+  customStsEndpoint?: URL,
 ) {
   Logger().debug('Getting AWS credentials from default provider');
   let credentials = await defaultProvider()();
@@ -19,7 +19,7 @@ export async function getAwsCredentials(
     const stsClient = new STSClient({
       credentials,
       region,
-      ...stsClientEndpointConfig(stsEndpoint),
+      ...stsClientEndpointConfig(customStsEndpoint),
     });
     const command = new AssumeRoleCommand({
       RoleArn: roleArn,
@@ -56,44 +56,10 @@ export function getStsHostname(region: string) {
 }
 
 /**
- * STS endpoint the AWS Workload Identity flows talk to. Either the one derived from the region
- * or the verbatim `workloadIdentityHost` override, which lets AWS partitions unknown to the
- * driver be reached.
- */
-export type StsEndpoint = {
-  /** host[:port], used as the SigV4-signed `Host` header */
-  authority: string;
-  /** bare hostname, without port */
-  hostname: string;
-  /** port, when the override specifies a non-default one */
-  port?: number;
-  /** 'https:' or 'http:' */
-  protocol: string;
-  /** path prefix without a trailing slash, empty for the common case */
-  path: string;
-  /** protocol + authority + path, used as the AWS SDK `endpoint` */
-  baseUrl: string;
-  /** whether workloadIdentityHost was set, as opposed to the regional default */
-  overridden: boolean;
-};
-
-export function regionalStsEndpoint(region: string): StsEndpoint {
-  const hostname = getStsHostname(region);
-  return {
-    authority: hostname,
-    hostname,
-    protocol: 'https:',
-    path: '',
-    baseUrl: `https://${hostname}`,
-    overridden: false,
-  };
-}
-
-/**
  * Normalizes a user-supplied `workloadIdentityHost`. Accepts a bare host, a host:port or a
  * full URL; the value is used as given, without any partition suffix mapping.
  */
-export function parseWorkloadIdentityHost(workloadIdentityHost: string): StsEndpoint {
+export function parseWorkloadIdentityHost(workloadIdentityHost: string): URL {
   const trimmed = workloadIdentityHost.trim();
   if (!trimmed) {
     throw new Error('workloadIdentityHost is empty');
@@ -112,31 +78,20 @@ export function parseWorkloadIdentityHost(workloadIdentityHost: string): StsEndp
       `Invalid workloadIdentityHost "${trimmed}": must use https or http, got scheme "${url.protocol.slice(0, -1)}"`,
     );
   }
-  if (!url.hostname) {
-    throw new Error(`Invalid workloadIdentityHost "${trimmed}": does not contain a hostname`);
-  }
   if (url.username || url.password || url.search || url.hash) {
     throw new Error(
       `Invalid workloadIdentityHost "${trimmed}": must not contain user info, a query or a fragment`,
     );
   }
 
-  const path = url.pathname.replace(/\/+$/, '');
-  return {
-    authority: url.host,
-    hostname: url.hostname,
-    port: url.port ? Number(url.port) : undefined,
-    protocol: url.protocol,
-    path,
-    baseUrl: `${url.protocol}//${url.host}${path}`,
-    overridden: true,
-  };
+  url.pathname = url.pathname.replace(/\/+$/, '');
+  return url;
 }
 
-function stsClientEndpointConfig(stsEndpoint?: StsEndpoint) {
+function stsClientEndpointConfig(customStsEndpoint?: URL) {
   // Without an override the SDK resolves the STS endpoint itself, honoring its own
   // FIPS/dualstack settings.
-  if (!stsEndpoint?.overridden) {
+  if (!customStsEndpoint) {
     return {};
   }
 
@@ -149,7 +104,7 @@ function stsClientEndpointConfig(stsEndpoint?: StsEndpoint) {
   // FIPS and dualstack are endpoint-selection inputs, not crypto settings, and the SDK
   // endpoint resolver rejects them when combined with a custom endpoint.
   return {
-    endpoint: stsEndpoint.baseUrl,
+    endpoint: { url: customStsEndpoint },
     useFipsEndpoint: false,
     useDualstackEndpoint: false,
   };
@@ -166,21 +121,21 @@ export async function getAwsAttestationToken({
 } = {}) {
   // Parsed up front so that a malformed override fails with a configuration error instead
   // of a region or credentials error.
-  const endpointOverride = workloadIdentityHost
+  const customStsEndpoint = workloadIdentityHost
     ? parseWorkloadIdentityHost(workloadIdentityHost)
     : undefined;
 
-  const region = await getAwsRegion();
-  const stsEndpoint = endpointOverride ?? regionalStsEndpoint(region);
-  if (stsEndpoint.overridden) {
-    Logger().debug(`Using explicit STS endpoint for AWS attestation: ${stsEndpoint.baseUrl}`);
+  if (customStsEndpoint) {
+    Logger().debug(`Using explicit STS endpoint for AWS attestation: ${customStsEndpoint.href}`);
   }
 
-  const credentials = await getAwsCredentials(region, impersonationPath, stsEndpoint);
+  const region = await getAwsRegion();
+  const credentials = await getAwsCredentials(region, impersonationPath, customStsEndpoint);
 
   if (useOutboundToken) {
-    return getOutboundWebIdentityToken(region, credentials, stsEndpoint);
+    return getOutboundWebIdentityToken(region, credentials, customStsEndpoint);
   } else {
+    const stsEndpoint = customStsEndpoint ?? new URL(`https://${getStsHostname(region)}`);
     return getCallerIdentityToken(region, credentials, stsEndpoint);
   }
 }
@@ -188,16 +143,16 @@ export async function getAwsAttestationToken({
 async function getCallerIdentityToken(
   region: string,
   credentials: Awaited<ReturnType<typeof getAwsCredentials>>,
-  stsEndpoint: StsEndpoint,
+  stsEndpoint: URL,
 ) {
   const request = new HttpRequest({
     method: 'POST',
     protocol: stsEndpoint.protocol,
     hostname: stsEndpoint.hostname,
-    port: stsEndpoint.port,
-    path: stsEndpoint.path || '/',
+    port: stsEndpoint.port ? Number(stsEndpoint.port) : undefined,
+    path: stsEndpoint.pathname,
     headers: {
-      host: stsEndpoint.authority,
+      host: stsEndpoint.host,
       'x-snowflake-audience': 'snowflakecomputing.com',
     },
     query: {
@@ -214,7 +169,7 @@ async function getCallerIdentityToken(
   }).sign(request);
 
   const token = {
-    url: `${stsEndpoint.baseUrl}${stsEndpoint.path ? '' : '/'}?Action=GetCallerIdentity&Version=2011-06-15`,
+    url: `${stsEndpoint.origin}${stsEndpoint.pathname}?Action=GetCallerIdentity&Version=2011-06-15`,
     method: 'POST',
     headers: signedRequest.headers,
   };
@@ -224,12 +179,12 @@ async function getCallerIdentityToken(
 async function getOutboundWebIdentityToken(
   region: string,
   credentials: Awaited<ReturnType<typeof getAwsCredentials>>,
-  stsEndpoint: StsEndpoint,
+  customStsEndpoint?: URL,
 ) {
   const stsClient = new STSClient({
     credentials,
     region,
-    ...stsClientEndpointConfig(stsEndpoint),
+    ...stsClientEndpointConfig(customStsEndpoint),
   });
   const response = await stsClient.send(
     new GetWebIdentityTokenCommand({

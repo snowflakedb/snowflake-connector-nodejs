@@ -30,12 +30,33 @@ describe('Workload Identity Authentication E2E', () => {
     await connectAndVerify(connectionOptions, expectedUsername);
   });
 
-  // AWS WIF supports two attestation methods: GetCallerIdentity (default) and
-  // GetWebIdentityToken (enabled via workloadIdentityAwsUseOutboundToken).
-  // This test covers the GetWebIdentityToken method against the dedicated
-  // TEST_WIF_E2E_AWS_WITH_ISSUER Snowflake user (configured with an ISSUER). Since an EC2 instance
-  // can only have one IAM role, the test impersonates a dedicated role that maps to that user.
   if (provider === 'AWS') {
+    // NOTE:
+    // Not an ideal test: we pass the same STS host the driver would pick on its own
+    // in us-east-2. If workloadIdentityHost were ignored, this would still pass.
+    //
+    // A fake name would not work, even with a DNS alias:
+    // * default (GetCallerIdentity): Snowflake's backend must reach that host
+    // * workloadIdentityAwsUseOutboundToken=true: only the driver calls STS, but TLS
+    //   still fails (cert is for the real STS name, not the alias)
+    //
+    // Still better than no e2e coverage: the unit tests check that the override is
+    // applied, and this checks that setting it does not break a real login.
+    it('connects using a custom workloadIdentityHost', async () => {
+      await connectAndVerify(
+        {
+          ...connectionOptions,
+          workloadIdentityHost: 'sts.us-east-2.amazonaws.com',
+        },
+        expectedUsername,
+      );
+    });
+
+    // AWS WIF supports two attestation methods: GetCallerIdentity (default) and
+    // GetWebIdentityToken (enabled via workloadIdentityAwsUseOutboundToken).
+    // This test covers the GetWebIdentityToken method against the dedicated
+    // TEST_WIF_E2E_AWS_WITH_ISSUER Snowflake user (configured with an ISSUER). Since an EC2 instance
+    // can only have one IAM role, the test impersonates a dedicated role that maps to that user.
     it('connects using GetWebIdentityToken', async () => {
       await connectAndVerify(
         {

@@ -20,10 +20,10 @@ describe('Attestation AWS', () => {
     sendAssumeRole: sinonSandbox.stub().returns({ Credentials: null }),
     sendGetWebIdentityToken: sinonSandbox.stub(),
   };
-  let AttestationAws: typeof OriginalAttestationAws;
   const noCredentialsError = new Error('No credentials found');
   const noRegionError = new Error('No region found');
-  // Every STSClient instantiation, so tests can assert the endpoint the SDK was pointed at
+
+  let AttestationAws: typeof OriginalAttestationAws;
   let stsClientConfigs: Record<string, unknown>[] = [];
 
   before(() => {
@@ -195,18 +195,13 @@ describe('Attestation AWS', () => {
       });
       assert.strictEqual(token, AWS_WEB_IDENTITY_TOKEN);
       assert.strictEqual(stsClientConfigs.length, 1);
-      assert.deepStrictEqual(
-        {
-          endpoint: stsClientConfigs[0].endpoint,
-          useFipsEndpoint: stsClientConfigs[0].useFipsEndpoint,
-          useDualstackEndpoint: stsClientConfigs[0].useDualstackEndpoint,
-        },
-        {
-          endpoint: 'https://sts.wif.snowflake.com',
-          useFipsEndpoint: false,
-          useDualstackEndpoint: false,
-        },
+      const [config] = stsClientConfigs;
+      assert.strictEqual(
+        (config.endpoint as { url: URL }).url.href,
+        'https://sts.wif.snowflake.com/',
       );
+      assert.strictEqual(config.useFipsEndpoint, false);
+      assert.strictEqual(config.useDualstackEndpoint, false);
     });
 
     it('points the impersonation client at the workloadIdentityHost', async () => {
@@ -220,7 +215,10 @@ describe('Attestation AWS', () => {
         workloadIdentityHost: 'sts.wif.snowflake.com',
       });
       assert.strictEqual(stsClientConfigs.length, 1);
-      assert.strictEqual(stsClientConfigs[0].endpoint, 'https://sts.wif.snowflake.com');
+      assert.strictEqual(
+        (stsClientConfigs[0].endpoint as { url: URL }).url.href,
+        'https://sts.wif.snowflake.com/',
+      );
     });
 
     it('rejects a malformed workloadIdentityHost before looking up region or credentials', async () => {
@@ -235,80 +233,30 @@ describe('Attestation AWS', () => {
     });
   });
 
-  describe('regionalStsEndpoint', () => {
-    it('returns the regional endpoint for a non-china region', () => {
-      assert.deepStrictEqual(AttestationAws.regionalStsEndpoint('us-east-1'), {
-        authority: 'sts.us-east-1.amazonaws.com',
-        hostname: 'sts.us-east-1.amazonaws.com',
-        protocol: 'https:',
-        path: '',
-        baseUrl: 'https://sts.us-east-1.amazonaws.com',
-        overridden: false,
-      });
-    });
-
-    it('returns the regional endpoint for a china region', () => {
-      assert.deepStrictEqual(AttestationAws.regionalStsEndpoint('cn-north-1'), {
-        authority: 'sts.cn-north-1.amazonaws.com.cn',
-        hostname: 'sts.cn-north-1.amazonaws.com.cn',
-        protocol: 'https:',
-        path: '',
-        baseUrl: 'https://sts.cn-north-1.amazonaws.com.cn',
-        overridden: false,
-      });
-    });
-  });
-
   describe('parseWorkloadIdentityHost', () => {
-    const validCases: [string, string, { authority: string; baseUrl: string; port?: number }][] = [
-      [
-        'bare host',
-        'sts.wif.snowflake.com',
-        { authority: 'sts.wif.snowflake.com', baseUrl: 'https://sts.wif.snowflake.com' },
-      ],
-      [
-        'host with port',
-        'sts.custom.snowflake.com:8443',
-        {
-          authority: 'sts.custom.snowflake.com:8443',
-          baseUrl: 'https://sts.custom.snowflake.com:8443',
-          port: 8443,
-        },
-      ],
-      [
-        'full URL',
-        'https://sts.custom.snowflake.com',
-        { authority: 'sts.custom.snowflake.com', baseUrl: 'https://sts.custom.snowflake.com' },
-      ],
+    // [name, input, expected url.origin]
+    const validCases: [string, string, string][] = [
+      ['bare host', 'sts.wif.snowflake.com', 'https://sts.wif.snowflake.com'],
+      ['host with port', 'sts.custom.snowflake.com:8443', 'https://sts.custom.snowflake.com:8443'],
+      ['full URL', 'https://sts.custom.snowflake.com', 'https://sts.custom.snowflake.com'],
       [
         'trailing slashes',
         'https://sts.custom.snowflake.com///',
-        { authority: 'sts.custom.snowflake.com', baseUrl: 'https://sts.custom.snowflake.com' },
+        'https://sts.custom.snowflake.com',
       ],
-      [
-        'http scheme',
-        'http://sts.custom.snowflake.com',
-        { authority: 'sts.custom.snowflake.com', baseUrl: 'http://sts.custom.snowflake.com' },
-      ],
+      ['http scheme', 'http://sts.custom.snowflake.com', 'http://sts.custom.snowflake.com'],
       [
         'surrounding whitespace',
         '  sts.custom.snowflake.com  ',
-        { authority: 'sts.custom.snowflake.com', baseUrl: 'https://sts.custom.snowflake.com' },
+        'https://sts.custom.snowflake.com',
       ],
-      [
-        'uppercase host',
-        'STS.Custom.Snowflake.COM',
-        { authority: 'sts.custom.snowflake.com', baseUrl: 'https://sts.custom.snowflake.com' },
-      ],
+      ['uppercase host', 'STS.Custom.Snowflake.COM', 'https://sts.custom.snowflake.com'],
     ];
 
-    for (const [name, host, expected] of validCases) {
+    for (const [name, host, expectedOrigin] of validCases) {
       it(`accepts ${name}`, () => {
         const endpoint = AttestationAws.parseWorkloadIdentityHost(host);
-        assert.strictEqual(endpoint.authority, expected.authority);
-        assert.strictEqual(endpoint.baseUrl, expected.baseUrl);
-        assert.strictEqual(endpoint.port, expected.port);
-        assert.strictEqual(endpoint.overridden, true);
+        assert.strictEqual(endpoint.origin, expectedOrigin);
       });
     }
 
@@ -316,8 +264,8 @@ describe('Attestation AWS', () => {
       const endpoint = AttestationAws.parseWorkloadIdentityHost(
         'https://sts.custom.snowflake.com/custom/',
       );
-      assert.strictEqual(endpoint.path, '/custom');
-      assert.strictEqual(endpoint.baseUrl, 'https://sts.custom.snowflake.com/custom');
+      assert.strictEqual(endpoint.origin, 'https://sts.custom.snowflake.com');
+      assert.strictEqual(endpoint.pathname, '/custom');
     });
 
     const invalidCases: [string, string, RegExp][] = [

@@ -31,12 +31,21 @@ describe('Workload Identity Authentication E2E', () => {
   });
 
   if (provider === 'AWS') {
+    // NOTE:
+    // Not an ideal test: we pass the same STS host the driver would pick on its own
+    // in us-east-2. If workloadIdentityHost were ignored, this would still pass.
+    //
+    // A fake name would not work, even with a DNS alias:
+    // * default (GetCallerIdentity): Snowflake's backend must reach that host
+    // * workloadIdentityAwsUseOutboundToken=true: only the driver calls STS, but TLS
+    //   still fails (cert is for the real STS name, not the alias)
+    //
+    // Still better than no e2e coverage: the unit tests check that the override is
+    // applied, and this checks that setting it does not break a real login.
     it('connects using a custom workloadIdentityHost', async () => {
       await connectAndVerify(
         {
           ...connectionOptions,
-          // Tests run in us-east-2, so the explicit regional host must authenticate the same
-          // as the region-derived default.
           workloadIdentityHost: 'sts.us-east-2.amazonaws.com',
         },
         expectedUsername,

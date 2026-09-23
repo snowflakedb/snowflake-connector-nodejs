@@ -178,6 +178,8 @@ describe('createServer', function () {
         'OPTIONS / HTTP/1.1\r\nOrigin: https://account.snowflakecomputing.com\r\nAccess-Control-Request-Method: GET\r\nAccess-Control-Request-Headers: Content-Type\r\n\r\n';
       const extraHeadersPreflight =
         'OPTIONS / HTTP/1.1\r\nOrigin: https://account.snowflakecomputing.com\r\nAccess-Control-Request-Method: POST\r\nAccess-Control-Request-Headers: Content-Type, X-Custom\r\n\r\n';
+      const duplicateHeadersPreflight =
+        'OPTIONS / HTTP/1.1\r\nOrigin: https://account.snowflakecomputing.com\r\nAccess-Control-Request-Method: POST\r\nAccess-Control-Request-Headers: Content-Type\r\nAccess-Control-Request-Headers: Content-Type\r\n\r\n';
       const omittedHeadersPreflight =
         'OPTIONS / HTTP/1.1\r\nOrigin: https://account.snowflakecomputing.com\r\nAccess-Control-Request-Method: POST\r\n\r\n';
       const validPreflight =
@@ -187,6 +189,7 @@ describe('createServer', function () {
           foreignPreflight,
           getPreflight,
           extraHeadersPreflight,
+          duplicateHeadersPreflight,
           omittedHeadersPreflight,
           validPreflight,
           validGet,
@@ -194,19 +197,19 @@ describe('createServer', function () {
         { allowedOrigin },
       );
 
-      assert.deepStrictEqual(responses.slice(0, 3), ['', '', '']);
-      assert.match(
-        responses[3],
-        /Access-Control-Allow-Origin: https:\/\/account\.snowflakecomputing\.com/i,
-      );
-      assert.match(responses[3], /Access-Control-Allow-Headers: Content-Type(?:\r\n|$)/i);
-      assert.match(responses[3], /Access-Control-Allow-Methods: POST/i);
+      assert.deepStrictEqual(responses.slice(0, 4), ['', '', '', '']);
       assert.match(
         responses[4],
         /Access-Control-Allow-Origin: https:\/\/account\.snowflakecomputing\.com/i,
       );
       assert.match(responses[4], /Access-Control-Allow-Headers: Content-Type(?:\r\n|$)/i);
-      assert.doesNotMatch(responses[4], /X-Custom/i);
+      assert.match(responses[4], /Access-Control-Allow-Methods: POST/i);
+      assert.match(
+        responses[5],
+        /Access-Control-Allow-Origin: https:\/\/account\.snowflakecomputing\.com/i,
+      );
+      assert.match(responses[5], /Access-Control-Allow-Headers: Content-Type(?:\r\n|$)/i);
+      assert.doesNotMatch(responses[5], /X-Custom/i);
       assert.strictEqual(outcome.resolved, validGet.split(/\r?\n/, 1)[0]);
     });
 
@@ -223,6 +226,27 @@ describe('createServer', function () {
       assert.strictEqual(outcome.resolved, post.split(/\r?\n/, 1)[0]);
     });
 
+    it('rejects raw Origin userinfo, path, and empty query or fragment', async function () {
+      const trailingSlash =
+        'GET /?token=slash-origin HTTP/1.1\r\nOrigin: https://account.snowflakecomputing.com/\r\n\r\n';
+      const emptyQuery =
+        'GET /?token=empty-query HTTP/1.1\r\nOrigin: https://account.snowflakecomputing.com?\r\n\r\n';
+      const emptyFragment =
+        'GET /?token=empty-fragment HTTP/1.1\r\nOrigin: https://account.snowflakecomputing.com#\r\n\r\n';
+      const pathOrigin =
+        'GET /?token=path-origin HTTP/1.1\r\nOrigin: https://account.snowflakecomputing.com/console\r\n\r\n';
+      const userinfoOrigin =
+        'GET /?token=userinfo-origin HTTP/1.1\r\nOrigin: https://user@account.snowflakecomputing.com\r\n\r\n';
+      const { responses, outcome } = await runServerRequests(
+        [emptyQuery, emptyFragment, pathOrigin, userinfoOrigin, trailingSlash],
+        { allowedOrigin },
+      );
+
+      assert.deepStrictEqual(responses.slice(0, 4), ['', '', '', '']);
+      assertHtmlOkResponse(responses[4]);
+      assert.strictEqual(outcome.resolved, trailingSlash.split(/\r?\n/, 1)[0]);
+    });
+
     it('reads Origin only from CRLF and LF header sections', async function () {
       const crlfBodyOrigin =
         'POST /?token=body-origin-crlf HTTP/1.1\r\nContent-Type: text/plain\r\n\r\nOrigin: https://account.snowflakecomputing.com';
@@ -230,18 +254,28 @@ describe('createServer', function () {
         'POST /?token=body-origin-lf HTTP/1.1\nContent-Type: text/plain\n\nOrigin: https://account.snowflakecomputing.com';
       const headerOriginWithForeignBodyOrigin =
         'POST /?token=header-origin HTTP/1.1\nOrigin: https://account.snowflakecomputing.com\nContent-Type: text/plain\n\nOrigin: https://other.snowflakecomputing.com';
+      const crlfThenLfBodyOrigin =
+        'POST /?token=mixed-crlf-lf HTTP/1.1\r\nContent-Type: text/plain\r\n\nOrigin: https://account.snowflakecomputing.com';
+      const lfThenCrlfBodyOrigin =
+        'POST /?token=mixed-lf-crlf HTTP/1.1\nContent-Type: text/plain\n\r\nOrigin: https://account.snowflakecomputing.com';
       const { responses, outcome } = await runServerRequests(
-        [crlfBodyOrigin, lfBodyOrigin, headerOriginWithForeignBodyOrigin],
+        [
+          crlfBodyOrigin,
+          lfBodyOrigin,
+          crlfThenLfBodyOrigin,
+          lfThenCrlfBodyOrigin,
+          headerOriginWithForeignBodyOrigin,
+        ],
         { allowedOrigin },
       );
 
-      assert.deepStrictEqual(responses.slice(0, 2), ['', '']);
-      assertHtmlOkResponse(responses[2]);
+      assert.deepStrictEqual(responses.slice(0, 4), ['', '', '', '']);
+      assertHtmlOkResponse(responses[4]);
       assert.match(
-        responses[2],
+        responses[4],
         /Access-Control-Allow-Origin: https:\/\/account\.snowflakecomputing\.com/i,
       );
-      assert.doesNotMatch(responses[2], /other\.snowflakecomputing\.com/i);
+      assert.doesNotMatch(responses[4], /other\.snowflakecomputing\.com/i);
       assert.strictEqual(outcome.resolved, headerOriginWithForeignBodyOrigin.split(/\r?\n/, 1)[0]);
     });
 
@@ -249,6 +283,7 @@ describe('createServer', function () {
       for (const request of [
         'GET /?token=originless HTTP/1.1\r\n\r\n',
         'GET /?token=null-origin HTTP/1.1\r\nOrigin: null\r\n\r\n',
+        'GET /?token=null-origin-upper HTTP/1.1\r\nOrigin: NULL\r\n\r\n',
       ]) {
         const { responses, outcome } = await runServerRequests([request], { allowedOrigin });
 

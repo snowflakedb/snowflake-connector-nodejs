@@ -137,7 +137,7 @@ describe('external browser authentication', function () {
   const BROWSER_ACTION_TIMEOUT = 10000;
   const browserOpenCallback = () => {
     const client = net.createConnection({ port: browserRedirectPort }, () => {
-      client.write(`GET /?token=${mockToken} HTTP/1.1\r\n`);
+      client.write(`GET /?token=${mockToken} HTTP/1.1\r\n\r\n`);
     });
   };
   const connectionConfig = {
@@ -197,6 +197,33 @@ describe('external browser authentication', function () {
 
     assert.strictEqual(body['data']['TOKEN'], mockToken);
     assert.strictEqual(body['data']['PROOF_KEY'], mockProofKey);
+  });
+
+  it('external browser - ignores foreign Origin before valid callback', async function () {
+    const auth = new AuthWeb(
+      {
+        ...connectionConfig,
+        openExternalBrowserCallback: () => {
+          const foreign = net.createConnection({ port: browserRedirectPort }, () => {
+            foreign.write(
+              'GET /?token=foreign-token HTTP/1.1\r\nOrigin: https://other.snowflakecomputing.com\r\n\r\n',
+            );
+          });
+          foreign.on('close', () => {
+            const valid = net.createConnection({ port: browserRedirectPort }, () => {
+              valid.write(`GET /?token=${mockToken} HTTP/1.1\r\n\r\n`);
+            });
+          });
+        },
+      },
+      httpclient,
+    );
+
+    await auth.authenticate();
+
+    const body = { data: {} };
+    auth.updateBody(body);
+    assert.strictEqual(body['data']['TOKEN'], mockToken);
   });
 
   it('external browser - get fail', async function () {

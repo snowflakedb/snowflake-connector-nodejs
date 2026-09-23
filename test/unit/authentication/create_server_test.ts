@@ -171,17 +171,26 @@ describe('createServer', function () {
       assert.strictEqual(outcome.resolved, validGet.split(/\r?\n/, 1)[0]);
     });
 
-    it('answers only matching POST preflight requests with requested headers', async function () {
+    it('answers only matching POST preflight requests with Content-Type headers', async function () {
       const foreignPreflight =
         'OPTIONS / HTTP/1.1\r\nOrigin: https://other.snowflakecomputing.com\r\nAccess-Control-Request-Method: POST\r\nAccess-Control-Request-Headers: Content-Type\r\n\r\n';
       const getPreflight =
         'OPTIONS / HTTP/1.1\r\nOrigin: https://account.snowflakecomputing.com\r\nAccess-Control-Request-Method: GET\r\nAccess-Control-Request-Headers: Content-Type\r\n\r\n';
-      const missingHeadersPreflight =
+      const extraHeadersPreflight =
+        'OPTIONS / HTTP/1.1\r\nOrigin: https://account.snowflakecomputing.com\r\nAccess-Control-Request-Method: POST\r\nAccess-Control-Request-Headers: Content-Type, X-Custom\r\n\r\n';
+      const omittedHeadersPreflight =
         'OPTIONS / HTTP/1.1\r\nOrigin: https://account.snowflakecomputing.com\r\nAccess-Control-Request-Method: POST\r\n\r\n';
       const validPreflight =
-        'OPTIONS / HTTP/1.1\nOrigin: https://account.snowflakecomputing.com\nAccess-Control-Request-Method: post\nAccess-Control-Request-Headers: Content-Type, X-Snowflake-Test\n\n';
+        'OPTIONS / HTTP/1.1\nOrigin: https://account.snowflakecomputing.com\nAccess-Control-Request-Method: post\nAccess-Control-Request-Headers: Content-Type\n\n';
       const { responses, outcome } = await runServerRequests(
-        [foreignPreflight, getPreflight, missingHeadersPreflight, validPreflight, validGet],
+        [
+          foreignPreflight,
+          getPreflight,
+          extraHeadersPreflight,
+          omittedHeadersPreflight,
+          validPreflight,
+          validGet,
+        ],
         { allowedOrigin },
       );
 
@@ -190,8 +199,14 @@ describe('createServer', function () {
         responses[3],
         /Access-Control-Allow-Origin: https:\/\/account\.snowflakecomputing\.com/i,
       );
-      assert.match(responses[3], /Access-Control-Allow-Headers: Content-Type, X-Snowflake-Test/i);
+      assert.match(responses[3], /Access-Control-Allow-Headers: Content-Type(?:\r\n|$)/i);
       assert.match(responses[3], /Access-Control-Allow-Methods: POST/i);
+      assert.match(
+        responses[4],
+        /Access-Control-Allow-Origin: https:\/\/account\.snowflakecomputing\.com/i,
+      );
+      assert.match(responses[4], /Access-Control-Allow-Headers: Content-Type(?:\r\n|$)/i);
+      assert.doesNotMatch(responses[4], /X-Custom/i);
       assert.strictEqual(outcome.resolved, validGet.split(/\r?\n/, 1)[0]);
     });
 

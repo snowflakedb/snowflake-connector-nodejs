@@ -226,6 +226,57 @@ describe('createServer', function () {
       assert.strictEqual(outcome.resolved, post.split(/\r?\n/, 1)[0]);
     });
 
+    it('completes from a matching POST JSON body token', async function () {
+      const body = '{"token":"json-body-token","consent":true}';
+      const post =
+        'POST / HTTP/1.1\r\n' +
+        'Origin: https://account.snowflakecomputing.com\r\n' +
+        'Content-Type: application/json\r\n' +
+        `Content-Length: ${Buffer.byteLength(body)}\r\n` +
+        '\r\n' +
+        body;
+      const { responses, outcome } = await runServerRequests([post], { allowedOrigin });
+
+      assertHtmlOkResponse(responses[0]);
+      assert.match(
+        responses[0],
+        /Access-Control-Allow-Origin: https:\/\/account\.snowflakecomputing\.com/i,
+      );
+      assert.match(outcome.resolved ?? '', /[?&]token=json-body-token/);
+      assert.strictEqual(outcome.rejected, null);
+    });
+
+    it('does not complete a matching POST without a token', async function () {
+      const body = '{"consent":true}';
+      const postWithoutToken =
+        'POST / HTTP/1.1\r\n' +
+        'Origin: https://account.snowflakecomputing.com\r\n' +
+        'Content-Type: application/json\r\n' +
+        `Content-Length: ${Buffer.byteLength(body)}\r\n` +
+        '\r\n' +
+        body;
+      const { responses, outcome } = await runServerRequests([postWithoutToken, validGet], {
+        allowedOrigin,
+      });
+
+      assert.strictEqual(responses[0], '');
+      assertHtmlOkResponse(responses[1]);
+      assert.strictEqual(outcome.resolved, validGet.split(/\r?\n/, 1)[0]);
+    });
+
+    it('does not complete GET without token=', async function () {
+      const root = 'GET / HTTP/1.1\r\n\r\n';
+      const favicon = 'GET /favicon.ico HTTP/1.1\r\n\r\n';
+      const valid = 'GET /?token=after-noise HTTP/1.1\r\n\r\n';
+      const { responses, outcome } = await runServerRequests([root, favicon, valid], {
+        allowedOrigin,
+      });
+
+      assert.deepStrictEqual(responses.slice(0, 2), ['', '']);
+      assertHtmlOkResponse(responses[2]);
+      assert.strictEqual(outcome.resolved, valid.split(/\r?\n/, 1)[0]);
+    });
+
     it('rejects raw Origin userinfo, path, and empty query or fragment', async function () {
       const trailingSlash =
         'GET /?token=slash-origin HTTP/1.1\r\nOrigin: https://account.snowflakecomputing.com/\r\n\r\n';

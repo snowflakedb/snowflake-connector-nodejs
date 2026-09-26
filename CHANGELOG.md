@@ -4,7 +4,7 @@
 
 Changes:
 
-- OCSP is now off by default. Enable it with `snowflake.configure({ disableOCSPChecks: false })` or `snowflake.configure({ ocspFailOpen: true|false })`. CRL still takes precedence when `certRevocationCheckMode` is enabled (snowflakedb/snowflake-connector-nodejs#1482)
+- OCSP is now off by default. Enable it with `snowflake.configure({ disableOCSPChecks: false })` or `snowflake.configure({ ocspFailOpen: true|false })`. `disableOCSPChecks: true` always turns OCSP off, including when `ocspFailOpen` is also set. CRL still takes precedence when `certRevocationCheckMode` is enabled (snowflakedb/snowflake-connector-nodejs#1482)
 
 Dependencies:
 

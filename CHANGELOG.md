@@ -8,6 +8,7 @@ New features:
 
 Bugfixes:
 
+- Fixed connection pools rejecting connections initialized with an inherited session token as already connected.
 - A failed PUT now reports the underlying storage error instead of `Unknown Error in uploading a file` (snowflakedb/snowflake-connector-nodejs#1478)
 
 Dependencies:

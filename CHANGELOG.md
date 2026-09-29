@@ -8,6 +8,7 @@ New features:
 
 Bugfixes:
 
+- Validated complete session-renewal responses before updating tokens and bounded repeated renewal attempts for each request.
 - A failed PUT now reports the underlying storage error instead of `Unknown Error in uploading a file` (snowflakedb/snowflake-connector-nodejs#1478)
 
 Dependencies:

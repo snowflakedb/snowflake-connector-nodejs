@@ -153,6 +153,7 @@ describe('external browser authentication', function () {
     getDisableConsoleLogin: () => true,
     browserRedirectPort: 0,
     host: 'fakehost',
+    accessUrl: 'https://fakehost',
     account: credentials.account,
     username: credentials.username,
     openExternalBrowserCallback: browserOpenCallback,

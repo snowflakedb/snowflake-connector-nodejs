@@ -2,19 +2,24 @@
 
 ## Upcoming Release
 
+- TBA
+
+## 3.4.0
+
 New features:
 
 - Added the `workloadIdentityHost` connection option that overrides the STS host used by the AWS Workload Identity flows, so AWS partitions unknown to the driver can be reached. The value is used as given; when not set, the STS host is derived from the AWS region (snowflakedb/snowflake-connector-nodejs#1479)
 
 Changes:
 
-- OCSP is now off by default. Enable it with `snowflake.configure({ disableOCSPChecks: false })` or `snowflake.configure({ ocspFailOpen: true|false })`. `disableOCSPChecks: true` always turns OCSP off, including when `ocspFailOpen` is also set. CRL still takes precedence when `certRevocationCheckMode` is enabled (snowflakedb/snowflake-connector-nodejs#1482)
-- Deprecated OCSP options (`disableOCSPChecks`, `ocspFailOpen`, `useConnectionConfigProxyForOCSP`), `connection.setupOcspPrivateLink()`, `ocspModes`, and OCSP error codes. OCSP support will be removed in the next major release; use CRL validation (`certRevocationCheckMode`) as an alternative
+- Turned OCSP off by default and marked it as `@deprecated`. OCSP support will be removed in the next major release; use CRL validation (`certRevocationCheckMode`) as an alternative (snowflakedb/snowflake-connector-nodejs#1482, snowflakedb/snowflake-connector-nodejs#1485, snowflakedb/snowflake-connector-nodejs#1489)
+  - To keep using OCSP, call `snowflake.configure({ disableOCSPChecks: false })` or `snowflake.configure({ ocspFailOpen: true|false })`. `disableOCSPChecks: true` always turns OCSP off, even when `ocspFailOpen` is set. CRL still takes precedence when `certRevocationCheckMode` is enabled
+  - Deprecated APIs: OCSP options (`disableOCSPChecks`, `ocspFailOpen`, `useConnectionConfigProxyForOCSP`), `connection.setupOcspPrivateLink()`, `ocspModes`, and OCSP error codes
 
 Bugfixes:
 
-- A failed PUT now reports the underlying storage error instead of `Unknown Error in uploading a file` (snowflakedb/snowflake-connector-nodejs#1478)
-- Hardened external-browser callback handling by checking the `Origin` header against the connected Snowflake account endpoint by accepting matching-Origin POST token callbacks, and keeping the listener open for incomplete or unrelated requests (snowflake-eng/snowflake-connector-nodejs#1492).
+- Fixed failed PUT operations reporting `Unknown Error in uploading a file` instead of the underlying storage error (snowflakedb/snowflake-connector-nodejs#1478)
+- Hardened external-browser authentication: the local callback listener now binds to `127.0.0.1`, rejects requests whose `Origin` header does not match the connected Snowflake account, and ignores incomplete or unrelated requests instead of ending the login (snowflakedb/snowflake-connector-nodejs#1493)
 
 Dependencies:
 

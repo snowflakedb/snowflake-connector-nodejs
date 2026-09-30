@@ -12,8 +12,6 @@ import SocketUtil from './socket_util';
 import ProxyUtil from '../proxy_util';
 import Logger from '../logger';
 
-const GlobalConfig = require('../global_config');
-
 export type SnowflakeHttpsProxyAgentOptions = AgentConnectOpts & {
   crlValidatorConfig: CRLValidatorConfig;
   host: string;
@@ -56,7 +54,6 @@ class SnowflakeHttpsProxyAgent extends HttpsProxyAgent<string> {
         corkSocketAndValidateCrl(socket, this.crlValidatorConfig);
       } else {
         const isProxyRequiredForOCSP =
-          !GlobalConfig.isOCSPChecksDisabled() &&
           this.useForOCSP &&
           !ProxyUtil.isByPassProxy(this.proxy, SocketUtil.REGEX_SNOWFLAKE_ENDPOINT);
         SocketUtil.secureSocket(socket, this.proxy.hostname, isProxyRequiredForOCSP ? this : null);

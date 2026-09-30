@@ -13,7 +13,9 @@ enum ErrorCode {
 
   // 403001
   ERR_GLOBAL_CONFIGURE_INVALID_LOG_LEVEL = 403001,
+  /** @deprecated OCSP support will be removed in the next major release. Use CRL validation as an alternative. */
   ERR_GLOBAL_CONFIGURE_INVALID_DISABLE_OCSP_CHECKS = 403002,
+  /** @deprecated OCSP support will be removed in the next major release. Use CRL validation as an alternative. */
   ERR_GLOBAL_CONFIGURE_INVALID_OCSP_MODE = 403003,
   ERR_GLOBAL_CONFIGURE_INVALID_JSON_PARSER = 403004,
   ERR_GLOBAL_CONFIGURE_INVALID_XML_PARSER = 403005,
@@ -148,20 +150,35 @@ enum ErrorCode {
   ERR_STMT_STREAM_ROWS_INVALID_ROW_MODE = 411006,
 
   // 412001
+  /** @deprecated OCSP support will be removed in the next major release. Use CRL validation as an alternative and handle `CRLError` errors instead of specific codes. */
   ERR_OCSP_REVOKED = 412001,
+  /** @deprecated OCSP support will be removed in the next major release. Use CRL validation as an alternative and handle `CRLError` errors instead of specific codes. */
   ERR_OCSP_UNKNOWN = 412002,
+  /** @deprecated OCSP support will be removed in the next major release. Use CRL validation as an alternative and handle `CRLError` errors instead of specific codes. */
   ERR_OCSP_NO_SIGNATURE_ALGORITHM = 412003,
+  /** @deprecated OCSP support will be removed in the next major release. Use CRL validation as an alternative and handle `CRLError` errors instead of specific codes. */
   ERR_OCSP_INVALID_SIGNATURE = 412004,
+  /** @deprecated OCSP support will be removed in the next major release. Use CRL validation as an alternative and handle `CRLError` errors instead of specific codes. */
   ERR_OCSP_NO_RESPONSE = 412005,
+  /** @deprecated OCSP support will be removed in the next major release. Use CRL validation as an alternative and handle `CRLError` errors instead of specific codes. */
   ERR_OCSP_INVALID_VALIDITY = 412006,
+  /** @deprecated OCSP support will be removed in the next major release. Use CRL validation as an alternative and handle `CRLError` errors instead of specific codes. */
   ERR_OCSP_UNKNOWN_STATE = 412007,
+  /** @deprecated OCSP support will be removed in the next major release. Use CRL validation as an alternative and handle `CRLError` errors instead of specific codes. */
   ERR_OCSP_NOT_TWO_ELEMENTS = 412008,
+  /** @deprecated OCSP support will be removed in the next major release. Use CRL validation as an alternative and handle `CRLError` errors instead of specific codes. */
   ERR_OCSP_CACHE_EXPIRED = 412009,
+  /** @deprecated OCSP support will be removed in the next major release. Use CRL validation as an alternative and handle `CRLError` errors instead of specific codes. */
   ERR_OCSP_FAILED_PARSE_RESPONSE = 412010,
+  /** @deprecated OCSP support will be removed in the next major release. Use CRL validation as an alternative and handle `CRLError` errors instead of specific codes. */
   ERR_OCSP_INVALID_CERTIFICATE_VALIDITY = 412011,
+  /** @deprecated OCSP support will be removed in the next major release. Use CRL validation as an alternative and handle `CRLError` errors instead of specific codes. */
   ERR_OCSP_RESPONDER_TIMEOUT = 412012,
+  /** @deprecated OCSP support will be removed in the next major release. Use CRL validation as an alternative and handle `CRLError` errors instead of specific codes. */
   ERR_OCSP_CACHE_SERVER_TIMEOUT = 412013,
+  /** @deprecated OCSP support will be removed in the next major release. Use CRL validation as an alternative and handle `CRLError` errors instead of specific codes. */
   ERR_OCSP_FAILED_OBTAIN_OCSP_RESPONSE = 412014,
+  /** @deprecated OCSP support will be removed in the next major release. Use CRL validation as an alternative and handle `CRLError` errors instead of specific codes. */
   ERR_OCSP_RESPONSE_CERT_MISMATCH = 412015,
 
   ERR_CRL_ERROR = 413001,

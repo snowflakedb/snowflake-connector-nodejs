@@ -12,9 +12,9 @@ New features:
 
 Changes:
 
-- Turned OCSP off by default and deprecated it. OCSP support will be removed in the next major release; use CRL validation (`certRevocationCheckMode`) as an alternative (snowflakedb/snowflake-connector-nodejs#1482, snowflakedb/snowflake-connector-nodejs#1485, snowflakedb/snowflake-connector-nodejs#1489)
+- Turned OCSP off by default and marked it as `@deprecated`. OCSP support will be removed in the next major release; use CRL validation (`certRevocationCheckMode`) as an alternative (snowflakedb/snowflake-connector-nodejs#1482, snowflakedb/snowflake-connector-nodejs#1485, snowflakedb/snowflake-connector-nodejs#1489)
   - To keep using OCSP, call `snowflake.configure({ disableOCSPChecks: false })` or `snowflake.configure({ ocspFailOpen: true|false })`. `disableOCSPChecks: true` always turns OCSP off, even when `ocspFailOpen` is set. CRL still takes precedence when `certRevocationCheckMode` is enabled
-  - Marked OCSP options (`disableOCSPChecks`, `ocspFailOpen`, `useConnectionConfigProxyForOCSP`), `connection.setupOcspPrivateLink()`, `ocspModes`, and OCSP error codes as `@deprecated`
+  - Deprecated APIs: OCSP options (`disableOCSPChecks`, `ocspFailOpen`, `useConnectionConfigProxyForOCSP`), `connection.setupOcspPrivateLink()`, `ocspModes`, and OCSP error codes
 
 Bugfixes:
 

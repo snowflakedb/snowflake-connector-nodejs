@@ -106,6 +106,8 @@ declare module 'snowflake-sdk' {
      * enables OCSP.
      *
      * @default true
+     * @deprecated OCSP support will be removed in the next major release. Use CRL validation
+     * (`certRevocationCheckMode` connection option) as an alternative.
      */
     disableOCSPChecks?: boolean;
 
@@ -116,6 +118,8 @@ declare module 'snowflake-sdk' {
      * Detailed information: https://docs.snowflake.com/en/user-guide/ocsp.
      *
      * @default true
+     * @deprecated OCSP support will be removed in the next major release. Use CRL validation
+     * (`certRevocationCheckMode` connection option) as an alternative.
      */
     ocspFailOpen?: boolean;
 
@@ -175,6 +179,9 @@ declare module 'snowflake-sdk' {
     /**
      * Specifies whether the OCSP request is also sent to the proxy specified.
      * Has no effect when OCSP is off.
+     *
+     * @deprecated OCSP support will be removed in the next major release. Use CRL validation
+     * (`certRevocationCheckMode` connection option) as an alternative.
      */
     useConnectionConfigProxyForOCSP?: boolean;
 
@@ -293,6 +300,9 @@ declare module 'snowflake-sdk' {
     /**
      * Set the private link as the OCSP cache server's URL.
      * No-ops with a warning when OCSP is off.
+     *
+     * @deprecated OCSP support will be removed in the next major release. Use CRL validation
+     * (`certRevocationCheckMode` connection option) as an alternative.
      */
     setupOcspPrivateLink(host: string): void;
 
@@ -653,6 +663,10 @@ declare module 'snowflake-sdk' {
     isMap(): boolean;
   }
 
+  /**
+   * @deprecated OCSP support will be removed in the next major release. Use CRL validation
+   * (`certRevocationCheckMode` connection option) as an alternative.
+   */
   export interface OcspModes {
     FAIL_CLOSED: string;
     FAIL_OPEN: string;
@@ -699,6 +713,9 @@ declare module 'snowflake-sdk' {
 
   /**
    * Online Certificate Status Protocol (OCSP), detailed information: https://docs.snowflake.com/en/user-guide/ocsp.
+   *
+   * @deprecated OCSP support will be removed in the next major release. Use CRL validation
+   * (`certRevocationCheckMode` connection option) as an alternative.
    */
   export const ocspModes: OcspModes;
 

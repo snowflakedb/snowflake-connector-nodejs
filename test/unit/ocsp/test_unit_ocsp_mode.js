@@ -17,12 +17,11 @@ describe('OCSP mode', function () {
     assert.ok(GlobalConfig.isOCSPChecksDisabled());
   });
 
-  it('later ocspFailOpen re-enables after explicit disable', function () {
+  it('later disableOCSPChecks: true stays off after prior fail-open', function () {
+    snowflake.configure({ ocspFailOpen: true });
     snowflake.configure({ disableOCSPChecks: true });
-    snowflake.configure({ ocspFailOpen: false });
-    assert.equal(GlobalConfig.getOcspMode(), GlobalConfig.ocspModes.FAIL_CLOSED);
-    assert.equal(GlobalConfig.getOcspFailOpen(), false);
-    assert.ok(!GlobalConfig.isOCSPChecksDisabled());
+    assert.equal(GlobalConfig.getOcspMode(), GlobalConfig.ocspModes.INSECURE);
+    assert.ok(GlobalConfig.isOCSPChecksDisabled());
   });
 
   it('disableOCSPChecks: false enables fail-open', function () {
@@ -42,11 +41,15 @@ describe('OCSP mode', function () {
     assert.equal(GlobalConfig.getOcspMode(), GlobalConfig.ocspModes.FAIL_CLOSED);
   });
 
-  it('same-call ocspFailOpen wins over disableOCSPChecks: true', function () {
+  it('same-call disableOCSPChecks: true beats ocspFailOpen', function () {
     snowflake.configure({ disableOCSPChecks: true, ocspFailOpen: false });
-    assert.equal(GlobalConfig.getOcspMode(), GlobalConfig.ocspModes.FAIL_CLOSED);
+    assert.equal(GlobalConfig.getOcspMode(), GlobalConfig.ocspModes.INSECURE);
     assert.equal(GlobalConfig.getOcspFailOpen(), false);
-    assert.ok(!GlobalConfig.isOCSPChecksDisabled());
+    assert.ok(GlobalConfig.isOCSPChecksDisabled());
+
+    snowflake.configure({ disableOCSPChecks: true, ocspFailOpen: true });
+    assert.equal(GlobalConfig.getOcspMode(), GlobalConfig.ocspModes.INSECURE);
+    assert.ok(GlobalConfig.isOCSPChecksDisabled());
   });
 
   it('absent configure() keys persist OCSP state', function () {

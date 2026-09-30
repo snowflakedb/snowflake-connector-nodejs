@@ -23,7 +23,7 @@ export function resetOcspState(): void {
 }
 
 export function enableOcsp(ocspFailOpen = true): void {
-  // setOcspFailOpen() also flips disableOCSPChecks to false.
+  GlobalConfig.setDisableOCSPChecks(false);
   GlobalConfig.setOcspFailOpen(ocspFailOpen);
 }
 

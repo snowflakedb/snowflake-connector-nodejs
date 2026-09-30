@@ -13,6 +13,7 @@ Changes:
 
 Bugfixes:
 
+- Validated complete session-renewal responses before updating tokens and bounded repeated renewal attempts for each request.
 - A failed PUT now reports the underlying storage error instead of `Unknown Error in uploading a file` (snowflakedb/snowflake-connector-nodejs#1478)
 - Hardened external-browser callback handling by checking the `Origin` header against the connected Snowflake account endpoint by accepting matching-Origin POST token callbacks, and keeping the listener open for incomplete or unrelated requests (snowflake-eng/snowflake-connector-nodejs#1492).
 

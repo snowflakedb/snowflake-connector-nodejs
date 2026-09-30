@@ -61,6 +61,10 @@ describe('Oauth Refresh token for Autorization Code', function () {
     await authUtil.removeFromCache(refreshTokenKey);
   });
 
+  after(async () => {
+    await wireMock?.stop();
+  });
+
   it('Successful flow scenario with authentication when token expired - AuthorizationCode', async function () {
     await addWireMockMappingsFromFile(
       wireMock,

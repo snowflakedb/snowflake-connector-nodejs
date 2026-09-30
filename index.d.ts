@@ -101,12 +101,15 @@ declare module 'snowflake-sdk' {
     customLogger?: SnowflakeLogger;
 
     /**
-     * The option to turn off the OCSP check.
+     * When true, OCSP checks stay off. When false, OCSP is enabled (fail-open
+     * unless `ocspFailOpen` is also set to false). OCSP is off by default.
+     * Call this before `createConnection()`.
      */
     disableOCSPChecks?: boolean;
 
     /**
-     * The default value is true.
+     * Presence of this option opts into OCSP and overrides `disableOCSPChecks`.
+     * `true` is fail-open; `false` is fail-closed. Default is unused while OCSP is off.
      * Detailed information: https://docs.snowflake.com/en/user-guide/ocsp.
      */
     ocspFailOpen?: boolean;
@@ -166,6 +169,7 @@ declare module 'snowflake-sdk' {
 
     /**
      * Specifies whether the OCSP request is also sent to the proxy specified.
+     * Has no effect when OCSP is off.
      */
     useConnectionConfigProxyForOCSP?: boolean;
 
@@ -283,6 +287,7 @@ declare module 'snowflake-sdk' {
 
     /**
      * Set the private link as the OCSP cache server's URL.
+     * No-ops with a warning when OCSP is off. Call after enabling OCSP.
      */
     setupOcspPrivateLink(host: string): void;
 

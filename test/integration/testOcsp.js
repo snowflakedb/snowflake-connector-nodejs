@@ -14,7 +14,18 @@ const sharedLogger = require('./sharedLogger');
 const Logger = require('./../../lib/logger');
 Logger.getInstance().setLogger(sharedLogger.logger);
 
+function enableOcsp(ocspFailOpen = true) {
+  snowflake.configure({ disableOCSPChecks: false, ocspFailOpen });
+}
+
 describe('OCSP validation', function () {
+  beforeEach(function () {
+    enableOcsp(true);
+  });
+
+  afterEach(function () {
+    snowflake.configure({ disableOCSPChecks: true, ocspFailOpen: true });
+  });
   it('OCSP validation with server reusing SSL sessions', function (done) {
     const connection = snowflake.createConnection(connOption.valid);
 
@@ -180,12 +191,12 @@ describe('OCSP validation', function () {
     SocketUtil.variables.OCSP_RESPONSE_CACHE = undefined;
 
     function cleanup() {
-      snowflake.configure({ ocspFailOpen: true });
+      enableOcsp(true);
       done();
     }
 
     const testOptions = function (i) {
-      snowflake.configure({ ocspFailOpen: false });
+      enableOcsp(false);
       const connection = snowflake.createConnection(httpsEndpoints[i]);
       connectToHttpsEndpoint(testOptions, i, connection, cleanup);
     };
@@ -199,12 +210,12 @@ describe('OCSP validation', function () {
 
     function cleanup() {
       SocketUtil.variables.SF_OCSP_RESPONSE_CACHE_SERVER_ENABLED = true;
-      snowflake.configure({ ocspFailOpen: true });
+      enableOcsp(true);
       done();
     }
 
     const testOptions = function (i) {
-      snowflake.configure({ ocspFailOpen: false });
+      enableOcsp(false);
       const connection = snowflake.createConnection(httpsEndpoints[i]);
       connectToHttpsEndpoint(testOptions, i, connection, cleanup);
     };
@@ -255,9 +266,11 @@ describe('OCSP validation', function () {
     deleteCache();
     const globalOptions = [
       {
+        disableOCSPChecks: false,
         ocspFailOpen: true,
       },
       {
+        disableOCSPChecks: false,
         ocspFailOpen: false,
       },
     ];
@@ -269,13 +282,22 @@ describe('OCSP validation', function () {
         assert.ok(!err, JSON.stringify(err));
       });
     }
-    snowflake.configure({ ocspFailOpen: true });
+    enableOcsp(true);
 
     done();
   });
 });
 
 describe('OCSP privatelink', function () {
+  beforeEach(function () {
+    enableOcsp(true);
+  });
+
+  afterEach(function () {
+    snowflake.configure({ disableOCSPChecks: true, ocspFailOpen: true });
+    delete process.env.SF_OCSP_RESPONSE_CACHE_SERVER_URL;
+    delete process.env.SF_OCSP_RESPONDER_URL;
+  });
   const mockUrl = 'http://www.mockAccount.com';
   const mockParsedUrl = new URL(mockUrl);
   const mockDataBuf = Buffer.from('mockData');
@@ -359,6 +381,14 @@ describe('OCSP privatelink', function () {
 });
 
 describe('Test setup ocsp server url', () => {
+  beforeEach(() => {
+    enableOcsp(true);
+  });
+
+  afterEach(() => {
+    snowflake.configure({ disableOCSPChecks: true, ocspFailOpen: true });
+    delete process.env.SF_OCSP_RESPONSE_CACHE_SERVER_URL;
+  });
   [
     {
       name: 'test',
@@ -385,12 +415,46 @@ describe('Test setup ocsp server url', () => {
   });
 });
 
+describe('OCSP default-off', function () {
+  afterEach(function () {
+    snowflake.configure({ disableOCSPChecks: true, ocspFailOpen: true });
+    delete process.env.SF_OCSP_RESPONSE_CACHE_SERVER_URL;
+    delete process.env.SF_OCSP_TEST_INJECT_VALIDITY_ERROR;
+  });
+
+  it('connects without OCSP when no opt-in is set', function (done) {
+    snowflake.configure({ disableOCSPChecks: true });
+    process.env.SF_OCSP_TEST_INJECT_VALIDITY_ERROR = 'true';
+    const connection = snowflake.createConnection(connOption.valid);
+    connection.connect(function (err) {
+      assert.ok(!err, JSON.stringify(err));
+      done();
+    });
+  });
+
+  it('auto PrivateLink does not write the OCSP cache URL when OCSP is off', function (done) {
+    snowflake.configure({ disableOCSPChecks: true });
+    delete process.env.SF_OCSP_RESPONSE_CACHE_SERVER_URL;
+    const host = Util.constructHostname(
+      connOption.privatelink.region,
+      connOption.privatelink.account,
+    );
+    const connection = snowflake.createConnection({ ...connOption.privatelink, host });
+    connection.connect(function (err) {
+      assert.ok(!err, JSON.stringify(err));
+      assert.strictEqual(process.env.SF_OCSP_RESPONSE_CACHE_SERVER_URL, undefined);
+      done();
+    });
+  });
+});
+
 // Skipped - requires manual interaction to set the network interface in system command and enter sudo user password
 describe.skip('Test Ocsp with network delay', function () {
   this.timeout(500000);
   let connection;
 
   before(function (done) {
+    enableOcsp(false);
     exec('sudo tc qdisc add dev eth0 root netem delay 5000ms');
     done();
   });
@@ -405,7 +469,7 @@ describe.skip('Test Ocsp with network delay', function () {
     if (platform === 'linux') {
       OcspResponseCache.deleteCache();
       SocketUtil.variables.OCSP_RESPONSE_CACHE = undefined;
-      snowflake.configure({ ocspFailOpen: false });
+      enableOcsp(false);
       connection = snowflake.createConnection(connOption.valid);
 
       async.series(

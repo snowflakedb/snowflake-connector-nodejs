@@ -2,10 +2,18 @@
 
 ## Upcoming Release
 
+New features:
+
+- Added the `workloadIdentityHost` connection option that overrides the STS host used by the AWS Workload Identity flows, so AWS partitions unknown to the driver can be reached. The value is used as given; when not set, the STS host is derived from the AWS region (snowflakedb/snowflake-connector-nodejs#1479)
+
 Changes:
 
 - OCSP is now off by default. Enable it with `snowflake.configure({ disableOCSPChecks: false })` or `snowflake.configure({ ocspFailOpen: true|false })`. `disableOCSPChecks: true` always turns OCSP off, including when `ocspFailOpen` is also set. CRL still takes precedence when `certRevocationCheckMode` is enabled (snowflakedb/snowflake-connector-nodejs#1482)
 - Deprecated OCSP options (`disableOCSPChecks`, `ocspFailOpen`, `useConnectionConfigProxyForOCSP`), `connection.setupOcspPrivateLink()`, `ocspModes`, and OCSP error codes. OCSP support will be removed in the next major release; use CRL validation (`certRevocationCheckMode`) as an alternative
+
+Bugfixes:
+
+- A failed PUT now reports the underlying storage error instead of `Unknown Error in uploading a file` (snowflakedb/snowflake-connector-nodejs#1478)
 
 Dependencies:
 

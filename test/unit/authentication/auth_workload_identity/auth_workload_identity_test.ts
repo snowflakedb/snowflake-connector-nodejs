@@ -171,6 +171,7 @@ describe('Workload Identity Authentication', async () => {
 
     it('throws error when credentials are not found', async () => {
       const err = new Error('No credentials found');
+      awsSdkMock.getMetadataRegion.returns(AWS_REGION);
       awsSdkMock.getCredentials.throws(err);
       const auth = new AuthWorkloadIdentity(connectionConfig);
       await assert.rejects(auth.authenticate(), err);
@@ -204,6 +205,37 @@ describe('Workload Identity Authentication', async () => {
       assert.strictEqual(body.data.AUTHENTICATOR, 'WORKLOAD_IDENTITY');
       assert.strictEqual(body.data.PROVIDER, 'AWS');
       assert.strictEqual(body.data.TOKEN, AWS_WEB_IDENTITY_TOKEN);
+    });
+
+    it('uses workloadIdentityHost as the STS host', async () => {
+      awsSdkMock.getCredentials.returns(AWS_CREDENTIALS);
+      awsSdkMock.getMetadataRegion.returns(AWS_REGION);
+      const auth = new AuthWorkloadIdentity(
+        getConnectionConfig({
+          workloadIdentityProvider: 'AWS',
+          workloadIdentityHost: 'sts.wif.snowflake.com',
+        }),
+      );
+      const body: AuthRequestBody = { data: {} };
+      await auth.authenticate();
+      auth.updateBody(body);
+      assertAwsAttestationToken(body.data.TOKEN, AWS_REGION, 'sts.wif.snowflake.com');
+    });
+  });
+
+  (['AZURE', 'GCP', 'OIDC'] as const).forEach((provider) => {
+    it(`authenticate() rejects workloadIdentityHost for ${provider}`, async () => {
+      const auth = new AuthWorkloadIdentity(
+        getConnectionConfig({
+          token: 'test-token',
+          workloadIdentityProvider: provider,
+          workloadIdentityHost: 'sts.wif.snowflake.com',
+        }),
+      );
+      await assert.rejects(
+        auth.authenticate(),
+        new RegExp(`workloadIdentityHost is supported only for AWS, got ${provider}`),
+      );
     });
   });
 

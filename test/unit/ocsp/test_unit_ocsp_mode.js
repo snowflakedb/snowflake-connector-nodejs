@@ -1,22 +1,172 @@
-const GlobalConfig = require('../../../lib/global_config');
-
 const assert = require('assert');
+const sinon = require('sinon');
+const https = require('https');
+const snowflake = require('../../../lib/snowflake').default;
+const GlobalConfig = require('../../../lib/global_config');
+const Logger = require('../../../lib/logger');
+const ConnectionConfig = require('../../../lib/connection/connection_config');
+const { getProxyAgent } = require('../../../lib/http/node');
+const HttpsCrlAgent = require('../../../lib/agent/https_crl_agent').default;
+const { resetOcspState, enableOcsp, stubOcspEnv } = require('../../ocspTestState');
 
 describe('OCSP mode', function () {
-  it('getOcspMode', function (done) {
-    // insecure mode
-    GlobalConfig.setDisableOCSPChecks(true);
-    assert.equal(GlobalConfig.getOcspMode(), GlobalConfig.ocspModes.INSECURE);
+  afterEach(resetOcspState);
 
-    // insecure mode + Fail open
-    GlobalConfig.setOcspFailOpen(true);
+  it('defaults to INSECURE without configure()', function () {
     assert.equal(GlobalConfig.getOcspMode(), GlobalConfig.ocspModes.INSECURE);
-    GlobalConfig.setDisableOCSPChecks(false);
+    assert.ok(GlobalConfig.isOCSPChecksDisabled());
+  });
+
+  it('later disableOCSPChecks: true stays off after prior fail-open', function () {
+    snowflake.configure({ ocspFailOpen: true });
+    snowflake.configure({ disableOCSPChecks: true });
+    assert.equal(GlobalConfig.getOcspMode(), GlobalConfig.ocspModes.INSECURE);
+    assert.ok(GlobalConfig.isOCSPChecksDisabled());
+  });
+
+  it('disableOCSPChecks: false enables fail-open', function () {
+    snowflake.configure({ disableOCSPChecks: false });
     assert.equal(GlobalConfig.getOcspMode(), GlobalConfig.ocspModes.FAIL_OPEN);
+    assert.ok(!GlobalConfig.isOCSPChecksDisabled());
+  });
 
-    GlobalConfig.setOcspFailOpen(false);
+  it('ocspFailOpen: true from default-off enables fail-open', function () {
+    snowflake.configure({ ocspFailOpen: true });
+    assert.equal(GlobalConfig.getOcspMode(), GlobalConfig.ocspModes.FAIL_OPEN);
+    assert.ok(!GlobalConfig.isOCSPChecksDisabled());
+  });
+
+  it('ocspFailOpen: false from enabled state is fail-closed', function () {
+    enableOcsp(false);
     assert.equal(GlobalConfig.getOcspMode(), GlobalConfig.ocspModes.FAIL_CLOSED);
-    GlobalConfig.setOcspFailOpen(true);
-    done();
+  });
+
+  it('same-call disableOCSPChecks: true beats ocspFailOpen', function () {
+    snowflake.configure({ disableOCSPChecks: true, ocspFailOpen: false });
+    assert.equal(GlobalConfig.getOcspMode(), GlobalConfig.ocspModes.INSECURE);
+    assert.equal(GlobalConfig.getOcspFailOpen(), false);
+    assert.ok(GlobalConfig.isOCSPChecksDisabled());
+
+    snowflake.configure({ disableOCSPChecks: true, ocspFailOpen: true });
+    assert.equal(GlobalConfig.getOcspMode(), GlobalConfig.ocspModes.INSECURE);
+    assert.ok(GlobalConfig.isOCSPChecksDisabled());
+  });
+
+  it('absent configure() keys persist OCSP state', function () {
+    enableOcsp(false);
+    snowflake.configure({ keepAlive: true });
+    assert.equal(GlobalConfig.getOcspMode(), GlobalConfig.ocspModes.FAIL_CLOSED);
+  });
+});
+
+describe('OCSP leftover knobs', function () {
+  beforeEach(function () {
+    stubOcspEnv();
+  });
+
+  afterEach(function () {
+    resetOcspState();
+    sinon.restore();
+  });
+
+  it('skips manual setupOcspPrivateLink when OCSP is off', function () {
+    const warn = sinon.stub(Logger.getInstance(), 'warn');
+    const connection = snowflake.createConnection({
+      username: 'user',
+      password: 'pass',
+      account: 'account',
+      host: 'acc.privatelink.snowflakecomputing.com',
+    });
+    connection.setupOcspPrivateLink('acc.privatelink.snowflakecomputing.com');
+    assert.strictEqual(process.env.SF_OCSP_RESPONSE_CACHE_SERVER_URL, undefined);
+    assert.ok(warn.called);
+    assert.match(warn.firstCall.args[0], /setupOcspPrivateLink\(\) has no effect/);
+  });
+
+  it('writes PrivateLink cache URL after OCSP is enabled', function () {
+    enableOcsp(true);
+    const connection = snowflake.createConnection({
+      username: 'user',
+      password: 'pass',
+      account: 'account',
+      host: 'acc.privatelink.snowflakecomputing.com',
+    });
+    connection.setupOcspPrivateLink('acc.privatelink.snowflakecomputing.com');
+    assert.strictEqual(
+      process.env.SF_OCSP_RESPONSE_CACHE_SERVER_URL,
+      'http://ocsp.acc.privatelink.snowflakecomputing.com/ocsp_response_cache.json',
+    );
+  });
+});
+
+describe('OCSP agent selection', function () {
+  afterEach(resetOcspState);
+
+  function createConnectionConfig(overrides) {
+    return new ConnectionConfig(
+      {
+        username: 'username',
+        password: 'password',
+        account: 'account',
+        ...overrides,
+      },
+      true,
+      false,
+      {
+        version: '0.0.0',
+        environment: {},
+      },
+    );
+  }
+
+  it('uses HttpsOcspAgent when CRL is off, regardless of OCSP on/off', function () {
+    const parsedUrl = new URL('https://fakeaccount.snowflakecomputing.com');
+    const buildAgent = () =>
+      getProxyAgent({
+        proxyOptions: null,
+        parsedUrl,
+        destination: parsedUrl.href,
+        connectionConfig: createConnectionConfig(),
+      });
+
+    // OCSP off: HttpsOcspAgent is used and no-ops internally (secureSocket
+    // returns the socket untouched when OCSP checks are disabled).
+    resetOcspState();
+    const offAgent = buildAgent();
+    assert.ok(offAgent instanceof https.Agent);
+    assert.ok(!(offAgent instanceof HttpsCrlAgent));
+    assert.notEqual(offAgent.createConnection, https.Agent.prototype.createConnection);
+
+    // OCSP on: same agent class.
+    enableOcsp(true);
+    const onAgent = buildAgent();
+    assert.ok(onAgent instanceof https.Agent);
+    assert.notEqual(onAgent.createConnection, https.Agent.prototype.createConnection);
+  });
+
+  it('keeps CRL agent when both OCSP and CRL are enabled', function () {
+    enableOcsp(true);
+    const parsedUrl = new URL('https://fakeaccount.snowflakecomputing.com');
+    const agent = getProxyAgent({
+      proxyOptions: null,
+      parsedUrl,
+      destination: parsedUrl.href,
+      connectionConfig: createConnectionConfig({ certRevocationCheckMode: 'ENABLED' }),
+    });
+    assert.ok(agent instanceof HttpsCrlAgent);
+  });
+
+  it('login OCSP_MODE is INSECURE by default and FAIL_OPEN after opt-in', function () {
+    resetOcspState();
+    const offConfig = createConnectionConfig();
+    assert.equal(offConfig.getClientEnvironment().OCSP_MODE, GlobalConfig.ocspModes.INSECURE);
+
+    enableOcsp(true);
+    const onConfig = createConnectionConfig();
+    assert.equal(onConfig.getClientEnvironment().OCSP_MODE, GlobalConfig.ocspModes.FAIL_OPEN);
+
+    enableOcsp(false);
+    const closedConfig = createConnectionConfig();
+    assert.equal(closedConfig.getClientEnvironment().OCSP_MODE, GlobalConfig.ocspModes.FAIL_CLOSED);
   });
 });

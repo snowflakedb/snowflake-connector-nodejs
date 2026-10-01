@@ -2,15 +2,27 @@
 
 ## Upcoming Release
 
-New features:
-
-- Added the `workloadIdentityHost` connection option that overrides the STS host used by the AWS Workload Identity flows, so AWS partitions unknown to the driver can be reached. The value is used as given; when not set, the STS host is derived from the AWS region (snowflakedb/snowflake-connector-nodejs#1479)
-
 Bugfixes:
 
 - Fixed concurrent S3 file transfers through a proxy failing with `socket hang up`: finishing one transfer closed the proxy connections still in use by the others (snowflakedb/snowflake-connector-nodejs#1486)
 - Fixed `GET` from S3 and Azure stages failing with `TypeError: Cannot read properties of null (reading 'encryptionMetadata')` when the file metadata request failed (e.g. a TLS handshake rejected by an HTTPS proxy) but the download itself succeeded. The `GET` now fails with the underlying error before decrypting the file (snowflakedb/snowflake-connector-nodejs#1486)
-- Fixed failed `PUT` commands reporting `Unknown Error in uploading a file` instead of the underlying storage error (snowflakedb/snowflake-connector-nodejs#1478)
+
+## 3.4.0
+
+New features:
+
+- Added the `workloadIdentityHost` connection option that overrides the STS host used by the AWS Workload Identity flows, so AWS partitions unknown to the driver can be reached. The value is used as given; when not set, the STS host is derived from the AWS region (snowflakedb/snowflake-connector-nodejs#1479)
+
+Changes:
+
+- Turned OCSP off by default and marked it as `@deprecated`. OCSP support will be removed in the next major release; use CRL validation (`certRevocationCheckMode`) as an alternative (snowflakedb/snowflake-connector-nodejs#1482, snowflakedb/snowflake-connector-nodejs#1485, snowflakedb/snowflake-connector-nodejs#1489)
+  - To keep using OCSP, call `snowflake.configure({ disableOCSPChecks: false })` or `snowflake.configure({ ocspFailOpen: true|false })`. `disableOCSPChecks: true` always turns OCSP off, even when `ocspFailOpen` is set. CRL still takes precedence when `certRevocationCheckMode` is enabled
+  - Deprecated APIs: OCSP options (`disableOCSPChecks`, `ocspFailOpen`, `useConnectionConfigProxyForOCSP`), `connection.setupOcspPrivateLink()`, `ocspModes`, and OCSP error codes
+
+Bugfixes:
+
+- Fixed failed PUT operations reporting `Unknown Error in uploading a file` instead of the underlying storage error (snowflakedb/snowflake-connector-nodejs#1478)
+- Hardened external-browser authentication: the local callback listener now binds to `127.0.0.1`, rejects requests whose `Origin` header does not match the connected Snowflake account, and ignores incomplete or unrelated requests instead of ending the login (snowflakedb/snowflake-connector-nodejs#1493)
 
 Dependencies:
 

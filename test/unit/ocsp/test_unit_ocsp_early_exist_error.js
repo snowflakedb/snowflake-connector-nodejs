@@ -1,20 +1,21 @@
-const GlobalConfig = require('../../../lib/global_config');
+const assert = require('assert');
 const SocketUtil = require('../../../lib/agent/socket_util');
 const Errors = require('../../../lib/errors');
 const ErrorCodes = Errors.codes;
-
-const assert = require('assert');
+const { resetOcspState, enableOcsp } = require('../../ocspTestState');
 
 describe('OCSP early exist error', function () {
+  afterEach(resetOcspState);
+
   it('canEarlyExitForOCSP - no error', function (done) {
     const errors = [null, null, null];
     {
-      GlobalConfig.setOcspFailOpen(true);
+      enableOcsp(true);
       const err = SocketUtil.canEarlyExitForOCSP(errors);
       assert.ok(!err);
     }
     {
-      GlobalConfig.setOcspFailOpen(false);
+      enableOcsp(false);
       const err = SocketUtil.canEarlyExitForOCSP(errors);
       assert.ok(!err);
     }
@@ -24,12 +25,12 @@ describe('OCSP early exist error', function () {
   it('canEarlyExitForOCSP - revoked', function (done) {
     const errors = [Errors.createOCSPError(ErrorCodes.ERR_OCSP_REVOKED), null];
     {
-      GlobalConfig.setOcspFailOpen(true);
+      enableOcsp(true);
       const err = SocketUtil.canEarlyExitForOCSP(errors);
       assert.equal(err.code, ErrorCodes.ERR_OCSP_REVOKED);
     }
     {
-      GlobalConfig.setOcspFailOpen(false);
+      enableOcsp(false);
       const err = SocketUtil.canEarlyExitForOCSP(errors);
       assert.equal(err.code, ErrorCodes.ERR_OCSP_REVOKED);
     }
@@ -39,13 +40,13 @@ describe('OCSP early exist error', function () {
   it('canEarlyExitForOCSP - unknown', function (done) {
     const errors = [Errors.createOCSPError(ErrorCodes.ERR_OCSP_UNKNOWN), null];
     {
-      GlobalConfig.setOcspFailOpen(true);
+      enableOcsp(true);
       // revoked
       const err = SocketUtil.canEarlyExitForOCSP(errors);
       assert.ok(!err);
     }
     {
-      GlobalConfig.setOcspFailOpen(false);
+      enableOcsp(false);
       // revoked
       const err = SocketUtil.canEarlyExitForOCSP(errors);
       assert.equal(err.code, ErrorCodes.ERR_OCSP_UNKNOWN);
@@ -60,12 +61,12 @@ describe('OCSP early exist error', function () {
       null,
     ];
     {
-      GlobalConfig.setOcspFailOpen(true);
+      enableOcsp(true);
       const err = SocketUtil.canEarlyExitForOCSP(errors);
       assert.ok(!err);
     }
     {
-      GlobalConfig.setOcspFailOpen(false);
+      enableOcsp(false);
       const err = SocketUtil.canEarlyExitForOCSP(errors);
       assert.equal(err.code, ErrorCodes.ERR_OCSP_REVOKED);
     }
@@ -78,14 +79,14 @@ describe('OCSP early exist error', function () {
       Errors.createOCSPError(ErrorCodes.ERR_OCSP_INVALID_SIGNATURE),
     ];
     {
-      GlobalConfig.setOcspFailOpen(true);
+      enableOcsp(true);
       // A signature that did not verify is a definitive result and is honored
       // even in fail-open mode.
       const err = SocketUtil.canEarlyExitForOCSP(errors);
       assert.equal(err.code, ErrorCodes.ERR_OCSP_INVALID_SIGNATURE);
     }
     {
-      GlobalConfig.setOcspFailOpen(false);
+      enableOcsp(false);
       const err = SocketUtil.canEarlyExitForOCSP(errors);
       assert.equal(err.code, ErrorCodes.ERR_OCSP_UNKNOWN);
     }
@@ -99,12 +100,12 @@ describe('OCSP early exist error', function () {
       null,
     ];
     {
-      GlobalConfig.setOcspFailOpen(true);
+      enableOcsp(true);
       const err = SocketUtil.canEarlyExitForOCSP(errors);
       assert.ok(!err);
     }
     {
-      GlobalConfig.setOcspFailOpen(false);
+      enableOcsp(false);
       const err = SocketUtil.canEarlyExitForOCSP(errors);
       assert.equal(err.code, ErrorCodes.ERR_OCSP_NO_SIGNATURE_ALGORITHM);
     }

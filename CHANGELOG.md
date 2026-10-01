@@ -2,7 +2,10 @@
 
 ## Upcoming Release
 
-- TBA
+Bugfixes:
+
+- Fixed concurrent S3 file transfers through a proxy failing with `socket hang up`: finishing one transfer closed the proxy connections still in use by the others (snowflakedb/snowflake-connector-nodejs#1486)
+- Fixed `GET` from S3 and Azure stages failing with `TypeError: Cannot read properties of null (reading 'encryptionMetadata')` when the file metadata request failed (e.g. a TLS handshake rejected by an HTTPS proxy) but the download itself succeeded. The `GET` now fails with the underlying error before decrypting the file (snowflakedb/snowflake-connector-nodejs#1486)
 
 ## 3.4.0
 

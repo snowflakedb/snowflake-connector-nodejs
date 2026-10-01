@@ -420,28 +420,29 @@ describe('S3 client', function () {
     assert.strictEqual(meta['resultStatus'], resultStatus.NEED_RETRY);
   });
 
+  const proxyOptions = {
+    host: '127.0.0.1',
+    port: 8080,
+    user: 'user',
+    password: 'password',
+    protocol: 'https',
+  };
+  const createProxyConnectionConfig = () => ({
+    accessUrl: 'http://snowflake.com',
+    getProxy: function () {
+      return proxyOptions;
+    },
+    crlValidatorConfig: {
+      checkMode: 'DISABLED',
+    },
+    agentCache: new Map(),
+  });
+
   it('proxy configured', async function () {
     s3 = mockS3({
       putObject: () => {},
     });
-    const proxyOptions = {
-      host: '127.0.0.1',
-      port: 8080,
-      user: 'user',
-      password: 'password',
-      protocol: 'https',
-    };
-    const proxyConnectionConfig = {
-      accessUrl: 'http://snowflake.com',
-      getProxy: function () {
-        return proxyOptions;
-      },
-      crlValidatorConfig: {
-        checkMode: 'DISABLED',
-      },
-      agentCache: new Map(),
-    };
-    const AWS = new SnowflakeS3Util(proxyConnectionConfig, s3);
+    const AWS = new SnowflakeS3Util(createProxyConnectionConfig(), s3);
     meta['client'] = AWS.createClient(meta['stageInfo']);
 
     const clientConfig = await meta['client'].config.requestHandler.configProvider;
@@ -457,5 +458,34 @@ describe('S3 client', function () {
     assert.equal(clientConfig.httpsAgent.options.user, proxyOptions.user);
     assert.equal(clientConfig.httpsAgent.options.password, proxyOptions.password);
     assert.equal(clientConfig.httpsAgent.options.port, proxyOptions.port);
+  });
+
+  it('proxied clients reuse the same proxy agent', async function () {
+    const AWS = new SnowflakeS3Util(createProxyConnectionConfig(), mockS3());
+    const firstClientConfig = await AWS.createClient(meta['stageInfo']).config.requestHandler
+      .configProvider;
+    const secondClientConfig = await AWS.createClient(meta['stageInfo']).config.requestHandler
+      .configProvider;
+
+    assert.equal(firstClientConfig.httpsAgent.options.host, proxyOptions.host);
+    assert.strictEqual(secondClientConfig.httpsAgent, firstClientConfig.httpsAgent);
+    assert.strictEqual(
+      await secondClientConfig.httpAgentProvider(),
+      await firstClientConfig.httpAgentProvider(),
+    );
+  });
+
+  it('destroying a proxied client keeps the shared proxy agent alive', async function () {
+    // Real @aws-sdk/client-s3, so client.destroy() goes through the SDK's handler teardown.
+    const AWS = new SnowflakeS3Util(createProxyConnectionConfig());
+    const client = AWS.createClient(meta['stageInfo']);
+    const handler = client.config.requestHandler;
+    // NodeHttpHandler resolves its config on the first request; until then destroy() has
+    // no agent to close.
+    handler.config = await handler.configProvider;
+
+    const agentDestroy = sinon.spy(handler.config.httpsAgent, 'destroy');
+    client.destroy();
+    assert.strictEqual(agentDestroy.called, false);
   });
 });

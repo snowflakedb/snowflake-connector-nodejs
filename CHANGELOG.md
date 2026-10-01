@@ -8,9 +8,9 @@ New features:
 
 Bugfixes:
 
-- Fixed concurrent S3 GET operations through an HTTPS proxy failing with `socket hang up`: `client.destroy()` was propagating to the shared proxy agent and closing all in-flight keepAlive sockets. The request handler's `destroy` is now overridden to a no-op so each client teardown only cleans up its own state (snowflakedb/snowflake-connector-nodejs#1486)
-- Fixed a `TypeError: Cannot read properties of null (reading 'encryptionMetadata')` crash when `getFileHeader` encountered an unexpected error (e.g. a TLS handshake rejection under an HTTPS proxy): the catch-else branch now throws instead of returning `null`, surfacing the real error to the caller (snowflakedb/snowflake-connector-nodejs#1486)
-- A failed PUT now reports the underlying storage error instead of `Unknown Error in uploading a file` (snowflakedb/snowflake-connector-nodejs#1478)
+- Fixed concurrent S3 file transfers through a proxy failing with `socket hang up`: finishing one transfer closed the proxy connections still in use by the others (snowflakedb/snowflake-connector-nodejs#1486)
+- Fixed `GET` from S3 and Azure stages failing with `TypeError: Cannot read properties of null (reading 'encryptionMetadata')` when the file metadata request failed (e.g. a TLS handshake rejected by an HTTPS proxy) but the download itself succeeded. The `GET` now fails with the underlying error before decrypting the file (snowflakedb/snowflake-connector-nodejs#1486)
+- Fixed failed `PUT` commands reporting `Unknown Error in uploading a file` instead of the underlying storage error (snowflakedb/snowflake-connector-nodejs#1478)
 
 Dependencies:
 

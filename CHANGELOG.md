@@ -6,6 +6,9 @@ Bugfixes:
 
 - Fixed concurrent S3 file transfers through a proxy failing with `socket hang up`: finishing one transfer closed the proxy connections still in use by the others (snowflakedb/snowflake-connector-nodejs#1486)
 - Fixed `GET` from S3 and Azure stages failing with `TypeError: Cannot read properties of null (reading 'encryptionMetadata')` when the file metadata request failed (e.g. a TLS handshake rejected by an HTTPS proxy) but the download itself succeeded. The `GET` now fails with the underlying error before decrypting the file (snowflakedb/snowflake-connector-nodejs#1486)
+- Fixed a failed `GET` of an encrypted file leaving the still-encrypted download in the local directory when the file metadata request failed (snowflakedb/snowflake-connector-nodejs#1495)
+- Fixed `PUT` failing with `Unknown error during PUT of file` after the file was uploaded, when the follow-up request checking that the file is on the stage failed (snowflakedb/snowflake-connector-nodejs#1495)
+- Fixed `GET` from GCS stages hanging forever when the connection broke while downloading the file; the download is now retried (snowflakedb/snowflake-connector-nodejs#1495)
 
 ## 3.4.0
 

@@ -6,8 +6,8 @@ Bugfixes:
 
 - Fixed concurrent S3 file transfers through a proxy failing with `socket hang up`: finishing one transfer closed the proxy connections still in use by the others (snowflakedb/snowflake-connector-nodejs#1486)
 - Fixed `GET` from S3 and Azure stages failing with `TypeError: Cannot read properties of null (reading 'encryptionMetadata')` when the file metadata request failed (e.g. a TLS handshake rejected by an HTTPS proxy) but the download itself succeeded. The `GET` now fails with the underlying error before decrypting the file (snowflakedb/snowflake-connector-nodejs#1486)
-- Fixed queries failing with `Unable to perform operation using terminated connection.` (`407002`) when the expired session could not be renewed. They now fail with the server error explaining why, e.g. `390114` when the master token expired after the connection was idle for too long
-- Fixed a late session-expired response, arriving after a failed session renewal had already closed the connection, starting another renewal on the closed connection
+- Fixed queries failing with `Unable to perform operation using terminated connection.` (`407002`) when the expired session could not be renewed. They now fail with the server error explaining why, e.g. `390114` when the master token expired after the connection was idle for too long (snowflakedb/snowflake-connector-nodejs#1496)
+- Fixed a late session-expired response, arriving after a failed session renewal had already closed the connection, starting another renewal on the closed connection (snowflakedb/snowflake-connector-nodejs#1496)
 
 ## 3.4.0
 

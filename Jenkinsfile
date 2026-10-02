@@ -43,7 +43,8 @@ timestamps {
             // TODO: upgrade this chainguard test image to the latest Node LTS
             string(name: 'TARGET_DOCKER_TEST_IMAGE', value: 'nodejs-chainguard-node18'),
             string(name: 'parent_job', value: env.JOB_NAME),
-            string(name: 'parent_build_number', value: env.BUILD_NUMBER)
+            string(name: 'parent_build_number', value: env.BUILD_NUMBER),
+            string(name: 'organization', value: "snowflake-eng")
           ]
           build job: 'RT-LanguageNodeJS-PC', parameters: params
         }
@@ -61,6 +62,12 @@ timestamps {
         }
       },
       'Test WIF Auth': {
+        stage('Build WIF Artifacts') {
+          sh '''\
+          |#!/bin/bash -e
+          |$WORKSPACE/ci/build_wif_artifacts.sh
+          '''.stripMargin()
+        }
         stage('Test WIF Auth') {
           withCredentials([
             string(credentialsId: 'sfctest0-parameters-secret', variable: 'PARAMETERS_SECRET'),

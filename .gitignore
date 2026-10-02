@@ -19,6 +19,8 @@ rsa_*.p8
 # SSH private key for WIF tests
 ci/wif/rsa_wif_aws_azure
 ci/wif/rsa_wif_gcp
+# Staged WIF e2e artifacts (built on Jenkins, not committed)
+ci/wif/artifacts/
 
 # We want CI/Devs to install latest available versions to catch issues early
 package-lock.json

@@ -8,6 +8,7 @@ on:
 jobs:
   CLAAssistant:
     runs-on: ubuntu-latest
+    if: github.repository_owner == 'snowflakedb'
     permissions:
       actions: write
       contents: write

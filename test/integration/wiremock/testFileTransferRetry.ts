@@ -20,6 +20,7 @@ import * as Util from '../../../lib/util';
 
 const AzureStorageBlob = require('@azure/storage-blob');
 
+const DRIVER_ATTEMPTS = 5;
 const FILE_NAME = 'data.csv';
 const FILE_CONTENT = 'a,b\n1,2\n';
 const STAGE_PATH = 'stage/';
@@ -130,11 +131,6 @@ const CLOUDS: CloudConfig[] = [
   },
 ];
 
-const DRIVER_ATTEMPTS = 5;
-const SERVICE_UNAVAILABLE = { status: 503 };
-const CONNECTION_RESET = { fault: 'CONNECTION_RESET_BY_PEER' };
-const BROKEN_BODY = { status: 200, fault: 'MALFORMED_RESPONSE_CHUNK' };
-
 describe('File transfer retries', () => {
   let wiremock: WireMockRestClient;
   const ports = { http: 0, https: 0 };
@@ -243,7 +239,7 @@ describe('File transfer retries', () => {
     method: string,
     {
       failures = 0,
-      failure = SERVICE_UNAVAILABLE,
+      failure = { status: 503 },
       success,
     }: {
       failures?: number;
@@ -273,7 +269,7 @@ describe('File transfer retries', () => {
   async function stubStorageAlwaysFailing(
     cloud: CloudConfig,
     method: string,
-    failure: StorageResponse = SERVICE_UNAVAILABLE,
+    failure: StorageResponse = { status: 503 },
   ) {
     await wiremock.mappings.createMapping({
       request: { method, urlPath: objectUrlPath(cloud) },
@@ -336,7 +332,7 @@ describe('File transfer retries', () => {
           await stubStorage(cloud, 'HEAD', { success: cloud.headOk });
           await stubStorage(cloud, 'GET', {
             failures: 1,
-            failure: CONNECTION_RESET,
+            failure: { fault: 'CONNECTION_RESET_BY_PEER' },
             success: cloud.getOk,
           });
 
@@ -349,7 +345,7 @@ describe('File transfer retries', () => {
           await stubStorage(cloud, 'HEAD', { success: cloud.headOk });
           await stubStorage(cloud, 'GET', {
             failures: 1,
-            failure: BROKEN_BODY,
+            failure: { status: 200, fault: 'MALFORMED_RESPONSE_CHUNK' },
             success: cloud.getOk,
           });
 
@@ -413,7 +409,7 @@ describe('File transfer retries', () => {
           await stubStorage(cloud, 'HEAD', { success: cloud.headOk });
           await stubStorage(cloud, 'PUT', {
             failures: 1,
-            failure: CONNECTION_RESET,
+            failure: { fault: 'CONNECTION_RESET_BY_PEER' },
             success: cloud.putOk,
           });
 

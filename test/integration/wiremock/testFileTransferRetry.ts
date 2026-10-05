@@ -29,6 +29,13 @@ const ENCRYPTION_MATERIAL = {
   queryId: '01c0e577-000b-aba8-0000-4c390147020a',
   smkId: '1234',
 };
+// Not real keys, so decrypting the file with them fails.
+const ENCRYPTED_KEY = 'a2V5';
+const ENCRYPTION_IV = 'aXY=';
+const AZURE_GCS_ENCRYPTION_DATA = JSON.stringify({
+  WrappedContentKey: { EncryptedKey: ENCRYPTED_KEY },
+  ContentEncryptionIV: ENCRYPTION_IV,
+});
 
 type StorageResponse = Record<string, unknown>;
 
@@ -43,6 +50,8 @@ interface CloudConfig {
   stageInfo: (ports: { http: number; https: number }) => Record<string, unknown>;
   bucket: string;
   headOk: StorageResponse;
+  /** headOk with encryption metadata that can't decrypt the file. */
+  headEncrypted: StorageResponse;
   headNotFound: StorageResponse;
   getOk: StorageResponse;
   putOk: StorageResponse;
@@ -72,6 +81,15 @@ const CLOUDS: CloudConfig[] = [
       endPoint: `127.0.0.1:${https}`,
     }),
     headOk: { status: 200, headers: { 'x-amz-meta-sfc-digest': 'digest' } },
+    headEncrypted: {
+      status: 200,
+      headers: {
+        'x-amz-meta-sfc-digest': 'digest',
+        'x-amz-meta-x-amz-key': ENCRYPTED_KEY,
+        'x-amz-meta-x-amz-iv': ENCRYPTION_IV,
+        'x-amz-meta-x-amz-matdesc': '{}',
+      },
+    },
     headNotFound: { status: 404 },
     getOk: { status: 200, body: FILE_CONTENT },
     putOk: { status: 200, headers: { ETag: '"etag"' } },
@@ -95,6 +113,15 @@ const CLOUDS: CloudConfig[] = [
     headOk: {
       status: 200,
       headers: { 'x-ms-meta-sfcdigest': 'digest', 'x-ms-blob-type': 'BlockBlob' },
+    },
+    headEncrypted: {
+      status: 200,
+      headers: {
+        'x-ms-meta-sfcdigest': 'digest',
+        'x-ms-meta-encryptiondata': AZURE_GCS_ENCRYPTION_DATA,
+        'x-ms-meta-matdesc': '{}',
+        'x-ms-blob-type': 'BlockBlob',
+      },
     },
     headNotFound: { status: 404 },
     getOk: {
@@ -125,6 +152,14 @@ const CLOUDS: CloudConfig[] = [
       endPoint: `http://127.0.0.1:${http}`,
     }),
     headOk: { status: 200, headers: { 'x-goog-meta-sfc-digest': 'digest' } },
+    headEncrypted: {
+      status: 200,
+      headers: {
+        'x-goog-meta-sfc-digest': 'digest',
+        'x-goog-meta-encryptiondata': AZURE_GCS_ENCRYPTION_DATA,
+        'x-goog-meta-matdesc': '{}',
+      },
+    },
     headNotFound: { status: 404 },
     getOk: { status: 200, body: FILE_CONTENT },
     putOk: { status: 200 },
@@ -387,9 +422,30 @@ describe('File transfer retries', () => {
 
           const row = await runGet();
           assert.strictEqual(row.status, 'ERROR');
-          assert.doesNotMatch(String(row.message), /encryptionMetadata/);
+          assert.match(String(row.message), /Failed to get the file header.*\(HTTP 500\)/);
           assert.strictEqual(fs.existsSync(path.join(localDir, FILE_NAME)), false);
           assert.strictEqual(await countStorageRequests(cloud, 'HEAD'), cloud.sdkAttempts);
+        });
+
+        it('reports an encrypted file without encryption metadata instead of decrypting it', async () => {
+          await stubGetCommand(cloud, { encrypted: true });
+          await stubStorage(cloud, 'HEAD', { success: cloud.headOk });
+          await stubStorage(cloud, 'GET', { success: cloud.getOk });
+
+          const row = await runGet();
+          assert.strictEqual(row.status, 'ERROR');
+          assert.match(String(row.message), /has no encryption metadata/);
+          assert.strictEqual(fs.existsSync(path.join(localDir, FILE_NAME)), false);
+        });
+
+        it('removes the encrypted download when decrypting it fails', async () => {
+          await stubGetCommand(cloud, { encrypted: true });
+          await stubStorage(cloud, 'HEAD', { success: cloud.headEncrypted });
+          await stubStorage(cloud, 'GET', { success: cloud.getOk });
+
+          const row = await runGet();
+          assert.strictEqual(row.status, 'ERROR');
+          assert.strictEqual(fs.existsSync(path.join(localDir, FILE_NAME)), false);
         });
       });
 

@@ -20,14 +20,15 @@ describe('RemoteStorageUtil', () => {
       fs.rmSync(localLocation, { recursive: true, force: true });
     });
 
-    it('surfaces the file header error when decrypting a downloaded file', async () => {
-      const headerError = new Error(
-        'Client network socket disconnected before secure TLS connection',
-      );
-      const getObject = sinon.stub().resolves({
-        $metadata: { httpStatusCode: 200 },
-        Body: { transformToByteArray: async () => Buffer.from('mock') },
-      });
+    const headerError = new Error(
+      'Client network socket disconnected before secure TLS connection',
+    );
+    const downloadOk = {
+      $metadata: { httpStatusCode: 200 },
+      Body: { transformToByteArray: async () => Buffer.from('mock') },
+    };
+
+    function downloadEncryptedFile(getObject: sinon.SinonStub) {
       const s3 = {
         S3: function () {
           return { headObject: sinon.stub().rejects(headerError), getObject, destroy: () => {} };
@@ -37,17 +38,36 @@ describe('RemoteStorageUtil', () => {
       sinon
         .stub(remoteStorageUtil, 'getForStorageType')
         .returns(new S3Util({ getProxy: () => null }, s3));
-      const meta = {
+      return remoteStorageUtil.downloadOneFile({
         stageInfo: { locationType: 'S3', location: 'bucket/path', creds: {} },
         srcFileName: 'file.csv.gz',
         dstFileName: 'file.csv.gz',
         localLocation,
         encryptionMaterial: { queryStageMasterKey: 'key', queryId: 'queryId', smkId: '1' },
         parallel: 1,
-      };
+        noSleepingTime: true,
+      });
+    }
 
-      await assert.rejects(remoteStorageUtil.downloadOneFile(meta), headerError);
+    function isHeaderError(err: Error) {
+      return err.cause === headerError && err.message.includes(headerError.message);
+    }
+
+    it('surfaces the file header error when decrypting a downloaded file', async () => {
+      const getObject = sinon.stub().resolves(downloadOk);
+
+      await assert.rejects(downloadEncryptedFile(getObject), isHeaderError);
       assert.strictEqual(getObject.calledOnce, true);
+      assert.strictEqual(fs.existsSync(path.join(localLocation, 'file.csv.gz')), false);
+    });
+
+    it('surfaces the file header error, not the error of a retried download', async () => {
+      const getObject = sinon.stub();
+      getObject.onFirstCall().rejects(new Error('download failed'));
+      getObject.onSecondCall().resolves(downloadOk);
+
+      await assert.rejects(downloadEncryptedFile(getObject), isHeaderError);
+      assert.strictEqual(getObject.calledTwice, true);
     });
   });
 });

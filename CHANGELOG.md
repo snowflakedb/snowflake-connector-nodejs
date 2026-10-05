@@ -9,6 +9,8 @@ Bugfixes:
 - Fixed a failed `GET` of an encrypted file leaving the still-encrypted download in the local directory when the file metadata request failed (snowflakedb/snowflake-connector-nodejs#1495)
 - Fixed `PUT` failing with `Unknown error during PUT of file` after the file was uploaded, when the follow-up request checking that the file is on the stage failed (snowflakedb/snowflake-connector-nodejs#1495)
 - Fixed `GET` from GCS stages hanging forever when the connection broke while downloading the file; the download is now retried (snowflakedb/snowflake-connector-nodejs#1495)
+- Fixed queries failing with `Unable to perform operation using terminated connection.` (`407002`) when the expired session could not be renewed. They now fail with the server error explaining why, e.g. `390114` when the master token expired after the connection was idle for too long (snowflakedb/snowflake-connector-nodejs#1496)
+- Fixed a late session-expired response, arriving after a failed session renewal had already closed the connection, starting another renewal on the closed connection (snowflakedb/snowflake-connector-nodejs#1496)
 
 ## 3.4.0
 

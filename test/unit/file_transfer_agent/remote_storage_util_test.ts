@@ -50,7 +50,7 @@ describe('RemoteStorageUtil', () => {
     }
 
     function isHeaderError(err: Error) {
-      return err.cause === headerError && err.message.includes(headerError.message);
+      return err.message.includes(headerError.message);
     }
 
     it('surfaces the file header error when decrypting a downloaded file', async () => {

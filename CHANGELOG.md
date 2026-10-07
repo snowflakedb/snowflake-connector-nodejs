@@ -2,6 +2,10 @@
 
 ## Upcoming Release
 
+Test:
+
+- Testing copybara
+
 Bugfixes:
 
 - Fixed concurrent S3 file transfers through a proxy failing with `socket hang up`: finishing one transfer closed the proxy connections still in use by the others (snowflakedb/snowflake-connector-nodejs#1486)

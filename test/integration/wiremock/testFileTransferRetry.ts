@@ -39,6 +39,13 @@ const AZURE_GCS_ENCRYPTION_DATA = JSON.stringify({
 
 type StorageResponse = Record<string, unknown>;
 
+/** An error body that is not XML, like one from a proxy in front of the storage endpoint. */
+const PLAINTEXT_ERROR: StorageResponse = {
+  status: 502,
+  headers: { 'Content-Type': 'text/plain' },
+  body: 'write tcp 10.0.0.1:41234->10.0.0.2:443: write: broken pipe',
+};
+
 interface CloudConfig {
   name: 'S3' | 'AZURE' | 'GCS';
   /** Storage tries per driver attempt; GCS has no SDK, so 1. */
@@ -409,6 +416,7 @@ describe('File transfer retries', () => {
 
           const row = await runGet();
           assert.strictEqual(row.status, 'ERROR');
+          assert.match(String(row.message), /\(HTTP 503\)/);
           assert.strictEqual(
             await countStorageRequests(cloud, 'GET'),
             cloud.sdkAttempts * DRIVER_ATTEMPTS,
@@ -447,6 +455,18 @@ describe('File transfer retries', () => {
           assert.strictEqual(row.status, 'ERROR');
           assert.strictEqual(fs.existsSync(path.join(localDir, FILE_NAME)), false);
         });
+
+        if (cloud.name === 'S3') {
+          it('reports the HTTP status when the error body is not XML', async () => {
+            await stubGetCommand(cloud, { encrypted: false });
+            await stubStorage(cloud, 'HEAD', { success: cloud.headOk });
+            await stubStorageAlwaysFailing(cloud, 'GET', PLAINTEXT_ERROR);
+
+            const row = await runGet();
+            assert.strictEqual(row.status, 'ERROR');
+            assert.match(String(row.message), /\(HTTP 502\)/);
+          });
+        }
       });
 
       describe('PUT', () => {
@@ -501,12 +521,35 @@ describe('File transfer retries', () => {
           await stubStorage(cloud, 'HEAD', { success: cloud.headOk });
           await stubStorageAlwaysFailing(cloud, 'PUT');
 
-          await assert.rejects(runPut());
+          await assert.rejects(runPut(), /\(HTTP 503\)/);
           assert.strictEqual(
             await countStorageRequests(cloud, 'PUT'),
             cloud.filePutSdkAttempts * DRIVER_ATTEMPTS,
           );
         });
+
+        it('reports the HTTP status when a fileStream upload gives up', async () => {
+          await stubPutCommand(cloud, { overwrite: true, fromFileStream: true });
+          await stubStorage(cloud, 'HEAD', { success: cloud.headOk });
+          await stubStorageAlwaysFailing(cloud, 'PUT');
+
+          await assert.rejects(
+            testUtil.executeCmdAsync(await connect(), `PUT file://${FILE_NAME} @~`, {
+              fileStream: Buffer.from(FILE_CONTENT),
+            }),
+            /\(HTTP 503\)/,
+          );
+        });
+
+        if (cloud.name === 'S3') {
+          it('reports the HTTP status when the error body is not XML', async () => {
+            await stubPutCommand(cloud, { overwrite: true });
+            await stubStorage(cloud, 'HEAD', { success: cloud.headOk });
+            await stubStorageAlwaysFailing(cloud, 'PUT', PLAINTEXT_ERROR);
+
+            await assert.rejects(runPut(), /\(HTTP 502\)/);
+          });
+        }
 
         it('gives up when the file header check keeps failing', async () => {
           await stubPutCommand(cloud, { overwrite: false });

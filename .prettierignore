@@ -1,1 +1,7 @@
 lib/minicore/rust_minicore/target/
+
+# Copybara Auto-Generated Files
+ci/mirroring/
+.github/workflows/close-imported-pr.yml
+.github/workflows/mirror-inbound.yml
+.github/workflows/mirror.yml

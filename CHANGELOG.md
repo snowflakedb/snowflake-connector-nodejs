@@ -2,6 +2,10 @@
 
 ## Upcoming Release
 
+- TBA
+
+## 3.4.1
+
 Changes:
 
 - `PUT` and `GET` errors from S3, Azure, and GCS stages now include the HTTP status of the failed storage request, e.g. `(HTTP 502)`. This helps when the storage response could not be read, such as an S3 `Deserialization error` caused by a proxy returning a plain-text error
